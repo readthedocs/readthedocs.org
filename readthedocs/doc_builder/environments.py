@@ -991,7 +991,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 },
             }
 
-        binds.update(getattr(settings, 'RTD_DOCKER_ADDITIONAL_BINDS', {}))
+        binds.update(settings.RTD_DOCKER_ADDITIONAL_BINDS)
 
         return binds
 

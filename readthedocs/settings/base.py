@@ -488,7 +488,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
         'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
-    # additional binds for the build container
+    # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
     def _get_docker_memory_limit(self):
