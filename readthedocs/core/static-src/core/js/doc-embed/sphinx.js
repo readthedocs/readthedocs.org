@@ -19,8 +19,8 @@ function init() {
         if (typeof gtag !== 'undefined') {
             // https://developers.google.com/analytics/devguides/collection/gtagjs/events
             gtag('event', 'Click', {
-                'event_category' : 'Flyout',
-                'event_label' : flyout_state,
+                'event_category': 'Flyout',
+                'event_label': flyout_state,
                 'send_to': 'rtfd'
             });
         } else if (typeof ga !== 'undefined') {
