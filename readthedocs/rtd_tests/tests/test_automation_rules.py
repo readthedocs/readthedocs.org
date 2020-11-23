@@ -20,6 +20,7 @@ from readthedocs.projects.models import Project
 
 
 @pytest.mark.django_db
+@mock.patch('readthedocs.builds.automation_actions.trigger_build')
 class TestRegexAutomationRules:
 
     @pytest.fixture(autouse=True)
@@ -74,7 +75,8 @@ class TestRegexAutomationRules:
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
     def test_match(
-            self, version_name, regex, result, version_type):
+        self, trigger_build, version_name, regex, result, version_type,
+    ):
         version = get(
             Version,
             verbose_name=version_name,
@@ -108,7 +110,7 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_predefined_match_all_versions(self, version_name, result, version_type):
+    def test_predefined_match_all_versions(self, trigger_build, version_name, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -144,7 +146,7 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_predefined_match_semver_versions(self, version_name, result, version_type):
+    def test_predefined_match_semver_versions(self, trigger_build, version_name, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -163,7 +165,6 @@ class TestRegexAutomationRules:
         )
         assert rule.run(version) is result
 
-    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_action_activation(self, trigger_build):
         version = get(
             Version,
@@ -185,7 +186,7 @@ class TestRegexAutomationRules:
         trigger_build.assert_called_once()
 
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_action_delete_version(self, version_type):
+    def test_action_delete_version(self, trigger_build, version_type):
         slug = 'delete-me'
         version = get(
             Version,
@@ -207,7 +208,7 @@ class TestRegexAutomationRules:
         assert not self.project.versions.filter(slug=slug).exists()
 
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_action_delete_version_on_default_version(self, version_type):
+    def test_action_delete_version_on_default_version(self, trigger_build, version_type):
         slug = 'delete-me'
         version = get(
             Version,
@@ -231,7 +232,7 @@ class TestRegexAutomationRules:
         assert rule.run(version) is True
         assert self.project.versions.filter(slug=slug).exists()
 
-    def test_action_set_default_version(self):
+    def test_action_set_default_version(self, trigger_build):
         version = get(
             Version,
             verbose_name='v2',
@@ -251,7 +252,6 @@ class TestRegexAutomationRules:
         assert rule.run(version) is True
         assert self.project.get_default_version() == version.slug
 
-    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_version_hide_action(self, trigger_build):
         version = get(
             Version,
@@ -274,7 +274,6 @@ class TestRegexAutomationRules:
         assert version.hidden is True
         trigger_build.assert_called_once()
 
-    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_version_make_public_action(self, trigger_build):
         version = get(
             Version,
@@ -297,7 +296,6 @@ class TestRegexAutomationRules:
         assert version.privacy_level == PUBLIC
         trigger_build.assert_not_called()
 
-    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_version_make_private_action(self, trigger_build):
         version = get(
             Version,
