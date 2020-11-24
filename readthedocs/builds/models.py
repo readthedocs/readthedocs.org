@@ -638,6 +638,7 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
 
     # Metadata from were the build happened.
+    # This is also used after the version is deleted.
     commit = models.CharField(
         _('Commit'),
         max_length=255,
