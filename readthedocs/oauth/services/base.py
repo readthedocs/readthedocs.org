@@ -202,7 +202,7 @@ class Service:
         all_remote_repositories = remote_repositories + remote_repositories_organizations
         repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
         (
-            self.user.remote_relations
+            self.user.remote_repository_relations
             .exclude(
                 Q(remoterepository__full_name__in=repository_full_names) |
                 Q(remoterepository__project__isnull=False)

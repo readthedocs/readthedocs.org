@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                             'user',
                             models.ForeignKey(
                                 on_delete=django.db.models.deletion.CASCADE,
-                                related_name='remote_relations',
+                                related_name='remote_repository_relations',
                                 to=settings.AUTH_USER_MODEL
                             ),
                         ),
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                             'remoterepository',
                             models.ForeignKey(
                                 on_delete=django.db.models.deletion.CASCADE,
-                                related_name='remote_relations',
+                                related_name='remote_repository_relations',
                                 to='oauth.RemoteRepository'
                             ),
                         ),
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='remote_relations',
+                related_name='remote_repository_relations',
                 to='socialaccount.SocialAccount',
                 verbose_name='Connected account'
             ),

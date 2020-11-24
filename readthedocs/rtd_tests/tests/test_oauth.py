@@ -970,7 +970,7 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
-        self.assertTrue(repo.remote_relations.first().admin)
+        self.assertTrue(repo.remote_repository_relations.first().admin)
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):

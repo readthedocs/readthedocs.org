@@ -10,10 +10,10 @@ from django.utils import timezone
 log = logging.getLogger(__name__)
 
 
-def move_data_to_remote_relations(apps, schema_editor):
+def move_data_to_remote_repository_relations(apps, schema_editor):
     RemoteRepositoryRelation = apps.get_model('oauth', 'RemoteRepositoryRelation')
 
-    def remote_relations_generator(relations, batch_size):
+    def remote_repository_relations_generator(relations, batch_size):
         for relation in relations.iterator(chunk_size=batch_size):
             relation.account_id = relation.remoterepository.account_id
             relation.admin = relation.remoterepository.admin
@@ -42,14 +42,14 @@ def move_data_to_remote_relations(apps, schema_editor):
     )
 
     batch_size = 1000
-    remote_relations = remote_relations_generator(
+    remote_repository_relations = remote_repository_relations_generator(
         relations_queryset, batch_size
     )
 
     # Follows Example from django docs
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#bulk-create
     while True:
-        batch = list(islice(remote_relations, batch_size))
+        batch = list(islice(remote_repository_relations, batch_size))
 
         if not batch:
             break
@@ -72,5 +72,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(move_data_to_remote_relations),
+        migrations.RunPython(move_data_to_remote_repository_relations),
     ]
