@@ -98,7 +98,8 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount
         )
 
-        # RemoteRepository linked to a Project shouldn't be removed
+        # RemoteRepositoryRelation with RemoteRepository
+        # linked to a Project should also be removed
         project = fixture.get(Project)
         repo_3 = fixture.get(
             RemoteRepository,
@@ -129,7 +130,7 @@ class GitHubOAuthSyncTests(TestCase):
         # project-linked-repository remote relation should be conserved,
         # and only the one's returned by the API should be present (organization/repository)
         self.assertEqual(RemoteRepository.objects.count(), 3)
-        self.assertEqual(RemoteRepositoryRelation.objects.count(), 2)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/repository').exists())
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/project-linked-repository').exists())
         self.assertEqual(RemoteOrganization.objects.count(), 0)
