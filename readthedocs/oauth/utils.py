@@ -32,7 +32,8 @@ def update_webhook(project, integration, request=None):
     updated = False
     try:
         remote_relations = project.remote_repository.remote_relations.filter(
-            account__isnull=False
+            account__isnull=False,
+            user=request.user
         ).select_related('account')
 
         for relation in remote_relations:
