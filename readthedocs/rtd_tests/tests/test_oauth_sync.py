@@ -120,14 +120,16 @@ class GitHubOAuthSyncTests(TestCase):
         )
 
         self.assertEqual(RemoteRepository.objects.count(), 3)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 3)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
 
         self.service.sync()
 
-        # After calling .sync, old-repository should be deleted,
-        # project-linked-repository should be conserved, and only the one
-        # returned by the API should be present (organization/repository)
-        self.assertEqual(RemoteRepository.objects.count(), 2)
+        # After calling .sync, old-repository remote relation should be deleted,
+        # project-linked-repository remote relation should be conserved,
+        # and only the one's returned by the API should be present (organization/repository)
+        self.assertEqual(RemoteRepository.objects.count(), 3)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 2)
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/repository').exists())
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/project-linked-repository').exists())
         self.assertEqual(RemoteOrganization.objects.count(), 0)
