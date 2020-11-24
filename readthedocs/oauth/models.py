@@ -212,18 +212,18 @@ class RemoteRepository(models.Model):
 class RemoteRepositoryRelation(TimeStampedModel):
     remoterepository = models.ForeignKey(
         RemoteRepository,
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
         User,
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     account = models.ForeignKey(
         SocialAccount,
         verbose_name=_('Connected account'),
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
