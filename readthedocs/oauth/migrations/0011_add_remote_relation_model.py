@@ -64,10 +64,6 @@ class Migration(migrations.Migration):
                         verbose_name='Users'
                     ),
                 ),
-                migrations.AlterUniqueTogether(
-                    name='remoterepositoryrelation',
-                    unique_together={('remoterepository', 'user')},
-                ),
             ],
         ),
         migrations.AddField(
@@ -76,11 +72,15 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
+                on_delete=django.db.models.deletion.CASCADE,
                 related_name='remote_repository_relations',
                 to='socialaccount.SocialAccount',
                 verbose_name='Connected account'
             ),
+        ),
+        migrations.AlterUniqueTogether(
+            name='remoterepositoryrelation',
+            unique_together={('remoterepository', 'account')},
         ),
         migrations.AddField(
             model_name='remoterepositoryrelation',

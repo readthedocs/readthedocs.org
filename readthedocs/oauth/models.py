@@ -220,13 +220,13 @@ class RemoteRepositoryRelation(TimeStampedModel):
         related_name='remote_repository_relations',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
     json = JSONField(_('Serialized API response'))
 
     class Meta:
-        unique_together = (('remoterepository', 'user'),)
+        unique_together = (('remoterepository', 'account'),)
 
     def get_serialized(self, key=None, default=None):
         try:
