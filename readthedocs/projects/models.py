@@ -1754,7 +1754,7 @@ class Feature(models.Model):
     # at the database level on this field. Arbitrary values are allowed here.
     feature_id = models.CharField(
         _('Feature identifier'),
-        max_length=32,
+        max_length=255,
         unique=True,
     )
     add_date = models.DateTimeField(
