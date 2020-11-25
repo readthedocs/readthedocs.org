@@ -114,7 +114,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
                 }
             )
             return self._absolute_url(path)
-        return ""
+        return ''
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
