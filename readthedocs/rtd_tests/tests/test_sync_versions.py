@@ -19,6 +19,7 @@ from readthedocs.projects.models import Project
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -797,6 +798,7 @@ class TestSyncVersions(TestCase):
             {'0.8', '0.8.1'},
         )
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_activate_version(self):
         version_post_data = {
             'tags': [
@@ -828,6 +830,7 @@ class TestSyncVersions(TestCase):
         new_tag = self.pip.versions.get(verbose_name='new_tag')
         self.assertTrue(new_tag.active)
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_set_default_version(self):
         version_post_data = {
             'tags': [
@@ -923,6 +926,7 @@ class TestSyncVersions(TestCase):
         self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -1432,6 +1436,7 @@ class TestStableVersion(TestCase):
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 

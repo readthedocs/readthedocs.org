@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0066_make_imported_file_slug_nullable'),
+        ('projects', '0067_change_max_length_feature_id'),
     ]
 
     operations = [

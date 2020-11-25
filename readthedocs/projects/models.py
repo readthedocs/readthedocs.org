@@ -1567,8 +1567,14 @@ class Feature(models.Model):
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
+    INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
+
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1577,8 +1583,6 @@ class Feature(models.Model):
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
@@ -1666,6 +1670,8 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
+
+        # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
             _('Disable server side search'),
@@ -1674,6 +1680,22 @@ class Feature(models.Model):
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _('Enable server side search for MkDocs projects'),
         ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
+        ),
+        (
+            INDEX_FROM_HTML_FILES,
+            _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
+            _(
+                'When searching subprojects default to its default version if it doesn\'t '
+                'have the same version as the main project'
+            ),
+        ),
+
         (
             FORCE_SPHINX_FROM_VENV,
             _('Force to use Sphinx from the current virtual environment'),
@@ -1710,14 +1732,6 @@ class Feature(models.Model):
             _('Use latest version of the Read the Docs Sphinx extension'),
         ),
         (
-            DEFAULT_TO_FUZZY_SEARCH,
-            _('Default to fuzzy search for simple search queries'),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _('Index content directly from html files instead or relying in other sources'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
         ),
@@ -1739,7 +1753,7 @@ class Feature(models.Model):
     # at the database level on this field. Arbitrary values are allowed here.
     feature_id = models.CharField(
         _('Feature identifier'),
-        max_length=32,
+        max_length=255,
         unique=True,
     )
     add_date = models.DateTimeField(

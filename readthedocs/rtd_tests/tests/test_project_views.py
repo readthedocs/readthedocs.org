@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest import mock
 
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
@@ -9,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from unittest import mock
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
@@ -19,16 +19,12 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
-from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.projects.views.private import ImportWizardView
-from readthedocs.rtd_tests.base import (
-    MockBuildTestCase,
-    RequestFactoryTestMixin,
-    WizardTestCase,
-)
+from readthedocs.projects.views.public import ProjectBadgeView
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 
-@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -85,7 +81,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp['location'], '/')
 
 
-@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -168,7 +164,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertWizardFailure(resp, 'repo_type')
 
 
-@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
@@ -278,7 +274,8 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertTrue(self.user.profile.banned)
 
 
-class TestImportDemoView(MockBuildTestCase):
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
+class TestImportDemoView(TestCase):
     """Test project import demo view."""
 
     fixtures = ['test_data', 'eric']
@@ -391,7 +388,8 @@ class TestImportDemoView(MockBuildTestCase):
         )
 
 
-class TestPublicViews(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPublicViews(TestCase):
     def setUp(self):
         self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
         self.external_version = get(
@@ -424,7 +422,8 @@ class TestPublicViews(MockBuildTestCase):
         self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
-class TestPrivateViews(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPrivateViews(TestCase):
     def setUp(self):
         self.user = new(User, username='eric')
         self.user.set_password('test')
@@ -518,7 +517,9 @@ class TestPrivateViews(MockBuildTestCase):
         attach_webhook.assert_not_called()
 
 
-class TestPrivateMixins(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+class TestPrivateMixins(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')
