@@ -54,7 +54,7 @@ $(document).ready(function () {
         </li>
       {% endif %}
 
-      <div data-bind="visible: finished() && success()">
+      <div data-bind="visible: finished() && success() && docs_url">
         <li>
           <a data-bind="attr: {href: docs_url}">
             {% trans "View docs" %}
