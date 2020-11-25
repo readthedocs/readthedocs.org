@@ -26,9 +26,4 @@ class Migration(migrations.Migration):
             name='version_type',
             field=models.CharField(blank=True, choices=[('branch', 'Branch'), ('tag', 'Tag'), ('external', 'External'), ('unknown', 'Unknown')], max_length=32, null=True, verbose_name='Version type'),
         ),
-        migrations.AlterField(
-            model_name='build',
-            name='version',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='builds', to='builds.Version', verbose_name='Version'),
-        ),
     ]
