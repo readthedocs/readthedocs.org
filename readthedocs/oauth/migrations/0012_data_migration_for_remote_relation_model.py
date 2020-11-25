@@ -42,6 +42,7 @@ def move_data_to_remote_repository_relations(apps, schema_editor):
     )
 
     batch_size = 1000
+
     remote_repository_relations = remote_repository_relations_generator(
         relations_queryset, batch_size
     )

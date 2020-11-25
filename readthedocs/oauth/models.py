@@ -162,6 +162,12 @@ class RemoteRepository(models.Model):
         blank=True,
         choices=REPO_CHOICES,
     )
+    default_branch = models.CharField(
+        _('Default branch of the repository'),
+        max_length=150,
+        null=True,
+        blank=True,
+    )
 
     json = models.TextField(_('Serialized API response'))
 

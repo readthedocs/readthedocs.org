@@ -11,6 +11,7 @@ from elasticsearch_dsl.query import (
     MultiMatch,
     Nested,
     SimpleQueryString,
+    Term,
     Wildcard,
 )
 
@@ -28,6 +29,9 @@ class RTDFacetedSearch(FacetedSearch):
 
     operators = []
 
+    # Sources to be excluded from results.
+    excludes = []
+
     _highlight_options = {
         'encoder': 'html',
         'number_of_fragments': 1,
@@ -35,12 +39,23 @@ class RTDFacetedSearch(FacetedSearch):
         'post_tags': ['</span>'],
     }
 
-    def __init__(self, query=None, filters=None, user=None, use_advanced_query=True, **kwargs):
+    def __init__(
+            self,
+            query=None,
+            filters=None,
+            projects=None,
+            user=None,
+            use_advanced_query=True,
+            **kwargs,
+    ):
         """
         Pass in a user in order to filter search results by privacy.
 
-        If `use_advanced_query` is `True`,
-        force to always use `SimpleQueryString` for the text query object.
+        :param projects: A dictionary of project slugs mapped to a `VersionData` object.
+        Results are filter with these values.
+
+        :param use_advanced_query: If `True` forces to always use
+        `SimpleQueryString` for the text query object.
 
         .. warning::
 
@@ -50,6 +65,7 @@ class RTDFacetedSearch(FacetedSearch):
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', True)
         self.use_advanced_query = use_advanced_query
+        self.projects = projects or {}
 
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
@@ -201,7 +217,7 @@ class RTDFacetedSearch(FacetedSearch):
         * Adds HTML encoding of results to avoid XSS issues.
         """
         search = search.highlight_options(**self._highlight_options)
-        search = search.source(exclude=['content', 'headers'])
+        search = search.source(excludes=self.excludes)
 
         queries = self._get_queries(
             query=query,
@@ -220,6 +236,7 @@ class ProjectSearchBase(RTDFacetedSearch):
     index = ProjectDocument._index._name
     fields = ('name^10', 'slug^5', 'description')
     operators = ['and', 'or']
+    excludes = ['users', 'language']
 
 
 class PageSearchBase(RTDFacetedSearch):
@@ -248,6 +265,8 @@ class PageSearchBase(RTDFacetedSearch):
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
+    excludes = ['rank', 'sections', 'domains', 'commit', 'build']
+
     def total_count(self):
         """Returns the total count of results of the current query."""
         s = self.build_search()
@@ -259,8 +278,14 @@ class PageSearchBase(RTDFacetedSearch):
         return s.hits.total
 
     def query(self, search, query):
-        """Manipulates the query to support nested queries and a custom rank for pages."""
+        """
+        Manipulates the query to support nested queries and a custom rank for pages.
+
+        If `self.projects` was given, we use it to filter the documents that
+        match the same project and version.
+        """
         search = search.highlight_options(**self._highlight_options)
+        search = search.source(excludes=self.excludes)
 
         queries = self._get_queries(
             query=query,
@@ -280,8 +305,22 @@ class PageSearchBase(RTDFacetedSearch):
         )
 
         queries.extend([sections_nested_query, domains_nested_query])
+        bool_query = Bool(should=queries)
+
+        if self.projects:
+            versions_query = [
+                Bool(
+                    must=[
+                        Term(project={'value': project}),
+                        Term(version={'value': version}),
+                    ]
+                )
+                for project, version in self.projects.items()
+            ]
+            bool_query = Bool(must=[bool_query, Bool(should=versions_query)])
+
         final_query = FunctionScore(
-            query=Bool(should=queries),
+            query=bool_query,
             script_score=self._get_script_score(),
         )
         search = search.query(final_query)

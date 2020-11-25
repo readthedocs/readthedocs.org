@@ -186,6 +186,7 @@ class GitLabService(Service):
             repo.html_url = fields['web_url']
             repo.vcs = 'git'
             repo.private = not repo_is_public
+            repo.default_branch = fields.get('default_branch')
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (

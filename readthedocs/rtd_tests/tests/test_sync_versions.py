@@ -1,8 +1,11 @@
 import json
 from unittest import mock
 
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
@@ -10,15 +13,33 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.organizations.models import Organization, OrganizationOwner
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',
@@ -777,6 +798,7 @@ class TestSyncVersions(TestCase):
             {'0.8', '0.8.1'},
         )
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_activate_version(self):
         version_post_data = {
             'tags': [
@@ -808,6 +830,7 @@ class TestSyncVersions(TestCase):
         new_tag = self.pip.versions.get(verbose_name='new_tag')
         self.assertTrue(new_tag.active)
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_set_default_version(self):
         version_post_data = {
             'tags': [
@@ -902,12 +925,28 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
 
     def test_stable_versions(self):
         version_post_data = {
@@ -1396,12 +1435,28 @@ class TestStableVersion(TestCase):
         self.assertFalse(other_stable.exists())
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',

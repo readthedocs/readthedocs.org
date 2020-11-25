@@ -128,6 +128,7 @@ class GitHubService(Service):
             repo.private = fields['private']
             repo.vcs = 'git'
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            repo.default_branch = fields.get('default_branch')
 
             if repo.private:
                 repo.clone_url = fields['ssh_url']
