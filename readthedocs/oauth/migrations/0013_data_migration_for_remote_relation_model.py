@@ -68,7 +68,7 @@ def move_data_to_remote_repository_relations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oauth', '0011_add_remote_relation_model'),
+        ('oauth', '0012_add_remote_relation_model'),
     ]
 
     operations = [

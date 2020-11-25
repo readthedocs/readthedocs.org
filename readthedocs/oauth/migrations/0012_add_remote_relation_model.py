@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth', '0010_index_full_name'),
+        ('oauth', '0011_add_default_branch'),
     ]
 
     operations = [
