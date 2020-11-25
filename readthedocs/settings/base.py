@@ -134,9 +134,14 @@ class CommunityBaseSettings(Settings):
             'django.contrib.contenttypes',
             'django.contrib.sessions',
             'django.contrib.sites',
-            'django.contrib.staticfiles',
             'django.contrib.messages',
             'django.contrib.humanize',
+
+            # readthedocs.core app needs to be before
+            # django.contrib.staticfiles to use our custom collectstatic
+            # command
+            'readthedocs.core',
+            'django.contrib.staticfiles',
 
             # third party apps
             'dj_pagination',
@@ -158,7 +163,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.projects',
             'readthedocs.organizations',
             'readthedocs.builds',
-            'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
             'readthedocs.redirects',
