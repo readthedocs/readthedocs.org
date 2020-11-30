@@ -352,14 +352,17 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version]
+        setuptools_version = self.project.get_feature_value(
+            Feature.INSTALL_LATEST_SETUPTOOLS,
+            positive='setuptools',
+            negative='setuptools==41.0.1',
+        )
+        cmd = pip_install_cmd + [pip_version, setuptools_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            'Pygments==2.3.1',
-            'setuptools==41.0.1',
             self.project.get_feature_value(
                 Feature.DONT_INSTALL_DOCUTILS,
                 positive='',

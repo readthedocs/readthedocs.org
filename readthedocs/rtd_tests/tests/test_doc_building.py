@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Things to know:
 
@@ -1192,8 +1191,6 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments',
-            'setuptools',
             'docutils',
             'mock',
             'pillow',
