@@ -16,5 +16,5 @@ def test_yaml_load_safely():
     ''')
     data = yaml_load_safely(content)
     assert data == expected
-    assert type(data['int']) == int
-    assert type(data['float']) == float
+    assert type(data['int']) is int
+    assert type(data['float']) is float

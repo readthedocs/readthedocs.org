@@ -17,6 +17,12 @@ try:
 except ImportError:
     ext = False
 
+try:
+    import readthedocsext.theme  # noqa
+    ext_theme = True
+except ImportError:
+    ext_theme = False
+
 
 _ = gettext = lambda s: s
 log = logging.getLogger(__name__)
@@ -104,6 +110,7 @@ class CommunityBaseSettings(Settings):
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
 
     USER_MATURITY_DAYS = 7
 
@@ -111,6 +118,12 @@ class CommunityBaseSettings(Settings):
     CLASS_OVERRIDES = {}
 
     DOC_PATH_PREFIX = '_/'
+
+    @property
+    def RTD_EXT_THEME_ENABLED(self):
+        return ext_theme and 'RTD_EXT_THEME_ENABLED' in os.environ
+
+    RTD_EXT_THEME_DEV_SERVER = None
 
     # Application classes
     @property
@@ -176,7 +189,21 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
+        if self.RTD_EXT_THEME_ENABLED:
+            apps.append('readthedocsext.theme')
         return apps
+
+    @property
+    def CRISPY_TEMPLATE_PACK(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return 'semantic-ui'
+        return 'bootstrap'
+
+    @property
+    def CRISPY_ALLOWED_TEMPLATE_PACKS(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return ('semantic-ui',)
+        return ("bootstrap", "uni_form", "bootstrap3", "bootstrap4")
 
     @property
     def USE_PROMOS(self):  # noqa
@@ -258,30 +285,39 @@ class CommunityBaseSettings(Settings):
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [TEMPLATE_ROOT],
-            'OPTIONS': {
-                'debug': DEBUG,
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.i18n',
-                    'django.template.context_processors.media',
-                    'django.template.context_processors.request',
-                    # Read the Docs processor
-                    'readthedocs.core.context_processors.readthedocs_processor',
-                ],
-                'loaders': [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ],
+    @property
+    def TEMPLATES(self):
+        dirs = [self.TEMPLATE_ROOT]
+        if self.RTD_EXT_THEME_ENABLED:
+            dirs.insert(0, os.path.join(
+                os.path.dirname(readthedocsext.theme.__file__),
+                'templates',
+            ))
+        return [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': dirs,
+                'OPTIONS': {
+                    'debug': self.DEBUG,
+                    'context_processors': [
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                        'django.template.context_processors.debug',
+                        'django.template.context_processors.i18n',
+                        'django.template.context_processors.media',
+                        'django.template.context_processors.request',
+                        # Read the Docs processor
+                        'readthedocs.core.context_processors.readthedocs_processor',
+                    ],
+                    'loaders': [
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader',
+                    ],
+                },
             },
-        },
-    ]
+        ]
 
     # Cache
     CACHES = {
@@ -361,7 +397,16 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'hourly-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+            'kwargs': {
+                'days': 1,
+            },
+        },
     }
+
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
@@ -450,7 +495,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return total_memory, round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 1000, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
@@ -570,16 +615,17 @@ class CommunityBaseSettings(Settings):
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 1,
-                         'number_of_replicas': 1
-                         }
+            'settings': {
+                'number_of_shards': 1,
+                'number_of_replicas': 1
+            },
         },
         'page': {
             'name': 'page_index',
             'settings': {
                 'number_of_shards': 1,
                 'number_of_replicas': 1,
-            }
+            },
         },
     }
 

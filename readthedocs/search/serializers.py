@@ -10,6 +10,7 @@ import itertools
 import re
 from functools import namedtuple
 from operator import attrgetter
+from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -19,8 +20,8 @@ from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
 
-# Structure used for storing cached data of a project mostly.
-ProjectData = namedtuple('ProjectData', ['docs_url', 'version_doctype'])
+# Structure used for storing cached data of a version mostly.
+VersionData = namedtuple('VersionData', ['slug', 'docs_url', 'doctype'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -36,6 +37,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
+    description = serializers.CharField()
     highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
@@ -58,11 +60,26 @@ class PageSearchSerializer(serializers.Serializer):
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()
-    link = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
+    domain = serializers.SerializerMethodField()
     highlights = PageHighlightSerializer(source='meta.highlight', default=dict)
     blocks = serializers.SerializerMethodField()
 
-    def get_link(self, obj):
+    def get_domain(self, obj):
+        full_path = self._get_full_path(obj)
+        if full_path:
+            parsed = urlparse(full_path)
+            return f'{parsed.scheme}://{parsed.netloc}'
+        return None
+
+    def get_path(self, obj):
+        full_path = self._get_full_path(obj)
+        if full_path:
+            parsed = urlparse(full_path)
+            return parsed.path
+        return None
+
+    def _get_full_path(self, obj):
         """
         Get the page link.
 
@@ -71,17 +88,15 @@ class PageSearchSerializer(serializers.Serializer):
         If the result is fetched from the database,
         it's cached into ``project_data``.
         """
-        # TODO: return a relative URL when this is called from the indoc search.
-
         # First try to build the URL from the context.
-        project_data = self.context.get('projects_data', {}).get(obj.project)
-        if project_data:
-            docs_url, doctype = project_data
+        version_data = self.context.get('projects_data', {}).get(obj.project)
+        if version_data:
+            docs_url = version_data.docs_url
             path = obj.full_path
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            if version_data.doctype in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')
@@ -92,7 +107,11 @@ class PageSearchSerializer(serializers.Serializer):
             docs_url = project.get_docs_url(version_slug=obj.version)
             # cache the project URL
             projects_data = self.context.setdefault('projects_data', {})
-            projects_data[obj.project] = ProjectData(docs_url, '')
+            projects_data[obj.project] = VersionData(
+                slug=obj.version,
+                docs_url=docs_url,
+                doctype=None,
+            )
             return docs_url + obj.full_path
 
         return None
@@ -116,7 +135,7 @@ class PageSearchSerializer(serializers.Serializer):
 
         sorted_results = sorted(
             itertools.chain(sections, domains),
-            key=attrgetter('_score'),
+            key=attrgetter('meta.score'),
             reverse=True,
         )
         sorted_results = [
@@ -143,11 +162,11 @@ class DomainHighlightSerializer(serializers.Serializer):
 class DomainSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='domain', source=None, read_only=True)
-    role = serializers.CharField(source='_source.role_name')
-    name = serializers.CharField(source='_source.name')
-    id = serializers.CharField(source='_source.anchor')
-    content = serializers.CharField(source='_source.docstrings')
-    highlights = DomainHighlightSerializer(source='highlight', default=dict)
+    role = serializers.CharField(source='role_name')
+    name = serializers.CharField()
+    id = serializers.CharField(source='anchor')
+    content = serializers.CharField(source='docstrings')
+    highlights = DomainHighlightSerializer(source='meta.highlight', default=dict)
 
 
 class SectionHighlightSerializer(serializers.Serializer):
@@ -167,7 +186,7 @@ class SectionHighlightSerializer(serializers.Serializer):
 class SectionSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='section', source=None, read_only=True)
-    id = serializers.CharField(source='_source.id')
-    title = serializers.CharField(source='_source.title')
-    content = serializers.CharField(source='_source.content')
-    highlights = SectionHighlightSerializer(source='highlight', default=dict)
+    id = serializers.CharField()
+    title = serializers.CharField()
+    content = serializers.CharField()
+    highlights = SectionHighlightSerializer(source='meta.highlight', default=dict)

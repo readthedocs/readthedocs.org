@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Celery worker application instantiation."""
 
 import os

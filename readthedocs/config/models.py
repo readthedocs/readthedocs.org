@@ -72,4 +72,4 @@ class Submodules(Base):
 
 class Search(Base):
 
-    __slots__ = ('ranking',)
+    __slots__ = ('ranking', 'ignore')

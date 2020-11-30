@@ -120,7 +120,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def add_proxito_headers(self, request, response):
         """Add debugging headers to proxito responses."""
 
-        project_slug = getattr(request, 'host_project_slug', '')
+        project_slug = getattr(request, 'path_project_slug', '')
         version_slug = getattr(request, 'path_version_slug', '')
         path = getattr(response, 'proxito_path', '')
 

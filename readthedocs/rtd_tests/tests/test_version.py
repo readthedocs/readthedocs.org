@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -42,6 +42,15 @@ class VersionMixin:
             active=True,
             type=TAG
         )
+
+        self.subproject = get(Project, slug='subproject', language='en')
+        self.translation_subproject = get(
+            Project,
+            language='es',
+            slug='translation-subproject',
+            main_language_project=self.subproject,
+        )
+        self.pip.add_subproject(self.subproject)
 
 
 class TestVersionModel(VersionMixin, TestCase):
@@ -90,13 +99,50 @@ class TestVersionModel(VersionMixin, TestCase):
         USE_SUBDOMAIN=True,
     )
     def test_get_downloads(self):
-        self.assertDictEqual(self.branch_version.get_downloads(), {})
+        version = self.branch_version
+        self.assertDictEqual(version.get_downloads(), {})
+        version.has_pdf = True
+        version.has_epub = True
+        version.save()
 
-        self.branch_version.has_pdf = True
-        self.branch_version.has_epub = True
-        self.branch_version.save()
         expected = {
             'epub': '//pip.readthedocs.io/_/downloads/en/stable/epub/',
             'pdf': '//pip.readthedocs.io/_/downloads/en/stable/pdf/',
         }
-        self.assertDictEqual(self.branch_version.get_downloads(), expected)
+        self.assertDictEqual(version.get_downloads(), expected)
+
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
+    def test_get_downloads_subproject(self):
+        version = self.subproject.versions.get(slug=LATEST)
+        self.assertDictEqual(version.get_downloads(), {})
+        version.has_pdf = True
+        version.has_epub = True
+        version.save()
+
+        expected = {
+            'epub': '//pip.readthedocs.io/_/downloads/subproject/en/latest/epub/',
+            'pdf': '//pip.readthedocs.io/_/downloads/subproject/en/latest/pdf/',
+        }
+        self.assertDictEqual(version.get_downloads(), expected)
+
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
+    def test_get_downloads_translation_subproject(self):
+        version = self.translation_subproject.versions.get(slug=LATEST)
+        self.assertDictEqual(version.get_downloads(), {})
+        version.has_pdf = True
+        version.has_epub = True
+        version.save()
+
+        expected = {
+            'epub': '//pip.readthedocs.io/_/downloads/subproject/es/latest/epub/',
+            'pdf': '//pip.readthedocs.io/_/downloads/subproject/es/latest/pdf/',
+        }
+        self.assertDictEqual(version.get_downloads(), expected)

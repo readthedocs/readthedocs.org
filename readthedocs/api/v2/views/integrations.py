@@ -557,8 +557,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
             data = self.request.data
-            before = data['before']
-            after = data['after']
+            before = data.get('before')
+            after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
                 log.info('Triggered sync_versions: project=%s before=%s after=%s',

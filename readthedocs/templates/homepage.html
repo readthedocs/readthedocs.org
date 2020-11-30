@@ -137,7 +137,6 @@
     <h2>{% trans "Read the Docs is funded by the community" %}</h2>
     <p>
 
-    {% url "advertising" as advertising_url %}
     {% url "donate" as sponsors_url %}
     {% url "gold_detail" as gold_detail %}
 
@@ -146,7 +145,7 @@
     for software documentation. It would not be possible without the
     support of our
     <a href="{{ sponsors_url }}">sponsors</a>,
-    <a href="{{ advertising_url }}">advertisers</a>,
+    <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertisers</a>,
     and <a href="{{ gold_detail }}">readers like you</a>.
     {% endblocktrans %}
     </p>

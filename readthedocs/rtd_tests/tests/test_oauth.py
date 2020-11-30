@@ -1,19 +1,18 @@
-# -*- coding: utf-8 -*-
 from unittest import mock
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
-from readthedocs.builds.models import Version, Build
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
+from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import (
+    BitbucketWebhook,
     GitHubWebhook,
     GitLabWebhook,
-    BitbucketWebhook
 )
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
@@ -184,7 +183,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
             "GitHub commit status created for project: %s, commit status: %s",
-            self.project,
+            self.project.slug,
             BUILD_STATUS_SUCCESS
         )
 
@@ -202,8 +201,8 @@ class GitHubOAuthTests(TestCase):
         mock_logger.info.assert_called_with(
             'GitHub project does not exist or user does not have '
             'permissions: project=%s, user=%s, status=%s, url=%s',
-            self.project,
-            self.user,
+            self.project.slug,
+            self.user.username,
             404,
             'https://api.github.com/repos/pypa/pip/statuses/1234'
         )
@@ -219,7 +218,7 @@ class GitHubOAuthTests(TestCase):
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
             'GitHub commit status creation failed for project: %s',
-            self.project,
+            self.project.slug,
         )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
@@ -927,7 +926,7 @@ class GitLabOAuthTests(TestCase):
         self.service = GitLabService(user=self.user, account=None)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
-            Build, project=self.project, version=self.external_version
+            Build, project=self.project, version=self.external_version, commit=1234,
         )
         self.integration = get(
             GitLabWebhook,
@@ -952,12 +951,10 @@ class GitLabOAuthTests(TestCase):
         return data
 
     def test_make_project_pass(self):
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(
-                self.repo_response_data, organization=self.org,
-                privacy=self.privacy,
-            )
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org,
+            privacy=self.privacy,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
@@ -1010,9 +1007,7 @@ class GitLabOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data['visibility'] = 'public'
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1031,7 +1026,7 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
             "GitLab commit status created for project: %s, commit status: %s",
-            self.project,
+            self.project.slug,
             BUILD_STATUS_SUCCESS
         )
 
@@ -1040,7 +1035,7 @@ class GitLabOAuthTests(TestCase):
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
     def test_send_build_status_404_error(self, repo_id, session, mock_logger):
         session().post.return_value.status_code = 404
-        repo_id().return_value = '9999'
+        repo_id.return_value = '9999'
 
         success = self.service.send_build_status(
             self.external_build,
@@ -1050,9 +1045,12 @@ class GitLabOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.info.assert_called_with(
-            'GitLab project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project
+            'GitLab project does not exist or user does not have permissions: '
+            'project=%s, user=%s, status=%s, url=%s',
+            self.project.slug,
+            self.user.username,
+            404,
+            'https://gitlab.com/api/v4/projects/9999/statuses/1234',
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1069,7 +1067,7 @@ class GitLabOAuthTests(TestCase):
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
             'GitLab commit status creation failed for project: %s',
-            self.project,
+            self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')

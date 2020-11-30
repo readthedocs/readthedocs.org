@@ -19,6 +19,7 @@ from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
+from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -364,7 +365,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository.',
+            'Should the project dashboard be public?',
         ),
     )
 
@@ -564,9 +565,10 @@ class Project(models.Model):
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
 
-        if self.is_subproject:
+        main_project = self.main_language_project or self
+        if main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
@@ -1360,7 +1362,7 @@ class ImportedFile(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'))
+    slug = models.SlugField(_('Slug'), null=True)
 
     # max_length is set to 4096 because linux has a maximum path length
     # of 4096 characters for most filesystems (including EXT4).
@@ -1374,6 +1376,12 @@ class ImportedFile(models.Model):
         _('Page search rank'),
         default=0,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
+        # TODO: remove after migration
+        null=True,
     )
 
     def get_absolute_url(self):
@@ -1443,9 +1451,17 @@ class WebHook(Notification):
         return self.url
 
 
-class Domain(models.Model):
+class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -1481,6 +1497,17 @@ class Domain(models.Model):
     count = models.IntegerField(
         default=0,
         help_text=_('Number of times this domain has been hit'),
+    )
+
+    # This is used in readthedocsext.
+    ssl_status = models.CharField(
+        _('SSL certificate status'),
+        max_length=30,
+        choices=constants.SSL_STATUS_CHOICES,
+        default=constants.SSL_STATUS_UNKNOWN,
+        # Remove after deploy
+        null=True,
+        blank=True,
     )
 
     # Strict-Transport-Security header options
@@ -1558,8 +1585,14 @@ class Feature(models.Model):
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
+    INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
+
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1568,9 +1601,9 @@ class Feature(models.Model):
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1655,6 +1688,8 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
+
+        # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
             _('Disable server side search'),
@@ -1663,6 +1698,22 @@ class Feature(models.Model):
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _('Enable server side search for MkDocs projects'),
         ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
+        ),
+        (
+            INDEX_FROM_HTML_FILES,
+            _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
+            _(
+                'When searching subprojects default to its default version if it doesn\'t '
+                'have the same version as the main project'
+            ),
+        ),
+
         (
             FORCE_SPHINX_FROM_VENV,
             _('Force to use Sphinx from the current virtual environment'),
@@ -1699,16 +1750,16 @@ class Feature(models.Model):
             _('Use latest version of the Read the Docs Sphinx extension'),
         ),
         (
-            DEFAULT_TO_FUZZY_SEARCH,
-            _('Default to fuzzy search for simple search queries'),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _('Index content directly from html files instead or relying in other sources'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_NEW_PIP_RESOLVER,
+            _('Use new pip resolver'),
+        ),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
         ),
     )
 
@@ -1720,15 +1771,21 @@ class Feature(models.Model):
     # at the database level on this field. Arbitrary values are allowed here.
     feature_id = models.CharField(
         _('Feature identifier'),
-        max_length=32,
+        max_length=255,
         unique=True,
     )
     add_date = models.DateTimeField(
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
-        _('Historical default is True'),
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 

@@ -4,7 +4,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, HTML, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -165,6 +166,7 @@ class ProjectExtraForm(ProjectForm):
         fields = (
             'description',
             'documentation_type',
+            'default_branch',
             'language',
             'programming_language',
             'tags',
@@ -190,7 +192,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -203,7 +205,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'analytics_disabled',
             'show_version_warning',
             'single_version',
-            'external_builds_enabled'
+            'external_builds_enabled',
+            'privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -232,17 +235,24 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         help_text = render_to_string(
             'projects/project_advanced_settings_helptext.html'
         )
-        self.helper.layout = Layout(
+
+        per_project_settings = list(self.Meta.per_project_settings)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop('privacy_level')
+            per_project_settings.remove('privacy_level')
+
+        field_sets = [
             Fieldset(
                 _("Global settings"),
-                *self.Meta.per_project_settings,
+                *per_project_settings,
             ),
             Fieldset(
                 _("Default settings"),
                 HTML(help_text),
                 *self.Meta.per_version_settings,
             ),
-        )
+        ]
+        self.helper.layout = Layout(*field_sets)
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
@@ -375,17 +385,26 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         return self.project
 
     def clean_child(self):
-        child = self.cleaned_data['child']
+        """
+        Validate child is a valid subproject.
 
-        child.is_valid_as_subproject(
-            self.project, forms.ValidationError
-        )
+        Validation is done on creation only,
+        when editing users can't change the child.
+        """
+        child = self.cleaned_data['child']
+        if self.instance.pk is None:
+            child.is_valid_as_subproject(
+                self.project, forms.ValidationError
+            )
         return child
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
-        subproject = self.project.subprojects.filter(
-            alias=alias).exclude(id=self.instance.pk)
+        subproject = (
+            self.project.subprojects
+            .filter(alias=alias)
+            .exclude(id=self.instance.pk)
+        )
 
         if subproject.exists():
             raise forms.ValidationError(
@@ -606,15 +625,7 @@ class DomainBaseForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        # pylint: disable=modelform-uses-exclude
-        exclude = [
-            'machine',
-            'cname',
-            'count',
-            'hsts_max_age',
-            'hsts_include_subdomains',
-            'hsts_preload',
-        ]
+        fields = ['project', 'domain', 'canonical', 'https']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -629,11 +640,19 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
-        parsed = urlparse(self.cleaned_data['domain'])
-        if parsed.scheme or parsed.netloc:
-            domain_string = parsed.netloc
-        else:
-            domain_string = parsed.path
+        domain = self.cleaned_data['domain'].lower()
+        parsed = urlparse(domain)
+
+        # Force the scheme to have a valid netloc.
+        if not parsed.scheme:
+            parsed = urlparse(f'https://{domain}')
+
+        if not parsed.netloc:
+            raise forms.ValidationError(
+                f'{domain} is not a valid domain.'
+            )
+
+        domain_string = parsed.netloc
 
         # Don't allow production or public domain to be set as custom domain
         for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
@@ -646,10 +665,16 @@ class DomainBaseForm(forms.ModelForm):
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
-        _id = self.initial.get('id')
-        if canonical and Domain.objects.filter(project=self.project, canonical=True).exclude(pk=_id).exists():  # yapf: disabled  # noqa
+        pk = self.instance.pk
+        has_canonical_domain = (
+            Domain.objects
+            .filter(project=self.project, canonical=True)
+            .exclude(pk=pk)
+            .exists()
+        )
+        if canonical and has_canonical_domain:
             raise forms.ValidationError(
-                _('Only 1 Domain can be canonical at a time.'),
+                _('Only one domain can be canonical at a time.'),
             )
         return canonical
 
@@ -716,7 +741,7 @@ class FeatureForm(forms.ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['projects', 'feature_id', 'default_true']
+        fields = ['projects', 'feature_id', 'default_true', 'future_default_true']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
