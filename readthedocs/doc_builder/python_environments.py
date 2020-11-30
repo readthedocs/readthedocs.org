@@ -346,13 +346,20 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip and setuptools first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip', 'setuptools']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
             'Pygments==2.3.1',
+            'setuptools==41.0.1',
             self.project.get_feature_value(
                 Feature.DONT_INSTALL_DOCUTILS,
                 positive='',
@@ -380,11 +387,17 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx',
                     negative='sphinx<2',
                 ),
-                'sphinx-rtd-theme<0.5',
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx-rtd-theme',
+                    negative='sphinx-rtd-theme<0.5',
+                ),
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
                     positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<1.1',
+                    negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
 

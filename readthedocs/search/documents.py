@@ -52,6 +52,17 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 @page_index.document
 class PageDocument(RTDDocTypeMixin, Document):
 
+    """
+    Document representation of a Page.
+
+    Some text fields use the simple analyzer instead of the default (standard).
+    Simple analyzer will break the text in non-letter characters,
+    so a text like ``python.submodule`` will be broken like [python, submodule]
+    instead of [python.submodule].
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+    """
+
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
@@ -123,40 +134,35 @@ class PageDocument(RTDDocTypeMixin, Document):
                 for domain in domains_qs
             ]
 
-            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
+            log.debug(
+                "[%s] [%s] Total domains for file %s are: %s",
                 html_file.project.slug,
                 html_file.version.slug,
                 html_file.path,
-                len(all_domains),
-            ))
+                len(all_domains)
+            )
 
         except Exception:
-            log.exception("[%s] [%s] Error preparing domain data for file %s" % (
+            log.exception(
+                "[%s] [%s] Error preparing domain data for file %s",
                 html_file.project.slug,
                 html_file.version.slug,
-                html_file.path,
-            ))
+                html_file.path
+            )
 
         return all_domains
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
+        """
+        Ignore certain files from indexing.
+
+        - Files from external versions
+        - Ignored files
+        """
         queryset = super().get_queryset()
-
-        # Do not index files from external versions
-        queryset = queryset.internal().all()
-
-        # TODO: Make this smarter
-        # This was causing issues excluding some valid user documentation pages
-        # excluded_files = [
-        #     'search.html',
-        #     'genindex.html',
-        #     'py-modindex.html',
-        #     'search/index.html',
-        #     'genindex/index.html',
-        #     'py-modindex/index.html',
-        # ]
-        # for ending in excluded_files:
-        #     queryset = queryset.exclude(path=ending)
-
+        queryset = (
+            queryset
+            .internal()
+            .exclude(ignore=True)
+        )
         return queryset

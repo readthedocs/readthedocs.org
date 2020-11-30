@@ -96,7 +96,7 @@ class URLAccessMixin:
         for key in list(response.context.keys()):
             obj = response.context[key]
             for not_obj in self.context_data:
-                if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
+                if isinstance(obj, (list, set, tuple)):
                     self.assertNotIn(not_obj, obj)
                     print('{} not in {}'.format(not_obj, obj))
                 else:
@@ -253,6 +253,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 # ## Private Project Testing ###
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -291,6 +292,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return True
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {

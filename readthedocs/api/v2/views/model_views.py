@@ -53,6 +53,7 @@ from ..utils import (
     RemoteOrganizationPagination,
     RemoteProjectPagination,
     delete_versions_from_db,
+    get_deleted_active_versions,
     run_automation_rules,
     sync_versions_to_db,
 )
@@ -220,6 +221,7 @@ class ProjectViewSet(UserSelectViewSet):
                 )
                 added_versions.update(ret_set)
             deleted_versions = delete_versions_from_db(project, data)
+            deleted_active_versions = get_deleted_active_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -233,7 +235,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions, deleted_active_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
@@ -380,6 +382,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
+        full_name = self.request.query_params.get('full_name')
+        if full_name is not None:
+            query = query.filter(full_name__icontains=full_name)
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)

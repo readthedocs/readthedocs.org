@@ -1,14 +1,14 @@
 # Base packages
 
-pip==20.2.2
-virtualenv==20.0.31
+pip==20.2.4
+virtualenv==20.1.0
 
-django==2.2.15  # pyup: <2.3
-django-extensions==3.0.5
+django==2.2.17  # pyup: <2.3
+django-extensions==3.0.9
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
 
-djangorestframework==3.11.1
+djangorestframework==3.12.2
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -16,19 +16,19 @@ djangorestframework==3.11.1
 Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.3.0
+django-filter==2.4.0
 
-drf-flex-fields==0.8.5
+drf-flex-fields==0.8.6
 drf-extensions==0.6.0
 
-django-vanilla-views==1.1.0
+django-vanilla-views==2.0.0
 jsonfield==3.1.0
 
-requests==2.24.0
+requests==2.25.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.3.1
-Pygments==2.6.1
+Pygments==2.7.2
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -41,26 +41,35 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.42.0
+# When upgrading to 0.43.0 we should double check the ``base.html`` change
+# described in the changelog. In previous versions, the allauth app included a
+# ``base.html`` template. This template could conflict with an equally named
+# template at project level. Therefore, ``base.html`` has now been moved to
+# ``account/base.html`` -- you will need to check your templates and likely
+# override ``account/base.html`` within your project.
+django-allauth==0.42.0  # pyup: ignore
 
-GitPython==3.1.7
+GitPython==3.1.11
 
 # Search
 elasticsearch==6.8.1  # pyup: <7.0.0
 elasticsearch-dsl==6.4.0  # pyup: <7.0
 django-elasticsearch-dsl==6.4.2  # pyup: <7.0
-selectolax==0.2.7
+selectolax==0.2.9
+
+# NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
+python-dateutil==2.8.1
 
 # Ignoring orjson for now because it makes Travis to fail
 orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.4
-pytz==2020.1
+pytz==2020.4
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.50.0
-regex==2020.7.14
+stripe==2.55.0
+regex==2020.11.13
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -99,7 +108,7 @@ user-agents==2.2.0
 git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
-django-debug-toolbar==2.2
+django-debug-toolbar==3.1.1
 
 # For enabling content-security-policy
 django-csp==3.7
