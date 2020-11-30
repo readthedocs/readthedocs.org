@@ -367,6 +367,7 @@ class Virtualenv(PythonEnvironment):
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'six',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
@@ -623,6 +624,7 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
+            'six',
         ]
 
         if self.config.doctype == 'mkdocs':
