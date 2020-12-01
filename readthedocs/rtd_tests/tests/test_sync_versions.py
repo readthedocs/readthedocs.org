@@ -55,6 +55,7 @@ class TestSyncVersions(TestCase):
             active=False,
             type=TAG,
         )
+        self.pip.update_stable_version()
 
     def test_proper_url_no_slash(self):
         version_post_data = {
@@ -86,6 +87,7 @@ class TestSyncVersions(TestCase):
             verbose_name='0.8.3',
             active=True,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -132,6 +134,7 @@ class TestSyncVersions(TestCase):
             type=TAG,
             active=False,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -180,6 +183,7 @@ class TestSyncVersions(TestCase):
             verbose_name='0.8.3',
             active=False,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
@@ -1088,13 +1092,14 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 
@@ -1113,7 +1118,7 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
 
@@ -1132,7 +1137,7 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
-        version_stable = Version.objects.get(slug=STABLE)
+        version_stable = self.pip.versions.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
 
@@ -1152,6 +1157,7 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
@@ -1192,6 +1198,7 @@ class TestStableVersion(TestCase):
                 {'identifier': '0.9', 'verbose_name': '0.9'},
             ],
         }
+        self.pip.update_stable_version()
 
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
@@ -1233,6 +1240,7 @@ class TestStableVersion(TestCase):
             ],
         }
 
+        self.pip.update_stable_version()
         self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
@@ -1364,6 +1372,7 @@ class TestStableVersion(TestCase):
             active=True,
             machine=True,
         )
+        self.pip.update_stable_version()
 
         version_post_data = {
             'branches': [
