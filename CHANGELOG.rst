@@ -1,3 +1,15 @@
+Version 5.7.0
+-------------
+
+:Date: December 01, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Ensure there is space for sidebar ads (`#7716 <https://github.com/readthedocs/readthedocs.org/pull/7716>`__)
+* `@humitos <https://github.com/humitos>`__: Install six as core requirement for builds (`#7710 <https://github.com/readthedocs/readthedocs.org/pull/7710>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: increase feature_id max_length (`#7698 <https://github.com/readthedocs/readthedocs.org/pull/7698>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7695 <https://github.com/readthedocs/readthedocs.org/pull/7695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: use stable version instead of querying all versions (`#7380 <https://github.com/readthedocs/readthedocs.org/pull/7380>`__)
+
 Version 5.6.5
 -------------
 

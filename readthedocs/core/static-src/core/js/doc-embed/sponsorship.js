@@ -60,9 +60,10 @@ function create_ad_placement() {
     if (selector) {
         // Determine if this element would be above the fold
         // If this is off screen, instead create an ad in the footer
+        // Assumes the ad would be ~200px high
         element = $("<div />").appendTo(selector);
         offset = element.offset();
-        if (!offset || (offset.top - $(window).scrollTop()) > $(window).height()) {
+        if (!offset || (offset.top - $(window).scrollTop() + 200) > $(window).height()) {
             if (rtd.is_rtd_like_theme()) {
                 selector = $('<div />').insertAfter('footer hr');
                 class_name = 'ethical-rtd';
