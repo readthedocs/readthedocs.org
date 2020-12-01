@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth', '0010_index_full_name'),
+        ('oauth', '0011_add_default_branch'),
     ]
 
     operations = [
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                             'user',
                             models.ForeignKey(
                                 on_delete=django.db.models.deletion.CASCADE,
-                                related_name='remote_relations',
+                                related_name='remote_repository_relations',
                                 to=settings.AUTH_USER_MODEL
                             ),
                         ),
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                             'remoterepository',
                             models.ForeignKey(
                                 on_delete=django.db.models.deletion.CASCADE,
-                                related_name='remote_relations',
+                                related_name='remote_repository_relations',
                                 to='oauth.RemoteRepository'
                             ),
                         ),
@@ -64,10 +64,6 @@ class Migration(migrations.Migration):
                         verbose_name='Users'
                     ),
                 ),
-                migrations.AlterUniqueTogether(
-                    name='remoterepositoryrelation',
-                    unique_together={('remoterepository', 'user')},
-                ),
             ],
         ),
         migrations.AddField(
@@ -76,11 +72,15 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name='remote_relations',
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='remote_repository_relations',
                 to='socialaccount.SocialAccount',
                 verbose_name='Connected account'
             ),
+        ),
+        migrations.AlterUniqueTogether(
+            name='remoterepositoryrelation',
+            unique_together={('remoterepository', 'account')},
         ),
         migrations.AddField(
             model_name='remoterepositoryrelation',

@@ -180,15 +180,6 @@ class RemoteRepository(models.Model):
     def __str__(self):
         return 'Remote repository: {}'.format(self.html_url)
 
-    def get_serialized(self, key=None, default=None):
-        try:
-            data = json.loads(self.json)
-            if key is not None:
-                return data.get(key, default)
-            return data
-        except ValueError:
-            pass
-
     @property
     def clone_fuzzy_url(self):
         """Try to match against several permutations of project URL."""
@@ -221,24 +212,33 @@ class RemoteRepository(models.Model):
 class RemoteRepositoryRelation(TimeStampedModel):
     remoterepository = models.ForeignKey(
         RemoteRepository,
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
         User,
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     account = models.ForeignKey(
         SocialAccount,
         verbose_name=_('Connected account'),
-        related_name='remote_relations',
+        related_name='remote_repository_relations',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
     json = JSONField(_('Serialized API response'))
 
     class Meta:
-        unique_together = (('remoterepository', 'user'),)
+        unique_together = (('remoterepository', 'account'),)
+
+    def get_serialized(self, key=None, default=None):
+        try:
+            data = self.json
+            if key is not None:
+                return data.get(key, default)
+            return data
+        except ValueError:
+            pass

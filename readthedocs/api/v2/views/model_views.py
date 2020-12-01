@@ -397,10 +397,10 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         query = query.filter(
-            account__provider__in=[
+            remote_repository_relations__account__provider__in=[
                 service.adapter.provider_id for service in registry
             ],
-        )
+        ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
         query = query.select_related('organization')

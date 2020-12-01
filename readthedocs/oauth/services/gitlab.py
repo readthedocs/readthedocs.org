@@ -3,7 +3,7 @@
 import json
 import logging
 import re
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
@@ -18,7 +18,11 @@ from readthedocs.builds.constants import (
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
-from ..models import RemoteOrganization, RemoteRepository
+from ..models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -159,18 +163,14 @@ class GitLabService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['name_with_namespace'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['name_with_namespace'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
+            repo, _ = RemoteRepository.objects.get_or_create(
+                full_name=fields['name_with_namespace']
+            )
+            remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
+                remoterepository=repo,
+                user=self.user,
+                account=self.account
+            )
 
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -184,37 +184,43 @@ class GitLabService(Service):
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
-            repo.private = not repo_is_public
-            if repo.private:
-                repo.clone_url = repo.ssh_url
-            else:
-                repo.clone_url = fields['http_url_to_repo']
-
-            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
-            project_access = fields.get('permissions', {}).get('project_access', {})
-            if project_access:
-                project_access_level = project_access.get('access_level', self.PERMISSION_NO_ACCESS)
-            group_access = fields.get('permissions', {}).get('group_access', {})
-            if group_access:
-                group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
-            repo.admin = any([
-                project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-            ])
-
             repo.vcs = 'git'
+            repo.private = not repo_is_public
             repo.default_branch = fields.get('default_branch')
-            repo.account = self.account
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (
                 fields.get('avatar_url') or owner.get('avatar_url')
             )
+
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
 
-            repo.json = json.dumps(fields)
+            if repo.private:
+                repo.clone_url = repo.ssh_url
+            else:
+                repo.clone_url = fields['http_url_to_repo']
+
             repo.save()
+
+            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
+
+            project_access = fields.get('permissions', {}).get('project_access', {})
+            if project_access:
+                project_access_level = project_access.get('access_level', self.PERMISSION_NO_ACCESS)
+
+            group_access = fields.get('permissions', {}).get('group_access', {})
+            if group_access:
+                group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
+
+            remote_relation.admin = any([
+                project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+            ])
+            remote_relation.account = self.account
+            remote_relation.json = fields
+            remote_relation.save()
+
             return repo
 
         log.info(

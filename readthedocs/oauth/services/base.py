@@ -202,10 +202,8 @@ class Service:
         all_remote_repositories = remote_repositories + remote_repositories_organizations
         repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
         (
-            self.user.oauth_repositories
-            .exclude(
-                Q(full_name__in=repository_full_names) | Q(project__isnull=False)
-            )
+            self.user.remote_repository_relations
+            .exclude(remoterepository__full_name__in=repository_full_names)
             .filter(account=self.account)
             .delete()
         )

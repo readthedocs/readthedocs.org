@@ -10,7 +10,6 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import (
-    BitbucketWebhook,
     GitHubWebhook,
     GitLabWebhook,
 )
@@ -147,7 +146,7 @@ class GitHubOAuthTests(TestCase):
         )
         self.assertIsInstance(github_project, RemoteRepository)
         self.assertIsInstance(github_project_2, RemoteRepository)
-        self.assertNotEqual(github_project_2, github_project)
+        self.assertEqual(github_project_2, github_project)
 
         github_project_3 = self.service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
@@ -971,7 +970,7 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
-        self.assertTrue(repo.admin)
+        self.assertTrue(repo.remote_repository_relations.first().admin)
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):
