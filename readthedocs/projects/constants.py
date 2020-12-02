@@ -377,10 +377,6 @@ GITLAB_MERGE_REQUEST_URL = (
 GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
 GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 
-# Git provider names
-GITHUB_BRAND = 'GitHub'
-GITLAB_BRAND = 'GitLab'
-
 # Set 3 priorities, [low, medium, high] -- default is medium
 # Leave some space on each side of the set to expand if needed
 CELERY_LOW = 3

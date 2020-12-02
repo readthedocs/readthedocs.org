@@ -20,8 +20,8 @@ from readthedocs.builds.constants import (
     TAG,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.oauth.services import GitHubService, GitLabService
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
