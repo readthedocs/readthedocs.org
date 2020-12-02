@@ -67,9 +67,9 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.oauth.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
