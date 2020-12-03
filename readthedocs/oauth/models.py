@@ -185,7 +185,12 @@ class RemoteRepository(models.Model):
     json = models.TextField(_('Serialized API response'))
     # TODO: Make remote_id and vcs_provider not nullable and
     #  unique together after migration
-    remote_id = models.CharField(max_length=128, blank=True, null=True)
+    remote_id = models.CharField(
+        db_index=True,
+        max_length=128,
+        blank=True,
+        null=True
+    )
     vcs_provider = models.CharField(
         _('VCS provider'),
         choices=VCS_PROVIDER_CHOICES,

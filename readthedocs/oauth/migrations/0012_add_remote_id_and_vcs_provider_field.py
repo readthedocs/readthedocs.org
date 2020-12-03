@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='remoterepository',
             name='remote_id',
-            field=models.CharField(blank=True, max_length=128, null=True),
+            field=models.CharField(db_index=True, blank=True, max_length=128, null=True),
         ),
         migrations.AddField(
             model_name='remoterepository',
