@@ -14,6 +14,7 @@ from requests.exceptions import RequestException
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
+from ..constants import BITBUCKET_BRAND
 from ..models import (
     RemoteOrganization,
     RemoteRepository,
@@ -147,6 +148,8 @@ class BitbucketService(Service):
 
             repo.organization = organization
             repo.name = fields['name']
+            repo.remote_id = fields['uuid']
+            repo.vcs_provider = BITBUCKET_BRAND
             repo.description = fields['description']
             repo.private = fields['is_private']
 
