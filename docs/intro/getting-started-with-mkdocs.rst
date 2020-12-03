@@ -22,6 +22,8 @@ It has many great features including:
 Quick start
 -----------
 
+.. seealso:: If you already have a Mkdocs project, check out our :doc:`/intro/import-guide` guide.
+
 Assuming you have Python already, `install MkDocs`_:
 
 .. prompt:: bash $
@@ -50,17 +52,22 @@ and starts a development server to browse your documentation.
 Open up http://127.0.0.1:8000/ in your web browser to see your documentation.
 You can make changes to your Markdown files and your docs will automatically rebuild.
 
-.. figure:: ../_static/images/first-steps/mkdocs-hello-world.png
-    :align: right
-    :figwidth: 300px
-    :target: ../_static/images/first-steps/mkdocs-hello-world.png
+.. figure:: /_static/images/first-steps/mkdocs-hello-world.png
+   :figwidth: 500px
+   :target: /_static/images/first-steps/mkdocs-hello-world.png
+   :align: center
 
-    Your MkDocs project is built
+   Your MkDocs project is built
 
 Once you have your documentation in a public repository such as GitHub, Bitbucket, or GitLab,
 you can start using Read the Docs by :doc:`importing your docs </intro/import-guide>`.
 
 .. _install MkDocs: https://www.mkdocs.org/#installation
+
+.. warning::
+
+   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   used for your project to build the docs to avoid potential future incompatibilities.
 
 
 External resources

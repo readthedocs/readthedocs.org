@@ -117,7 +117,11 @@ class RemoteRepository(models.Model):
         blank=True,
     )
     name = models.CharField(_('Name'), max_length=255)
-    full_name = models.CharField(_('Full Name'), max_length=255)
+    full_name = models.CharField(
+        _('Full Name'),
+        max_length=255,
+        db_index=True,
+    )
     description = models.TextField(
         _('Description'),
         blank=True,
@@ -153,6 +157,12 @@ class RemoteRepository(models.Model):
         max_length=200,
         blank=True,
         choices=REPO_CHOICES,
+    )
+    default_branch = models.CharField(
+        _('Default branch of the repository'),
+        max_length=150,
+        null=True,
+        blank=True,
     )
 
     json = models.TextField(_('Serialized API response'))

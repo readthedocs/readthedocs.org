@@ -32,6 +32,7 @@ from readthedocs.projects.notifications import (
         'readthedocs.notifications.backends.SiteBackend',
     ],
     PRODUCTION_DOMAIN='readthedocs.org',
+    SUPPORT_EMAIL='support@readthedocs.org',
 )
 @mock.patch('readthedocs.notifications.notification.render_to_string')
 @mock.patch.object(Notification, 'send')
@@ -67,6 +68,18 @@ class NotificationTests(TestCase):
                 'foo': build,
                 'production_uri': 'https://readthedocs.org',
                 'request': req,
+
+                # readthedocs_processor context
+                'DASHBOARD_ANALYTICS_CODE': mock.ANY,
+                'DO_NOT_TRACK_ENABLED': mock.ANY,
+                'GLOBAL_ANALYTICS_CODE': mock.ANY,
+                'PRODUCTION_DOMAIN': 'readthedocs.org',
+                'PUBLIC_DOMAIN': mock.ANY,
+                'SITE_ROOT': mock.ANY,
+                'SUPPORT_EMAIL': 'support@readthedocs.org',
+                'TEMPLATE_ROOT': mock.ANY,
+                'USE_PROMOS': mock.ANY,
+                'USE_SUBDOMAIN': mock.ANY,
             },
         )
 
@@ -190,7 +203,10 @@ class NotificationBackendTests(TestCase):
         self.assertNotContains(response, 'Test success message')
 
 
-@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+@override_settings(
+    PRODUCTION_DOMAIN='readthedocs.org',
+    SUPPORT_EMAIL='support@readthedocs.org',
+)
 class SiteNotificationTests(TestCase):
 
     class TestSiteNotification(SiteNotification):
@@ -220,6 +236,18 @@ class SiteNotificationTests(TestCase):
             'request': None,
             'production_uri': 'https://readthedocs.org',
             'other': {'name': 'other name'},
+
+            # readthedocs_processor context
+            'DASHBOARD_ANALYTICS_CODE': mock.ANY,
+            'DO_NOT_TRACK_ENABLED': mock.ANY,
+            'GLOBAL_ANALYTICS_CODE': mock.ANY,
+            'PRODUCTION_DOMAIN': 'readthedocs.org',
+            'PUBLIC_DOMAIN': mock.ANY,
+            'SITE_ROOT': mock.ANY,
+            'SUPPORT_EMAIL': 'support@readthedocs.org',
+            'TEMPLATE_ROOT': mock.ANY,
+            'USE_PROMOS': mock.ANY,
+            'USE_SUBDOMAIN': mock.ANY,
         }
         self.assertEqual(self.n.get_context_data(), context)
 

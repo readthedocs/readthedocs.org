@@ -1,6 +1,6 @@
 import re
-
 from unittest import mock
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -9,13 +9,17 @@ from django_dynamic_fixture import get
 from taggit.models import Tag
 
 from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.models import Build, BuildCommandResult
+from readthedocs.builds.models import (
+    Build,
+    BuildCommandResult,
+    RegexAutomationRule,
+    VersionAutomationRule,
+)
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.builds.models import RegexAutomationRule, VersionAutomationRule
 
 
 class URLAccessMixin:
@@ -92,7 +96,7 @@ class URLAccessMixin:
         for key in list(response.context.keys()):
             obj = response.context[key]
             for not_obj in self.context_data:
-                if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
+                if isinstance(obj, (list, set, tuple)):
                     self.assertNotIn(not_obj, obj)
                     print('{} not in {}'.format(not_obj, obj))
                 else:
@@ -146,7 +150,7 @@ class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
-        self.build = get(Build, project=self.pip)
+        self.build = get(Build, project=self.pip, version=self.pip.versions.first())
         self.tag = get(Tag, slug='coolness')
         self.subproject = get(
             Project, slug='sub', language='ja',
@@ -162,7 +166,7 @@ class ProjectMixin(URLAccessMixin):
             response_headers='{"foo": "bar"}',
             status_code=200,
         )
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.automation_rule = RegexAutomationRule.objects.create(
             project=self.pip,
@@ -249,6 +253,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 # ## Private Project Testing ###
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -287,6 +292,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return True
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -348,9 +354,9 @@ class APIMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
-        self.build = get(Build, project=self.pip)
-        self.build_command_result = get(BuildCommandResult, project=self.pip)
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.build = get(Build, project=self.pip, version=self.pip.versions.first())
+        self.build_command_result = get(BuildCommandResult, build=self.build)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
@@ -374,6 +380,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
+            'build-concurrent': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
@@ -478,6 +485,12 @@ class PrivateUserProfileMixin(URLAccessMixin):
 
 class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.response_data.update({
+            '/accounts/login/': {'status_code': 302},
+        })
+
     def login(self):
         return self.client.login(username='owner', password='test')
 
@@ -486,6 +499,12 @@ class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
 
 
 class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.response_data.update({
+            '/accounts/login/': {'status_code': 302},
+        })
 
     def login(self):
         return self.client.login(username='tester', password='test')
@@ -505,6 +524,7 @@ class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
         self.response_data.update({
             '/accounts/tokens/create/': {'status_code': 302},
             '/accounts/tokens/delete/': {'status_code': 302},
+            '/accounts/login/': {'status_code': 200},
         })
 
     def login(self):

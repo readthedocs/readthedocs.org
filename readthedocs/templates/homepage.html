@@ -114,9 +114,9 @@
     {% include "core/widesearchbar.html" %}
   </section>
 
-  {% if featured_list %}
   {% get_current_language as language %}
   {% cache 600 homepage_featured_list language %}
+  {% if featured_list %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -129,15 +129,14 @@
       </div>
     </section>
     <!-- END projects list -->
-  {% endcache %}
   {% endif %}
+  {% endcache %}
 
   <!-- Funding and Contributing -->
   <section>
     <h2>{% trans "Read the Docs is funded by the community" %}</h2>
     <p>
 
-    {% url "advertising" as advertising_url %}
     {% url "donate" as sponsors_url %}
     {% url "gold_detail" as gold_detail %}
 
@@ -146,7 +145,7 @@
     for software documentation. It would not be possible without the
     support of our
     <a href="{{ sponsors_url }}">sponsors</a>,
-    <a href="{{ advertising_url }}">advertisers</a>,
+    <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertisers</a>,
     and <a href="{{ gold_detail }}">readers like you</a>.
     {% endblocktrans %}
     </p>

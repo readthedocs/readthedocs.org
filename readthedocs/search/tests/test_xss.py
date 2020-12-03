@@ -1,6 +1,6 @@
 import pytest
 
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.faceted_search import PageSearch
 
 
 @pytest.mark.django_db
@@ -8,8 +8,8 @@ from readthedocs.search.documents import PageDocument
 class TestXSS:
 
     def test_facted_page_xss(self, client, project):
-        query = 'XSS'
-        page_search = PageDocument.faceted_search(query=query, user='')
+        query = '"XSS"'
+        page_search = PageSearch(query=query)
         results = page_search.execute()
         expected = """
         &lt;h3&gt;<span>XSS</span> exploit&lt;&#x2F;h3&gt;

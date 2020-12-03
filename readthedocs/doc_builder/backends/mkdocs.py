@@ -14,6 +14,7 @@ from django.template import loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
 
@@ -49,7 +50,6 @@ class BaseMkdocs(BaseBuilder):
             os.path.dirname(self.yaml_file),
             self.build_dir,
         )
-        self.root_path = self.version.project.checkout_path(self.version.slug)
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -67,13 +67,24 @@ class BaseMkdocs(BaseBuilder):
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
 
+    def get_final_doctype(self):
+        """
+        Select a doctype based on the ``use_directory_urls`` setting.
+
+        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+        """
+        with open(self.yaml_file, 'r') as f:
+            config = yaml_load_safely(f)
+            use_directory_urls = config.get('use_directory_urls', True)
+            return MKDOCS if use_directory_urls else MKDOCS_HTML
+
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
         mkdocs_path = self.config.mkdocs.configuration
         if not mkdocs_path:
             mkdocs_path = 'mkdocs.yml'
         return os.path.join(
-            self.project.checkout_path(self.version.slug),
+            self.project_path,
             mkdocs_path,
         )
 
@@ -84,7 +95,7 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml.safe_load(open(self.yaml_file, 'r'))
+            config = yaml_load_safely(open(self.yaml_file, 'r'))
 
             if not config:
                 raise MkDocsYAMLParseError(
@@ -118,7 +129,7 @@ class BaseMkdocs(BaseBuilder):
                 'possibly due to a syntax error{note}'.format(note=note),
             )
 
-    def append_conf(self, **__):
+    def append_conf(self):
         """
         Set mkdocs config values.
 
@@ -186,7 +197,7 @@ class BaseMkdocs(BaseBuilder):
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=os.path.relpath(docs_path, self.root_path),
+            docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
@@ -212,8 +223,8 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            os.path.relpath(self.yaml_file, self.root_path),
-            cwd=self.root_path,
+            os.path.relpath(self.yaml_file, self.project_path),
+            cwd=self.project_path,
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -237,11 +248,18 @@ class BaseMkdocs(BaseBuilder):
             'docroot': docs_dir,
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
-            'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'ad_free': not self.project.show_advertising,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
-            'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
+            'global_analytics_code': (
+                None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
+            ),
             'user_analytics_code': analytics_code,
+            'features': {
+                'docsearch_disabled': (
+                    not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
+                    or self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
+                )
+            },
         }
 
         data_ctx = {
@@ -255,7 +273,6 @@ class BaseMkdocs(BaseBuilder):
         return tmpl.render(data_ctx)
 
     def build(self):
-        checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             self.python_env.venv_bin(filename='python'),
             '-m',
@@ -265,13 +282,14 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir',
             self.build_dir,
             '--config-file',
-            os.path.relpath(self.yaml_file, self.root_path),
+            os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')
         cmd_ret = self.run(
-            *build_command, cwd=checkout_path,
-            bin_path=self.python_env.venv_bin()
+            *build_command,
+            cwd=self.project_path,
+            bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
 
@@ -303,12 +321,33 @@ class BaseMkdocs(BaseBuilder):
 
 
 class MkdocsHTML(BaseMkdocs):
+
     type = 'mkdocs'
     builder = 'build'
     build_dir = '_build/html'
 
 
-class MkdocsJSON(BaseMkdocs):
-    type = 'mkdocs_json'
-    builder = 'json'
-    build_dir = '_build/json'
+class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+
+    """
+    YAML loader to ignore unknown tags.
+
+    Borrowed from https://stackoverflow.com/a/57121993
+    """
+
+    def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
+        return None
+
+
+SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)
+
+
+def yaml_load_safely(content):
+    """
+    Uses ``SafeLoaderIgnoreUnknown`` loader to skip unknown tags.
+
+    When a YAML contains ``!!python/name:int`` it will complete ignore it an
+    return ``None`` for those fields instead of failing. We need this to avoid
+    executing random code, but still support these YAML files.
+    """
+    return yaml.load(content, Loader=SafeLoaderIgnoreUnknown)

@@ -2,6 +2,7 @@
     "active_versions": [
         {
             "active": true,
+            "hidden": false,
             "built": true,
             "downloads": {
                 "epub": "https://project.readthedocs.io/_/downloads/en/v1.0/epub/",
@@ -24,6 +25,11 @@
                     "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
                     "project": "https://readthedocs.org/api/v3/projects/project/",
                     "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
+                },
+                "urls": {
+                    "build": "https://readthedocs.org/projects/project/builds/1/",
+                    "project": "https://readthedocs.org/projects/project/",
+                    "version": "https://readthedocs.org/dashboard/project/version/v1.0/"
                 },
                 "project": "project",
                 "state": {

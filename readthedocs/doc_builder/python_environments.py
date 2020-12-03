@@ -106,6 +106,7 @@ class PythonEnvironment:
                 '--upgrade-strategy',
                 'eager',
                 *self._pip_cache_cmd_argument(),
+                *self._pip_extra_args(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -123,21 +124,29 @@ class PythonEnvironment:
                 bin_path=self.venv_bin(),
             )
 
+    def _pip_extra_args(self):
+        extra_args = []
+        if self.project.has_feature(Feature.USE_NEW_PIP_RESOLVER):
+            extra_args.extend(['--use-feature', '2020-resolver'])
+        return extra_args
+
     def _pip_cache_cmd_argument(self):
         """
         Return the pip command ``--cache-dir`` or ``--no-cache-dir`` argument.
 
         The decision is made considering if the directories are going to be
         cleaned after the build (``RTD_CLEAN_AFTER_BUILD=True`` or project has
-        the ``CLEAN_AFTER_BUILD`` feature enabled) and project has not the
-        feature ``CACHED_ENVIRONMENT``. In this case, there is no need to cache
+        the ``CLEAN_AFTER_BUILD`` feature enabled) or project has the feature
+        ``CACHED_ENVIRONMENT``. In this case, there is no need to cache
         anything.
         """
         if (
-            (
-                settings.RTD_CLEAN_AFTER_BUILD or
-                self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
-            ) and not self.project.has_feature(Feature.CACHED_ENVIRONMENT)
+            # Cache is going to be removed anyways
+            settings.RTD_CLEAN_AFTER_BUILD or
+            self.project.has_feature(Feature.CLEAN_AFTER_BUILD) or
+            # Cache will be pushed/pulled each time and won't be used because
+            # packages are already installed in the environment
+            self.project.has_feature(Feature.CACHED_ENVIRONMENT)
         ):
             return [
                 '--no-cache-dir',
@@ -293,19 +302,31 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        site_packages = ''
+        """
+        Create a virtualenv, invoking ``python -mvirtualenv``.
+
+        .. note::
+
+            ``--no-download`` was removed because of the pip breakage,
+            it was sometimes installing pip 20.0 which broke everything
+            https://github.com/readthedocs/readthedocs.org/issues/6585
+
+            Important not to add empty string arguments, see:
+            https://github.com/readthedocs/readthedocs.org/issues/7322
+        """
+        cli_args = [
+            '-mvirtualenv',
+        ]
         if self.config.python.use_system_site_packages:
-            site_packages = '--system-site-packages'
-        env_path = self.venv_path()
+            cli_args.append('--system-site-packages')
+
+        # Append the positional destination argument
+        cli_args.append(
+            self.venv_path(),
+        )
         self.build_env.run(
             self.config.python_interpreter,
-            '-mvirtualenv',
-            site_packages,
-            # This is removed because of the pip breakage,
-            # it was sometimes installing pip 20.0 which broke everything
-            # https://github.com/readthedocs/readthedocs.org/issues/6585
-            # '--no-download',
-            env_path,
+            *cli_args,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
@@ -325,18 +346,28 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            'Pygments==2.3.1',
             'setuptools==41.0.1',
-            'docutils==0.14',
+            self.project.get_feature_value(
+                Feature.DONT_INSTALL_DOCUTILS,
+                positive='',
+                negative='docutils==0.14',
+            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'six',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
@@ -350,19 +381,28 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            # We will assume semver here and only automate up to the next
-            # backward incompatible release: 2.x
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    positive='sphinx<2',
+                    positive='sphinx',
                     negative='sphinx<2',
                 ),
-                'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<1.1',
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx-rtd-theme',
+                    negative='sphinx-rtd-theme<0.5',
+                ),
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_RTD_EXT_LATEST,
+                    positive='readthedocs-sphinx-ext',
+                    negative='readthedocs-sphinx-ext<2.2',
+                ),
             ])
 
         cmd = copy.copy(pip_install_cmd)
+        cmd.extend(self._pip_extra_args())
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
@@ -411,6 +451,7 @@ class Virtualenv(PythonEnvironment):
                 '-m',
                 'pip',
                 'install',
+                *self._pip_extra_args(),
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
                 args += ['--upgrade']
@@ -423,8 +464,22 @@ class Virtualenv(PythonEnvironment):
             self.build_env.run(
                 *args,
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()  # noqa - no comma here in py27 :/
+                bin_path=self.venv_bin(),
             )
+
+    def list_packages_installed(self):
+        """List packages installed in pip."""
+        args = [
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
+            'list',
+        ]
+        self.build_env.run(
+            *args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
 
 
 class Conda(PythonEnvironment):
@@ -604,6 +659,7 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
+            'six',
         ]
 
         if self.config.doctype == 'mkdocs':
@@ -648,6 +704,7 @@ class Conda(PythonEnvironment):
             'install',
             '-U',
             *self._pip_cache_cmd_argument(),
+            *self._pip_extra_args(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
@@ -660,3 +717,15 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
+
+    def list_packages_installed(self):
+        """List packages installed in conda."""
+        args = [
+            'conda',
+            'list',
+        ]
+        self.build_env.run(
+            *args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )

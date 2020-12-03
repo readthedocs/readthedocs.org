@@ -8,6 +8,7 @@ BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_UPLOADING = 'uploading'
 BUILD_STATE_FINISHED = 'finished'
 
 BUILD_STATE = (
@@ -15,6 +16,7 @@ BUILD_STATE = (
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_UPLOADING, _('Uploading')),
     (BUILD_STATE_FINISHED, _('Finished')),
 )
 
@@ -98,8 +100,6 @@ SELECT_BUILD_STATUS = {
     },
 }
 
-RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
-
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
@@ -126,3 +126,13 @@ PREDEFINED_MATCH_ARGS_VALUES = {
     ALL_VERSIONS: ALL_VERSIONS_REGEX,
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }
+
+BUILD_STATUS_NORMAL = 'normal'
+BUILD_STATUS_DUPLICATED = 'duplicated'
+BUILD_STATUS_CHOICES = (
+    (BUILD_STATUS_NORMAL, 'Normal'),
+    (BUILD_STATUS_DUPLICATED, 'Duplicated'),
+)
+
+
+MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit

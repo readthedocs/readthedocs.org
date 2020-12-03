@@ -9,20 +9,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.urls import core_urls, docs_urls
-from readthedocs.core.views import (
-    HomepageView,
-    do_not_track,
-    server_error_404,
-    server_error_500,
-)
-from readthedocs.search import views as search_views
+from readthedocs.core.urls import core_urls
+from readthedocs.core.views import HomepageView, do_not_track, server_error_500
 from readthedocs.search.api import PageSearchAPIView
-
+from readthedocs.search.views import SearchView
 
 admin.autodiscover()
 
-handler404 = server_error_404
 handler500 = server_error_500
 
 basic_urls = [
@@ -37,7 +30,7 @@ basic_urls = [
 ]
 
 rtd_urls = [
-    url(r'^search/$', search_views.elastic_search, name='search'),
+    url(r'^search/$', SearchView.as_view(), name='search'),
     url(r'^dashboard/', include('readthedocs.projects.urls.private')),
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
@@ -46,8 +39,6 @@ rtd_urls = [
     url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
-    # For testing the 404's with DEBUG on.
-    url(r'^404/$', handler404),
     # For testing the 500's with DEBUG on.
     url(r'^500/$', handler500),
 ]
@@ -58,8 +49,8 @@ project_urls = [
 
 api_urls = [
     url(r'^api/v2/', include('readthedocs.api.v2.urls')),
-    # Keep the `doc_search` at root level, so the test does not fail for other API
-    url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
+    # Keep `search_api` at root level, so the test does not fail for other API
+    url(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
     url(
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
@@ -126,8 +117,6 @@ if settings.READ_THE_DOCS_EXTENSIONS:
         url(r'^', include('readthedocsext.urls'))
     ])
 
-if not settings.USE_SUBDOMAIN or settings.DEBUG:
-    groups.insert(0, docs_urls)
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
 if settings.DEBUG:

@@ -1,3 +1,709 @@
+Version 5.7.0
+-------------
+
+:Date: December 01, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Ensure there is space for sidebar ads (`#7716 <https://github.com/readthedocs/readthedocs.org/pull/7716>`__)
+* `@humitos <https://github.com/humitos>`__: Install six as core requirement for builds (`#7710 <https://github.com/readthedocs/readthedocs.org/pull/7710>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: increase feature_id max_length (`#7698 <https://github.com/readthedocs/readthedocs.org/pull/7698>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7695 <https://github.com/readthedocs/readthedocs.org/pull/7695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: use stable version instead of querying all versions (`#7380 <https://github.com/readthedocs/readthedocs.org/pull/7380>`__)
+
+Version 5.6.5
+-------------
+
+:Date: November 23, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock update_docs_task to speed up tests (`#7677 <https://github.com/readthedocs/readthedocs.org/pull/7677>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: add timestamp fields (`#7676 <https://github.com/readthedocs/readthedocs.org/pull/7676>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: create an organization when running in .com (`#7673 <https://github.com/readthedocs/readthedocs.org/pull/7673>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Speed up the tag index page (`#7671 <https://github.com/readthedocs/readthedocs.org/pull/7671>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Fix for out of order script loading (`#7670 <https://github.com/readthedocs/readthedocs.org/pull/7670>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Set ad configuration values if using explicit placement (`#7669 <https://github.com/readthedocs/readthedocs.org/pull/7669>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#7668 <https://github.com/readthedocs/readthedocs.org/pull/7668>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger build to speed up tests (`#7661 <https://github.com/readthedocs/readthedocs.org/pull/7661>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: save and set default_branch (`#7646 <https://github.com/readthedocs/readthedocs.org/pull/7646>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude some fields from source results (`#7640 <https://github.com/readthedocs/readthedocs.org/pull/7640>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: allow to search on different versions of subprojects (`#7634 <https://github.com/readthedocs/readthedocs.org/pull/7634>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor api view (`#7633 <https://github.com/readthedocs/readthedocs.org/pull/7633>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Initial Modeling with Through Model and Data Migration for RemoteRepository Model (`#7536 <https://github.com/readthedocs/readthedocs.org/pull/7536>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: remove slug 1/2 (`#7228 <https://github.com/readthedocs/readthedocs.org/pull/7228>`__)
+* `@humitos <https://github.com/humitos>`__: Changes required for APIv3 in corporate (`#6489 <https://github.com/readthedocs/readthedocs.org/pull/6489>`__)
+
+Version 5.6.4
+-------------
+
+:Date: November 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix for out of order script loading (`#7670 <https://github.com/readthedocs/readthedocs.org/pull/7670>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Set ad configuration values if using explicit placement (`#7669 <https://github.com/readthedocs/readthedocs.org/pull/7669>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#7668 <https://github.com/readthedocs/readthedocs.org/pull/7668>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 45 (`#7655 <https://github.com/readthedocs/readthedocs.org/pull/7655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: add delete version action (`#7644 <https://github.com/readthedocs/readthedocs.org/pull/7644>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude some fields from source results (`#7640 <https://github.com/readthedocs/readthedocs.org/pull/7640>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Initial Modeling with Through Model and Data Migration for RemoteRepository Model (`#7536 <https://github.com/readthedocs/readthedocs.org/pull/7536>`__)
+* `@humitos <https://github.com/humitos>`__: Changes required for APIv3 in corporate (`#6489 <https://github.com/readthedocs/readthedocs.org/pull/6489>`__)
+
+Version 5.6.3
+-------------
+
+:Date: November 10, 2020
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 43 (`#7602 <https://github.com/readthedocs/readthedocs.org/pull/7602>`__)
+
+Version 5.6.2
+-------------
+
+:Date: November 03, 2020
+
+* `@humitos <https://github.com/humitos>`__: Check only for override settings (part 2) (`#7630 <https://github.com/readthedocs/readthedocs.org/pull/7630>`__)
+* `@humitos <https://github.com/humitos>`__: Check only override settings (`#7628 <https://github.com/readthedocs/readthedocs.org/pull/7628>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Display sidebar ad when scrolled (`#7621 <https://github.com/readthedocs/readthedocs.org/pull/7621>`__)
+* `@humitos <https://github.com/humitos>`__: Reserve 1Gb for Application Memory (`#7618 <https://github.com/readthedocs/readthedocs.org/pull/7618>`__)
+* `@humitos <https://github.com/humitos>`__: Catch `requests.exceptions.ReadTimeout` when removing container (`#7617 <https://github.com/readthedocs/readthedocs.org/pull/7617>`__)
+* `@humitos <https://github.com/humitos>`__: Allow search and filter in Django Admin for Message model (`#7615 <https://github.com/readthedocs/readthedocs.org/pull/7615>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use badge from circleci (`#7614 <https://github.com/readthedocs/readthedocs.org/pull/7614>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect feature flag in dashboard search (`#7611 <https://github.com/readthedocs/readthedocs.org/pull/7611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7604 <https://github.com/readthedocs/readthedocs.org/pull/7604>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circleci (`#7603 <https://github.com/readthedocs/readthedocs.org/pull/7603>`__)
+
+
+Version 5.6.1
+-------------
+
+:Date: October 26, 2020
+
+* `@agjohnson <https://github.com/agjohnson>`__: Bump common to include docker task changes (`#7597 <https://github.com/readthedocs/readthedocs.org/pull/7597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Default to sphinx theme 0.5.0 when defaulting to latest sphinx (`#7596 <https://github.com/readthedocs/readthedocs.org/pull/7596>`__)
+* `@humitos <https://github.com/humitos>`__: Use correct Cache-Tag (CDN) and X-RTD-Project header on subprojects (`#7593 <https://github.com/readthedocs/readthedocs.org/pull/7593>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Ads JS hotfix (`#7586 <https://github.com/readthedocs/readthedocs.org/pull/7586>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add remoterepo query param (`#7580 <https://github.com/readthedocs/readthedocs.org/pull/7580>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Undeprecate APIv2 in docs (`#7579 <https://github.com/readthedocs/readthedocs.org/pull/7579>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add settings and docker configuration for working with new theme (`#7578 <https://github.com/readthedocs/readthedocs.org/pull/7578>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude chagelog from results (`#7570 <https://github.com/readthedocs/readthedocs.org/pull/7570>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: better results for single terms (`#7569 <https://github.com/readthedocs/readthedocs.org/pull/7569>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor query objects (`#7568 <https://github.com/readthedocs/readthedocs.org/pull/7568>`__)
+* `@humitos <https://github.com/humitos>`__: Add our `readthedocs_processor` data to our notifications (`#7565 <https://github.com/readthedocs/readthedocs.org/pull/7565>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update ES to 6.8.12 (`#7559 <https://github.com/readthedocs/readthedocs.org/pull/7559>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: always install latest version of our sphinx extension (`#7542 <https://github.com/readthedocs/readthedocs.org/pull/7542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bring back project privacy level (`#7525 <https://github.com/readthedocs/readthedocs.org/pull/7525>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add future default true to Feature flags (`#7524 <https://github.com/readthedocs/readthedocs.org/pull/7524>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add feature flag to not install the latest version of pip (`#7522 <https://github.com/readthedocs/readthedocs.org/pull/7522>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: No longer proxy RTD ads through RTD servers (`#7506 <https://github.com/readthedocs/readthedocs.org/pull/7506>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subprojects: fix form (`#7491 <https://github.com/readthedocs/readthedocs.org/pull/7491>`__)
+* `@AvdN <https://github.com/AvdN>`__: correct inconsistent indentation of YAML (`#7459 <https://github.com/readthedocs/readthedocs.org/pull/7459>`__)
+
+Version 5.6.0
+-------------
+
+:Date: October 19, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude chagelog from results (`#7570 <https://github.com/readthedocs/readthedocs.org/pull/7570>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: show example of a requirements.txt file (`#7563 <https://github.com/readthedocs/readthedocs.org/pull/7563>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update ES to 6.8.12 (`#7559 <https://github.com/readthedocs/readthedocs.org/pull/7559>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 40 (`#7537 <https://github.com/readthedocs/readthedocs.org/pull/7537>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add future default true to Feature flags (`#7524 <https://github.com/readthedocs/readthedocs.org/pull/7524>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: No longer proxy RTD ads through RTD servers (`#7506 <https://github.com/readthedocs/readthedocs.org/pull/7506>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow projects to opt-out of analytics (`#7175 <https://github.com/readthedocs/readthedocs.org/pull/7175>`__)
+
+Version 5.5.3
+-------------
+
+:Date: October 13, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a reference to the Import guide at the start of Getting started (`#7547 <https://github.com/readthedocs/readthedocs.org/pull/7547>`__)
+* `@kuzmoyev <https://github.com/kuzmoyev>`__: Include month-ago day to traffic data (`#7545 <https://github.com/readthedocs/readthedocs.org/pull/7545>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downloads: fix translation of a subproject (`#7541 <https://github.com/readthedocs/readthedocs.org/pull/7541>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: more robust form (`#7523 <https://github.com/readthedocs/readthedocs.org/pull/7523>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Revert ES: update dependencies" (`#7439 <https://github.com/readthedocs/readthedocs.org/pull/7439>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove old endpoint (`#7414 <https://github.com/readthedocs/readthedocs.org/pull/7414>`__)
+
+Version 5.5.2
+-------------
+
+:Date: October 06, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Domain: show created/modified date in admin (`#7517 <https://github.com/readthedocs/readthedocs.org/pull/7517>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: fix eslint (`#7516 <https://github.com/readthedocs/readthedocs.org/pull/7516>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "New docker image for builders: 8.0" (`#7514 <https://github.com/readthedocs/readthedocs.org/pull/7514>`__)
+* `@srijan-deepsource <https://github.com/srijan-deepsource>`__: Fix some code quality issues (`#7494 <https://github.com/readthedocs/readthedocs.org/pull/7494>`__)
+
+Version 5.5.1
+-------------
+
+:Date: September 28, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Domain: fix form (`#7502 <https://github.com/readthedocs/readthedocs.org/pull/7502>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builders: little refactor (`#7500 <https://github.com/readthedocs/readthedocs.org/pull/7500>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proper div names on our ad placements (`#7493 <https://github.com/readthedocs/readthedocs.org/pull/7493>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: APIv3 Version list slug filter added (`#7372 <https://github.com/readthedocs/readthedocs.org/pull/7372>`__)
+* `@humitos <https://github.com/humitos>`__: Use "-j auto" on sphinx-build command to build in parallel (`#7128 <https://github.com/readthedocs/readthedocs.org/pull/7128>`__)
+
+Version 5.5.0
+-------------
+
+:Date: September 22, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Don't install pygments (`#7490 <https://github.com/readthedocs/readthedocs.org/pull/7490>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrency per-organization (`#7489 <https://github.com/readthedocs/readthedocs.org/pull/7489>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 37 (`#7482 <https://github.com/readthedocs/readthedocs.org/pull/7482>`__)
+* `@humitos <https://github.com/humitos>`__: Use `permissions` (project and group) for `RemoteRepository.admin` on GitLab (`#7479 <https://github.com/readthedocs/readthedocs.org/pull/7479>`__)
+
+Version 5.4.3
+-------------
+
+:Date: September 15, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Domain: inherit from TimeStampedModel (`#7476 <https://github.com/readthedocs/readthedocs.org/pull/7476>`__)
+* `@stsewd <https://github.com/stsewd>`__: Truncate output at the start for large commands (`#7473 <https://github.com/readthedocs/readthedocs.org/pull/7473>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add dependency explicitly (dateutil) (`#7415 <https://github.com/readthedocs/readthedocs.org/pull/7415>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: add ssl_status field (`#7398 <https://github.com/readthedocs/readthedocs.org/pull/7398>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: allow ignoring files from indexing (`#7308 <https://github.com/readthedocs/readthedocs.org/pull/7308>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: SSS integration guide (`#7232 <https://github.com/readthedocs/readthedocs.org/pull/7232>`__)
+
+Version 5.4.2
+-------------
+
+:Date: September 09, 2020
+
+* `@humitos <https://github.com/humitos>`__: Show "Connected Services" form errors to the user (`#7469 <https://github.com/readthedocs/readthedocs.org/pull/7469>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend OrganizationTeamBasicForm from -corporate (`#7467 <https://github.com/readthedocs/readthedocs.org/pull/7467>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#7465 <https://github.com/readthedocs/readthedocs.org/pull/7465>`__)
+* `@AvdN <https://github.com/AvdN>`__: correct invalid YAML (`#7458 <https://github.com/readthedocs/readthedocs.org/pull/7458>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: filter by account before deleting (`#7454 <https://github.com/readthedocs/readthedocs.org/pull/7454>`__)
+* `@humitos <https://github.com/humitos>`__: Truncate the beggining of the commands' output (`#7449 <https://github.com/readthedocs/readthedocs.org/pull/7449>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Update links to advertising (`#7443 <https://github.com/readthedocs/readthedocs.org/pull/7443>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Don't retry on POST" (`#7442 <https://github.com/readthedocs/readthedocs.org/pull/7442>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move signals (`#7441 <https://github.com/readthedocs/readthedocs.org/pull/7441>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move forms (`#7438 <https://github.com/readthedocs/readthedocs.org/pull/7438>`__)
+* `@humitos <https://github.com/humitos>`__: Grab the correct name of RemoteOrganization to use in the query (`#7430 <https://github.com/readthedocs/readthedocs.org/pull/7430>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "ES: update dependencies" (`#7429 <https://github.com/readthedocs/readthedocs.org/pull/7429>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#7423 <https://github.com/readthedocs/readthedocs.org/pull/7423>`__)
+* `@humitos <https://github.com/humitos>`__: Mark a build as DUPLICATED (same version) only it's close in time (`#7420 <https://github.com/readthedocs/readthedocs.org/pull/7420>`__)
+
+Version 5.4.1
+-------------
+
+:Date: September 01, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedcos-sphinx-search ext (`#7427 <https://github.com/readthedocs/readthedocs.org/pull/7427>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 2.2.16 (`#7426 <https://github.com/readthedocs/readthedocs.org/pull/7426>`__)
+* `@bmorrison4 <https://github.com/bmorrison4>`__: Fix typo in docs/guides/adding-custom-css.rst (`#7424 <https://github.com/readthedocs/readthedocs.org/pull/7424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test: set privacy level explicitly (`#7422 <https://github.com/readthedocs/readthedocs.org/pull/7422>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pip: test new resolver (`#7412 <https://github.com/readthedocs/readthedocs.org/pull/7412>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7411 <https://github.com/readthedocs/readthedocs.org/pull/7411>`__)
+* `@stsewd <https://github.com/stsewd>`__: Release 5.4.0 (`#7410 <https://github.com/readthedocs/readthedocs.org/pull/7410>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker: install requirements from local changes (`#7409 <https://github.com/readthedocs/readthedocs.org/pull/7409>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: update dependencies (`#7408 <https://github.com/readthedocs/readthedocs.org/pull/7408>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 34 (`#7406 <https://github.com/readthedocs/readthedocs.org/pull/7406>`__)
+* `@stsewd <https://github.com/stsewd>`__: API client: don't retry on POST (`#7383 <https://github.com/readthedocs/readthedocs.org/pull/7383>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: build_url added to all API v3 build endpoints (`#7373 <https://github.com/readthedocs/readthedocs.org/pull/7373>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: deprecating content (`#7333 <https://github.com/readthedocs/readthedocs.org/pull/7333>`__)
+* `@humitos <https://github.com/humitos>`__: Auto-join email users field for Team model (`#7328 <https://github.com/readthedocs/readthedocs.org/pull/7328>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+* `@humitos <https://github.com/humitos>`__: Sync RemoteRepository and RemoteOrganization in all VCS providers (`#7310 <https://github.com/readthedocs/readthedocs.org/pull/7310>`__)
+* `@stsewd <https://github.com/stsewd>`__: Page views: use origin URL instead of page name (`#7293 <https://github.com/readthedocs/readthedocs.org/pull/7293>`__)
+
+Version 5.4.0
+-------------
+
+:Date: August 25, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: ES: match version used in production (`#7407 <https://github.com/readthedocs/readthedocs.org/pull/7407>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Advertising docs tweaks (`#7400 <https://github.com/readthedocs/readthedocs.org/pull/7400>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedocs-sphinx-search (`#7399 <https://github.com/readthedocs/readthedocs.org/pull/7399>`__)
+* `@keewis <https://github.com/keewis>`__: document installing into a environment with pinned dependencies (`#7397 <https://github.com/readthedocs/readthedocs.org/pull/7397>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 32 (`#7377 <https://github.com/readthedocs/readthedocs.org/pull/7377>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: store build commands in storage (`#7356 <https://github.com/readthedocs/readthedocs.org/pull/7356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+
+Version 5.3.0
+-------------
+
+:Date: August 18, 2020
+
+* `@humitos <https://github.com/humitos>`__: Remove the comma added in logs that breaks grep parsing (`#7393 <https://github.com/readthedocs/readthedocs.org/pull/7393>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab webhook: don't fail on invalid payload (`#7391 <https://github.com/readthedocs/readthedocs.org/pull/7391>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: improve logging (`#7389 <https://github.com/readthedocs/readthedocs.org/pull/7389>`__)
+* `@stsewd <https://github.com/stsewd>`__: External providers: better logging for GitLab (`#7385 <https://github.com/readthedocs/readthedocs.org/pull/7385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: small changes (`#7379 <https://github.com/readthedocs/readthedocs.org/pull/7379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: return relatives URLS (`#7376 <https://github.com/readthedocs/readthedocs.org/pull/7376>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: little optimization when deleting versions (`#7367 <https://github.com/readthedocs/readthedocs.org/pull/7367>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just skip the sync version task entirely (`#7366 <https://github.com/readthedocs/readthedocs.org/pull/7366>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Convert zip to list for templates (`#7359 <https://github.com/readthedocs/readthedocs.org/pull/7359>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: implement stable API (`#7255 <https://github.com/readthedocs/readthedocs.org/pull/7255>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve parser (`#7233 <https://github.com/readthedocs/readthedocs.org/pull/7233>`__)
+
+Version 5.2.3
+-------------
+
+:Date: August 04, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Add a middleware for referrer policy (`#7346 <https://github.com/readthedocs/readthedocs.org/pull/7346>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: don't show the version warning for external version (`#7340 <https://github.com/readthedocs/readthedocs.org/pull/7340>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Lower rank for custom install docs. (`#7339 <https://github.com/readthedocs/readthedocs.org/pull/7339>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Argument list for "python -m virtualenv" without empty strings (`#7330 <https://github.com/readthedocs/readthedocs.org/pull/7330>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix some links (`#7317 <https://github.com/readthedocs/readthedocs.org/pull/7317>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: little improvements on getting start docs (`#7316 <https://github.com/readthedocs/readthedocs.org/pull/7316>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: migrate null ranks to zero (`#7274 <https://github.com/readthedocs/readthedocs.org/pull/7274>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it more clear search on subprojects (`#7272 <https://github.com/readthedocs/readthedocs.org/pull/7272>`__)
+
+Version 5.2.2
+-------------
+
+:Date: July 29, 2020
+
+* `@agjohnson <https://github.com/agjohnson>`__: Reduce robots.txt cache TTL (`#7334 <https://github.com/readthedocs/readthedocs.org/pull/7334>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use the privacy embed for YouTube (`#7320 <https://github.com/readthedocs/readthedocs.org/pull/7320>`__)
+* `@DougCal <https://github.com/DougCal>`__: re-worded text on top of "Import a Repository" (`#7318 <https://github.com/readthedocs/readthedocs.org/pull/7318>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it clear the config file options are per version (`#7314 <https://github.com/readthedocs/readthedocs.org/pull/7314>`__)
+* `@humitos <https://github.com/humitos>`__: Feature to disable auto-generated index.md/README.rst files (`#7305 <https://github.com/readthedocs/readthedocs.org/pull/7305>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: always exclude the build directory (`#7303 <https://github.com/readthedocs/readthedocs.org/pull/7303>`__)
+* `@humitos <https://github.com/humitos>`__: Enable SessionAuthentication on APIv3 endpoints (`#7295 <https://github.com/readthedocs/readthedocs.org/pull/7295>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend TeamManager (`#7294 <https://github.com/readthedocs/readthedocs.org/pull/7294>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 28 (`#7287 <https://github.com/readthedocs/readthedocs.org/pull/7287>`__)
+* `@humitos <https://github.com/humitos>`__: Make "homepage" optional when updating a project (`#7286 <https://github.com/readthedocs/readthedocs.org/pull/7286>`__)
+* `@humitos <https://github.com/humitos>`__: Allow users to set hidden on versions via APIv3 (`#7285 <https://github.com/readthedocs/readthedocs.org/pull/7285>`__)
+* `@humitos <https://github.com/humitos>`__: DONT_INSTALL_DOCUTILS feature flag (`#7276 <https://github.com/readthedocs/readthedocs.org/pull/7276>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
+Version 5.2.1
+-------------
+
+:Date: July 14, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix a case where "tags" is interpreted as a project slug (`#7284 <https://github.com/readthedocs/readthedocs.org/pull/7284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dashboard: little optimization (`#7281 <https://github.com/readthedocs/readthedocs.org/pull/7281>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: privacy levels (`#7278 <https://github.com/readthedocs/readthedocs.org/pull/7278>`__)
+* `@stsewd <https://github.com/stsewd>`__: Templates: optimize permissions check (`#7277 <https://github.com/readthedocs/readthedocs.org/pull/7277>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix versions (`#7271 <https://github.com/readthedocs/readthedocs.org/pull/7271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tweak priority a little more (`#7270 <https://github.com/readthedocs/readthedocs.org/pull/7270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't default on the migration (`#7269 <https://github.com/readthedocs/readthedocs.org/pull/7269>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Automation rule to make versions hidden added (`#7265 <https://github.com/readthedocs/readthedocs.org/pull/7265>`__)
+* `@humitos <https://github.com/humitos>`__: Add `is_member` template filter (`#7264 <https://github.com/readthedocs/readthedocs.org/pull/7264>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: set ranking for some pages (`#7257 <https://github.com/readthedocs/readthedocs.org/pull/7257>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: add --keep-going when fail_on_warning is true (`#7251 <https://github.com/readthedocs/readthedocs.org/pull/7251>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Don't allow Domain name matching production domain to be created (`#7244 <https://github.com/readthedocs/readthedocs.org/pull/7244>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
+Version 5.2.0
+-------------
+
+:Date: July 07, 2020
+
+* `@saadmk11 <https://github.com/saadmk11>`__: Version docs Typo fix (`#7266 <https://github.com/readthedocs/readthedocs.org/pull/7266>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: fix linter (`#7261 <https://github.com/readthedocs/readthedocs.org/pull/7261>`__)
+* `@GioviQ <https://github.com/GioviQ>`__: Update manage-translations.rst (`#7260 <https://github.com/readthedocs/readthedocs.org/pull/7260>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add additional logging for sync_repository task (`#7254 <https://github.com/readthedocs/readthedocs.org/pull/7254>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: custom search page ranking (`#7237 <https://github.com/readthedocs/readthedocs.org/pull/7237>`__)
+
+Version 5.1.5
+-------------
+
+:Date: July 01, 2020
+
+* `@choldgraf <https://github.com/choldgraf>`__: cross-linking build limitations for pr builds (`#7248 <https://github.com/readthedocs/readthedocs.org/pull/7248>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend Import Project page from corporate (`#7234 <https://github.com/readthedocs/readthedocs.org/pull/7234>`__)
+* `@humitos <https://github.com/humitos>`__: Make RemoteRepository.full_name db_index=True (`#7231 <https://github.com/readthedocs/readthedocs.org/pull/7231>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: tweak fuzziness (`#7225 <https://github.com/readthedocs/readthedocs.org/pull/7225>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Re-add the rst filter that got removed (`#7223 <https://github.com/readthedocs/readthedocs.org/pull/7223>`__)
+
+Version 5.1.4
+-------------
+
+:Date: June 23, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: index from html files for mkdocs projects (`#7208 <https://github.com/readthedocs/readthedocs.org/pull/7208>`__)
+* `@stsewd <https://github.com/stsewd>`__:  Search: recursively parse sections (`#7207 <https://github.com/readthedocs/readthedocs.org/pull/7207>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: more general parser for html (`#7204 <https://github.com/readthedocs/readthedocs.org/pull/7204>`__)
+* `@humitos <https://github.com/humitos>`__: Use total_memory to calculate "time" Docker limit (`#7203 <https://github.com/readthedocs/readthedocs.org/pull/7203>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Feature flag for using latest Sphinx (`#7201 <https://github.com/readthedocs/readthedocs.org/pull/7201>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention that we don't index search in PR builds (`#7199 <https://github.com/readthedocs/readthedocs.org/pull/7199>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add a feature flag to use latest RTD Sphinx ext (`#7198 <https://github.com/readthedocs/readthedocs.org/pull/7198>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.3 (`#7197 <https://github.com/readthedocs/readthedocs.org/pull/7197>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve results for simple queries (`#7194 <https://github.com/readthedocs/readthedocs.org/pull/7194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor json parser (`#7184 <https://github.com/readthedocs/readthedocs.org/pull/7184>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused dep (`#7147 <https://github.com/readthedocs/readthedocs.org/pull/7147>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use theme release 0.5.0rc1 for docs (`#7037 <https://github.com/readthedocs/readthedocs.org/pull/7037>`__)
+* `@humitos <https://github.com/humitos>`__: Skip promoting new stable if current stable is not `machine=True` (`#6695 <https://github.com/readthedocs/readthedocs.org/pull/6695>`__)
+
+Version 5.1.3
+-------------
+
+:Date: June 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix the project migration conflict (`#7196 <https://github.com/readthedocs/readthedocs.org/pull/7196>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix pagination (`#7195 <https://github.com/readthedocs/readthedocs.org/pull/7195>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document the fact that PR builds are now enabled on .org (`#7187 <https://github.com/readthedocs/readthedocs.org/pull/7187>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: make description shorter (`#7186 <https://github.com/readthedocs/readthedocs.org/pull/7186>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate private versions (`#7181 <https://github.com/readthedocs/readthedocs.org/pull/7181>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update sharing examples (`#7179 <https://github.com/readthedocs/readthedocs.org/pull/7179>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow projects to opt-out of analytics (`#7175 <https://github.com/readthedocs/readthedocs.org/pull/7175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: install readthedocs-sphinx-search from pypi (`#7174 <https://github.com/readthedocs/readthedocs.org/pull/7174>`__)
+* `@humitos <https://github.com/humitos>`__: Rename API endpoint call (`#7173 <https://github.com/readthedocs/readthedocs.org/pull/7173>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Reduce logging in proxito middleware so it isn't in Sentry (`#7172 <https://github.com/readthedocs/readthedocs.org/pull/7172>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.2 (`#7171 <https://github.com/readthedocs/readthedocs.org/pull/7171>`__)
+* `@humitos <https://github.com/humitos>`__: Use `CharField.choices` for `Build.status_code` (`#7166 <https://github.com/readthedocs/readthedocs.org/pull/7166>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Store pageviews via signals, not tasks (`#7106 <https://github.com/readthedocs/readthedocs.org/pull/7106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move organizations models (`#6776 <https://github.com/readthedocs/readthedocs.org/pull/6776>`__)
+
+Version 5.1.2
+-------------
+
+:Date: June 09, 2020
+
+* `@humitos <https://github.com/humitos>`__: Use `CharField.choices` for `Build.status_code` (`#7166 <https://github.com/readthedocs/readthedocs.org/pull/7166>`__)
+* `@humitos <https://github.com/humitos>`__: Install `argh` for Docker environment (`#7164 <https://github.com/readthedocs/readthedocs.org/pull/7164>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Reindex search on the `reindex` queue (`#7161 <https://github.com/readthedocs/readthedocs.org/pull/7161>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project search: Show original description when there isn't highlight (`#7160 <https://github.com/readthedocs/readthedocs.org/pull/7160>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: highlight results from projects (`#7158 <https://github.com/readthedocs/readthedocs.org/pull/7158>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix custom URLConf redirects (`#7155 <https://github.com/readthedocs/readthedocs.org/pull/7155>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allow `blank=True` for URLConf (`#7153 <https://github.com/readthedocs/readthedocs.org/pull/7153>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix flaky test (`#7148 <https://github.com/readthedocs/readthedocs.org/pull/7148>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Make total_results not null (`#7145 <https://github.com/readthedocs/readthedocs.org/pull/7145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: make external_builds_enabled not null (`#7144 <https://github.com/readthedocs/readthedocs.org/pull/7144>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Do not Pre-populate username field for account delete (`#7143 <https://github.com/readthedocs/readthedocs.org/pull/7143>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add feature flag to use the stock Sphinx builders (`#7141 <https://github.com/readthedocs/readthedocs.org/pull/7141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Move changes_files to before search indexing (`#7138 <https://github.com/readthedocs/readthedocs.org/pull/7138>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito middleware: reset to original urlconf after request (`#7137 <https://github.com/readthedocs/readthedocs.org/pull/7137>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't index permalinks (`#7134 <https://github.com/readthedocs/readthedocs.org/pull/7134>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Merge pull request #7101 from readthedocs/show-last-total" (`#7133 <https://github.com/readthedocs/readthedocs.org/pull/7133>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.1 (`#7129 <https://github.com/readthedocs/readthedocs.org/pull/7129>`__)
+* `@humitos <https://github.com/humitos>`__: Use "-j auto" on sphinx-build command to build in parallel (`#7128 <https://github.com/readthedocs/readthedocs.org/pull/7128>`__)
+* `@humitos <https://github.com/humitos>`__: De-duplicate builds (`#7123 <https://github.com/readthedocs/readthedocs.org/pull/7123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor API to not emulate a Django queryset (`#7114 <https://github.com/readthedocs/readthedocs.org/pull/7114>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Store pageviews via signals, not tasks (`#7106 <https://github.com/readthedocs/readthedocs.org/pull/7106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't index line numbers from code blocks (`#7104 <https://github.com/readthedocs/readthedocs.org/pull/7104>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove usage of project.privacy_level (`#7013 <https://github.com/readthedocs/readthedocs.org/pull/7013>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#7012 <https://github.com/readthedocs/readthedocs.org/pull/7012>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to enable server side search for MkDocs (`#6986 <https://github.com/readthedocs/readthedocs.org/pull/6986>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pass the NO_COLOR env var to builder (`#6981 <https://github.com/readthedocs/readthedocs.org/pull/6981>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrency in translations (`#6969 <https://github.com/readthedocs/readthedocs.org/pull/6969>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+
+Version 5.1.1
+-------------
+
+:Date: May 26, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: show total_results from last query (`#7101 <https://github.com/readthedocs/readthedocs.org/pull/7101>`__)
+* `@humitos <https://github.com/humitos>`__: Add a tip in EmbedAPI to use Sphinx reference in section (`#7099 <https://github.com/readthedocs/readthedocs.org/pull/7099>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.0 (`#7098 <https://github.com/readthedocs/readthedocs.org/pull/7098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+* `@humitos <https://github.com/humitos>`__: GitLab Integration (`#3327 <https://github.com/readthedocs/readthedocs.org/pull/3327>`__)
+
+Version 5.1.0
+-------------
+
+:Date: May 19, 2020
+
+This release includes one major new feature which is Pageview Analytics.
+This allows projects to see the pages in their docs that have been viewed in the past 30 days,
+giving them an idea of what pages to focus on when updating them.
+
+This release also has a few small search improvements, doc updates, and other bugfixes as well.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@stsewd <https://github.com/stsewd>`__: Privacy levels: migrate protected versions (`#7092 <https://github.com/readthedocs/readthedocs.org/pull/7092>`__)
+* `@humitos <https://github.com/humitos>`__: Guide for Embed API (`#7089 <https://github.com/readthedocs/readthedocs.org/pull/7089>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document HSTS support (`#7083 <https://github.com/readthedocs/readthedocs.org/pull/7083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: record queries with 0 results (`#7081 <https://github.com/readthedocs/readthedocs.org/pull/7081>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: track total results (`#7080 <https://github.com/readthedocs/readthedocs.org/pull/7080>`__)
+* `@humitos <https://github.com/humitos>`__: Proxy embed URL (`#7079 <https://github.com/readthedocs/readthedocs.org/pull/7079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Little refactor (`#7076 <https://github.com/readthedocs/readthedocs.org/pull/7076>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonical/HTTPS redirect fix (`#7075 <https://github.com/readthedocs/readthedocs.org/pull/7075>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx Search: don't skip indexing if one file fails (`#7071 <https://github.com/readthedocs/readthedocs.org/pull/7071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: generate full link from the server side (`#7070 <https://github.com/readthedocs/readthedocs.org/pull/7070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix PR builds being marked built (`#7069 <https://github.com/readthedocs/readthedocs.org/pull/7069>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a page about choosing between .com/.org (`#7068 <https://github.com/readthedocs/readthedocs.org/pull/7068>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.0.0 (`#7064 <https://github.com/readthedocs/readthedocs.org/pull/7064>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Index more content from sphinx (`#7063 <https://github.com/readthedocs/readthedocs.org/pull/7063>`__)
+* `@santos22 <https://github.com/santos22>`__: Hide unbuilt versions in footer flyout (`#7056 <https://github.com/readthedocs/readthedocs.org/pull/7056>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search Document: remove unused class methods (`#7035 <https://github.com/readthedocs/readthedocs.org/pull/7035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: iterate over valid facets only (`#7034 <https://github.com/readthedocs/readthedocs.org/pull/7034>`__)
+* `@stsewd <https://github.com/stsewd>`__: RTDFacetedSearch: pass filters in one way only (`#7032 <https://github.com/readthedocs/readthedocs.org/pull/7032>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+
+Version 5.0.0
+-------------
+
+:Date: May 12, 2020
+
+This release includes two large changes, one that is breaking and requires a major version upgrade:
+
+* We have removed our deprecated doc serving code that used ``core/views``, ``core/symlinks``, and ``builds/syncers`` (`#6535 <https://github.com/readthedocs/readthedocs.org/pull/6535>`__). All doc serving should now be done via ``proxito``. In production this has been the case for over a month, we have now removed the deprecated code from the codebase.
+* We did a large documentation refactor that should make things nicer to read and highlights more of our existing features. This is the first of a series of new documentation additions we have planned
+
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the caching of featured projects (`#7054 <https://github.com/readthedocs/readthedocs.org/pull/7054>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Mention using ssh URLs when using private submodules (`#7046 <https://github.com/readthedocs/readthedocs.org/pull/7046>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Show project slug in Version admin (`#7042 <https://github.com/readthedocs/readthedocs.org/pull/7042>`__)
+* `@stsewd <https://github.com/stsewd>`__: List apiv3 first (`#7041 <https://github.com/readthedocs/readthedocs.org/pull/7041>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove CELERY_ROUTER flag (`#7040 <https://github.com/readthedocs/readthedocs.org/pull/7040>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove unused taxonomy field (`#7033 <https://github.com/readthedocs/readthedocs.org/pull/7033>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use a high time limit for celery build task (`#7029 <https://github.com/readthedocs/readthedocs.org/pull/7029>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up build admin to make list display match search (`#7028 <https://github.com/readthedocs/readthedocs.org/pull/7028>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task Router: check for None (`#7027 <https://github.com/readthedocs/readthedocs.org/pull/7027>`__)
+* `@stsewd <https://github.com/stsewd>`__: Implement repo_exists for all VCS backends (`#7025 <https://github.com/readthedocs/readthedocs.org/pull/7025>`__)
+* `@stsewd <https://github.com/stsewd>`__: Mkdocs: Index pages without anchors (`#7024 <https://github.com/readthedocs/readthedocs.org/pull/7024>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Move docker limits back to setting (`#7023 <https://github.com/readthedocs/readthedocs.org/pull/7023>`__)
+* `@humitos <https://github.com/humitos>`__: Fix typo (`#7022 <https://github.com/readthedocs/readthedocs.org/pull/7022>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#7021 <https://github.com/readthedocs/readthedocs.org/pull/7021>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.8 (`#7020 <https://github.com/readthedocs/readthedocs.org/pull/7020>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup unresolver logging (`#7019 <https://github.com/readthedocs/readthedocs.org/pull/7019>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document about next when using a secret link (`#7015 <https://github.com/readthedocs/readthedocs.org/pull/7015>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused field project.version_privacy_level (`#7011 <https://github.com/readthedocs/readthedocs.org/pull/7011>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito headers to redirect responses (`#7007 <https://github.com/readthedocs/readthedocs.org/pull/7007>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make hidden field not null (`#6996 <https://github.com/readthedocs/readthedocs.org/pull/6996>`__)
+* `@humitos <https://github.com/humitos>`__: Show a list of packages installed on environment (`#6992 <https://github.com/readthedocs/readthedocs.org/pull/6992>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Ensure invoked Sphinx matches importable one (`#6965 <https://github.com/readthedocs/readthedocs.org/pull/6965>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an unresolver similar to our resolver (`#6944 <https://github.com/readthedocs/readthedocs.org/pull/6944>`__)
+* `@KengoTODA <https://github.com/KengoTODA>`__: Replace "PROJECT" with project object (`#6878 <https://github.com/readthedocs/readthedocs.org/pull/6878>`__)
+* `@humitos <https://github.com/humitos>`__: Remove code replaced by El Proxito and stateless servers (`#6535 <https://github.com/readthedocs/readthedocs.org/pull/6535>`__)
+
+Version 4.1.8
+-------------
+
+:Date: May 05, 2020
+
+This release adds a few new features and bugfixes.
+The largest change is the addition of ``hidden`` versions,
+which allows docs to be built but not shown to users on the site.
+This will keep old links from breaking but not direct new users there.
+
+We've also expanded the CDN support to make sure we're passing headers on 3xx and 4xx responses.
+This will allow us to expand the timeout on our CDN.
+
+We've also updated and added a good amount of documentation in this release,
+and we're starting a larger refactor of our docs to help users understand the platform better.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup unresolver logging (`#7019 <https://github.com/readthedocs/readthedocs.org/pull/7019>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CDN to the installed apps (`#7014 <https://github.com/readthedocs/readthedocs.org/pull/7014>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Emit a better error if no feature flag is found (`#7009 <https://github.com/readthedocs/readthedocs.org/pull/7009>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito headers to redirect responses (`#7007 <https://github.com/readthedocs/readthedocs.org/pull/7007>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Priority 0 to Celery (`#7006 <https://github.com/readthedocs/readthedocs.org/pull/7006>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update conftest (`#7002 <https://github.com/readthedocs/readthedocs.org/pull/7002>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Start storing JSON data for PR builds (`#7001 <https://github.com/readthedocs/readthedocs.org/pull/7001>`__)
+* `@yarikoptic <https://github.com/yarikoptic>`__: Add a note if build status is not being reported (`#6999 <https://github.com/readthedocs/readthedocs.org/pull/6999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#6997 <https://github.com/readthedocs/readthedocs.org/pull/6997>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Exclusively handle proxito HSTS from the backend (`#6994 <https://github.com/readthedocs/readthedocs.org/pull/6994>`__)
+* `@humitos <https://github.com/humitos>`__: Mention concurrent builds limitation in "Build Process" (`#6993 <https://github.com/readthedocs/readthedocs.org/pull/6993>`__)
+* `@humitos <https://github.com/humitos>`__: Show a list of packages installed on environment (`#6992 <https://github.com/readthedocs/readthedocs.org/pull/6992>`__)
+* `@humitos <https://github.com/humitos>`__: Document SHARE_SPHINX_DOCTREE flag (`#6991 <https://github.com/readthedocs/readthedocs.org/pull/6991>`__)
+* `@humitos <https://github.com/humitos>`__: Contact us via email for Feature Flags (`#6990 <https://github.com/readthedocs/readthedocs.org/pull/6990>`__)
+* `@santos22 <https://github.com/santos22>`__: Alter field url on webhook (`#6988 <https://github.com/readthedocs/readthedocs.org/pull/6988>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Log sync_repository_task when we run it (`#6987 <https://github.com/readthedocs/readthedocs.org/pull/6987>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old SSL cert warning, since they now work. (`#6985 <https://github.com/readthedocs/readthedocs.org/pull/6985>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: More fixes for automatic Docker limits (`#6982 <https://github.com/readthedocs/readthedocs.org/pull/6982>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add details to our changelog for 4.1.7 (`#6978 <https://github.com/readthedocs/readthedocs.org/pull/6978>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.7 (`#6976 <https://github.com/readthedocs/readthedocs.org/pull/6976>`__)
+* `@humitos <https://github.com/humitos>`__: Remove DOCKER_LIMITS (`#6975 <https://github.com/readthedocs/readthedocs.org/pull/6975>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Catch inifinite canonical redirects (`#6973 <https://github.com/readthedocs/readthedocs.org/pull/6973>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Ensure invoked Sphinx matches importable one (`#6965 <https://github.com/readthedocs/readthedocs.org/pull/6965>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an unresolver similar to our resolver (`#6944 <https://github.com/readthedocs/readthedocs.org/pull/6944>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add support for Mkdocs search (`#6937 <https://github.com/readthedocs/readthedocs.org/pull/6937>`__)
+* `@humitos <https://github.com/humitos>`__: Optimization on `sync_versions` to use ls-remote on Git VCS (`#6930 <https://github.com/readthedocs/readthedocs.org/pull/6930>`__)
+* `@humitos <https://github.com/humitos>`__: Split X-RTD-Version-Method header into two HTTP headers. (`#6907 <https://github.com/readthedocs/readthedocs.org/pull/6907>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override sign in and sign out views (`#6901 <https://github.com/readthedocs/readthedocs.org/pull/6901>`__)
+* `@stsewd <https://github.com/stsewd>`__: Hide version privacy (`#6808 <https://github.com/readthedocs/readthedocs.org/pull/6808>`__)
+* `@stsewd <https://github.com/stsewd>`__: Implement hidden state for versions (`#6792 <https://github.com/readthedocs/readthedocs.org/pull/6792>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc for privacy levels (`#6194 <https://github.com/readthedocs/readthedocs.org/pull/6194>`__)
+
+Version 4.1.7
+-------------
+
+:Date: April 28, 2020
+
+As of this release, most documentation on Read the Docs Community is now behind Cloudflare's CDN.
+It should be much faster for people further from US East.
+Please report any issues you experience with stale cached documentation (especially CSS/JS).
+
+Another change in this release related to how custom domains are handled.
+Custom domains will now redirect HTTP -> HTTPS if the Domain's "HTTPS" flag is set.
+Also, the subdomain URL (eg. ``<project>.readthedocs.io/...``) should redirect to the custom domain
+if the Domain's "canonical" flag is set.
+These flags are configurable in your project dashboard under :guilabel:`Admin` > :guilabel:`Domains`.
+
+Many of the other changes related to improvements for our infrastructure
+to allow us to have autoscaling build and web servers.
+There were bug fixes for projects using versions tied to annotated git tags
+and custom user redirects will now send query parameters.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Reduce proxito logging (`#6970 <https://github.com/readthedocs/readthedocs.org/pull/6970>`__)
+* `@humitos <https://github.com/humitos>`__: Log build/sync tasks when triggered (`#6967 <https://github.com/readthedocs/readthedocs.org/pull/6967>`__)
+* `@humitos <https://github.com/humitos>`__: Stop builders gracefully on SIGTERM (`#6960 <https://github.com/readthedocs/readthedocs.org/pull/6960>`__)
+* `@stsewd <https://github.com/stsewd>`__: Try to fix annotated tags (`#6959 <https://github.com/readthedocs/readthedocs.org/pull/6959>`__)
+* `@stsewd <https://github.com/stsewd>`__: Include query params in 404 redirects (`#6957 <https://github.com/readthedocs/readthedocs.org/pull/6957>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the trailing slash in our repo regexs (`#6956 <https://github.com/readthedocs/readthedocs.org/pull/6956>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add canonical to the Domain listview in the admin (`#6954 <https://github.com/readthedocs/readthedocs.org/pull/6954>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow setting HSTS on a per domain basis (`#6953 <https://github.com/readthedocs/readthedocs.org/pull/6953>`__)
+* `@humitos <https://github.com/humitos>`__: Refactor how we handle GitHub webhook events (`#6949 <https://github.com/readthedocs/readthedocs.org/pull/6949>`__)
+* `@humitos <https://github.com/humitos>`__: Return 400 when importing an already existing project (`#6948 <https://github.com/readthedocs/readthedocs.org/pull/6948>`__)
+* `@humitos <https://github.com/humitos>`__: Return max_concurrent_builds in ProjectAdminSerializer (`#6946 <https://github.com/readthedocs/readthedocs.org/pull/6946>`__)
+* `@tom-doerr <https://github.com/tom-doerr>`__: Update year (`#6945 <https://github.com/readthedocs/readthedocs.org/pull/6945>`__)
+* `@humitos <https://github.com/humitos>`__: Revert "Use requests.head to query storage.exists" (`#6941 <https://github.com/readthedocs/readthedocs.org/pull/6941>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.6 (`#6940 <https://github.com/readthedocs/readthedocs.org/pull/6940>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove note about search analytics being beta (`#6939 <https://github.com/readthedocs/readthedocs.org/pull/6939>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add troubleshooting section for dev search docs (`#6933 <https://github.com/readthedocs/readthedocs.org/pull/6933>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Index date and ID together on builds (`#6926 <https://github.com/readthedocs/readthedocs.org/pull/6926>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: CAA records are not only for users of Cloudflare DNS (`#6925 <https://github.com/readthedocs/readthedocs.org/pull/6925>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Docs on supporting root domains (`#6923 <https://github.com/readthedocs/readthedocs.org/pull/6923>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add basic support for lower priority PR builds (`#6921 <https://github.com/readthedocs/readthedocs.org/pull/6921>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change the dashboard search to default to searching files (`#6920 <https://github.com/readthedocs/readthedocs.org/pull/6920>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonicalize domains and redirect in proxito (`#6905 <https://github.com/readthedocs/readthedocs.org/pull/6905>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+
+Version 4.1.6
+-------------
+
+:Date: April 21, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Revert usage of watchman (`#6934 <https://github.com/readthedocs/readthedocs.org/pull/6934>`__)
+* `@Mariatta <https://github.com/Mariatta>`__: Fix typo: you -> your (`#6931 <https://github.com/readthedocs/readthedocs.org/pull/6931>`__)
+* `@humitos <https://github.com/humitos>`__: Do not override the domain of Azure Storage (`#6928 <https://github.com/readthedocs/readthedocs.org/pull/6928>`__)
+* `@humitos <https://github.com/humitos>`__: Per-project concurrency and check before triggering the build (`#6927 <https://github.com/readthedocs/readthedocs.org/pull/6927>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Remove note about underscore in domain (`#6924 <https://github.com/readthedocs/readthedocs.org/pull/6924>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pass INIT to azurite (`#6918 <https://github.com/readthedocs/readthedocs.org/pull/6918>`__)
+* `@humitos <https://github.com/humitos>`__: Use requests.head to query storage.exists (`#6917 <https://github.com/readthedocs/readthedocs.org/pull/6917>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bring back search highlight (`#6914 <https://github.com/readthedocs/readthedocs.org/pull/6914>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Improve logging around status setting on PR builds (`#6912 <https://github.com/readthedocs/readthedocs.org/pull/6912>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add hoverxref to our docs (`#6911 <https://github.com/readthedocs/readthedocs.org/pull/6911>`__)
+* `@stsewd <https://github.com/stsewd>`__: Safely join storage paths (`#6910 <https://github.com/readthedocs/readthedocs.org/pull/6910>`__)
+* `@humitos <https://github.com/humitos>`__: Release 4.1.5 (`#6909 <https://github.com/readthedocs/readthedocs.org/pull/6909>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Cache-Tag header name (`#6908 <https://github.com/readthedocs/readthedocs.org/pull/6908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Handle paths with trailing `/` (`#6906 <https://github.com/readthedocs/readthedocs.org/pull/6906>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Include the project slug in the PR context (`#6904 <https://github.com/readthedocs/readthedocs.org/pull/6904>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
+* `@humitos <https://github.com/humitos>`__: Load YAML files safely (`#6897 <https://github.com/readthedocs/readthedocs.org/pull/6897>`__)
+* `@humitos <https://github.com/humitos>`__: Use a custom Task Router to route tasks dynamically (`#6849 <https://github.com/readthedocs/readthedocs.org/pull/6849>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+* `@humitos <https://github.com/humitos>`__: Add CORS headers to Azurite (`#6784 <https://github.com/readthedocs/readthedocs.org/pull/6784>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to use proxied API for footer and search (`#6768 <https://github.com/readthedocs/readthedocs.org/pull/6768>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Only output debug logging from RTD app (`#6717 <https://github.com/readthedocs/readthedocs.org/pull/6717>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to sort dashboard by modified date (`#6680 <https://github.com/readthedocs/readthedocs.org/pull/6680>`__)
+* `@stsewd <https://github.com/stsewd>`__: Protection against None when sending notifications (`#6610 <https://github.com/readthedocs/readthedocs.org/pull/6610>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: private python packages in .com (`#6530 <https://github.com/readthedocs/readthedocs.org/pull/6530>`__)
+
+Version 4.1.5
+-------------
+
+:Date: April 15, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Cache-Tag header name (`#6908 <https://github.com/readthedocs/readthedocs.org/pull/6908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Handle paths with trailing `/` (`#6906 <https://github.com/readthedocs/readthedocs.org/pull/6906>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.4 (`#6899 <https://github.com/readthedocs/readthedocs.org/pull/6899>`__)
+* `@humitos <https://github.com/humitos>`__: On Azure .exists blob timeout, log the exception and return False (`#6895 <https://github.com/readthedocs/readthedocs.org/pull/6895>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix URLs like `/projects/subproject` from 404ing when they don't end with a slash (`#6888 <https://github.com/readthedocs/readthedocs.org/pull/6888>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allocate docker limits based on server size. (`#6879 <https://github.com/readthedocs/readthedocs.org/pull/6879>`__)
+
+Version 4.1.4
+-------------
+
+:Date: April 14, 2020
+
+* `@humitos <https://github.com/humitos>`__: On Azure .exists blob timeout, log the exception and return False (`#6895 <https://github.com/readthedocs/readthedocs.org/pull/6895>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix URLs like `/projects/subproject` from 404ing when they don't end with a slash (`#6888 <https://github.com/readthedocs/readthedocs.org/pull/6888>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CloudFlare Cache tags support (`#6887 <https://github.com/readthedocs/readthedocs.org/pull/6887>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update requirements (`#6885 <https://github.com/readthedocs/readthedocs.org/pull/6885>`__)
+* `@stsewd <https://github.com/stsewd>`__: Be explicit with PUBLIC_DOMAIN setting (`#6881 <https://github.com/readthedocs/readthedocs.org/pull/6881>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override project detail view (`#6880 <https://github.com/readthedocs/readthedocs.org/pull/6880>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allocate docker limits based on server size. (`#6879 <https://github.com/readthedocs/readthedocs.org/pull/6879>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make the status name in CI configurable via setting (`#6877 <https://github.com/readthedocs/readthedocs.org/pull/6877>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add 12 hour caching to our robots.txt serving (`#6876 <https://github.com/readthedocs/readthedocs.org/pull/6876>`__)
+* `@humitos <https://github.com/humitos>`__: Filter triggered builds when checking concurrency (`#6875 <https://github.com/readthedocs/readthedocs.org/pull/6875>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with sphinx domain types with `:` in them: (`#6874 <https://github.com/readthedocs/readthedocs.org/pull/6874>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make dashboard faster for projects with a lot of subprojects (`#6873 <https://github.com/readthedocs/readthedocs.org/pull/6873>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.3 (`#6872 <https://github.com/readthedocs/readthedocs.org/pull/6872>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do unnecessary queries when listing subprojects (`#6869 <https://github.com/readthedocs/readthedocs.org/pull/6869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Optimize resolve_path (`#6867 <https://github.com/readthedocs/readthedocs.org/pull/6867>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do extra query if the project is a translation (`#6865 <https://github.com/readthedocs/readthedocs.org/pull/6865>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove private argument from resolver (`#6864 <https://github.com/readthedocs/readthedocs.org/pull/6864>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support mkdocs html pages as doctype (`#6846 <https://github.com/readthedocs/readthedocs.org/pull/6846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Reduce queries to storage to serve 404 pages (`#6845 <https://github.com/readthedocs/readthedocs.org/pull/6845>`__)
+* `@stsewd <https://github.com/stsewd>`__: Rework custom domains docs (`#6844 <https://github.com/readthedocs/readthedocs.org/pull/6844>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add checking the github oauth app in the troubleshooting page (`#6827 <https://github.com/readthedocs/readthedocs.org/pull/6827>`__)
+* `@humitos <https://github.com/humitos>`__: Return full path URL (including `.html`) on `/api/v2/docurl/` endpoint (`#6082 <https://github.com/readthedocs/readthedocs.org/pull/6082>`__)
+
+Version 4.1.3
+-------------
+
+:Date: April 07, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Don't do unnecessary queries when listing subprojects (`#6869 <https://github.com/readthedocs/readthedocs.org/pull/6869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do extra query if the project is a translation (`#6865 <https://github.com/readthedocs/readthedocs.org/pull/6865>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove private argument from resolver (`#6864 <https://github.com/readthedocs/readthedocs.org/pull/6864>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make development docs a bit easier to find (`#6861 <https://github.com/readthedocs/readthedocs.org/pull/6861>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add an advertising API timeout (`#6856 <https://github.com/readthedocs/readthedocs.org/pull/6856>`__)
+* `@humitos <https://github.com/humitos>`__: Add more exceptions as WARNING log level (`#6851 <https://github.com/readthedocs/readthedocs.org/pull/6851>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrent builds (`#6847 <https://github.com/readthedocs/readthedocs.org/pull/6847>`__)
+* `@humitos <https://github.com/humitos>`__: Release 4.1.2 (`#6840 <https://github.com/readthedocs/readthedocs.org/pull/6840>`__)
+* `@humitos <https://github.com/humitos>`__: Report build status in a smarter way (`#6839 <https://github.com/readthedocs/readthedocs.org/pull/6839>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update messages-extends to latest version (`#6838 <https://github.com/readthedocs/readthedocs.org/pull/6838>`__)
+* `@humitos <https://github.com/humitos>`__: Do not save pip cache when using CACHED_ENVIRONMENT (`#6820 <https://github.com/readthedocs/readthedocs.org/pull/6820>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Denormalize from_url_without_rest onto the redirects model (`#6780 <https://github.com/readthedocs/readthedocs.org/pull/6780>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Developer docs emphasize the Docker setup (`#6682 <https://github.com/readthedocs/readthedocs.org/pull/6682>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document setting up connected accounts in dev (`#6681 <https://github.com/readthedocs/readthedocs.org/pull/6681>`__)
+* `@humitos <https://github.com/humitos>`__: Return full path URL (including `.html`) on `/api/v2/docurl/` endpoint (`#6082 <https://github.com/readthedocs/readthedocs.org/pull/6082>`__)
+
+Version 4.1.2
+-------------
+
+:Date: March 31, 2020
+
+* `@humitos <https://github.com/humitos>`__: Report build status in a smarter way (`#6839 <https://github.com/readthedocs/readthedocs.org/pull/6839>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update messages-extends to latest version (`#6838 <https://github.com/readthedocs/readthedocs.org/pull/6838>`__)
+* `@humitos <https://github.com/humitos>`__: Allow receiving `None` for `template_html` when sending emails (`#6834 <https://github.com/readthedocs/readthedocs.org/pull/6834>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix silly issue with sync_callback (`#6830 <https://github.com/readthedocs/readthedocs.org/pull/6830>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Show the builder in the Build admin (`#6826 <https://github.com/readthedocs/readthedocs.org/pull/6826>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Properly call sync_callback when there aren't any MULTIPLE_APP_SERVERS settings (`#6823 <https://github.com/readthedocs/readthedocs.org/pull/6823>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override app from where to read templates (`#6821 <https://github.com/readthedocs/readthedocs.org/pull/6821>`__)
+* `@humitos <https://github.com/humitos>`__: Do not save pip cache when using CACHED_ENVIRONMENT (`#6820 <https://github.com/readthedocs/readthedocs.org/pull/6820>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override ProfileDetail view (`#6819 <https://github.com/readthedocs/readthedocs.org/pull/6819>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.1 (`#6818 <https://github.com/readthedocs/readthedocs.org/pull/6818>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@humitos <https://github.com/humitos>`__: Show uploading state (`#6816 <https://github.com/readthedocs/readthedocs.org/pull/6816>`__)
+* `@humitos <https://github.com/humitos>`__: Use watchman when calling `runserver` in local development (`#6813 <https://github.com/readthedocs/readthedocs.org/pull/6813>`__)
+* `@humitos <https://github.com/humitos>`__: Call proper handler (`#6811 <https://github.com/readthedocs/readthedocs.org/pull/6811>`__)
+* `@humitos <https://github.com/humitos>`__: Show "Uploading" build state when uploading artifacts into storage (`#6810 <https://github.com/readthedocs/readthedocs.org/pull/6810>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make search compatible with sphinx 2.2.1 (`#6804 <https://github.com/readthedocs/readthedocs.org/pull/6804>`__)
+* `@stsewd <https://github.com/stsewd>`__: Changes on 404, robots, and sitemap (`#6798 <https://github.com/readthedocs/readthedocs.org/pull/6798>`__)
+* `@humitos <https://github.com/humitos>`__: Update guide about building consuming too much resources (`#6778 <https://github.com/readthedocs/readthedocs.org/pull/6778>`__)
+
+Version 4.1.1
+-------------
+
+:Date: March 24, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@humitos <https://github.com/humitos>`__: Show uploading state (`#6816 <https://github.com/readthedocs/readthedocs.org/pull/6816>`__)
+* `@stsewd <https://github.com/stsewd>`__: Respect order when serving 404 (version -> default_version) (`#6805 <https://github.com/readthedocs/readthedocs.org/pull/6805>`__)
+* `@humitos <https://github.com/humitos>`__: Use storage.open API correctly for tar files (build cached envs) (`#6799 <https://github.com/readthedocs/readthedocs.org/pull/6799>`__)
+* `@humitos <https://github.com/humitos>`__: Check 404 page once when slug and default_version is the same (`#6796 <https://github.com/readthedocs/readthedocs.org/pull/6796>`__)
+* `@humitos <https://github.com/humitos>`__: Do not reset the build start time when running build env (`#6794 <https://github.com/readthedocs/readthedocs.org/pull/6794>`__)
+* `@humitos <https://github.com/humitos>`__: Skip .cache directory for cached builds if it does not exist (`#6791 <https://github.com/readthedocs/readthedocs.org/pull/6791>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove GET args from the path passed via proxito header (`#6790 <https://github.com/readthedocs/readthedocs.org/pull/6790>`__)
+* `@stsewd <https://github.com/stsewd>`__: Check for /index on pages' slug (`#6789 <https://github.com/readthedocs/readthedocs.org/pull/6789>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.0 (`#6788 <https://github.com/readthedocs/readthedocs.org/pull/6788>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Add feature flag to just completely skip sync and symlink operations (#6689)" (`#6781 <https://github.com/readthedocs/readthedocs.org/pull/6781>`__)
+
 Version 4.1.0
 -------------
 
@@ -157,56 +863,56 @@ Version 3.11.4
 
 :Date: January 28, 2020
 
-* `@humitos <http://github.com/humitos>`__: Disable django debug toolbar in El Proxito (`#6591 <https://github.com/readthedocs/readthedocs.org/pull/6591>`__)
-* `@stsewd <http://github.com/stsewd>`__: Respect docker setting on repo sync (`#6589 <https://github.com/readthedocs/readthedocs.org/pull/6589>`__)
-* `@humitos <http://github.com/humitos>`__: Merge pull request #6588 from readthedocs/humitos/support-ext (`#6588 <https://github.com/readthedocs/readthedocs.org/pull/6588>`__)
-* `@humitos <http://github.com/humitos>`__: Fix argument of `update_repos` (`#6583 <https://github.com/readthedocs/readthedocs.org/pull/6583>`__)
-* `@humitos <http://github.com/humitos>`__: Mount proper shared docker volume (`#6581 <https://github.com/readthedocs/readthedocs.org/pull/6581>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
-* `@stsewd <http://github.com/stsewd>`__: Delete .cache dir on wipe (`#6571 <https://github.com/readthedocs/readthedocs.org/pull/6571>`__)
-* `@humitos <http://github.com/humitos>`__: Run old redirect tests via El Proxito (`#6570 <https://github.com/readthedocs/readthedocs.org/pull/6570>`__)
-* `@humitos <http://github.com/humitos>`__: Remove 'build environment' from guides (`#6568 <https://github.com/readthedocs/readthedocs.org/pull/6568>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Fix /en/latest redirects (`#6564 <https://github.com/readthedocs/readthedocs.org/pull/6564>`__)
-* `@stsewd <http://github.com/stsewd>`__: Merge pull request #6561 from stsewd/move-method (`#6561 <https://github.com/readthedocs/readthedocs.org/pull/6561>`__)
-* `@stsewd <http://github.com/stsewd>`__: Use settings override in footer (`#6560 <https://github.com/readthedocs/readthedocs.org/pull/6560>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Fix proxito redirects breaking without a / (`#6558 <https://github.com/readthedocs/readthedocs.org/pull/6558>`__)
-* `@stsewd <http://github.com/stsewd>`__: Remove unused file (`#6557 <https://github.com/readthedocs/readthedocs.org/pull/6557>`__)
-* `@mgeier <http://github.com/mgeier>`__: DOC: Change a lot of http links to https (`#6553 <https://github.com/readthedocs/readthedocs.org/pull/6553>`__)
-* `@stsewd <http://github.com/stsewd>`__: Don't use an instance of VCS when isn't needed (`#6548 <https://github.com/readthedocs/readthedocs.org/pull/6548>`__)
-* `@saadmk11 <http://github.com/saadmk11>`__: Add GitHub OAuth App Permission issue to PR Builder Troubleshooting docs (`#6547 <https://github.com/readthedocs/readthedocs.org/pull/6547>`__)
-* `@humitos <http://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
-* `@preetmishra <http://github.com/preetmishra>`__: Update Transifex Integration details in Internationalization page. (`#6531 <https://github.com/readthedocs/readthedocs.org/pull/6531>`__)
-* `@stsewd <http://github.com/stsewd>`__: Migrate doctype from project to version (`#6523 <https://github.com/readthedocs/readthedocs.org/pull/6523>`__)
-* `@stsewd <http://github.com/stsewd>`__: Simplify docker image (`#6519 <https://github.com/readthedocs/readthedocs.org/pull/6519>`__)
-* `@Parth1811 <http://github.com/Parth1811>`__: Fixes #5388 -- Added Documentation for constraint while using Conda (`#6509 <https://github.com/readthedocs/readthedocs.org/pull/6509>`__)
-* `@stsewd <http://github.com/stsewd>`__: Improve test for sync_repo (`#6504 <https://github.com/readthedocs/readthedocs.org/pull/6504>`__)
-* `@humitos <http://github.com/humitos>`__: Show debug toolbar when running docker compose (`#6488 <https://github.com/readthedocs/readthedocs.org/pull/6488>`__)
-* `@dibyaaaaax <http://github.com/dibyaaaaax>`__: Add python examples for API v3 Documentation (`#6487 <https://github.com/readthedocs/readthedocs.org/pull/6487>`__)
+* `@humitos <https://github.com/humitos>`__: Disable django debug toolbar in El Proxito (`#6591 <https://github.com/readthedocs/readthedocs.org/pull/6591>`__)
+* `@stsewd <https://github.com/stsewd>`__: Respect docker setting on repo sync (`#6589 <https://github.com/readthedocs/readthedocs.org/pull/6589>`__)
+* `@humitos <https://github.com/humitos>`__: Merge pull request #6588 from readthedocs/humitos/support-ext (`#6588 <https://github.com/readthedocs/readthedocs.org/pull/6588>`__)
+* `@humitos <https://github.com/humitos>`__: Fix argument of `update_repos` (`#6583 <https://github.com/readthedocs/readthedocs.org/pull/6583>`__)
+* `@humitos <https://github.com/humitos>`__: Mount proper shared docker volume (`#6581 <https://github.com/readthedocs/readthedocs.org/pull/6581>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
+* `@stsewd <https://github.com/stsewd>`__: Delete .cache dir on wipe (`#6571 <https://github.com/readthedocs/readthedocs.org/pull/6571>`__)
+* `@humitos <https://github.com/humitos>`__: Run old redirect tests via El Proxito (`#6570 <https://github.com/readthedocs/readthedocs.org/pull/6570>`__)
+* `@humitos <https://github.com/humitos>`__: Remove 'build environment' from guides (`#6568 <https://github.com/readthedocs/readthedocs.org/pull/6568>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix /en/latest redirects (`#6564 <https://github.com/readthedocs/readthedocs.org/pull/6564>`__)
+* `@stsewd <https://github.com/stsewd>`__: Merge pull request #6561 from stsewd/move-method (`#6561 <https://github.com/readthedocs/readthedocs.org/pull/6561>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use settings override in footer (`#6560 <https://github.com/readthedocs/readthedocs.org/pull/6560>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix proxito redirects breaking without a / (`#6558 <https://github.com/readthedocs/readthedocs.org/pull/6558>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused file (`#6557 <https://github.com/readthedocs/readthedocs.org/pull/6557>`__)
+* `@mgeier <https://github.com/mgeier>`__: DOC: Change a lot of http links to https (`#6553 <https://github.com/readthedocs/readthedocs.org/pull/6553>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't use an instance of VCS when isn't needed (`#6548 <https://github.com/readthedocs/readthedocs.org/pull/6548>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add GitHub OAuth App Permission issue to PR Builder Troubleshooting docs (`#6547 <https://github.com/readthedocs/readthedocs.org/pull/6547>`__)
+* `@humitos <https://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
+* `@preetmishra <https://github.com/preetmishra>`__: Update Transifex Integration details in Internationalization page. (`#6531 <https://github.com/readthedocs/readthedocs.org/pull/6531>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate doctype from project to version (`#6523 <https://github.com/readthedocs/readthedocs.org/pull/6523>`__)
+* `@stsewd <https://github.com/stsewd>`__: Simplify docker image (`#6519 <https://github.com/readthedocs/readthedocs.org/pull/6519>`__)
+* `@Parth1811 <https://github.com/Parth1811>`__: Fixes #5388 -- Added Documentation for constraint while using Conda (`#6509 <https://github.com/readthedocs/readthedocs.org/pull/6509>`__)
+* `@stsewd <https://github.com/stsewd>`__: Improve test for sync_repo (`#6504 <https://github.com/readthedocs/readthedocs.org/pull/6504>`__)
+* `@humitos <https://github.com/humitos>`__: Show debug toolbar when running docker compose (`#6488 <https://github.com/readthedocs/readthedocs.org/pull/6488>`__)
+* `@dibyaaaaax <https://github.com/dibyaaaaax>`__: Add python examples for API v3 Documentation (`#6487 <https://github.com/readthedocs/readthedocs.org/pull/6487>`__)
 
 Version 3.11.3
 --------------
 
 :Date: January 21, 2020
 
-* `@ericholscher <http://github.com/ericholscher>`__: Pass proper path to redirect code (`#6555 <https://github.com/readthedocs/readthedocs.org/pull/6555>`__)
-* `@Daniel-Mietchen <http://github.com/Daniel-Mietchen>`__: Fixing a broken link (`#6550 <https://github.com/readthedocs/readthedocs.org/pull/6550>`__)
-* `@stsewd <http://github.com/stsewd>`__: Guide: Intersphinx in Read the Docs (`#6520 <https://github.com/readthedocs/readthedocs.org/pull/6520>`__)
-* `@humitos <http://github.com/humitos>`__: Add netcat and telnet for celery debugging with rdb (`#6518 <https://github.com/readthedocs/readthedocs.org/pull/6518>`__)
-* `@humitos <http://github.com/humitos>`__: Core team development standards guide (`#6517 <https://github.com/readthedocs/readthedocs.org/pull/6517>`__)
-* `@dibyaaaaax <http://github.com/dibyaaaaax>`__: Add www to the broken link (`#6513 <https://github.com/readthedocs/readthedocs.org/pull/6513>`__)
-* `@davidfischer <http://github.com/davidfischer>`__: Don't allow empty tags (`#6512 <https://github.com/readthedocs/readthedocs.org/pull/6512>`__)
-* `@Parth1811 <http://github.com/Parth1811>`__: Fixes #6510 -- Removed the `show_analytics` checks from the template (`#6511 <https://github.com/readthedocs/readthedocs.org/pull/6511>`__)
-* `@stsewd <http://github.com/stsewd>`__: Only install node on eslint step on travis (`#6505 <https://github.com/readthedocs/readthedocs.org/pull/6505>`__)
-* `@stsewd <http://github.com/stsewd>`__: Don't pass build to environment when doing a sync (`#6503 <https://github.com/readthedocs/readthedocs.org/pull/6503>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Release 3.11.2 (`#6502 <https://github.com/readthedocs/readthedocs.org/pull/6502>`__)
-* `@Blackcipher101 <http://github.com/Blackcipher101>`__: Added "dirhtml" target (`#6500 <https://github.com/readthedocs/readthedocs.org/pull/6500>`__)
-* `@humitos <http://github.com/humitos>`__: Use CELERY_APP_NAME to call the proper celery app (`#6499 <https://github.com/readthedocs/readthedocs.org/pull/6499>`__)
-* `@stsewd <http://github.com/stsewd>`__: Copy path from host only when using a LocalBuildEnviroment (`#6482 <https://github.com/readthedocs/readthedocs.org/pull/6482>`__)
-* `@stsewd <http://github.com/stsewd>`__: Set env variables in the same way for DockerBuildEnvironment  and Loc… (`#6481 <https://github.com/readthedocs/readthedocs.org/pull/6481>`__)
-* `@stsewd <http://github.com/stsewd>`__: Use environment variable per run, not per container (`#6480 <https://github.com/readthedocs/readthedocs.org/pull/6480>`__)
-* `@humitos <http://github.com/humitos>`__: Update celery requirements to its latest version (`#6448 <https://github.com/readthedocs/readthedocs.org/pull/6448>`__)
-* `@stsewd <http://github.com/stsewd>`__: Execute checkout step respecting docker setting (`#6436 <https://github.com/readthedocs/readthedocs.org/pull/6436>`__)
-* `@humitos <http://github.com/humitos>`__: Serve non-html at documentation domain though El Proxito (`#6419 <https://github.com/readthedocs/readthedocs.org/pull/6419>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Pass proper path to redirect code (`#6555 <https://github.com/readthedocs/readthedocs.org/pull/6555>`__)
+* `@Daniel-Mietchen <https://github.com/Daniel-Mietchen>`__: Fixing a broken link (`#6550 <https://github.com/readthedocs/readthedocs.org/pull/6550>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Intersphinx in Read the Docs (`#6520 <https://github.com/readthedocs/readthedocs.org/pull/6520>`__)
+* `@humitos <https://github.com/humitos>`__: Add netcat and telnet for celery debugging with rdb (`#6518 <https://github.com/readthedocs/readthedocs.org/pull/6518>`__)
+* `@humitos <https://github.com/humitos>`__: Core team development standards guide (`#6517 <https://github.com/readthedocs/readthedocs.org/pull/6517>`__)
+* `@dibyaaaaax <https://github.com/dibyaaaaax>`__: Add www to the broken link (`#6513 <https://github.com/readthedocs/readthedocs.org/pull/6513>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Don't allow empty tags (`#6512 <https://github.com/readthedocs/readthedocs.org/pull/6512>`__)
+* `@Parth1811 <https://github.com/Parth1811>`__: Fixes #6510 -- Removed the `show_analytics` checks from the template (`#6511 <https://github.com/readthedocs/readthedocs.org/pull/6511>`__)
+* `@stsewd <https://github.com/stsewd>`__: Only install node on eslint step on travis (`#6505 <https://github.com/readthedocs/readthedocs.org/pull/6505>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't pass build to environment when doing a sync (`#6503 <https://github.com/readthedocs/readthedocs.org/pull/6503>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 3.11.2 (`#6502 <https://github.com/readthedocs/readthedocs.org/pull/6502>`__)
+* `@Blackcipher101 <https://github.com/Blackcipher101>`__: Added "dirhtml" target (`#6500 <https://github.com/readthedocs/readthedocs.org/pull/6500>`__)
+* `@humitos <https://github.com/humitos>`__: Use CELERY_APP_NAME to call the proper celery app (`#6499 <https://github.com/readthedocs/readthedocs.org/pull/6499>`__)
+* `@stsewd <https://github.com/stsewd>`__: Copy path from host only when using a LocalBuildEnviroment (`#6482 <https://github.com/readthedocs/readthedocs.org/pull/6482>`__)
+* `@stsewd <https://github.com/stsewd>`__: Set env variables in the same way for DockerBuildEnvironment  and Loc… (`#6481 <https://github.com/readthedocs/readthedocs.org/pull/6481>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use environment variable per run, not per container (`#6480 <https://github.com/readthedocs/readthedocs.org/pull/6480>`__)
+* `@humitos <https://github.com/humitos>`__: Update celery requirements to its latest version (`#6448 <https://github.com/readthedocs/readthedocs.org/pull/6448>`__)
+* `@stsewd <https://github.com/stsewd>`__: Execute checkout step respecting docker setting (`#6436 <https://github.com/readthedocs/readthedocs.org/pull/6436>`__)
+* `@humitos <https://github.com/humitos>`__: Serve non-html at documentation domain though El Proxito (`#6419 <https://github.com/readthedocs/readthedocs.org/pull/6419>`__)
 
 Version 3.11.2
 --------------
@@ -540,7 +1246,7 @@ Version 3.7.0
 * `@stsewd <https://github.com/stsewd>`__: More explicit setup for tests (`#5977 <https://github.com/readthedocs/readthedocs.org/pull/5977>`__)
 * `@stsewd <https://github.com/stsewd>`__: Update gitpython (`#5974 <https://github.com/readthedocs/readthedocs.org/pull/5974>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Community only ads for more themes (`#5973 <https://github.com/readthedocs/readthedocs.org/pull/5973>`__)
-* `@kittenking <https://github.com/kittenking>`__: Fix typos across readthedocs.org repository (`#5971 <https://github.com/readthedocs/readthedocs.org/pull/5971>`__)
+* ``@kittenking``: Fix typos across readthedocs.org repository (`#5971 <https://github.com/readthedocs/readthedocs.org/pull/5971>`__)
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Fix: `parse_json` also including html in titles (`#5970 <https://github.com/readthedocs/readthedocs.org/pull/5970>`__)
 * `@saadmk11 <https://github.com/saadmk11>`__: update external version check for notification task (`#5969 <https://github.com/readthedocs/readthedocs.org/pull/5969>`__)
 * `@pranay414 <https://github.com/pranay414>`__: Improve error message for invalid submodule URLs (`#5957 <https://github.com/readthedocs/readthedocs.org/pull/5957>`__)
@@ -1135,7 +1841,7 @@ builds continue to work across all supported Python versions.
 * `@humitos <https://github.com/humitos>`__: Upgrade all dependencies (`#5134 <https://github.com/readthedocs/readthedocs.org/pull/5134>`__)
 * `@humitos <https://github.com/humitos>`__: Configuration file for ProBot Mergeable Bot (`#5132 <https://github.com/readthedocs/readthedocs.org/pull/5132>`__)
 * `@xavfernandez <https://github.com/xavfernandez>`__: docs: fix integration typos (`#5128 <https://github.com/readthedocs/readthedocs.org/pull/5128>`__)
-* `@Hamdy722 <https://github.com/Hamdy722>`__: Update LICENSE (`#5125 <https://github.com/readthedocs/readthedocs.org/pull/5125>`__)
+* ``@Hamdy722``: Update LICENSE (`#5125 <https://github.com/readthedocs/readthedocs.org/pull/5125>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remove doctype from search (`#5121 <https://github.com/readthedocs/readthedocs.org/pull/5121>`__)
 * `@humitos <https://github.com/humitos>`__: Validate mkdocs.yml config on values that we manipulate (`#5119 <https://github.com/readthedocs/readthedocs.org/pull/5119>`__)
 * `@humitos <https://github.com/humitos>`__: Use 2019 in our README (`#5117 <https://github.com/readthedocs/readthedocs.org/pull/5117>`__)
@@ -1369,7 +2075,7 @@ Version 2.8.0
 
 :Date: October 30, 2018
 
-Major change is an upgrade to Django 1.11. 
+Major change is an upgrade to Django 1.11.
 
 * `@humitos <https://github.com/humitos>`__: Cleanup old code (remove old_div) (`#4817 <https://github.com/readthedocs/readthedocs.org/pull/4817>`__)
 * `@humitos <https://github.com/humitos>`__: Remove unnecessary migration (`#4806 <https://github.com/readthedocs/readthedocs.org/pull/4806>`__)
@@ -2069,7 +2775,7 @@ Version 2.2.0
  * `@stsewd <https://github.com/stsewd>`__: Update GSOC (`#3607 <https://github.com/readthedocs/readthedocs.org/pull/3607>`__)
  * `@Jigar3 <https://github.com/Jigar3>`__: Updated AUTHORS.rst (`#3601 <https://github.com/readthedocs/readthedocs.org/pull/3601>`__)
  * `@stsewd <https://github.com/stsewd>`__: Pin less to latest compatible version (`#3597 <https://github.com/readthedocs/readthedocs.org/pull/3597>`__)
- * `@Angeles4four <https://github.com/Angeles4four>`__: Grammar correction (`#3596 <https://github.com/readthedocs/readthedocs.org/pull/3596>`__)
+ * ``@Angeles4four``: Grammar correction (`#3596 <https://github.com/readthedocs/readthedocs.org/pull/3596>`__)
  * `@davidfischer <https://github.com/davidfischer>`__: Fix an unclosed tag (`#3592 <https://github.com/readthedocs/readthedocs.org/pull/3592>`__)
  * `@aaksarin <https://github.com/aaksarin>`__: add missed fontawesome-webfont.woff2 (`#3589 <https://github.com/readthedocs/readthedocs.org/pull/3589>`__)
  * `@davidfischer <https://github.com/davidfischer>`__: Force a specific ad to be displayed (`#3584 <https://github.com/readthedocs/readthedocs.org/pull/3584>`__)
@@ -2221,7 +2927,7 @@ Version 2.1.3
  * `@humitos <https://github.com/humitos>`__: Remove/Update talks about RTD page (`#3283 <https://github.com/readthedocs/readthedocs.org/issues/3283>`__)
  * `@gawel <https://github.com/gawel>`__: Regain pyquery project ownership (`#3281 <https://github.com/readthedocs/readthedocs.org/issues/3281>`__)
  * `@dialex <https://github.com/dialex>`__: Build passed but I can't see the documentation (maze screen) (`#3246 <https://github.com/readthedocs/readthedocs.org/issues/3246>`__)
- * `@makixx <https://github.com/makixx>`__: Account is inactive (`#3241 <https://github.com/readthedocs/readthedocs.org/issues/3241>`__)
+ * ``@makixx``: Account is inactive (`#3241 <https://github.com/readthedocs/readthedocs.org/issues/3241>`__)
  * `@agjohnson <https://github.com/agjohnson>`__: Cleanup misreported failed builds (`#3230 <https://github.com/readthedocs/readthedocs.org/issues/3230>`__)
  * `@cokelaer <https://github.com/cokelaer>`__: links to github are broken (`#3203 <https://github.com/readthedocs/readthedocs.org/issues/3203>`__)
  * `@agjohnson <https://github.com/agjohnson>`__: Remove copyright application (`#3199 <https://github.com/readthedocs/readthedocs.org/issues/3199>`__)
@@ -2274,7 +2980,7 @@ Version 2.1.0
  * `@ericholscher <https://github.com/ericholscher>`__: Don't delete the subprojects directory on sync of superproject (`#3042 <https://github.com/readthedocs/readthedocs.org/pull/3042>`__)
  * `@andrew <https://github.com/andrew>`__: Pass query string when redirecting, fixes #2595 (`#3001 <https://github.com/readthedocs/readthedocs.org/pull/3001>`__)
  * `@saily <https://github.com/saily>`__: Add GitLab repo sync and webhook support (`#1870 <https://github.com/readthedocs/readthedocs.org/pull/1870>`__)
- * `@destroyerofbuilds <https://github.com/destroyerofbuilds>`__: Setup GitLab Web Hook on Project Import (`#1443 <https://github.com/readthedocs/readthedocs.org/issues/1443>`__)
+ * ``@destroyerofbuilds``: Setup GitLab Web Hook on Project Import (`#1443 <https://github.com/readthedocs/readthedocs.org/issues/1443>`__)
  * `@takotuesday <https://github.com/takotuesday>`__: Add GitLab Provider from django-allauth (`#1441 <https://github.com/readthedocs/readthedocs.org/issues/1441>`__)
 
 Version 2.0

@@ -30,6 +30,8 @@ mkdocs: include('mkdocs', required=False)
 # Submodules configuration
 submodules: include('submodules', required=False)
 
+search: include('search', required=False)
+
 # Redirects for the current version to be built
 # Key/value list, represent redirects of type `type`
 # from url -> to url
@@ -127,3 +129,12 @@ submodules:
   # Do a recursive clone?
   # Default: false
   recursive: bool(required=False)
+
+search:
+  # Map of patterns to ranks
+  # Default: {}
+  ranking: map(str(), int(min=-10, max=10), required=False)
+
+  # List of patterns
+  # Default: ['search.html', 'search/index.html', '404.html', '404/index.html']
+  ignore: list(str(), required=False)

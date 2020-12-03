@@ -112,10 +112,9 @@ class GoldProjectForm(forms.Form):
 
         if not project_instance.exists():
             raise forms.ValidationError(_('No project found.'))
-        elif project_instance.first() in self.projects:
+        if project_instance.first() in self.projects:
             raise forms.ValidationError(_('This project is already Ad-Free.'))
-        else:
-            return project_slug
+        return project_slug
 
     def clean(self):
         cleaned_data = super().clean()

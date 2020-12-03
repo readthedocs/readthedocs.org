@@ -45,7 +45,7 @@ class BaseSphinx(BaseBuilder):
                 self.config_file = self.project.conf_file(self.version.slug)
             else:
                 self.config_file = os.path.join(
-                    self.project.checkout_path(self.version.slug),
+                    self.project_path,
                     self.config_file,
                 )
             self.old_artifact_path = os.path.join(
@@ -86,7 +86,7 @@ class BaseSphinx(BaseBuilder):
             os.path.dirname(
                 os.path.relpath(
                     self.config_file,
-                    self.project.checkout_path(self.version.slug),
+                    self.project_path,
                 ),
             ),
             '',
@@ -151,7 +151,6 @@ class BaseSphinx(BaseBuilder):
             'settings': settings,
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
-            'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
@@ -182,6 +181,7 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
+            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
         }
 
         finalize_sphinx_context_data.send(
@@ -192,7 +192,7 @@ class BaseSphinx(BaseBuilder):
 
         return data
 
-    def append_conf(self, **__):
+    def append_conf(self):
         """
         Find or create a ``conf.py`` and appends default content.
 
@@ -224,23 +224,23 @@ class BaseSphinx(BaseBuilder):
             'cat',
             os.path.relpath(
                 self.config_file,
-                self.project.checkout_path(self.version.slug),
+                self.project_path,
             ),
-            cwd=self.project.checkout_path(self.version.slug),
+            cwd=self.project_path,
         )
 
     def build(self):
         self.clean()
         project = self.project
         build_command = [
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            *self.get_sphinx_cmd(),
             '-T',
+            *self.sphinx_parallel_arg(),
         ]
         if self._force:
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
-            build_command.append('-W')
+            build_command.extend(['-W', '--keep-going'])
         doctree_path = f'_build/doctrees-{self.sphinx_builder}'
         if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
             doctree_path = '_build/doctrees'
@@ -255,10 +255,28 @@ class BaseSphinx(BaseBuilder):
             self.sphinx_build_dir,
         ])
         cmd_ret = self.run(
-            *build_command, cwd=os.path.dirname(self.config_file),
-            bin_path=self.python_env.venv_bin()
+            *build_command,
+            cwd=os.path.dirname(self.config_file),
+            bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
+
+    def get_sphinx_cmd(self):
+        if self.project.has_feature(Feature.FORCE_SPHINX_FROM_VENV):
+            return (
+                self.python_env.venv_bin(filename='python'),
+                '-m',
+                'sphinx',
+            )
+        return (
+            'python',
+            self.python_env.venv_bin(filename='sphinx-build'),
+        )
+
+    def sphinx_parallel_arg(self):
+        if self.project.has_feature(Feature.SPHINX_PARALLEL):
+            return ['-j', 'auto']
+        return []
 
     def venv_sphinx_supports_latexmk(self):
         """
@@ -285,7 +303,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *command,
             bin_path=self.python_env.venv_bin(),
-            cwd=self.project.checkout_path(self.version.slug),
+            cwd=self.project_path,
             escape_command=False,  # used on DockerBuildCommand
             shell=True,  # used on BuildCommand
             record=False,
@@ -300,6 +318,8 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'html'
 
     def move(self, **__):
         super().move()
@@ -330,6 +350,8 @@ class HtmlDirBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'dirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
@@ -338,6 +360,8 @@ class SingleHtmlBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'singlehtml'
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -374,6 +398,7 @@ class LocalMediaBuilder(BaseSphinx):
 
 
 class EpubBuilder(BaseSphinx):
+
     type = 'sphinx_epub'
     sphinx_builder = 'epub'
     sphinx_build_dir = '_build/epub'
@@ -393,7 +418,7 @@ class EpubBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.project.checkout_path(self.version.slug),
+                cwd=self.project_path,
             )
 
 
@@ -435,10 +460,10 @@ class PdfBuilder(BaseSphinx):
 
         # Default to this so we can return it always.
         self.run(
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            *self.get_sphinx_cmd(),
             '-b',
             'latex',
+            *self.sphinx_parallel_arg(),
             '-D',
             'language={lang}'.format(lang=self.project.language),
             '-d',
@@ -613,5 +638,5 @@ class PdfBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.project.checkout_path(self.version.slug),
+                cwd=self.project_path,
             )

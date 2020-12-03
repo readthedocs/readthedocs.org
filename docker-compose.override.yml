@@ -84,6 +84,8 @@ services:
     image: microsoft/azure-cli
     volumes:
       - ${PWD}/common/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
+    environment:
+      - INIT=${INIT:-}
     links:
       - storage
     depends_on:

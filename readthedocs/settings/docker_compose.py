@@ -18,11 +18,10 @@ class DockerBaseSettings(CommunityDevSettings):
     PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
-    STATIC_URL = f'http://{PRODUCTION_DOMAIN}/devstoreaccount1/static/'
+    STATIC_URL = '/devstoreaccount1/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
@@ -39,13 +38,25 @@ class DockerBaseSettings(CommunityDevSettings):
     if ips and not HOSTIP:
         HOSTIP = ips[0][:-1] + "1"
 
+    # Turn this on to test ads
+    USE_PROMOS = False
     ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
-
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
+    ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
+
+    # New templates
+    @property
+    def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
+        return os.environ.get('RTD_EXT_THEME_DEV_SERVER_ENABLED') is not None
+
+    @property
+    def RTD_EXT_THEME_DEV_SERVER(self):
+        if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
+            return "http://assets.community.dev.readthedocs.io:10001"
 
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
+    ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
 
     RTD_CLEAN_AFTER_BUILD = True
 
@@ -79,8 +90,12 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    def show_debug_toolbar(request):
+        from django.conf import settings
+        return settings.DEBUG
+
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
     }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -100,22 +115,21 @@ class DockerBaseSettings(CommunityDevSettings):
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-    # Avoid syncing to the web servers
-    FILE_SYNCER = "readthedocs.builds.syncers.NullSyncer"
-
     # https://github.com/Azure/Azurite/blob/master/README.md#default-storage-account
     AZURE_ACCOUNT_NAME = 'devstoreaccount1'
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
 
     # We want to replace files for the same version built
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
+    AZURE_STATIC_STORAGE_HOSTNAME = 'assets.community.dev.readthedocs.io:10000'
+
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
+    RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildStorage'
 
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildEnvironmentStorage'
@@ -127,7 +141,7 @@ class DockerBaseSettings(CommunityDevSettings):
         os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
         os.path.join(CommunityDevSettings.SITE_ROOT, 'media'),
     ]
-    AZURE_BUILD_STORAGE_CONTAINER = 'builds'
+    AZURE_BUILD_COMMANDS_STORAGE_CONTAINER = 'builds'
     BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
@@ -136,3 +150,6 @@ class DockerBaseSettings(CommunityDevSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+    # This allows us to have CORS work well in dev
+    CORS_ORIGIN_ALLOW_ALL = True

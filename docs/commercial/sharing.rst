@@ -41,7 +41,16 @@ Secret Link
 ***********
 
 Once the person you send the link to clicks the link,
-they will have access to view your project.
+they will have access to the documentation while their browser window is open.
+
+If you want to link to a specific page,
+you can do this by passing the ``next`` query paramater in the URL.
+For example ``https://mydocs.readthedocs-hosted.com/_/sharing/xxxxxxxxx?next=/en/latest/page.html``.
+
+.. tip::
+   This is useful for sharing access to an entire set of documentation for a user.
+   You can embed these links in an internal wiki, for example,
+   and all your employees will be able to browse the docs without a login.
 
 Password
 ********
@@ -51,8 +60,17 @@ an *Authorization required* page asking them for the password you
 generated. When the user enters the password, they will have access to
 view your project.
 
+.. tip::
+   This is useful for when you have documentation you want users to bookmark.
+   They can enter a URL directly and enter the password when prompted.
+
 HTTP Authorization Header
 *************************
+
+.. tip::
+   This approach is useful for automated scripts.
+   It only allows access to a page when the header is present,
+   so it doesn't allow browsing docs inside of a browser.
 
 Token Authorization
 ~~~~~~~~~~~~~~~~~~~

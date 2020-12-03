@@ -70,7 +70,7 @@ class ServeDocsMixin:
 
         .. warning:: Don't do this in production!
         """
-        log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
+        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
@@ -91,8 +91,8 @@ class ServeDocsMixin:
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.info('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                 original_path, path, final_project.slug)
+        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
+                  original_path, path, final_project.slug)
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -120,21 +120,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
-        # Add debugging headers to proxito responses
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = final_project.slug
-        response['X-RTD-Version'] = version_slug
-        # Needed to strip any GET args, etc.
-        response['X-RTD-Path'] = urlparse(path).path
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Version-Method'] = 'rtdheader'
-        if hasattr(request, 'subdomain'):
-            response['X-RTD-Version-Method'] = 'subdomain'
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
-        if hasattr(request, 'cname'):
-            response['X-RTD-Version-Method'] = 'cname'
-
+        response.proxito_path = urlparse(path).path
         return response
 
     def _serve_401(self, request, project):
@@ -176,7 +162,36 @@ class ServeRedirectMixin:
         )
         log.info('System Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-System-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'system'
+        return resp
+
+    def canonical_redirect(self, request, final_project, version_slug, filename):
+        """
+        Return a redirect to the canonical domain including scheme.
+
+        This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
+        """
+        full_path = request.get_full_path()
+        urlparse_result = urlparse(full_path)
+        to = resolve(
+            project=final_project,
+            version_slug=version_slug,
+            filename=filename,
+            query_params=urlparse_result.query,
+            external=hasattr(request, 'external_domain'),
+        )
+
+        if full_path == to:
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                to,
+            )
+            raise InfiniteRedirectException()
+
+        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        resp = HttpResponseRedirect(to)
+        resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
     def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
@@ -203,6 +218,8 @@ class ServeRedirectMixin:
         """
 
         schema, netloc, path, params, query, fragments = urlparse(proxito_path)
+        # `proxito_path` doesn't include query params.
+        query = urlparse(request.get_full_path()).query
         new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
 
         # Re-use the domain and protocol used in the current request.
@@ -230,5 +247,5 @@ class ServeRedirectMixin:
             resp = HttpResponseRedirect(new_path)
 
         # Add a user-visible header to make debugging easier
-        resp['X-RTD-User-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'user'
         return resp

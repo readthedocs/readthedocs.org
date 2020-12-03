@@ -1,7 +1,11 @@
-from .mixins import APIEndpointMixin
+from unittest import mock
+
 from django.urls import reverse
 
+from .mixins import APIEndpointMixin
 
+
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
 
     def test_projects_builds_list(self):

@@ -15,6 +15,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
@@ -25,6 +29,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
@@ -64,6 +69,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    DOCTYPE_CHOICES,
     GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
@@ -71,13 +77,14 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
-    DOCUMENTATION_CHOICES,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
-    PRIVATE,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -85,9 +92,22 @@ from readthedocs.projects.version_handling import determine_stable_version
 log = logging.getLogger(__name__)
 
 
-class Version(models.Model):
+class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
+
+    # Overridden from TimeStampedModel just to allow null values.
+    # TODO: remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -136,6 +156,11 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
+    hidden = models.BooleanField(
+        _('Hidden'),
+        default=False,
+        help_text=_('Hide this version from the version (flyout) menu and search results?')
+    )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     # Whether the latest successful build for this version contains certain media types
@@ -146,8 +171,8 @@ class Version(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'),
         max_length=20,
-        choices=DOCUMENTATION_CHOICES,
-        default='sphinx',
+        choices=DOCTYPE_CHOICES,
+        default=SPHINX,
         help_text=_(
             'Type of documentation the version was built with.'
         ),
@@ -171,6 +196,10 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_external(self):
+        return self.type == EXTERNAL
 
     @property
     def ref(self):
@@ -307,45 +336,19 @@ class Version(models.Model):
                     'version_slug': self.slug,
                 },
             )
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
-            private=private,
             external=external,
         )
-
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        """Add permissions to the Version for all owners on save."""
-        from readthedocs.projects import tasks
-        obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
-        return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[self.get_artifact_paths()],
-        )
-
         # Remove resources if the version is not external
         if self.type != EXTERNAL:
             tasks.clean_project_resources(self.project, self)
-
-        project_pk = self.project.pk
         super().delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
 
     @property
     def identifier_friendly(self):
@@ -361,15 +364,17 @@ class Version(models.Model):
     @property
     def supports_wipe(self):
         """Return True if version is not external."""
-        return not self.type == EXTERNAL
+        return self.type != EXTERNAL
+
+    @property
+    def is_sphinx_type(self):
+        return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
 
     def get_subdomain_url(self):
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
-            private=private,
             external=external,
         )
 
@@ -410,23 +415,6 @@ class Version(models.Model):
         if os.path.exists(path):
             return path
         return None
-
-    def get_artifact_paths(self):
-        """
-        Return a list of all production artifacts/media path for this version.
-
-        :rtype: list
-        """
-        paths = []
-
-        for type_ in ('pdf', 'epub', 'htmlzip'):
-            paths.append(
-                self.project
-                .get_production_media_path(type_=type_, version_slug=self.slug),
-            )
-        paths.append(self.project.rtd_build_path(version=self.slug))
-
-        return paths
 
     def get_storage_paths(self):
         """
@@ -501,7 +489,6 @@ class Version(models.Model):
         user, repo = get_github_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -542,7 +529,6 @@ class Version(models.Model):
         user, repo = get_gitlab_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -571,7 +557,6 @@ class Version(models.Model):
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -619,7 +604,7 @@ class APIVersion(Version):
                 pass
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
 
 
@@ -646,11 +631,28 @@ class Build(models.Model):
         choices=BUILD_TYPES,
         default='html',
     )
+
+    # Describe build state as where in the build process the build is. This
+    # allows us to show progression to the user in the form of a progress bar
+    # or in the build listing
     state = models.CharField(
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+    )
+
+    # Describe status as *why* the build is in a particular state. It is
+    # helpful for communicating more details about state to the user, but it
+    # doesn't help describe progression
+    # https://github.com/readthedocs/readthedocs.org/pull/7123#issuecomment-635065807
+    status = models.CharField(
+        _('Status'),
+        choices=BUILD_STATUS_CHOICES,
+        max_length=32,
+        null=True,
+        default=None,
+        blank=True,
     )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
@@ -694,7 +696,10 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
-        index_together = [['version', 'state', 'type']]
+        index_together = [
+            ['version', 'state', 'type'],
+            ['date', 'id'],
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -807,7 +812,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -819,7 +823,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -833,7 +836,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -844,7 +846,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -855,7 +856,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return BITBUCKET_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -964,11 +964,23 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
+    DELETE_VERSION_ACTION = 'delete-version'
+    HIDE_VERSION_ACTION = 'hide-version'
+    MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
+    MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
+
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (HIDE_VERSION_ACTION, _('Hide version')),
+        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
+        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
+        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
     )
+
+    allowed_actions_on_create = {}
+    allowed_actions_on_delete = {}
 
     project = models.ForeignKey(
         Project,
@@ -1062,14 +1074,17 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def apply_action(self, version, match_result):
         """
-        Apply the action from allowed_actions.
+        Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
         :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
@@ -1176,9 +1191,16 @@ class RegexAutomationRule(VersionAutomationRule):
 
     TIMEOUT = 1  # timeout in seconds
 
-    allowed_actions = {
+    allowed_actions_on_create = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
+        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+    }
+
+    allowed_actions_on_delete = {
+        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
     }
 
     class Meta:

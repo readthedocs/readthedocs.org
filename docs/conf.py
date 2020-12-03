@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import sys
 from configparser import RawConfigParser
@@ -38,10 +34,12 @@ extensions = [
     'sphinx-prompt',
     'recommonmark',
     'notfound.extension',
+    'hoverxref.extension',
     'sphinx_search.extension',
+    'sphinxemoji.sphinxemoji',
 ]
-templates_path = ['_templates']
 
+templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
@@ -57,6 +55,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
     'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    'pip': ('https://pip.pypa.io/en/stable/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
@@ -81,6 +80,7 @@ gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {
@@ -88,8 +88,29 @@ html_theme_options = {
     'display_version': False,
 }
 
+hoverxref_auto_ref = True
+hoverxref_domains = ['py']
+hoverxref_roles = [
+    'option',
+    'doc',
+]
+hoverxref_role_types = {
+    'mod': 'modal',  # for Python Sphinx Domain
+    'doc': 'modal',  # for whole docs
+    'class': 'tooltip',  # for Python Sphinx Domain
+    'ref': 'tooltip',  # for hoverxref_auto_ref config
+    'confval': 'tooltip',  # for custom object
+}
+
+rst_epilog = """
+.. |org_brand| replace:: Read the Docs Community
+.. |com_brand| replace:: Read the Docs for Business
+"""
+
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+numfig = True
 
 # sphinx-notfound-page
 # https://github.com/readthedocs/sphinx-notfound-page
@@ -106,6 +127,7 @@ notfound_context = {
 linkcheck_ignore = [
     r'http://127\.0\.0\.1',
     r'http://localhost',
+    r'http://community\.dev\.readthedocs\.io',
     r'https://yourproject\.readthedocs\.io',
     r'https?://docs\.example\.com',
     r'https://foo\.readthedocs\.io/projects',
@@ -114,8 +136,10 @@ linkcheck_ignore = [
     r'https://github\.com/readthedocs/readthedocs\.org/pull',
     r'https://docs\.readthedocs\.io/\?rtd_search',
     r'https://readthedocs\.org/search',
+    # This page is under login
+    r'https://readthedocs\.org/accounts/gold',
 ]
 
 
 def setup(app):
-    app.add_stylesheet('css/sphinx_prompt_css.css')
+    app.add_css_file('css/sphinx_prompt_css.css')

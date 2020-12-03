@@ -1,5 +1,6 @@
 {
     "active": true,
+    "hidden": false,
     "built": true,
     "downloads": {
         "epub": "https://project.readthedocs.io/_/downloads/en/v1.0/epub/",

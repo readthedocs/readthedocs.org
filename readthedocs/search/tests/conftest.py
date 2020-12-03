@@ -4,7 +4,7 @@ from random import shuffle
 
 import pytest
 from django.core.management import call_command
-from django_dynamic_fixture import G
+from django_dynamic_fixture import get
 
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
@@ -14,7 +14,7 @@ from readthedocs.sphinx_domains.models import SphinxDomain
 from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
 
 
-@pytest.fixture()
+@pytest.fixture
 def es_index():
     call_command('search_index', '--delete', '-f')
     call_command('search_index', '--create')
@@ -23,25 +23,36 @@ def es_index():
     call_command('search_index', '--delete', '-f')
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def all_projects(es_index, mock_processed_json, db, settings):
     settings.ELASTICSEARCH_DSL_AUTOSYNC = True
     projects_list = []
     for project_slug in ALL_PROJECTS:
-        project = G(
+        project = get(
             Project,
             slug=project_slug,
             name=project_slug,
             main_language_project=None,
             privacy_level=PUBLIC,
         )
-        project.versions.update(privacy_level=PUBLIC)
+        project.versions.update(
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
+        )
 
         for file_basename in PROJECT_DATA_FILES[project.slug]:
             # file_basename in config are without extension so add html extension
             file_name = file_basename + '.html'
             version = project.versions.all()[0]
-            html_file = G(HTMLFile, project=project, version=version, name=file_name)
+            html_file = get(
+                HTMLFile,
+                project=project,
+                version=version,
+                name=file_name,
+                path=file_name,
+                build=1,
+            )
 
             # creating sphinx domain test objects
             file_path = get_json_file_path(project.slug, file_basename)
@@ -54,7 +65,7 @@ def all_projects(es_index, mock_processed_json, db, settings):
                         domain_role_name = domain_data.pop('role_name')
                         domain, type_ = domain_role_name.split(':')
 
-                        G(
+                        get(
                             SphinxDomain,
                             project=project,
                             version=version,
@@ -95,7 +106,7 @@ def get_dummy_processed_json(instance):
             return json.load(f)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_processed_json(mocker):
     mocked_function = mocker.patch.object(HTMLFile, 'get_processed_json', autospec=True)
     mocked_function.side_effect = get_dummy_processed_json

@@ -1,8 +1,9 @@
 import csv
+from unittest import mock
 from urllib.parse import urlsplit
 
-from unittest import mock
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -16,6 +17,7 @@ from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
 
 
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class Testmaker(TestCase):
 
     def setUp(self):
@@ -224,6 +226,7 @@ class SubprojectViewTests(TestCase):
         )
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -285,15 +288,15 @@ class TestSearchAnalyticsView(TestCase):
             test_time.return_value = self.test_time
 
             expected_result = [
-                ('hello world', 5),
-                ('documentation', 4),
-                ('read the docs', 4),
-                ('advertising', 3),
-                ('elasticsearch', 2),
-                ('sphinx', 2),
-                ('github', 1),
-                ('hello', 1),
-                ('search', 1),
+                ('hello world', 5, 0),
+                ('documentation', 4, 0),
+                ('read the docs', 4, 0),
+                ('advertising', 3, 0),
+                ('elasticsearch', 2, 0),
+                ('sphinx', 2, 0),
+                ('github', 1, 0),
+                ('hello', 1, 0),
+                ('search', 1, 0),
             ]
 
             resp = self.client.get(self.analyics_page)
@@ -359,3 +362,22 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(len(body), 23)
             self.assertEqual(body[0][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
+
+
+class TestHomepageCache(TestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_homepage_queries(self):
+        with self.assertNumQueries(1):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
+
+        # Cache
+        with self.assertNumQueries(0):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)

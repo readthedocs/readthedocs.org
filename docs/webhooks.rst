@@ -1,10 +1,10 @@
-Webhooks
-========
+Incoming Webhooks and Automation
+================================
 
 The primary method that Read the Docs uses to detect changes to your
 documentation and versions is through the use of *webhooks*. Webhooks are configured with
-your repository provider, such as GitHub, Bitbucket or GitLab, and with each commit,
-merge, or other change to your repository, Read the Docs is notified. When we
+your repository provider, such as GitHub, Bitbucket or GitLab, 
+and with each change to your repository, Read the Docs is notified. When we
 receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
 version.
@@ -12,8 +12,8 @@ version.
 Webhook Integrations
 --------------------
 
-You'll find a list of configured webhook integrations on your project's admin
-dashboard, under **Integrations**. You can select any of these integrations to
+You'll find a list of configured webhook integrations on your project's :guilabel:`Admin`
+dashboard, under :guilabel:`Integrations`. You can select any of these integrations to
 see the *integration detail page*. This page has additional configuration
 details and a list of HTTP exchanges that have taken place for the integration.
 
@@ -26,7 +26,7 @@ Webhook Creation
 ----------------
 
 If you have :doc:`connected your Read the Docs account </connected-accounts>` to GitHub, Bitbucket, or GitLab,
-a webhook will be set up automatically for your repository. However, if your
+**a webhook will be set up automatically for your repository**. However, if your
 project was not imported through a connected account, you may need to
 manually configure a webhook for your project.
 
@@ -169,6 +169,16 @@ offer a way to check this.
 
 Troubleshooting
 ---------------
+
+Webhook activation failed. Make sure you have the necessary permissions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you find this error,
+make sure your user has permissions over the repository.
+In case of GitHub,
+check that you have granted access to the Read the Docs `OAuth App`_ to your organization.
+
+.. _OAuth App: https://github.com/settings/applications
 
 My project isn't automatically building
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

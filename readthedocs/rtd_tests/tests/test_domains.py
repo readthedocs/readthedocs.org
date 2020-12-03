@@ -1,46 +1,11 @@
-# -*- coding: utf-8 -*-
-
 import json
 
-from django.core.cache import cache
-from django.test import TestCase
-from django.test.client import RequestFactory
-from django.test.utils import override_settings
+from django.conf import settings
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.models import Domain, Project
-
-
-class MiddlewareTests(TestCase):
-
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = SubdomainMiddleware()
-        self.url = '/'
-        self.old_cache_get = cache.get
-
-    def tearDown(self):
-        cache.get = self.old_cache_get
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_no_cname_creation(self):
-        self.assertEqual(Domain.objects.count(), 0)
-        self.project = get(Project, slug='my_slug')
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 0)
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_no_readthedocs_domain(self):
-        self.assertEqual(Domain.objects.count(), 0)
-        self.project = get(Project, slug='pip')
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 0)
 
 
 class ModelTests(TestCase):
@@ -87,6 +52,94 @@ class FormTests(TestCase):
         )
         self.assertFalse(form.is_valid())
 
+    def test_production_domain_not_allowed(self):
+        """Make sure user can not enter production domain name."""
+        form = DomainForm(
+            {'domain': settings.PRODUCTION_DOMAIN},
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['domain'][0],
+            f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
+        )
+
+        form2 = DomainForm(
+            {'domain': 'test.' + settings.PRODUCTION_DOMAIN},
+            project=self.project,
+        )
+        self.assertFalse(form2.is_valid())
+        self.assertEqual(
+            form2.errors['domain'][0],
+            f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
+        )
+
+    @override_settings(PUBLIC_DOMAIN='readthedocs.io')
+    def test_public_domain_not_allowed(self):
+        """Make sure user can not enter public domain name."""
+        form = DomainForm(
+            {'domain': settings.PUBLIC_DOMAIN},
+            project=self.project,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors['domain'][0],
+            f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
+        )
+
+        form2 = DomainForm(
+            {'domain': 'docs.' + settings.PUBLIC_DOMAIN},
+            project=self.project,
+        )
+        self.assertFalse(form2.is_valid())
+        self.assertEqual(
+            form2.errors['domain'][0],
+            f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
+        )
+
+    def test_domain_with_path(self):
+        form = DomainForm(
+            {'domain': 'domain.com/foo/bar'},
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertEqual(domain.domain, 'domain.com')
+
+    def test_valid_domains(self):
+        domains = [
+            'python.org',
+            'a.io',
+            'a.e.i.o.org',
+            'my.domain.com.edu',
+            'my-domain.fav',
+        ]
+        for domain in domains:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertTrue(form.is_valid(), domain)
+
+    def test_invalid_domains(self):
+        domains = [
+            'python..org',
+            '****.foo.com',
+            'domain',
+            'domain.com.',
+            'My domain.org',
+            'i.o',
+            '[special].com',
+            'some_thing.org',
+            'invalid-.com',
+        ]
+        for domain in domains:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertFalse(form.is_valid(), domain)
+
     def test_canonical_change(self):
         """Make sure canonical can be properly changed."""
         form = DomainForm(
@@ -97,12 +150,16 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example.com')
 
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertEqual(domain.domain, 'example.com')
+
         form = DomainForm(
             {'domain': 'example2.com', 'canonical': True},
             project=self.project,
         )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['canonical'][0], 'Only 1 Domain can be canonical at a time.')
+        self.assertEqual(form.errors['canonical'][0], 'Only one domain can be canonical at a time.')
 
         form = DomainForm(
             {'canonical': False},

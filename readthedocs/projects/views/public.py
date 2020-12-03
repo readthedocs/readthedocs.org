@@ -6,8 +6,8 @@ import logging
 import mimetypes
 import operator
 import os
-from urllib.parse import urlparse
 from collections import OrderedDict
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -16,13 +16,13 @@ from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare
+from django.utils.encoding import force_bytes
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
-from django.utils.crypto import constant_time_compare
-from django.utils.encoding import force_bytes
 from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
@@ -30,15 +30,16 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
 
-from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
-
+from .base import ProjectOnboardMixin
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
@@ -53,7 +54,11 @@ class ProjectTagIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        queryset = queryset.exclude(users__profile__banned=True)
+
+        # Filters out projects from banned users
+        # This is disabled for performance reasons
+        # https://github.com/readthedocs/readthedocs.org/pull/7671
+        # queryset = queryset.exclude(users__profile__banned=True)
 
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
@@ -81,7 +86,12 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
+class ProjectDetailViewBase(
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView
+):
 
     """Display project onboard steps."""
 
@@ -91,10 +101,13 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
     def get_queryset(self):
         return Project.objects.protected(self.request.user)
 
+    def get_project(self):
+        return self.get_object()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        project = self.get_object()
+        project = self.get_project()
         context['versions'] = self._get_versions(project)
 
         protocol = 'http'
@@ -113,7 +126,17 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
             version=version_slug,
         )
 
+        context['is_project_admin'] = AdminPermission.is_admin(
+            self.request.user,
+            project,
+        )
+
         return context
+
+
+class ProjectDetailView(SettingsOverrideObject):
+
+    _default_class = ProjectDetailViewBase
 
 
 class ProjectBadgeView(View):
@@ -215,11 +238,16 @@ class ProjectBadgeView(View):
         )
 
         # Append a token for private versions
-        version = Version.objects.filter(
-            project__slug=project_slug,
-            slug=version_slug,
-        ).first()
-        if version and version.privacy_level == PRIVATE:
+        privacy_level = (
+            Version.objects
+            .filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            )
+            .values_list('privacy_level', flat=True)
+            .first()
+        )
+        if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
             url += f'&token={token}'
 
@@ -395,7 +423,7 @@ def project_versions(request, project_slug):
     # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
-    if wiped and wiped_version.count():
+    if wiped and wiped_version.exists():
         messages.success(request, 'Version wiped: ' + wiped)
 
     # Optimize project permission checks
@@ -408,6 +436,7 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'is_project_admin': AdminPermission.is_admin(request.user, project),
             'max_inactive_versions': max_inactive_versions,
             'total_inactive_versions_count': total_inactive_versions_count,
         },

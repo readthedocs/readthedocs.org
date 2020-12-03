@@ -16,7 +16,7 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
@@ -26,6 +26,10 @@ from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+from readthedocs.projects.exceptions import (
+    RepositoryError,
+    ProjectConfigurationError,
+)
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -238,9 +242,11 @@ class BuildCommand(BuildCommandResultMixin):
                 self.build_env.build.get('id'),
                 self.get_command(),
             )
-            sanitized = sanitized[:allowed_length]
-            sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
-                allowed_length,
+            truncated_output = sanitized[-allowed_length:]
+            sanitized = (
+                '.. (truncated) ...\n'
+                f'Output is too big. Truncated at {allowed_length} bytes.\n\n\n'
+                f'{truncated_output}'
             )
 
         return sanitized
@@ -528,15 +534,18 @@ class BuildEnvironment(BaseEnvironment):
                               successful
     """
 
-    # Exceptions considered ERROR from a Build perspective but as a WARNING for
-    # the application itself. These exception are logged as warning and not sent
-    # to Sentry.
+    # These exceptions are considered ERROR from a Build perspective (the build
+    # failed and can continue) but as a WARNING for the application itself (RTD
+    # code didn't failed). These exception are logged as ``WARNING`` and they
+    # are not sent to Sentry.
     WARNING_EXCEPTIONS = (
         VersionLockedError,
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
         MkDocsYAMLParseError,
+        RepositoryError,
+        ProjectConfigurationError,
     )
 
     def __init__(
@@ -831,21 +840,21 @@ class DockerBuildEnvironment(BuildEnvironment):
                     if self.build:
                         self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
-                else:
-                    log.warning(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.project.slug,
-                            'version': self.version.slug,
-                            'msg': (
-                                'Removing stale container {}'.format(
-                                    self.container_id,
-                                )
-                            ),
-                        }
-                    )
-                    client = self.get_client()
-                    client.remove_container(self.container_id)
+
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': (
+                            'Removing stale container {}'.format(
+                                self.container_id,
+                            )
+                        ),
+                    }
+                )
+                client = self.get_client()
+                client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError):
             # If there is an exception here, we swallow the exception as this
             # was just during a sanity check anyways.
@@ -897,7 +906,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
             # Catch direct failures from Docker API or with an HTTP request.
             # These errors should not surface to the user.
-            except (DockerAPIError, ConnectionError):
+            except (DockerAPIError, ConnectionError, ReadTimeout):
                 log.exception(
                     LOG_TEMPLATE,
                     {
@@ -1055,8 +1064,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         client = self.get_client()
         try:
             log.info(
-                'Creating Docker container: image=%s',
+                'Creating Docker container: image=%s id=%s',
                 self.container_image,
+                self.container_id,
             )
             self.container = client.create_container(
                 image=self.container_image,

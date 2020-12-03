@@ -1,8 +1,12 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
+import json
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
+from django.core.files.storage import get_storage_class
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -10,7 +14,13 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BRANCH, TAG, INTERNAL
+from readthedocs.builds.constants import (
+    BRANCH,
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    INTERNAL,
+    TAG,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -19,7 +29,6 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from .. import utils as api_utils
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -39,7 +48,15 @@ from ..serializers import (
     VersionAdminSerializer,
     VersionSerializer,
 )
-
+from ..utils import (
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+    delete_versions_from_db,
+    get_deleted_active_versions,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -102,7 +119,7 @@ class ProjectViewSet(UserSelectViewSet):
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
     model = Project
-    pagination_class = api_utils.ProjectPagination
+    pagination_class = ProjectPagination
     filterset_fields = ('slug',)
 
     @decorators.action(detail=True)
@@ -179,9 +196,9 @@ class ProjectViewSet(UserSelectViewSet):
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
+        current_stable = project.get_original_stable_version()
+        if current_stable is not None:
+            activate_new_stable = current_stable.active
         else:
             activate_new_stable = False
 
@@ -190,20 +207,21 @@ class ProjectViewSet(UserSelectViewSet):
             data = request.data
             added_versions = set()
             if 'tags' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['tags'],
                     type=TAG,
                 )
                 added_versions.update(ret_set)
             if 'branches' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['branches'],
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions = api_utils.delete_versions(project, data)
+            deleted_versions = delete_versions_from_db(project, data)
+            deleted_active_versions = get_deleted_active_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -217,7 +235,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            api_utils.run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions, deleted_active_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
@@ -268,7 +286,7 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSetBase(UserSelectViewSet):
+class BuildViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
@@ -276,12 +294,51 @@ class BuildViewSetBase(UserSelectViewSet):
     model = Build
     filterset_fields = ('project__slug', 'commit')
 
+    @decorators.action(
+        detail=False,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['get'],
+    )
+    def concurrent(self, request, **kwargs):
+        project_slug = request.GET.get('project__slug')
+        project = get_object_or_404(Project, slug=project_slug)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        data = {
+            'limit_reached': limit_reached,
+            'concurrent': concurrent,
+            'max_concurrent': max_concurrent,
+        }
+        return Response(data)
 
-class BuildViewSet(SettingsOverrideObject):
+    def retrieve(self, *args, **kwargs):
+        """
+        Retrieves command data from storage.
 
-    """A pluggable class to allow for build cold storage."""
+        This uses files from storage to get the JSON,
+        and replaces the ``commands`` part of the response data.
+        """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(*args, **kwargs)
 
-    _default_class = BuildViewSetBase
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        if instance.cold_storage:
+            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+            storage_path = '{date}/{id}.json'.format(
+                date=str(instance.date.date()),
+                id=instance.id,
+            )
+            if storage.exists(storage_path):
+                try:
+                    json_resp = storage.open(storage_path).read()
+                    data['commands'] = json.loads(json_resp)
+                except Exception:
+                    log.exception(
+                        'Failed to read build data from storage. path=%s.',
+                        storage_path,
+                    )
+        return Response(data)
 
 
 class BuildCommandViewSet(UserSelectViewSet):
@@ -304,7 +361,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
-    pagination_class = api_utils.RemoteOrganizationPagination
+    pagination_class = RemoteOrganizationPagination
 
     def get_queryset(self):
         return (
@@ -321,10 +378,13 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
-    pagination_class = api_utils.RemoteProjectPagination
+    pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
+        full_name = self.request.query_params.get('full_name')
+        if full_name is not None:
+            query = query.filter(full_name__icontains=full_name)
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)

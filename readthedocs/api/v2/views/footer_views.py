@@ -15,7 +15,8 @@ from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Project
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -29,7 +30,10 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if not project.show_version_warning:
+    if (
+        not project.show_version_warning or
+        (base_version and base_version.is_external)
+    ):
         return {'is_highest': False}
 
     versions_qs = (
@@ -80,6 +84,19 @@ class BaseFooterHTML(APIView):
     """
     Render and return footer markup.
 
+    Query parameters:
+
+    - project
+    - version
+    - page: Sphinx's page name, used for path operations,
+      like change between languages (deprecated in favor of ``absolute_uri``).
+    - absolute_uri: Full path with domain, used for path operations.
+    - theme: Used to decide how to integrate the flyout menu.
+    - docroot: Path where all the source documents are.
+      Used to build the ``edit_on`` URL.
+    - source_suffix: Suffix from the source document.
+      Used to build the ``edit_on`` URL.
+
     .. note::
 
        The methods `_get_project` and `_get_version`
@@ -127,6 +144,7 @@ class BaseFooterHTML(APIView):
         project = self._get_project()
         versions = project.ordered_active_versions(
             user=self.request.user,
+            include_hidden=False,
         )
         return versions
 
@@ -146,7 +164,7 @@ class BaseFooterHTML(APIView):
         page_slug = self.request.GET.get('page', '')
         path = ''
         if page_slug and page_slug != 'index':
-            if version.documentation_type == 'sphinx_htmldir':
+            if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
@@ -212,9 +230,14 @@ class BaseFooterHTML(APIView):
             request,
         )
 
+        show_version_warning = (
+            project.show_version_warning and
+            not version.is_external
+        )
+
         resp_data = {
             'html': html,
-            'show_version_warning': project.show_version_warning,
+            'show_version_warning': show_version_warning,
             'version_active': version.active,
             'version_compare': version_compare_data,
             'version_supported': version.supported,
@@ -226,7 +249,8 @@ class BaseFooterHTML(APIView):
             sender=None,
             request=request,
             context=context,
-            resp_data=resp_data,
+            response_data=resp_data,
+            absolute_uri=self.request.GET.get('absolute_uri'),
         )
 
         return Response(resp_data)

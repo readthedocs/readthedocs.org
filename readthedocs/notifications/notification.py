@@ -3,6 +3,7 @@
 """Support for templating of notifications."""
 
 import logging
+from readthedocs.core.context_processors import readthedocs_processor
 
 from django.conf import settings
 from django.db import models
@@ -31,6 +32,7 @@ class Notification:
 
     name = None
     context_object_name = 'object'
+    app_templates = None
     level = constants.INFO
     subject = None
     user = None
@@ -49,7 +51,7 @@ class Notification:
         return template.render(context=Context(self.get_context_data()))
 
     def get_context_data(self):
-        return {
+        context = {
             self.context_object_name: self.object,
             'request': self.request,
             'production_uri': '{scheme}://{host}'.format(
@@ -57,6 +59,8 @@ class Notification:
                 host=settings.PRODUCTION_DOMAIN,
             ),
         }
+        context.update(readthedocs_processor(self.request))
+        return context
 
     def get_template_names(self, backend_name, source_format=constants.HTML):
         names = []
@@ -64,7 +68,7 @@ class Notification:
             meta = self.object._meta  # pylint: disable=protected-access
             names.append(
                 '{app}/notifications/{name}_{backend}.{source_format}'.format(
-                    app=meta.app_label,
+                    app=self.app_templates or meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,

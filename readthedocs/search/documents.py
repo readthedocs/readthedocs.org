@@ -1,12 +1,10 @@
 import logging
 
 from django.conf import settings
-from django_elasticsearch_dsl import DocType, Index, fields
-
+from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
-
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -30,8 +28,8 @@ class RTDDocTypeMixin:
         super().update(*args, **kwargs)
 
 
-@project_index.doc_type
-class ProjectDocument(RTDDocTypeMixin, DocType):
+@project_index.document
+class ProjectDocument(RTDDocTypeMixin, Document):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
@@ -45,33 +43,32 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
 
-    @classmethod
-    def faceted_search(cls, query, user, language=None):
-        from readthedocs.search.faceted_search import ProjectSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
 
-        if language:
-            kwargs['filters'] = {'language': language}
+@page_index.document
+class PageDocument(RTDDocTypeMixin, Document):
 
-        return ProjectSearch(**kwargs)
+    """
+    Document representation of a Page.
 
+    Some text fields use the simple analyzer instead of the default (standard).
+    Simple analyzer will break the text in non-letter characters,
+    so a text like ``python.submodule`` will be broken like [python, submodule]
+    instead of [python.submodule].
 
-@page_index.doc_type
-class PageDocument(RTDDocTypeMixin, DocType):
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+    """
 
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
+    rank = fields.IntegerField()
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
@@ -102,15 +99,22 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
 
+    def prepare_rank(self, html_file):
+        if not (-10 <= html_file.rank <= 10):
+            return 0
+        return html_file.rank
+
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
-        all_domains = []
+        if not html_file.version.is_sphinx_type:
+            return []
 
+        all_domains = []
         try:
             domains_qs = html_file.sphinx_domains.exclude(
                 domain='std',
@@ -130,65 +134,35 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 for domain in domains_qs
             ]
 
-            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
+            log.debug(
+                "[%s] [%s] Total domains for file %s are: %s",
                 html_file.project.slug,
                 html_file.version.slug,
                 html_file.path,
-                len(all_domains),
-            ))
+                len(all_domains)
+            )
 
         except Exception:
-            log.exception("[%s] [%s] Error preparing domain data for file %s" % (
+            log.exception(
+                "[%s] [%s] Error preparing domain data for file %s",
                 html_file.project.slug,
                 html_file.version.slug,
-                html_file.path,
-            ))
+                html_file.path
+            )
 
         return all_domains
 
-    @classmethod
-    def faceted_search(
-            cls, query, user, projects_list=None, versions_list=None,
-            filter_by_user=True
-    ):
-        from readthedocs.search.faceted_search import PageSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-            'filter_by_user': filter_by_user,
-        }
-
-        filters = {}
-        if projects_list is not None:
-            filters['project'] = projects_list
-        if versions_list is not None:
-            filters['version'] = versions_list
-
-        kwargs['filters'] = filters
-
-        return PageSearch(**kwargs)
-
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
+        """
+        Ignore certain files from indexing.
+
+        - Files from external versions
+        - Ignored files
+        """
         queryset = super().get_queryset()
-
-        # Do not index files that belong to non sphinx project
-        # Also do not index certain files
-        queryset = queryset.internal().filter(
-            project__documentation_type__contains='sphinx'
+        queryset = (
+            queryset
+            .internal()
+            .exclude(ignore=True)
         )
-
-        # TODO: Make this smarter
-        # This was causing issues excluding some valid user documentation pages
-        # excluded_files = [
-        #     'search.html',
-        #     'genindex.html',
-        #     'py-modindex.html',
-        #     'search/index.html',
-        #     'genindex/index.html',
-        #     'py-modindex/index.html',
-        # ]
-        # for ending in excluded_files:
-        #     queryset = queryset.exclude(path=ending)
-
         return queryset

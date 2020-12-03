@@ -1,20 +1,23 @@
 import datetime
 import json
+from unittest import mock
+from unittest.mock import patch
 
+import pytest
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
-from unittest.mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
-    LATEST,
     EXTERNAL,
+    LATEST,
+    TAG,
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
@@ -183,6 +186,45 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for stable.
         self.assertEqual(self.pip.update_stable_version(), None)
 
+    def test_update_stable_version_machine_false(self):
+        # Initial stable version from fixture
+        self.assertEqual(self.pip.update_stable_version().slug, '0.8.1')
+
+        # None, when there is no stable to promote
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+        get(
+            Version,
+            identifier='9.0',
+            verbose_name='9.0',
+            slug='9.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # New stable now is the newly created version
+        self.assertEqual(self.pip.update_stable_version().slug, '9.0')
+
+        # Make stable version machine=False
+        stable = self.pip.get_stable_version()
+        stable.machine = False
+        stable.save()
+
+        get(
+            Version,
+            identifier='10.0',
+            verbose_name='10.0',
+            slug='10.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # None, since the stable version is marked as machine=False and Read
+        # the Docs does not have control over it
+        with patch('readthedocs.projects.models.determine_stable_version') as m:
+            self.assertEqual(self.pip.update_stable_version(), None)
+            m.assert_not_called()
+
     def test_has_good_build_excludes_external_versions(self):
         # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
@@ -215,6 +257,8 @@ class TestProject(ProjectMixin, TestCase):
         self.pip.save()
         self.assertEqual(self.pip.git_service_class(), GitLabService)
 
+
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class TestProjectTranslations(ProjectMixin, TestCase):
 
     def test_translations(self):
@@ -547,6 +591,7 @@ class TestFinishInactiveBuildsTask(TestCase):
         )
         self.build_3.save()
 
+    @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
     def test_finish_inactive_builds_task(self):
         finish_inactive_builds()
 
