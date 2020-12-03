@@ -50,6 +50,9 @@ Actions
 When a rule matches a new version, the specified action is performed on that version.
 Currently, the following actions are available:
 
+For branches and tags
+~~~~~~~~~~~~~~~~~~~~~
+
 - **Activate version**: Activates and builds the version.
 - **Hide version**: Hides the version. If the version is not active, activates it and builds the version.
   See :ref:`versions:Version States`.
@@ -71,13 +74,23 @@ Currently, the following actions are available:
      You can use the ``Set version as default`` action to change the default version
      before deleting the current one.
 
-
 .. note::
 
    If your versions follow :pep:`440`,
    Read the Docs activates and builds the version if it's greater than the current stable version.
    The stable version is also automatically updated at the same time.
    See more in :doc:`versions`.
+
+For pull/merge requests
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Build version**: When a pull request is opened or re-opened,
+  build the version if it matches the source and base branch.
+
+.. note::
+
+   By default Read the Docs will build all versions from pull requests
+   if there aren't any rules for external versions.
 
 Order
 -----
@@ -140,6 +153,22 @@ Activate all new tags and branches that start with ``v`` or ``V``
 - Custom match: ``^[vV]``
 - Version type: ``Branch``
 - Action: ``Activate version``
+
+Build pull requests from the ``main`` branch only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Custom match: ``.*``
+- Version type: ``External``
+- Base branch: ``^main$``
+- Action: ``Build version``
+
+Build all pull request where the source branch has the ``docs/`` prefix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Custom match: ``^docs/``
+- Version type: ``External``
+- Base branch: ``.*``
+- Action: ``Build version``
 
 Activate all new tags that don't contain the ``-nightly`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

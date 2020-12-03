@@ -1,5 +1,6 @@
 """Django forms for the builds app."""
 
+import itertools
 import re
 import textwrap
 
@@ -14,6 +15,8 @@ from readthedocs.builds.constants import (
     ALL_VERSIONS,
     BRANCH,
     BRANCH_TEXT,
+    EXTERNAL,
+    EXTERNAL_TEXT,
     TAG,
     TAG_TEXT,
 )
@@ -99,8 +102,9 @@ class RegexAutomationRuleForm(forms.ModelForm):
             """
             A regular expression to match the version.
             <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
-              Check the documentation for valid patterns.
+              Check the documentation
             </a>
+            for valid patterns.
             """
         )),
         required=False,
@@ -113,6 +117,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
             'predefined_match_arg',
             'match_arg',
             'version_type',
+            'action_arg',
             'action',
         ]
         # Don't pollute the UI with help texts
@@ -133,6 +138,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (None, '-' * 9),
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
+            (EXTERNAL, EXTERNAL_TEXT),
         ]
 
         # Remove privacy actions not available in community
@@ -154,6 +160,48 @@ class RegexAutomationRuleForm(forms.ModelForm):
         # if they want to use a custom one.
         if self.instance.pk and self.instance.predefined_match_arg:
             self.initial['match_arg'] = self.instance.get_match_arg()
+
+    def clean_action(self):
+        """Check the action is allowed for the type of version."""
+        action = self.cleaned_data['action']
+        version_type = self.cleaned_data['version_type']
+        internal_allowed_actions = set(
+            itertools.chain(
+                VersionAutomationRule.allowed_actions_on_create.keys(),
+                VersionAutomationRule.allowed_actions_on_delete.keys(),
+            )
+        )
+        allowed_actions = {
+            BRANCH: internal_allowed_actions,
+            TAG: internal_allowed_actions,
+            EXTERNAL: set(VersionAutomationRule.allowed_actions_on_external_versions.keys()),
+        }
+        if action not in allowed_actions.get(version_type, []):
+            raise forms.ValidationError(
+                _('Invalid action for this version type.'),
+            )
+        return action
+
+    def clean_action_arg(self):
+        """
+        Validate the action argument.
+
+        Currently only external versions accept this argument,
+        and it's the pattern to match the base_branch.
+        """
+        action_arg = self.cleaned_data['action_arg']
+        version_type = self.cleaned_data['version_type']
+        if version_type == EXTERNAL:
+            if not action_arg:
+                action_arg = '.*'
+            try:
+                re.compile(action_arg)
+                return action_arg
+            except Exception:
+                raise forms.ValidationError(
+                    _('Invalid Python regular expression.'),
+                )
+        return ''
 
     def clean_match_arg(self):
         """Check that a custom match was given if a predefined match wasn't used."""
@@ -185,6 +233,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 predefined_match_arg=self.cleaned_data['predefined_match_arg'],
                 version_type=self.cleaned_data['version_type'],
                 action=self.cleaned_data['action'],
+                action_arg=self.cleaned_data['action_arg'],
             )
         if not rule.description:
             rule.description = rule.get_description()

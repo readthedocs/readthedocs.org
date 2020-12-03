@@ -1,8 +1,8 @@
 import base64
 import datetime
 import json
-
 from unittest import mock
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
@@ -16,13 +16,13 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
-    GITHUB_PUSH,
-    GITHUB_SIGNATURE_HEADER,
     GITHUB_PULL_REQUEST,
+    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
     GITHUB_PULL_REQUEST_REOPENED,
-    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_SYNC,
+    GITHUB_PUSH,
+    GITHUB_SIGNATURE_HEADER,
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
@@ -37,8 +37,14 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import LATEST, EXTERNAL
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.models import (
+    Build,
+    BuildCommandResult,
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import (
@@ -47,7 +53,6 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
-
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -840,9 +845,13 @@ class IntegrationsTests(TestCase):
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": self.commit
-                }
-            }
+                    "sha": self.commit,
+                    "ref": 'source_branch',
+                },
+                "base": {
+                    "ref": "master",
+                },
+            },
         }
         self.gitlab_merge_request_payload = {
             "object_kind": GITLAB_MERGE_REQUEST,
@@ -851,7 +860,9 @@ class IntegrationsTests(TestCase):
                 "last_commit": {
                     "id": self.commit
                 },
-                "action": "open"
+                "action": "open",
+                "source_branch": "source_branch",
+                "target_branch": "master",
             },
         }
         self.gitlab_payload = {
@@ -1120,6 +1131,70 @@ class IntegrationsTests(TestCase):
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_github_pull_request_automation_rule_build_version(self, automation_rules_trigger_build, trigger_build):
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.BUILD_EXTERNAL_VERSION,
+            action_arg='^master$',
+            version_type=EXTERNAL,
+        )
+
+        client = APIClient()
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_pull_request_payload,
+            format='json',
+            **headers
+        )
+        external_version = self.project.versions(manager=EXTERNAL).first()
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+
+        trigger_build.assert_not_called()
+        automation_rules_trigger_build.assert_called_once_with(
+            project=self.project,
+            version=external_version,
+            commit=self.commit
+        )
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_github_pull_request_automation_rule_dont_build_version(self, automation_rules_trigger_build, trigger_build):
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.BUILD_EXTERNAL_VERSION,
+            action_arg='^dont-match-me$',
+            version_type=EXTERNAL,
+        )
+
+        client = APIClient()
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_pull_request_payload,
+            format='json',
+            **headers
+        )
+        external_version = self.project.versions(manager=EXTERNAL).first()
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [])
+
+        trigger_build.assert_not_called()
+        automation_rules_trigger_build.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
