@@ -13,6 +13,7 @@ from readthedocs.integrations.models import (
     GitHubWebhook,
     GitLabWebhook,
 )
+from readthedocs.oauth.constants import GITHUB, BITBUCKET, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -58,6 +59,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -71,6 +73,8 @@ class GitHubOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testuser/testrepo')
+        self.assertEqual(repo.remote_id, '12345678')
+        self.assertEqual(repo.vcs_provider, GITHUB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
@@ -90,6 +94,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': '',
             'full_name': '',
+            'id': '',
             'description': '',
             'git_url': '',
             'private': True,
@@ -127,6 +132,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': '',
             'full_name': 'testrepo/multiple',
+            'id': '12345678',
             'description': '',
             'git_url': '',
             'private': False,
@@ -228,6 +234,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -612,6 +619,8 @@ class BitbucketOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'tutorials.bitbucket.org')
         self.assertEqual(repo.full_name, 'tutorials/tutorials.bitbucket.org')
+        self.assertEqual(repo.remote_id, '{9970a9b6-2d86-413f-8555-da8e1ac0e542}')
+        self.assertEqual(repo.vcs_provider, BITBUCKET)
         self.assertEqual(repo.description, 'Site for tutorial101 files')
         self.assertEqual(
             repo.avatar_url, (
@@ -994,6 +1003,8 @@ class GitLabOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
+        self.assertEqual(repo.remote_id, 42)
+        self.assertEqual(repo.vcs_provider, GITLAB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
