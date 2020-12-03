@@ -11,9 +11,10 @@ from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
-from readthedocs.oauth.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.constants import (
+    GITHUB_BRAND,
     GITHUB_PR_PULL_PATTERN,
+    GITLAB_BRAND,
     GITLAB_MR_PULL_PATTERN,
 )
 from readthedocs.projects.exceptions import RepositoryError

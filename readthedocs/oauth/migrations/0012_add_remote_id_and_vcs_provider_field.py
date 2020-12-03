@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='remoterepository',
             name='vcs_provider',
-            field=models.CharField(blank=True, choices=[('GitHub', 'GitHub'), ('GitLab', 'GitLab'), ('Bitbucket', 'Bitbucket')], max_length=32, null=True, verbose_name='VCS provider'),
+            field=models.CharField(blank=True, choices=[('github', 'GitHub'), ('gitlab', 'GitLab'), ('bitbucket', 'Bitbucket')], max_length=32, null=True, verbose_name='VCS provider'),
         ),
     ]

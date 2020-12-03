@@ -19,7 +19,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.integrations.models import Integration
 
-from ..constants import GITHUB_BRAND
+from ..constants import GITHUB
 from ..models import (
     RemoteOrganization,
     RemoteRepository,
@@ -123,7 +123,7 @@ class GitHubService(Service):
 
             repo.organization = organization
             repo.remote_id = fields['id']
-            repo.vcs_provider = GITHUB_BRAND
+            repo.vcs_provider = GITHUB
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']

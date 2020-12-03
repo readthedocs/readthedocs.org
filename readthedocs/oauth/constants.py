@@ -1,9 +1,9 @@
-GITHUB_BRAND = 'GitHub'
-GITLAB_BRAND = 'GitLab'
-BITBUCKET_BRAND = 'Bitbucket'
+GITHUB = 'github'
+GITLAB = 'gitlab'
+BITBUCKET = 'bitbucket'
 
 VCS_PROVIDER_CHOICES = (
-    (GITHUB_BRAND, 'GitHub'),
-    (GITLAB_BRAND, 'GitLab'),
-    (BITBUCKET_BRAND, 'Bitbucket'),
+    (GITHUB, 'GitHub'),
+    (GITLAB, 'GitLab'),
+    (BITBUCKET, 'Bitbucket'),
 )
