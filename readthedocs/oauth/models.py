@@ -18,6 +18,7 @@ from jsonfield import JSONField
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
+from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
@@ -168,8 +169,22 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
     )
-
     json = models.TextField(_('Serialized API response'))
+    # TODO: Make remote_id and vcs_provider not nullable and
+    #  unique together after migration
+    remote_id = models.CharField(
+        db_index=True,
+        max_length=128,
+        blank=True,
+        null=True
+    )
+    vcs_provider = models.CharField(
+        _('VCS provider'),
+        choices=VCS_PROVIDER_CHOICES,
+        max_length=32,
+        null=True,
+        blank=True
+    )
 
     objects = RemoteRepositoryQuerySet.as_manager()
 

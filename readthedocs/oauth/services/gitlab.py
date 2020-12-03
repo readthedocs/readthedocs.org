@@ -18,6 +18,7 @@ from readthedocs.builds.constants import (
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
+from ..constants import GITLAB
 from ..models import (
     RemoteOrganization,
     RemoteRepository,
@@ -180,6 +181,8 @@ class GitLabService(Service):
                 return None
 
             repo.organization = organization
+            repo.remote_id = fields['id']
+            repo.vcs_provider = GITLAB
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
