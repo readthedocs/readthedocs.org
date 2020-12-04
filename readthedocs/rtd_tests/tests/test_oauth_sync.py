@@ -151,7 +151,7 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertIsInstance(remote_repository, RemoteRepository)
         self.assertEqual(remote_repository.full_name, 'organization/repository')
         self.assertEqual(remote_repository.name, 'repository')
-        self.assertFalse(remote_repository.admin)
+        self.assertFalse(remote_repository.remote_repository_relations.first().admin)
         self.assertFalse(remote_repository.private)
 
     @requests_mock.Mocker(kw='mock_request')
