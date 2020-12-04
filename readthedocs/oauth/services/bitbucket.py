@@ -170,7 +170,6 @@ class BitbucketService(Service):
             repo.vcs = fields['scm']
             mainbranch = fields.get('mainbranch') or {}
             repo.default_branch = mainbranch.get('name')
-            repo.account = self.account
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
