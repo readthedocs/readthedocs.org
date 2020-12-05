@@ -167,10 +167,12 @@ class GitLabService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['name_with_namespace']
             )
-            remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
-                remoterepository=repo,
-                user=self.user,
-                account=self.account
+            remote_repository_relation, _ = (
+                RemoteRepositoryRelation.objects.get_or_create(
+                    remoterepository=repo,
+                    user=self.user,
+                    account=self.account
+                )
             )
 
             if repo.organization and repo.organization != organization:
@@ -216,13 +218,13 @@ class GitLabService(Service):
             if group_access:
                 group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
 
-            remote_relation.admin = any([
+            remote_repository_relation.admin = any([
                 project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
                 group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
             ])
-            remote_relation.account = self.account
-            remote_relation.json = fields
-            remote_relation.save()
+            remote_repository_relation.account = self.account
+            remote_repository_relation.json = fields
+            remote_repository_relation.save()
 
             return repo
 
