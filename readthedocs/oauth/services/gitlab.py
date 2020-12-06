@@ -166,7 +166,7 @@ class GitLabService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['name_with_namespace']
             )
-            remote_repository_relation = self.get_remote_relation(repo)
+            remote_repository_relation = self.get_remote_repository_relation(repo)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
