@@ -218,7 +218,7 @@ class Service:
             .delete()
         )
 
-    def get_remote_relation(self, repo):
+    def get_remote_repository_relation(self, repo):
         """Return RemoteRepositoryRelation object for a given remote repository."""
         remote_repository_relation, _ = (
             RemoteRepositoryRelation.objects.get_or_create(
