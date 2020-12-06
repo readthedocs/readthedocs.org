@@ -23,7 +23,6 @@ from ..constants import GITHUB
 from ..models import (
     RemoteOrganization,
     RemoteRepository,
-    RemoteRepositoryRelation,
 )
 from .base import Service, SyncServiceError
 
@@ -108,13 +107,7 @@ class GitHubService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name']
             )
-            remote_repository_relation, _ = (
-                RemoteRepositoryRelation.objects.get_or_create(
-                    remoterepository=repo,
-                    user=self.user,
-                    account=self.account
-                )
-            )
+            remote_repository_relation = self.get_remote_relation(repo)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
