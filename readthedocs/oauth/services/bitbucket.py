@@ -180,7 +180,6 @@ class BitbucketService(Service):
 
             repo.save()
 
-            remote_repository_relation.account = self.account
             remote_repository_relation.json = fields
             remote_repository_relation.save()
 

@@ -251,7 +251,6 @@ class GitLabService(Service):
                 project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
                 group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
             ])
-            remote_repository_relation.account = self.account
             remote_repository_relation.json = fields
             remote_repository_relation.save()
 
