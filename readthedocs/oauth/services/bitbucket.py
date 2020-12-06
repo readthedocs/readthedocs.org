@@ -133,13 +133,7 @@ class BitbucketService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name']
             )
-            remote_repository_relation, _ = (
-                RemoteRepositoryRelation.objects.get_or_create(
-                    remoterepository=repo,
-                    user=self.user,
-                    account=self.account
-                )
-            )
+            remote_repository_relation = self.get_remote_relation(repo)
 
             if repo.organization and repo.organization != organization:
                 log.debug(

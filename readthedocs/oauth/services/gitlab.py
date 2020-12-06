@@ -22,7 +22,6 @@ from ..constants import GITLAB
 from ..models import (
     RemoteOrganization,
     RemoteRepository,
-    RemoteRepositoryRelation,
 )
 from .base import Service, SyncServiceError
 
@@ -167,13 +166,7 @@ class GitLabService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['name_with_namespace']
             )
-            remote_repository_relation, _ = (
-                RemoteRepositoryRelation.objects.get_or_create(
-                    remoterepository=repo,
-                    user=self.user,
-                    account=self.account
-                )
-            )
+            remote_repository_relation = self.get_remote_relation(repo)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
