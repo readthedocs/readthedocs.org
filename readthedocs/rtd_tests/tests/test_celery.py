@@ -357,7 +357,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -414,7 +417,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 

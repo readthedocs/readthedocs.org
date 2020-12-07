@@ -409,6 +409,11 @@ class CommunityBaseSettings(Settings):
                 'days': 1,
             },
         },
+        'every-day-delete-inactive-external-versions': {
+            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
