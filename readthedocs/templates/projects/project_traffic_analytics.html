@@ -14,9 +14,7 @@
 
   {% if not enabled %}
     {% block disabled %}
-      <p class="empty">
-        This beta feature can be enabled by <a href="mailto:{{ SUPPORT_EMAIL }}">asking support</a>.
-      </p>
+      {% include 'projects/includes/feature_disabled.html' %}
     {% endblock %}
   {% endif %}
 
