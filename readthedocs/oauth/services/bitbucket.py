@@ -155,6 +155,8 @@ class BitbucketService(Service):
 
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
+            mainbranch = fields.get('mainbranch') or {}
+            repo.default_branch = mainbranch.get('name')
             repo.account = self.account
 
             avatar_url = fields['links']['avatar']['href'] or ''

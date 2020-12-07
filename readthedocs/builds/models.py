@@ -15,6 +15,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
@@ -41,6 +45,7 @@ from readthedocs.builds.constants import (
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
+    AutomationRuleMatchManager,
     BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
@@ -88,9 +93,22 @@ from readthedocs.projects.version_handling import determine_stable_version
 log = logging.getLogger(__name__)
 
 
-class Version(models.Model):
+class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
+
+    # Overridden from TimeStampedModel just to allow null values.
+    # TODO: remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -328,9 +346,7 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        # Remove resources if the version is not external
-        if self.type != EXTERNAL:
-            tasks.clean_project_resources(self.project, self)
+        tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -1030,18 +1046,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, *args, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
         """
-        if version.type == self.version_type:
-            match, result = self.match(version, self.get_match_arg())
-            if match:
-                self.apply_action(version, result)
-                return True
+        if version.type != self.version_type:
+            return False
+
+        match, result = self.match(version, self.get_match_arg())
+        if match:
+            self.apply_action(version, result)
+            AutomationRuleMatch.objects.register_match(
+                rule=self,
+                version=version,
+            )
+            return True
         return False
 
     def match(self, version, match_arg):
@@ -1224,3 +1246,29 @@ class RegexAutomationRule(VersionAutomationRule):
             'projects_automation_rule_regex_edit',
             args=[self.project.slug, self.pk],
         )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    rule = models.ForeignKey(
+        VersionAutomationRule,
+        verbose_name=_('Matched rule'),
+        related_name='matches',
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=VersionAutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ('-modified', '-created')
