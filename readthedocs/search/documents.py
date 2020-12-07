@@ -59,8 +59,11 @@ class PageDocument(RTDDocTypeMixin, Document):
     Simple analyzer will break the text in non-letter characters,
     so a text like ``python.submodule`` will be broken like [python, submodule]
     instead of [python.submodule].
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html  # noqa
 
-    https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+    Some text fields use the ``with_positions_offsets`` term vector,
+    this is to have faster highlighting on big documents.
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-vector.html
     """
 
     # Metadata
@@ -77,7 +80,7 @@ class PageDocument(RTDDocTypeMixin, Document):
         properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
-            'content': fields.TextField(),
+            'content': fields.TextField(term_vector='with_positions_offsets'),
         }
     )
     domains = fields.NestedField(
@@ -89,7 +92,7 @@ class PageDocument(RTDDocTypeMixin, Document):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(),
+            'docstrings': fields.TextField(term_vector='with_positions_offsets'),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
