@@ -203,6 +203,7 @@ class GitLabService(Service):
             ])
 
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
 
             owner = fields.get('owner') or {}

@@ -166,6 +166,7 @@ class ProjectExtraForm(ProjectForm):
         fields = (
             'description',
             'documentation_type',
+            'default_branch',
             'language',
             'programming_language',
             'tags',
