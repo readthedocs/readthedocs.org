@@ -14,7 +14,7 @@
 
   {% if not enabled %}
     {% block disabled %}
-      {% include 'projects/includes/feature_disabled.html' %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
     {% endblock %}
   {% endif %}
 
