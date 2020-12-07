@@ -139,9 +139,7 @@ class GitHubService(Service):
             repo.save()
 
             remote_repository_relation.json = fields
-            remote_repository_relation.admin = fields.get(
-                'permissions', {}
-            ).get('admin', False)
+            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
             remote_repository_relation.save()
 
             return repo
