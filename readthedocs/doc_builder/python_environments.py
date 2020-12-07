@@ -518,7 +518,10 @@ class Conda(PythonEnvironment):
         independently the version of Miniconda that it has installed.
         """
         self.build_env.run(
-            self.conda_bin_name(),
+            # TODO: use ``self.conda_bin_name()`` once ``mama`` is installed in
+            # the Docker image
+            'conda',
+
             'update',
             '--yes',
             '--quiet',
@@ -563,6 +566,7 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
+        # TODO: remove it when ``mamba`` is installed in the Docker image
         if self.project.has_feature(Feature.CONDA_USES_MAMBA):
             self._install_mamba()
 
