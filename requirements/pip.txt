@@ -108,7 +108,7 @@ user-agents==2.2.0
 git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
-django-debug-toolbar==3.1.1
+django-debug-toolbar==3.2
 
 # For enabling content-security-policy
 django-csp==3.7
