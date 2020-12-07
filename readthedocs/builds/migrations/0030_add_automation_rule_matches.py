@@ -8,7 +8,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0028_add_delete_version_action'),
+        ('builds', '0029_add_time_fields'),
     ]
 
     operations = [
