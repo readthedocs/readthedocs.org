@@ -19,7 +19,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import VersionLockedError
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
@@ -344,9 +344,14 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = 'https://github.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='github')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository, project=self.project)
+        get(
+            RemoteRepositoryRelation,
+            remoterepository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
@@ -404,9 +409,14 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = 'https://gitlab.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='gitlab')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository, project=self.project)
+        get(
+            RemoteRepositoryRelation,
+            remoterepository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(

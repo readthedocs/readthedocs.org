@@ -1891,8 +1891,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param status: build status failed, pending, or success to be sent.
     """
     # TODO: Send build status for BitBucket.
-    service = None
-    success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
@@ -1901,48 +1899,54 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+        users = build.project.users.all()
 
-        # First, try using user who imported the project's account
         try:
-            service = service_class(
-                build.project.remote_repository.users.first(),
-                build.project.remote_repository.account
+            remote_repository = build.project.remote_repository
+            # TODO: Update this queryset to make it work on commercial
+            remote_repository_relations = (
+                remote_repository.remote_repository_relations.filter(
+                    account__isnull=False,
+                    user__projects=build.project
+                ).select_related('account', 'user').only('user', 'account')
             )
 
-        except RemoteRepository.DoesNotExist:
-            log.warning(
-                'Project does not have a RemoteRepository. project=%s',
-                build.project.slug,
-            )
-
-        if service is not None:
-            # Send status report using the API.
-            success = service.send_build_status(
+            # Try using any of the users' maintainer accounts
+            # Try to loop through all remote repository relations for the projects users
+            for relation in remote_repository_relations:
+                service = service_class(relation.user, relation.account)
+                # Send status report using the API.
+                success = service.send_build_status(
                 build=build,
                 commit=commit,
                 state=status,
                 link_to_build=link_to_build,
             )
 
-        if success:
-            log.info(
-                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
-                build.project.slug,
-                build.pk,
-                status,
-                commit,
-            )
-            return True
+                if success:
+                    log.info(
+                        'Build status report sent correctly. '
+                        'project=%s build=%s status=%s commit=%s user=%s',
+                        build.project.slug,
+                        build.pk,
+                        status,
+                        commit,
+                        relation.user.username,
+                    )
+                    return True
 
-        # Try using any of the users' maintainer accounts
-        # Try to loop through all project users to get their social accounts
-        users = build.project.users.all()
-        for user in users:
-            user_accounts = service_class.for_user(user)
-            # Try to loop through users all social accounts to send a successful request
-            for account in user_accounts:
-                if account.provider_name == provider_name:
-                    success = account.send_build_status(build, commit, status)
+        except RemoteRepository.DoesNotExist:
+            log.warning(
+                'Project does not have a RemoteRepository. project=%s',
+                build.project.slug,
+            )
+            # Try to send build status for projects with no RemoteRepository
+            for user in users:
+                services = service_class.for_user(user)
+                # Try to loop through services for users all social accounts
+                # to send successful build status
+                for service in services:
+                    success = service.send_build_status(build, commit, status)
                     if success:
                         log.info(
                             'Build status report sent correctly using an user account. '
