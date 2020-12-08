@@ -6,6 +6,7 @@ import requests_mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteRepository,
@@ -79,6 +80,8 @@ class GitHubOAuthSyncTests(TestCase):
         repo_1 = fixture.get(
             RemoteRepository,
             full_name='organization/repository',
+            remote_id='11111',
+            vcs_provider=GITHUB
         )
         fixture.get(
             RemoteRepositoryRelation,
@@ -90,6 +93,8 @@ class GitHubOAuthSyncTests(TestCase):
         repo_2 = fixture.get(
             RemoteRepository,
             full_name='organization/old-repository',
+            remote_id='64789',
+            vcs_provider=GITHUB
         )
         fixture.get(
             RemoteRepositoryRelation,
@@ -105,6 +110,8 @@ class GitHubOAuthSyncTests(TestCase):
             RemoteRepository,
             project=project,
             full_name='organization/project-linked-repository',
+            remote_id='54321',
+            vcs_provider=GITHUB
         )
         fixture.get(
             RemoteRepositoryRelation,
