@@ -105,7 +105,8 @@ class GitHubService(Service):
         ]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name']
+                remote_id=fields['id'],
+                vcs_provider=GITHUB
             )
             remote_repository_relation = self.get_remote_repository_relation(repo)
 
@@ -117,9 +118,8 @@ class GitHubService(Service):
                 return None
 
             repo.organization = organization
-            repo.remote_id = fields['id']
-            repo.vcs_provider = GITHUB
             repo.name = fields['name']
+            repo.full_name = fields['full_name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
             repo.html_url = fields['html_url']

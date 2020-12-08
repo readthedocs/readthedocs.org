@@ -66,8 +66,9 @@ class BitbucketService(Service):
                 RemoteRepositoryRelation.objects.filter(
                     user=self.user,
                     account=self.account,
-                    remoterepository__full_name__in=[
-                        r['full_name'] for r in resp
+                    remoterepository__vcs_provider=BITBUCKET,
+                    remoterepository__remote_id__in=[
+                        r['uuid'] for r in resp
                     ]
                 )
             )
@@ -131,7 +132,8 @@ class BitbucketService(Service):
             (fields['is_private'] is False and privacy == 'public'),
         ]):
             repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name']
+                remote_id=fields['uuid'],
+                vcs_provider=BITBUCKET
             )
             remote_repository_relation = self.get_remote_repository_relation(repo)
 
@@ -144,8 +146,7 @@ class BitbucketService(Service):
 
             repo.organization = organization
             repo.name = fields['name']
-            repo.remote_id = fields['uuid']
-            repo.vcs_provider = BITBUCKET
+            repo.full_name = fields['full_name']
             repo.description = fields['description']
             repo.private = fields['is_private']
 
