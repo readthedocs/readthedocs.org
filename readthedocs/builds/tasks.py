@@ -8,9 +8,15 @@ from django.conf import settings
 from django.core.files.storage import get_storage_class
 
 from readthedocs.api.v2.serializers import BuildSerializer
-from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
+from readthedocs.builds.constants import (
+    BUILD_STATUS_FAILURE,
+    BUILD_STATUS_PENDING,
+    BUILD_STATUS_SUCCESS,
+    MAX_BUILD_COMMAND_SIZE,
+)
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.projects.tasks import send_build_status
 from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
@@ -163,3 +169,40 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                     build.commands.all().delete()
             except IOError:
                 log.exception('Cold Storage save failure')
+
+
+def delete_inactive_external_versions(limit=200, days=30 * 3):
+    """
+    Delete external versions that have been marked as inactive after ``days``.
+
+    The commit status is updated to link to the build page, as the docs are removed.
+    """
+    days_ago = datetime.now() - timedelta(days=days)
+    queryset = Version.external.filter(
+        active=False,
+        modified__lte=days_ago,
+    )[:limit]
+    for version in queryset:
+        try:
+            last_build = version.last_build
+            if last_build:
+                status = BUILD_STATUS_PENDING
+                if last_build.finished:
+                    status = BUILD_STATUS_SUCCESS if last_build.success else BUILD_STATUS_FAILURE
+                send_build_status(
+                    build_pk=last_build.pk,
+                    commit=last_build.commit,
+                    status=status,
+                    link_to_build=True,
+                )
+        except Exception:
+            log.exception(
+                "Failed to send status: project=%s version=%s",
+                version.project.slug, version.slug,
+            )
+        else:
+            log.info(
+                "Removing external version. project=%s version=%s",
+                version.project.slug, version.slug,
+            )
+            version.delete()

@@ -35,14 +35,12 @@ from vanilla import (
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
+    AutomationRuleMatch,
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import (
-    ListViewWithForm,
-    PrivateViewMixin,
-)
+from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -938,7 +936,14 @@ class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class AutomationRuleList(AutomationRuleMixin, ListView):
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['matches'] = (
+            AutomationRuleMatch.objects
+            .filter(rule__project=self.get_project())
+        )
+        return context
 
 
 class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
@@ -976,7 +981,7 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
     http_method_names = ['get']
@@ -990,6 +995,10 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
+        enabled = self._is_enabled(project)
+        context.update({'enabled': enabled})
+        if not enabled:
+            return context
 
         # data for plotting the line-chart
         query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
@@ -1054,8 +1063,16 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         response['Content-Disposition'] = f'attachment; filename="{file_name}"'
         return response
 
+    def _is_enabled(self, project):
+        """Should we show search analytics for this project?"""
+        return True
 
-class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+
+class SearchAnalytics(SettingsOverrideObject):
+    _default_class = SearchAnalyticsBase
+
+
+class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
@@ -1079,6 +1096,15 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         context.update({
             'top_viewed_pages': top_viewed_pages,
             'page_data': page_data,
+            'enabled': self._is_enabled(project),
         })
 
         return context
+
+    def _is_enabled(self, project):
+        """Should we show traffic analytics for this project?"""
+        return project.has_feature(Feature.STORE_PAGEVIEWS)
+
+
+class TrafficAnalyticsView(SettingsOverrideObject):
+    _default_class = TrafficAnalyticsViewBase
