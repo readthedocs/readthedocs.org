@@ -259,7 +259,12 @@ class PageSearchAPIView(GenericAPIView):
         """Get a version from the subproject."""
         return (
             Version.internal
-            .public(user=self.request.user, project=subproject, include_hidden=False)
+            .public(
+                user=self.request.user,
+                project=subproject,
+                include_hidden=False,
+                only_built=True,
+            )
             .filter(slug=version_slug)
             .first()
         )

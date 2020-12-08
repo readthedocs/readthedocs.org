@@ -29,6 +29,9 @@ webhook_github = Signal(providing_args=['project', 'data', 'event'])
 webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
 webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
 
+pre_collectstatic = Signal()
+post_collectstatic = Signal()
+
 
 def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
     """
