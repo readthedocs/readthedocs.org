@@ -34,6 +34,7 @@ class Service:
 
     adapter = None
     url_pattern = None
+    PROVIDER_SLUG = None
 
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -200,10 +201,13 @@ class Service:
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
         all_remote_repositories = remote_repositories + remote_repositories_organizations
-        repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
         (
             self.user.remote_repository_relations
-            .exclude(remoterepository__full_name__in=repository_full_names)
+            .exclude(
+                remoterepository__remote_id__in=repository_remote_ids,
+                remoterepository__vcs_provider=self.PROVIDER_SLUG
+            )
             .filter(account=self.account)
             .delete()
         )
