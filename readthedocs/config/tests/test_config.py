@@ -33,6 +33,7 @@ from readthedocs.config.models import (
     Conda,
     PythonInstall,
     PythonInstallRequirements,
+    PythonInstallPackages,
 )
 from readthedocs.config.validation import (
     INVALID_BOOL,
@@ -1104,6 +1105,58 @@ class TestBuildConfigV2:
         assert len(install) == 1
         assert isinstance(install[0], PythonInstallRequirements)
         assert install[0].requirements == 'requirements.txt'
+
+    def test_python_install_packages_check_valid(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'packages': [
+                            'package_a',
+                            'package_b >=3.0.0,<4.0.0',
+                        ],
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], PythonInstallPackages)
+        assert install[0].packages == ['package_a', 'package_b >=3.0.0,<4.0.0']
+
+    def test_python_install_packages_must_be_list(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'packages': {},
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.packages'
+        assert '"python.install.0.packages" key must be a list' in str(excinfo.value)
+
+    def test_python_install_packages_must_not_be_empty(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'packages': [],
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.packages'
+        assert '"python.install.0.packages" cannot be empty' in str(excinfo.value)
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
         build = self.get_build_config(
