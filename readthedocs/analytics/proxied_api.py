@@ -1,4 +1,4 @@
-"""Analytics views that are severd from the same domain as the docs."""
+"""Analytics views that are served from the same domain as the docs."""
 
 from django.db.models import F
 from django.shortcuts import get_object_or_404
