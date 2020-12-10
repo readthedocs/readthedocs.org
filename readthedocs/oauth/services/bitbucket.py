@@ -34,7 +34,7 @@ class BitbucketService(Service):
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'bitbucket.org')
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
-    PROVIDER_SLUG = BITBUCKET
+    vcs_provider_slug = BITBUCKET
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
@@ -67,7 +67,7 @@ class BitbucketService(Service):
                 RemoteRepositoryRelation.objects.filter(
                     user=self.user,
                     account=self.account,
-                    remoterepository__vcs_provider=self.PROVIDER_SLUG,
+                    remoterepository__vcs_provider=self.vcs_provider_slug,
                     remoterepository__remote_id__in=[
                         r['uuid'] for r in resp
                     ]
@@ -134,7 +134,7 @@ class BitbucketService(Service):
         ]):
             repo, _ = RemoteRepository.objects.get_or_create(
                 remote_id=fields['uuid'],
-                vcs_provider=self.PROVIDER_SLUG
+                vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = self.get_remote_repository_relation(repo)
 

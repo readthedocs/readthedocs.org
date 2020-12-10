@@ -35,7 +35,7 @@ class Service:
 
     adapter = None
     url_pattern = None
-    PROVIDER_SLUG = None
+    vcs_provider_slug = None
 
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -207,7 +207,7 @@ class Service:
             self.user.remote_repository_relations
             .exclude(
                 remoterepository__remote_id__in=repository_remote_ids,
-                remoterepository__vcs_provider=self.PROVIDER_SLUG
+                remoterepository__vcs_provider=self.vcs_provider_slug
             )
             .filter(account=self.account)
             .delete()
