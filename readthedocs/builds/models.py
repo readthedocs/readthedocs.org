@@ -15,6 +15,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
@@ -41,6 +45,7 @@ from readthedocs.builds.constants import (
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
+    AutomationRuleMatchManager,
     BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
@@ -88,9 +93,22 @@ from readthedocs.projects.version_handling import determine_stable_version
 log = logging.getLogger(__name__)
 
 
-class Version(models.Model):
+class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
+
+    # Overridden from TimeStampedModel just to allow null values.
+    # TODO: remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -328,9 +346,7 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        # Remove resources if the version is not external
-        if self.type != EXTERNAL:
-            tasks.clean_project_resources(self.project, self)
+        tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -947,6 +963,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
+    DELETE_VERSION_ACTION = 'delete-version'
     HIDE_VERSION_ACTION = 'hide-version'
     MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
     MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
@@ -958,7 +975,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
         (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
+        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
     )
+
+    allowed_actions_on_create = {}
+    allowed_actions_on_delete = {}
 
     project = models.ForeignKey(
         Project,
@@ -1025,18 +1046,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, *args, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
         """
-        if version.type == self.version_type:
-            match, result = self.match(version, self.get_match_arg())
-            if match:
-                self.apply_action(version, result)
-                return True
+        if version.type != self.version_type:
+            return False
+
+        match, result = self.match(version, self.get_match_arg())
+        if match:
+            self.apply_action(version, result)
+            AutomationRuleMatch.objects.register_match(
+                rule=self,
+                version=version,
+            )
+            return True
         return False
 
     def match(self, version, match_arg):
@@ -1052,14 +1079,17 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def apply_action(self, version, match_result):
         """
-        Apply the action from allowed_actions.
+        Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
         :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
@@ -1166,12 +1196,16 @@ class RegexAutomationRule(VersionAutomationRule):
 
     TIMEOUT = 1  # timeout in seconds
 
-    allowed_actions = {
+    allowed_actions_on_create = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
         VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
         VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+    }
+
+    allowed_actions_on_delete = {
+        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
     }
 
     class Meta:
@@ -1212,3 +1246,29 @@ class RegexAutomationRule(VersionAutomationRule):
             'projects_automation_rule_regex_edit',
             args=[self.project.slug, self.pk],
         )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    rule = models.ForeignKey(
+        VersionAutomationRule,
+        verbose_name=_('Matched rule'),
+        related_name='matches',
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=VersionAutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ('-modified', '-created')

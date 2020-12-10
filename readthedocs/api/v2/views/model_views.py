@@ -53,6 +53,7 @@ from ..utils import (
     RemoteOrganizationPagination,
     RemoteProjectPagination,
     delete_versions_from_db,
+    get_deleted_active_versions,
     run_automation_rules,
     sync_versions_to_db,
 )
@@ -195,9 +196,9 @@ class ProjectViewSet(UserSelectViewSet):
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
+        current_stable = project.get_original_stable_version()
+        if current_stable is not None:
+            activate_new_stable = current_stable.active
         else:
             activate_new_stable = False
 
@@ -220,6 +221,7 @@ class ProjectViewSet(UserSelectViewSet):
                 )
                 added_versions.update(ret_set)
             deleted_versions = delete_versions_from_db(project, data)
+            deleted_active_versions = get_deleted_active_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -233,7 +235,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions, deleted_active_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.

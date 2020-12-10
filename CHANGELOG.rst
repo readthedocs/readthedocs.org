@@ -1,3 +1,92 @@
+Version 5.8.0
+-------------
+
+:Date: December 08, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7731 <https://github.com/readthedocs/readthedocs.org/pull/7731>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bitbucket: mainbranch can be None (`#7725 <https://github.com/readthedocs/readthedocs.org/pull/7725>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use with_positions_offsets term vector for some fields (`#7724 <https://github.com/readthedocs/readthedocs.org/pull/7724>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: filter only active and built versions from subprojects (`#7723 <https://github.com/readthedocs/readthedocs.org/pull/7723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Extra features: allow to display them conditionally (`#7715 <https://github.com/readthedocs/readthedocs.org/pull/7715>`__)
+* `@humitos <https://github.com/humitos>`__: Define `pre/post_collectstatic` signals and send them (`#7701 <https://github.com/readthedocs/readthedocs.org/pull/7701>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Support the new Google analytics gtag.js (`#7691 <https://github.com/readthedocs/readthedocs.org/pull/7691>`__)
+* `@stsewd <https://github.com/stsewd>`__: HTMLFile: remove slug field (`#7680 <https://github.com/readthedocs/readthedocs.org/pull/7680>`__)
+* `@stsewd <https://github.com/stsewd>`__: External versions: delete after 3 months of being merged/closed (`#7678 <https://github.com/readthedocs/readthedocs.org/pull/7678>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: keep history of recent matches (`#7658 <https://github.com/readthedocs/readthedocs.org/pull/7658>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: update to ES 7.x (`#7582 <https://github.com/readthedocs/readthedocs.org/pull/7582>`__)
+
+Version 5.7.0
+-------------
+
+:Date: December 01, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Ensure there is space for sidebar ads (`#7716 <https://github.com/readthedocs/readthedocs.org/pull/7716>`__)
+* `@humitos <https://github.com/humitos>`__: Install six as core requirement for builds (`#7710 <https://github.com/readthedocs/readthedocs.org/pull/7710>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: increase feature_id max_length (`#7698 <https://github.com/readthedocs/readthedocs.org/pull/7698>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7695 <https://github.com/readthedocs/readthedocs.org/pull/7695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: use stable version instead of querying all versions (`#7380 <https://github.com/readthedocs/readthedocs.org/pull/7380>`__)
+
+Version 5.6.5
+-------------
+
+:Date: November 23, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock update_docs_task to speed up tests (`#7677 <https://github.com/readthedocs/readthedocs.org/pull/7677>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: add timestamp fields (`#7676 <https://github.com/readthedocs/readthedocs.org/pull/7676>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: create an organization when running in .com (`#7673 <https://github.com/readthedocs/readthedocs.org/pull/7673>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Speed up the tag index page (`#7671 <https://github.com/readthedocs/readthedocs.org/pull/7671>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Fix for out of order script loading (`#7670 <https://github.com/readthedocs/readthedocs.org/pull/7670>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Set ad configuration values if using explicit placement (`#7669 <https://github.com/readthedocs/readthedocs.org/pull/7669>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#7668 <https://github.com/readthedocs/readthedocs.org/pull/7668>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger build to speed up tests (`#7661 <https://github.com/readthedocs/readthedocs.org/pull/7661>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: save and set default_branch (`#7646 <https://github.com/readthedocs/readthedocs.org/pull/7646>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude some fields from source results (`#7640 <https://github.com/readthedocs/readthedocs.org/pull/7640>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: allow to search on different versions of subprojects (`#7634 <https://github.com/readthedocs/readthedocs.org/pull/7634>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor api view (`#7633 <https://github.com/readthedocs/readthedocs.org/pull/7633>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Initial Modeling with Through Model and Data Migration for RemoteRepository Model (`#7536 <https://github.com/readthedocs/readthedocs.org/pull/7536>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: remove slug 1/2 (`#7228 <https://github.com/readthedocs/readthedocs.org/pull/7228>`__)
+* `@humitos <https://github.com/humitos>`__: Changes required for APIv3 in corporate (`#6489 <https://github.com/readthedocs/readthedocs.org/pull/6489>`__)
+
+Version 5.6.4
+-------------
+
+:Date: November 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix for out of order script loading (`#7670 <https://github.com/readthedocs/readthedocs.org/pull/7670>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Set ad configuration values if using explicit placement (`#7669 <https://github.com/readthedocs/readthedocs.org/pull/7669>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#7668 <https://github.com/readthedocs/readthedocs.org/pull/7668>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 45 (`#7655 <https://github.com/readthedocs/readthedocs.org/pull/7655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: add delete version action (`#7644 <https://github.com/readthedocs/readthedocs.org/pull/7644>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude some fields from source results (`#7640 <https://github.com/readthedocs/readthedocs.org/pull/7640>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Initial Modeling with Through Model and Data Migration for RemoteRepository Model (`#7536 <https://github.com/readthedocs/readthedocs.org/pull/7536>`__)
+* `@humitos <https://github.com/humitos>`__: Changes required for APIv3 in corporate (`#6489 <https://github.com/readthedocs/readthedocs.org/pull/6489>`__)
+
+Version 5.6.3
+-------------
+
+:Date: November 10, 2020
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 43 (`#7602 <https://github.com/readthedocs/readthedocs.org/pull/7602>`__)
+
+Version 5.6.2
+-------------
+
+:Date: November 03, 2020
+
+* `@humitos <https://github.com/humitos>`__: Check only for override settings (part 2) (`#7630 <https://github.com/readthedocs/readthedocs.org/pull/7630>`__)
+* `@humitos <https://github.com/humitos>`__: Check only override settings (`#7628 <https://github.com/readthedocs/readthedocs.org/pull/7628>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Display sidebar ad when scrolled (`#7621 <https://github.com/readthedocs/readthedocs.org/pull/7621>`__)
+* `@humitos <https://github.com/humitos>`__: Reserve 1Gb for Application Memory (`#7618 <https://github.com/readthedocs/readthedocs.org/pull/7618>`__)
+* `@humitos <https://github.com/humitos>`__: Catch `requests.exceptions.ReadTimeout` when removing container (`#7617 <https://github.com/readthedocs/readthedocs.org/pull/7617>`__)
+* `@humitos <https://github.com/humitos>`__: Allow search and filter in Django Admin for Message model (`#7615 <https://github.com/readthedocs/readthedocs.org/pull/7615>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use badge from circleci (`#7614 <https://github.com/readthedocs/readthedocs.org/pull/7614>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect feature flag in dashboard search (`#7611 <https://github.com/readthedocs/readthedocs.org/pull/7611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7604 <https://github.com/readthedocs/readthedocs.org/pull/7604>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circleci (`#7603 <https://github.com/readthedocs/readthedocs.org/pull/7603>`__)
+
+
 Version 5.6.1
 -------------
 

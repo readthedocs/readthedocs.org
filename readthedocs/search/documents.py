@@ -92,11 +92,16 @@ class PageDocument(RTDDocTypeMixin, Document):
     Simple analyzer will break the text in non-letter characters,
     so a text like ``python.submodule`` will be broken like [python, submodule]
     instead of [python.submodule].
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html  # noqa
 
     We use multi-fields to be able to perform other kind of queries over the same field.
     ``raw`` fields are used for Wildcard queries.
 
     https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+
+    Some text fields use the ``with_positions_offsets`` term vector,
+    this is to have faster highlighting on big documents.
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-vector.html
     """
 
     # Metadata
@@ -123,6 +128,7 @@ class PageDocument(RTDDocTypeMixin, Document):
                 },
             ),
             'content': fields.TextField(
+                term_vector='with_positions_offsets',
                 fields={
                     'raw': WildcardField(),
                 },
@@ -139,11 +145,11 @@ class PageDocument(RTDDocTypeMixin, Document):
             # For showing in the search result
             'type_display': fields.TextField(),
             'docstrings': fields.TextField(
+                term_vector='with_positions_offsets',
                 fields={
                     'raw': WildcardField(),
                 },
             ),
-
             'name': fields.TextField(
                 # Simple analyzer breaks on `.`,
                 # otherwise search results are too strict for this use case

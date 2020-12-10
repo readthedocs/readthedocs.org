@@ -20,8 +20,8 @@ from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
 
-# Structure used for storing cached data of a project mostly.
-ProjectData = namedtuple('ProjectData', ['docs_url', 'version_doctype'])
+# Structure used for storing cached data of a version mostly.
+VersionData = namedtuple('VersionData', ['slug', 'docs_url', 'doctype'])
 
 
 def get_raw_field(obj, field, default=None):
@@ -54,6 +54,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
+    description = serializers.CharField()
     highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
@@ -108,14 +109,14 @@ class PageSearchSerializer(serializers.Serializer):
         it's cached into ``project_data``.
         """
         # First try to build the URL from the context.
-        project_data = self.context.get('projects_data', {}).get(obj.project)
-        if project_data:
-            docs_url, doctype = project_data
+        version_data = self.context.get('projects_data', {}).get(obj.project)
+        if version_data:
+            docs_url = version_data.docs_url
             path = obj.full_path
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            if version_data.doctype in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')
@@ -126,7 +127,11 @@ class PageSearchSerializer(serializers.Serializer):
             docs_url = project.get_docs_url(version_slug=obj.version)
             # cache the project URL
             projects_data = self.context.setdefault('projects_data', {})
-            projects_data[obj.project] = ProjectData(docs_url, '')
+            projects_data[obj.project] = VersionData(
+                slug=obj.version,
+                docs_url=docs_url,
+                doctype=None,
+            )
             return docs_url + obj.full_path
 
         return None

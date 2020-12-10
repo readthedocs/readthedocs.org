@@ -134,9 +134,14 @@ class CommunityBaseSettings(Settings):
             'django.contrib.contenttypes',
             'django.contrib.sessions',
             'django.contrib.sites',
-            'django.contrib.staticfiles',
             'django.contrib.messages',
             'django.contrib.humanize',
+
+            # readthedocs.core app needs to be before
+            # django.contrib.staticfiles to use our custom collectstatic
+            # command
+            'readthedocs.core',
+            'django.contrib.staticfiles',
 
             # third party apps
             'dj_pagination',
@@ -158,7 +163,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.projects',
             'readthedocs.organizations',
             'readthedocs.builds',
-            'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
             'readthedocs.redirects',
@@ -405,6 +409,11 @@ class CommunityBaseSettings(Settings):
                 'days': 1,
             },
         },
+        'every-day-delete-inactive-external-versions': {
+            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -495,7 +504,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return total_memory, round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 1000, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
