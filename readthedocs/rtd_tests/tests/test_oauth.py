@@ -1002,7 +1002,7 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
-        self.assertEqual(repo.full_name, 'testorga / testrepo')
+        self.assertEqual(repo.full_name, 'testorga/testrepo')
         self.assertEqual(repo.remote_id, 42)
         self.assertEqual(repo.vcs_provider, GITLAB)
         self.assertEqual(repo.description, 'Test Repo')
