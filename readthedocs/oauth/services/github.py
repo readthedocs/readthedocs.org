@@ -36,6 +36,7 @@ class GitHubService(Service):
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
+    vcs_provider_slug = GITHUB
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
@@ -105,7 +106,8 @@ class GitHubService(Service):
         ]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name']
+                remote_id=fields['id'],
+                vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = self.get_remote_repository_relation(repo)
 
@@ -117,9 +119,8 @@ class GitHubService(Service):
                 return None
 
             repo.organization = organization
-            repo.remote_id = fields['id']
-            repo.vcs_provider = GITHUB
             repo.name = fields['name']
+            repo.full_name = fields['full_name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
             repo.html_url = fields['html_url']

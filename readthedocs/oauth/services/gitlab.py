@@ -49,6 +49,8 @@ class GitLabService(Service):
     PERMISSION_MAINTAINER = 40
     PERMISSION_OWNER = 50
 
+    vcs_provider_slug = GITLAB
+
     def _get_repo_id(self, project):
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
@@ -164,7 +166,8 @@ class GitLabService(Service):
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['name_with_namespace']
+                remote_id=fields['id'],
+                vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = self.get_remote_repository_relation(repo)
 
@@ -176,9 +179,8 @@ class GitLabService(Service):
                 return None
 
             repo.organization = organization
-            repo.remote_id = fields['id']
-            repo.vcs_provider = GITLAB
             repo.name = fields['name']
+            repo.full_name = fields['name_with_namespace']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
