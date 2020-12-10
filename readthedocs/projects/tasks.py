@@ -1890,7 +1890,7 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, commit, status):
+def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -1930,7 +1930,12 @@ def send_build_status(build_pk, commit, status):
 
         if service is not None:
             # Send status report using the API.
-            success = service.send_build_status(build, commit, status)
+            success = service.send_build_status(
+                build=build,
+                commit=commit,
+                state=status,
+                link_to_build=link_to_build,
+            )
 
         if success:
             log.info(

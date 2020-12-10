@@ -1197,6 +1197,7 @@ class TestPythonEnvironment(TestCase):
             'mock',
             'pillow',
             'alabaster',
+            'six',
         ]
         self.base_conda_requirements = [
             'mock',
@@ -1364,6 +1365,7 @@ class TestPythonEnvironment(TestCase):
         conda_requirements = self.base_conda_requirements + conda_sphinx
         pip_requirements = [
             'recommonmark',
+            'six',
             'readthedocs-sphinx-ext',
         ]
 
@@ -1405,6 +1407,7 @@ class TestPythonEnvironment(TestCase):
         conda_requirements = self.base_conda_requirements
         pip_requirements = [
             'recommonmark',
+            'six',
             'mkdocs',
         ]
 

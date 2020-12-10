@@ -11,12 +11,11 @@ from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -242,16 +241,6 @@ class BaseFooterHTML(APIView):
             'version_compare': version_compare_data,
             'version_supported': version.supported,
         }
-
-        # Allow folks to hook onto the footer response for various information
-        # collection, or to modify the resp_data.
-        footer_response.send(
-            sender=None,
-            request=request,
-            context=context,
-            response_data=resp_data,
-            absolute_uri=self.request.GET.get('absolute_uri'),
-        )
 
         return Response(resp_data)
 

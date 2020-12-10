@@ -264,8 +264,59 @@ class BaseTestDocumentSearch:
         # First result should be the subproject
         first_result = data[0]
         assert first_result['project'] == subproject.slug
+        # The result is from the same version as the main project.
+        assert first_result['version'] == version.slug
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
+        link = first_result['domain'] + first_result['path']
+        assert document_link in link
+
+    def test_doc_search_subprojects_default_version(self, api_client, all_projects):
+        """Return results from subprojects that match the version from the main project or fallback to its default version."""
+        project = all_projects[0]
+        version = project.versions.all()[0]
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
+        )
+        project.feature_set.add(feature)
+
+        subproject = all_projects[1]
+        subproject_version = subproject.versions.all()[0]
+
+        # Change the name of the version, and make it default.
+        subproject_version.slug = 'different'
+        subproject_version.save()
+        subproject.default_version = subproject_version.slug
+        subproject.save()
+        subproject.versions.filter(slug=version.slug).delete()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=subproject_version)
+        for f in version_files:
+            PageDocument().update(f)
+
+        # Add another project as subproject of the project
+        project.add_subproject(subproject)
+
+        # Now search with subproject content but explicitly filter by the parent project
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        data = resp.data['results']
+        assert len(data) >= 1  # there may be results from another projects
+
+        # First result should be the subproject
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
+        assert first_result['version'] == 'different'
+        # Check the link is the subproject document link
+        document_link = subproject.get_docs_url(version_slug=subproject_version.slug)
         link = first_result['domain'] + first_result['path']
         assert document_link in link
 
@@ -293,7 +344,7 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects_data', dict)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
         """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
@@ -486,6 +537,53 @@ class BaseTestDocumentSearch:
             'project': project.slug,
             'version': version.slug,
             'q': '"indx"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 0
+
+        # Exact query still works
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"index"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
+    def test_search_single_query(self, api_client):
+        """A single query matches substrings."""
+        project = Project.objects.get(slug='docs')
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
+        )
+        project.feature_set.add(feature)
+        project.save()
+        version = project.versions.all().first()
+
+        # Query with a partial word should return results
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'ind',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
+        # Query with a partial word, but we want to match that
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"ind"',
         }
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200

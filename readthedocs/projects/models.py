@@ -365,7 +365,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository.',
+            'Should the project dashboard be public?',
         ),
     )
 
@@ -565,9 +565,10 @@ class Project(models.Model):
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
 
-        if self.is_subproject:
+        main_project = self.main_language_project or self
+        if main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
@@ -1065,6 +1066,23 @@ class Project(models.Model):
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
 
+    def get_original_stable_version(self):
+        """
+        Get the original version that stable points to.
+
+        Returns None if the current stable doesn't point to a valid version.
+        """
+        current_stable = self.get_stable_version()
+        if not current_stable or not current_stable.machine:
+            return None
+        # Several tags can point to the same identifier.
+        # Return the stable one.
+        original_stable = determine_stable_version(
+            self.versions(manager=INTERNAL)
+            .filter(identifier=current_stable.identifier)
+        )
+        return original_stable
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.
@@ -1344,7 +1362,6 @@ class ImportedFile(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'))
 
     # max_length is set to 4096 because linux has a maximum path length
     # of 4096 characters for most filesystems (including EXT4).
@@ -1567,8 +1584,14 @@ class Feature(models.Model):
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
+    INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
+
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1577,10 +1600,8 @@ class Feature(models.Model):
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
-    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1665,6 +1686,8 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
+
+        # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
             _('Disable server side search'),
@@ -1673,6 +1696,22 @@ class Feature(models.Model):
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _('Enable server side search for MkDocs projects'),
         ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
+        ),
+        (
+            INDEX_FROM_HTML_FILES,
+            _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
+            _(
+                'When searching subprojects default to its default version if it doesn\'t '
+                'have the same version as the main project'
+            ),
+        ),
+
         (
             FORCE_SPHINX_FROM_VENV,
             _('Force to use Sphinx from the current virtual environment'),
@@ -1709,20 +1748,12 @@ class Feature(models.Model):
             _('Use latest version of the Read the Docs Sphinx extension'),
         ),
         (
-            DEFAULT_TO_FUZZY_SEARCH,
-            _('Default to fuzzy search for simple search queries'),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _('Index content directly from html files instead or relying in other sources'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
         ),
         (
-            USE_NEW_PIP_RESOLVER,
-            _('Use new pip resolver'),
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
         ),
     )
 
@@ -1734,15 +1765,21 @@ class Feature(models.Model):
     # at the database level on this field. Arbitrary values are allowed here.
     feature_id = models.CharField(
         _('Feature identifier'),
-        max_length=32,
+        max_length=255,
         unique=True,
     )
     add_date = models.DateTimeField(
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
-        _('Historical default is True'),
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 

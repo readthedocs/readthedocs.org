@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django_elasticsearch_dsl import DocType, Index, fields
+from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
@@ -28,8 +28,8 @@ class RTDDocTypeMixin:
         super().update(*args, **kwargs)
 
 
-@project_index.doc_type
-class ProjectDocument(RTDDocTypeMixin, DocType):
+@project_index.document
+class ProjectDocument(RTDDocTypeMixin, Document):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
@@ -43,14 +43,28 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
 
 
-@page_index.doc_type
-class PageDocument(RTDDocTypeMixin, DocType):
+@page_index.document
+class PageDocument(RTDDocTypeMixin, Document):
+
+    """
+    Document representation of a Page.
+
+    Some text fields use the simple analyzer instead of the default (standard).
+    Simple analyzer will break the text in non-letter characters,
+    so a text like ``python.submodule`` will be broken like [python, submodule]
+    instead of [python.submodule].
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html  # noqa
+
+    Some text fields use the ``with_positions_offsets`` term vector,
+    this is to have faster highlighting on big documents.
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-vector.html
+    """
 
     # Metadata
     project = fields.KeywordField(attr='project.slug')
@@ -66,7 +80,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
         properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
-            'content': fields.TextField(),
+            'content': fields.TextField(term_vector='with_positions_offsets'),
         }
     )
     domains = fields.NestedField(
@@ -78,7 +92,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(),
+            'docstrings': fields.TextField(term_vector='with_positions_offsets'),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
@@ -88,7 +102,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
