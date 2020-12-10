@@ -1,8 +1,11 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
+import json
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -13,10 +16,10 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import (
     BRANCH,
-    TAG,
-    INTERNAL,
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    INTERNAL,
+    TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
@@ -26,14 +29,6 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from ..utils import (
-    delete_versions_from_db,
-    sync_versions_to_db,
-    run_automation_rules,
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -53,7 +48,15 @@ from ..serializers import (
     VersionAdminSerializer,
     VersionSerializer,
 )
-
+from ..utils import (
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+    delete_versions_from_db,
+    get_deleted_active_versions,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -193,9 +196,9 @@ class ProjectViewSet(UserSelectViewSet):
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
+        current_stable = project.get_original_stable_version()
+        if current_stable is not None:
+            activate_new_stable = current_stable.active
         else:
             activate_new_stable = False
 
@@ -218,6 +221,7 @@ class ProjectViewSet(UserSelectViewSet):
                 )
                 added_versions.update(ret_set)
             deleted_versions = delete_versions_from_db(project, data)
+            deleted_active_versions = get_deleted_active_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -231,7 +235,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions, deleted_active_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
@@ -282,7 +286,7 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSetBase(UserSelectViewSet):
+class BuildViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
@@ -306,12 +310,35 @@ class BuildViewSetBase(UserSelectViewSet):
         }
         return Response(data)
 
+    def retrieve(self, *args, **kwargs):
+        """
+        Retrieves command data from storage.
 
-class BuildViewSet(SettingsOverrideObject):
+        This uses files from storage to get the JSON,
+        and replaces the ``commands`` part of the response data.
+        """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(*args, **kwargs)
 
-    """A pluggable class to allow for build cold storage."""
-
-    _default_class = BuildViewSetBase
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        if instance.cold_storage:
+            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+            storage_path = '{date}/{id}.json'.format(
+                date=str(instance.date.date()),
+                id=instance.id,
+            )
+            if storage.exists(storage_path):
+                try:
+                    json_resp = storage.open(storage_path).read()
+                    data['commands'] = json.loads(json_resp)
+                except Exception:
+                    log.exception(
+                        'Failed to read build data from storage. path=%s.',
+                        storage_path,
+                    )
+        return Response(data)
 
 
 class BuildCommandViewSet(UserSelectViewSet):
@@ -355,6 +382,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
+        full_name = self.request.query_params.get('full_name')
+        if full_name is not None:
+            query = query.filter(full_name__icontains=full_name)
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)

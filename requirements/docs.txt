@@ -1,6 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-Sphinx==3.1.2
+Sphinx==3.3.1
 
 # doctuils==0.15 produces this error
 #   File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
@@ -11,24 +11,24 @@ Sphinx==3.1.2
 docutils==0.14  # pyup: ignore
 
 sphinx_rtd_theme==0.5.0
-sphinx-tabs==1.1.13
+sphinx-tabs==1.3.0
 sphinx-intl==2.0.1
 
-readthedocs-sphinx-search==0.1.0rc1
+readthedocs-sphinx-search==0.1.0rc3
 
 # Test out hoverxref
 git+https://github.com/readthedocs/sphinx-hoverxref@master
 
-Pygments==2.6.1
+Pygments==2.7.3
 
 mkdocs==1.1.2
-Markdown==3.2.2
+Markdown==3.3.3
 
 # Docs
-sphinxemoji==0.1.6
+sphinxemoji==0.1.8
 sphinxcontrib-httpdomain==1.7.0
-sphinx-prompt==1.0.0
-sphinx-notfound-page==0.4
+sphinx-prompt==1.3.0
+sphinx-notfound-page==0.5
 commonmark==0.9.1
 recommonmark==0.6.0
 

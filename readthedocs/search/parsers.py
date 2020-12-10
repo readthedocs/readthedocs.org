@@ -16,6 +16,9 @@ log = logging.getLogger(__name__)
 
 class BaseParser:
 
+    # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
+    max_inner_documents = 10000
+
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
@@ -66,12 +69,17 @@ class BaseParser:
 
         - Try with a tag with the ``main`` role.
           This role is used by several static sites and themes.
+        - Try the ``main`` tag.
         - Try the first ``h1`` node and return its parent
           Usually all sections are neighbors,
           so they are children of the same parent node.
         """
         body = html.body
         main_node = body.css_first('[role=main]')
+        if main_node:
+            return main_node
+
+        main_node = body.css_first('main')
         if main_node:
             return main_node
 
@@ -84,10 +92,8 @@ class BaseParser:
         return None
 
     def _parse_content(self, content):
-        """Removes new line characters and strips all whitespaces."""
-        content = content.strip().split('\n')
-
-        # Convert all new lines to " "
+        """Converts all new line characters and multiple spaces to a single space."""
+        content = content.strip().split()
         content = (text.strip() for text in content)
         content = ' '.join(text for text in content if text)
         return content
@@ -106,12 +112,12 @@ class BaseParser:
         body = self._clean_body(body)
 
         # Index content for pages that don't start with a title.
-        # We check for sections till 2 levels to avoid indexing all the content
+        # We check for sections till 3 levels to avoid indexing all the content
         # in this step.
         try:
             content, _ = self._parse_section_content(
                 body.child,
-                depth=2,
+                depth=3,
             )
             if content:
                 yield {
@@ -128,7 +134,7 @@ class BaseParser:
             for tag in tags:
                 try:
                     title, id = self._parse_section_title(tag)
-                    content, _ = self._parse_section_content(tag.next)
+                    content, _ = self._parse_section_content(tag.next, depth=2)
                     yield {
                         'id': id,
                         'title': title,
@@ -136,6 +142,21 @@ class BaseParser:
                     }
                 except Exception as e:
                     log.info('Unable to index section: %s', str(e))
+
+    def _get_sections(self, title, body):
+        """Get the first `self.max_inner_documents` sections."""
+        iterator = self._parse_sections(title=title, body=body)
+        sections = list(itertools.islice(iterator, 0, self.max_inner_documents))
+        try:
+            next(iterator)
+        except StopIteration:
+            pass
+        else:
+            log.warning(
+                'Limit of inner sections exceeded. project=%s version=%s limit=%d',
+                self.project.slug, self.version.slug, self.max_inner_documents,
+            )
+        return sections
 
     def _clean_body(self, body):
         """
@@ -146,7 +167,11 @@ class BaseParser:
            This will mutate the original `body`.
         """
         # Remove all navigation nodes
-        nodes_to_be_removed = body.css('[role=navigation]')
+        nodes_to_be_removed = itertools.chain(
+            body.css('nav'),
+            body.css('[role=navigation]'),
+            body.css('[role=search]'),
+        )
         for node in nodes_to_be_removed:
             node.decompose()
 
@@ -156,23 +181,10 @@ class BaseParser:
         """
         Check if `tag` is a section (linkeable header).
 
-        The tag is a section if:
-
-        - It's a ``h`` tag.
-        - It's a div with a ``section`` class.
+        The tag is a section if it's a ``h`` tag.
         """
         is_header_tag = re.match(r'h\d$', tag.tag)
-        if is_header_tag:
-            return True
-
-        is_div_section = (
-            tag.tag == 'div' and
-            'section' in tag.attributes.get('class', '').split()
-        )
-        if is_div_section:
-            return True
-
-        return False
+        return is_header_tag
 
     def _parse_section_title(self, tag):
         """
@@ -187,7 +199,7 @@ class BaseParser:
 
         - Removes permalink values
         """
-        nodes_to_be_removed = tag.css('a.headerlink')
+        nodes_to_be_removed = tag.css('.headerlink')
         for node in nodes_to_be_removed:
             node.decompose()
 
@@ -219,7 +231,9 @@ class BaseParser:
             if self._is_code_section(next_tag):
                 content = self._parse_code_section(next_tag)
             elif depth <= 0 or not next_tag.child:
-                content = self._parse_content(next_tag.text())
+                # Calling .text() with deep `True` over a text node will return empty.
+                deep = next_tag.tag != '-text'
+                content = next_tag.text(deep=deep)
             else:
                 content, section_found = self._parse_section_content(
                     tag=next_tag.child,
@@ -230,7 +244,7 @@ class BaseParser:
                 contents.append(content)
             next_tag = next_tag.next
 
-        return ' '.join(contents), section_found
+        return self._parse_content(''.join(contents)), section_found
 
     def _is_code_section(self, tag):
         """
@@ -367,7 +381,7 @@ class SphinxParser(BaseParser):
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
-                sections = list(self._parse_sections(title=title, body=body.body))
+                sections = self._get_sections(title=title, body=body.body)
             except Exception as e:
                 log.info('Unable to index sections for: %s', fjson_path)
 
@@ -427,10 +441,15 @@ class SphinxParser(BaseParser):
                 "domain-id-1": "docstrings for the domain-id-1",
                 "domain-id-2": "docstrings for the domain-id-2",
             }
+
+        .. note::
+
+           Only the first `self.max_inner_documents` domains are returned.
         """
 
         domain_data = {}
         dl_tags = body.css('dl')
+        number_of_domains = 0
 
         for dl_tag in dl_tags:
 
@@ -445,6 +464,13 @@ class SphinxParser(BaseParser):
                     if id_:
                         docstrings = self._parse_domain_tag(desc)
                         domain_data[id_] = docstrings
+                        number_of_domains += 1
+                    if number_of_domains >= self.max_inner_documents:
+                        log.warning(
+                            'Limit of inner domains exceeded. project=%s version=%s limit=%i',
+                            self.project.slug, self.version.slug, self.max_inner_documents,
+                        )
+                        break
                 except Exception:
                     log.exception('Error parsing docstring for domains')
 
@@ -501,7 +527,7 @@ class MkDocsParser(BaseParser):
         sections = []
         if body:
             title = self._get_page_title(body, html) or page
-            sections = list(self._parse_sections(title, body))
+            sections = self._get_sections(title=title, body=body)
         else:
             log.info(
                 'Page doesn\'t look like it has valid content, skipping. '

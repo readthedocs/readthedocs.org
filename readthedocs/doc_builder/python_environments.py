@@ -106,6 +106,7 @@ class PythonEnvironment:
                 '--upgrade-strategy',
                 'eager',
                 *self._pip_cache_cmd_argument(),
+                *self._pip_extra_args(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -122,6 +123,12 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def _pip_extra_args(self):
+        extra_args = []
+        if self.project.has_feature(Feature.USE_NEW_PIP_RESOLVER):
+            extra_args.extend(['--use-feature', '2020-resolver'])
+        return extra_args
 
     def _pip_cache_cmd_argument(self):
         """
@@ -339,13 +346,18 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            'Pygments==2.3.1',
             'setuptools==41.0.1',
             self.project.get_feature_value(
                 Feature.DONT_INSTALL_DOCUTILS,
@@ -355,6 +367,7 @@ class Virtualenv(PythonEnvironment):
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'six',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
@@ -374,15 +387,22 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx',
                     negative='sphinx<2',
                 ),
-                'sphinx-rtd-theme<0.5',
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx-rtd-theme',
+                    negative='sphinx-rtd-theme<0.5',
+                ),
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
                     positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<1.1',
+                    negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
 
         cmd = copy.copy(pip_install_cmd)
+        cmd.extend(self._pip_extra_args())
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
@@ -431,6 +451,7 @@ class Virtualenv(PythonEnvironment):
                 '-m',
                 'pip',
                 'install',
+                *self._pip_extra_args(),
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
                 args += ['--upgrade']
@@ -603,6 +624,7 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
+            'six',
         ]
 
         if self.config.doctype == 'mkdocs':
@@ -647,6 +669,7 @@ class Conda(PythonEnvironment):
             'install',
             '-U',
             *self._pip_cache_cmd_argument(),
+            *self._pip_extra_args(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(

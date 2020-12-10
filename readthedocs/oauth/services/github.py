@@ -7,8 +7,8 @@ import re
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
-from django.db.models import Q
 from django.conf import settings
+from django.db.models import Q
 from django.urls import reverse
 from requests.exceptions import RequestException
 
@@ -23,7 +23,6 @@ from readthedocs.integrations.models import Integration
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
-
 log = logging.getLogger(__name__)
 
 
@@ -35,53 +34,56 @@ class GitHubService(Service):
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
 
-    def sync(self):
-        """Sync repositories and organizations."""
-        repos = self.sync_repositories()
-        organization_repos = self.sync_organizations()
-
-        # Delete RemoteRepository where the user doesn't have access anymore
-        # (skip RemoteRepository tied to a Project on this user)
-        full_names = {repo.get('full_name') for repo in repos + organization_repos}
-        self.user.oauth_repositories.exclude(
-            Q(full_name__in=full_names) | Q(project__isnull=False)
-        ).delete()
-
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+        remote_repositories = []
+
         try:
+            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
-                self.create_repository(repo)
-            return repos
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
+        return remote_repositories
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
+        remote_organizations = []
+        remote_repositories = []
+
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
-                org_resp = self.get_session().get(org['url'])
-                org_obj = self.create_organization(org_resp.json())
+                org_details = self.get_session().get(org['url']).json()
+                remote_organization = self.create_organization(org_details)
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
+
+                remote_organizations.append(remote_organization)
+
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
-                return org_repos
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
                 'try reconnecting your account'
             )
+
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -129,6 +131,7 @@ class GitHubService(Service):
                 repo.clone_url = fields['clone_url']
             repo.admin = fields.get('permissions', {}).get('admin', False)
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
             if not repo.avatar_url:
@@ -418,7 +421,7 @@ class GitHubService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitHub commit status for project.
 
@@ -428,6 +431,7 @@ class GitHubService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -441,7 +445,7 @@ class GitHubService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
@@ -465,7 +469,7 @@ class GitHubService(Service):
             if resp.status_code == 201:
                 log.info(
                     "GitHub commit status created for project: %s, commit status: %s",
-                    project,
+                    project.slug,
                     github_build_state,
                 )
                 return True
@@ -474,8 +478,8 @@ class GitHubService(Service):
                 log.info(
                     'GitHub project does not exist or user does not have '
                     'permissions: project=%s, user=%s, status=%s, url=%s',
-                    project,
-                    self.user,
+                    project.slug,
+                    self.user.username,
                     resp.status_code,
                     statuses_url,
                 )
@@ -483,7 +487,7 @@ class GitHubService(Service):
 
             log.warning(
                 'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
-                project,
+                project.slug,
                 self.user,
                 resp.status_code
             )
@@ -493,7 +497,7 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.exception(
                 'GitHub commit status creation failed for project: %s',
-                project,
+                project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though

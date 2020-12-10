@@ -15,6 +15,7 @@
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
 
+  {% if GLOBAL_ANALYTICS_CODE %}
   <!-- Google Analytics -->
   <script>
     if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
@@ -22,29 +23,40 @@
     } else {
       // For more details on analytics at Read the Docs, please see:
       // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      (function () {
+        // New Google Site Tag (gtag.js) tagging/analytics framework
+        // https://developers.google.com/gtagjs
+        var script = document.createElement("script");
+        script.src = "https://www.googletagmanager.com/gtag/js?id={{ GLOBAL_ANALYTICS_CODE }}";
+        script.type = "text/javascript";
+        script.async = true;
+        document.getElementsByTagName("head")[0].appendChild(script);
+      }())
 
-      ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd', {
-        'cookieExpires': 30 * 24 * 60 * 60
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Setup the RTD global analytics code and send a pageview
+      gtag('config', '{{ GLOBAL_ANALYTICS_CODE }}', {
+        'anonymize_ip': true,
+        'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+        'groups': 'rtfd'
       });
-      ga('rtfd.set', 'anonymizeIp', true);
-      ga('rtfd.send', 'pageview');
 
       {% if DASHBOARD_ANALYTICS_CODE %}
         // Dashboard Analytics Code
-        ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user', {
-          'cookieExpires': 30 * 24 * 60 * 60
+        gtag('config', '{{ DASHBOARD_ANALYTICS_CODE }}', {
+          'anonymize_ip': true,
+          'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+          'groups': 'dashboard'
         });
-        ga('user.set', 'anonymizeIp', true);
-        ga('user.send', 'pageview');
         // End Dashboard Analytics Code
       {% endif %}
     }
   </script>
   <!-- End Google Analytics -->
+  {% endif %}
 
   <!-- css -->
   <link rel="stylesheet" href="{% static 'css/core.css' %}">
@@ -174,8 +186,7 @@
 
           <ul>
             <li>
-              {% url "advertising" as advertising_url %}
-              <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">{% trans 'Advertise with Us' %}</a>
+              <a href="https://www.ethicalads.io/advertisers/?ref=rtd">{% trans 'Advertise with Us' %}</a>
             </li>
             <li>
               <a href="https://readthedocs.com">{% trans 'Read the Docs for Business' %}</a>

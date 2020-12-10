@@ -1,14 +1,14 @@
 # Base packages
 
-pip==20.1.1
-virtualenv==20.0.26
+pip==20.3.1
+virtualenv==20.2.2
 
-django==2.2.14  # pyup: <2.3
-django-extensions==3.0.2
-django_polymorphic==2.1.2
-django-autoslug==1.9.7
+django==2.2.17  # pyup: <2.3
+django-extensions==3.1.0
+django_polymorphic==3.0.0
+django-autoslug==1.9.8
 
-djangorestframework==3.11.0
+djangorestframework==3.12.2
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -16,19 +16,19 @@ djangorestframework==3.11.0
 Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.3.0
+django-filter==2.4.0
 
-drf-flex-fields==0.8.5
+drf-flex-fields==0.8.8
 drf-extensions==0.6.0
 
-django-vanilla-views==1.1.0
+django-vanilla-views==2.0.0
 jsonfield==3.1.0
 
-requests==2.24.0
+requests==2.25.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.3.1
-Pygments==2.6.1
+Pygments==2.7.3
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -41,49 +41,43 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.42.0
+# When upgrading to 0.43.0 we should double check the ``base.html`` change
+# described in the changelog. In previous versions, the allauth app included a
+# ``base.html`` template. This template could conflict with an equally named
+# template at project level. Therefore, ``base.html`` has now been moved to
+# ``account/base.html`` -- you will need to check your templates and likely
+# override ``account/base.html`` within your project.
+django-allauth==0.42.0  # pyup: ignore
 
-GitPython==3.1.7
+GitPython==3.1.11
 
 # Search
-elasticsearch==6.8.1  # pyup: <7.0.0
+elasticsearch==7.9.1  # pyup: <8.0.0
+elasticsearch-dsl==7.3.0  # pyup: <8.0
+django-elasticsearch-dsl==7.1.4  # pyup: <8.0
+selectolax==0.2.9
 
-
-# elasticsearch-dsl==6.3.1 produces this error
-#   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
-#     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
-# ImportError: cannot import name 'DocTypeMeta'
-#
-# Commit 97e3f75 adds the NestedFacet
-git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
-
-# django-elasticsearch-dsl==6.4.1 produces this error
-#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/__init__.py", line 3, in <module>
-#     from .documents import DocType  # noqa
-#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 7, in <module>
-#     from elasticsearch_dsl import Document as DSLDocument
-# ImportError: cannot import name 'Document'
-django-elasticsearch-dsl==0.5.1  # pyup: ignore
-selectolax==0.2.1
+# NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
+python-dateutil==2.8.1
 
 # Ignoring orjson for now because it makes Travis to fail
 orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.4
-pytz==2020.1
+pytz==2020.4
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.48.0
-regex==2020.6.8
+stripe==2.55.1
+regex==2020.11.13
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.2
-django-crispy-forms==1.9.2
+django-crispy-forms==1.10.0
 
-docker==4.2.2
+docker==4.4.0
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
@@ -98,14 +92,14 @@ django-taggit==1.3.0
 dj-pagination==2.5.0
 
 # Version comparison stuff
-packaging==20.4
+packaging==20.7
 
 # django-cors-middleware==1.5.0 fails with
 # AttributeError: 'dict' object has no attribute 'has_header'
 django-cors-middleware==1.4.0  # pyup: ignore
 
 # User agent parsing - used for analytics purposes
-user-agents==2.1
+user-agents==2.2.0
 
 # Utilities used to upload build media to cloud storage
 # django-storages is pinned to this particular commit because it
@@ -114,7 +108,7 @@ user-agents==2.1
 git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
-django-debug-toolbar==2.2
+django-debug-toolbar==3.2
 
 # For enabling content-security-policy
-django-csp==3.6
+django-csp==3.7

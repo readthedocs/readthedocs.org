@@ -1,5 +1,6 @@
 """Common utilty functions."""
 
+import datetime
 import errno
 import logging
 import os
@@ -7,6 +8,7 @@ import re
 
 from celery import chord, group
 from django.conf import settings
+from django.utils import timezone
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
@@ -184,6 +186,13 @@ def prepare_build(
             project=project,
             version=version,
             state=BUILD_STATE_TRIGGERED,
+            # By filtering for builds triggered in the previous 5 minutes we
+            # avoid false positives for builds that failed for any reason and
+            # didn't update their state, ending up on blocked builds for that
+            # version (all the builds are marked as DUPLICATED in that case).
+            # Adding this date condition, we reduce the risk of hitting this
+            # problem to 5 minutes only.
+            date__gte=timezone.now() - datetime.timedelta(minutes=5),
         ).count() > 1
 
     if not project.has_feature(Feature.DEDUPLICATE_BUILDS):

@@ -10,7 +10,7 @@ from unittest import mock
 
 class ProjectData:
     def get(self):
-        return dict()
+        return {}
 
     def put(self, x=None):
         return x
