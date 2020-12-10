@@ -45,7 +45,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.builds import tasks as build_tasks
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
@@ -243,14 +242,15 @@ class SyncRepositoryMixin:
         """
         Update tags/branches via a Celery task.
 
-        It may trigger a new build to the stable version when hitting the
-        ``sync_versions`` endpoint.
+        .. note::
+
+           It may trigger a new build to the stable version.
         """
-        version_post_data = {'repo': version_repo.repo_url}
         tags = None
         branches = None
         if (
             version_repo.supports_lsremote and
+            not version_repo.repo_exists() and
             self.project.has_feature(Feature.VCS_REMOTE_LISTING)
         ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
@@ -259,35 +259,52 @@ class SyncRepositoryMixin:
             branches, tags = version_repo.lsremote
             log.info('Remote versions: branches=%s tags=%s', branches, tags)
 
-        if all([
-            version_repo.supports_tags,
+        branches_data = []
+        tags_data = []
+
+        if (
+            version_repo.supports_tags and
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
-        ]):
+        ):
             # Will be an empty list if we called lsremote and had no tags returned
             if tags is None:
                 tags = version_repo.tags
-            version_post_data['tags'] = [{
-                'identifier': v.identifier,
-                'verbose_name': v.verbose_name,
-            } for v in tags]
+            tags_data = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in tags
+            ]
 
-        if all([
-            version_repo.supports_branches,
+        if (
+            version_repo.supports_branches and
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        ]):
-            # Will be an empty list if we called lsremote and had no tags returned
+        ):
+            # Will be an empty list if we called lsremote and had no branches returned
             if branches is None:
                 branches = version_repo.branches
-            version_post_data['branches'] = [{
-                'identifier': v.identifier,
-                'verbose_name': v.verbose_name,
-            } for v in branches]
+            branches_data = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in branches
+            ]
 
-        self.validate_duplicate_reserved_versions(version_post_data)
+        self.validate_duplicate_reserved_versions(
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
-        build_tasks.sync_versions_task.delay(self.project.pk, version_post_data)
+        from readthedocs.builds import tasks as build_tasks
+        build_tasks.sync_versions_task.delay(
+            project_pk=self.project.pk,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
-    def validate_duplicate_reserved_versions(self, data):
+    def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
         Check if there are duplicated names of reserved versions.
 
@@ -299,7 +316,7 @@ class SyncRepositoryMixin:
         """
         version_names = [
             version['verbose_name']
-            for version in data.get('tags', []) + data.get('branches', [])
+            for version in tags_data + branches_data
         ]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:

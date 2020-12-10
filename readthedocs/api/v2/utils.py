@@ -165,14 +165,16 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     return version, False
 
 
-def _get_deleted_versions_qs(project, version_data):
+def _get_deleted_versions_qs(project, tags_data, branches_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
     versions_tags = [
-        version['verbose_name'] for version in version_data.get('tags', [])
+        version['verbose_name']
+        for version in tags_data
     ]
     versions_branches = [
-        version['identifier'] for version in version_data.get('branches', [])
+        version['identifier']
+        for version in branches_data
     ]
 
     to_delete_qs = (
@@ -192,14 +194,18 @@ def _get_deleted_versions_qs(project, version_data):
     return to_delete_qs
 
 
-def delete_versions_from_db(project, version_data):
+def delete_versions_from_db(project, tags_data, branches_data):
     """
     Delete all versions not in the current repo.
 
     :returns: The slug of the deleted versions from the database.
     """
     to_delete_qs = (
-        _get_deleted_versions_qs(project, version_data)
+        _get_deleted_versions_qs(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
         .exclude(active=True)
     )
     deleted_versions = set(to_delete_qs.values_list('slug', flat=True))
@@ -213,10 +219,14 @@ def delete_versions_from_db(project, version_data):
     return deleted_versions
 
 
-def get_deleted_active_versions(project, version_data):
+def get_deleted_active_versions(project, tags_data, branches_data):
     """Return the slug of active versions that were deleted from the repository."""
     to_delete_qs = (
-        _get_deleted_versions_qs(project, version_data)
+        _get_deleted_versions_qs(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
         .filter(active=True)
     )
     return set(to_delete_qs.values_list('slug', flat=True))

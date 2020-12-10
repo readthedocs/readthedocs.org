@@ -6,7 +6,6 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -14,27 +13,14 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_TRIGGERED,
-    INTERNAL,
-    TAG,
-)
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
-from readthedocs.projects.models import Domain, EmailHook, Project
-from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.projects.models import Domain, Project
 
-from ..permissions import (
-    APIPermission,
-    APIRestrictedPermission,
-    IsOwner,
-    RelatedProjectIsOwner,
-)
+from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
     BuildAdminSerializer,
     BuildCommandSerializer,
@@ -52,10 +38,6 @@ from ..utils import (
     ProjectPagination,
     RemoteOrganizationPagination,
     RemoteProjectPagination,
-    delete_versions_from_db,
-    get_deleted_active_versions,
-    run_automation_rules,
-    sync_versions_to_db,
 )
 
 log = logging.getLogger(__name__)
@@ -188,47 +170,26 @@ class ProjectViewSet(UserSelectViewSet):
         Version data in the repo is synced with what we have in the database.
 
         :returns: the identifiers for the versions that have been deleted.
-        """
-        # TODO: Delete this code. It has been moved to ``readthedocs.builds.tasks.sync_versions_task``.
-        # This is here just to migrate our existing code
 
-        #################
-        # WARNING: Do not edit or update this code
-        #################
+        .. note::
+           
+           This endpoint is deprecated in favor of `sync_versions_task`.
         """
         project = get_object_or_404(
             Project.objects.api(request.user),
             pk=kwargs['pk'],
         )
 
-        # If the currently highest non-prerelease version is active, then make
-        # the new latest version active as well.
-        current_stable = project.get_original_stable_version()
-        if current_stable is not None:
-            activate_new_stable = current_stable.active
-        else:
-            activate_new_stable = False
+        added_versions = []
+        deleted_versions = []
 
         try:
-            # Update All Versions
             data = request.data
-            added_versions = set()
-            if 'tags' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['tags'],
-                    type=TAG,
-                )
-                added_versions.update(ret_set)
-            if 'branches' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['branches'],
-                    type=BRANCH,
-                )
-                added_versions.update(ret_set)
-            deleted_versions = delete_versions_from_db(project, data)
-            deleted_active_versions = get_deleted_active_versions(project, data)
+            added_versions, deleted_versions = sync_versions_task(
+                project_pk=project.pk,
+                tags_data=data.get('tags', []),
+                branches_data=data.get('branches', []),
+            )
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -238,19 +199,10 @@ class ProjectViewSet(UserSelectViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            # The order of added_versions isn't deterministic.
-            # We don't track the commit time or any other metadata.
-            # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions, deleted_active_versions)
-        except Exception:
-            # Don't interrupt the request if something goes wrong
-            # in the automation rules.
-            log.exception(
-                'Failed to execute automation rules for [%s]: %s',
-                project.slug, added_versions
-            )
-        """
+        return Response({
+            'added_versions': added_versions,
+            'deleted_versions': deleted_versions,
+        })
 
 
 class VersionViewSet(UserSelectViewSet):
