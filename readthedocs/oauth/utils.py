@@ -31,10 +31,12 @@ def update_webhook(project, integration, request=None):
 
     updated = False
     try:
-        remote_repository_relations = project.remote_repository.remote_repository_relations.filter(
-            account__isnull=False,
-            user=request.user
-        ).select_related('account')
+        remote_repository_relations = (
+            project.remote_repository.remote_repository_relations.filter(
+                account__isnull=False,
+                user=request.user
+            ).select_related('account')
+        )
 
         for relation in remote_repository_relations:
             service = service_cls(request.user, relation.account)

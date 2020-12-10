@@ -71,9 +71,9 @@ class BitbucketService(Service):
                     ]
                 )
             )
-            for remote_relation in admin_repo_relations:
-                remote_relation.admin = True
-                remote_relation.save()
+            for remote_repository_relation in admin_repo_relations:
+                remote_repository_relation.admin = True
+                remote_repository_relation.save()
         except (TypeError, ValueError):
             pass
 
@@ -133,11 +133,7 @@ class BitbucketService(Service):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name']
             )
-            remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
-                remoterepository=repo,
-                user=self.user,
-                account=self.account
-            )
+            remote_repository_relation = self.get_remote_repository_relation(repo)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -169,7 +165,6 @@ class BitbucketService(Service):
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
             repo.default_branch = fields.get('mainbranch', {}).get('name')
-            repo.account = self.account
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
@@ -178,9 +173,8 @@ class BitbucketService(Service):
 
             repo.save()
 
-            remote_relation.account = self.account
-            remote_relation.json = fields
-            remote_relation.save()
+            remote_repository_relation.json = fields
+            remote_repository_relation.save()
 
             return repo
 

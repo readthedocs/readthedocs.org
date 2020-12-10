@@ -6,11 +6,12 @@ from datetime import datetime
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
+
+from readthedocs.oauth.models import RemoteRepositoryRelation
 
 
 log = logging.getLogger(__name__)
@@ -216,6 +217,17 @@ class Service:
             .filter(account=self.account)
             .delete()
         )
+
+    def get_remote_repository_relation(self, repo):
+        """Return RemoteRepositoryRelation object for a given remote repository."""
+        remote_repository_relation, _ = (
+            RemoteRepositoryRelation.objects.get_or_create(
+                remoterepository=repo,
+                user=self.user,
+                account=self.account
+            )
+        )
+        return remote_repository_relation
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
