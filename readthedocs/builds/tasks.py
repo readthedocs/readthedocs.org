@@ -229,7 +229,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 
     Version data in the repo is synced with what we have in the database.
 
-    :param version_data: a dictionary of branches and tags from the project.
+    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
+    :param branches_data: Same as ``tags_data`` but for branches.
     :returns: the identifiers for the versions that have been deleted.
     """
     project = Project.objects.get(pk=project_pk)
