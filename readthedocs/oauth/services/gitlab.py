@@ -180,7 +180,7 @@ class GitLabService(Service):
 
             repo.organization = organization
             repo.name = fields['name']
-            repo.full_name = fields['name_with_namespace']
+            repo.full_name = fields['path_with_namespace']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
@@ -224,7 +224,7 @@ class GitLabService(Service):
 
         log.info(
             'Not importing %s because mismatched type: visibility=%s',
-            fields['name_with_namespace'],
+            fields['path_with_namespace'],
             fields['visibility'],
         )
 
