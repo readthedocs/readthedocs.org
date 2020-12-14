@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0031_migrate_version_data_to_build'),
+        ('builds', '0032_migrate_version_data_to_build'),
     ]
 
     operations = [

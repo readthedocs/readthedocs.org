@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0029_add_time_fields'),
+        ('builds', '0030_add_automation_rule_matches'),
     ]
 
     operations = [
