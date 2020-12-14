@@ -172,7 +172,7 @@ class ProjectViewSet(UserSelectViewSet):
         :returns: the identifiers for the versions that have been deleted.
 
         .. note::
-           
+
            This endpoint is deprecated in favor of `sync_versions_task`.
         """
         project = get_object_or_404(
