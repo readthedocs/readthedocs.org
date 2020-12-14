@@ -108,3 +108,30 @@ We can get the list of ``Project`` where a user as access:
        users__remoterelation__admin=True,  # False for read-only access
    )
    Project.objects.filter(remote_repository__in=admin_remote_repositories)
+
+
+Rollout Plan
+============
+
+Due the constraints we have in the ``RemoteRepository`` table and its size,
+we can't just do the data migration at the same time of the deploy.
+Because of this we need to be more creative here and find a way to re-sync the data from VCS providers,
+while the site continue working.
+
+To achieve this, we thought on following this steps:
+
+1. modify all the Python code to use the new modeling in .org and .com
+   (will help us to find out bugs locally in an easier way)
+1. QA this locally with test data
+1. enable Django signal to re-sync RemoteRepository on login async
+   (we already have this in .com). New active users will have updated data immediately
+1. spin up a new instance with the new refactored code
+1. run migrations to create a new table for `RemoteRepository`
+1. re-sync everything from VCS providers into the new table for 1-week or so
+1. dump-n-load `Project - RemoteRepository` relations
+1. create a migration to use the new table with synced data
+1. deploy new code once the sync is finished
+
+See these issues for more context:
+* https://github.com/readthedocs/readthedocs.org/pull/7536#issuecomment-724102640
+* https://github.com/readthedocs/readthedocs.org/pull/7675#issuecomment-732756118
