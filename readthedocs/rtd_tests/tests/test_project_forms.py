@@ -15,6 +15,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
+    SPHINX,
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
@@ -195,7 +196,7 @@ class TestProjectForms(TestCase):
 class TestProjectAdvancedForm(TestCase):
 
     def setUp(self):
-        self.project = get(Project)
+        self.project = get(Project, privacy_level=PUBLIC)
         get(
             Version,
             project=self.project,
@@ -273,6 +274,35 @@ class TestProjectAdvancedForm(TestCase):
         form = ProjectAdvancedForm(instance=project_1)
         self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
         self.assertEqual(form.fields['default_version'].initial, 'latest')
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cant_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_can_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PRIVATE)
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
@@ -798,8 +828,8 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 1)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
-        self.assertEqual(EnvironmentVariable.objects.first().value, "'string here'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'MYTOKEN')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, "'string here'")
 
         data = {
             'name': 'ESCAPED',
@@ -809,5 +839,5 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
-        self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'ESCAPED')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, r"'string escaped here: #$\1[]{}\|'")

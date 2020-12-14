@@ -16,6 +16,7 @@ import socket
 import tarfile
 import tempfile
 from collections import Counter, defaultdict
+from fnmatch import fnmatch
 
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
@@ -86,7 +87,6 @@ from .signals import (
     domain_verify,
     files_changed,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -234,11 +234,11 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions(version_repo)
+        self.sync_versions_api(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions(self, version_repo):
+    def sync_versions_api(self, version_repo):
         """
         Update tags/branches hitting the API.
 
@@ -431,7 +431,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.project.slug)
-            self.sync_versions(version_repo)
+            self.sync_versions_api(version_repo)
 
 
 @app.task(
@@ -543,7 +543,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.commit = commit
             self.config = None
 
-            if self.build.get('status_code') == DuplicatedBuildError.status_code:
+            if self.build.get('status') == DuplicatedBuildError.status:
                 log.warning(
                     'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
                     self.project.slug,
@@ -555,7 +555,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 try:
-                    response = api_v2.build.concurrent_limit.get(project__slug=self.project.slug)
+                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
                     concurrency_limit_reached = response.get('limit_reached', False)
                     max_concurrent_builds = response.get(
                         'max_concurrent',
@@ -1135,6 +1135,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             version_pk=self.version.pk,
             commit=self.build['commit'],
             build=self.build['id'],
+            search_ranking=self.config.search.ranking,
+            search_ignore=self.config.search.ignore,
         )
 
     def setup_python_environment(self):
@@ -1277,7 +1279,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build):
+def fileify(version_pk, commit, build, search_ranking, search_ignore):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1311,7 +1313,13 @@ def fileify(version_pk, commit, build):
         },
     )
     try:
-        changed_files = _create_imported_files(version, commit, build)
+        changed_files = _create_imported_files(
+            version=version,
+            commit=commit,
+            build=build,
+            search_ranking=search_ranking,
+            search_ignore=search_ignore,
+        )
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
@@ -1405,7 +1413,7 @@ def _create_intersphinx_data(version, commit, build):
                     'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
                     version.project.slug,
                     version.slug,
-                    f'domain->name',
+                    f'{domain}->{name}',
                 )
                 continue
 
@@ -1425,12 +1433,13 @@ def _create_intersphinx_data(version, commit, build):
             ).first()
 
             if not html_file:
-                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                log.debug(
+                    '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
                     version.project,
                     version,
                     build,
-                    doc_name,
-                ))
+                    doc_name
+                )
 
                 # Don't create Sphinx Domain objects
                 # if the HTMLFile object is not found.
@@ -1488,7 +1497,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, commit, build):
+def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
     """
     Create imported files for version.
 
@@ -1547,6 +1556,23 @@ def _create_imported_files(version, commit, build):
                         version_slug=version.slug,
                     ),
                 )
+
+            page_rank = 0
+            # Last pattern to match takes precedence
+            # XXX: see if we can implement another type of precedence,
+            # like the longest pattern.
+            reverse_rankings = reversed(list(search_ranking.items()))
+            for pattern, rank in reverse_rankings:
+                if fnmatch(relpath, pattern):
+                    page_rank = rank
+                    break
+
+            ignore = False
+            for pattern in search_ignore:
+                if fnmatch(relpath, pattern):
+                    ignore = True
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1554,8 +1580,10 @@ def _create_imported_files(version, commit, build):
                 path=relpath,
                 name=filename,
                 md5=md5,
+                rank=page_rank,
                 commit=commit,
                 build=build,
+                ignore=ignore,
             )
 
     # This signal is used for clearing the CDN,
@@ -1864,7 +1892,7 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, commit, status):
+def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -1904,7 +1932,12 @@ def send_build_status(build_pk, commit, status):
 
         if service is not None:
             # Send status report using the API.
-            success = service.send_build_status(build, commit, status)
+            success = service.send_build_status(
+                build=build,
+                commit=commit,
+                state=status,
+                link_to_build=link_to_build,
+            )
 
         if success:
             log.info(
@@ -1923,7 +1956,6 @@ def send_build_status(build_pk, commit, status):
             user_accounts = service_class.for_user(user)
             # Try to loop through users all social accounts to send a successful request
             for account in user_accounts:
-                # Currently we only support GitHub Status API
                 if account.provider_name == provider_name:
                     success = account.send_build_status(build, commit, status)
                     if success:

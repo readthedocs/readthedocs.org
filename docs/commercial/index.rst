@@ -29,9 +29,11 @@ Advertising-free
 .. _readthedocs.org: https://readthedocs.org
 .. _readthedocs.com: https://readthedocs.com
 
-.. toctree:: 
+.. toctree::
    :caption: Additional commercial features
 
    organizations
+   single-sign-on
    sharing
+   privacy-level
    analytics

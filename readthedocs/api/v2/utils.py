@@ -14,14 +14,25 @@ from readthedocs.builds.constants import (
     STABLE_VERBOSE_NAME,
     TAG,
 )
-from readthedocs.builds.models import Version
-
+from readthedocs.builds.models import RegexAutomationRule, Version
 
 log = logging.getLogger(__name__)
 
 
-def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
-    """Update the database with the current versions from the repository."""
+def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+    """
+    Update the database with the current versions from the repository.
+
+    - check if user has a ``stable`` / ``latest`` version and disable ours
+    - update old versions with newer configs (identifier, type, machine)
+    - create new versions that do not exist on DB (in bulk)
+    - it does not delete versions
+
+    :param project: project to update versions
+    :param versions: list of VCSVersion fetched from the respository
+    :param type: internal or external version
+    :returns: set of versions' slug added
+    """
     old_version_values = project.versions.filter(type=type).values_list(
         'verbose_name',
         'identifier',
@@ -29,6 +40,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     old_versions = dict(old_version_values)
 
     # Add new versions
+    versions_to_create = []
     added = set()
     has_user_stable = False
     has_user_latest = False
@@ -37,7 +49,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
-            created_version, created = set_or_create_version(
+            created_version, created = _set_or_create_version(
                 project=project,
                 slug=STABLE,
                 version_id=version_id,
@@ -48,7 +60,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 added.add(created_version.slug)
         elif version_name == LATEST_VERBOSE_NAME:
             has_user_latest = True
-            created_version, created = set_or_create_version(
+            created_version, created = _set_or_create_version(
                 project=project,
                 slug=LATEST,
                 version_id=version_id,
@@ -61,31 +73,30 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
-            else:
-                # Update slug with new identifier
-                Version.objects.filter(
-                    project=project,
-                    verbose_name=version_name,
-                ).update(
-                    identifier=version_id,
-                    type=type,
-                    machine=False,
-                )  # noqa
 
-                log.info(
-                    '(Sync Versions) Updated Version: [%s=%s] ',
-                    version_name,
-                    version_id,
-                )
+            # Update slug with new identifier
+            Version.objects.filter(
+                project=project,
+                verbose_name=version_name,
+            ).update(
+                identifier=version_id,
+                type=type,
+                machine=False,
+            )
+
+            log.info(
+                '(Sync Versions) Updated Version: [%s=%s] ',
+                version_name,
+                version_id,
+            )
         else:
             # New Version
-            created_version = Version.objects.create(
-                project=project,
-                type=type,
-                identifier=version_id,
-                verbose_name=version_name,
-            )
-            added.add(created_version.slug)
+            versions_to_create.append((version_id, version_name))
+
+    added.update(
+        _create_versions_in_bulk(project, type, versions_to_create)
+    )
+
     if not has_user_stable:
         stable_version = (
             project.versions.filter(slug=STABLE, type=type).first()
@@ -109,7 +120,33 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     return added
 
 
-def set_or_create_version(project, slug, version_id, verbose_name, type_):
+def _create_versions_in_bulk(project, type, versions):
+    """
+    Create versions (tuple of version_id and version_name) in batch.
+
+    Returns the slug of all added versions.
+    """
+    added = set()
+    batch_size = 150
+    objs = (
+        Version(
+            project=project,
+            type=type,
+            identifier=version_id,
+            verbose_name=version_name,
+        )
+        for version_id, version_name in versions
+    )
+    while True:
+        batch = list(itertools.islice(objs, batch_size))
+        if not batch:
+            break
+        Version.objects.bulk_create(batch, batch_size)
+        added.update(v.slug for v in batch)
+    return added
+
+
+def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     """Search or create a version and set its machine attribute to false."""
     version = (project.versions.filter(slug=slug).first())
     if version:
@@ -128,8 +165,7 @@ def set_or_create_version(project, slug, version_id, verbose_name, type_):
     return version, False
 
 
-def delete_versions(project, version_data):
-    """Delete all versions not in the current repo."""
+def _get_deleted_versions_qs(project, version_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
     versions_tags = [
@@ -138,7 +174,13 @@ def delete_versions(project, version_data):
     versions_branches = [
         version['identifier'] for version in version_data.get('branches', [])
     ]
-    to_delete_qs = project.versions.all()
+
+    to_delete_qs = (
+        project.versions
+        .exclude(uploaded=True)
+        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
+    )
+
     to_delete_qs = to_delete_qs.exclude(
         type=TAG,
         verbose_name__in=versions_tags,
@@ -147,34 +189,63 @@ def delete_versions(project, version_data):
         type=BRANCH,
         identifier__in=versions_branches,
     )
-    to_delete_qs = to_delete_qs.exclude(uploaded=True)
-    to_delete_qs = to_delete_qs.exclude(active=True)
-    to_delete_qs = to_delete_qs.exclude(slug__in=NON_REPOSITORY_VERSIONS)
+    return to_delete_qs
 
-    if to_delete_qs.count():
-        ret_val = {obj.slug for obj in to_delete_qs}
-        log.info('(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
-                 project.slug, ' '.join(ret_val))
+
+def delete_versions_from_db(project, version_data):
+    """
+    Delete all versions not in the current repo.
+
+    :returns: The slug of the deleted versions from the database.
+    """
+    to_delete_qs = (
+        _get_deleted_versions_qs(project, version_data)
+        .exclude(active=True)
+    )
+    deleted_versions = set(to_delete_qs.values_list('slug', flat=True))
+    if deleted_versions:
+        log.info(
+            '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
+            project.slug, ' '.join(deleted_versions),
+        )
         to_delete_qs.delete()
-        return ret_val
-    return set()
+
+    return deleted_versions
 
 
-def run_automation_rules(project, versions_slug):
+def get_deleted_active_versions(project, version_data):
+    """Return the slug of active versions that were deleted from the repository."""
+    to_delete_qs = (
+        _get_deleted_versions_qs(project, version_data)
+        .filter(active=True)
+    )
+    return set(to_delete_qs.values_list('slug', flat=True))
+
+
+def run_automation_rules(project, added_versions, deleted_active_versions):
     """
     Runs the automation rules on each version.
 
     The rules are sorted by priority.
+
+    :param added_versions: Slugs of versions that were added.
+    :param deleted_active_versions: Slugs of active versions that were deleted from the repository.
 
     .. note::
 
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    versions = project.versions.filter(slug__in=versions_slug)
-    rules = project.automation_rules.all()
-    for version, rule in itertools.product(versions, rules):
-        rule.run(version)
+    class_ = RegexAutomationRule
+    actions = [
+        (added_versions, class_.allowed_actions_on_create),
+        (deleted_active_versions, class_.allowed_actions_on_delete),
+    ]
+    for versions_slug, allowed_actions in actions:
+        versions = project.versions.filter(slug__in=versions_slug)
+        rules = project.automation_rules.filter(action__in=allowed_actions)
+        for version, rule in itertools.product(versions, rules):
+            rule.run(version)
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

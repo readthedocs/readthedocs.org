@@ -106,6 +106,7 @@ function Project(instance, view) {
     self.full_name = ko.observable(instance.full_name);
     self.description = ko.observable(instance.description);
     self.vcs = ko.observable(instance.vcs);
+    self.default_branch = ko.observable(instance.default_branch);
     self.organization = ko.observable(instance.organization);
     self.html_url = ko.observable(instance.html_url);
     self.clone_url = ko.observable(instance.clone_url);
@@ -121,6 +122,9 @@ function Project(instance, view) {
     self.active = ko.observable(instance.active);
     self.admin = ko.observable(instance.admin);
     self.is_locked = ko.computed(function () {
+        if (view.has_sso_enabled) {
+            return !self.admin();
+        }
         return (self.private() && !self.admin());
     });
     self.avatar_url = ko.observable(
@@ -132,6 +136,7 @@ function Project(instance, view) {
                 name: self.name(),
                 repo: self.clone_url(),
                 repo_type: self.vcs(),
+                default_branch: self.default_branch(),
                 description: self.description(),
                 project_url: self.html_url(),
                 remote_repository: self.id(),
@@ -174,6 +179,7 @@ function ProjectImportView(instance, config) {
     self.config = config || {};
     self.urls = config.urls || {};
     self.csrf_token = config.csrf_token || '';
+    self.has_sso_enabled = config.has_sso_enabled || false;
 
     // For task display
     self.error = ko.observable(null);

@@ -43,7 +43,7 @@ class HttpExchangeTests(TestCase):
         self.assertEqual(
             exchange.request_headers,
             {
-                'Content-Type': 'application/json; charset=None',
+                'Content-Type': 'application/json',
                 'Cookie': '',
             },
         )
@@ -162,7 +162,7 @@ class HttpExchangeTests(TestCase):
         self.assertEqual(
             exchange.request_headers,
             {
-                'Content-Type': 'application/json; charset=None',
+                'Content-Type': 'application/json',
                 'Cookie': '',
                 'X-Foo': 'bar',
             },

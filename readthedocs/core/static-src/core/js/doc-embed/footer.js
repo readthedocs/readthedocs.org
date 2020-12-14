@@ -44,6 +44,7 @@ function init() {
         project: rtd['project'],
         version: rtd['version'],
         page: rtd['page'],
+        absolute_uri: window.location.href,
         theme: rtd.get_theme_name(),
         format: "jsonp",
     };
@@ -80,6 +81,19 @@ function init() {
         },
         error: function () {
             console.error('Error loading Read the Docs footer');
+        }
+    });
+
+    // Register page view.
+    $.ajax({
+        url: rtd.proxied_api_host + "/api/v2/analytics/",
+        data: {
+            project: rtd['project'],
+            version: rtd['version'],
+            absolute_uri: window.location.href,
+        },
+        error: function () {
+            console.error('Error registering page view');
         }
     });
 }

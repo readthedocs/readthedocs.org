@@ -62,7 +62,7 @@ class PageView(models.Model):
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
-        qs = (
+        queryset = (
             cls.objects
             .filter(project=project, date__gte=since)
             .values_list('path')
@@ -74,7 +74,7 @@ class PageView(models.Model):
         pages = []
         view_counts = []
 
-        for data in qs.iterator():
+        for data in queryset.iterator():
             pages.append(data[0])
             view_counts.append(data[1])
 
@@ -102,13 +102,13 @@ class PageView(models.Model):
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
-        qs = cls.objects.filter(
+        queryset = cls.objects.filter(
             project__slug=project_slug,
-            date__gt=since,
+            date__gte=since,
         ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
 
         count_dict = dict(
-            qs.order_by('date').values_list('date', 'total_views')
+            queryset.order_by('date').values_list('date', 'total_views')
         )
 
         # This fills in any dates where there is no data

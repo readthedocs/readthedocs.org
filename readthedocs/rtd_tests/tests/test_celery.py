@@ -2,13 +2,13 @@ import os
 import shutil
 from os.path import exists
 from tempfile import mkdtemp
+from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from unittest.mock import MagicMock, patch
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
@@ -327,8 +327,17 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None, build=1)
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+        tasks.fileify(
+            version_pk=345343,
+            commit=None,
+            build=1,
+            search_ranking={},
+            search_ignore=[],
+        )
+        mock_logger.warning.assert_called_with(
+            'Version not found for given kwargs. %s',
+            {'pk': 345343},
+        )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
     def test_send_build_status_with_remote_repo_github(self, send_build_status):
@@ -348,7 +357,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -405,7 +417,10 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 

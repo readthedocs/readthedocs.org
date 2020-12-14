@@ -10,7 +10,6 @@ from contextlib import contextmanager
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
-from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
 from .models import (
@@ -20,6 +19,7 @@ from .models import (
     Python,
     PythonInstall,
     PythonInstallRequirements,
+    Search,
     Sphinx,
     Submodules,
 )
@@ -32,6 +32,7 @@ from .validation import (
     validate_dict,
     validate_list,
     validate_path,
+    validate_path_pattern,
     validate_string,
 )
 
@@ -155,6 +156,7 @@ class BuildConfigBase:
         'sphinx',
         'mkdocs',
         'submodules',
+        'search',
     ]
 
     default_build_image = settings.DOCKER_DEFAULT_VERSION
@@ -652,6 +654,10 @@ class BuildConfigV1(BuildConfigBase):
             recursive=True,
         )
 
+    @property
+    def search(self):
+        return Search(ranking={}, ignore=[])
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -666,7 +672,6 @@ class BuildConfigV2(BuildConfigBase):
         'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
-    builders_display = dict(DOCUMENTATION_CHOICES)
 
     def validate(self):
         """
@@ -686,6 +691,7 @@ class BuildConfigV2(BuildConfigBase):
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['sphinx'] = self.validate_sphinx()
         self._config['submodules'] = self.validate_submodules()
+        self._config['search'] = self.validate_search()
         self.validate_keys()
 
     def validate_formats(self):
@@ -1013,6 +1019,52 @@ class BuildConfigV2(BuildConfigBase):
 
         return submodules
 
+    def validate_search(self):
+        """
+        Validates the search key.
+
+        - ``ranking`` is a map of path patterns to a rank.
+        - ``ignore`` is a list of patterns.
+        - The path pattern supports basic globs (*, ?, [seq]).
+        - The rank can be a integer number between -10 and 10.
+        """
+        raw_search = self._raw_config.get('search', {})
+        with self.catch_validation_error('search'):
+            validate_dict(raw_search)
+
+        search = {}
+        with self.catch_validation_error('search.ranking'):
+            ranking = self.pop_config('search.ranking', {})
+            validate_dict(ranking)
+
+            valid_rank_range = list(range(-10, 10 + 1))
+
+            final_ranking = {}
+            for pattern, rank in ranking.items():
+                pattern = validate_path_pattern(pattern)
+                validate_choice(rank, valid_rank_range)
+                final_ranking[pattern] = rank
+
+            search['ranking'] = final_ranking
+
+        with self.catch_validation_error('search.ignore'):
+            ignore_default = [
+                'search.html',
+                'search/index.html',
+                '404.html',
+                '404/index.html',
+            ]
+            search_ignore = self.pop_config('search.ignore', ignore_default)
+            validate_list(search_ignore)
+
+            final_ignore = [
+                validate_path_pattern(pattern)
+                for pattern in search_ignore
+            ]
+            search['ignore'] = final_ignore
+
+        return search
+
     def validate_keys(self):
         """
         Checks that we don't have extra keys (invalid ones).
@@ -1106,6 +1158,10 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def submodules(self):
         return Submodules(**self._config['submodules'])
+
+    @property
+    def search(self):
+        return Search(**self._config['search'])
 
 
 def load(path, env_config):

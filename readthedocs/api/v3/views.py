@@ -2,7 +2,7 @@ import django_filters.rest_framework as filters
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -21,19 +21,27 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import ProjectQuerySetMixin, UpdateMixin
-from .permissions import PublicDetailPrivateListing, IsProjectAdmin
+from .mixins import OrganizationQuerySetMixin, ProjectQuerySetMixin, UpdateMixin
+from .permissions import (
+    CommonPermissions,
+    IsProjectAdmin,
+    IsOrganizationAdmin,
+    UserOrganizationsListing,
+)
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
+    OrganizationSerializer,
     ProjectSerializer,
     ProjectCreateSerializer,
     ProjectUpdateSerializer,
@@ -61,10 +69,8 @@ class APIv3Settings:
         ``DEFAULT_THROTTLE_RATES`` since it's not possible to define here.
     """
 
-    # Using only ``TokenAuthentication`` for now, so we can give access to
-    # specific carefully selected users only
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (PublicDetailPrivateListing,)
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (CommonPermissions,)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10
@@ -75,10 +81,10 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
-                      UpdateMixin, UpdateModelMixin,
-                      ReadOnlyModelViewSet):
+class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
+                          FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
+                          UpdateMixin, UpdateModelMixin,
+                          ReadOnlyModelViewSet):
 
     model = Project
     lookup_field = 'slug'
@@ -90,6 +96,10 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         'active_versions.last_build',
         'active_versions.last_build.config',
     ]
+
+    def get_view_name(self):
+        # Avoid "Base" in BrowseableAPI view's title
+        return f'Projects {self.suffix}'
 
     def get_serializer_class(self):
         """
@@ -163,6 +173,10 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             return Response(data)
         except Exception:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ProjectsViewSet(SettingsOverrideObject):
+    _default_class = ProjectsViewSetBase
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
@@ -345,3 +359,58 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
             'project': self._get_parent_project(),
         })
         serializer.save()
+
+
+class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
+                               OrganizationQuerySetMixin,
+                               ReadOnlyModelViewSet):
+
+    model = Organization
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'organization_slug'
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+
+    permit_list_expands = [
+        'projects',
+        'teams',
+        'teams.members',
+    ]
+
+    def get_view_name(self):
+        return f'Organizations {self.suffix}'
+
+    def get_queryset(self):
+        # Allow hitting ``/api/v3/organizations/`` to list their own organizaions
+        if self.basename == 'organizations' and self.action == 'list':
+            # We force returning ``Organization`` objects here because it's
+            # under the ``organizations`` view.
+            return self.admin_organizations(self.request.user)
+
+        return super().get_queryset()
+
+
+class OrganizationsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsViewSetBase
+
+
+class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
+                                       OrganizationQuerySetMixin,
+                                       ReadOnlyModelViewSet):
+
+    model = Project
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'project_slug'
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permit_list_expands = [
+        'organization',
+        'organization.teams',
+    ]
+
+    def get_view_name(self):
+        return f'Organizations Projects {self.suffix}'
+
+
+class OrganizationsProjectsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsProjectsViewSetBase

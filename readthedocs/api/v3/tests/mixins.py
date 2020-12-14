@@ -73,6 +73,7 @@ class APIEndpointMixin(TestCase):
             verbose_name='v1.0',
             identifier='a1b2c3',
             project=self.project,
+            hidden=False,
             active=True,
             built=True,
             type=TAG,
@@ -152,8 +153,9 @@ class APIEndpointMixin(TestCase):
         )
         self.project_relationship = self.project.add_subproject(self.subproject)
 
-    def _get_response_dict(self, view_name):
-        filename = Path(__file__).absolute().parent / 'responses' / f'{view_name}.json'
+    def _get_response_dict(self, view_name, filepath=None):
+        filepath = filepath or __file__
+        filename = Path(filepath).absolute().parent / 'responses' / f'{view_name}.json'
         return json.load(open(filename))
 
     def assertDictEqual(self, d1, d2):

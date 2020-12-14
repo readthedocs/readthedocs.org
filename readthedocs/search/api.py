@@ -1,25 +1,21 @@
-import itertools
 import logging
-import re
 from functools import namedtuple
 from math import ceil
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
-from readthedocs.search import tasks, utils
+from readthedocs.projects.models import Feature, Project
+from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
+
+from .serializers import PageSearchSerializer, VersionData
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +38,7 @@ class PaginatorPage:
         return self.number < self.paginator.num_pages
 
     def has_previous(self):
-        return self.number > 0
+        return self.number > 1
 
     def next_page_number(self):
         return self.number + 1
@@ -58,6 +54,15 @@ class SearchPagination(PageNumberPagination):
     page_size = 50
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+    def _get_page_number(self, number):
+        try:
+            if isinstance(number, float) and not number.is_integer():
+                raise ValueError
+            number = int(number)
+        except (TypeError, ValueError):
+            number = -1
+        return number
 
     def paginate_queryset(self, queryset, request, view=None):
         """
@@ -84,9 +89,11 @@ class SearchPagination(PageNumberPagination):
         if page_number in self.last_page_strings:
             page_number = total_pages
 
+        original_page_number = page_number
+        page_number = self._get_page_number(page_number)
         if page_number <= 0:
             msg = self.invalid_page_message.format(
-                page_number=page_number,
+                page_number=original_page_number,
                 message=_("Invalid page"),
             )
             raise NotFound(msg)
@@ -107,57 +114,6 @@ class SearchPagination(PageNumberPagination):
         )
 
         return result
-
-
-class PageSearchSerializer(serializers.Serializer):
-    project = serializers.CharField()
-    version = serializers.CharField()
-    title = serializers.CharField()
-    path = serializers.CharField()
-    full_path = serializers.CharField()
-    link = serializers.SerializerMethodField()
-    highlight = serializers.SerializerMethodField()
-    inner_hits = serializers.SerializerMethodField()
-
-    def get_link(self, obj):
-        project_data = self.context['projects_data'].get(obj.project)
-        if not project_data:
-            return None
-
-        docs_url, doctype = project_data
-        path = obj.full_path
-
-        # Generate an appropriate link for the doctypes that use htmldir,
-        # and always end it with / so it goes directly to proxito.
-        if doctype in {SPHINX_HTMLDIR, MKDOCS}:
-            new_path = re.sub('(^|/)index.html$', '/', path)
-            # docs_url already ends with /,
-            # so path doesn't need to start with /.
-            path = new_path.lstrip('/')
-
-        return docs_url + path
-
-    def get_highlight(self, obj):
-        highlight = getattr(obj.meta, 'highlight', None)
-        if highlight:
-            ret = highlight.to_dict()
-            log.debug('API Search highlight [Page title]: %s', ret)
-            return ret
-
-    def get_inner_hits(self, obj):
-        inner_hits = getattr(obj.meta, 'inner_hits', None)
-        if inner_hits:
-            sections = inner_hits.sections or []
-            domains = inner_hits.domains or []
-            all_results = itertools.chain(sections, domains)
-
-            sorted_results = utils._get_sorted_results(
-                results=all_results,
-                source_key='_source',
-            )
-
-            log.debug('[API] Sorted Results: %s', sorted_results)
-            return sorted_results
 
 
 class PageSearchAPIView(GenericAPIView):
@@ -229,67 +185,99 @@ class PageSearchAPIView(GenericAPIView):
 
     def _get_all_projects_data(self):
         """
-        Return a dict containing the project slug and its version URL and version's doctype.
+        Return a dictionary of the project itself and all its subprojects.
 
-        The dictionary contains the project and its subprojects. Each project's
-        slug is used as a key and a tuple with the documentation URL and doctype
-        from the version. Example:
+        Example:
 
-        {
-            "requests": (
-                "https://requests.readthedocs.io/en/latest/",
-                "sphinx",
-            ),
-            "requests-oauth": (
-                "https://requests-oauth.readthedocs.io/en/latest/",
-                "sphinx_htmldir",
-            ),
-        }
+        .. code::
 
-        :rtype: dict
+           {
+               "requests": VersionData(
+                   "latest",
+                   "sphinx",
+                   "https://requests.readthedocs.io/en/latest/",
+               ),
+               "requests-oauth": VersionData(
+                   "latest",
+                   "sphinx_htmldir",
+                   "https://requests-oauth.readthedocs.io/en/latest/",
+               ),
+           }
+
+        .. note:: The response is cached into the instance.
+
+        :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        all_projects = self._get_all_projects()
-        version_slug = self._get_version().slug
-        project_urls = {}
-        for project in all_projects:
-            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
+        cache_key = '__cached_projects_data'
+        projects_data = getattr(self, cache_key, None)
+        if projects_data is not None:
+            return projects_data
 
-        versions_doctype = (
-            Version.objects
-            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
-            .values_list('project__slug', 'documentation_type')
-        )
-
-        projects_data = {
-            project_slug: (project_urls[project_slug], doctype)
-            for project_slug, doctype in versions_doctype
-        }
-        return projects_data
-
-    def _get_all_projects(self):
-        """
-        Returns a list of the project itself and all its subprojects the user has permissions over.
-
-        :rtype: list
-        """
         main_version = self._get_version()
         main_project = self._get_project()
 
-        all_projects = [main_project]
+        projects_data = {
+            main_project.slug: VersionData(
+                slug=main_version.slug,
+                doctype=main_version.documentation_type,
+                docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+            )
+        }
 
         subprojects = Project.objects.filter(
             superprojects__parent_id=main_project.id,
         )
-        for project in subprojects:
-            version = (
-                Version.internal
-                .public(user=self.request.user, project=project, include_hidden=False)
-                .filter(slug=main_version.slug)
-                .first()
+        for subproject in subprojects:
+            version = self._get_subproject_version(
+                version_slug=main_version.slug,
+                subproject=subproject,
             )
-            if version:
-                all_projects.append(version.project)
-        return all_projects
+
+            # Fallback to the default version of the subproject.
+            if (
+                not version
+                and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
+                and subproject.default_version
+            ):
+                version = self._get_subproject_version(
+                    version_slug=subproject.default_version,
+                    subproject=subproject,
+                )
+
+            if version and self._has_permission(self.request.user, version):
+                url = subproject.get_docs_url(version_slug=version.slug)
+                projects_data[subproject.slug] = VersionData(
+                    slug=version.slug,
+                    doctype=version.documentation_type,
+                    docs_url=url,
+                )
+
+        setattr(self, cache_key, projects_data)
+        return projects_data
+
+    def _get_subproject_version(self, version_slug, subproject):
+        """Get a version from the subproject."""
+        return (
+            Version.internal
+            .public(
+                user=self.request.user,
+                project=subproject,
+                include_hidden=False,
+                only_built=True,
+            )
+            .filter(slug=version_slug)
+            .first()
+        )
+
+    def _has_permission(self, user, version):
+        """
+        Check if `user` is authorized to access `version`.
+
+        The queryset from `_get_subproject_version` already filters public
+        projects. This is mainly to be overriden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
 
     def _record_query(self, response):
         project_slug = self._get_project().slug
@@ -319,25 +307,40 @@ class PageSearchAPIView(GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
+        main_project = self._get_project()
+        main_version = self._get_version()
+        projects = {}
         filters = {}
-        filters['project'] = [p.slug for p in self._get_all_projects()]
-        filters['version'] = self._get_version().slug
 
-        # Check to avoid searching all projects in case these filters are empty.
-        if not filters['project']:
-            log.info('Unable to find a project to search')
-            return []
-        if not filters['version']:
-            log.info('Unable to find a version to search')
-            return []
+        if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
+            projects = {
+                project: version.slug
+                for project, version in self._get_all_projects_data().items()
+            }
+            # Check to avoid searching all projects in case it's empty.
+            if not projects:
+                log.info('Unable to find a version to search')
+                return []
+        else:
+            filters['project'] = list(self._get_all_projects_data().keys())
+            filters['version'] = main_version.slug
+            # Check to avoid searching all projects in case these filters are empty.
+            if not filters['project']:
+                log.info('Unable to find a project to search')
+                return []
+            if not filters['version']:
+                log.info('Unable to find a version to search')
+                return []
 
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
+            projects=projects,
             filters=filters,
             user=self.request.user,
             # We use a permission class to control authorization
             filter_by_user=False,
+            use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
 

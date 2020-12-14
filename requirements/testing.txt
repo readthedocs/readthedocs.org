@@ -1,12 +1,13 @@
--r pip.txt
--r local-docs-build.txt
+# Packages required for running tests
 
-django-dynamic-fixture==3.1.0
-pytest==5.4.2
+-r pip.txt
+
+django-dynamic-fixture==3.1.1
+pytest==6.1.2
 pytest-custom-exit-code==0.3.0
-pytest-django==3.9.0
-pytest-xdist==1.32.0
-pytest-cov==2.8.1
+pytest-django==4.1.0
+pytest-xdist==2.1.0
+pytest-cov==2.10.1
 apipkg==1.5
 execnet==1.7.1
 
@@ -18,9 +19,11 @@ execnet==1.7.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==2.0.1
-pytest-mock==3.1.0
+yamale==2.2.0  # pyup: <3.0
+pytest-mock==3.3.1
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.13.2
+ipdb==0.13.4
+
+requests-mock==1.8.0

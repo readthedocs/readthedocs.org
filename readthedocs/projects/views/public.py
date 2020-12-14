@@ -30,6 +30,7 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -53,7 +54,11 @@ class ProjectTagIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        queryset = queryset.exclude(users__profile__banned=True)
+
+        # Filters out projects from banned users
+        # This is disabled for performance reasons
+        # https://github.com/readthedocs/readthedocs.org/pull/7671
+        # queryset = queryset.exclude(users__profile__banned=True)
 
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
@@ -102,7 +107,7 @@ class ProjectDetailViewBase(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        project = self.get_object()
+        project = self.get_project()
         context['versions'] = self._get_versions(project)
 
         protocol = 'http'
@@ -119,6 +124,11 @@ class ProjectDetailViewBase(
         context['site_url'] = '{url}?badge={version}'.format(
             url=project.get_docs_url(version_slug),
             version=version_slug,
+        )
+
+        context['is_project_admin'] = AdminPermission.is_admin(
+            self.request.user,
+            project,
         )
 
         return context
@@ -228,11 +238,16 @@ class ProjectBadgeView(View):
         )
 
         # Append a token for private versions
-        version = Version.objects.filter(
-            project__slug=project_slug,
-            slug=version_slug,
-        ).first()
-        if version and version.privacy_level == PRIVATE:
+        privacy_level = (
+            Version.objects
+            .filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            )
+            .values_list('privacy_level', flat=True)
+            .first()
+        )
+        if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
             url += f'&token={token}'
 
@@ -408,7 +423,7 @@ def project_versions(request, project_slug):
     # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
-    if wiped and wiped_version.count():
+    if wiped and wiped_version.exists():
         messages.success(request, 'Version wiped: ' + wiped)
 
     # Optimize project permission checks
@@ -421,6 +436,7 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'is_project_admin': AdminPermission.is_admin(request.user, project),
             'max_inactive_versions': max_inactive_versions,
             'total_inactive_versions_count': total_inactive_versions_count,
         },

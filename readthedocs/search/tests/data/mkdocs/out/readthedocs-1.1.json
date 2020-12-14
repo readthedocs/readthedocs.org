@@ -1,0 +1,53 @@
+[
+  {
+    "path": "index.html",
+    "title": "Read the Docs MkDocs Test Project",
+    "sections": [
+      {
+        "id": "read-the-docs-mkdocs-test-project",
+        "title": "Read the Docs MkDocs Test Project",
+        "content": "This is a test of MkDocs as it appears on Read the Docs. Different versions of this documentation are build with different versions and themes of mkdocs. Use the version selector menu in the lower right to change the version and theme of this documentation"
+      },
+      {
+        "id": "another-title",
+        "title": "Another title",
+        "content": "I'm another title"
+      },
+      {
+        "id": "sub-header",
+        "title": "Sub header",
+        "content": "Some content: a b c"
+      },
+      {
+        "id": "im-a-subtitle",
+        "title": "I'm a subtitle",
+        "content": "Another content, mkdocs is great!"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "404.html",
+    "title": "404",
+    "sections": [
+      {
+        "id": "404-page-not-found",
+        "title": "404",
+        "content": "Page not found"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "versions.html",
+    "title": "Versions & Themes",
+    "sections": [
+      {
+        "id": "versions-themes",
+        "title": "Versions & Themes",
+        "content": "There are a number of versions and themes for mkdocs each of which have slight nuances with how they affect Read the Docs. You can use the version menu in the lower right to switch between versions and theme for this documentation."
+      }
+    ],
+    "domain_data": {}
+  }
+]

@@ -116,7 +116,7 @@ context = {
     'ad_free': {% if project.show_advertising %}False{% else %}True{% endif %},
     'docsearch_disabled': {{ docsearch_disabled }},
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
-    'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
+    'global_analytics_code': {% if project.analytics_disabled %}None{% else %}'{{ settings.GLOBAL_ANALYTICS_CODE }}'{% endif %},
     'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},
 }
 
@@ -178,3 +178,7 @@ if chinese:
     latex_elements = latex_elements_user or latex_elements_rtd
 elif japanese:
     latex_engine = latex_engine_user or 'platex'
+
+# Make sure our build directory is always excluded
+exclude_patterns = globals().get('exclude_patterns', [])
+exclude_patterns.extend(['_build'])

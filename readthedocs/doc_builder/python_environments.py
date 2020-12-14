@@ -1,19 +1,20 @@
 """An abstraction over virtualenv and Conda environments."""
 
-import copy
 import codecs
+import copy
 import hashlib
 import itertools
 import json
 import logging
 import os
 import shutil
-import yaml
 
+import yaml
 from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
+from readthedocs.config import PIP, SETUPTOOLS, ParseError
+from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
@@ -21,7 +22,6 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-
 
 log = logging.getLogger(__name__)
 
@@ -295,19 +295,31 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        site_packages = ''
+        """
+        Create a virtualenv, invoking ``python -mvirtualenv``.
+
+        .. note::
+
+            ``--no-download`` was removed because of the pip breakage,
+            it was sometimes installing pip 20.0 which broke everything
+            https://github.com/readthedocs/readthedocs.org/issues/6585
+
+            Important not to add empty string arguments, see:
+            https://github.com/readthedocs/readthedocs.org/issues/7322
+        """
+        cli_args = [
+            '-mvirtualenv',
+        ]
         if self.config.python.use_system_site_packages:
-            site_packages = '--system-site-packages'
-        env_path = self.venv_path()
+            cli_args.append('--system-site-packages')
+
+        # Append the positional destination argument
+        cli_args.append(
+            self.venv_path(),
+        )
         self.build_env.run(
             self.config.python_interpreter,
-            '-mvirtualenv',
-            site_packages,
-            # This is removed because of the pip breakage,
-            # it was sometimes installing pip 20.0 which broke everything
-            # https://github.com/readthedocs/readthedocs.org/issues/6585
-            # '--no-download',
-            env_path,
+            *cli_args,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
@@ -327,18 +339,28 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            'Pygments==2.3.1',
             'setuptools==41.0.1',
-            'docutils==0.14',
+            self.project.get_feature_value(
+                Feature.DONT_INSTALL_DOCUTILS,
+                positive='',
+                negative='docutils==0.14',
+            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'six',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
@@ -352,16 +374,24 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            # We will assume semver here and only automate up to the next
-            # backward incompatible release: 2.x
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    positive='sphinx<2',
+                    positive='sphinx',
                     negative='sphinx<2',
                 ),
-                'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<1.1',
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx-rtd-theme',
+                    negative='sphinx-rtd-theme<0.5',
+                ),
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_RTD_EXT_LATEST,
+                    positive='readthedocs-sphinx-ext',
+                    negative='readthedocs-sphinx-ext<2.2',
+                ),
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -585,6 +615,7 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
+            'six',
         ]
 
         if self.config.doctype == 'mkdocs':

@@ -50,7 +50,6 @@ class BaseMkdocs(BaseBuilder):
             os.path.dirname(self.yaml_file),
             self.build_dir,
         )
-        self.root_path = self.version.project.checkout_path(self.version.slug)
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -85,7 +84,7 @@ class BaseMkdocs(BaseBuilder):
         if not mkdocs_path:
             mkdocs_path = 'mkdocs.yml'
         return os.path.join(
-            self.project.checkout_path(self.version.slug),
+            self.project_path,
             mkdocs_path,
         )
 
@@ -130,7 +129,7 @@ class BaseMkdocs(BaseBuilder):
                 'possibly due to a syntax error{note}'.format(note=note),
             )
 
-    def append_conf(self, **__):
+    def append_conf(self):
         """
         Set mkdocs config values.
 
@@ -198,7 +197,7 @@ class BaseMkdocs(BaseBuilder):
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=os.path.relpath(docs_path, self.root_path),
+            docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
@@ -224,8 +223,8 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            os.path.relpath(self.yaml_file, self.root_path),
-            cwd=self.root_path,
+            os.path.relpath(self.yaml_file, self.project_path),
+            cwd=self.project_path,
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -251,7 +250,9 @@ class BaseMkdocs(BaseBuilder):
             'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
-            'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
+            'global_analytics_code': (
+                None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
+            ),
             'user_analytics_code': analytics_code,
             'features': {
                 'docsearch_disabled': (
@@ -272,7 +273,6 @@ class BaseMkdocs(BaseBuilder):
         return tmpl.render(data_ctx)
 
     def build(self):
-        checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             self.python_env.venv_bin(filename='python'),
             '-m',
@@ -282,13 +282,14 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir',
             self.build_dir,
             '--config-file',
-            os.path.relpath(self.yaml_file, self.root_path),
+            os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')
         cmd_ret = self.run(
-            *build_command, cwd=checkout_path,
-            bin_path=self.python_env.venv_bin()
+            *build_command,
+            cwd=self.project_path,
+            bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
 
