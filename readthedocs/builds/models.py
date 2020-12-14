@@ -45,6 +45,7 @@ from readthedocs.builds.constants import (
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
+    AutomationRuleMatchManager,
     BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
@@ -319,9 +320,7 @@ class Version(TimeStampedModel):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        # Remove resources if the version is not external
-        if self.type != EXTERNAL:
-            tasks.clean_project_resources(self.project, self)
+        tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -1075,18 +1074,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, *args, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
         """
-        if version.type == self.version_type:
-            match, result = self.match(version, self.get_match_arg())
-            if match:
-                self.apply_action(version, result)
-                return True
+        if version.type != self.version_type:
+            return False
+
+        match, result = self.match(version, self.get_match_arg())
+        if match:
+            self.apply_action(version, result)
+            AutomationRuleMatch.objects.register_match(
+                rule=self,
+                version=version,
+            )
+            return True
         return False
 
     def match(self, version, match_arg):
@@ -1269,3 +1274,29 @@ class RegexAutomationRule(VersionAutomationRule):
             'projects_automation_rule_regex_edit',
             args=[self.project.slug, self.pk],
         )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    rule = models.ForeignKey(
+        VersionAutomationRule,
+        verbose_name=_('Matched rule'),
+        related_name='matches',
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=VersionAutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ('-modified', '-created')

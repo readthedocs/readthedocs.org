@@ -1,3 +1,32 @@
+Version 5.8.0
+-------------
+
+:Date: December 08, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7731 <https://github.com/readthedocs/readthedocs.org/pull/7731>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bitbucket: mainbranch can be None (`#7725 <https://github.com/readthedocs/readthedocs.org/pull/7725>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use with_positions_offsets term vector for some fields (`#7724 <https://github.com/readthedocs/readthedocs.org/pull/7724>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: filter only active and built versions from subprojects (`#7723 <https://github.com/readthedocs/readthedocs.org/pull/7723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Extra features: allow to display them conditionally (`#7715 <https://github.com/readthedocs/readthedocs.org/pull/7715>`__)
+* `@humitos <https://github.com/humitos>`__: Define `pre/post_collectstatic` signals and send them (`#7701 <https://github.com/readthedocs/readthedocs.org/pull/7701>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Support the new Google analytics gtag.js (`#7691 <https://github.com/readthedocs/readthedocs.org/pull/7691>`__)
+* `@stsewd <https://github.com/stsewd>`__: HTMLFile: remove slug field (`#7680 <https://github.com/readthedocs/readthedocs.org/pull/7680>`__)
+* `@stsewd <https://github.com/stsewd>`__: External versions: delete after 3 months of being merged/closed (`#7678 <https://github.com/readthedocs/readthedocs.org/pull/7678>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: keep history of recent matches (`#7658 <https://github.com/readthedocs/readthedocs.org/pull/7658>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: update to ES 7.x (`#7582 <https://github.com/readthedocs/readthedocs.org/pull/7582>`__)
+
+Version 5.7.0
+-------------
+
+:Date: December 01, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Ensure there is space for sidebar ads (`#7716 <https://github.com/readthedocs/readthedocs.org/pull/7716>`__)
+* `@humitos <https://github.com/humitos>`__: Install six as core requirement for builds (`#7710 <https://github.com/readthedocs/readthedocs.org/pull/7710>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: increase feature_id max_length (`#7698 <https://github.com/readthedocs/readthedocs.org/pull/7698>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7695 <https://github.com/readthedocs/readthedocs.org/pull/7695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: use stable version instead of querying all versions (`#7380 <https://github.com/readthedocs/readthedocs.org/pull/7380>`__)
+
 Version 5.6.5
 -------------
 
