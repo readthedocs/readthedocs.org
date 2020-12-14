@@ -78,7 +78,7 @@ class BuildLinksSerializer(BaseLinksSerializer):
                 },
             )
             return self._absolute_url(path)
-        return ''
+        return None
 
     def get_project(self, obj):
         path = reverse(
@@ -114,7 +114,7 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
                 }
             )
             return self._absolute_url(path)
-        return ''
+        return None
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):

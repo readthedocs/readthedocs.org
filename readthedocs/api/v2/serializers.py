@@ -139,7 +139,7 @@ class BuildSerializer(serializers.ModelSerializer):
     def get_docs_url(self, obj):
         if obj.version:
             return obj.version.get_absolute_url()
-        return ''
+        return None
 
 
 class BuildAdminSerializer(BuildSerializer):
