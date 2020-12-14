@@ -237,9 +237,8 @@ class TestCeleryBuilding(TestCase):
             result = tasks.sync_repository_task.delay(version.pk)
         clean_build.assert_called_with(version.pk)
 
-    @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
+    def test_check_duplicate_reserved_version_latest(self, checkout_path):
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
 
@@ -259,7 +258,7 @@ class TestCeleryBuilding(TestCase):
 
         delete_git_branch(self.repo, 'latest')
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -284,8 +283,7 @@ class TestCeleryBuilding(TestCase):
         # TODO: Check that we can build properly after
         # deleting the tag.
 
-    @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_no_reserved_version(self, api_v2):
+    def test_check_duplicate_no_reserved_version(self):
         create_git_branch(self.repo, 'no-reserved')
         create_git_tag(self.repo, 'no-reserved')
 
@@ -293,8 +291,11 @@ class TestCeleryBuilding(TestCase):
 
         sync_repository = self.get_update_docs_task(version)
 
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 0)
+
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 2)
 
     def test_public_task_exception(self):
         """

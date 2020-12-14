@@ -19,7 +19,7 @@ from readthedocs.projects.models import Project
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
-@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -759,7 +759,7 @@ class TestSyncVersions(TestCase):
             1,
         )
 
-    @mock.patch('readthedocs.api.v2.views.model_views.run_automation_rules')
+    @mock.patch('readthedocs.builds.tasks.run_automation_rules')
     def test_automation_rules_are_triggered_for_new_versions(self, run_automation_rules):
         Version.objects.create(
             project=self.pip,
@@ -930,7 +930,7 @@ class TestSyncVersions(TestCase):
         self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
-@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -1445,7 +1445,7 @@ class TestStableVersion(TestCase):
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
-@mock.patch('readthedocs.api.v2.views.model_views.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 

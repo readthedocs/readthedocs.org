@@ -245,20 +245,20 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     try:
         # Update All Versions
         added_versions = set()
-        if tags_data:
-            ret_set = sync_versions_to_db(
-                project=project,
-                versions=tags_data,
-                type=TAG,
-            )
-            added_versions.update(ret_set)
-        if branches_data:
-            ret_set = sync_versions_to_db(
-                project=project,
-                versions=branches_data,
-                type=BRANCH,
-            )
-            added_versions.update(ret_set)
+        result = sync_versions_to_db(
+            project=project,
+            versions=tags_data,
+            type=TAG,
+        )
+        added_versions.update(result)
+
+        result = sync_versions_to_db(
+            project=project,
+            versions=branches_data,
+            type=BRANCH,
+        )
+        added_versions.update(result)
+
         deleted_versions = delete_versions_from_db(
             project=project,
             tags_data=tags_data,
