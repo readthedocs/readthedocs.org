@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.tasks import TaskRouter
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 class TaskRouterTests(TestCase):
 
@@ -66,4 +66,16 @@ class TaskRouterTests(TestCase):
     def test_no_build_pk(self):
         self.assertIsNone(
             self.router.route_for_task(self.task, self.args, {}),
+        )
+
+    def test_project_using_mamba(self):
+        feature = fixture.get(
+            Feature,
+            feature_id=Feature.CONDA_USES_MAMBA,
+        )
+        feature.projects.add(self.project)
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_DEFAULT_QUEUE,
         )
