@@ -122,11 +122,35 @@ class GitLabService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
-                    remote_repositories.append(remote_repository)
+                    try:
+                        # Get response for a single repository with permission data
+                        resp = self.get_session().get(
+                            '{url}/api/v4/projects/{id}'.format(
+                                url=self.adapter.provider_base_url,
+                                id=repo['id']
+                            )
+                        )
+
+                        if resp.status_code == 200:
+                            repo_details = resp.json()
+                            remote_repository = self.create_repository(
+                                repo_details,
+                                organization=remote_organization
+                            )
+                            remote_repositories.append(remote_repository)
+                        else:
+                            log.warning(
+                                'GitLab project does not exist or user does not have '
+                                'permissions: project=%s',
+                                repo['name_with_namespace'],
+                            )
+
+                    except Exception:
+                        log.exception(
+                            'Error creating GitLab repository=%s',
+                            repo['name_with_namespace'],
+                        )
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
