@@ -207,6 +207,7 @@ class PageSearchAPIView(GenericAPIView):
                 slug=main_version.slug,
                 doctype=main_version.documentation_type,
                 docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+                project_alias=None,
             )
         }
 
@@ -232,10 +233,12 @@ class PageSearchAPIView(GenericAPIView):
 
             if version and self._has_permission(self.request.user, version):
                 url = subproject.get_docs_url(version_slug=version.slug)
+                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
                 projects_data[subproject.slug] = VersionData(
                     slug=version.slug,
                     doctype=version.documentation_type,
                     docs_url=url,
+                    project_alias=project_alias,
                 )
 
         return projects_data

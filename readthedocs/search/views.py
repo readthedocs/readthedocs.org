@@ -67,6 +67,7 @@ class SearchView(View):
                 slug=version_slug,
                 docs_url=docs_url,
                 doctype=version_doctype,
+                project_alias=None,
             )
         }
         return project_data
