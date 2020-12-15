@@ -72,6 +72,8 @@ function init() {
         },
         dataType: "jsonp",
         data: get_data,
+        cache: true,
+        jsonpCallback: "callback",
         success: function (data) {
             if (data.show_version_warning) {
                 versionCompare.init(data.version_compare);
@@ -92,6 +94,7 @@ function init() {
             version: rtd['version'],
             absolute_uri: window.location.href,
         },
+        cache: false,
         error: function () {
             console.error('Error registering page view');
         }
