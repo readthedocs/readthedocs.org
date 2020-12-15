@@ -46,7 +46,6 @@ function init() {
         page: rtd['page'],
         absolute_uri: window.location.href,
         theme: rtd.get_theme_name(),
-        format: "jsonp",
     };
 
     // Crappy heuristic, but people change the theme name on us.
@@ -70,7 +69,6 @@ function init() {
         xhrFields: {
             withCredentials: true,
         },
-        dataType: "jsonp",
         data: get_data,
         success: function (data) {
             if (data.show_version_warning) {
