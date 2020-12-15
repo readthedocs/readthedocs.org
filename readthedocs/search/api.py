@@ -1,5 +1,5 @@
 import logging
-from functools import namedtuple
+from functools import lru_cache, namedtuple
 from math import ceil
 
 from django.shortcuts import get_object_or_404
@@ -138,30 +138,20 @@ class PageSearchAPIView(GenericAPIView):
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
-
-        if not version:
-            version_slug = self.request.GET.get('version', None)
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        version_slug = self.request.GET.get('version', None)
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug=version_slug,
+        )
         return version
 
     def _validate_query_params(self):
@@ -183,6 +173,7 @@ class PageSearchAPIView(GenericAPIView):
         if errors:
             raise ValidationError(errors)
 
+    @lru_cache(maxsize=1)
     def _get_all_projects_data(self):
         """
         Return a dictionary of the project itself and all its subprojects.
@@ -208,11 +199,6 @@ class PageSearchAPIView(GenericAPIView):
 
         :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        cache_key = '__cached_projects_data'
-        projects_data = getattr(self, cache_key, None)
-        if projects_data is not None:
-            return projects_data
-
         main_version = self._get_version()
         main_project = self._get_project()
 
@@ -252,7 +238,6 @@ class PageSearchAPIView(GenericAPIView):
                     docs_url=url,
                 )
 
-        setattr(self, cache_key, projects_data)
         return projects_data
 
     def _get_subproject_version(self, version_slug, subproject):
