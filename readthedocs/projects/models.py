@@ -1578,6 +1578,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    CONDA_USES_MAMBA = 'conda_uses_mamba'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
@@ -1601,7 +1602,6 @@ class Feature(models.Model):
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DONT_CREATE_INDEX = 'dont_create_index'
-    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
@@ -1659,6 +1659,10 @@ class Feature(models.Model):
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
+        ),
+        (
+            CONDA_USES_MAMBA,
+            _('Uses mamba binary instead of conda to create the environment'),
         ),
         (
             ALL_VERSIONS_IN_HTML_CONTEXT,
@@ -1751,10 +1755,6 @@ class Feature(models.Model):
         (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
-        ),
-        (
-            USE_NEW_PIP_RESOLVER,
-            _('Use new pip resolver'),
         ),
         (
             DONT_INSTALL_LATEST_PIP,
