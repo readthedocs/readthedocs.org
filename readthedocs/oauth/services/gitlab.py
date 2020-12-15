@@ -122,8 +122,13 @@ class GitLabService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
+                    # TODO: Optimize this so that we don't re-fetch project data
+                    # Details: https://github.com/readthedocs/readthedocs.org/issues/7743
                     try:
-                        # Get response for a single repository with permission data
+                        # The response from /groups/{id}/projects API does not contain
+                        # admin permission fields for GitLab projects.
+                        # So, fetch every single project data from the API
+                        # which contains with admin permission fields
                         resp = self.get_session().get(
                             '{url}/api/v4/projects/{id}'.format(
                                 url=self.adapter.provider_base_url,
