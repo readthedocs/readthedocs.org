@@ -1080,6 +1080,10 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
+        enabled = self._is_enabled(project)
+        context.update({'enabled': enabled})
+        if not enabled:
+            return context
 
         # Count of views for top pages over the month
         top_pages = PageView.top_viewed_pages(project)
@@ -1096,7 +1100,6 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
         context.update({
             'top_viewed_pages': top_viewed_pages,
             'page_data': page_data,
-            'enabled': self._is_enabled(project),
         })
 
         return context
