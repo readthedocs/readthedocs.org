@@ -128,7 +128,7 @@ class GitLabService(Service):
                         # The response from /groups/{id}/projects API does not contain
                         # admin permission fields for GitLab projects.
                         # So, fetch every single project data from the API
-                        # which contains with admin permission fields
+                        # which contains the admin permission fields.
                         resp = self.get_session().get(
                             '{url}/api/v4/projects/{id}'.format(
                                 url=self.adapter.provider_base_url,
