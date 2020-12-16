@@ -45,6 +45,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.tasks import send_build_status
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
@@ -67,9 +68,6 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -1889,103 +1887,6 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
-
-
-@app.task(queue='web')
-def send_build_status(build_pk, commit, status, link_to_build=False):
-    """
-    Send Build Status to Git Status API for project external versions.
-
-    It tries using these services' account in order:
-
-    1. user's account that imported the project
-    2. each user's account from the project's maintainers
-
-    :param build_pk: Build primary key
-    :param commit: commit sha of the pull/merge request
-    :param status: build status failed, pending, or success to be sent.
-    """
-    # TODO: Send build status for BitBucket.
-    service = None
-    success = None
-    build = Build.objects.get(pk=build_pk)
-    provider_name = build.project.git_provider_name
-
-    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
-
-    if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
-        # get the service class for the project e.g: GitHubService.
-        service_class = build.project.git_service_class()
-
-        # First, try using user who imported the project's account
-        try:
-            service = service_class(
-                build.project.remote_repository.users.first(),
-                build.project.remote_repository.account
-            )
-
-        except RemoteRepository.DoesNotExist:
-            log.warning(
-                'Project does not have a RemoteRepository. project=%s',
-                build.project.slug,
-            )
-
-        if service is not None:
-            # Send status report using the API.
-            success = service.send_build_status(
-                build=build,
-                commit=commit,
-                state=status,
-                link_to_build=link_to_build,
-            )
-
-        if success:
-            log.info(
-                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
-                build.project.slug,
-                build.pk,
-                status,
-                commit,
-            )
-            return True
-
-        # Try using any of the users' maintainer accounts
-        # Try to loop through all project users to get their social accounts
-        users = build.project.users.all()
-        for user in users:
-            user_accounts = service_class.for_user(user)
-            # Try to loop through users all social accounts to send a successful request
-            for account in user_accounts:
-                if account.provider_name == provider_name:
-                    success = account.send_build_status(build, commit, status)
-                    if success:
-                        log.info(
-                            'Build status report sent correctly using an user account. '
-                            'project=%s build=%s status=%s commit=%s user=%s',
-                            build.project.slug,
-                            build.pk,
-                            status,
-                            commit,
-                            user.username,
-                        )
-                        return True
-
-        for user in users:
-            # Send Site notification about Build status reporting failure
-            # to all the users of the project.
-            notification = GitBuildStatusFailureNotification(
-                context_object=build.project,
-                extra_context={'provider_name': provider_name},
-                user=user,
-                success=False,
-            )
-            notification.send()
-
-        log.info(
-            'No social account or repository permission available for %s',
-            build.project.slug
-        )
-        return False
 
 
 def send_external_build_status(version_type, build_pk, commit, status):
