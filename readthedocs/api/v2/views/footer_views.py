@@ -88,9 +88,8 @@ class BaseFooterHTML(APIView):
 
     - project
     - version
-    - page: Sphinx's page name, used for path operations,
-      like change between languages (deprecated in favor of ``absolute_uri``).
-    - absolute_uri: Full path with domain, used for path operations.
+    - page: Sphinx's page name (name of the source file),
+      used to build the "edit on" links.
     - theme: Used to decide how to integrate the flyout menu.
     - docroot: Path where all the source documents are.
       Used to build the ``edit_on`` URL.
