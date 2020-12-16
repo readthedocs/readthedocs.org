@@ -67,8 +67,7 @@ Where ``RemoteRepository`` is used?
 * Show a "+", "External Arrow" or a "Lock" sign next to the element in the list
   * +: it's available to be imported
   * External Arrow: the repository is already imported (see `RemoteRepository.matches`_ method)
-  * Lock: user doesn't have (admin) permissions to import this repository
-    (uses ``RemoteRepository.private`` and ``RemoteRepository.admin``)
+  * Lock: user doesn't have (admin) permissions to import this repository (uses ``RemoteRepository.private`` and ``RemoteRepository.admin``)
 * Avatar URL in the list of project available to import
 * `Update webhook`_ when user clicks "Resync webhook" from the :guilabel:`Admin` > :guilabel:`Integrations` tab
 * `Send build status`_ when building Pull Requests
