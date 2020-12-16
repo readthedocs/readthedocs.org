@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
     BRANCH,
+    INTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     NON_REPOSITORY_VERSIONS,
@@ -176,7 +177,7 @@ def _get_deleted_versions_qs(project, version_data):
     ]
 
     to_delete_qs = (
-        project.versions
+        project.versions(manager=INTERNAL)
         .exclude(uploaded=True)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )

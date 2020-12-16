@@ -1,6 +1,7 @@
 """Endpoint to generate footer HTML."""
 
 import re
+from functools import lru_cache
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -87,9 +88,8 @@ class BaseFooterHTML(APIView):
 
     - project
     - version
-    - page: Sphinx's page name, used for path operations,
-      like change between languages (deprecated in favor of ``absolute_uri``).
-    - absolute_uri: Full path with domain, used for path operations.
+    - page: Sphinx's page name (name of the source file),
+      used to build the "edit on" links.
     - theme: Used to decide how to integrate the flyout menu.
     - docroot: Path where all the source documents are.
       Used to build the ``edit_on`` URL.
@@ -106,36 +106,26 @@ class BaseFooterHTML(APIView):
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
+        version_slug = self.request.GET.get('version', None)
 
-        if not version:
-            version_slug = self.request.GET.get('version', None)
+        # Hack in a fix for missing version slug deploy
+        # that went out a while back
+        if version_slug == '':
+            version_slug = LATEST
 
-            # Hack in a fix for missing version slug deploy
-            # that went out a while back
-            if version_slug == '':
-                version_slug = LATEST
-
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug__iexact=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug__iexact=version_slug,
+        )
         return version
 
     def _get_active_versions_sorted(self):
