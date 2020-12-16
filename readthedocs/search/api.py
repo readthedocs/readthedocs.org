@@ -313,8 +313,8 @@ class PageSearchAPIView(GenericAPIView):
 
         if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
             projects = {
-                project: version.slug
-                for project, version in self._get_all_projects_data().items()
+                project: project_data.version.slug
+                for project, project_data in self._get_all_projects_data().items()
             }
             # Check to avoid searching all projects in case it's empty.
             if not projects:
