@@ -318,6 +318,17 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        # Update builds that don't have the extra metadata
+        # about the version before deleting it.
+        # This is to make a progressive migration of old builds
+        # instead of migrating everything at once (big table).
+        # New builds set these fields when they are created.
+        self.builds.filter(version_slug=None).update(
+            version_slug=self.slug,
+            version_name=self.verbose_name,
+            version_type=self.type,
+        )
+
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
         tasks.clean_project_resources(self.project, self)

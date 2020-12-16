@@ -209,7 +209,9 @@ def delete_versions_from_db(project, version_data):
             '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
             project.slug, ' '.join(deleted_versions),
         )
-        to_delete_qs.delete()
+        # Delete one by one to make sure the delete method is called.
+        for version in to_delete_qs.iterator():
+            version.delete()
 
     return deleted_versions
 
