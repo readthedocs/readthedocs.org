@@ -21,7 +21,8 @@ from readthedocs.projects.models import Project
 
 
 # Structure used for storing cached data of a version mostly.
-VersionData = namedtuple('VersionData', ['slug', 'docs_url', 'doctype', 'project_alias'])
+ProjectData = namedtuple('ProjectData', ['version', 'alias'])
+VersionData = namedtuple('VersionData', ['slug', 'docs_url', 'doctype'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -85,11 +86,14 @@ class PageSearchSerializer(serializers.Serializer):
             project_alias = project.superprojects.values_list('alias', flat=True).first()
 
             projects_data = self.context.setdefault('projects_data', {})
-            projects_data[obj.project] = VersionData(
+            version_data = VersionData(
                 slug=obj.version,
                 docs_url=docs_url,
-                project_alias=project_alias,
                 doctype=None,
+            )
+            projects_data[obj.project] = ProjectData(
+                alias=project_alias,
+                version=version_data,
             )
             return projects_data[obj.project]
         return None
@@ -97,7 +101,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_project_alias(self, obj):
         project_data = self._get_project_data(obj)
         if project_data:
-            return project_data.project_alias
+            return project_data.alias
         return None
 
     def get_domain(self, obj):
@@ -117,12 +121,12 @@ class PageSearchSerializer(serializers.Serializer):
     def _get_full_path(self, obj):
         project_data = self._get_project_data(obj)
         if project_data:
-            docs_url = project_data.docs_url
+            docs_url = project_data.version.docs_url
             path = obj.full_path
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if project_data.doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            if project_data.version.doctype in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')

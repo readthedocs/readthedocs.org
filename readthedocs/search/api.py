@@ -15,7 +15,7 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 
-from .serializers import PageSearchSerializer, VersionData
+from .serializers import PageSearchSerializer, ProjectData, VersionData
 
 log = logging.getLogger(__name__)
 
@@ -183,15 +183,21 @@ class PageSearchAPIView(GenericAPIView):
         .. code::
 
            {
-               "requests": VersionData(
-                   "latest",
-                   "sphinx",
-                   "https://requests.readthedocs.io/en/latest/",
+               "requests": ProjectData(
+                   alias='alias',
+                   version=VersionData(
+                        "latest",
+                        "sphinx",
+                        "https://requests.readthedocs.io/en/latest/",
+                    ),
                ),
-               "requests-oauth": VersionData(
-                   "latest",
-                   "sphinx_htmldir",
-                   "https://requests-oauth.readthedocs.io/en/latest/",
+               "requests-oauth": ProjectData(
+                   alias=None,
+                   version=VersionData(
+                       "latest",
+                       "sphinx_htmldir",
+                       "https://requests-oauth.readthedocs.io/en/latest/",
+                   ),
                ),
            }
 
@@ -203,11 +209,13 @@ class PageSearchAPIView(GenericAPIView):
         main_project = self._get_project()
 
         projects_data = {
-            main_project.slug: VersionData(
-                slug=main_version.slug,
-                doctype=main_version.documentation_type,
-                docs_url=main_project.get_docs_url(version_slug=main_version.slug),
-                project_alias=None,
+            main_project.slug: ProjectData(
+                alias=None,
+                version=VersionData(
+                    slug=main_version.slug,
+                    doctype=main_version.documentation_type,
+                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+                ),
             )
         }
 
@@ -234,11 +242,14 @@ class PageSearchAPIView(GenericAPIView):
             if version and self._has_permission(self.request.user, version):
                 url = subproject.get_docs_url(version_slug=version.slug)
                 project_alias = subproject.superprojects.values_list('alias', flat=True).first()
-                projects_data[subproject.slug] = VersionData(
+                version_data = VersionData(
                     slug=version.slug,
                     doctype=version.documentation_type,
                     docs_url=url,
-                    project_alias=project_alias,
+                )
+                projects_data[subproject.slug] = ProjectData(
+                    alias=project_alias,
+                    version=version_data,
                 )
 
         return projects_data

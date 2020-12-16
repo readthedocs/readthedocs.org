@@ -15,6 +15,7 @@ from readthedocs.search.faceted_search import (
 
 from .serializers import (
     PageSearchSerializer,
+    ProjectData,
     ProjectSearchSerializer,
     VersionData,
 )
@@ -62,12 +63,15 @@ class SearchView(View):
             .get(slug=version_slug)
         )
         docs_url = project.get_docs_url(version_slug=version_slug)
+        version_data = VersionData(
+            slug=version_slug,
+            docs_url=docs_url,
+            doctype=version_doctype,
+        )
         project_data = {
-            project.slug: VersionData(
-                slug=version_slug,
-                docs_url=docs_url,
-                doctype=version_doctype,
-                project_alias=None,
+            project.slug: ProjectData(
+                alias=None,
+                version=version_data,
             )
         }
         return project_data
