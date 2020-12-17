@@ -21,6 +21,7 @@ from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
+from readthedocs.builds import tasks as build_tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
@@ -352,7 +353,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -375,7 +376,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -392,7 +393,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -412,7 +413,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -435,7 +436,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -452,7 +453,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
