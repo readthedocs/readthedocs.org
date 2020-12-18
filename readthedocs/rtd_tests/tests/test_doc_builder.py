@@ -350,7 +350,10 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(builder.get_theme_name({}), 'readthedocs')
         with patch('readthedocs.doc_builder.backends.mkdocs.yaml') as mock_yaml:
             with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
-                mock_load_yaml_config.return_value = {'site_name': self.project.name}
+                mock_load_yaml_config.return_value = {
+                    'site_name': self.project.name,
+                    'docs_dir': tmpdir,
+                }
                 builder.append_conf()
 
             mock_yaml.safe_dump.assert_called_once_with(
@@ -374,6 +377,7 @@ class MkdocsBuilderTest(TestCase):
                 mock_load_yaml_config.return_value = {
                     'site_name': self.project.name,
                     'theme': 'customtheme',
+                    'docs_dir': tmpdir,
                 }
                 builder.append_conf()
 
