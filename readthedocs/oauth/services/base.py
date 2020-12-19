@@ -206,8 +206,8 @@ class Service:
         (
             self.user.remote_repository_relations
             .exclude(
-                remoterepository__remote_id__in=repository_remote_ids,
-                remoterepository__vcs_provider=self.vcs_provider_slug
+                remote_repository__remote_id__in=repository_remote_ids,
+                remote_repository__vcs_provider=self.vcs_provider_slug
             )
             .filter(account=self.account)
             .delete()
@@ -226,7 +226,7 @@ class Service:
         """Return RemoteRepositoryRelation object for a given remote repository."""
         remote_repository_relation, _ = (
             RemoteRepositoryRelation.objects.get_or_create(
-                remoterepository=repo,
+                remote_repository=repo,
                 user=self.user,
                 account=self.account
             )

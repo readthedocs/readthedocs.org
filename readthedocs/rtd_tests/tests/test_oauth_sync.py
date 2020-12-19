@@ -85,7 +85,7 @@ class GitHubOAuthSyncTests(TestCase):
         )
         fixture.get(
             RemoteRepositoryRelation,
-            remoterepository=repo_1,
+            remote_repository=repo_1,
             user=self.user,
             account=self.socialaccount
         )
@@ -98,7 +98,7 @@ class GitHubOAuthSyncTests(TestCase):
         )
         fixture.get(
             RemoteRepositoryRelation,
-            remoterepository=repo_2,
+            remote_repository=repo_2,
             user=self.user,
             account=self.socialaccount
         )
@@ -115,7 +115,7 @@ class GitHubOAuthSyncTests(TestCase):
         )
         fixture.get(
             RemoteRepositoryRelation,
-            remoterepository=repo_3,
+            remote_repository=repo_3,
             user=self.user,
             account=self.socialaccount
         )
