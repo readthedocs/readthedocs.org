@@ -657,7 +657,7 @@ class APITests(TestCase):
             repo = get(RemoteRepository)
             get(
                 RemoteRepositoryRelation,
-                remoterepository=repo,
+                remote_repository=repo,
                 user=user,
                 account=account
             )
@@ -778,7 +778,7 @@ class APIImportTests(TestCase):
         )
         get(
             RemoteRepositoryRelation,
-            remoterepository=repo_a,
+            remote_repository=repo_a,
             user=user_a,
             account=account_a
         )
@@ -789,7 +789,7 @@ class APIImportTests(TestCase):
         )
         get(
             RemoteRepositoryRelation,
-            remoterepository=repo_b,
+            remote_repository=repo_b,
             user=user_b,
             account=account_b
         )

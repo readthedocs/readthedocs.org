@@ -348,7 +348,7 @@ class TestCeleryBuilding(TestCase):
         remote_repo = get(RemoteRepository, project=self.project)
         get(
             RemoteRepositoryRelation,
-            remoterepository=remote_repo,
+            remote_repository=remote_repo,
             user=self.eric,
             account=social_account
         )
@@ -413,7 +413,7 @@ class TestCeleryBuilding(TestCase):
         remote_repo = get(RemoteRepository, project=self.project)
         get(
             RemoteRepositoryRelation,
-            remoterepository=remote_repo,
+            remote_repository=remote_repo,
             user=self.eric,
             account=social_account
         )

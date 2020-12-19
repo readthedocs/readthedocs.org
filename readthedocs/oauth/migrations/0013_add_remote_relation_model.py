@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                             ),
                         ),
                         (
-                            'remoterepository',
+                            'remote_repository',
                             models.ForeignKey(
                                 on_delete=django.db.models.deletion.CASCADE,
                                 related_name='remote_relations',
@@ -81,6 +81,10 @@ class Migration(migrations.Migration):
                 to='socialaccount.SocialAccount',
                 verbose_name='Connected account'
             ),
+        ),
+        migrations.AlterUniqueTogether(
+            name='remoterepositoryrelation',
+            unique_together={('remote_repository', 'account')},
         ),
         migrations.AddField(
             model_name='remoterepositoryrelation',

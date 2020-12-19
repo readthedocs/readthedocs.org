@@ -67,8 +67,8 @@ class BitbucketService(Service):
                 RemoteRepositoryRelation.objects.filter(
                     user=self.user,
                     account=self.account,
-                    remoterepository__vcs_provider=self.vcs_provider_slug,
-                    remoterepository__remote_id__in=[
+                    remote_repository__vcs_provider=self.vcs_provider_slug,
+                    remote_repository__remote_id__in=[
                         r['uuid'] for r in resp
                     ]
                 )
