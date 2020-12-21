@@ -122,11 +122,40 @@ class GitLabService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
-                    remote_repositories.append(remote_repository)
+                    # TODO: Optimize this so that we don't re-fetch project data
+                    # Details: https://github.com/readthedocs/readthedocs.org/issues/7743
+                    try:
+                        # The response from /groups/{id}/projects API does not contain
+                        # admin permission fields for GitLab projects.
+                        # So, fetch every single project data from the API
+                        # which contains the admin permission fields.
+                        resp = self.get_session().get(
+                            '{url}/api/v4/projects/{id}'.format(
+                                url=self.adapter.provider_base_url,
+                                id=repo['id']
+                            )
+                        )
+
+                        if resp.status_code == 200:
+                            repo_details = resp.json()
+                            remote_repository = self.create_repository(
+                                repo_details,
+                                organization=remote_organization
+                            )
+                            remote_repositories.append(remote_repository)
+                        else:
+                            log.warning(
+                                'GitLab project does not exist or user does not have '
+                                'permissions: project=%s',
+                                repo['name_with_namespace'],
+                            )
+
+                    except Exception:
+                        log.exception(
+                            'Error creating GitLab repository=%s',
+                            repo['name_with_namespace'],
+                        )
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
