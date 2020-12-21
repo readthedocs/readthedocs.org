@@ -1,3 +1,19 @@
+Version 5.8.2
+-------------
+
+:Date: December 21, 2020
+
+* `@humitos <https://github.com/humitos>`__: Use Python3.7 on conda base environment when using mamba (`#7773 <https://github.com/readthedocs/readthedocs.org/pull/7773>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove domain verify signal and task (`#7763 <https://github.com/readthedocs/readthedocs.org/pull/7763>`__)
+* `@humitos <https://github.com/humitos>`__: Register StopBuilder task to be executed by builders (`#7759 <https://github.com/readthedocs/readthedocs.org/pull/7759>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove absolute_uri (`#7758 <https://github.com/readthedocs/readthedocs.org/pull/7758>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use alias to link to search results of subprojects (`#7757 <https://github.com/readthedocs/readthedocs.org/pull/7757>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove jsonp call (`#7756 <https://github.com/readthedocs/readthedocs.org/pull/7756>`__)
+* `@humitos <https://github.com/humitos>`__: Register AutoscaleBuildersTask (`#7755 <https://github.com/readthedocs/readthedocs.org/pull/7755>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Set The Right Permissions on GitLab OAuth RemoteRepository (`#7753 <https://github.com/readthedocs/readthedocs.org/pull/7753>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use lru_cache for caching methods (`#7751 <https://github.com/readthedocs/readthedocs.org/pull/7751>`__)
+* `@fabianmp <https://github.com/fabianmp>`__: Allow to add additional binds to Docker build container (`#7684 <https://github.com/readthedocs/readthedocs.org/pull/7684>`__)
+
 Version 5.8.1
 -------------
 
