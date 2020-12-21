@@ -448,8 +448,7 @@ class TestFooterPerformance(TestCase):
 
         self.url = (
             reverse('footer_html') +
-            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/docs/' +
-            '&absolute_uri=https://pip.readthedocs.io/en/latest/index.html'
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/docs/'
         )
         self.host = 'pip.readthedocs.io'
 

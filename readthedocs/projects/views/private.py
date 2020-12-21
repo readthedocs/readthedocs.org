@@ -82,7 +82,6 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 
-from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
 
@@ -712,11 +711,11 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN  # noqa
-
-        # Retry validation on all domains if applicable
-        for domain in ctx['domain_list']:
-            retry_domain_verification.delay(domain_pk=domain.pk)
+        ctx['default_domain'] = (
+            settings.PUBLIC_DOMAIN
+            if settings.USE_SUBDOMAIN
+            else settings.PRODUCTION_DOMAIN
+        )
 
         return ctx
 

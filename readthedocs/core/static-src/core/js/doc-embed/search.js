@@ -79,7 +79,7 @@ function attach_elastic_search_query_sphinx(data) {
 
                         // If the document is from a subproject, add extra information
                         if (result.project !== project) {
-                            var text = " (from project " + result.project + ")";
+                            var text = " (from project " + result.project_alias + ")";
                             var extra = $('<span>', {'text': text});
                             list_item.append(extra);
                         }
@@ -295,7 +295,7 @@ function attach_elastic_search_query_mkdocs(data) {
                         );
 
                         if (result.project !== project) {
-                            var text = '(from project ' + result.project + ')';
+                            var text = '(from project ' + result.project_alias + ')';
                             item.append($('<span>', {'text': text}));
                         }
 

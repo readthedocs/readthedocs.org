@@ -69,6 +69,7 @@ class PageDocument(RTDDocTypeMixin, Document):
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
+    doctype = fields.KeywordField(attr='version.documentation_type')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
     rank = fields.IntegerField()
