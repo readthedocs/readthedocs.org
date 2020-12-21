@@ -529,6 +529,7 @@ class Conda(PythonEnvironment):
             '--quiet',
             '--name=base',
             '--channel=conda-forge',
+            'python=3.7',
             'mamba',
             cwd=self.checkout_path,
         )
