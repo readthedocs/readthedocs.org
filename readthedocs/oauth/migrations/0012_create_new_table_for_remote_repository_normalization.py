@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name_plural': 'remote repositories',
                 'db_table': 'oauth_remoterepository_2020',
-                'ordering': ['organization__name', 'name'],
+                'ordering': ['organization__name', 'full_name'],
             },
         ),
         migrations.CreateModel(

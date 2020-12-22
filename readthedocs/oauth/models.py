@@ -171,7 +171,7 @@ class RemoteRepository(models.Model):
     objects = RemoteRepositoryQuerySet.as_manager()
 
     class Meta:
-        ordering = ['organization__name', 'name']
+        ordering = ['organization__name', 'full_name']
         verbose_name_plural = 'remote repositories'
         unique_together = (('remote_id', 'vcs_provider'),)
         db_table = 'oauth_remoterepository_2020'
