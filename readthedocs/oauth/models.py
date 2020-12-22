@@ -225,7 +225,7 @@ class RemoteRepository(models.Model):
 
 
 class RemoteRepositoryRelation(TimeStampedModel):
-    remoterepository = models.ForeignKey(
+    remote_repository = models.ForeignKey(
         RemoteRepository,
         related_name='remote_repository_relations',
         on_delete=models.CASCADE
@@ -247,7 +247,7 @@ class RemoteRepositoryRelation(TimeStampedModel):
     json = JSONField(_('Serialized API response'))
 
     class Meta:
-        unique_together = (('remoterepository', 'account'),)
+        unique_together = (('remote_repository', 'account'),)
 
     def get_serialized(self, key=None, default=None):
         try:
