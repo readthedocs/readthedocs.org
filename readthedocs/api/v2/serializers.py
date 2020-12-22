@@ -191,8 +191,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RemoteRepository
-        # TODO: Remove json field after it is removed from RemoteRepository
-        exclude = ('json', 'users')
+        exclude = ('users',)
 
     def get_matches(self, obj):
         request = self.context['request']

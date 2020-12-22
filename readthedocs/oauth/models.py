@@ -109,14 +109,6 @@ class RemoteRepository(models.Model):
         on_delete=models.CASCADE,
         through='RemoteRepositoryRelation'
     )
-    account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_repositories',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-    )
     organization = models.ForeignKey(
         RemoteOrganization,
         verbose_name=_('Organization'),
@@ -125,8 +117,6 @@ class RemoteRepository(models.Model):
         blank=True,
         on_delete=models.CASCADE,
     )
-    active = models.BooleanField(_('Active'), default=False)
-
     project = models.OneToOneField(
         Project,
         on_delete=models.SET_NULL,
@@ -169,7 +159,6 @@ class RemoteRepository(models.Model):
     html_url = models.URLField(_('HTML URL'), null=True, blank=True)
 
     private = models.BooleanField(_('Private repository'), default=False)
-    admin = models.BooleanField(_('Has admin privilege'), default=False)
     vcs = models.CharField(
         _('vcs'),
         max_length=200,
@@ -182,21 +171,14 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
     )
-    json = models.TextField(_('Serialized API response'))
-    # TODO: Make remote_id and vcs_provider not nullable and
-    #  unique together after migration
     remote_id = models.CharField(
         db_index=True,
-        max_length=128,
-        blank=True,
-        null=True
+        max_length=128
     )
     vcs_provider = models.CharField(
         _('VCS provider'),
         choices=VCS_PROVIDER_CHOICES,
-        max_length=32,
-        null=True,
-        blank=True
+        max_length=32
     )
 
     objects = RemoteRepositoryQuerySet.as_manager()
@@ -204,6 +186,8 @@ class RemoteRepository(models.Model):
     class Meta:
         ordering = ['organization__name', 'name']
         verbose_name_plural = 'remote repositories'
+        unique_together = (('remote_id', 'vcs_provider'),)
+        db_table = 'oauth_remoterepository_2020'
 
     def __str__(self):
         return 'Remote repository: {}'.format(self.html_url)
