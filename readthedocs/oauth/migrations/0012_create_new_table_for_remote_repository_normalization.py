@@ -54,11 +54,11 @@ class Migration(migrations.Migration):
                 ('admin', models.BooleanField(default=False, verbose_name='Has admin privilege')),
                 ('json', jsonfield.fields.JSONField(verbose_name='Serialized API response')),
                 ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
-                ('remoterepository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='oauth.RemoteRepository')),
+                ('remote_repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='oauth.RemoteRepository')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'unique_together': {('remoterepository', 'account')},
+                'unique_together': {('remote_repository', 'account')},
             },
         ),
         migrations.AddField(
