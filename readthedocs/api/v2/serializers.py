@@ -183,6 +183,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     # This field does create an additional query per object returned
     matches = serializers.SerializerMethodField()
+    admin = serializers.SerializerMethodField('is_admin')
 
     class Meta:
         model = RemoteRepository
@@ -192,6 +193,19 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
         request = self.context['request']
         if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use cached value
+        if hasattr(obj, 'admin'):
+            return obj.admin
+
+        if request.user is not None and request.user.is_authenticated:
+            return obj.remote_repository_relations.filter(
+                user=request.user, admin=True
+            ).exists()
+        return False
 
 
 class ProviderSerializer(serializers.Serializer):
