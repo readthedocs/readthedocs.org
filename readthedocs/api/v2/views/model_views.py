@@ -6,7 +6,7 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.db.models import BooleanField, Value, When, Case
+from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
