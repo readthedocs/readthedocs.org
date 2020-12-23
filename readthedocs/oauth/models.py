@@ -42,17 +42,8 @@ class RemoteOrganization(models.Model):
         User,
         verbose_name=_('Users'),
         related_name='oauth_organizations',
+        through='RemoteOrganizationRelation'
     )
-    account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_organizations',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-    )
-    active = models.BooleanField(_('Active'), default=False)
-
     slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
@@ -63,17 +54,54 @@ class RemoteOrganization(models.Model):
         null=True,
         blank=True,
     )
-
-    json = models.TextField(_('Serialized API response'))
+    remote_id = models.CharField(
+        db_index=True,
+        max_length=128
+    )
+    vcs_provider = models.CharField(
+        _('VCS provider'),
+        choices=VCS_PROVIDER_CHOICES,
+        max_length=32
+    )
 
     objects = RemoteOrganizationQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['name']
+        unique_together = (('remote_id', 'vcs_provider'),)
+        db_table = 'oauth_remoteorganization_2020'
 
     def __str__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
 
+
+class RemoteOrganizationRelation(TimeStampedModel):
+    remote_organization = models.ForeignKey(
+        RemoteOrganization,
+        related_name='remote_organization_relations',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='remote_organization_relations',
+        on_delete=models.CASCADE
+    )
+    account = models.ForeignKey(
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_organization_relations',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    json = JSONField(_('Serialized API response'))
+
+    class Meta:
+        unique_together = (('remote_organization', 'account'),)
+
     def get_serialized(self, key=None, default=None):
         try:
-            data = json.loads(self.json)
+            data = self.json
             if key is not None:
                 return data.get(key, default)
             return data

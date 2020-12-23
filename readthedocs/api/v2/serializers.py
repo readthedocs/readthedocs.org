@@ -177,7 +177,7 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RemoteOrganization
-        exclude = ('json', 'email', 'users')
+        exclude = ('email', 'users',)
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):

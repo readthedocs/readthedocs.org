@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         ('socialaccount', '0003_extra_data_default_dict'),
         ('projects', '0067_change_max_length_feature_id'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth', '0011_add_default_branch'),
+        ('oauth', '0012_create_new_table_for_remote_organization_normalization'),
     ]
 
     operations = [
