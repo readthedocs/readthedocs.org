@@ -94,7 +94,7 @@ class RemoteOrganizationRelation(TimeStampedModel):
         blank=True,
         on_delete=models.CASCADE,
     )
-    json = JSONField(_('Serialized API response'))
+    json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
         unique_together = (('remote_organization', 'account'),)
@@ -269,7 +269,7 @@ class RemoteRepositoryRelation(TimeStampedModel):
         on_delete=models.CASCADE,
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
-    json = JSONField(_('Serialized API response'))
+    json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
         unique_together = (('remote_repository', 'account'),)
