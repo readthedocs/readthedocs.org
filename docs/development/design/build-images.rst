@@ -51,75 +51,92 @@ Goals
 * reduce size on builder VM disks by sharing Docker image layers
 * deprecate ``stable``, ``latest`` and ``testing``
 * allow use custom images for particular users/customers by sharing most layers
-* create a small ``nopdf`` image version without LaTeX dependencies for local development
 
 
 New build image structure
 -------------------------
 
-.. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/master/Dockerfile
+.. Some of this is borrowed from CircleCI image versioning
 
-* ``ubuntu20-base``
-  * labels
-  * environment variables
-  * system dependencies
-  * install requirements
-  * user requirements
-    * plantuml, imagemagick, rsgv-convert, swig
-    * sphinx-js dependencies
-    * rust
-  * UID and GID
+``readthedocs/build:base``
+    Alias of ``readthedocs/build:base-ubuntu20``, used to abstract concept of OS
+    away from end users where it's not neccessary.
 
-* ``ubuntu20-pdf`` (from ``ubuntu20-base``)
-  * PDF/LaTeX dependencies
+    Base images also include:
 
-* ``ubuntu20`` (from ``ubuntu20-pdf``)
-  * all Python versions (2, 3.6, 3.7, 3.8, 3.9)
-  * conda
-  * future extra user requirements
-  * labels
+    ``readthedocs/build:base-ubuntu20``
+        Base for next gen prod images. Synonymous with current concept of ``latest``
 
-We will also build a ``nopdf`` version to allow quick testing in local development:
+    ``readthedocs/build:base-ubuntu18``
+        Base for previous gen prod images. Synonymous with concept of ``stable``
 
-* ``ubuntu20-nopdf`` (from ``ubuntu20-base``)
-  * same as ``ubuntu20`` but based on ``ubuntu20-base`` instead
+    Base images include:
 
-.. note::
+    * labels
+    * environment variables
+    * system dependencies
+    * install requirements
+    * PDF/LaTeX dependencies
+    * Limited user requirements
+      * plantuml, imagemagick, rsgv-convert, swig
+      * sphinx-js dependencies
+    * UID and GID
 
-   I don't think it's useful to have ``ubuntu20-py37`` exposed to users,
-   since the Python version is selected by using the config file's ``python.version`` keyword,
-   we only update patch versions and we don't remove them (unless together with OS changes).
+``readthedocs/build:python``
+    Installs latest release of Python
 
-.. Build all these images with Docker
-   docker build -t readthedocs/build:ubuntu20-base -f Dockerfile.base .
-   docker build -t readthedocs/build:ubuntu20-nopdf -f Dockerfile.nopdf .
-   docker build -t readthedocs/build:ubuntu20-pdf -f Dockerfile.pdf .
-   docker build -t readthedocs/build:ubuntu20 -f Dockerfile .
+``readthedocs/build:python39``
+    Installs 3.9 release of Python
 
-   Check the shared space between images
-   docker system df --verbose | grep -E 'SHARED SIZE|readthedocs'
+``readthedocs/build:python39-ubuntu18``
+    Installs 3.9 release of Python on Ubuntu 18.04 base
+    (``readthedocs/build:base-ubuntu18``)
 
+``readthedocs/build:python27``
+    Installs 3.9 release of Python
+
+``readthedocs/build:conda12``
+    Installs 1.2 release of Conda
+
+``readthedocs/build:node12``
+    Installs Node 12.x release
+
+``readthedocs/build:python+node``
+    Installs latest Python and latest Node
+
+``readthedocs/build:python39+node12``
+    Installs Python 3.9 and Node 12.0
+
+``readthedocs/build:python36+node8-ubuntu18``
+    Installs Python 3.6 and Node 8 on Ubuntu 18.04 base
+
+
+Building
+~~~~~~~~
+
+This process would be automated. CircleCI does something similar but with far
+more complexity than we need:
+
+https://github.com/circleci/circleci-images
+
+We would use envvars or generate a pile of Dockerfiles. Dockerfiles would be
+consumed by whatever process we are using to build images with intermediate
+layers.
 
 Custom images
 -------------
 
-There are some dependencies that are not easy to update and keep compatibility with all the users at the same time.
-Upgrading ``nodejs`` may make lot of old projects expecting the older version to start failing all their builds.
-On the other hand, sticking with an old version avoid users requiring a newer version to build their documentation.
-To handle this case and others, we have been thinking on supporting custom Docker images.
+To handle custom image requirements, we will support custom Docker images. To
+start, this is under feature flag. This will reduce the amount of maintenance by
+limiting the number of dependencies users ask us to maintain.
 
-It's not clear to me how it would be the implementation of this, but I see different paths to discuss and explore:
-
-#. Allow a ``build.dockerfile`` config pointing to a ``Dockerfile``
-  * ``FROM readthedocs/build:ubuntu20`` is required to be a valid image (to share layers)
-  * the image is build each time a build is triggered consuming build time
-#. Create a branch per custom image in ``readthedocs-docker-images`` repository
-  * use ``ubuntu20`` as base image and add the custom extra requirements
-  * build the image using our current process (Docker Hub)
-  * add the custom image to our ``-ops`` repository
-  * re-build builders to pull down the new custom image
-  * set the project to use this custom image, eg. ``readthedocs/build:<project-slug>``
-
+#. User builds image with base image of ``readthedocs/build:base`` or
+   ``readthedocs/build:python`` etc.
+  * On container start, Docker fetches the missing image
+  * The user is responsible for versioning their own image in a way that it is
+    updated on the build servers when it does not exist.
+  * We need to limit the number of users that can do this until we know what
+    disk usage looks like.
 
 Updating versions over time
 ---------------------------
@@ -127,12 +144,8 @@ Updating versions over time
 How do we add/upgrade a Python version?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python patch versions can be upgraded and backported to all the images without problems.
-There is only needed to rebuild ``ubuntu20`` and most of the layers will remain shared with ``-base`` and ``-pdf``.
-
-In case we need to *add* a new Python version, the situation is similar.
-We can add the new version by using ``pyenv`` and rebuilding the ``ubuntu20`` image.
-
+We edit the ``python39-ubuntu18`` and ``python39-ubuntu20`` Dockerfile. There is
+no backporting and risk due to change is limited to these two images.
 
 How do we upgrade system versions?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,15 +167,9 @@ Examples of these versions are:
 How do we add an extra requirement?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a user asks for a new requirement (eg. azure CLI, ``az`` command) it should go into the
-"user requirements" section in the ``ubuntu20-base`` image.
-However, that will force us to rebuild all the images.
-
-We could use the section named as "future user extra requirements" for this,
-and it will force us to only rebuild the ``ubuntu20`` image.
-
-Both approaches will require to rebuild all the custom docker images from our users/customers
-that are based on the ``ubuntu20`` image.
+We don't. Users will manage weird requirements themselves by using custom
+images. If the majority of users do not need the requirement, we shouldn't bloat
+the base images with it.
 
 
 How do we remove an old Python version?
@@ -208,9 +215,9 @@ but by its main base difference: OS. The version of the OS will change many libr
 LaTeX dependencies, basic required commands like git and more,
 that doesn't seem to be useful to have the same OS version with different states.
 
-Also, splitting images by Python version sounds complicated to maintain.
-Each time we need to make a small change into one of the base layers, we will end up rebuilding many images.
-Besides, the key ``python.version`` won't make sense anymore and bring confusions.
+The config key ``python.version`` will dictate the image used and most users
+won't need to specify an image to use at all. Only for select cases will users
+need to specify both.
 
 Custom images is something that needs more exploration still,
 but both proposals seem doable in weeks as an initial proof of concept.
