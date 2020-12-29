@@ -377,20 +377,18 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
-        user = (
-            self.request.user
-            if self.request.user.is_authenticated
-            else None
-        )
+        if not self.request.user.is_authenticated:
+            return self.model.objects.none()
+
         query = self.model.objects.api(self.request.user).annotate(
             admin=Case(
                 When(
-                    remote_repository_relations__user=user,
+                    remote_repository_relations__user=self.request.user,
                     remote_repository_relations__admin=True,
                     then=Value(True)
                 ),
                 When(
-                    remote_repository_relations__user=user,
+                    remote_repository_relations__user=self.request.user,
                     remote_repository_relations__admin=False,
                     then=Value(False)
                 ),
