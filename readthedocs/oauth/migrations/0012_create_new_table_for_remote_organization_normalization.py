@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('json', jsonfield.fields.JSONField(verbose_name='Serialized API response')),
-                ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
+                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
                 ('remote_organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to='oauth.RemoteOrganization')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to=settings.AUTH_USER_MODEL)),
             ],
