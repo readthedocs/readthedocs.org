@@ -206,7 +206,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
         if hasattr(obj, 'admin'):
             return obj.admin
 
-        if request.user is not None and request.user.is_authenticated:
+        if request.user and request.user.is_authenticated:
             return obj.remote_repository_relations.filter(
                 user=request.user, admin=True
             ).exists()
