@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
             name='RemoteOrganization',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name='Publication date')),
-                ('modified_date', models.DateTimeField(auto_now=True, verbose_name='Modified date')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('slug', models.CharField(max_length=255, verbose_name='Slug')),
                 ('name', models.CharField(blank=True, max_length=255, null=True, verbose_name='Name')),
                 ('email', models.EmailField(blank=True, max_length=255, null=True, verbose_name='Email')),

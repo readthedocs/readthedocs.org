@@ -26,17 +26,13 @@ from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
-class RemoteOrganization(models.Model):
+class RemoteOrganization(TimeStampedModel):
 
     """
     Organization from remote service.
 
     This encapsulates both Github and Bitbucket
     """
-
-    # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     users = models.ManyToManyField(
         User,
@@ -109,17 +105,13 @@ class RemoteOrganizationRelation(TimeStampedModel):
             pass
 
 
-class RemoteRepository(models.Model):
+class RemoteRepository(TimeStampedModel):
 
     """
     Remote importable repositories.
 
     This models Github and Bitbucket importable repositories
     """
-
-    # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     # This should now be a OneToOne
     users = models.ManyToManyField(
