@@ -86,9 +86,7 @@ class RemoteOrganizationRelation(TimeStampedModel):
         SocialAccount,
         verbose_name=_('Connected account'),
         related_name='remote_organization_relations',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     json = JSONField(_('Serialized API response'))  # noqa: F811
 
@@ -256,9 +254,7 @@ class RemoteRepositoryRelation(TimeStampedModel):
         SocialAccount,
         verbose_name=_('Connected account'),
         related_name='remote_repository_relations',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
     json = JSONField(_('Serialized API response'))  # noqa: F811

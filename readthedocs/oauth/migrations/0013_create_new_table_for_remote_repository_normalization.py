@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('admin', models.BooleanField(default=False, verbose_name='Has admin privilege')),
                 ('json', jsonfield.fields.JSONField(verbose_name='Serialized API response')),
-                ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
+                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
                 ('remote_repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='oauth.RemoteRepository')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to=settings.AUTH_USER_MODEL)),
             ],
