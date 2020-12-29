@@ -2,8 +2,6 @@
 
 """OAuth service models."""
 
-import json
-
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
