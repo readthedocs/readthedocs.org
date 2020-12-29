@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
             name='RemoteRepository',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name='Publication date')),
-                ('modified_date', models.DateTimeField(auto_now=True, verbose_name='Modified date')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('name', models.CharField(max_length=255, verbose_name='Name')),
                 ('full_name', models.CharField(db_index=True, max_length=255, verbose_name='Full Name')),
                 ('description', models.TextField(blank=True, help_text='Description of the project', null=True, verbose_name='Description')),
