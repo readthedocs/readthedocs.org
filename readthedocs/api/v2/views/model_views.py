@@ -380,6 +380,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         if not self.request.user.is_authenticated:
             return self.model.objects.none()
 
+        # TODO: Optimize this query after deployment
         query = self.model.objects.api(self.request.user).annotate(
             admin=Case(
                 When(
