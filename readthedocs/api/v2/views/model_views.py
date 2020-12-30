@@ -6,7 +6,7 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.db.models import Q
+from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -16,24 +16,20 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import (
     BRANCH,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_TRIGGERED,
     INTERNAL,
     TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
-from readthedocs.projects.models import Domain, EmailHook, Project
+from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
     IsOwner,
-    RelatedProjectIsOwner,
 )
 from ..serializers import (
     BuildAdminSerializer,
@@ -381,7 +377,26 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
-        query = self.model.objects.api(self.request.user)
+        if not self.request.user.is_authenticated:
+            return self.model.objects.none()
+
+        # TODO: Optimize this query after deployment
+        query = self.model.objects.api(self.request.user).annotate(
+            admin=Case(
+                When(
+                    remote_repository_relations__user=self.request.user,
+                    remote_repository_relations__admin=True,
+                    then=Value(True)
+                ),
+                When(
+                    remote_repository_relations__user=self.request.user,
+                    remote_repository_relations__admin=False,
+                    then=Value(False)
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
         full_name = self.request.query_params.get('full_name')
         if full_name is not None:
             query = query.filter(full_name__icontains=full_name)
