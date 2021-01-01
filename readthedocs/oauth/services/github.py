@@ -157,27 +157,26 @@ class GitHubService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        try:
-            organization = RemoteOrganization.objects.get(
-                slug=fields.get('login'),
-                users=self.user,
-                account=self.account,
-            )
-        except RemoteOrganization.DoesNotExist:
-            organization = RemoteOrganization.objects.create(
-                slug=fields.get('login'),
-                account=self.account,
-            )
-            organization.users.add(self.user)
+        organization, _ = RemoteOrganization.objects.get_or_create(
+            remote_id=fields['id'],
+            vcs_provider=self.vcs_provider_slug
+        )
+        remote_organization_relation = self.get_remote_organization_relation(organization)
+
         organization.url = fields.get('html_url')
+        organization.slug = fields.get('login')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
+
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
-        organization.json = json.dumps(fields)
-        organization.account = self.account
+
         organization.save()
+
+        remote_organization_relation.json = fields
+        remote_organization_relation.save()
+
         return organization
 
     def get_next_url_to_paginate(self, response):
