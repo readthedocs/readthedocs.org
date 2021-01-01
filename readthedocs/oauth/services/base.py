@@ -11,7 +11,10 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-from readthedocs.oauth.models import RemoteRepositoryRelation
+from readthedocs.oauth.models import (
+    RemoteOrganizationRelation,
+    RemoteRepositoryRelation,
+)
 
 
 log = logging.getLogger(__name__)
@@ -214,10 +217,13 @@ class Service:
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_slugs = [o.slug for o in remote_organizations if o is not None]
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
-            self.user.oauth_organizations
-            .exclude(slug__in=organization_slugs)
+            self.user.remote_organization_relations
+            .exclude(
+                remote_organization__remote_id__in=organization_remote_ids,
+                remote_organization__vcs_provider=self.vcs_provider_slug
+            )
             .filter(account=self.account)
             .delete()
         )
@@ -232,6 +238,17 @@ class Service:
             )
         )
         return remote_repository_relation
+
+    def get_remote_organization_relation(self, organization):
+        """Return RemoteOrganizationRelation object for a given remote organization."""
+        remote_organization_relation, _ = (
+            RemoteOrganizationRelation.objects.get_or_create(
+                remote_organization=organization,
+                user=self.user,
+                account=self.account
+            )
+        )
+        return remote_organization_relation
 
     def create_repository(self, fields, privacy=None, organization=None):
         """

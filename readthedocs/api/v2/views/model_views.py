@@ -362,7 +362,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return (
             self.model.objects.api(self.request.user).filter(
-                account__provider__in=[
+                remote_organization_relations__account__provider__in=[
                     service.adapter.provider_id for service in registry
                 ],
             )
