@@ -272,12 +272,16 @@ class GitHubOAuthSyncTests(TestCase):
         mock_request.get('https://api.github.com/orgs/organization/repos', json=payload)
 
         self.assertEqual(RemoteRepository.objects.count(), 0)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
         remote_organizations, remote_repositories = self.service.sync_organizations()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
         self.assertEqual(len(remote_organizations), 1)
         self.assertEqual(len(remote_repositories), 1)
         remote_organization = remote_organizations[0]
