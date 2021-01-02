@@ -1,5 +1,6 @@
 from unittest import mock
 
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -32,9 +33,12 @@ class GitHubOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitHubService(user=self.user, account=None)
+        self.service = GitHubService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit='1234',
@@ -109,6 +113,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_make_organization(self):
         org_json = {
+            'id': 12345,
             'html_url': 'https://github.com/testorg',
             'name': 'Test Org',
             'email': 'test@testorg.org',
@@ -125,7 +130,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a GitHub SocialToken does not return a service."""
-        services = GitHubService.for_user(self.user)
+        services = GitHubService.for_user(get(User))
         self.assertEqual(services, [])
 
     def test_multiple_users_same_repo(self):
@@ -146,7 +151,10 @@ class GitHubOAuthTests(TestCase):
         )
 
         user2 = User.objects.get(pk=2)
-        service = GitHubService(user=user2, account=None)
+        service = GitHubService(
+            user=user2,
+            account=get(SocialAccount, user=self.user)
+        )
         github_project_2 = service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
         )
@@ -455,9 +463,12 @@ class BitbucketOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://bitbucket.org/testuser/testrepo/'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = BitbucketService(user=self.user, account=None)
+        self.service = BitbucketService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.integration = get(
             GitHubWebhook,
             project=self.project,
@@ -677,7 +688,7 @@ class BitbucketOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a Bitbucket SocialToken does not return a service."""
-        services = BitbucketService.for_user(self.user)
+        services = BitbucketService.for_user(get(User))
         self.assertEqual(services, [])
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -966,9 +977,12 @@ class GitLabOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://gitlab.com/testorga/testrepo'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='testorga', json='')
+        self.org = RemoteOrganization.objects.create(slug='testorga')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitLabService(user=self.user, account=None)
+        self.service = GitLabService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit=1234,
