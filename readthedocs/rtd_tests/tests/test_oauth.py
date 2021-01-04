@@ -598,6 +598,8 @@ class BitbucketOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'tutorials.bitbucket.org')
         self.assertEqual(repo.full_name, 'tutorials/tutorials.bitbucket.org')
+        self.assertEqual(repo.remote_id, '{9970a9b6-2d86-413f-8555-da8e1ac0e542}')
+        self.assertEqual(repo.vcs_provider, BITBUCKET)
         self.assertEqual(repo.description, 'Site for tutorial101 files')
         self.assertEqual(repo.default_branch, 'main')
         self.assertEqual(
