@@ -126,6 +126,7 @@ class GitHubService(Service):
             repo.html_url = fields['html_url']
             repo.private = fields['private']
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
 
             if repo.private:

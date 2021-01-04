@@ -13,10 +13,6 @@ from allauth.socialaccount.models import SocialAccount
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 
-from allauth.socialaccount.models import SocialAccount
-from django_extensions.db.models import TimeStampedModel
-from jsonfield import JSONField
-
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
@@ -114,15 +110,6 @@ class RemoteRepository(TimeStampedModel):
         User,
         verbose_name=_('Users'),
         related_name='oauth_repositories',
-        through='RemoteRepositoryRelation'
-    )
-    account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_repositories',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
         through='RemoteRepositoryRelation'
     )
     organization = models.ForeignKey(
