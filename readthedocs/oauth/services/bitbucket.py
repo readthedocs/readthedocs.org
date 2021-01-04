@@ -193,19 +193,26 @@ class BitbucketService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            slug=fields.get('username'),
-            account=self.account,
+            remote_id=fields['uuid'],
+            vcs_provider=self.vcs_provider_slug
         )
+        remote_organization_relation = self.get_remote_organization_relation(organization)
+
+        organization.slug = fields.get('username')
         organization.name = fields.get('display_name')
         organization.email = fields.get('email')
         organization.avatar_url = fields['links']['avatar']['href']
+
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
+
         organization.url = fields['links']['html']['href']
-        organization.json = json.dumps(fields)
-        organization.account = self.account
-        organization.users.add(self.user)
+
         organization.save()
+
+        remote_organization_relation.json = fields
+        remote_organization_relation.save()
+
         return organization
 
     def get_next_url_to_paginate(self, response):

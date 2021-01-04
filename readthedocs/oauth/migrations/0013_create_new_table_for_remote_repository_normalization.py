@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         ('socialaccount', '0003_extra_data_default_dict'),
         ('projects', '0067_change_max_length_feature_id'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('oauth', '0011_add_default_branch'),
+        ('oauth', '0012_create_new_table_for_remote_organization_normalization'),
     ]
 
     operations = [
@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
             name='RemoteRepository',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name='Publication date')),
-                ('modified_date', models.DateTimeField(auto_now=True, verbose_name='Modified date')),
+                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
+                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('name', models.CharField(max_length=255, verbose_name='Name')),
                 ('full_name', models.CharField(db_index=True, max_length=255, verbose_name='Full Name')),
                 ('description', models.TextField(blank=True, help_text='Description of the project', null=True, verbose_name='Description')),
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('admin', models.BooleanField(default=False, verbose_name='Has admin privilege')),
                 ('json', jsonfield.fields.JSONField(verbose_name='Serialized API response')),
-                ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
+                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
                 ('remote_repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to='oauth.RemoteRepository')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_repository_relations', to=settings.AUTH_USER_MODEL)),
             ],

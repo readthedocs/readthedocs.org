@@ -2,8 +2,6 @@
 
 """OAuth service models."""
 
-import json
-
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
@@ -22,7 +20,7 @@ from .constants import VCS_PROVIDER_CHOICES
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
-class RemoteOrganization(models.Model):
+class RemoteOrganization(TimeStampedModel):
 
     """
     Organization from remote service.
@@ -30,25 +28,12 @@ class RemoteOrganization(models.Model):
     This encapsulates both Github and Bitbucket
     """
 
-    # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
-
     users = models.ManyToManyField(
         User,
         verbose_name=_('Users'),
         related_name='oauth_organizations',
+        through='RemoteOrganizationRelation'
     )
-    account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_organizations',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-    )
-    active = models.BooleanField(_('Active'), default=False)
-
     slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
@@ -59,17 +44,52 @@ class RemoteOrganization(models.Model):
         null=True,
         blank=True,
     )
-
-    json = models.TextField(_('Serialized API response'))
+    remote_id = models.CharField(
+        db_index=True,
+        max_length=128
+    )
+    vcs_provider = models.CharField(
+        _('VCS provider'),
+        choices=VCS_PROVIDER_CHOICES,
+        max_length=32
+    )
 
     objects = RemoteOrganizationQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['name']
+        unique_together = (('remote_id', 'vcs_provider'),)
+        db_table = 'oauth_remoteorganization_2020'
 
     def __str__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
 
+
+class RemoteOrganizationRelation(TimeStampedModel):
+    remote_organization = models.ForeignKey(
+        RemoteOrganization,
+        related_name='remote_organization_relations',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='remote_organization_relations',
+        on_delete=models.CASCADE
+    )
+    account = models.ForeignKey(
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_organization_relations',
+        on_delete=models.CASCADE
+    )
+    json = JSONField(_('Serialized API response'))  # noqa: F811
+
+    class Meta:
+        unique_together = (('remote_organization', 'account'),)
+
     def get_serialized(self, key=None, default=None):
         try:
-            data = json.loads(self.json)
+            data = self.json
             if key is not None:
                 return data.get(key, default)
             return data
@@ -77,17 +97,13 @@ class RemoteOrganization(models.Model):
             pass
 
 
-class RemoteRepository(models.Model):
+class RemoteRepository(TimeStampedModel):
 
     """
     Remote importable repositories.
 
     This models Github and Bitbucket importable repositories
     """
-
-    # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     # This should now be a OneToOne
     users = models.ManyToManyField(
@@ -223,12 +239,10 @@ class RemoteRepositoryRelation(TimeStampedModel):
         SocialAccount,
         verbose_name=_('Connected account'),
         related_name='remote_repository_relations',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
-    json = JSONField(_('Serialized API response'))
+    json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
         unique_together = (('remote_repository', 'account'),)

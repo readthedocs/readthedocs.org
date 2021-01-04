@@ -41,6 +41,7 @@ from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
+    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
@@ -675,7 +676,13 @@ class APITests(TestCase):
         account = get(SocialAccount, provider='github')
         user = get(User)
         for _ in range(30):
-            get(RemoteOrganization, users=[user], account=account)
+            org = get(RemoteOrganization)
+            get(
+                RemoteOrganizationRelation,
+                remote_organization=org,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -772,7 +779,13 @@ class APIImportTests(TestCase):
         user_a = get(User, password='test')
         user_b = get(User, password='test')
         user_c = get(User, password='test')
-        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        org_a = get(RemoteOrganization)
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=org_a,
+            user=user_a,
+            account=account_a
+        )
         repo_a = get(
             RemoteRepository,
             organization=org_a,

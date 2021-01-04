@@ -9,6 +9,7 @@ from django.test import TestCase
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     RemoteOrganization,
+    RemoteOrganizationRelation,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
@@ -120,16 +121,21 @@ class GitHubOAuthSyncTests(TestCase):
             account=self.socialaccount
         )
 
-        fixture.get(
+        org = fixture.get(
             RemoteOrganization,
-            account=self.socialaccount,
-            users=[self.user],
             name='organization',
+        )
+        fixture.get(
+            RemoteOrganizationRelation,
+            remote_organization=org,
+            user=self.user,
+            account=self.socialaccount
         )
 
         self.assertEqual(RemoteRepository.objects.count(), 3)
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 3)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
 
         self.service.sync()
 
@@ -140,7 +146,8 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/repository').exists())
         self.assertTrue(RemoteRepository.objects.filter(full_name='organization/project-linked-repository').exists())
-        self.assertEqual(RemoteOrganization.objects.count(), 0)
+        self.assertEqual(RemoteOrganization.objects.count(), 1)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
     @requests_mock.Mocker(kw='mock_request')
     def test_sync_repositories(self, mock_request):
@@ -265,12 +272,16 @@ class GitHubOAuthSyncTests(TestCase):
         mock_request.get('https://api.github.com/orgs/organization/repos', json=payload)
 
         self.assertEqual(RemoteRepository.objects.count(), 0)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
         self.assertEqual(RemoteOrganization.objects.count(), 0)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 0)
 
         remote_organizations, remote_repositories = self.service.sync_organizations()
 
         self.assertEqual(RemoteRepository.objects.count(), 1)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
         self.assertEqual(RemoteOrganization.objects.count(), 1)
+        self.assertEqual(RemoteOrganizationRelation.objects.count(), 1)
         self.assertEqual(len(remote_organizations), 1)
         self.assertEqual(len(remote_repositories), 1)
         remote_organization = remote_organizations[0]
