@@ -45,7 +45,7 @@ When a user connect their account to a social account, we create a
 
 We *don't create* any ``RemoteRepository`` at this point.
 They are created when the user jumps into "Import Project" page and hit the circled arrows.
-It triggers `sync_remote_repostories`_ task in background that updates or creates ``RemoteRepositories``,
+It triggers ``sync_remote_repostories`` task in background that updates or creates ``RemoteRepositories``,
 but **it does not delete** them (after `#7183`_ and `#7310`_ got merged, they will be deleted).
 One ``RemoteRepository`` is created per repository the ``User`` has access to.
 
@@ -119,11 +119,9 @@ while the site continue working.
 
 To achieve this, we thought on following this steps:
 
-1. modify all the Python code to use the new modeling in .org and .com
-   (will help us to find out bugs locally in an easier way)
+1. modify all the Python code to use the new modeling in .org and .com (will help us to find out bugs locally in an easier way)
 1. QA this locally with test data
-1. enable Django signal to re-sync RemoteRepository on login async
-   (we already have this in .com). New active users will have updated data immediately
+1. enable Django signal to re-sync RemoteRepository on login async (we already have this in .com). New active users will have updated data immediately
 1. spin up a new instance with the new refactored code
 1. run migrations to create a new table for `RemoteRepository`
 1. re-sync everything from VCS providers into the new table for 1-week or so
