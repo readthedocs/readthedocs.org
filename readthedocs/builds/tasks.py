@@ -16,6 +16,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.projects.models import Feature
 from readthedocs.projects.tasks import send_build_status
 from readthedocs.worker import app
 
@@ -28,9 +29,9 @@ class TaskRouter:
     Celery tasks router.
 
     It allows us to decide which queue is where we want to execute the task
-    based on project's settings but also in queue availability.
+    based on project's settings.
 
-    1. the project is using conda
+    1. the project is using conda/mamba
     2. new project with less than N successful builds
 
     It ignores projects that have already set ``build_queue`` attribute.
@@ -69,6 +70,10 @@ class TaskRouter:
                 project.slug, project.build_queue,
             )
             return project.build_queue
+
+        # Use default queue if the project uses Mamba
+        if project.has_feature(Feature.CONDA_USES_MAMBA):
+            return self.BUILD_DEFAULT_QUEUE
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
