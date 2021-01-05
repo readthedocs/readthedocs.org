@@ -185,6 +185,7 @@ class ProjectViewSet(UserSelectViewSet):
 
         try:
             data = request.data
+            # Calling the task synchronically to keep backward compatibility
             added_versions, deleted_versions = sync_versions_task(
                 project_pk=project.pk,
                 tags_data=data.get('tags', []),

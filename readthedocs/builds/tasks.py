@@ -225,9 +225,9 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
 )
 def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
-    Sync the version data in the repo (on the build server).
+    Sync the version data in the repo (from build server) into our database.
 
-    Version data in the repo is synced with what we have in the database.
+	Creates new Version objects for those tags/branches that we don't have tracked in our database and deletes Version objects for tags/branches that don't exists anymore in the repository.
 
     :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
     :param branches_data: Same as ``tags_data`` but for branches.
