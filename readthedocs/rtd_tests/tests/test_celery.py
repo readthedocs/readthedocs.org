@@ -22,7 +22,7 @@ from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -54,6 +54,11 @@ class TestCeleryBuilding(TestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
+        get(
+            Feature,
+            feature_id=Feature.SYNC_VERSIONS_USING_A_TASK,
+            projects=[self.project],
+        )
 
     def get_update_docs_task(self, version):
         build_env = LocalBuildEnvironment(

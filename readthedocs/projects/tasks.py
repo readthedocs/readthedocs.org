@@ -233,11 +233,11 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions_task(version_repo)
+        self.sync_versions(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions_task(self, version_repo):
+    def sync_versions(self, version_repo):
         """
         Update tags/branches via a Celery task.
 
@@ -296,12 +296,28 @@ class SyncRepositoryMixin:
             branches_data=branches_data,
         )
 
-        from readthedocs.builds import tasks as build_tasks
-        build_tasks.sync_versions_task.delay(
-            project_pk=self.project.pk,
-            tags_data=tags_data,
-            branches_data=branches_data,
-        )
+        if self.project.has_feature(Feature.SYNC_VERSIONS_USING_A_TASK):
+            from readthedocs.builds import tasks as build_tasks
+            build_tasks.sync_versions_task.delay(
+                project_pk=self.project.pk,
+                tags_data=tags_data,
+                branches_data=branches_data,
+            )
+        else:
+            try:
+                version_post_data = {
+                    'repo': version_repo.repo_url,
+                    'tags': tags_data,
+                    'branches': branches_data,
+                }
+                api_v2.project(self.project.pk).sync_versions.post(
+                    version_post_data,
+                )
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
+
 
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
@@ -445,7 +461,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.project.slug)
-            self.sync_versions_task(version_repo)
+            self.sync_versions(version_repo)
 
 
 @app.task(
