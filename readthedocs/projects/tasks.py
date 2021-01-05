@@ -318,7 +318,6 @@ class SyncRepositoryMixin:
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
 
-
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
         Check if there are duplicated names of reserved versions.

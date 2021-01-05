@@ -227,7 +227,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
     Sync the version data in the repo (from build server) into our database.
 
-	Creates new Version objects for those tags/branches that we don't have tracked in our database and deletes Version objects for tags/branches that don't exists anymore in the repository.
+    Creates new Version objects for tags/branches that aren't tracked in the database,
+    and deletes Version objects for tags/branches that don't exists in the repository.
 
     :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
     :param branches_data: Same as ``tags_data`` but for branches.
