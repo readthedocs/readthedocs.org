@@ -991,6 +991,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                 },
             }
 
+        binds.update(settings.RTD_DOCKER_ADDITIONAL_BINDS)
+
         return binds
 
     def get_container_host_config(self):
