@@ -56,18 +56,17 @@ class Command(BaseCommand):
             Q(clone_url__in=Subquery(organization.projects.values('repo')))
         )
         for remote in RemoteRepository.objects.filter(remote_query).order_by('created'):
-            admin = json.loads(remote.json).get('permissions', {}).get('admin')
+            admin = remote.remote_repository_relations.filter(
+                user__owner_organizations=organization,
+                admin=True
+            ).exists()
 
-            if only_owners and remote.users.first() not in organization.owners.all():
+            if only_owners and not admin:
                 # Do not connect a RemoteRepository if the User is not owner of the organization
                 continue
 
             if not admin:
                 # Do not connect a RemoteRepository where the User is not admin of the repository
-                continue
-
-            if not organization.users.filter(username=remote.users.first().username).exists():
-                # Do not connect a RemoteRepository if the use does not belong to the organization
                 continue
 
             # Projects matching
