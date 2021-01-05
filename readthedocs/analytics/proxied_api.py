@@ -1,5 +1,7 @@
 """Analytics views that are served from the same domain as the docs."""
 
+from functools import lru_cache
+
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -28,30 +30,20 @@ class BaseAnalyticsView(APIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '__cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project')
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project')
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '__cached_version'
-        version = getattr(self, cache_key, None)
-
-        if not version:
-            version_slug = self.request.GET.get('version')
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        version_slug = self.request.GET.get('version')
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug=version_slug,
+        )
         return version
 
     # pylint: disable=unused-argument

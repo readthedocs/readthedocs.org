@@ -82,7 +82,6 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 
-from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
 
@@ -246,13 +245,39 @@ class ImportWizardView(
         SessionWizardView,
 ):
 
-    """Project import wizard."""
+    """
+    Project import wizard.
+
+    The get and post methods are overridden in order to save the initial_dict data
+    per session (since it's per class).
+    """
 
     form_list = [
         ('basics', ProjectBasicsForm),
         ('extra', ProjectExtraForm),
     ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
+
+    initial_dict_key = 'initial-data'
+
+    def get(self, *args, **kwargs):
+        # The method from the parent should run first,
+        # as the storage is initialized there.
+        response = super().get(*args, **kwargs)
+        self._set_initial_dict()
+        return response
+
+    def _set_initial_dict(self):
+        """Set or restore the initial_dict from the session."""
+        if self.initial_dict:
+            self.storage.data[self.initial_dict_key] = self.initial_dict
+        else:
+            self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
+
+    def post(self, *args, **kwargs):
+        self._set_initial_dict()
+        # The storage is reset after everything is done.
+        return super().post(*args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
@@ -418,7 +443,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type', 'remote_repository']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository', 'default_branch']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
@@ -712,11 +737,11 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN  # noqa
-
-        # Retry validation on all domains if applicable
-        for domain in ctx['domain_list']:
-            retry_domain_verification.delay(domain_pk=domain.pk)
+        ctx['default_domain'] = (
+            settings.PUBLIC_DOMAIN
+            if settings.USE_SUBDOMAIN
+            else settings.PRODUCTION_DOMAIN
+        )
 
         return ctx
 

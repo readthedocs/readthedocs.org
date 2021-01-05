@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -183,6 +183,15 @@ class TestSyncVersions(TestCase):
             verbose_name='0.8.3',
             active=False,
         )
+
+        Version.objects.create(
+            project=self.pip,
+            identifier='external',
+            verbose_name='external',
+            type=EXTERNAL,
+            active=False,
+        )
+
         self.pip.update_stable_version()
 
         version_post_data = {
@@ -207,6 +216,11 @@ class TestSyncVersions(TestCase):
         # There isn't a v0.8.3
         self.assertFalse(
             Version.objects.filter(slug='0.8.3').exists(),
+        )
+
+        # The inactive external version isn't deleted
+        self.assertTrue(
+            Version.objects.filter(slug='external').exists(),
         )
 
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
