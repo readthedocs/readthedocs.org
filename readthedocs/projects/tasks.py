@@ -46,6 +46,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
 from readthedocs.doc_builder.config import load_yaml_config
@@ -1903,11 +1904,13 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
         try:
             remote_repository = build.project.remote_repository
-            # TODO: Update this queryset to make it work on commercial
             remote_repository_relations = (
                 remote_repository.remote_repository_relations.filter(
                     account__isnull=False,
-                    user__projects=build.project
+                    # Use ``user_in=`` instead of ``user__projects=`` here
+                    # because User's are not related to Project's directly in
+                    # Read the Docs for Business
+                    user__in=AdminPermission.members(build.project),
                 ).select_related('account', 'user').only('user', 'account')
             )
 
