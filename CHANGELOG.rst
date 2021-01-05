@@ -1,3 +1,19 @@
+Version 5.8.3
+-------------
+
+:Date: January 05, 2021
+
+* `@humitos <https://github.com/humitos>`__: Change query on `send_build_status` task for compatibility with .com (`#7797 <https://github.com/readthedocs/readthedocs.org/pull/7797>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update build concurrency numbers for Business (`#7794 <https://github.com/readthedocs/readthedocs.org/pull/7794>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 01 (`#7793 <https://github.com/readthedocs/readthedocs.org/pull/7793>`__)
+* `@timgates42 <https://github.com/timgates42>`__: docs: fix simple typo, tanslations -> translations (`#7781 <https://github.com/readthedocs/readthedocs.org/pull/7781>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.8.2 (`#7776 <https://github.com/readthedocs/readthedocs.org/pull/7776>`__)
+* `@humitos <https://github.com/humitos>`__: Use Python3.7 on conda base environment when using mamba (`#7773 <https://github.com/readthedocs/readthedocs.org/pull/7773>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove domain verify signal and task (`#7763 <https://github.com/readthedocs/readthedocs.org/pull/7763>`__)
+* `@stsewd <https://github.com/stsewd>`__: Import page: fix wizard form (`#7702 <https://github.com/readthedocs/readthedocs.org/pull/7702>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Migrate sync_versions from an API call to a task (`#7548 <https://github.com/readthedocs/readthedocs.org/pull/7548>`__)
+* `@humitos <https://github.com/humitos>`__: Design document for RemoteRepository DB normalization (`#7169 <https://github.com/readthedocs/readthedocs.org/pull/7169>`__)
+
 Version 5.8.2
 -------------
 

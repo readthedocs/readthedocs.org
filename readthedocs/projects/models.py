@@ -1580,11 +1580,14 @@ class Feature(models.Model):
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     CONDA_USES_MAMBA = 'conda_uses_mamba'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
+    CACHED_ENVIRONMENT = 'cached_environment'
+    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
-    CACHED_ENVIRONMENT = 'cached_environment'
-    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1672,6 +1675,16 @@ class Feature(models.Model):
             ),
         ),
         (
+            CACHED_ENVIRONMENT,
+            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            LIMIT_CONCURRENT_BUILDS,
+            _('Limit the amount of concurrent builds'),
+        ),
+
+        # Versions sync related features
+        (
             SKIP_SYNC_BRANCHES,
             _('Skip syncing branches'),
         ),
@@ -1682,14 +1695,6 @@ class Feature(models.Model):
         (
             SKIP_SYNC_VERSIONS,
             _('Skip sync versions task'),
-        ),
-        (
-            CACHED_ENVIRONMENT,
-            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
-        ),
-        (
-            LIMIT_CONCURRENT_BUILDS,
-            _('Limit the amount of concurrent builds'),
         ),
 
         # Search related features.

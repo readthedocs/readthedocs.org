@@ -8,14 +8,24 @@ from django.conf import settings
 from django.core.files.storage import get_storage_class
 
 from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.api.v2.utils import (
+    delete_versions_from_db,
+    get_deleted_active_versions,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 from readthedocs.builds.constants import (
+    BRANCH,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
     MAX_BUILD_COMMAND_SIZE,
+    TAG,
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.utils import memcache_lock
+from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import send_build_status
 from readthedocs.worker import app
 
@@ -206,3 +216,99 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
                 version.project.slug, version.slug,
             )
             version.delete()
+
+
+@app.task(
+    max_retries=1,
+    default_retry_delay=60,
+    queue='web'
+)
+def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
+    """
+    Sync the version data in the repo (from build server) into our database.
+
+    Creates new Version objects for tags/branches that aren't tracked in the database,
+    and deletes Version objects for tags/branches that don't exists in the repository.
+
+    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
+    :param branches_data: Same as ``tags_data`` but for branches.
+    :returns: the identifiers for the versions that have been deleted.
+    """
+    project = Project.objects.get(pk=project_pk)
+
+    # If the currently highest non-prerelease version is active, then make
+    # the new latest version active as well.
+    current_stable = project.get_original_stable_version()
+    if current_stable is not None:
+        activate_new_stable = current_stable.active
+    else:
+        activate_new_stable = False
+
+    try:
+        # Update All Versions
+        added_versions = set()
+        result = sync_versions_to_db(
+            project=project,
+            versions=tags_data,
+            type=TAG,
+        )
+        added_versions.update(result)
+
+        result = sync_versions_to_db(
+            project=project,
+            versions=branches_data,
+            type=BRANCH,
+        )
+        added_versions.update(result)
+
+        deleted_versions = delete_versions_from_db(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
+        deleted_active_versions = get_deleted_active_versions(
+            project=project,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
+    except Exception:
+        log.exception('Sync Versions Error')
+        return [], []
+
+    try:
+        # The order of added_versions isn't deterministic.
+        # We don't track the commit time or any other metadata.
+        # We usually have one version added per webhook.
+        run_automation_rules(project, added_versions, deleted_active_versions)
+    except Exception:
+        # Don't interrupt the request if something goes wrong
+        # in the automation rules.
+        log.exception(
+            'Failed to execute automation rules for [%s]: %s',
+            project.slug, added_versions
+        )
+
+    # TODO: move this to an automation rule
+    promoted_version = project.update_stable_version()
+    new_stable = project.get_stable_version()
+    if promoted_version and new_stable and new_stable.active:
+        log.info(
+            'Triggering new stable build: %(project)s:%(version)s',
+            {
+                'project': project.slug,
+                'version': new_stable.identifier,
+            }
+        )
+        trigger_build(project=project, version=new_stable)
+
+        # Marking the tag that is considered the new stable version as
+        # active and building it if it was just added.
+        if (
+            activate_new_stable and
+            promoted_version.slug in added_versions
+        ):
+            promoted_version.active = True
+            promoted_version.save()
+            trigger_build(project=project, version=promoted_version)
+
+    return list(added_versions), list(deleted_versions)
