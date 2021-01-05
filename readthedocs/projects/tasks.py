@@ -1900,6 +1900,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+        users = build.project.users.all()
 
         try:
             remote_repository = build.project.remote_repository
@@ -1943,7 +1944,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 build.project.slug,
             )
             # Try to send build status for projects with no RemoteRepository
-            users = build.project.users.all()
             for user in users:
                 services = service_class.for_user(user)
                 # Try to loop through services for users all social accounts
