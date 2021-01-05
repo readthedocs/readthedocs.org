@@ -1917,11 +1917,11 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 service = service_class(relation.user, relation.account)
                 # Send status report using the API.
                 success = service.send_build_status(
-                build=build,
-                commit=commit,
-                state=status,
-                link_to_build=link_to_build,
-            )
+                    build=build,
+                    commit=commit,
+                    state=status,
+                    link_to_build=link_to_build,
+                )
 
                 if success:
                     log.info(
