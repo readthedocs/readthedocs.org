@@ -85,7 +85,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type')
+        fields = ('name', 'repo', 'repo_type', 'default_branch')
 
     remote_repository = forms.CharField(
         widget=forms.HiddenInput(),
@@ -166,7 +166,6 @@ class ProjectExtraForm(ProjectForm):
         fields = (
             'description',
             'documentation_type',
-            'default_branch',
             'language',
             'programming_language',
             'tags',

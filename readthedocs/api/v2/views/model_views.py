@@ -192,9 +192,9 @@ class ProjectViewSet(UserSelectViewSet):
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
+        current_stable = project.get_original_stable_version()
+        if current_stable is not None:
+            activate_new_stable = current_stable.active
         else:
             activate_new_stable = False
 

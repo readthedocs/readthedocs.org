@@ -84,7 +84,6 @@ from .signals import (
     after_vcs,
     before_build,
     before_vcs,
-    domain_verify,
     files_changed,
 )
 
@@ -1878,21 +1877,7 @@ def finish_inactive_builds():
 
 
 @app.task(queue='web')
-def retry_domain_verification(domain_pk):
-    """
-    Trigger domain verification on a domain.
-
-    :param domain_pk: a `Domain` pk to verify
-    """
-    domain = Domain.objects.get(pk=domain_pk)
-    domain_verify.send(
-        sender=domain.__class__,
-        domain=domain,
-    )
-
-
-@app.task(queue='web')
-def send_build_status(build_pk, commit, status):
+def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -1931,7 +1916,12 @@ def send_build_status(build_pk, commit, status):
             for relation in remote_repository_relations:
                 service = service_class(relation.user, relation.account)
                 # Send status report using the API.
-                success = service.send_build_status(build, commit, status)
+                success = service.send_build_status(
+                build=build,
+                commit=commit,
+                state=status,
+                link_to_build=link_to_build,
+            )
 
                 if success:
                     log.info(

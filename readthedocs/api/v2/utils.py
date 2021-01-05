@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
     BRANCH,
+    INTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     NON_REPOSITORY_VERSIONS,
@@ -25,7 +26,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
 
     - check if user has a ``stable`` / ``latest`` version and disable ours
     - update old versions with newer configs (identifier, type, machine)
-    - create new versions that do not exist on DB
+    - create new versions that do not exist on DB (in bulk)
     - it does not delete versions
 
     :param project: project to update versions
@@ -40,6 +41,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     old_versions = dict(old_version_values)
 
     # Add new versions
+    versions_to_create = []
     added = set()
     has_user_stable = False
     has_user_latest = False
@@ -81,7 +83,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
                 identifier=version_id,
                 type=type,
                 machine=False,
-            )  # noqa
+            )
 
             log.info(
                 '(Sync Versions) Updated Version: [%s=%s] ',
@@ -90,13 +92,12 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             )
         else:
             # New Version
-            created_version = Version.objects.create(
-                project=project,
-                type=type,
-                identifier=version_id,
-                verbose_name=version_name,
-            )
-            added.add(created_version.slug)
+            versions_to_create.append((version_id, version_name))
+
+    added.update(
+        _create_versions_in_bulk(project, type, versions_to_create)
+    )
+
     if not has_user_stable:
         stable_version = (
             project.versions.filter(slug=STABLE, type=type).first()
@@ -117,6 +118,32 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             latest_version.save()
     if added:
         log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
+    return added
+
+
+def _create_versions_in_bulk(project, type, versions):
+    """
+    Create versions (tuple of version_id and version_name) in batch.
+
+    Returns the slug of all added versions.
+    """
+    added = set()
+    batch_size = 150
+    objs = (
+        Version(
+            project=project,
+            type=type,
+            identifier=version_id,
+            verbose_name=version_name,
+        )
+        for version_id, version_name in versions
+    )
+    while True:
+        batch = list(itertools.islice(objs, batch_size))
+        if not batch:
+            break
+        Version.objects.bulk_create(batch, batch_size)
+        added.update(v.slug for v in batch)
     return added
 
 
@@ -150,7 +177,7 @@ def _get_deleted_versions_qs(project, version_data):
     ]
 
     to_delete_qs = (
-        project.versions
+        project.versions(manager=INTERNAL)
         .exclude(uploaded=True)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )

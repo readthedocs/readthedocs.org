@@ -1,3 +1,69 @@
+Version 5.8.2
+-------------
+
+:Date: December 21, 2020
+
+* `@humitos <https://github.com/humitos>`__: Use Python3.7 on conda base environment when using mamba (`#7773 <https://github.com/readthedocs/readthedocs.org/pull/7773>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove domain verify signal and task (`#7763 <https://github.com/readthedocs/readthedocs.org/pull/7763>`__)
+* `@humitos <https://github.com/humitos>`__: Register StopBuilder task to be executed by builders (`#7759 <https://github.com/readthedocs/readthedocs.org/pull/7759>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove absolute_uri (`#7758 <https://github.com/readthedocs/readthedocs.org/pull/7758>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use alias to link to search results of subprojects (`#7757 <https://github.com/readthedocs/readthedocs.org/pull/7757>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove jsonp call (`#7756 <https://github.com/readthedocs/readthedocs.org/pull/7756>`__)
+* `@humitos <https://github.com/humitos>`__: Register AutoscaleBuildersTask (`#7755 <https://github.com/readthedocs/readthedocs.org/pull/7755>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Set The Right Permissions on GitLab OAuth RemoteRepository (`#7753 <https://github.com/readthedocs/readthedocs.org/pull/7753>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use lru_cache for caching methods (`#7751 <https://github.com/readthedocs/readthedocs.org/pull/7751>`__)
+* `@fabianmp <https://github.com/fabianmp>`__: Allow to add additional binds to Docker build container (`#7684 <https://github.com/readthedocs/readthedocs.org/pull/7684>`__)
+
+Version 5.8.1
+-------------
+
+:Date: December 14, 2020
+
+* `@humitos <https://github.com/humitos>`__: Register ShutdownBuilder task (`#7749 <https://github.com/readthedocs/readthedocs.org/pull/7749>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Use "path_with_namespace" for GitLab RemoteRepository full_name Field (`#7746 <https://github.com/readthedocs/readthedocs.org/pull/7746>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: remove USE_NEW_PIP_RESOLVER (`#7745 <https://github.com/readthedocs/readthedocs.org/pull/7745>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version sync: exclude external versions when deleting (`#7742 <https://github.com/readthedocs/readthedocs.org/pull/7742>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: limit number of sections and domains to 10K (`#7741 <https://github.com/readthedocs/readthedocs.org/pull/7741>`__)
+* `@stsewd <https://github.com/stsewd>`__: Traffic analytics: don't pass context if the feature isn't enabled (`#7740 <https://github.com/readthedocs/readthedocs.org/pull/7740>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: move page views to its own endpoint (`#7739 <https://github.com/readthedocs/readthedocs.org/pull/7739>`__)
+* `@stsewd <https://github.com/stsewd>`__: FeatureQuerySet: make check for date inclusive (`#7737 <https://github.com/readthedocs/readthedocs.org/pull/7737>`__)
+* `@stsewd <https://github.com/stsewd>`__: Typo: date -> data (`#7736 <https://github.com/readthedocs/readthedocs.org/pull/7736>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Use remote_id and vcs_provider Instead of full_name to Get RemoteRepository (`#7734 <https://github.com/readthedocs/readthedocs.org/pull/7734>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 49 (`#7730 <https://github.com/readthedocs/readthedocs.org/pull/7730>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Update parts of code that were using the old RemoteRepository model fields (`#7728 <https://github.com/readthedocs/readthedocs.org/pull/7728>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: don't delete them when a version is deleted (`#7679 <https://github.com/readthedocs/readthedocs.org/pull/7679>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: create new versions in bulk (`#7382 <https://github.com/readthedocs/readthedocs.org/pull/7382>`__)
+* `@humitos <https://github.com/humitos>`__: Use `mamba` under a feature flag to create conda environments (`#6815 <https://github.com/readthedocs/readthedocs.org/pull/6815>`__)
+
+Version 5.8.0
+-------------
+
+:Date: December 08, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7731 <https://github.com/readthedocs/readthedocs.org/pull/7731>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bitbucket: mainbranch can be None (`#7725 <https://github.com/readthedocs/readthedocs.org/pull/7725>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use with_positions_offsets term vector for some fields (`#7724 <https://github.com/readthedocs/readthedocs.org/pull/7724>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: filter only active and built versions from subprojects (`#7723 <https://github.com/readthedocs/readthedocs.org/pull/7723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Extra features: allow to display them conditionally (`#7715 <https://github.com/readthedocs/readthedocs.org/pull/7715>`__)
+* `@humitos <https://github.com/humitos>`__: Define `pre/post_collectstatic` signals and send them (`#7701 <https://github.com/readthedocs/readthedocs.org/pull/7701>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Support the new Google analytics gtag.js (`#7691 <https://github.com/readthedocs/readthedocs.org/pull/7691>`__)
+* `@stsewd <https://github.com/stsewd>`__: HTMLFile: remove slug field (`#7680 <https://github.com/readthedocs/readthedocs.org/pull/7680>`__)
+* `@stsewd <https://github.com/stsewd>`__: External versions: delete after 3 months of being merged/closed (`#7678 <https://github.com/readthedocs/readthedocs.org/pull/7678>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: keep history of recent matches (`#7658 <https://github.com/readthedocs/readthedocs.org/pull/7658>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: update to ES 7.x (`#7582 <https://github.com/readthedocs/readthedocs.org/pull/7582>`__)
+
+Version 5.7.0
+-------------
+
+:Date: December 01, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Ensure there is space for sidebar ads (`#7716 <https://github.com/readthedocs/readthedocs.org/pull/7716>`__)
+* `@humitos <https://github.com/humitos>`__: Install six as core requirement for builds (`#7710 <https://github.com/readthedocs/readthedocs.org/pull/7710>`__)
+* `@stsewd <https://github.com/stsewd>`__: Features: increase feature_id max_length (`#7698 <https://github.com/readthedocs/readthedocs.org/pull/7698>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7695 <https://github.com/readthedocs/readthedocs.org/pull/7695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: mock trigger_build (`#7681 <https://github.com/readthedocs/readthedocs.org/pull/7681>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: use stable version instead of querying all versions (`#7380 <https://github.com/readthedocs/readthedocs.org/pull/7380>`__)
+
 Version 5.6.5
 -------------
 
