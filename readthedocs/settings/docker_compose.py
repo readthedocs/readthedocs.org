@@ -45,8 +45,18 @@ class DockerBaseSettings(CommunityDevSettings):
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    # New templates
+    @property
+    def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
+        return os.environ.get('RTD_EXT_THEME_DEV_SERVER_ENABLED') is not None
+
+    @property
+    def RTD_EXT_THEME_DEV_SERVER(self):
+        if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
+            return "http://assets.community.dev.readthedocs.io:10001"
+
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
+    ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
 
     RTD_CLEAN_AFTER_BUILD = True
 

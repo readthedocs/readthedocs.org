@@ -16,7 +16,7 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
@@ -242,9 +242,11 @@ class BuildCommand(BuildCommandResultMixin):
                 self.build_env.build.get('id'),
                 self.get_command(),
             )
-            sanitized = sanitized[:allowed_length]
-            sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
-                allowed_length,
+            truncated_output = sanitized[-allowed_length:]
+            sanitized = (
+                '.. (truncated) ...\n'
+                f'Output is too big. Truncated at {allowed_length} bytes.\n\n\n'
+                f'{truncated_output}'
             )
 
         return sanitized
@@ -904,7 +906,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
             # Catch direct failures from Docker API or with an HTTP request.
             # These errors should not surface to the user.
-            except (DockerAPIError, ConnectionError):
+            except (DockerAPIError, ConnectionError, ReadTimeout):
                 log.exception(
                     LOG_TEMPLATE,
                     {
@@ -988,6 +990,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                     'mode': 'rw',
                 },
             }
+
+        binds.update(settings.RTD_DOCKER_ADDITIONAL_BINDS)
 
         return binds
 

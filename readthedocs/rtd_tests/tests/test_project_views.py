@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest import mock
 
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
@@ -9,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
@@ -19,16 +19,12 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
-from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.projects.views.private import ImportWizardView
-from readthedocs.rtd_tests.base import (
-    MockBuildTestCase,
-    RequestFactoryTestMixin,
-    WizardTestCase,
-)
+from readthedocs.projects.views.public import ProjectBadgeView
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -62,7 +58,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
 
-    @patch('readthedocs.projects.views.private.ProjectBasicsForm.clean')
+    @mock.patch('readthedocs.projects.views.private.ProjectBasicsForm.clean')
     def test_profile_middleware_spam(self, form):
         """User will be banned."""
         form.side_effect = ProjectSpamError
@@ -85,6 +81,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp['location'], '/')
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -114,6 +111,7 @@ class TestBasicsForm(WizardTestCase):
             'repo': 'https://github.com/fail/sauce',
             'repo_type': 'git',
             'remote_repository': '1234',
+            'default_branch': 'main',
         }
         resp = self.client.post(
             '/dashboard/import/',
@@ -167,6 +165,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertWizardFailure(resp, 'repo_type')
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
@@ -178,6 +177,41 @@ class TestAdvancedForm(TestBasicsForm):
             'documentation_type': 'sphinx',
             'tags': 'foo, bar, baz',
         }
+
+    def test_initial_params(self):
+        extra_initial = {
+            'description': 'An amazing project',
+            'project_url': "https://foo.bar",
+        }
+        basic_initial = {
+            'name': 'foobar',
+            'repo': 'https://github.com/foo/bar',
+            'repo_type': 'git',
+            'default_branch': 'main',
+            'remote_repository': '',
+        }
+        initial = dict(**extra_initial, **basic_initial)
+        self.client.force_login(self.user)
+
+        # User selects a remote repo to import.
+        resp = self.client.post(reverse('projects_import'), initial)
+
+        # The correct initial data for the basic form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, basic_initial)
+
+        # User selects advanced.
+        basic_initial['advanced'] = True
+        step_data = {
+            f'basics-{k}': v
+            for k, v in basic_initial.items()
+        }
+        step_data[f'{self.wizard_class_slug}-current_step'] = 'basics'
+        resp = self.client.post(self.url, step_data)
+
+        # The correct initial data for the advanced form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, extra_initial)
 
     def test_form_pass(self):
         """Test all forms pass validation."""
@@ -227,7 +261,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
-    @patch(
+    @mock.patch(
         'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
         create=True,
     )
@@ -251,7 +285,7 @@ class TestAdvancedForm(TestBasicsForm):
             proj = Project.objects.get(name='foobar')
         self.assertFalse(self.user.profile.banned)
 
-    @patch(
+    @mock.patch(
         'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
         create=True,
     )
@@ -276,7 +310,8 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertTrue(self.user.profile.banned)
 
 
-class TestImportDemoView(MockBuildTestCase):
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
+class TestImportDemoView(TestCase):
     """Test project import demo view."""
 
     fixtures = ['test_data', 'eric']
@@ -389,7 +424,8 @@ class TestImportDemoView(MockBuildTestCase):
         )
 
 
-class TestPublicViews(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPublicViews(TestCase):
     def setUp(self):
         self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
         self.external_version = get(
@@ -422,7 +458,8 @@ class TestPublicViews(MockBuildTestCase):
         self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
-class TestPrivateViews(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPrivateViews(TestCase):
     def setUp(self):
         self.user = new(User, username='eric')
         self.user.set_password('test')
@@ -451,7 +488,7 @@ class TestPrivateViews(MockBuildTestCase):
 
         # Mocked like this because the function is imported inside a class method
         # https://stackoverflow.com/a/22201798
-        with patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
+        with mock.patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
@@ -477,7 +514,7 @@ class TestPrivateViews(MockBuildTestCase):
             html=True,
         )
 
-    @patch('readthedocs.projects.views.private.attach_webhook')
+    @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create(self, attach_webhook):
         project = get(Project, slug='pip', users=[self.user])
 
@@ -498,7 +535,7 @@ class TestPrivateViews(MockBuildTestCase):
             integration=integration.first()
         )
 
-    @patch('readthedocs.projects.views.private.attach_webhook')
+    @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create_generic_webhook(self, attach_webhook):
         project = get(Project, slug='pip', users=[self.user])
 
@@ -516,7 +553,9 @@ class TestPrivateViews(MockBuildTestCase):
         attach_webhook.assert_not_called()
 
 
-class TestPrivateMixins(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+class TestPrivateMixins(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')

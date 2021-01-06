@@ -1,3 +1,5 @@
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 from django.urls import reverse
 
@@ -6,6 +8,7 @@ from readthedocs.projects.models import Project
 from .mixins import APIEndpointMixin
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_list(self):

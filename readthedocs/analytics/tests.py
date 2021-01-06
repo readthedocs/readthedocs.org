@@ -109,8 +109,8 @@ class AnalyticsPageViewsTests(TestCase):
         self.absolute_uri = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
         self.host = f'{self.project.slug}.readthedocs.io'
         self.url = (
-            reverse('footer_html') +
-            f'?project={self.project.slug}&version={self.version.slug}&page=index&docroot=/docs/' +
+            reverse('analytics_api') +
+            f'?project={self.project.slug}&version={self.version.slug}'
             f'&absolute_uri={self.absolute_uri}'
         )
 

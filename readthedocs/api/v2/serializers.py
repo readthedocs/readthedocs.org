@@ -123,8 +123,8 @@ class BuildSerializer(serializers.ModelSerializer):
 
     commands = BuildCommandSerializer(many=True, read_only=True)
     project_slug = serializers.ReadOnlyField(source='project.slug')
-    version_slug = serializers.ReadOnlyField(source='version.slug')
-    docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
+    version_slug = serializers.ReadOnlyField(source='get_version_slug')
+    docs_url = serializers.SerializerMethodField()
     state_display = serializers.ReadOnlyField(source='get_state_display')
     commit_url = serializers.ReadOnlyField(source='get_commit_url')
     # Jsonfield needs an explicit serializer
@@ -135,6 +135,11 @@ class BuildSerializer(serializers.ModelSerializer):
         model = Build
         # `_config` should be excluded to avoid conflicts with `config`
         exclude = ('builder', '_config')
+
+    def get_docs_url(self, obj):
+        if obj.version:
+            return obj.version.get_absolute_url()
+        return None
 
 
 class BuildAdminSerializer(BuildSerializer):
