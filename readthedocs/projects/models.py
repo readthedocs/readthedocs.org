@@ -1606,7 +1606,6 @@ class Feature(models.Model):
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DONT_CREATE_INDEX = 'dont_create_index'
-    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
