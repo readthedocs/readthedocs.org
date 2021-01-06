@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0027_add_privacy_level_automation_rules'),
+        ('builds', '0033_dont_cascade_delete_builds'),
     ]
 
     operations = [
