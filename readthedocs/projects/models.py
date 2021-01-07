@@ -568,7 +568,11 @@ class Project(models.Model):
         main_project = self.main_language_project or self
         if not settings.USE_SUBDOMAIN:
             # example.com/media/pdf/<project>/<ver>/<filename>
-            storage_path = self.get_storage_path(type_=type_, version_slug=version_slug, include_file=True)  # noqa
+            storage_path = self.get_storage_path(
+                type_=type_,
+                version_slug=version_slug,
+                include_file=True
+            )
             path = f'//{domain}{settings.MEDIA_URL}{storage_path}'
         elif main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
