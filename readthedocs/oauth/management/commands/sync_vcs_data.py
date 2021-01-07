@@ -34,19 +34,30 @@ class Command(BaseCommand):
             default=100,
             help='Maximum number of users that should be synced.',
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            default=False,
+            help='Force re-sync VCS provider data even if the users are already synced.',
+        )
 
     def handle(self, *args, **options):
         queue = options.get('queue')
         sync_users = options.get('users')
         skip_users = options.get('skip_users')
         max_users = options.get('max_users')
+        force_sync = options.get('force')
 
         # Filter users who have social accounts connected
         # and has no remote repository relations
         users = User.objects.filter(
-            socialaccount__isnull=False,
-            remote_repository_relations__isnull=True
+            socialaccount__isnull=False
         ).distinct()
+
+        if not force_sync:
+            users = users.filter(
+                remote_repository_relations__isnull=True
+            ).distinct()
 
         if sync_users:
             users = users.filter(username__in=sync_users)
