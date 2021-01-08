@@ -16,14 +16,14 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--users',
-            nargs='*',
+            nargs='+',
             type=str,
             default=[],
             help='Re-sync VCS provider data for specific users only.',
         )
         parser.add_argument(
             '--skip-users',
-            nargs='*',
+            nargs='+',
             type=str,
             default=[],
             help='Skip re-sync VCS provider data for specific users.',
