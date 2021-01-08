@@ -48,8 +48,7 @@ class Command(BaseCommand):
         max_users = options.get('max_users')
         force_sync = options.get('force')
 
-        # Filter users who have social accounts connected
-        # and has no remote repository relations
+        # Filter users who have social accounts connected to their RTD account
         users = User.objects.filter(
             socialaccount__isnull=False
         ).distinct()
