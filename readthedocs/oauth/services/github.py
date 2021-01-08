@@ -36,41 +36,45 @@ class GitHubService(Service):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = []
+        remote_repositories = []
 
         try:
             repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
-        return repos
+        return remote_repositories
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
-        orgs = []
-        repositories = []
+        remote_organizations = []
+        remote_repositories = []
 
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
-                org_resp = self.get_session().get(org['url'])
-                org_obj = self.create_organization(org_resp.json())
+                org_details = self.get_session().get(org['url']).json()
+                remote_organization = self.create_organization(org_details)
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
 
-                # Add all the repositories for this organization to the result
-                repositories.extend(org_repos)
+                remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
@@ -79,7 +83,7 @@ class GitHubService(Service):
                 'try reconnecting your account'
             )
 
-        return orgs, repositories
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -127,6 +131,7 @@ class GitHubService(Service):
                 repo.clone_url = fields['clone_url']
             repo.admin = fields.get('permissions', {}).get('admin', False)
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
             if not repo.avatar_url:
@@ -169,12 +174,6 @@ class GitHubService(Service):
         organization.account = self.account
         organization.save()
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('full_name') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('name') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
@@ -422,7 +421,7 @@ class GitHubService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitHub commit status for project.
 
@@ -432,6 +431,7 @@ class GitHubService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -445,7 +445,7 @@ class GitHubService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'

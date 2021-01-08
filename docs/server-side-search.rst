@@ -40,6 +40,10 @@ Special query syntax for more specific results.
    We support a full range of search queries.
    You can see some examples in our :ref:`guides/searching-with-readthedocs:search query syntax` guide.
 
+Configurable.
+   Tweak search results according to your needs using a
+   :ref:`configuration file <config-file/v2:search>`.
+
 ..
    Code object searching
       With the user of :doc:`Sphinx Domains <sphinx:/usage/restructuredtext/domains>` we are able to automatically provide direct search results to your Code objects.
@@ -91,6 +95,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
 
    :>json string type: The type of the result, currently page is the only type.
    :>json string project: The project slug
+   :>json string project_alias: Alias of the project if it's a subproject.
    :>json string version: The version slug
    :>json string title: The title of the page
    :>json string domain: Canonical domain of the resulting page
@@ -139,6 +144,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
               {
                   "type": "page",
                   "project": "docs",
+                  "project_alias": null,
                   "version": "latest",
                   "title": "Server Side Search",
                   "domain": "https://docs.readthedocs.io",

@@ -84,7 +84,6 @@ from .signals import (
     after_vcs,
     before_build,
     before_vcs,
-    domain_verify,
     files_changed,
 )
 
@@ -234,18 +233,18 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions_api(version_repo)
+        self.sync_versions(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions_api(self, version_repo):
+    def sync_versions(self, version_repo):
         """
-        Update tags/branches hitting the API.
+        Update tags/branches via a Celery task.
 
-        It may trigger a new build to the stable version when hitting the
-        ``sync_versions`` endpoint.
+        .. note::
+
+           It may trigger a new build to the stable version.
         """
-        version_post_data = {'repo': version_repo.repo_url}
         tags = None
         branches = None
         if (
@@ -257,39 +256,69 @@ class SyncRepositoryMixin:
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.
             branches, tags = version_repo.lsremote
+            log.info('Remote versions: branches=%s tags=%s', branches, tags)
 
-        if all([
-            version_repo.supports_tags,
+        branches_data = []
+        tags_data = []
+
+        if (
+            version_repo.supports_tags and
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
-        ]):
-            tags = tags or version_repo.tags
-            version_post_data['tags'] = [{
-                'identifier': v.identifier,
-                'verbose_name': v.verbose_name,
-            } for v in tags]
+        ):
+            # Will be an empty list if we called lsremote and had no tags returned
+            if tags is None:
+                tags = version_repo.tags
+            tags_data = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in tags
+            ]
 
-        if all([
-            version_repo.supports_branches,
+        if (
+            version_repo.supports_branches and
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        ]):
-            branches = branches or version_repo.branches
-            version_post_data['branches'] = [{
-                'identifier': v.identifier,
-                'verbose_name': v.verbose_name,
-            } for v in branches]
+        ):
+            # Will be an empty list if we called lsremote and had no branches returned
+            if branches is None:
+                branches = version_repo.branches
+            branches_data = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in branches
+            ]
 
-        self.validate_duplicate_reserved_versions(version_post_data)
+        self.validate_duplicate_reserved_versions(
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
-        try:
-            api_v2.project(self.project.pk).sync_versions.post(
-                version_post_data,
+        if self.project.has_feature(Feature.SYNC_VERSIONS_USING_A_TASK):
+            from readthedocs.builds import tasks as build_tasks
+            build_tasks.sync_versions_task.delay(
+                project_pk=self.project.pk,
+                tags_data=tags_data,
+                branches_data=branches_data,
             )
-        except HttpClientError:
-            log.exception('Sync Versions Exception')
-        except Exception:
-            log.exception('Unknown Sync Versions Exception')
+        else:
+            try:
+                version_post_data = {
+                    'repo': version_repo.repo_url,
+                    'tags': tags_data,
+                    'branches': branches_data,
+                }
+                api_v2.project(self.project.pk).sync_versions.post(
+                    version_post_data,
+                )
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
 
-    def validate_duplicate_reserved_versions(self, data):
+    def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
         Check if there are duplicated names of reserved versions.
 
@@ -301,7 +330,7 @@ class SyncRepositoryMixin:
         """
         version_names = [
             version['verbose_name']
-            for version in data.get('tags', []) + data.get('branches', [])
+            for version in tags_data + branches_data
         ]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
@@ -431,7 +460,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.project.slug)
-            self.sync_versions_api(version_repo)
+            self.sync_versions(version_repo)
 
 
 @app.task(
@@ -1136,6 +1165,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             commit=self.build['commit'],
             build=self.build['id'],
             search_ranking=self.config.search.ranking,
+            search_ignore=self.config.search.ignore,
         )
 
     def setup_python_environment(self):
@@ -1278,7 +1308,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build, search_ranking):
+def fileify(version_pk, commit, build, search_ranking, search_ignore):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1317,6 +1347,7 @@ def fileify(version_pk, commit, build, search_ranking):
             commit=commit,
             build=build,
             search_ranking=search_ranking,
+            search_ignore=search_ignore,
         )
     except Exception:
         changed_files = set()
@@ -1431,12 +1462,13 @@ def _create_intersphinx_data(version, commit, build):
             ).first()
 
             if not html_file:
-                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                log.debug(
+                    '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
                     version.project,
                     version,
                     build,
-                    doc_name,
-                ))
+                    doc_name
+                )
 
                 # Don't create Sphinx Domain objects
                 # if the HTMLFile object is not found.
@@ -1494,7 +1526,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(*, version, commit, build, search_ranking):
+def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
     """
     Create imported files for version.
 
@@ -1564,6 +1596,12 @@ def _create_imported_files(*, version, commit, build, search_ranking):
                     page_rank = rank
                     break
 
+            ignore = False
+            for pattern in search_ignore:
+                if fnmatch(relpath, pattern):
+                    ignore = True
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1574,6 +1612,7 @@ def _create_imported_files(*, version, commit, build, search_ranking):
                 rank=page_rank,
                 commit=commit,
                 build=build,
+                ignore=ignore,
             )
 
     # This signal is used for clearing the CDN,
@@ -1868,21 +1907,7 @@ def finish_inactive_builds():
 
 
 @app.task(queue='web')
-def retry_domain_verification(domain_pk):
-    """
-    Trigger domain verification on a domain.
-
-    :param domain_pk: a `Domain` pk to verify
-    """
-    domain = Domain.objects.get(pk=domain_pk)
-    domain_verify.send(
-        sender=domain.__class__,
-        domain=domain,
-    )
-
-
-@app.task(queue='web')
-def send_build_status(build_pk, commit, status):
+def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -1922,7 +1947,12 @@ def send_build_status(build_pk, commit, status):
 
         if service is not None:
             # Send status report using the API.
-            success = service.send_build_status(build, commit, status)
+            success = service.send_build_status(
+                build=build,
+                commit=commit,
+                state=status,
+                link_to_build=link_to_build,
+            )
 
         if success:
             log.info(

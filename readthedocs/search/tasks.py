@@ -151,9 +151,11 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     if not project_slug or not version_slug or not query:
         log.debug(
             'Not recording the search query. Passed arguments: '
-            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                project_slug, version_slug, query, total_results, time_string
-            )
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s',
+            project_slug,
+            version_slug,
+            query, total_results,
+            time_string
         )
         return
 
@@ -178,9 +180,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     if not project:
         log.debug(
             'Not recording the search query because project does not exist. '
-            'project_slug: %s' % (
-                project_slug
-            )
+            'project_slug: %s', project_slug
         )
         return
 
@@ -189,9 +189,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     if not version:
         log.debug(
             'Not recording the search query because version does not exist. '
-            'project_slug: %s, version_slug: %s' % (
-                project_slug, version_slug
-            )
+            'project_slug: %s, version_slug: %s', project_slug, version_slug
         )
         return
 

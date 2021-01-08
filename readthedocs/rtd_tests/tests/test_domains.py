@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 
 from django.conf import settings
@@ -99,6 +97,49 @@ class FormTests(TestCase):
             f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
         )
 
+    def test_domain_with_path(self):
+        form = DomainForm(
+            {'domain': 'domain.com/foo/bar'},
+            project=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertEqual(domain.domain, 'domain.com')
+
+    def test_valid_domains(self):
+        domains = [
+            'python.org',
+            'a.io',
+            'a.e.i.o.org',
+            'my.domain.com.edu',
+            'my-domain.fav',
+        ]
+        for domain in domains:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertTrue(form.is_valid(), domain)
+
+    def test_invalid_domains(self):
+        domains = [
+            'python..org',
+            '****.foo.com',
+            'domain',
+            'domain.com.',
+            'My domain.org',
+            'i.o',
+            '[special].com',
+            'some_thing.org',
+            'invalid-.com',
+        ]
+        for domain in domains:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertFalse(form.is_valid(), domain)
+
     def test_canonical_change(self):
         """Make sure canonical can be properly changed."""
         form = DomainForm(
@@ -109,12 +150,16 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example.com')
 
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertEqual(domain.domain, 'example.com')
+
         form = DomainForm(
             {'domain': 'example2.com', 'canonical': True},
             project=self.project,
         )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['canonical'][0], 'Only 1 Domain can be canonical at a time.')
+        self.assertEqual(form.errors['canonical'][0], 'Only one domain can be canonical at a time.')
 
         form = DomainForm(
             {'canonical': False},

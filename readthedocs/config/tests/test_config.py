@@ -767,6 +767,7 @@ def test_as_dict(tmpdir):
         },
         'search': {
             'ranking': {},
+            'ignore': [],
         },
     }
     assert build.as_dict() == expected_dict
@@ -1908,6 +1909,45 @@ class TestBuildConfigV2:
         build.validate()
         assert build.search.ranking == {expected: 1}
 
+    @pytest.mark.parametrize(
+        'value',
+        [
+            'invalid',
+            True,
+            0,
+            [2, 3],
+            {'foo/bar': 11},
+        ],
+    )
+    def test_search_ignore_invalid_type(self, value):
+        build = self.get_build_config({
+            'search': {'ignore': value},
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'search.ignore'
+
+    @pytest.mark.parametrize('path, expected', [
+        ('/foo/bar', 'foo/bar'),
+        ('///foo//bar', 'foo/bar'),
+        ('///foo//bar/', 'foo/bar'),
+        ('/foo/bar/../', 'foo'),
+        ('/foo*', 'foo*'),
+        ('/foo/bar/*', 'foo/bar/*'),
+        ('/foo/bar?/*', 'foo/bar?/*'),
+        ('foo/[bc]ar/*/', 'foo/[bc]ar/*'),
+        ('*', '*'),
+        ('index.html', 'index.html'),
+    ])
+    def test_search_ignore_valid_type(self, path, expected):
+        build = self.get_build_config({
+            'search': {
+                'ignore': [path],
+            },
+        })
+        build.validate()
+        assert build.search.ignore == [expected]
+
     @pytest.mark.parametrize('value,key', [
         ({'typo': 'something'}, 'typo'),
         (
@@ -2048,6 +2088,12 @@ class TestBuildConfigV2:
             },
             'search': {
                 'ranking': {},
+                'ignore': [
+                    'search.html',
+                    'search/index.html',
+                    '404.html',
+                    '404/index.html',
+                ],
             },
         }
         assert build.as_dict() == expected_dict

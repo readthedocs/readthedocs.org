@@ -83,7 +83,7 @@ class VersionManagerBase(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs. %s' % kwargs)
+            log.warning('Version not found for given kwargs. %s', kwargs)
 
 
 class InternalVersionManagerBase(VersionManagerBase):
@@ -225,3 +225,19 @@ class VersionAutomationRuleManager(PolymorphicManager):
             action_arg=action_arg,
         )
         return rule
+
+
+class AutomationRuleMatchManager(models.Manager):
+
+    def register_match(self, rule, version, max_registers=15):
+        created = self.create(
+            rule=rule,
+            match_arg=rule.get_match_arg(),
+            action=rule.action,
+            version_name=version.verbose_name,
+            version_type=version.type,
+        )
+
+        for match in self.filter(rule__project=rule.project)[max_registers:]:
+            match.delete()
+        return created

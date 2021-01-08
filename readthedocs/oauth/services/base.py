@@ -191,21 +191,33 @@ class Service:
 
         - creates a new RemoteRepository/Organization per new repository
         - updates fields for existing RemoteRepository/Organization
-        - deletes old RemoteRepository/Organization that are not present for this user
+        - deletes old RemoteRepository/Organization that are not present
+          for this user in the current provider
         """
-        repos = self.sync_repositories()
-        organizations, organization_repos = self.sync_organizations()
+        remote_repositories = self.sync_repositories()
+        remote_organizations, remote_repositories_organizations = self.sync_organizations()
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        repository_full_names = self.get_repository_full_names(repos + organization_repos)
-        self.user.oauth_repositories.exclude(
-            Q(full_name__in=repository_full_names) | Q(project__isnull=False)
-        ).delete()
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
+        (
+            self.user.oauth_repositories
+            .exclude(
+                Q(full_name__in=repository_full_names) | Q(project__isnull=False)
+            )
+            .filter(account=self.account)
+            .delete()
+        )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_names = self.get_organization_names(organizations)
-        self.user.oauth_organizations.exclude(name__in=organization_names).delete()
+        organization_slugs = [o.slug for o in remote_organizations if o is not None]
+        (
+            self.user.oauth_organizations
+            .exclude(slug__in=organization_slugs)
+            .filter(account=self.account)
+            .delete()
+        )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -285,7 +297,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create commit status for project.
 
@@ -295,6 +307,7 @@ class Service:
         :type commit: str
         :param state: build state failure, pending, or success.
         :type state: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """

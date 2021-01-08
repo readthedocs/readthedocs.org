@@ -41,6 +41,10 @@ class GitLabService(Service):
         re.escape(urlparse(adapter.provider_base_url).netloc),
     )
 
+    PERMISSION_NO_ACCESS = 0
+    PERMISSION_MAINTAINER = 40
+    PERMISSION_OWNER = 50
+
     def _get_repo_id(self, project):
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
@@ -67,7 +71,7 @@ class GitLabService(Service):
         return response.json()
 
     def sync_repositories(self):
-        repos = []
+        remote_repositories = []
         try:
             repos = self.paginate(
                 '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
@@ -79,7 +83,8 @@ class GitLabService(Service):
             )
 
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab repositories')
             raise SyncServiceError(
@@ -87,11 +92,11 @@ class GitLabService(Service):
                 'try reconnecting your account'
             )
 
-        return repos
+        return remote_repositories
 
     def sync_organizations(self):
-        orgs = []
-        repositories = []
+        remote_organizations = []
+        remote_repositories = []
 
         try:
             orgs = self.paginate(
@@ -102,7 +107,7 @@ class GitLabService(Service):
                 sort='asc',
             )
             for org in orgs:
-                org_obj = self.create_organization(org)
+                remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     '{url}/api/v4/groups/{id}/projects'.format(
                         url=self.adapter.provider_base_url,
@@ -114,11 +119,43 @@ class GitLabService(Service):
                     sort='asc',
                 )
 
-                # Add organization's repositories to the result
-                repositories.extend(org_repos)
+                remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
+                    # TODO: Optimize this so that we don't re-fetch project data
+                    # Details: https://github.com/readthedocs/readthedocs.org/issues/7743
+                    try:
+                        # The response from /groups/{id}/projects API does not contain
+                        # admin permission fields for GitLab projects.
+                        # So, fetch every single project data from the API
+                        # which contains the admin permission fields.
+                        resp = self.get_session().get(
+                            '{url}/api/v4/projects/{id}'.format(
+                                url=self.adapter.provider_base_url,
+                                id=repo['id']
+                            )
+                        )
+
+                        if resp.status_code == 200:
+                            repo_details = resp.json()
+                            remote_repository = self.create_repository(
+                                repo_details,
+                                organization=remote_organization
+                            )
+                            remote_repositories.append(remote_repository)
+                        else:
+                            log.warning(
+                                'GitLab project does not exist or user does not have '
+                                'permissions: project=%s',
+                                repo['name_with_namespace'],
+                            )
+
+                    except Exception:
+                        log.exception(
+                            'Error creating GitLab repository=%s',
+                            repo['name_with_namespace'],
+                        )
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
@@ -126,14 +163,21 @@ class GitLabService(Service):
                 'try reconnecting your account'
             )
 
-        return orgs, repositories
-
-    def is_owned_by(self, owner_id):
-        return self.account.extra_data['id'] == owner_id
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from GitLab API response.
+
+        ``admin`` field is computed using the ``permissions`` fields from the
+        repository response. The permission from GitLab is given by an integer:
+          * 0: No access
+          * (... others ...)
+          * 40: Maintainer
+          * 50: Owner
+
+        https://docs.gitlab.com/ee/api/access_requests.html
+        https://gitlab.com/help/user/permissions
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
@@ -175,11 +219,20 @@ class GitLabService(Service):
             else:
                 repo.clone_url = fields['http_url_to_repo']
 
-            repo.admin = not repo_is_public
-            if not repo.admin and 'owner' in fields:
-                repo.admin = self.is_owned_by(fields['owner']['id'])
+            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
+            project_access = fields.get('permissions', {}).get('project_access', {})
+            if project_access:
+                project_access_level = project_access.get('access_level', self.PERMISSION_NO_ACCESS)
+            group_access = fields.get('permissions', {}).get('group_access', {})
+            if group_access:
+                group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
+            repo.admin = any([
+                project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+            ])
 
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
 
             owner = fields.get('owner') or {}
@@ -231,12 +284,6 @@ class GitLabService(Service):
         organization.json = json.dumps(fields)
         organization.save()
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('name_with_namespace') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('name') for organization in organizations}
 
     def get_webhook_data(self, repo_id, project, integration):
         """
@@ -491,7 +538,7 @@ class GitLabService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitLab commit status for project.
 
@@ -501,6 +548,7 @@ class GitLabService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -519,7 +567,7 @@ class GitLabService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'

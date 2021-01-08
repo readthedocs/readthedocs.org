@@ -49,6 +49,8 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
         git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
+        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
+        pip3 install --no-cache-dir -e ext-theme ; \
         fi
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
