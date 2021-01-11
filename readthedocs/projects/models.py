@@ -1696,6 +1696,10 @@ class Feature(models.Model):
             SKIP_SYNC_VERSIONS,
             _('Skip sync versions task'),
         ),
+        (
+            SYNC_VERSIONS_USING_A_TASK,
+            _('Sync versions using a task instead of the API'),
+        ),
 
         # Search related features.
         (
