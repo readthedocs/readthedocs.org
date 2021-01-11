@@ -16,7 +16,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0065_add_feature_future_default_true'),
+        ('projects', '0068_remove_slug_field'),
     ]
 
     operations = [
