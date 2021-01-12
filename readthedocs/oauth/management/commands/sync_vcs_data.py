@@ -40,6 +40,12 @@ class Command(BaseCommand):
             default=False,
             help='Force re-sync VCS provider data even if the users are already synced.',
         )
+        parser.add_argument(
+            '--no-dry-run',
+            action='store_true',
+            default=False,
+            help='Trigger tasks for VCS provider re-sync.',
+        )
 
     def handle(self, *args, **options):
         queue = options.get('queue')
@@ -47,6 +53,7 @@ class Command(BaseCommand):
         skip_users = options.get('skip_users')
         max_users = options.get('max_users')
         force_sync = options.get('force')
+        no_dry_run = options.get('no_dry_run')
 
         # Filter users who have social accounts connected to their RTD account
         users = User.objects.filter(
@@ -58,27 +65,44 @@ class Command(BaseCommand):
                 remote_repository_relations__isnull=True
             ).distinct()
 
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Total {users.count()} user(s) can be synced'
+            )
+        )
+
         if sync_users:
             users = users.filter(username__in=sync_users)
 
         if skip_users:
             users = users.exclude(username__in=skip_users)
 
-        users_to_sync = users.values_list('id', flat=True)[:max_users]
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                'Found %s user(s) with the given parameters' % users.count()
+        if sync_users or skip_users:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f'Found {users.count()} user(s) with the given parameters'
+                )
             )
-        )
-        self.stdout.write(
-            self.style.SUCCESS(
-                'Re-syncing VCS Providers for %s user(s)' % len(users_to_sync)
-            )
-        )
 
-        for user_id in users_to_sync:
-            # Trigger Sync Remote Repository Tasks for users
-            sync_remote_repositories.apply_async(
-                args=[user_id], queue=queue
+        # Only trigger VCS provider re-sync tasks if --no-dry-run is provided
+        if no_dry_run:
+            users_to_sync = users.values_list('id', flat=True)[:max_users]
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f'Triggering VCS provider re-sync task(s) for {len(users_to_sync)} user(s)'
+                )
+            )
+
+            for user_id in users_to_sync:
+                # Trigger Sync Remote Repository Tasks for users
+                sync_remote_repositories.apply_async(
+                    args=[user_id], queue=queue
+                )
+        else:
+            self.stdout.write(
+                self.style.WARNING(
+                    'No VCS provider re-sync task was triggered. '
+                    'Run it with --no-dry-run to trigger re-sync tasks.'
+                )
             )
