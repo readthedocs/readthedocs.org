@@ -1,9 +1,11 @@
+import django_dynamic_fixture as fixture
 import pytest
 from django.test import override_settings
+from django.urls import reverse
 
-import django_dynamic_fixture as fixture
-
+from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Domain
+
 from .base import BaseDocServing
 
 
@@ -81,3 +83,13 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r['X-RTD-Version'], 'latest')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
         self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
+
+    def test_footer_headers(self):
+        version = self.project.versions.get(slug=LATEST)
+        url = (
+            reverse('footer_html') +
+            f'?project={self.project.slug}&version={version.slug}'
+        )
+        r = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['Cache-Tag'], 'project,project-rtd-footer')
