@@ -233,7 +233,12 @@ class BaseFooterHTML(APIView):
         }
 
         response = Response(resp_data)
-        response['Cache-Tag'] = f'{project.slug},{project.slug}-rtd-footer'
+        cache_tags = [
+            project.slug,
+            f'{project.slug}-{version.slug}',
+            f'{project.slug}-rtd-footer',
+        ]
+        response['Cache-Tag'] = ','.join(cache_tags)
         return response
 
 

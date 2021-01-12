@@ -92,4 +92,4 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-rtd-footer')
+        self.assertEqual(r['Cache-Tag'], 'project,project-latest,project-rtd-footer')
