@@ -1,8 +1,8 @@
 Preview Documentation from Pull Requests
 ========================================
 
-Read the Docs allows you to build and preview your documentation from pull/merge requests.
-To enable this feature: 
+Read the Docs allows you to build and preview your documentation from pull requests.
+To enable this feature:
 
 #. Go to your project dashboard
 #. Go to :guilabel:`Admin > Advanced settings`
@@ -12,16 +12,16 @@ To enable this feature:
 Features
 --------
 
-- **Build on Pull/Merge Request Events:** We create and build a new version when a pull/merge request is open,
+- **Build on Pull Request Events:** We create and build a new version when a pull request is open,
   and when a new commit has been pushed.
+
+- **Build Status Report:** When a build is triggered, a build pending notification is sent with a link to the build log.
+  When the build finishes we send a success notification with the link to the preview or a failure notification with a link to the build log.
 
 - **Warning Banner:** A warning banner is shown at the top of the documentation
   to let users know that this isn't the main documentation for the project.
 
   .. note:: This feature is available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
-
-- **Build Status Report:** When a build is triggered, a build pending notification is sent with a link to the build log.
-  When the build finishes we send a success notification with the link to the preview or a failure notification with a link to the build log.
 
 .. figure:: /_static/images/github-build-status-reporting.gif
    :align: center
@@ -38,20 +38,20 @@ Privacy levels
 
    Privacy levels are only supported on :doc:`/commercial/index`.
 
-All docs built from a pull/merge requests are private by default.
+All docs built from a pull requests are private by default.
 Currently, this can't be changed, but we are planning to support this.
 
 Limitations
 -----------
 
-- Auto-builds for pull/merge requests have
-  :doc:`the same limitations as regular documentation builds </builds>`.
+- Builds from pull requests have the same memory and time limitations
+  :doc:`as regular builds </builds>`.
 - Only available for GitHub and GitLab.
-- Additional formats like PDF and Epub aren't built to produce results quicker. 
+- Additional formats like PDF and Epub aren't built to produce results quicker.
 - Searches will default to the default experience for your tool.
   This is a feature we plan to add,
   but don't want to overwhelm our search indexes used in production.
-- The built documentation is kept for 90 days after the pull/merge request has been closed or merged.
+- The built documentation is kept for 90 days after the pull request has been closed or merged.
 
 Troubleshooting
 ---------------
