@@ -8,6 +8,9 @@ python:
     - requirements: requirements/docs.txt
 
 search:
+  ignore:
+    # Internal documentation
+    - development/design/*
   ranking:
     # Deprecated content
     api/v1.html: -1
