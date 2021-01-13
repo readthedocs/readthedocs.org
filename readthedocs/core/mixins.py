@@ -1,5 +1,7 @@
 """Common mixin classes for views."""
 
+from copy import copy
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext_lazy as _
 from vanilla import ListView
@@ -39,7 +41,11 @@ class HideProtectedLevelMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        privacy_level = list(PRIVACY_CHOICES)
+        privacy_level.remove((PROTECTED, _('Protected')))
+
         if self.instance is None or self.instance.privacy_level != PROTECTED:
-            privacy_level = list(PRIVACY_CHOICES)
-            privacy_level.remove((PROTECTED, _('Protected')))
             self.fields['privacy_level'].choices = privacy_level
+
+        if 'external_builds_privacy_level' in self.fields:
+            self.fields['external_builds_privacy_level'].choices = copy(privacy_level)
