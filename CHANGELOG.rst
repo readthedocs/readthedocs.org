@@ -1,3 +1,13 @@
+Version 5.8.4
+-------------
+
+:Date: January 12, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 02 (`#7818 <https://github.com/readthedocs/readthedocs.org/pull/7818>`__)
+* `@stsewd <https://github.com/stsewd>`__: List SYNC_VERSIONS_USING_A_TASK flag in the admin (`#7802 <https://github.com/readthedocs/readthedocs.org/pull/7802>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update build concurrency numbers for Business (`#7794 <https://github.com/readthedocs/readthedocs.org/pull/7794>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: use html_baseurl for setting the canonical URL (`#7540 <https://github.com/readthedocs/readthedocs.org/pull/7540>`__)
+
 Version 5.8.3
 -------------
 
