@@ -97,7 +97,7 @@ class TestRegexAutomationRules:
         assert rule.matches.all().count() == (1 if result else 0)
 
     @pytest.mark.parametrize('type', [TAG, BRANCH])
-    def test_not_match(self, type):
+    def test_not_match(self, trigger_build, type):
         version = get(
             Version,
             verbose_name='dont-match',
