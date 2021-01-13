@@ -49,7 +49,7 @@ copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
 )
 version = get_version()
 release = version
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', 'development/design/*']
 default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),

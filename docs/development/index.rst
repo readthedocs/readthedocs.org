@@ -11,7 +11,6 @@ for your own :doc:`custom installation </custom_installs/index>`.
    architecture
    buildenvironments
    design
-   design/index
    docs
    front-end
    i18n
