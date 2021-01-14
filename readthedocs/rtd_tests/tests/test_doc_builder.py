@@ -29,6 +29,7 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 
+@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
 class SphinxBuilderTest(TestCase):
 
     fixtures = ['test_data', 'eric']
