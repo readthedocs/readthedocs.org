@@ -1,19 +1,25 @@
 import os
 import tempfile
 from collections import namedtuple
-
 from unittest import mock
+from unittest.mock import patch
+
 import py
 import pytest
 import yaml
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from unittest.mock import patch
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx, HtmlBuilder, HtmlDirBuilder, SingleHtmlBuilder
+from readthedocs.doc_builder.backends.sphinx import (
+    BaseSphinx,
+    HtmlBuilder,
+    HtmlDirBuilder,
+    SingleHtmlBuilder,
+)
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
@@ -31,9 +37,12 @@ class SphinxBuilderTest(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.version = self.project.versions.first()
 
-        self.build_env = namedtuple('project', 'version')
+        self.build_env = mock.MagicMock()
         self.build_env.project = self.project
         self.build_env.version = self.version
+        self.build_env.build = {
+            'id': 123,
+        }
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
@@ -70,6 +79,32 @@ class SphinxBuilderTest(TestCase):
                 params['conf_py_path'],
                 expected,
             )
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conf_py_external_version(self, checkout_path, docs_dir):
+        self.version.type = EXTERNAL
+        self.version.verbose_name = '123'
+        self.version.save()
+
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        base_sphinx.config_file = os.path.join(tmp_dir, 'config.py')
+        params = base_sphinx.get_config_params()
+        self.assertEqual(params['current_version'], '123')
+        self.assertEqual(params['version'], self.version)
+        self.assertEqual(params['build_url'], 'https://readthedocs.org/projects/pip/builds/123/')
 
     @patch('readthedocs.doc_builder.backends.sphinx.api')
     @patch('readthedocs.projects.models.api')
