@@ -1,5 +1,5 @@
 import logging
-from functools import namedtuple
+from functools import lru_cache, namedtuple
 from math import ceil
 
 from django.shortcuts import get_object_or_404
@@ -15,7 +15,7 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 
-from .serializers import PageSearchSerializer, VersionData
+from .serializers import PageSearchSerializer, ProjectData, VersionData
 
 log = logging.getLogger(__name__)
 
@@ -138,30 +138,20 @@ class PageSearchAPIView(GenericAPIView):
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
-
-        if not version:
-            version_slug = self.request.GET.get('version', None)
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        version_slug = self.request.GET.get('version', None)
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug=version_slug,
+        )
         return version
 
     def _validate_query_params(self):
@@ -183,6 +173,7 @@ class PageSearchAPIView(GenericAPIView):
         if errors:
             raise ValidationError(errors)
 
+    @lru_cache(maxsize=1)
     def _get_all_projects_data(self):
         """
         Return a dictionary of the project itself and all its subprojects.
@@ -192,15 +183,21 @@ class PageSearchAPIView(GenericAPIView):
         .. code::
 
            {
-               "requests": VersionData(
-                   "latest",
-                   "sphinx",
-                   "https://requests.readthedocs.io/en/latest/",
+               "requests": ProjectData(
+                   alias='alias',
+                   version=VersionData(
+                        "latest",
+                        "sphinx",
+                        "https://requests.readthedocs.io/en/latest/",
+                    ),
                ),
-               "requests-oauth": VersionData(
-                   "latest",
-                   "sphinx_htmldir",
-                   "https://requests-oauth.readthedocs.io/en/latest/",
+               "requests-oauth": ProjectData(
+                   alias=None,
+                   version=VersionData(
+                       "latest",
+                       "sphinx_htmldir",
+                       "https://requests-oauth.readthedocs.io/en/latest/",
+                   ),
                ),
            }
 
@@ -208,19 +205,17 @@ class PageSearchAPIView(GenericAPIView):
 
         :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        cache_key = '__cached_projects_data'
-        projects_data = getattr(self, cache_key, None)
-        if projects_data is not None:
-            return projects_data
-
         main_version = self._get_version()
         main_project = self._get_project()
 
         projects_data = {
-            main_project.slug: VersionData(
-                slug=main_version.slug,
-                doctype=main_version.documentation_type,
-                docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+            main_project.slug: ProjectData(
+                alias=None,
+                version=VersionData(
+                    slug=main_version.slug,
+                    doctype=main_version.documentation_type,
+                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+                ),
             )
         }
 
@@ -246,20 +241,29 @@ class PageSearchAPIView(GenericAPIView):
 
             if version and self._has_permission(self.request.user, version):
                 url = subproject.get_docs_url(version_slug=version.slug)
-                projects_data[subproject.slug] = VersionData(
+                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
+                version_data = VersionData(
                     slug=version.slug,
                     doctype=version.documentation_type,
                     docs_url=url,
                 )
+                projects_data[subproject.slug] = ProjectData(
+                    alias=project_alias,
+                    version=version_data,
+                )
 
-        setattr(self, cache_key, projects_data)
         return projects_data
 
     def _get_subproject_version(self, version_slug, subproject):
         """Get a version from the subproject."""
         return (
             Version.internal
-            .public(user=self.request.user, project=subproject, include_hidden=False)
+            .public(
+                user=self.request.user,
+                project=subproject,
+                include_hidden=False,
+                only_built=True,
+            )
             .filter(slug=version_slug)
             .first()
         )
@@ -309,8 +313,8 @@ class PageSearchAPIView(GenericAPIView):
 
         if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
             projects = {
-                project: version.slug
-                for project, version in self._get_all_projects_data().items()
+                project: project_data.version.slug
+                for project, project_data in self._get_all_projects_data().items()
             }
             # Check to avoid searching all projects in case it's empty.
             if not projects:

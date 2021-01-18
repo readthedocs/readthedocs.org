@@ -1,6 +1,7 @@
 """Endpoint to generate footer HTML."""
 
 import re
+from functools import lru_cache
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -11,12 +12,11 @@ from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -88,9 +88,8 @@ class BaseFooterHTML(APIView):
 
     - project
     - version
-    - page: Sphinx's page name, used for path operations,
-      like change between languages (deprecated in favor of ``absolute_uri``).
-    - absolute_uri: Full path with domain, used for path operations.
+    - page: Sphinx's page name (name of the source file),
+      used to build the "edit on" links.
     - theme: Used to decide how to integrate the flyout menu.
     - docroot: Path where all the source documents are.
       Used to build the ``edit_on`` URL.
@@ -107,36 +106,26 @@ class BaseFooterHTML(APIView):
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
+        version_slug = self.request.GET.get('version', None)
 
-        if not version:
-            version_slug = self.request.GET.get('version', None)
+        # Hack in a fix for missing version slug deploy
+        # that went out a while back
+        if version_slug == '':
+            version_slug = LATEST
 
-            # Hack in a fix for missing version slug deploy
-            # that went out a while back
-            if version_slug == '':
-                version_slug = LATEST
-
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug__iexact=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug__iexact=version_slug,
+        )
         return version
 
     def _get_active_versions_sorted(self):
@@ -243,17 +232,14 @@ class BaseFooterHTML(APIView):
             'version_supported': version.supported,
         }
 
-        # Allow folks to hook onto the footer response for various information
-        # collection, or to modify the resp_data.
-        footer_response.send(
-            sender=None,
-            request=request,
-            context=context,
-            response_data=resp_data,
-            absolute_uri=self.request.GET.get('absolute_uri'),
-        )
-
-        return Response(resp_data)
+        response = Response(resp_data)
+        cache_tags = [
+            project.slug,
+            f'{project.slug}-{version.slug}',
+            f'{project.slug}-rtd-footer',
+        ]
+        response['Cache-Tag'] = ','.join(cache_tags)
+        return response
 
 
 class FooterHTML(SettingsOverrideObject):

@@ -94,6 +94,7 @@ class TestRegexAutomationRules:
             version_type=version_type,
         )
         assert rule.run(version) == (result, None)
+        assert rule.matches.all().count() == (1 if result else 0)
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -317,6 +318,53 @@ class TestRegexAutomationRules:
         assert rule.run(version) == (True, None)
         assert version.privacy_level == PRIVATE
         trigger_build.assert_not_called()
+
+    def test_matches_history(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='test',
+            project=self.project,
+            active=False,
+            type=TAG,
+            built=False,
+        )
+
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='^test',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=TAG,
+        )
+
+        assert rule.run(version) is True
+        assert rule.matches.all().count() == 1
+
+        match = rule.matches.first()
+        assert match.version_name == 'test'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
+
+        for i in range(1, 31):
+            version.verbose_name = f'test {i}'
+            version.save()
+            assert rule.run(version) is True
+
+        assert rule.matches.all().count() == 15
+
+        match = rule.matches.first()
+        assert match.version_name == 'test 30'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
+
+        match = rule.matches.last()
+        assert match.version_name == 'test 16'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
 
 
 @pytest.mark.django_db
