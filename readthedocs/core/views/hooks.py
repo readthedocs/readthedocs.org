@@ -126,7 +126,7 @@ def get_or_create_external_version(project, version_data):
 
     :param project: Project instance
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-    instance.
+                         instance.
     :returns: External version.
     :rtype: Version
     """
@@ -142,17 +142,15 @@ def get_or_create_external_version(project, version_data):
             project.slug, external_version.slug,
         )
     else:
-        # identifier will change if there is a new commit to the Pull/Merge Request
-        if external_version.identifier != version_data.commit:
-            external_version.identifier = version_data.commit
-            # If the PR was previously closed it was marked as inactive.
-            external_version.active = True
-            external_version.save()
-
-            log.info(
-                'External version updated: project=%s version=%s',
-                project.slug, external_version.slug,
-            )
+        # Identifier will change if there is a new commit to the Pull/Merge Request.
+        external_version.identifier = version_data.commit
+        # If the PR was previously closed it was marked as inactive.
+        external_version.active = True
+        external_version.save()
+        log.info(
+            'External version updated: project=%s version=%s',
+            project.slug, external_version.slug,
+        )
     return external_version
 
 
@@ -200,7 +198,7 @@ def build_external_version(project, version, version_data):
     All pull/merge request webhook logic should route here to call ``trigger_build``.
 
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-    instance.
+                         instance.
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True

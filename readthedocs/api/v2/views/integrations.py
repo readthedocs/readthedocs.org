@@ -24,7 +24,6 @@ from readthedocs.core.views.hooks import (
     build_branches,
     build_external_version,
     deactivate_external_version,
-    delete_external_version,
     get_or_create_external_version,
     trigger_sync_versions,
 )
