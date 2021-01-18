@@ -111,6 +111,7 @@ class TestBasicsForm(WizardTestCase):
             'repo': 'https://github.com/fail/sauce',
             'repo_type': 'git',
             'remote_repository': '1234',
+            'default_branch': 'main',
         }
         resp = self.client.post(
             '/dashboard/import/',
@@ -176,6 +177,41 @@ class TestAdvancedForm(TestBasicsForm):
             'documentation_type': 'sphinx',
             'tags': 'foo, bar, baz',
         }
+
+    def test_initial_params(self):
+        extra_initial = {
+            'description': 'An amazing project',
+            'project_url': "https://foo.bar",
+        }
+        basic_initial = {
+            'name': 'foobar',
+            'repo': 'https://github.com/foo/bar',
+            'repo_type': 'git',
+            'default_branch': 'main',
+            'remote_repository': '',
+        }
+        initial = dict(**extra_initial, **basic_initial)
+        self.client.force_login(self.user)
+
+        # User selects a remote repo to import.
+        resp = self.client.post(reverse('projects_import'), initial)
+
+        # The correct initial data for the basic form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, basic_initial)
+
+        # User selects advanced.
+        basic_initial['advanced'] = True
+        step_data = {
+            f'basics-{k}': v
+            for k, v in basic_initial.items()
+        }
+        step_data[f'{self.wizard_class_slug}-current_step'] = 'basics'
+        resp = self.client.post(self.url, step_data)
+
+        # The correct initial data for the advanced form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, extra_initial)
 
     def test_form_pass(self):
         """Test all forms pass validation."""

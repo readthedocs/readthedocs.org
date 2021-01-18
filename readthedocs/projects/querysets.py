@@ -240,7 +240,7 @@ class FeatureQuerySet(models.QuerySet):
         return self.filter(
             Q(projects=project) |
             Q(default_true=True, add_date__gt=project.pub_date) |
-            Q(future_default_true=True, add_date__lt=project.pub_date)
+            Q(future_default_true=True, add_date__lte=project.pub_date)
         ).distinct()
 
 

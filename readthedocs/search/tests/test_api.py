@@ -182,6 +182,7 @@ class BaseTestDocumentSearch:
         data = resp.data['results']
         assert len(data) == 1
         assert data[0]['project'] == project.slug
+        assert data[0]['project_alias'] is None
 
     def test_doc_search_pagination(self, api_client, project):
         """Test Doc search result can be paginated"""
@@ -264,6 +265,7 @@ class BaseTestDocumentSearch:
         # First result should be the subproject
         first_result = data[0]
         assert first_result['project'] == subproject.slug
+        assert first_result['project_alias'] == subproject.slug
         # The result is from the same version as the main project.
         assert first_result['version'] == version.slug
         # Check the link is the subproject document link

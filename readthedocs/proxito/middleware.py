@@ -118,7 +118,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
-        """Add debugging headers to proxito responses."""
+        """Add debugging and cache headers to proxito responses."""
 
         project_slug = getattr(request, 'path_project_slug', '')
         version_slug = getattr(request, 'path_version_slug', '')
@@ -134,9 +134,15 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Path'] = path
 
         # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{project_slug}'
+        cache_tag = response.get('Cache-Tag')
+        cache_tags = [cache_tag] if cache_tag else []
+        if project_slug:
+            cache_tags.append(project_slug)
         if version_slug:
-            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+            cache_tags.append(f'{project_slug}-{version_slug}')
+
+        if cache_tags:
+            response['Cache-Tag'] = ','.join(cache_tags)
 
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Project-Method'] = 'rtdheader'
