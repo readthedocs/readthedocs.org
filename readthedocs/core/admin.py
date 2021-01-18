@@ -10,9 +10,12 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from messages_extends.admin import MessageAdmin
+from messages_extends.models import Message
+from rest_framework.authtoken.admin import TokenAdmin
+
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
-from rest_framework.authtoken.admin import TokenAdmin
 
 
 # Monkeypatch raw_id_fields onto the TokenAdmin
@@ -101,6 +104,32 @@ class UserProfileAdmin(admin.ModelAdmin):
     raw_id_fields = ('user',)
 
 
+class MessageAdminExtra(MessageAdmin):
+    list_display = [
+        'user',
+        'organizations',
+        'message',
+        'created',
+        'read',
+    ]
+    list_filter = [
+        'read',
+    ]
+    search_fields = [
+        'user__username',
+        'message',
+        'user__organizationowner__organization__slug',
+    ]
+
+    def organizations(self, obj):
+        return ', '.join(
+            organization.slug
+            for organization in obj.user.owner_organizations.all()
+        )
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdminExtra)
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.unregister(Message)
+admin.site.register(Message, MessageAdminExtra)

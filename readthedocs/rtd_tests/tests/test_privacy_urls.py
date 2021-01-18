@@ -253,6 +253,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 # ## Private Project Testing ###
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -291,6 +292,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return True
 
 
+@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {

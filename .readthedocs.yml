@@ -18,3 +18,4 @@ search:
 
     # Useful content, but not something we want most users finding
     custom_installs/*: -6
+    changelog.html: -6

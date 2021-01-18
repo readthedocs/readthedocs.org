@@ -4,7 +4,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, HTML, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -84,7 +85,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type')
+        fields = ('name', 'repo', 'repo_type', 'default_branch')
 
     remote_repository = forms.CharField(
         widget=forms.HiddenInput(),
@@ -190,7 +191,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -203,7 +204,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'analytics_disabled',
             'show_version_warning',
             'single_version',
-            'external_builds_enabled'
+            'external_builds_enabled',
+            'privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -232,17 +234,24 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         help_text = render_to_string(
             'projects/project_advanced_settings_helptext.html'
         )
-        self.helper.layout = Layout(
+
+        per_project_settings = list(self.Meta.per_project_settings)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop('privacy_level')
+            per_project_settings.remove('privacy_level')
+
+        field_sets = [
             Fieldset(
                 _("Global settings"),
-                *self.Meta.per_project_settings,
+                *per_project_settings,
             ),
             Fieldset(
                 _("Default settings"),
                 HTML(help_text),
                 *self.Meta.per_version_settings,
             ),
-        )
+        ]
+        self.helper.layout = Layout(*field_sets)
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
@@ -375,17 +384,26 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         return self.project
 
     def clean_child(self):
-        child = self.cleaned_data['child']
+        """
+        Validate child is a valid subproject.
 
-        child.is_valid_as_subproject(
-            self.project, forms.ValidationError
-        )
+        Validation is done on creation only,
+        when editing users can't change the child.
+        """
+        child = self.cleaned_data['child']
+        if self.instance.pk is None:
+            child.is_valid_as_subproject(
+                self.project, forms.ValidationError
+            )
         return child
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
-        subproject = self.project.subprojects.filter(
-            alias=alias).exclude(id=self.instance.pk)
+        subproject = (
+            self.project.subprojects
+            .filter(alias=alias)
+            .exclude(id=self.instance.pk)
+        )
 
         if subproject.exists():
             raise forms.ValidationError(
@@ -621,7 +639,7 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
-        domain = self.cleaned_data['domain']
+        domain = self.cleaned_data['domain'].lower()
         parsed = urlparse(domain)
 
         # Force the scheme to have a valid netloc.
@@ -722,7 +740,7 @@ class FeatureForm(forms.ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['projects', 'feature_id', 'default_true']
+        fields = ['projects', 'feature_id', 'default_true', 'future_default_true']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

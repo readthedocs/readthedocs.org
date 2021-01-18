@@ -259,6 +259,32 @@ class FeatureQuerySetTests(TestCase):
             ordered=False,
         )
 
+    def test_feature_future_default_true(self):
+        project = fixture.get(Project, main_language_project=None)
+        # Explicit feature
+        feature1 = fixture.get(Feature, projects=[project])
+
+        # False implicit feature
+        feature2 = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date + timedelta(days=1),
+            future_default_true=False,
+        )
+
+        # True implicit feature after add date
+        feature3 = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date - timedelta(days=1),
+            future_default_true=True,
+        )
+        self.assertQuerysetEqual(
+            Feature.objects.for_project(project),
+            [repr(feature1), repr(feature3)],
+            ordered=False,
+        )
+
     def test_feature_multiple_projects(self):
         project1 = fixture.get(Project, main_language_project=None)
         project2 = fixture.get(Project, main_language_project=None)

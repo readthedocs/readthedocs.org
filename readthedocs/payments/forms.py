@@ -27,6 +27,13 @@ class StripeResourceMixin:
                 del attrs['id']
             except KeyError:
                 pass
+            log.exception(
+                'There was an error trying to retrieve a Stripe resource. '
+                'Creating a new resource as a fallback. '
+                'resource=%s attrs=%s',
+                resource,
+                attrs,
+            )
             return resource.create(**attrs)
         else:
             for (key, val) in list(attrs.items()):

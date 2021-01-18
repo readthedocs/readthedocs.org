@@ -115,6 +115,7 @@ class BaseMkdocs(BaseBuilder):
             )
             return {
                 'site_name': self.version.project.name,
+                'docs_dir': self.docs_dir(),
             }
         except yaml.YAMLError as exc:
             note = ''
@@ -139,13 +140,11 @@ class BaseMkdocs(BaseBuilder):
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
-        user_docs_dir = user_config.get('docs_dir')
-        if not isinstance(user_docs_dir, (type(None), str)):
+        docs_dir = user_config.get('docs_dir', 'docs')
+        if not isinstance(docs_dir, (type(None), str)):
             raise MkDocsYAMLParseError(
                 MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
             )
-
-        docs_dir = self.docs_dir(docs_dir=user_docs_dir)
 
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir

@@ -2,11 +2,11 @@
 
 -r pip.txt
 
-django-dynamic-fixture==3.1.0
-pytest==6.0.2
+django-dynamic-fixture==3.1.1
+pytest==6.2.1
 pytest-custom-exit-code==0.3.0
-pytest-django==3.9.0
-pytest-xdist==2.1.0
+pytest-django==4.1.0
+pytest-xdist==2.2.0
 pytest-cov==2.10.1
 apipkg==1.5
 execnet==1.7.1
@@ -20,10 +20,10 @@ execnet==1.7.1
 Mercurial==4.4.2  # pyup: ignore
 
 yamale==2.2.0  # pyup: <3.0
-pytest-mock==3.3.1
+pytest-mock==3.5.1
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.13.3
+ipdb==0.13.4
 
 requests-mock==1.8.0
