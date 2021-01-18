@@ -392,7 +392,14 @@ class BuildModelTests(TestCase):
 
         self.project = get(Project)
         self.project.users.add(self.eric)
-        self.version = get(Version, project=self.project)
+        self.version = get(
+            Version,
+            project=self.project,
+            type=BRANCH,
+            slug='v2',
+            identifier='a1b2c3',
+            verbose_name='v2',
+        )
 
         self.pip = Project.objects.get(slug='pip')
         self.external_version = get(
@@ -751,6 +758,29 @@ class BuildModelTests(TestCase):
         )
         self.assertEqual(build.get_commit_url(), expected_url)
 
+    def test_version_deleted(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            commit=self.version.identifier,
+        )
+
+        self.assertEqual(Build.objects.all().count(), 1)
+        self.assertEqual(build.version_name, 'v2')
+        self.assertEqual(build.version_slug, 'v2')
+        self.assertEqual(build.version_type, BRANCH)
+        self.assertEqual(build.commit, 'a1b2c3')
+
+        self.version.delete()
+        build.refresh_from_db()
+
+        self.assertEqual(Build.objects.all().count(), 1)
+        self.assertIsNone(build.version)
+        self.assertEqual(build.version_name, 'v2')
+        self.assertEqual(build.version_slug, 'v2')
+        self.assertEqual(build.version_type, BRANCH)
+        self.assertEqual(build.commit, 'a1b2c3')
 
 
 @mock.patch('readthedocs.projects.tasks.update_docs_task')

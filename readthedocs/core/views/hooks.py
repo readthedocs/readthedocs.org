@@ -138,31 +138,38 @@ def get_or_create_external_version(project, version_data):
 
     if created:
         log.info(
-            '(Create External Version) Added Version: [%s] ',
-            external_version.slug
+            'External version created. project=%s version=%s',
+            project.slug, external_version.slug,
         )
     else:
         # identifier will change if there is a new commit to the Pull/Merge Request
         if external_version.identifier != version_data.commit:
             external_version.identifier = version_data.commit
+            # If the PR was previously closed it was marked as inactive.
+            external_version.active = True
             external_version.save()
 
             log.info(
-                'Commit from external version updated. project=%s version=%s',
+                'External version updated: project=%s version=%s',
                 project.slug, external_version.slug,
             )
     return external_version
 
 
-def delete_external_version(project, version_data):
+def deactivate_external_version(project, version_data):
     """
-    Delete external versions using the id and latest commit.
+    Deactivate external versions using `identifier` and `verbose_name`.
 
     if external version does not exist then returns `None`.
 
+    We mark the version as inactive,
+    so another celery task will remove it after some days.
+
     :param project: Project instance
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-    instance.
+                         instance.
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
     :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
@@ -176,13 +183,12 @@ def delete_external_version(project, version_data):
     )
 
     if external_version:
-        # Delete External Version
-        external_version.delete()
+        external_version.active = False
+        external_version.save()
         log.info(
-            '(Delete External Version) Deleted Version: [%s]',
-            external_version.slug
+            'External version marked as inactive. project=%s version=%s',
+            project.slug, external_version.slug,
         )
-
         return external_version.verbose_name
     return None
 

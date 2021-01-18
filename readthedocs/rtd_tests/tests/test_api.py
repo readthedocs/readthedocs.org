@@ -1159,12 +1159,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=pull_request_number)
+        ).get(verbose_name=pull_request_number)
 
-        # external version should be deleted
-        self.assertFalse(external_version.exists())
+        # External version should be inactive.
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
@@ -1869,12 +1869,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=merge_request_number)
+        ).get(verbose_name=merge_request_number)
 
-        # external version should be deleted
-        self.assertFalse(external_version.exists())
+        # External version should be inactive.
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
@@ -1913,12 +1913,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=merge_request_number)
+        ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.exists())
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()

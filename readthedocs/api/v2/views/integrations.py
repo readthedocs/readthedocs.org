@@ -23,6 +23,7 @@ from readthedocs.core.signals import (
 from readthedocs.core.views.hooks import (
     build_branches,
     build_external_version,
+    deactivate_external_version,
     delete_external_version,
     get_or_create_external_version,
     trigger_sync_versions,
@@ -252,14 +253,14 @@ class WebhookMixin:
             'versions': [to_build] if to_build else [],
         }
 
-    def get_delete_external_version_response(self, project):
+    def get_deactivated_external_version_response(self, project):
         """
-        Delete External version on pull/merge request `closed` events and return API response.
+        Deactivate the external version on merge/close events and return the API response.
 
         Return a JSON response with the following::
 
             {
-                "version_deleted": true,
+                "version_deactivated": true,
                 "project": "project_name",
                 "versions": [verbose_name]
             }
@@ -268,14 +269,14 @@ class WebhookMixin:
         :type project: Project
         """
         version_data = self.get_external_version_data()
-        deleted_version = delete_external_version(
+        deactivated_version = deactivate_external_version(
             project=project,
             version_data=version_data,
         )
         return {
-            'version_deleted': deleted_version is not None,
+            'version_deactivated': bool(deactivated_version),
             'project': project.slug,
-            'versions': [deleted_version],
+            'versions': [deactivated_version] if deactivated_version else [],
         }
 
 
@@ -441,7 +442,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Delete external version when PR is closed
-                return self.get_delete_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
         if all([
@@ -602,7 +603,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
             if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
                 # Handle merge and close merge_request event.
-                return self.get_delete_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):

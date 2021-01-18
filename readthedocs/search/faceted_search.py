@@ -275,7 +275,7 @@ class PageSearchBase(RTDFacetedSearch):
         # we are only interested in the total count
         s = s.extra(size=0)
         s = s.execute()
-        return s.hits.total
+        return s.hits.total['value']
 
     def query(self, search, query):
         """
