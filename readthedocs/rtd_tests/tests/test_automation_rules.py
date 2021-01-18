@@ -338,7 +338,7 @@ class TestRegexAutomationRules:
             version_type=TAG,
         )
 
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert rule.matches.all().count() == 1
 
         match = rule.matches.first()
@@ -350,7 +350,7 @@ class TestRegexAutomationRules:
         for i in range(1, 31):
             version.verbose_name = f'test {i}'
             version.save()
-            assert rule.run(version) is True
+            assert rule.run(version) == (True, None)
 
         assert rule.matches.all().count() == 15
 
