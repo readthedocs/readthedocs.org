@@ -326,6 +326,10 @@ class MkdocsHTML(BaseMkdocs):
     build_dir = '_build/html'
 
 
+# TODO: find a better way to integrate with MkDocs.
+# See https://github.com/readthedocs/readthedocs.org/issues/7844
+
+
 class ProxyPythonName(yaml.YAMLObject):
     def __init__(self, value):
         self.value = value
