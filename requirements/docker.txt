@@ -1,7 +1,7 @@
 # Requirements for our local docker development
 
 -r pip.txt
-# http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
+# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
 psycopg2-binary==2.8.6
 
 # Version 3.0.0 drops support for Django < 3.0

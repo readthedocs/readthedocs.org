@@ -1,8 +1,7 @@
 # Requirements for our production systems
 
 -r pip.txt
-# http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
-psycopg2==2.8.3 --no-binary psycopg2
+psycopg2==2.8.6
 gunicorn==20.0.4
 
 # Version 3.0.0 drops support for Django < 3.0
