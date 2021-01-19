@@ -53,6 +53,7 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
+            external_builds_enabled=False
         )
         for tag in ('tag', 'project', 'test'):
             self.project.tags.add(tag)

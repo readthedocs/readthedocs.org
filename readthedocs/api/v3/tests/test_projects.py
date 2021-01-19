@@ -206,6 +206,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             'analytics_code': 'UA-XXXXXX',
             'show_version_warning': False,
             'single_version': True,
+            "external_builds_enabled": True
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -233,6 +234,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.analytics_code, 'UA-XXXXXX')
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.single_version, True)
+        self.assertEqual(self.project.external_builds_enabled, True)
 
     def test_partial_update_project(self):
         data = {

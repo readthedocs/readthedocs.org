@@ -1,3 +1,23 @@
+Version 5.8.5
+-------------
+
+:Date: January 18, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 03 (`#7840 <https://github.com/readthedocs/readthedocs.org/pull/7840>`__)
+* `@humitos <https://github.com/humitos>`__: Speed up concurrent builds by limited to 5 hours ago (`#7839 <https://github.com/readthedocs/readthedocs.org/pull/7839>`__)
+* `@humitos <https://github.com/humitos>`__: Match Redis version with production (`#7838 <https://github.com/readthedocs/readthedocs.org/pull/7838>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Option to Enable External Builds Through Project Update API (`#7834 <https://github.com/readthedocs/readthedocs.org/pull/7834>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: mention the version warning is for sphinx only (`#7832 <https://github.com/readthedocs/readthedocs.org/pull/7832>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: make PRODUCTION_DOMAIN explicit (`#7831 <https://github.com/readthedocs/readthedocs.org/pull/7831>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it easy to copy/pasta examples (`#7829 <https://github.com/readthedocs/readthedocs.org/pull/7829>`__)
+* `@stsewd <https://github.com/stsewd>`__: PR preview: pass PR and build urls to sphinx context (`#7828 <https://github.com/readthedocs/readthedocs.org/pull/7828>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Hide design docs from documentation (`#7826 <https://github.com/readthedocs/readthedocs.org/pull/7826>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: add cache tags (`#7821 <https://github.com/readthedocs/readthedocs.org/pull/7821>`__)
+* `@humitos <https://github.com/humitos>`__: Log Stripe Resource fallback creation in Sentry (`#7820 <https://github.com/readthedocs/readthedocs.org/pull/7820>`__)
+* `@humitos <https://github.com/humitos>`__: Register MetricsTask to send metrics to AWS CloudWatch (`#7817 <https://github.com/readthedocs/readthedocs.org/pull/7817>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add management command to Sync RemoteRepositories and RemoteOrganizations (`#7803 <https://github.com/readthedocs/readthedocs.org/pull/7803>`__)
+* `@stsewd <https://github.com/stsewd>`__: Mkdocs: default to "docs" for docs_dir (`#7766 <https://github.com/readthedocs/readthedocs.org/pull/7766>`__)
+
 Version 5.8.4
 -------------
 
