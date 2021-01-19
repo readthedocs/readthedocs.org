@@ -28,3 +28,15 @@ class Config(AppConfig):
             app.tasks.register(AutoscaleBuildersTask)
         except (ModuleNotFoundError, ImportError):
             log.info('AutoscaleBuildersTask task could not be imported.')
+
+        try:
+            from readthedocsext.monitoring.metrics.tasks import (
+                Metrics1mTask,
+                Metrics5mTask,
+                Metrics10mTask,
+            )
+            app.tasks.register(Metrics1mTask)
+            app.tasks.register(Metrics5mTask)
+            app.tasks.register(Metrics10mTask)
+        except (ModuleNotFoundError, ImportError):
+            log.info('Metrics tasks could not be imported.')
