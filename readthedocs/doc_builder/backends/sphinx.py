@@ -156,6 +156,10 @@ class BaseSphinx(BaseBuilder):
             protocol = 'http' if settings.DEBUG else 'https'
             build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build_url}'
 
+        vcs_url = None
+        if self.version.is_external:
+            vcs_url = self.version.vcs_url
+
         data = {
             'html_theme': 'sphinx_rtd_theme',
             'html_theme_import': 'sphinx_rtd_theme',
@@ -170,6 +174,7 @@ class BaseSphinx(BaseBuilder):
             'downloads': downloads,
             'subproject_urls': subproject_urls,
             'build_url': build_url,
+            'vcs_url': vcs_url,
 
             # GitHub
             'github_user': github_user,
