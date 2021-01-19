@@ -12,7 +12,7 @@ from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.unresolver import unresolve_from_request
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 
 class BaseAnalyticsView(APIView):
