@@ -494,6 +494,7 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
             'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled',
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.

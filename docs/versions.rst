@@ -143,12 +143,15 @@ This banner has a text with a link redirecting the users to the latest version o
 This feature is disabled by default on new projects,
 you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
 
+.. note::
+
+   This feature is available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
 
 Redirects on root URLs
 ----------------------
 
 When a user hits the root URL for your documentation,
-for example ``http://pip.readthedocs.io/``,
+for example ``https://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
