@@ -62,9 +62,6 @@ class BaseAnalyticsView(APIView):
     # pylint: disable=no-self-use
     def increase_page_view_count(self, request, project, version, absolute_uri):
         """Increase the page view count for the given project."""
-        if not absolute_uri or not project.has_feature(Feature.STORE_PAGEVIEWS):
-            return
-
         unresolved = unresolve_from_request(request, absolute_uri)
         if not unresolved:
             return

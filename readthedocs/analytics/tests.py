@@ -129,11 +129,6 @@ class AnalyticsPageViewsTests(TestCase):
             PageView.objects.all().count() == 0
         )
 
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        self.project.feature_set.add(feature)
-
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = self.yesterday
