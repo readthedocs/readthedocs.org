@@ -123,12 +123,6 @@ class AnalyticsPageViewsTests(TestCase):
             PageView.objects.all().count() == 0
         ), 'There\'s no PageView object created yet.'
 
-        # Without the feature flag, no PageView is created
-        self.client.get(self.url, HTTP_HOST=self.host)
-        assert (
-            PageView.objects.all().count() == 0
-        )
-
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = self.yesterday
