@@ -1596,10 +1596,8 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
     SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
 
-    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
-    STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
@@ -1727,10 +1725,6 @@ class Feature(models.Model):
         ),
 
         (
-            FORCE_SPHINX_FROM_VENV,
-            _('Force to use Sphinx from the current virtual environment'),
-        ),
-        (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
                 'List packages installed in the environment ("pip list" or "conda list") '
@@ -1740,10 +1734,6 @@ class Feature(models.Model):
         (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
-        ),
-        (
-            STORE_PAGEVIEWS,
-            _('Store pageviews for this project'),
         ),
         (
             SPHINX_PARALLEL,
