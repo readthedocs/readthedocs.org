@@ -565,7 +565,6 @@ class Conda(PythonEnvironment):
             self.conda_bin_name(),
             'env',
             'create',
-            '--quiet',
             '--name',
             self.version.slug,
             '--file',
