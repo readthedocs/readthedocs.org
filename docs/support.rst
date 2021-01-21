@@ -1,6 +1,10 @@
 Support
 =======
 
+.. note::
+
+   For :doc:`/commercial/index`, email us to support@readthedocs.com.
+
 Usage Questions
 ---------------
 
@@ -51,5 +55,3 @@ and we have a dedicated team that responds to support requests during business h
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _Github Issue Tracker: https://github.com/readthedocs/readthedocs.org/issues
-.. _Gold: https://readthedocs.org/accounts/gold/
-.. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html
