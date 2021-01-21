@@ -1563,17 +1563,13 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
@@ -1589,6 +1585,16 @@ class Feature(models.Model):
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
 
+    # Dependecies related features
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
+
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
@@ -1601,20 +1607,10 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
-    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DONT_CREATE_INDEX = 'dont_create_index'
-    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
-        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (
-            DONT_INSTALL_DOCUTILS,
-            _(
-                'Do not install docutils as requirement for build documentation',
-            ),
-        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
-        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1640,10 +1636,6 @@ class Feature(models.Model):
         (
             SHARE_SPHINX_DOCTREE,
             _('Use shared directory for doctrees'),
-        ),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default'),
         ),
         (
             CLEAN_AFTER_BUILD,
@@ -1699,6 +1691,31 @@ class Feature(models.Model):
             _('Sync versions using a task instead of the API'),
         ),
 
+        # Dependecies related features
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
+        ),
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DONT_INSTALL_DOCUTILS,
+            _('Do not install docutils as requirement for build documentation'),
+        ),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
+            INSTALL_LATEST_SETUPTOOLS,
+            _('Install latest version of setuptools'),
+        ),
+
         # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
@@ -1748,16 +1765,8 @@ class Feature(models.Model):
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
-        ),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _('Don\'t install the latest version of pip'),
         ),
     )
 
