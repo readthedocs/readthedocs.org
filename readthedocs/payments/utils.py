@@ -7,11 +7,15 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 :py:class:`readthedocs.payments.forms.StripeResourceMixin`.
 """
 
+import logging
+
 import stripe
+
 from django.conf import settings
 
 
 stripe.api_key = settings.STRIPE_SECRET
+log = logging.getLogger(__name__)
 
 
 def delete_customer(customer_id):
