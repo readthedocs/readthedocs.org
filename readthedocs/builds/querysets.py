@@ -1,8 +1,10 @@
 """Build and Version QuerySet classes."""
+import datetime
 import logging
 
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -143,7 +145,11 @@ class BuildQuerySetBase(models.QuerySet):
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
         limit_reached = False
-        query = Q(project__slug=project.slug)
+        query = Q(
+            project__slug=project.slug,
+            # Limit builds to 5 hours ago to speed up the query
+            date__gte=timezone.now() - datetime.timedelta(hours=5),
+        )
 
         if project.main_language_project:
             # Project is a translation, counts all builds of all the translations

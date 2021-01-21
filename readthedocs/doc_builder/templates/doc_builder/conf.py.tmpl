@@ -154,7 +154,7 @@ else:
 # Add External version warning banner to the external version documentation
 if '{{ version.type }}' == 'external':
     extensions.insert(1, "readthedocs_ext.external_version_warning")
-    readthedocs_vcs_url = '{{ version.vcs_url }}'
+    readthedocs_vcs_url = '{{ vcs_url }}'
     readthedocs_build_url = '{{ build_url }}'
 
 project_language = '{{ project.language }}'
