@@ -26,8 +26,21 @@ to authenticate as a user and have the same permissions that the user itself.
 
 .. note::
 
-   You will find your access Token under
-   `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
+   .. tabs::
+
+     .. tab:: Read the Docs Community
+
+         .. tip::
+
+            You will find your access Token under
+            `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
+
+     .. tab:: Read the Docs for Business
+
+         .. tip::
+
+            You will find your access Token under
+            `your profile settings <https://readthedocs.com/accounts/tokens/>`_.
 
 
 Session
@@ -76,6 +89,12 @@ There are some URL attributes that applies to all of these resources:
       .. tip::
 
          You can browse the full API by accessing its root URL: https://readthedocs.com/api/v3/
+
+
+.. note::
+
+   If you are using :doc:`Read the Docs for Business </commercial/index>` take into account that you will need to replace
+   https://readthedocs.org/ by https://readthedocs.com/ in all the URLs used in the following examples.
 
 
 Projects
@@ -174,6 +193,12 @@ Projects list
     The ``results`` in response is an array of project data,
     which is same as :http:get:`/api/v3/projects/(string:project_slug)/`.
 
+   .. note::
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :query string expand: with ``organization`` and ``teams``.
+
 
 Project details
 +++++++++++++++
@@ -261,6 +286,12 @@ Project details
                           Allowed values are ``active_versions``, ``active_versions.last_build`` and
                           ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
+   .. note::
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :query string expand: with ``organization`` and ``teams``.
+
 
 Project create
 ++++++++++++++
@@ -314,6 +345,14 @@ Project create
     **Example response**:
 
     `See Project details <#project-details>`__
+
+   .. note::
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :>json string organization: required organization's slug under the project will be imported.
+      :>json string teams: optional teams' slugs the project will belong to.
+
 
 Project update
 ++++++++++++++
@@ -1386,7 +1425,7 @@ Organizations
 
 .. note::
 
-   The ``/api/v3/organizations/`` endpoint is only available in Read the Docs for Business currently.
+   The ``/api/v3/organizations/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>` currently.
    We plan to have organizations on Read the Docs Community in a near future and we will add support for this endpoint at the same time.
 
 
