@@ -7,7 +7,7 @@ pytest==6.2.1
 pytest-custom-exit-code==0.3.0
 pytest-django==4.1.0
 pytest-xdist==2.2.0
-pytest-cov==2.11.0
+pytest-cov==2.11.1
 apipkg==1.5
 execnet==1.7.1
 

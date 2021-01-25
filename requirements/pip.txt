@@ -1,7 +1,7 @@
 # Base packages
 
-pip==20.3.3
-virtualenv==20.3.1
+pip==21.0
+virtualenv==20.4.0
 
 django==2.2.17  # pyup: <2.3
 django-extensions==3.1.0
@@ -27,7 +27,7 @@ jsonfield==3.1.0
 requests==2.25.1
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==5.3.1
+pyyaml==5.4.1
 Pygments==2.7.4
 
 # Basic tools
