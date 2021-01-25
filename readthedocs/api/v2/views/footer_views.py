@@ -232,7 +232,14 @@ class BaseFooterHTML(APIView):
             'version_supported': version.supported,
         }
 
-        return Response(resp_data)
+        response = Response(resp_data)
+        cache_tags = [
+            project.slug,
+            f'{project.slug}-{version.slug}',
+            f'{project.slug}-rtd-footer',
+        ]
+        response['Cache-Tag'] = ','.join(cache_tags)
+        return response
 
 
 class FooterHTML(SettingsOverrideObject):

@@ -367,6 +367,7 @@ Project update
             "analytics_code": "UA000000",
             "analytics_disabled": false,
             "single_version": false,
+            "external_builds_enabled": true,
 
         }
 
