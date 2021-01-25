@@ -374,7 +374,7 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative='mkdocs<1.1',
+                    negative='mkdocs',
                 ),
             )
         else:
