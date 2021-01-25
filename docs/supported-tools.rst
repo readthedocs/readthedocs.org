@@ -66,11 +66,11 @@ Sphinx:
   New projects use the latest version.
 
 Mkdocs:
-  Projects created before April 3, 2019 (April 23 for :doc:`/commercial/index`) use ``0.17.3``.
+  Projects created before April 3, 2019 (April 23, 2019 for :doc:`/commercial/index`) use ``0.17.3``.
   New projects use the latest version.
 
 sphinx-rtd-theme:
-  Projects created before Oct 20, 2020 use ``0.4.3``.
+  Projects created before October 20, 2020 (January 21, 2021 for :doc:`/commercial/index`) use ``0.4.3``.
   New projects use the latest version.
 
 pip:
