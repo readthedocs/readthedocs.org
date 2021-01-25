@@ -24,23 +24,22 @@ Token
 The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
 to authenticate as a user and have the same permissions that the user itself.
 
-.. note::
 
-   .. tabs::
+.. tabs::
 
-     .. tab:: Read the Docs Community
+  .. tab:: Read the Docs Community
 
-         .. tip::
+     .. note::
 
-            You will find your access Token under
-            `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
+        You will find your access Token under
+        `your profile settings <https://readthedocs.org/accounts/tokens/>`__.
 
-     .. tab:: Read the Docs for Business
+  .. tab:: Read the Docs for Business
 
-         .. tip::
+     .. note::
 
-            You will find your access Token under
-            `your profile settings <https://readthedocs.com/accounts/tokens/>`_.
+        You will find your access Token under
+        `your profile settings <https://readthedocs.com/accounts/tokens/>`__.
 
 
 Session
@@ -193,11 +192,16 @@ Projects list
     The ``results`` in response is an array of project data,
     which is same as :http:get:`/api/v3/projects/(string:project_slug)/`.
 
-   .. note::
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
 
       :doc:`Read the Docs for Business </commercial/index>`, also accepts
 
-      :query string expand: with ``organization`` and ``teams``.
+      :Query Parameters:
+
+         * **expand** (*string*) -- with ``organization`` and ``teams``.
+
 
 
 Project details
@@ -286,11 +290,15 @@ Project details
                           Allowed values are ``active_versions``, ``active_versions.last_build`` and
                           ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
-   .. note::
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
 
       :doc:`Read the Docs for Business </commercial/index>`, also accepts
 
-      :query string expand: with ``organization`` and ``teams``.
+      :Query Parameters:
+
+         * **expand** (*string*) -- with ``organization`` and ``teams``.
 
 
 Project create
@@ -346,12 +354,16 @@ Project create
 
     `See Project details <#project-details>`__
 
-   .. note::
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
 
       :doc:`Read the Docs for Business </commercial/index>`, also accepts
 
-      :>json string organization: required organization's slug under the project will be imported.
-      :>json string teams: optional teams' slugs the project will belong to.
+      :Request JSON Object:
+
+         * **organization** (*string*) -- required organization's slug under the project will be imported.
+         * **teams** (*string*) -- optional teams' slugs the project will belong to.
 
 
 Project update
