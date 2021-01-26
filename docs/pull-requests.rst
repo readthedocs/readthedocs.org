@@ -21,7 +21,7 @@ Features
 - **Warning Banner:** A warning banner is shown at the top of the documentation
   to let users know that this isn't the main documentation for the project.
 
-  .. note:: This feature is available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
+  .. note:: Warning banners are available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
 
 .. figure:: /_static/images/github-build-status-reporting.gif
    :align: center
