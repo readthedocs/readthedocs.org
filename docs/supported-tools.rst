@@ -32,7 +32,7 @@ For :doc:`/commercial/index` we provide an extended support of six months after 
 
 This is how we choose an end of support date:
 
-- For tools that define an :term:`EOL <End Of Life>` date, we try to follow that date for our policy.
+- For tools that define an :abbr:`EOL (End Of Life)` date, we try to follow that date for our policy.
 - For tools that release their versions incrementally without an EOL date,
   we choose a date based on:
 
@@ -151,7 +151,7 @@ Sphinx
 
    * - ``3.x``
      - Apr 5, 2020
-     - ???
+     - \???
      - 5.0 is released or later/early
 
    * - ``2.x``
@@ -197,7 +197,7 @@ Mkdocs
 
    * - ``1.1.x``
      - Feb 22, 2020
-     - ???
+     - \???
      - 3.0 released or later/early
 
    * - ``1.0.x``
