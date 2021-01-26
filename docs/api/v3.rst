@@ -27,18 +27,18 @@ to authenticate as a user and have the same permissions that the user itself.
 
 .. tabs::
 
-  .. tab:: Read the Docs Community
+  .. tab:: |org_brand|
 
      .. note::
 
-        You will find your access Token under
+        On |org_brand|, you will find your access Token under
         `your profile settings <https://readthedocs.org/accounts/tokens/>`__.
 
-  .. tab:: Read the Docs for Business
+  .. tab:: |com_brand|
 
      .. note::
 
-        You will find your access Token under
+        On |com_brand|, you will find your access Token under
         `your profile settings <https://readthedocs.com/accounts/tokens/>`__.
 
 
@@ -77,13 +77,13 @@ There are some URL attributes that applies to all of these resources:
 
 .. tabs::
 
-   .. tab:: Read the Docs Community
+   .. tab:: |org_brand|
 
       .. tip::
 
          You can browse the full API by accessing its root URL: https://readthedocs.org/api/v3/
 
-   .. tab:: Read the Docs for Business
+   .. tab:: |com_brand|
 
       .. tip::
 
@@ -1438,7 +1438,7 @@ Organizations
 .. note::
 
    The ``/api/v3/organizations/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>` currently.
-   We plan to have organizations on Read the Docs Community in a near future and we will add support for this endpoint at the same time.
+   We plan to have organizations on |org_brand| in a near future and we will add support for this endpoint at the same time.
 
 
 Organizations list
