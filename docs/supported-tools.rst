@@ -26,9 +26,11 @@ End of support policy
 ---------------------
 
 Our policy defines how long a given tool or dependency is considered supported.
-After it reaches its end of support date,
-your builds may start failing and you will need to upgrade in order to receive support.
+Read the Docs will contact all users when an end of support date is close,
+after that date your builds may start failing and you will need to upgrade in order to receive support.
 For :doc:`/commercial/index` we provide an extended support of six months after the official end of support date.
+
+This is how we choose an end of support date:
 
 - For tools that define an :term:`EOL <End Of Life>` date, we try to follow that date for our policy.
 - For tools that release their versions incrementally without an EOL date,
