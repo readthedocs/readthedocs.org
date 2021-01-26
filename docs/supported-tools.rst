@@ -139,8 +139,6 @@ Table of supported versions
 Sphinx
 ~~~~~~
 
-Sphinx releases its versions incrementally.
-
 .. list-table::
    :header-rows: 1
 
@@ -186,8 +184,6 @@ Sphinx releases its versions incrementally.
 
 Mkdocs
 ~~~~~~
-
-MkDocs releases its versions incrementally.
 
 .. list-table::
    :header-rows: 1
