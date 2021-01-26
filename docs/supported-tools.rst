@@ -30,16 +30,19 @@ After it reaches its end of support date,
 your builds may start failing and you will need to upgrade in order to receive support.
 For :doc:`/commercial/index` we provide an extended support of six months after the official end of support date.
 
-For tools that define an EOL date, we try to follow that date for our policy.
-For tools that release their versions incrementally without an EOL date,
-we choose a date based on: the release of mayor versions (versions with breaking changes),
-the date since it was last updated, and its usage on our platform.
+- For tools that define an :term:`EOL <End Of Life>` date, we try to follow that date for our policy.
+- For tools that release their versions incrementally without an EOL date,
+  we choose a date based on:
+
+  - The release versions with breaking changes (mayor versions).
+  - The date since it was last updated.
+  - And its usage on our platform.
 
 .. note::
 
    Some recent versions may be supported, but aren't listed on these tables
-   (specially minor updates from supported versions),
-   contact us if you have doubts.
+   (specially minor updates from supported versions).
+   Contact us if you have doubts.
 
 Default dependencies
 --------------------
@@ -101,7 +104,7 @@ These are the dependencies that are installed by default when using a Conda envi
 
 Conda:
    Miniconda2 ``4.6.14``
-   (could be updated to use the latest version by default).
+   (could be updated in the future to use the latest version by default).
 
 Mkdocs:
   Latest version by default installed via ``conda``.
@@ -142,35 +145,43 @@ Sphinx releases its versions incrementally.
    :header-rows: 1
 
    * - Version
-     - Released / Latest Update
+     - Released
+     - Latest Update
      - Supported Until
 
    * - ``3.x``
-     - Apr 5, 2020 / ???
+     - Apr 5, 2020
+     - ???
      - 5.0 is released or later/early
 
    * - ``2.x``
-     - Mar 28, 2019 / Mar 5, 2020
+     - Mar 28, 2019
+     - Mar 5, 2020
      - 4.0 is released or later/early
 
    * - ``1.8.x``
-     - Sep 12, 2018 / Mar 10, 2019
+     - Sep 12, 2018
+     - Mar 10, 2019
      - Nov 31, 2022
 
    * - ``1.7.x``
-     - Feb 12, 2018 / Sep 5, 2018
+     - Feb 12, 2018
+     - Sep 5, 2018
      - Nov 31, 2022
 
    * - ``1.6.x``
-     - May 16, 2017 / Feb 4, 2017
+     - May 16, 2017
+     - Feb 4, 2017
      - Nov 31, 2021
 
    * - ``1.5.x``
-     - Dec 5, 2016 / May 4, 2017
+     - Dec 5, 2016
+     - May 4, 2017
      - Nov 31, 2021
 
    * - ``<= 1.4.x``
-     - Mar 21, 2008 / Nov 23, 2016
+     - Mar 21, 2008
+     - Nov 23, 2016
      - Unsupported
 
 Mkdocs
@@ -182,37 +193,42 @@ MkDocs releases its versions incrementally.
    :header-rows: 1
 
    * - Version
-     - Released / Latest Update
+     - Released
+     - Latest Update
      - Supported Until
 
    * - ``1.1.x``
-     - Feb 22, 2020 / ???
+     - Feb 22, 2020
+     - ???
      - 3.0 released or later/early
 
    * - ``1.0.x``
-     - Aug 3, 2018 / Sep 17, 2018
+     - Aug 3, 2018
+     - Sep 17, 2018
      - 2.0 released or later/early
 
    * - ``0.17.x``
-     - Oct 19, 2017 / Jul 6, 2018
+     - Oct 19, 2017
+     - Jul 6, 2018
      - Nov 31, 2021
 
    * - ``0.16.x``
-     - Nov 4, 2017 / Apr 4, 2017
+     - Nov 4, 2017
+     - Apr 4, 2017
      - Nov 31, 2021
 
    * - ``0.15.x``
-     - Jan 21 2016 / Feb 18, 2016
+     - Jan 21 2016
+     - Feb 18, 2016
      - Nov 31, 2021
 
    * - ``<= 0.14.x``
-     - Jan 11, 2014 / Jun 9, 2015
+     - Jan 11, 2014
+     - Jun 9, 2015
      - Unsupported
 
 Python
 ~~~~~~
-
-Python defines an EOL (End Of Life) date for all its versions.
 
 .. list-table::
    :header-rows: 1
