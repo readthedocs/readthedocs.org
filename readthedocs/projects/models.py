@@ -1592,6 +1592,7 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
 
@@ -1707,6 +1708,7 @@ class Feature(models.Model):
             DEFAULT_TO_MKDOCS_0_17_3,
             _('Install mkdocs 0.17.3 by default'),
         ),
+        (USE_MKDOCS_LATEST, _('Use latest version of MkDocs')),
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),
