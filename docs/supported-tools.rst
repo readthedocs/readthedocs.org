@@ -7,15 +7,16 @@ In order to provide :doc:`several features </features>`,
 Read the Docs needs to inject or modify some content while building your docs.
 
 When an incompatible change happens in one of these tools or dependencies,
-we need to change our code as well to keep our features working,
-this is done with backwards compatibility in mind.
-But sometimes is hard to keep compatibility with old and new versions at the same time,
-in order to continue moving forward on future development and features we need to drop support for some versions.
+we need to change our code as well to keep our features working.
+This is done with backwards compatibility in mind,
+but sometimes is hard to keep compatibility with old and new versions at the same time.
+In order to continue moving forward on future development and features,
+we need to drop support for some versions.
 
 .. note::
 
    Your existent documentation will always be kept online and working,
-   But **when support for a tool or dependency ends, new builds may fail**.
+   but **when support for a tool or dependency ends, new builds may fail**.
 
 .. contents:: Contents
    :local:
@@ -26,8 +27,7 @@ End of support policy
 
 Our policy defines how long a given tool or dependency is considered supported.
 After it reaches its end of support date,
-we don't offer support for builds/docs using these tools or dependencies,
-you'll need to upgrade in order to receive support.
+your builds may start failing and you will need to upgrade in order to receive support.
 For :doc:`/commercial/index` we provide an extended support of six months after the official end of support date.
 
 For tools that define an EOL date, we try to follow that date for our policy.
