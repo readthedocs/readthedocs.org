@@ -1342,7 +1342,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         },
     )
     try:
-        changed_files = _create_imported_files(
+        _create_imported_files(
             version=version,
             commit=commit,
             build=build,
@@ -1350,7 +1350,6 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
             search_ignore=search_ignore,
         )
     except Exception:
-        changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
@@ -1359,7 +1358,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         log.exception('Failed during SphinxDomain creation')
 
     try:
-        _sync_imported_files(version, build, changed_files)
+        _sync_imported_files(version, build)
     except Exception:
         log.exception('Failed during ImportedFile syncing')
 
@@ -1533,12 +1532,8 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
     :param version: Version instance
     :param commit: Commit that updated path
     :param build: Build id
-    :returns: paths of changed files
-    :rtype: set
     """
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
-    changed_files = set()
 
     # Re-create all objects from the new build of the version
     storage_path = version.project.get_storage_path(
@@ -1546,45 +1541,13 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
     )
     for root, __, filenames in storage.walk(storage_path):
         for filename in filenames:
-            if filename.endswith('.html'):
-                model_class = HTMLFile
-            elif version.project.cdn_enabled:
-                # We need to track all files for CDN enabled projects so the files can be purged
-                model_class = ImportedFile
-            else:
-                # For projects not behind a CDN, we don't care about non-HTML
+            # We don't care about non-HTML files
+            if not filename.endswith('.html'):
                 continue
 
             full_path = storage.join(root, filename)
-
             # Generate a relative path for storage similar to os.path.relpath
             relpath = full_path.replace(storage_path, '', 1).lstrip('/')
-
-            try:
-                md5 = hashlib.md5(storage.open(full_path, 'rb').read()).hexdigest()
-            except Exception:
-                log.exception(
-                    'Error while generating md5 for %s:%s:%s. Don\'t stop.',
-                    version.project.slug,
-                    version.slug,
-                    relpath,
-                )
-                md5 = ''
-            # Keep track of changed files to be purged in the CDN
-            obj = (
-                model_class.objects
-                .filter(project=version.project, version=version, path=relpath)
-                .order_by('-modified_date')
-                .first()
-            )
-            if obj and md5 and obj.md5 != md5:
-                changed_files.add(
-                    resolve_path(
-                        version.project,
-                        filename=relpath,
-                        version_slug=version.slug,
-                    ),
-                )
 
             page_rank = 0
             # Last pattern to match takes precedence
@@ -1603,37 +1566,31 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
                     break
 
             # Create imported files from new build
-            model_class.objects.create(
+            HTMLFile.objects.create(
                 project=version.project,
                 version=version,
                 path=relpath,
                 name=filename,
-                md5=md5,
                 rank=page_rank,
                 commit=commit,
                 build=build,
                 ignore=ignore,
             )
 
-    # This signal is used for clearing the CDN,
-    # so send it as soon as we have the list of changed files
+    # This signal is used for clearing the CDN.
     files_changed.send(
         sender=Project,
         project=version.project,
         version=version,
-        files=changed_files,
     )
 
-    return changed_files
 
-
-def _sync_imported_files(version, build, changed_files):
+def _sync_imported_files(version, build):
     """
     Sync/Update/Delete ImportedFiles objects of this version.
 
     :param version: Version instance
     :param build: Build id
-    :param changed_files: path of changed files
     """
 
     # Index new HTMLFiles to ElasticSearch

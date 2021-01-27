@@ -46,7 +46,7 @@ class ImportedFileTests(TestCase):
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
-        _sync_imported_files(version, build, set())
+        _sync_imported_files(version, build)
 
     def _copy_storage_dir(self):
         """Copy the test directory (rtd_tests/files) to storage"""
@@ -62,17 +62,13 @@ class ImportedFileTests(TestCase):
     def test_properly_created(self):
         # Only 2 files in the directory is HTML (test.html, api/index.html)
         self.assertEqual(ImportedFile.objects.count(), 0)
-        self._manage_imported_files(self.version, 'commit01', 1)
+        self._manage_imported_files(version=self.version, commit='commit01', build=1)
         self.assertEqual(ImportedFile.objects.count(), 2)
-        self._manage_imported_files(self.version, 'commit01', 2)
+        self._manage_imported_files(version=self.version, commit='commit01', build=2)
         self.assertEqual(ImportedFile.objects.count(), 2)
 
         self.project.cdn_enabled = True
         self.project.save()
-
-        # CDN enabled projects => save all files
-        self._manage_imported_files(self.version, 'commit01', 3)
-        self.assertEqual(ImportedFile.objects.count(), 4)
 
     def test_update_commit(self):
         self.assertEqual(ImportedFile.objects.count(), 0)
@@ -167,7 +163,6 @@ class ImportedFileTests(TestCase):
         self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit01', 1)
-        self.assertEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
         self.assertEqual(ImportedFile.objects.count(), 2)
 
         with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
@@ -176,7 +171,6 @@ class ImportedFileTests(TestCase):
         self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit02', 2)
-        self.assertNotEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
         self.assertEqual(ImportedFile.objects.count(), 2)
 
     @mock.patch('readthedocs.projects.tasks.os.path.exists')
