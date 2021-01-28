@@ -38,8 +38,15 @@ Privacy levels
 
    Privacy levels are only supported on :doc:`/commercial/index`.
 
-All docs built from a pull requests are private by default.
-Currently, this can't be changed, but we are planning to support this.
+By default all docs built from pull requests are private.
+To change their privacy level:
+
+#. Go to your project dashboard
+#. Go to :guilabel:`Admin > Advanced settings`
+#. Select your option in :guilabel:`Privacy level of builds from pull requests`
+#. Click on :guilabel:`Save`
+
+Privacy levels work the same way as for :ref:`normal versions <versions:privacy levels>`.
 
 Limitations
 -----------
