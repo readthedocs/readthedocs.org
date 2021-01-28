@@ -166,11 +166,13 @@ class BaseParser:
 
            This will mutate the original `body`.
         """
-        # Remove all navigation nodes
         nodes_to_be_removed = itertools.chain(
+            # Navigation nodes
             body.css('nav'),
             body.css('[role=navigation]'),
             body.css('[role=search]'),
+            # Permalinks
+            body.css('.headerlink'),
         )
         for node in nodes_to_be_removed:
             node.decompose()
