@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0068_remove_slug_field'),
+        ('projects', '0069_migrate_protected_projects'),
     ]
 
     operations = [
