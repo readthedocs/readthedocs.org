@@ -8,33 +8,56 @@ We recommend the filename ``.readthedocs.yml``.
 All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
 
-.. code:: yaml
+.. tabs::
 
-    # .readthedocs.yml
-    # Read the Docs configuration file
-    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+   .. tab:: Sphinx
 
-    # Required
-    version: 2
+      .. code:: yaml
 
-    # Build documentation in the docs/ directory with Sphinx
-    sphinx:
-      configuration: docs/conf.py
+         # .readthedocs.yml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-    # Build documentation with MkDocs
-    #mkdocs:
-    #  configuration: mkdocs.yml
+         # Required
+         version: 2
 
-    # Optionally build your docs in additional formats such as PDF
-    formats:
-      - pdf
+         # Build documentation in the docs/ directory with Sphinx
+         sphinx:
+            configuration: docs/conf.py
 
-    # Optionally set the version of Python and requirements required to build your docs
-    python:
-      version: 3.7
-      install:
-        - requirements: docs/requirements.txt
+         # Optionally build your docs in additional formats such as PDF
+         formats:
+            - pdf
 
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
+
+   .. tab:: MkDocs
+
+      .. code:: yaml
+
+         # .readthedocs.yml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+         # Required
+         version: 2
+
+         mkdocs:
+           configuration: mkdocs.yml
+
+         # Optionally build your docs in additional formats such as PDF
+         formats:
+            - pdf
+
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -550,6 +573,22 @@ Patterns can include some special characters:
 
         # Ignore all files that end with ref.html
         - '*/ref.html'
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Custom files to ignore
+        - file.html
+        - api/v1/*
+
+        # Defaults
+        - search.html
+        - search/index.html
+        - 404.html
+        - 404/index.html'
 
 .. note::
 

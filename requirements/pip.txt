@@ -1,7 +1,7 @@
 # Base packages
 
-pip==20.3.3
-virtualenv==20.3.0
+pip==21.0
+virtualenv==20.4.0
 
 django==2.2.17  # pyup: <2.3
 django-extensions==3.1.0
@@ -27,8 +27,8 @@ jsonfield==3.1.0
 requests==2.25.1
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==5.3.1
-Pygments==2.7.3
+pyyaml==5.4.1
+Pygments==2.7.4
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -101,11 +101,19 @@ django-cors-middleware==1.4.0  # pyup: ignore
 # User agent parsing - used for analytics purposes
 user-agents==2.2.0
 
+
 # Utilities used to upload build media to cloud storage
 # django-storages is pinned to this particular commit because it
 # supports generating URLs with other method than GET when using
-# private buckets
-git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
+# private buckets.
+#
+# Besides, support for the corresponding AWS_BUCKET_ACL and
+# AWS_AUTO_CREATE_BUCKET settings have been removed in 1.10. We depend on this
+# in our Docker setup. We can upgrade it but we need to add a
+# `create_buckets.sh` to be called on `--init` as we used to do for Azurite
+# https://github.com/jschneier/django-storages/pull/636
+git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[boto3]==1.9.1
+
 
 # Required only in development and linting
 django-debug-toolbar==3.2
