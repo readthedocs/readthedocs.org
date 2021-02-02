@@ -613,6 +613,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         'error': BuildMaxConcurrencyError.message.format(
                             limit=max_concurrent_builds,
                         ),
+                        'builder': socket.gethostname(),
                     })
                     self.task.retry(
                         exc=BuildMaxConcurrencyError,
