@@ -2,11 +2,15 @@
 
 """Gold subscription views."""
 
+import json
+import logging
+import stripe
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -17,12 +21,14 @@ from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Domain, Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
-from .models import GoldUser
+from .models import GoldUser, LEVEL_CHOICES
+
+
+log = logging.getLogger(__name__)
 
 
 class GoldSubscriptionMixin(
         SuccessMessageMixin,
-        StripeMixin,
         PrivateViewMixin,
 ):
 
@@ -37,11 +43,6 @@ class GoldSubscriptionMixin(
         except self.model.DoesNotExist:
             return None
 
-    def get_form(self, data=None, files=None, **kwargs):
-        """Pass in copy of POST data to avoid read only QueryDicts."""
-        kwargs['customer'] = self.request.user
-        return super().get_form(data, files, **kwargs)
-
     def get_success_url(self, **__):
         return reverse_lazy('gold_detail')
 
@@ -52,6 +53,7 @@ class GoldSubscriptionMixin(
         context = super().get_context_data(**kwargs)
         domains = Domain.objects.filter(project__users=self.request.user)
         context['domains'] = domains
+        context['stripe_publishable'] = settings.STRIPE_PUBLISHABLE
         return context
 
 
@@ -152,3 +154,36 @@ class GoldProjectRemove(GoldProjectsMixin, GenericView):
         gold_user.projects.remove(project)
 
         return HttpResponseRedirect(self.get_success_url())
+
+
+class GoldCreateCheckoutSession(GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        try:
+            schema = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
+            success_url = reverse('gold_checkout_success')
+            success_url = f'{schema}://{settings.PRODUCTION_DOMAIN}{success_url}'
+            cancel_url = reverse('gold_checkout_cancel')
+            cancel_url = f'{schema}://{settings.PRODUCTION_DOMAIN}{cancel_url}'
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price': json.loads(request.body).get('priceId'),
+                        'quantity': 1,
+                    }
+                ],
+                mode='subscription',
+                success_url=success_url,
+                cancel_url=cancel_url,
+            )
+            return JsonResponse({'session_id': checkout_session.id})
+        except:  # noqa
+            log.exception('There was an error connecting to Stripe.')
+            return JsonResponse({'error': 'There was an error connecting to Stripe.'}, status=500)
+
+
+class GoldSubscriptionPortal(GenericView):
+    pass

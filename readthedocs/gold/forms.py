@@ -11,82 +11,18 @@ from readthedocs.projects.models import Project
 from .models import LEVEL_CHOICES, GoldUser
 
 
-class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
+class GoldSubscriptionForm(forms.ModelForm):
 
-    """
-    Gold subscription payment form.
-
-    This extends the common base form for handling Stripe subscriptions. Credit
-    card fields for card number, expiry, and CVV are extended from
-    :py:class:`StripeModelForm`, with additional methods from
-    :py:class:`StripeResourceMixin` for common operations against the Stripe API.
-    """
+    """Gold subscription payment form."""
 
     class Meta:
         model = GoldUser
-        fields = ['last_4_card_digits', 'level']
-
-    last_4_card_digits = forms.CharField(
-        required=True,
-        min_length=4,
-        max_length=4,
-        widget=forms.HiddenInput(
-            attrs={
-                'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
-            },
-        ),
-    )
+        fields = ['level']
 
     level = forms.ChoiceField(
         required=True,
         choices=LEVEL_CHOICES,
     )
-
-    def clean(self):
-        self.instance.user = self.customer
-        return super().clean()
-
-    def validate_stripe(self):
-        subscription = self.get_subscription()
-        self.instance.stripe_id = subscription.customer
-        self.instance.subscribed = True
-        self.instance.business_vat_id = self.cleaned_data['business_vat_id']
-
-    def get_customer_kwargs(self):
-        data = {
-            'description': self.customer.get_full_name() or
-            self.customer.username,
-            'email': self.customer.email,
-            'id': self.instance.stripe_id or None,
-        }
-        business_vat_id = self.cleaned_data.get('business_vat_id')
-        if business_vat_id:
-            data.update({
-                'business_vat_id': self.cleaned_data['business_vat_id'],
-            })
-        return data
-
-    def get_subscription(self):
-        customer = self.get_customer()
-
-        # TODO get the first subscription more intelligently
-        subscriptions = customer.subscriptions.list(limit=5)
-        if subscriptions.data:
-            # Update an existing subscription - Stripe prorates by default
-            subscription = subscriptions.data[0]
-            subscription.plan = self.cleaned_data['level']
-            if 'stripe_token' in self.cleaned_data and self.cleaned_data['stripe_token']:
-                # Optionally update the card
-                subscription.source = self.cleaned_data['stripe_token']
-            subscription.save()
-        else:
-            # Add a new subscription
-            subscription = customer.subscriptions.create(
-                plan=self.cleaned_data['level'],
-                source=self.cleaned_data['stripe_token'],
-            )
-
-        return subscription
 
 
 class GoldProjectForm(forms.Form):

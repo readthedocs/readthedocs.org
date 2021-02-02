@@ -13,22 +13,47 @@ Read the Docs Gold
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
-  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
-  <script type="text/javascript" src="{% static 'gold/js/gold.js' %}"></script>
+  <script src="https://js.stripe.com/v3/" type="text/javascript"></script>
   <script type="text/javascript">
-var gold_views = require('gold/gold');
-$(document).ready(function () {
-    var key;
-    //<![CDATA[
-    key = '{{ stripe_publishable }}';
-    //]]>
+    var createCheckoutSession = function(priceId) {
+        var csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value
+        return fetch("{% url "gold_checkout_create" %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify({
+                priceId: priceId
+            })
+        });
+    };
 
-    var view = gold_views.GoldView.init({
-      key: key,
-      form: $('form#gold-register')
-    });
-});
+    var publishableKey;
+    //<![CDATA[
+    publishableKey = '{{ stripe_publishable }}';
+    //]]>
+    var stripe = Stripe(publishableKey);
+
+    $(document).ready(function () {
+        document
+            .getElementById("submit")
+            .addEventListener("click", function(event) {
+                // Avoid submitting the form
+                event.preventDefault();
+
+                priceId = document.getElementById("id_level").value;
+                createCheckoutSession(priceId).then(function(result) {
+                    // Call Stripe.js method to redirect to the new Checkout page
+                    result.json().then(function(data) {
+                        stripe
+                            .redirectToCheckout({
+                                sessionId: data.session_id
+                            })
+                    });
+                });
+            });
+     });
   </script>
 {% endblock %}
 
@@ -81,48 +106,13 @@ $(document).ready(function () {
     <form accept-charset="UTF-8" action="" method="post" id="gold-register" class="payment">
       {% csrf_token %}
 
-      {{ form.non_field_errors }}
-
-      {% for field in form.fields_with_cc_group %}
-        {% if field.is_cc_group %}
-          <p
-              data-bind="visible: last_4_card_digits"
-              style="display: none;"
-              class="subscription-card">
-            <label>{% trans "Current card" %}:</label>
-            <span class="subscription-card-number">
-              ****-<span data-bind="text: last_4_card_digits"></span>
-            </span>
-          </p>
-
-          <div data-bind="visible: !show_card_form()">
-            <a
-                href="#"
-                data-bind="click: function () { is_editing_card(true); }"
-                class="subscription-edit-link">
-              {% trans "Edit Card" %}
-            </a>
-          </div>
-          <div
-              class="subscription-card"
-              data-bind="visible: show_card_form"
-              style="display: none;">
-            {% for groupfield in field.fields %}
-              {% include 'core/ko_form_field.html' with field=groupfield %}
-            {% endfor %}
-          </div>
-        {% else %}
-          {% include 'core/ko_form_field.html' with field=field %}
-        {% endif %}
-      {% endfor %}
+      {{ form }}
 
       {% trans "Sign Up" as form_submit_text %}
       {% if golduser %}
-        {% trans "Update Subscription" as form_submit_text %}
+        {% trans "Manage subscription" as form_submit_text %}
       {% endif %}
-      <input type="submit" value="{{ form_submit_text }}" data-bind="click: process_full_form" />
-
-      <em>{% trans "All information is submitted directly to Stripe." %}</em>
+      <input id="submit" type="submit" value="{{ form_submit_text }}" />
     </form>
   </div>
 {% endblock %}
