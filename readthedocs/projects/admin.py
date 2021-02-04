@@ -378,7 +378,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
-    list_display = ('name', 'value', 'project', 'created')
+    list_display = ('name', 'value', 'public', 'project', 'created')
     search_fields = ('name', 'project__slug')
 
 
