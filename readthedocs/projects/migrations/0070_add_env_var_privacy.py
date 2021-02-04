@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0033_dont_cascade_delete_builds'),
+        ('projects', '0069_migrate_protected_projects'),
     ]
 
     operations = [
