@@ -26,6 +26,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 def setup_api():
     session = requests.Session()
+    session.verify = False
     if settings.SLUMBER_API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
         adapter_class = TimeoutHostHeaderSSLAdapter
