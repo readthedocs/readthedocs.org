@@ -50,6 +50,10 @@ class S3BuildCommandsStorage(S3Boto3Storage):
                 'Ensure S3_BUILD_COMMANDS_STORAGE_BUCKET is defined.',
             )
 
+        self.bucket_acl = 'private'
+        self.default_acl = 'private'
+        self.querystring_auth = True
+
 
 class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage):
 
@@ -88,3 +92,7 @@ class S3BuildEnvironmentStorage(BuildMediaStorageMixin, S3Boto3Storage):
                 'AWS S3 not configured correctly. '
                 'Ensure S3_BUILD_ENVIRONMENT_STORAGE_BUCKET is defined.',
             )
+
+        self.bucket_acl = 'private'
+        self.default_acl = 'private'
+        self.querystring_auth = True
