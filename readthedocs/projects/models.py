@@ -1233,8 +1233,7 @@ class Project(models.Model):
 
         return True
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, all=True):
         """
         Environment variables to build this particular project.
 
@@ -1244,6 +1243,7 @@ class Project(models.Model):
         return {
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
+            if all or variable.public
         }
 
     def is_valid_as_superproject(self, error_class):
@@ -1334,8 +1334,9 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, all=True):
+        if not all:
+            raise NotImplementedError('Private variables not supported by API')
         return self._environment_variables
 
 
@@ -1824,6 +1825,11 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         Project,
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
+    )
+    private = models.BooleanField(
+        _('Public'),
+        default=False,
+        help_text=_('Expose this environment variable in PR builds?')
     )
 
     objects = RelatedProjectQuerySet.as_manager()
