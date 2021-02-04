@@ -241,8 +241,8 @@ class PythonEnvironment:
         """
         m = hashlib.sha256()
 
-        use_all = self.version.type != EXTERNAL
-        env_vars = self.version.project.environment_variables(all=use_all)
+        public_only = self.version.type == EXTERNAL
+        env_vars = self.version.project.environment_variables(public_only=public_only)
 
         for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
