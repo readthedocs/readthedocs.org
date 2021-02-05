@@ -1233,11 +1233,12 @@ class Project(models.Model):
 
         return True
 
-    def environment_variables(self, *, public_only=True):
+    def environment_variables(self, *, public_only=False):
         """
         Environment variables to build this particular project.
 
-        :returns: dictionary with all the variables {name: value}
+        :param public_only: Only return publicly visible variables?
+        :returns: dictionary with all visible variables {name: value}
         :rtype: dict
         """
         return {
@@ -1334,9 +1335,10 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    def environment_variables(self, *, public_only=True):
-        if not public_only:
-            raise NotImplementedError('Private variables not supported by API')
+    def environment_variables(self, *, public_only=False):
+        if public_only:
+            raise NotImplementedError(
+                'Restricting variable visibility not supported by API')
         return self._environment_variables
 
 
