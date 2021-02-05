@@ -1132,7 +1132,7 @@ Redirects listing
 Redirect create
 +++++++++++++++
 
-.. http:post:: /api/v3/projects/pip/redirects/
+.. http:post:: /api/v3/projects/(str:project_slug)/redirects/
 
     Create a redirect for this project.
 
@@ -1354,7 +1354,7 @@ Environment Variables listing
 Environment Variable create
 +++++++++++++++++++++++++++
 
-.. http:post:: /api/v3/projects/pip/environmentvariables/
+.. http:post:: /api/v3/projects/(str:project_slug)/environmentvariables/
 
     Create an environment variable for this project.
 
