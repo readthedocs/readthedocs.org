@@ -1335,7 +1335,7 @@ class APIProject(Project):
         return not self.ad_free
 
     def environment_variables(self, *, public_only=True):
-        if public_only:
+        if not public_only:
             raise NotImplementedError('Private variables not supported by API')
         return self._environment_variables
 
