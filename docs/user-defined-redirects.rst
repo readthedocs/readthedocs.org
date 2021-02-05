@@ -12,9 +12,15 @@ Quick Summary
 * From the left navigation menu, select :guilabel:`Redirects`.
 * In the form box "Redirect Type" select the type of redirect you want. See below for detail.
 * Depending on the redirect type you select, enter FROM and/or TO URL as needed.
-* When finished, click the SUBMIT Button.
+* When finished, click the :guilabel:`Add` button.
 
 Your redirects will be effective immediately.
+
+.. note::
+
+    For the time being, redirects are only implemented in case of a
+    *404 File Not Found* error.
+    In the future, we might implement redirect logic in Javascript.
 
 Redirect Types
 --------------
@@ -68,8 +74,10 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-Note that the ``/`` at the start doesn't count the ``/en/latest``,
-but just the user-controlled section of the URL.
+Note that the ``/`` at the start doesn't count the ``/$lang/$version`` prefix (e.g.
+``/en/latest``), but just the user-controlled section of the URL.
+If you want to set directs only for some languages or some versions, you should use
+:ref:`user-defined-redirects:exact redirects` with the fully-specified path.
 
 .. tip::
 
@@ -117,6 +125,9 @@ The readers of your documentation will now be redirected as::
   docs.example.com/en/2.0/dev/install.html ->
   docs.example.com/en/3.0/dev/install.html
 
+Similarly, if you maintain several branches of your documentation (e.g. ``3.0`` and
+``latest``) and decide to move pages in ``latest`` but not the older branches, you can use
+*Exact Redirects* to do so.
 
 .. tip::
 
@@ -133,12 +144,3 @@ A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
 The built in redirects for this will handle redirecting users appropriately.
 
-Implementation
---------------
-
-Since we serve documentation in a highly available way,
-we do not run any logic when we're serving documentation.
-This means that redirects will only happen in the case of a *404 File Not Found*.
-
-In the future we might implement redirect logic in Javascript,
-but this first version is only implemented in the 404 handlers.
