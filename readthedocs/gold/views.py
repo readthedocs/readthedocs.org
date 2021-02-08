@@ -185,7 +185,7 @@ class GoldSubscriptionPortal(GenericView):
     def post(self, request, *args, **kwargs):
         user = request.user
 
-        # TODO: review if User <-> GoldUser being ``ManyToManyField`` makes
+        # TODO: review if User <-> GoldUser being ``ForeignKey`` makes
         # sense no that we are removing the one time donation
         stripe_customer = user.gold.first().stripe_id
 
