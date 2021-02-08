@@ -5,7 +5,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 from readthedocs.projects.models import Project
 
 from .models import LEVEL_CHOICES, GoldUser

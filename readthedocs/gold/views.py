@@ -25,7 +25,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Domain, Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
@@ -87,27 +86,6 @@ class UpdateGoldSubscription(GoldSubscriptionMixin, UpdateView):
     success_message = _('Your subscription has been updated')
 
 
-class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
-
-    """
-    Delete Gold subscription view.
-
-    On object deletion, the corresponding Stripe customer is deleted as well.
-    Deletion is triggered on subscription deletion using a signal, ensuring the
-    subscription is synced with Stripe.
-    """
-
-    success_message = _('Your subscription has been cancelled')
-
-    def post(self, request, *args, **kwargs):
-        """Add success message to delete post."""
-        resp = super().post(request, *args, **kwargs)
-        success_message = self.get_success_message({})
-        if success_message:
-            messages.success(self.request, success_message)
-        return resp
-
-
 class GoldProjectsMixin(PrivateViewMixin):
 
     def get_gold_user(self):
@@ -141,7 +119,6 @@ class GoldProjectsListCreate(GoldProjectsMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['gold_user'] = self.get_gold_user()
-        context['publishable'] = settings.STRIPE_PUBLISHABLE
         context['user'] = self.request.user
         context['projects'] = self.get_gold_projects()
         return context
