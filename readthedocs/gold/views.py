@@ -163,26 +163,32 @@ class GoldCreateCheckoutSession(GenericView):
     def post(self, request, *args, **kwargs):
         try:
             schema = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-            success_url = reverse('gold_checkout_success')
-            success_url = f'{schema}://{settings.PRODUCTION_DOMAIN}{success_url}'
-            cancel_url = reverse('gold_checkout_cancel')
-            cancel_url = f'{schema}://{settings.PRODUCTION_DOMAIN}{cancel_url}'
+            url = reverse('gold_subscription')
+            url = f'{schema}://{settings.PRODUCTION_DOMAIN}{url}'
+            price = json.loads(request.body).get('priceId')
+            log.info('Creating Stripe Checkout Session. user=%s price=%s', request.user, price)
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[
                     {
-                        'price': json.loads(request.body).get('priceId'),
+                        'price': price,
                         'quantity': 1,
                     }
                 ],
                 mode='subscription',
-                success_url=success_url,
-                cancel_url=cancel_url,
+                # We use the same URL to redirect the user. We only show a different notification.
+                success_url=url,
+                cancel_url=url,
             )
             return JsonResponse({'session_id': checkout_session.id})
         except:  # noqa
             log.exception('There was an error connecting to Stripe.')
-            return JsonResponse({'error': 'There was an error connecting to Stripe.'}, status=500)
+            return JsonResponse(
+                {
+                    'error': 'There was an error connecting to Stripe.'
+                },
+                status=500,
+            )
 
 
 class GoldSubscriptionPortal(GenericView):

@@ -14,46 +14,23 @@ Read the Docs Gold
 
 {% block extra_scripts %}
   <script src="https://js.stripe.com/v3/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'gold/js/checkout.js' %}"></script>
   <script type="text/javascript">
-    var createCheckoutSession = function(priceId) {
-        var csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value
-        return fetch("{% url "gold_checkout_create" %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken
-            },
-            body: JSON.stringify({
-                priceId: priceId
-            })
-        });
-    };
+   var checkout_views = require('gold/checkout');
+   $(document).ready(function () {
+       var key;
+       //<![CDATA[
+       key = '{{ stripe_publishable }}';
+       //]]>
 
-    var publishableKey;
-    //<![CDATA[
-    publishableKey = '{{ stripe_publishable }}';
-    //]]>
-    var stripe = Stripe(publishableKey);
-
-    $(document).ready(function () {
-        document
-            .getElementById("submit")
-            .addEventListener("click", function(event) {
-                // Avoid submitting the form
-                event.preventDefault();
-
-                priceId = document.getElementById("id_level").value;
-                createCheckoutSession(priceId).then(function(result) {
-                    // Call Stripe.js method to redirect to the new Checkout page
-                    result.json().then(function(data) {
-                        stripe
-                            .redirectToCheckout({
-                                sessionId: data.session_id
-                            })
-                    });
-                });
-            });
-     });
+       var view = checkout_views.StripeCheckoutView.init({
+           stripeKey: key,
+           formId: 'submit',
+           levelId: 'id_level',
+           checkoutSessionUrl: '{% url "gold_checkout_create" %}',
+           csrfToken: document.querySelector("[name=csrfmiddlewaretoken]").value
+       });
+   });
   </script>
 {% endblock %}
 

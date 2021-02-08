@@ -22,16 +22,6 @@ urlpatterns = [
         name='gold_checkout_create',
     ),
     url(
-        r'^subscription/checkout/sucess/$',
-        TemplateView.as_view(template_name=''),
-        name='gold_checkout_success',
-    ),
-    url(
-        r'^subscription/checkout/cancel/$',
-        TemplateView.as_view(template_name=''),
-        name='gold_checkout_cancel',
-    ),
-    url(
         r'^subscription/portal/$',
         views.GoldSubscriptionPortal.as_view(),
         name='gold_subscription_portal',
