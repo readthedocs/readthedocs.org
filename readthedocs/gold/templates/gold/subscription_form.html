@@ -74,22 +74,29 @@ Read the Docs Gold
       {% endblocktrans %}
     </p>
 
-    {% trans "Become a Gold member" as subscription_title %}
     {% if golduser %}
-      {% trans "Update Your Subscription" as subscription_title %}
-    {% endif %}
-    <h3>{{ subscription_title }}</h3>
+    <h3>
+        {% blocktrans trimmed %}
+        Update Your Subscription
+        {% endblocktrans %}
+    </h3>
 
-    <form accept-charset="UTF-8" action="" method="post" id="gold-register" class="payment">
-      {% csrf_token %}
-
-      {{ form }}
-
-      {% trans "Sign Up" as form_submit_text %}
-      {% if golduser %}
-        {% trans "Manage subscription" as form_submit_text %}
-      {% endif %}
-      <input id="submit" type="submit" value="{{ form_submit_text }}" />
+    <form action="{% url "gold_subscription_portal" %}" method="post" class="payment">
+        {% csrf_token %}
+        <input type="submit" value="{% trans "Manage subscription" %}" />
     </form>
+    {% else %}
+    <h3>
+        {% blocktrans trimmed %}
+        Become a Gold member
+        {% endblocktrans %}
+    </h3>
+
+    <form action="" method="post" id="gold-register" class="payment">
+        {% csrf_token %}
+        {{ form }}
+        <input id="submit" type="submit" value="{% trans "Sign Up" %}" />
+    </form>
+    {% endif %}
   </div>
 {% endblock %}

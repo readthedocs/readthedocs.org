@@ -49,7 +49,7 @@ class GoldUser(models.Model):
         related_name='gold_owners',
     )
 
-    last_4_card_digits = models.CharField(max_length=4)
+    last_4_card_digits = models.CharField(max_length=4, null=True, blank=True)
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
     business_vat_id = models.CharField(max_length=128, null=True, blank=True)
