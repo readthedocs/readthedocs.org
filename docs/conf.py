@@ -34,7 +34,7 @@ extensions = [
     'sphinx-prompt',
     'recommonmark',
     'notfound.extension',
-    # 'hoverxref.extension',
+    'hoverxref.extension',
     # 'sphinx_search.extension',
     'sphinxemoji.sphinxemoji',
 ]
