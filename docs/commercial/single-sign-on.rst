@@ -101,7 +101,7 @@ To avoid this repetitive task for each employee of your company,
 the owner of the Read the Docs organization can mark one or many Teams for users matching the company's domain email
 to join these Teams automaically when they Sign Up.
 
-For example, you can create a "General Documentaion (Read Only)" team
+For example, you can create a "General Documentation (Read Only)" team
 with the projects that all employees of your company should have access to
 and mark it as :guilabel:`Auto join users with an organization's email address to this team`.
 Then all users that Sign Up with their ``employee@company.com`` email will automatically join this Team and have **read** access to those projects.
