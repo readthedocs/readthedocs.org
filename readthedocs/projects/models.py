@@ -1831,7 +1831,8 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     public = models.BooleanField(
         _('Public'),
         default=False,
-        help_text=_('Expose this environment variable in PR builds?')
+        null=True,
+        help_text=_('Expose this environment variable in PR builds?'),
     )
 
     objects = RelatedProjectQuerySet.as_manager()
