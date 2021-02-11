@@ -38,6 +38,14 @@ Default: :djangosetting:`PRODUCTION_DOMAIN`
 This is the domain that gets linked to throughout the site when used in production.
 It depends on `USE_SUBDOMAIN`, otherwise it isn't used.
 
+RTD_INTERSPHINX_URL
+-------------------
+
+Default: :djangosetting:`RTD_INTERSPHINX_URL`
+
+This is the domain that is used to fetch the intersphinx inventory file.
+If not set explicitly this is the `PRODUCTION_DOMAIN`.
+
 MULTIPLE_APP_SERVERS
 --------------------
 
