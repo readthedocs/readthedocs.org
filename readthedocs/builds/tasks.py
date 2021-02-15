@@ -15,6 +15,7 @@ from readthedocs.api.v2.utils import (
 )
 from readthedocs.builds.constants import (
     BRANCH,
+    EXTERNAL,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
@@ -38,10 +39,11 @@ class TaskRouter:
     Celery tasks router.
 
     It allows us to decide which queue is where we want to execute the task
-    based on project's settings but also in queue availability.
+    based on project's settings.
 
     1. the project is using conda
     2. new project with less than N successful builds
+    3. version to be built is external
 
     It ignores projects that have already set ``build_queue`` attribute.
 
@@ -90,6 +92,16 @@ class TaskRouter:
                     'Routing task because project uses conda. project=%s queue=%s',
                     project.slug, self.BUILD_LARGE_QUEUE,
                 )
+                return self.BUILD_LARGE_QUEUE
+
+        # Use last queue used for external versions
+        if version.type == EXTERNAL:
+            for build in last_builds.iterator():
+                if not build.builder:
+                    continue
+
+                if 'default' in build.builder:
+                    return self.BUILD_DEFAULT_QUEUE
                 return self.BUILD_LARGE_QUEUE
 
         # We do not have enough builds for this version yet
