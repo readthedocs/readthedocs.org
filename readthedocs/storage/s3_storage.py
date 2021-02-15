@@ -22,7 +22,7 @@ class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3
 
     """An AWS S3 Storage backend for build artifacts."""
 
-    bucket_name = getattr(settings, 'S3_MEDIA_STORAGE_BUCKET')
+    bucket_name = getattr(settings, 'S3_MEDIA_STORAGE_BUCKET', None)
     override_hostname = getattr(settings, 'S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME', None)
 
     def __init__(self, *args, **kwargs):
@@ -63,7 +63,7 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
     * Uses Django's ManifestFilesMixin to have unique file paths (eg. core.a6f5e2c.css)
     """
 
-    bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET')
+    bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
     override_hostname = getattr(settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None)
 
     def __init__(self, *args, **kwargs):
@@ -82,7 +82,7 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
 
 class S3BuildEnvironmentStorage(BuildMediaStorageMixin, S3Boto3Storage):
 
-    bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET')
+    bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET', None)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

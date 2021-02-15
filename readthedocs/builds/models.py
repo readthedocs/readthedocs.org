@@ -8,7 +8,6 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -88,6 +87,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_environment_storage
 
 log = logging.getLogger(__name__)
 
@@ -411,8 +411,7 @@ class Version(TimeStampedModel):
 
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
-        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-        return storage.join(self.project.slug, f'{self.slug}.tar')
+        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """

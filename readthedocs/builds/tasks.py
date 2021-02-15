@@ -5,7 +5,6 @@ from io import BytesIO
 
 from celery import Task
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 
 from readthedocs.api.v2.serializers import BuildSerializer
 from readthedocs.api.v2.utils import (
@@ -27,6 +26,7 @@ from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import send_build_status
+from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
@@ -158,7 +158,6 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
         queryset = queryset.exclude(cold_storage=True)
     queryset = queryset.filter(date__lt=max_date)[:limit]
 
-    storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
     for build in queryset:
         data = BuildSerializer(build).data['commands']
         if data:
@@ -172,7 +171,7 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
             output.seek(0)
             filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
             try:
-                storage.save(name=filename, content=output)
+                build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True
                 build.save()
                 if delete:
