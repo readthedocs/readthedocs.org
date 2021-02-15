@@ -27,7 +27,6 @@ class ServeDocsMixin:
     """Class implementing all the logic to serve a document."""
 
     version_type = INTERNAL
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     def _serve_docs(
             self,
@@ -73,7 +72,8 @@ class ServeDocsMixin:
         """
         log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
-        root_path = self.storage.path('')
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        root_path = storage.path('')
         # Serve from Python
         return serve(request, path, root_path)
 

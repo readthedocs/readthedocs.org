@@ -145,8 +145,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_type=self.version_type,
         )
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
         # If ``filename`` is empty, serve from ``/``
-        path = self.storage.join(storage_path, filename.lstrip('/'))
+        path = storage.join(storage_path, filename.lstrip('/'))
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
@@ -155,7 +157,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path += 'index.html'
 
         # NOTE: calling ``.url`` will remove the trailing slash
-        storage_url = self.storage.url(path, http_method=request.method)
+        storage_url = storage.url(path, http_method=request.method)
 
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
@@ -215,10 +217,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             include_file=False,
             version_type=self.version_type,
         )
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = self.storage.join(
+            storage_filename_path = storage.join(
                 storage_root_path,
                 f'{filename}/{tryfile}'.lstrip('/'),
             )
@@ -228,7 +231,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 version_slug,
                 storage_filename_path,
             )
-            if self.storage.exists(storage_filename_path):
+            if storage.exists(storage_filename_path):
                 log.info(
                     'Redirecting to index file: project=%s version=%s, storage_path=%s',
                     final_project.slug,
@@ -319,14 +322,14 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             if doc_type_404 == SPHINX_HTMLDIR:
                 tryfiles.append('404/index.html')
             for tryfile in tryfiles:
-                storage_filename_path = self.storage.join(storage_root_path, tryfile)
+                storage_filename_path = storage.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
                         final_project.slug,
                         version_slug_404,
                     )
-                    resp = HttpResponse(self.storage.open(storage_filename_path).read())
+                    resp = HttpResponse(storage.open(storage_filename_path).read())
                     resp.status_code = 404
                     return resp
 
@@ -366,6 +369,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             # ... we do return a 404
             raise Http404()
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         storage_path = project.get_storage_path(
             type_='html',
@@ -373,10 +377,10 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             include_file=False,
             version_type=self.version_type,
         )
-        path = self.storage.join(storage_path, 'robots.txt')
+        path = storage.join(storage_path, 'robots.txt')
 
-        if self.storage.exists(path):
-            url = self.storage.url(path)
+        if storage.exists(path):
+            url = storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
             return self._serve_docs(
                 request,
