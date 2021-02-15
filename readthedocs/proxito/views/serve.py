@@ -5,6 +5,8 @@ import logging
 from urllib.parse import urlparse
 
 from readthedocs.core.resolver import resolve_path
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -318,7 +320,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 tryfiles.append('404/index.html')
             for tryfile in tryfiles:
                 storage_filename_path = self.storage.join(storage_root_path, tryfile)
-                if self.storage.exists(storage_filename_path):
+                if storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
                         final_project.slug,
@@ -363,6 +365,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         if no_serve_robots_txt:
             # ... we do return a 404
             raise Http404()
+
 
         storage_path = project.get_storage_path(
             type_='html',
