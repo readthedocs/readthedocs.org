@@ -711,7 +711,7 @@ class APITests(TestCase):
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
-        project_data['environment_variables'] = {'TOKEN': 'a1b2c3'}
+        project_data['environment_variables'] = {'TOKEN': dict(value='a1b2c3', public=False)}
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)

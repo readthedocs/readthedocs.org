@@ -1336,10 +1336,11 @@ class APIProject(Project):
         return not self.ad_free
 
     def environment_variables(self, *, public_only=False):
-        if public_only:
-            raise NotImplementedError(
-                'Restricting variable visibility not supported by API')
-        return self._environment_variables
+        return {
+            name: spec['value']
+            for name, spec in self._environment_variables.items()
+            if spec['public'] or not public_only
+        }
 
 
 class ImportedFile(models.Model):
