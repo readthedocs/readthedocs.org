@@ -1233,7 +1233,7 @@ class Project(models.Model):
 
         return True
 
-    def environment_variables(self, *, public_only=False):
+    def environment_variables(self, *, public_only):
         """
         Environment variables to build this particular project.
 
@@ -1335,7 +1335,7 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    def environment_variables(self, *, public_only=False):
+    def environment_variables(self, *, public_only):
         return {
             name: spec['value']
             for name, spec in self._environment_variables.items()

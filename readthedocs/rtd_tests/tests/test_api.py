@@ -707,16 +707,21 @@ class APITests(TestCase):
         self.assertEqual(api_project.features, [])
         self.assertFalse(api_project.ad_free)
         self.assertTrue(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables(), {})
+        self.assertEqual(api_project.environment_variables(public_only=False), {})
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
-        project_data['environment_variables'] = {'TOKEN': dict(value='a1b2c3', public=False)}
+        project_data['environment_variables'] = {
+            'TOKEN': dict(value='a1b2c3', public=False),
+        }
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)
         self.assertFalse(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables(), {'TOKEN': 'a1b2c3'})
+        self.assertEqual(
+            api_project.environment_variables(public_only=False),
+            {'TOKEN': 'a1b2c3'},
+        )
 
     def test_concurrent_builds(self):
         expected = {
