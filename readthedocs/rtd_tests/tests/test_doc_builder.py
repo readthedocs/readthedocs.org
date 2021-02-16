@@ -13,7 +13,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, SafeDumper, yaml_load_safely
 from readthedocs.doc_builder.backends.sphinx import (
     BaseSphinx,
     HtmlBuilder,
@@ -392,7 +392,7 @@ class MkdocsBuilderTest(TestCase):
                 }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -401,7 +401,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'readthedocs',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
             mock_yaml.reset_mock()
 
@@ -417,7 +418,7 @@ class MkdocsBuilderTest(TestCase):
                 }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -426,7 +427,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'customtheme',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
