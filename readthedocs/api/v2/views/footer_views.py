@@ -1,5 +1,6 @@
 """Endpoint to generate footer HTML."""
 
+import logging
 import re
 from functools import lru_cache
 
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
@@ -21,6 +23,8 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
+
+log = logging.getLogger(__name__)
 
 
 def get_version_compare_data(project, base_version=None):
@@ -79,7 +83,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class BaseFooterHTML(APIView):
+class BaseFooterHTML(CachedResponseMixin, APIView):
 
     """
     Render and return footer markup.
@@ -205,6 +209,17 @@ class BaseFooterHTML(APIView):
         }
         return context
 
+    def _get_cache_tags(self):
+        cache_tags = super()._get_cache_tags()
+        try:
+            project = self._get_project()
+            cache_tags.append(
+                f'{project.slug}-rtd-footer',
+            )
+        except Exception as e:
+            log.debug('Error while retrieving project for this view.')
+        return cache_tags
+
     def get(self, request, format=None):
         project = self._get_project()
         version = self._get_version()
@@ -232,14 +247,7 @@ class BaseFooterHTML(APIView):
             'version_supported': version.supported,
         }
 
-        response = Response(resp_data)
-        cache_tags = [
-            project.slug,
-            f'{project.slug}-{version.slug}',
-            f'{project.slug}-rtd-footer',
-        ]
-        response['Cache-Tag'] = ','.join(cache_tags)
-        return response
+        return Response(resp_data)
 
 
 class FooterHTML(SettingsOverrideObject):
