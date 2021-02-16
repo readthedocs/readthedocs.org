@@ -106,6 +106,8 @@ After cloning ``readthedocs.org`` repository, you need to
 
       inv docker.up  --init  # --init is only needed the first time
 
+#. go to http://localhost:9000/ (MinIO S3 storage backend), click "..." and then "Edit Policy" and give "Read Only" access on all the buckets (``static`` and ``media``).
+
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
 
@@ -122,8 +124,7 @@ save some work while typing docker compose commands. This section explains these
     Starts all the containers needed to run Read the Docs completely.
 
     * ``--no-search`` can be passed to disable search
-    * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user,
-      setup Azurite containers, etc
+    * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
 

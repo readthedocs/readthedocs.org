@@ -282,15 +282,10 @@ class BaseSphinx(BaseBuilder):
         return cmd_ret.successful
 
     def get_sphinx_cmd(self):
-        if self.project.has_feature(Feature.FORCE_SPHINX_FROM_VENV):
-            return (
-                self.python_env.venv_bin(filename='python'),
-                '-m',
-                'sphinx',
-            )
         return (
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            self.python_env.venv_bin(filename='python'),
+            '-m',
+            'sphinx',
         )
 
     def sphinx_parallel_arg(self):

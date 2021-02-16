@@ -73,7 +73,8 @@ class BuildEnvironmentTests(TestCase):
         self.assertEqual(self.mocks.popen.call_count, 1)
         cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegex(cmd[0][0], r'python')
-        self.assertRegex(cmd[0][1], r'sphinx-build')
+        self.assertRegex(cmd[0][1], '-m')
+        self.assertRegex(cmd[0][2], 'sphinx')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):

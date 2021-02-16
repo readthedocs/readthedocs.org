@@ -1131,7 +1131,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
     def _is_enabled(self, project):
         """Should we show traffic analytics for this project?"""
-        return project.has_feature(Feature.STORE_PAGEVIEWS)
+        return True
 
 
 class TrafficAnalyticsView(SettingsOverrideObject):
