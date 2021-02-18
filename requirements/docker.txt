@@ -17,6 +17,10 @@ datadiff==2.0.0
 ipdb==0.13.4
 pdbpp==0.10.2
 
+# jedi 0.18 is incompatible with ipython
+# https://github.com/ipython/ipython/issues/12740
+jedi>0.17,<0.18
+
 # watchdog dependency
 argh==0.26.2
 
