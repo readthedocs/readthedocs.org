@@ -109,6 +109,7 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
+    project_cache_tag = 'rtd-footer'
 
     @lru_cache(maxsize=1)
     def _get_project(self):
@@ -208,17 +209,6 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
             'theme': theme,
         }
         return context
-
-    def _get_cache_tags(self):
-        cache_tags = super()._get_cache_tags()
-        try:
-            project = self._get_project()
-            cache_tags.append(
-                f'{project.slug}-rtd-footer',
-            )
-        except Exception as e:
-            log.debug('Error while retrieving project for this view.')
-        return cache_tags
 
     def get(self, request, format=None):
         project = self._get_project()

@@ -138,6 +138,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
+    project_cache_tag = 'rtd-search'
 
     @lru_cache(maxsize=1)
     def _get_project(self):
