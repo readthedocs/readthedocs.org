@@ -42,28 +42,42 @@ We have a dedicated team that responds to support requests during business hours
 <p>
 If you need a specific request for your project or account,
 like more resources, change of the project's slug or username.
+</p>
+
+{% if not SUPPORT_FORM_ENDPOINT %}
+
+<p>
+Please send an email to <a href="mailto:{{SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>
+and we will get back to you as soon as possible.
+</p>
+
+{% else %}
+
+<p>
 Fill out the form below,
 and we will get back to you as soon as possible.
 </p>
 
 <form
   method="POST"
-  name="fa-form-1"
-  action="https://webhook.frontapp.com/forms/036c4169294f3b04abaa/yuarKDj5Z5LtxfjgyX2G9hA1pZwV8qPBIe1MFXS-nS8TGNSEBTHXHr0D2nsvNb1JltXQKscj55VbOs1Adbli6c-zFS5-rlkrLZZttjBX68XMZX2sACCUmkiBtI0"
+  name="support-request"
+  action="{{ SUPPORT_FORM_ENDPOINT }}"
   enctype="multipart/form-data"
   accept-charset="utf-8"
 >
     <label for="name">Name</label>
     <input type="text" name="name" {% if request.user.is_authenticated %} value="{{ request.user.first_name }} {{ request.user.last_name }}" {% endif %}>
+    <p></p>
   </div>
 
   <div>
     <label for="email">Email</label>
     <input type="email" name="email"  {% if request.user.is_authenticated %} value="{{ request.user.email }}" {% endif %}>
+    <p></p>
   </div>
 
   <div>
-    <label for="body">Support issue</label>
+    <label for="body">Explanation of issue</label>
     <textarea name="body" required></textarea>
     <p>
        Please provide as much detail as possible.
@@ -86,6 +100,27 @@ and we will get back to you as soon as possible.
     </p>
   </div>
 
+  <div>
+    <label for="level">Severity Level</label>
+        {% if request.user.gold.exists or request.user.goldonce.exists %}
+        <select>
+            <option value="" selected>Select level</option>
+        {% else %}
+        <select disabled>
+            <option value="" selected>Field disabled</option>
+        {% endif %}
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+        {% if request.user.gold.exists or request.user.goldonce.exists %}
+        <p> Please rate the severity of this event. </p>
+        {% else %}
+        <p>This option is only enabled for <a href="{% url "gold_subscription" %}">Gold users</a>.</p>
+        {% endif %}
+  </div>
+
+
   {% if request.user.is_authenticated %}
   <input type="hidden" name="username" value="{{ request.user.username }}">
   <input type="hidden" name="pk" value="{{ request.user.pk }}">
@@ -99,6 +134,8 @@ and we will get back to you as soon as possible.
 
   </div>
 </form>
+
+{% endif %}
 
 </div>
 
