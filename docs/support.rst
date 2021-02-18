@@ -22,8 +22,18 @@ User Support
 
 If you need a specific request for your project or account,
 like more resources, change of the project's slug or username.
-Please fill out the form at https://readthedocs.org/support/,
-and we will reply as soon as possible.
+
+.. tabs::
+
+   .. tab:: |org_brand|
+
+        Please fill out the form at https://readthedocs.org/support/,
+        and we will reply as soon as possible.
+
+   .. tab:: |com_brand|
+
+        Please fill out the form at https://readthedocs.com/support/,
+        and we will reply within 1 business day for most plans.
 
 Bug Reports
 -----------
