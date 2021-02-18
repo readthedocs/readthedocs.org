@@ -14,7 +14,7 @@ Good questions for Stack Overflow would be:
 * "How do I structure translations inside of my project for easiest contribution from users?"
 * "How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?"
 
-You might also find the answers you are looking for in our `documentation guides`_.
+You might also find the answers you are looking for in our :doc:`documentation guides </guides/index>`.
 These provide step-by-step solutions to common user requirements.
 
 User Support
@@ -30,7 +30,7 @@ Bug Reports
 
 If you have an issue with the actual functioning of the site,
 you can file bug reports on our `GitHub issue tracker`_.
-You can also `contribute`_ to Read the Docs,
+You can also :doc:`contribute </contribute>` to Read the Docs,
 as the code is open source.
 
 Priority Support
@@ -40,6 +40,4 @@ We offer priority support with :doc:`Read the Docs for Business </commercial/ind
 and we have a dedicated team that responds to support requests during business hours.
 
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/read-the-docs
-.. _Github Issue Tracker: https://github.com/readthedocs/readthedocs.org/issues
-.. _Gold: https://readthedocs.org/accounts/gold/
-.. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html
+.. _Github issue tracker: https://github.com/readthedocs/readthedocs.org/issues
