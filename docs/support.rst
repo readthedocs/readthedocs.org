@@ -1,5 +1,5 @@
-Support
-=======
+Site Support
+============
 
 Usage Questions
 ---------------
@@ -14,34 +14,24 @@ Good questions for Stack Overflow would be:
 * "How do I structure translations inside of my project for easiest contribution from users?"
 * "How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?"
 
+You might also find the answers you are looking for in our `documentation guides`_.
+These provide step-by-step solutions to common user requirements.
+
 User Support
 ------------
 
 If you need a specific request for your project or account,
 like more resources, change of the project's slug or username.
-Send an email to support@readthedocs.org.
-We will get to you as soon as possible.
+Please fill out the form at https://readthedocs.org/support/,
+and we will reply as soon as possible.
 
 Bug Reports
 -----------
 
-You can file bug reports on our `GitHub issue tracker`_,
-and they will be addressed as soon as possible.
-Please only file issues with our actual codebase there,
-not user support questions
-
-Reporting Issues
-~~~~~~~~~~~~~~~~
-
-When reporting a bug,
-please include as much information as possible that will help us solve this issue.
-This includes:
-
-* Project name
-* URL
-* Action taken
-* Expected result
-* Actual result
+If you have an issue with the actual functioning of the site,
+you can file bug reports on our `GitHub issue tracker`_.
+You can also `contribute`_ to Read the Docs,
+as the code is open source.
 
 Priority Support
 ----------------
