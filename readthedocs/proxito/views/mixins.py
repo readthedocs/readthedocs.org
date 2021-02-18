@@ -5,7 +5,6 @@ from urllib.parse import urlparse, urlunparse
 from slugify import slugify as unicode_slugify
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
@@ -18,6 +17,7 @@ from django.views.static import serve
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -72,8 +72,7 @@ class ServeDocsMixin:
         """
         log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        root_path = storage.path('')
+        root_path = build_media_storage.path('')
         # Serve from Python
         return serve(request, path, root_path)
 

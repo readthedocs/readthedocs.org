@@ -3,6 +3,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.tasks import TaskRouter
 from readthedocs.projects.models import Project
@@ -66,4 +67,24 @@ class TaskRouterTests(TestCase):
     def test_no_build_pk(self):
         self.assertIsNone(
             self.router.route_for_task(self.task, self.args, {}),
+        )
+
+    def test_external_version(self):
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        self.build.builder = 'build-default-a1b2c3'
+        self.build.save()
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_DEFAULT_QUEUE,
+        )
+
+        self.build.builder = 'build-large-a1b2c3'
+        self.build.save()
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_LARGE_QUEUE,
         )

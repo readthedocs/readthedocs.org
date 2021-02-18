@@ -483,7 +483,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
                     3: 3.7,
@@ -610,7 +610,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
-    ES_TASK_CHUNK_SIZE = 100
+    ES_TASK_CHUNK_SIZE = 500
 
     # Info from Honza about this:
     # The key to determine shard number is actually usually not the node count,
