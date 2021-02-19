@@ -39,7 +39,7 @@ class SupportView(TemplateView):
     template_name = 'support/index.html'
 
     def get_context_data(self, **kwargs):
-        """Pass along endpoint for support form"""
+        """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
         context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
         return context
