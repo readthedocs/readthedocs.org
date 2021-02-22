@@ -25,4 +25,4 @@ jedi==0.18.0
 argh==0.26.2
 
 # run tests
-tox==3.21.4
+tox==3.22.0
