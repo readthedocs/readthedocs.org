@@ -96,13 +96,13 @@ We support this natively on Read the Docs, and you can do it locally:
 
 .. prompt:: bash $
 
-    pip install recommonmark
+    pip install myst-parser
 
 Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['recommonmark']
+   extensions = ['myst-parser']
 
 .. warning:: Markdown doesn't support a lot of the features of Sphinx,
           like inline markup and directives. However, it works for
