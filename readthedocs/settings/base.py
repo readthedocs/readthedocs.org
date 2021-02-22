@@ -177,6 +177,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.analytics',
             'readthedocs.sphinx_domains',
             'readthedocs.search',
+            'readthedocs.embed',
 
             # allauth
             'allauth',
@@ -191,7 +192,6 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
-            apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')

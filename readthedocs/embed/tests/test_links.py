@@ -1,9 +1,9 @@
-import pytest
-from pyquery import PyQuery
 from collections import namedtuple
 
-from readthedocsext.embed.views import clean_links
+import pytest
+from pyquery import PyQuery
 
+from readthedocs.embed.views import clean_links
 
 URLData = namedtuple('URLData', ['docurl', 'href', 'expected'])
 

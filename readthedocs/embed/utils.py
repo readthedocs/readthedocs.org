@@ -1,13 +1,9 @@
+import io
 import os
 import sys
-import io
+from urllib.request import url2pathname
 
 import requests
-
-if sys.version_info.major < 3:
-    from urllib import url2pathname  # noqa
-else:
-    from urllib.request import url2pathname  # noqa
 
 
 def recurse_while_none(element):

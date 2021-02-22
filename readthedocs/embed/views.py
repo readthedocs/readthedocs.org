@@ -1,33 +1,29 @@
 import functools
-import logging
 import json
+import logging
 import re
 from urllib.parse import urlparse
 
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import slugify
+from django.utils.functional import cached_property
+from docutils.nodes import make_id
+from pyquery import PyQuery as PQ
 from rest_framework import status
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.conf import settings
-from django.template.defaultfilters import slugify
-from django.shortcuts import get_object_or_404
-from django.utils.functional import cached_property
-
-from pyquery import PyQuery as PQ  # noqa
-from docutils.nodes import make_id
-
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.builds.models import Version
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.embed.utils import recurse_while_none
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
-
-
-from .utils import recurse_while_none
 
 log = logging.getLogger(__name__)
 

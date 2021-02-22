@@ -5,10 +5,9 @@ import django_dynamic_fixture as fixture
 import requests_mock
 from django.test import TestCase
 from django.test.utils import override_settings
-from readthedocsext.embed.views import do_embed
 
+from readthedocs.embed.views import do_embed
 from readthedocs.projects.models import Project
-
 
 MEDIA_ROOT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -51,7 +50,7 @@ class APITest(TestCase):
             )
         ]
 
-    @mock.patch('readthedocsext.embed.views.build_media_storage')
+    @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_sphinx(self, storage_mock):
         filename = ['data', 'json', 'sphinx', 'latest', 'index.fjson']
         self._mock_storage(storage_mock, filename)
@@ -83,7 +82,7 @@ class APITest(TestCase):
             }
         )
 
-    @mock.patch('readthedocsext.embed.views.build_media_storage')
+    @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_mkdocs(self, storage_mock):
         filename = ['data', 'json', 'mkdocs', 'latest', 'index.json']
         self._mock_storage(storage_mock, filename)
