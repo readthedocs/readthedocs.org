@@ -104,11 +104,7 @@ Then in your ``conf.py``:
 
    extensions = ['myst-parser']
 
-.. warning:: Markdown doesn't support a lot of the features of Sphinx,
-          like inline markup and directives. However, it works for
-          basic prose content. reStructuredText is the preferred
-          format for technical documentation, please read `this blog post`_
-          for motivation.
+.. warning:: Markdown does works for basic prose content. But reStructuredText is the preferred format for technical documentation, please read `this blog post`_ for motivation.
 
 .. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
@@ -120,7 +116,9 @@ Here are some external resources to help you learn more about Sphinx.
 
 * `Sphinx documentation`_
 * :doc:`RestructuredText primer <sphinx:usage/restructuredtext/basics>`
+* `Getting Started with MyST`_
 * `An introduction to Sphinx and Read the Docs for technical writers`_
 
 .. _Sphinx documentation: https://www.sphinx-doc.org/
+.. _Getting Started with MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
 .. _An introduction to Sphinx and Read the Docs for technical writers: https://www.ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/
