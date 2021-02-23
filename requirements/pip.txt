@@ -1,10 +1,10 @@
 # Base packages
 
-pip==20.3.1
-virtualenv==20.2.2
+pip==21.0.1
+virtualenv==20.4.2
 
-django==2.2.17  # pyup: <2.3
-django-extensions==3.1.0
+django==2.2.19  # pyup: <2.3
+django-extensions==3.1.1
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
 
@@ -18,28 +18,22 @@ Sphinx==1.8.5  # pyup: <2.0.0
 # Filtering for the REST API
 django-filter==2.4.0
 
-drf-flex-fields==0.8.8
-drf-extensions==0.6.0
+drf-flex-fields==0.8.9
+drf-extensions==0.7.0
 
 django-vanilla-views==2.0.0
 jsonfield==3.1.0
 
-requests==2.25.0
+requests==2.25.1
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==5.3.1
-Pygments==2.7.3
+pyyaml==5.4.1
+Pygments==2.8.0
 
 # Basic tools
-# Redis 3.x has an incompatible change and fails
-# https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
-# https://github.com/sebleier/django-redis-cache/pull/162
-redis==2.10.6  # pyup: ignore
-# Kombu >4.3 requires redis>=3.2
-kombu==4.3.0  # pyup: ignore
-# Celery 4.2 is incompatible with our code
-# when ALWAYS_EAGER = True
-celery==4.1.1  # pyup: ignore
+redis==3.5.3
+kombu==5.0.2
+celery==5.0.5
 
 # When upgrading to 0.43.0 we should double check the ``base.html`` change
 # described in the changelog. In previous versions, the allauth app included a
@@ -49,13 +43,13 @@ celery==4.1.1  # pyup: ignore
 # override ``account/base.html`` within your project.
 django-allauth==0.42.0  # pyup: ignore
 
-GitPython==3.1.11
+GitPython==3.1.13
 
 # Search
-elasticsearch==7.9.1  # pyup: <8.0.0
+elasticsearch==7.11.0  # pyup: <8.0.0
 elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.1.4  # pyup: <8.0
-selectolax==0.2.9
+selectolax==0.2.10
 
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.1
@@ -65,19 +59,19 @@ orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.4
-pytz==2020.4
+pytz==2021.1
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.55.1
+stripe==2.56.0
 regex==2020.11.13
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.2
-django-crispy-forms==1.10.0
+django-crispy-forms==1.11.1
 
-docker==4.4.0
+docker==4.4.3
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
@@ -92,7 +86,7 @@ django-taggit==1.3.0
 dj-pagination==2.5.0
 
 # Version comparison stuff
-packaging==20.7
+packaging==20.9
 
 # django-cors-middleware==1.5.0 fails with
 # AttributeError: 'dict' object has no attribute 'has_header'
@@ -101,11 +95,19 @@ django-cors-middleware==1.4.0  # pyup: ignore
 # User agent parsing - used for analytics purposes
 user-agents==2.2.0
 
+
 # Utilities used to upload build media to cloud storage
 # django-storages is pinned to this particular commit because it
 # supports generating URLs with other method than GET when using
-# private buckets
-git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
+# private buckets.
+#
+# Besides, support for the corresponding AWS_BUCKET_ACL and
+# AWS_AUTO_CREATE_BUCKET settings have been removed in 1.10. We depend on this
+# in our Docker setup. We can upgrade it but we need to add a
+# `create_buckets.sh` to be called on `--init` as we used to do for Azurite
+# https://github.com/jschneier/django-storages/pull/636
+git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[boto3]==1.9.1
+
 
 # Required only in development and linting
 django-debug-toolbar==3.2

@@ -5,7 +5,6 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -14,17 +13,13 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    INTERNAL,
-    TAG,
-)
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.core.utils import trigger_build
+from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, Project
-from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_commands_storage
 
 from ..permissions import (
     APIPermission,
@@ -48,10 +43,6 @@ from ..utils import (
     ProjectPagination,
     RemoteOrganizationPagination,
     RemoteProjectPagination,
-    delete_versions_from_db,
-    get_deleted_active_versions,
-    run_automation_rules,
-    sync_versions_to_db,
 )
 
 log = logging.getLogger(__name__)
@@ -177,47 +168,34 @@ class ProjectViewSet(UserSelectViewSet):
         permission_classes=[permissions.IsAdminUser],
         methods=['post'],
     )
-    def sync_versions(self, request, **kwargs):  # noqa: D205
+    def sync_versions(self, request, **kwargs):  # noqa
         """
         Sync the version data in the repo (on the build server).
 
         Version data in the repo is synced with what we have in the database.
 
         :returns: the identifiers for the versions that have been deleted.
+
+        .. note::
+
+           This endpoint is deprecated in favor of `sync_versions_task`.
         """
         project = get_object_or_404(
             Project.objects.api(request.user),
             pk=kwargs['pk'],
         )
 
-        # If the currently highest non-prerelease version is active, then make
-        # the new latest version active as well.
-        current_stable = project.get_original_stable_version()
-        if current_stable is not None:
-            activate_new_stable = current_stable.active
-        else:
-            activate_new_stable = False
+        added_versions = []
+        deleted_versions = []
 
         try:
-            # Update All Versions
             data = request.data
-            added_versions = set()
-            if 'tags' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['tags'],
-                    type=TAG,
-                )
-                added_versions.update(ret_set)
-            if 'branches' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['branches'],
-                    type=BRANCH,
-                )
-                added_versions.update(ret_set)
-            deleted_versions = delete_versions_from_db(project, data)
-            deleted_active_versions = get_deleted_active_versions(project, data)
+            # Calling the task synchronically to keep backward compatibility
+            added_versions, deleted_versions = sync_versions_task(
+                project_pk=project.pk,
+                tags_data=data.get('tags', []),
+                branches_data=data.get('branches', []),
+            )
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -226,42 +204,6 @@ class ProjectViewSet(UserSelectViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        try:
-            # The order of added_versions isn't deterministic.
-            # We don't track the commit time or any other metadata.
-            # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions, deleted_active_versions)
-        except Exception:
-            # Don't interrupt the request if something goes wrong
-            # in the automation rules.
-            log.exception(
-                'Failed to execute automation rules for [%s]: %s',
-                project.slug, added_versions
-            )
-
-        # TODO: move this to an automation rule
-        promoted_version = project.update_stable_version()
-        new_stable = project.get_stable_version()
-        if promoted_version and new_stable and new_stable.active:
-            log.info(
-                'Triggering new stable build: %(project)s:%(version)s',
-                {
-                    'project': project.slug,
-                    'version': new_stable.identifier,
-                }
-            )
-            trigger_build(project=project, version=new_stable)
-
-            # Marking the tag that is considered the new stable version as
-            # active and building it if it was just added.
-            if (
-                activate_new_stable and
-                promoted_version.slug in added_versions
-            ):
-                promoted_version.active = True
-                promoted_version.save()
-                trigger_build(project=project, version=promoted_version)
 
         return Response({
             'added_versions': added_versions,
@@ -320,14 +262,13 @@ class BuildViewSet(UserSelectViewSet):
         serializer = self.get_serializer(instance)
         data = serializer.data
         if instance.cold_storage:
-            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
             storage_path = '{date}/{id}.json'.format(
                 date=str(instance.date.date()),
                 id=instance.id,
             )
-            if storage.exists(storage_path):
+            if build_commands_storage.exists(storage_path):
                 try:
-                    json_resp = storage.open(storage_path).read()
+                    json_resp = build_commands_storage.open(storage_path).read()
                     data['commands'] = json.loads(json_resp)
                 except Exception:
                     log.exception(

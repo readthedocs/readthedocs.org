@@ -11,7 +11,6 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
-from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
@@ -46,6 +45,7 @@ from readthedocs.projects.validators import (
 )
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
+from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -844,12 +844,11 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
             version_type=version_type
         )
-        return storage.exists(storage_path)
+        return build_media_storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -1563,28 +1562,37 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     CONDA_USES_MAMBA = 'conda_uses_mamba'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
+    CACHED_ENVIRONMENT = 'cached_environment'
+    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
-    CACHED_ENVIRONMENT = 'cached_environment'
-    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
+
+    # Dependecies related features
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1593,27 +1601,15 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
     SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
 
-    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
-    STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
-    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DONT_CREATE_INDEX = 'dont_create_index'
-    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
-        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (
-            DONT_INSTALL_DOCUTILS,
-            _(
-                'Do not install docutils as requirement for build documentation',
-            ),
-        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
-        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1639,10 +1635,6 @@ class Feature(models.Model):
         (
             SHARE_SPHINX_DOCTREE,
             _('Use shared directory for doctrees'),
-        ),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default'),
         ),
         (
             CLEAN_AFTER_BUILD,
@@ -1672,6 +1664,16 @@ class Feature(models.Model):
             ),
         ),
         (
+            CACHED_ENVIRONMENT,
+            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            LIMIT_CONCURRENT_BUILDS,
+            _('Limit the amount of concurrent builds'),
+        ),
+
+        # Versions sync related features
+        (
             SKIP_SYNC_BRANCHES,
             _('Skip syncing branches'),
         ),
@@ -1684,12 +1686,33 @@ class Feature(models.Model):
             _('Skip sync versions task'),
         ),
         (
-            CACHED_ENVIRONMENT,
-            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+            SYNC_VERSIONS_USING_A_TASK,
+            _('Sync versions using a task instead of the API'),
+        ),
+
+        # Dependecies related features
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
+        ),
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DONT_INSTALL_DOCUTILS,
+            _('Do not install docutils as requirement for build documentation'),
         ),
         (
-            LIMIT_CONCURRENT_BUILDS,
-            _('Limit the amount of concurrent builds'),
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
+            INSTALL_LATEST_SETUPTOOLS,
+            _('Install latest version of setuptools'),
         ),
 
         # Search related features.
@@ -1718,10 +1741,6 @@ class Feature(models.Model):
         ),
 
         (
-            FORCE_SPHINX_FROM_VENV,
-            _('Force to use Sphinx from the current virtual environment'),
-        ),
-        (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
                 'List packages installed in the environment ("pip list" or "conda list") '
@@ -1731,10 +1750,6 @@ class Feature(models.Model):
         (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
-        ),
-        (
-            STORE_PAGEVIEWS,
-            _('Store pageviews for this project'),
         ),
         (
             SPHINX_PARALLEL,
@@ -1749,16 +1764,8 @@ class Feature(models.Model):
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
-        ),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _('Don\'t install the latest version of pip'),
         ),
     )
 

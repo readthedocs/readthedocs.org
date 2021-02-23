@@ -452,13 +452,6 @@ class TestFooterPerformance(TestCase):
         )
         self.host = 'pip.readthedocs.io'
 
-        # Run tests with all available features
-        # that can increase the number of queries.
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        self.pip.feature_set.add(feature)
-
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, HTTP_HOST=self.host)
