@@ -610,7 +610,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
-    ES_TASK_CHUNK_SIZE = 100
+    ES_TASK_CHUNK_SIZE = 500
 
     # Info from Honza about this:
     # The key to determine shard number is actually usually not the node count,

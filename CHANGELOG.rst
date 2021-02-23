@@ -1,3 +1,22 @@
+Version 5.10.0
+--------------
+
+:Date: February 23, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 08 (`#7941 <https://github.com/readthedocs/readthedocs.org/pull/7941>`__)
+* `@PawelBorkar <https://github.com/PawelBorkar>`__: Update license (`#7934 <https://github.com/readthedocs/readthedocs.org/pull/7934>`__)
+* `@humitos <https://github.com/humitos>`__: Route external versions to the queue were default version was built (`#7933 <https://github.com/readthedocs/readthedocs.org/pull/7933>`__)
+* `@humitos <https://github.com/humitos>`__: Pin jedi dependency to avoid breaking ipython (`#7932 <https://github.com/readthedocs/readthedocs.org/pull/7932>`__)
+* `@humitos <https://github.com/humitos>`__: Use `admin` user for SLUMBER API on local environment (`#7925 <https://github.com/readthedocs/readthedocs.org/pull/7925>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: add cache tags (`#7922 <https://github.com/readthedocs/readthedocs.org/pull/7922>`__)
+* `@humitos <https://github.com/humitos>`__: Use S3 from community (`#7920 <https://github.com/readthedocs/readthedocs.org/pull/7920>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use only one variant of the config file (`#7918 <https://github.com/readthedocs/readthedocs.org/pull/7918>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 07 (`#7913 <https://github.com/readthedocs/readthedocs.org/pull/7913>`__)
+* `@humitos <https://github.com/humitos>`__: Router PRs builds to last queue where a build was executed (`#7912 <https://github.com/readthedocs/readthedocs.org/pull/7912>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve re-index management command (`#7904 <https://github.com/readthedocs/readthedocs.org/pull/7904>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: link to main project in subproject results (`#7880 <https://github.com/readthedocs/readthedocs.org/pull/7880>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Celery and friends to latest versions (`#7786 <https://github.com/readthedocs/readthedocs.org/pull/7786>`__)
+
 Version 5.9.0
 -------------
 

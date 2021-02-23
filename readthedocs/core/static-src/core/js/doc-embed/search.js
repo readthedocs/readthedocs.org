@@ -70,6 +70,11 @@ function attach_elastic_search_query_sphinx(data) {
                         }
 
                         var link = result.path + "?highlight=" + $.urlencode(query);
+                        // If we aren't on the main domain of the subproject, link to it.
+                        // TODO: we should always redirect to the main domain instead.
+                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
+                            link = result.domain + link;
+                        }
 
                         var item = $('<a>', {'href': link});
 
@@ -289,9 +294,16 @@ function attach_elastic_search_query_mkdocs(data) {
                         var result = results[i];
                         var blocks = result.blocks;
 
+                        var link = result.path;
+                        // If we aren't on the main domain of the subproject, link to it.
+                        // TODO: we should always redirect to the main domain instead.
+                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
+                            link = result.domain + link;
+                        }
+
                         var item = $('<article>');
                         item.append(
-                            $('<h3>').append($('<a>', {'href': result.path, 'text': result.title}))
+                            $('<h3>').append($('<a>', {'href': link, 'text': result.title}))
                         );
 
                         if (result.project !== project) {
@@ -303,7 +315,7 @@ function attach_elastic_search_query_mkdocs(data) {
                             var section = blocks[j];
 
                             if (section.type === 'section') {
-                                var section_link = result.path + '#' + section.id;
+                                var section_link = link + '#' + section.id;
                                 var section_title = section.title;
                                 var section_content = section.content;
                                 if (section_content.length > MAX_SUBSTRING_LIMIT) {

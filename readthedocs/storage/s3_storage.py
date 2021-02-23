@@ -15,7 +15,8 @@ from django.core.exceptions import ImproperlyConfigured
 from storages.backends.s3boto3 import S3Boto3Storage
 
 from readthedocs.builds.storage import BuildMediaStorageMixin
-from readthedocs.storage.mixins import OverrideHostnameMixin
+
+from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
 class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
@@ -35,7 +36,7 @@ class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3
             )
 
 
-class S3BuildCommandsStorage(S3Boto3Storage):
+class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
 
     """An AWS S3 Storage backend for build commands."""
 
@@ -49,10 +50,6 @@ class S3BuildCommandsStorage(S3Boto3Storage):
                 'AWS S3 not configured correctly. '
                 'Ensure S3_BUILD_COMMANDS_STORAGE_BUCKET is defined.',
             )
-
-        self.bucket_acl = 'private'
-        self.default_acl = 'private'
-        self.querystring_auth = True
 
 
 class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage):
@@ -80,7 +77,7 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
         self.querystring_auth = False
 
 
-class S3BuildEnvironmentStorage(BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
 
     bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET', None)
 
@@ -92,7 +89,3 @@ class S3BuildEnvironmentStorage(BuildMediaStorageMixin, S3Boto3Storage):
                 'AWS S3 not configured correctly. '
                 'Ensure S3_BUILD_ENVIRONMENT_STORAGE_BUCKET is defined.',
             )
-
-        self.bucket_acl = 'private'
-        self.default_acl = 'private'
-        self.querystring_auth = True

@@ -70,21 +70,31 @@ class TaskRouterTests(TestCase):
         )
 
     def test_external_version(self):
-        self.version.type = EXTERNAL
-        self.version.save()
-
-        self.build.builder = 'build-default-a1b2c3'
-        self.build.save()
+        external_version = fixture.get(
+            Version,
+            project=self.project,
+            slug='pull-request',
+            type=EXTERNAL,
+        )
+        default_version = self.project.versions.get(slug=self.project.get_default_version())
+        default_version_build = fixture.get(
+            Build,
+            version=default_version,
+            project=self.project,
+            builder='build-default-a1b2c3',
+        )
+        args = (external_version.pk,)
+        kwargs = {'build_pk': default_version_build.pk}
 
         self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
+            self.router.route_for_task(self.task, args, kwargs),
             TaskRouter.BUILD_DEFAULT_QUEUE,
         )
 
-        self.build.builder = 'build-large-a1b2c3'
-        self.build.save()
+        default_version_build.builder = 'build-large-a1b2c3'
+        default_version_build.save()
 
         self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
+            self.router.route_for_task(self.task, args, kwargs),
             TaskRouter.BUILD_LARGE_QUEUE,
         )
