@@ -1,12 +1,14 @@
+"""Embed utils."""
+
 import io
 import os
-import sys
 from urllib.request import url2pathname
 
 import requests
 
 
 def recurse_while_none(element):
+    """Recursively find the leaf node with the ``href`` attribute."""
     if element.text is None and element.getchildren():
         return recurse_while_none(element.getchildren()[0])
 
@@ -40,7 +42,7 @@ class LocalFileAdapter(requests.adapters.BaseAdapter):
 
         return 200, "OK"
 
-    def send(self, req, **kwargs):  # pylint: disable=unused-argument
+    def send(self, req, **kwargs):  # pylint: disable=arguments-differ,unused-argument
         """
         Return the file specified by the given request.
 

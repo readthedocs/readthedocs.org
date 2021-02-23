@@ -1,15 +1,16 @@
+"""Views for the embed app."""
+
 import functools
 import json
 import logging
 import re
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
 from docutils.nodes import make_id
-from pyquery import PyQuery as PQ
+from pyquery import PyQuery as PQ  # noqa
 from rest_framework import status
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -17,7 +18,6 @@ from rest_framework.views import APIView
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 
 
 def escape_selector(selector):
+    """Escape special characters from the section id."""
     regex = re.compile(r'(!|"|#|\$|%|\'|\(|\)|\*|\+|\,|\.|\/|\:|\;|\?|@)')
     ret = re.sub(regex, r'\\\1', selector)
     return ret
@@ -102,12 +103,12 @@ class EmbedAPIBase(APIView):
 
     ### Example
 
-        GET https://readthedocs.org/api/v2/embed/?project=requests&doc=index&section=User%20Guide&path=/index.html
+        GET https://readthedocs.org/api/v2/embed/?project=requests&doc=index&section=User%20Guide&path=/index.html  # noqa
 
-        GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration
+        GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration # noqa
 
     # Current Request
-    """  # noqa
+    """
 
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
@@ -137,6 +138,7 @@ class EmbedAPIBase(APIView):
         return unresolve(url)
 
     def get(self, request):
+        """Handle the get request."""
         project = self._get_project()
         version = self._get_version()
         doc = request.GET.get('doc')
@@ -174,6 +176,7 @@ class EmbedAPI(SettingsOverrideObject):
 
 
 def do_embed(project, version, doc, section=None, path=None, url=None):
+    """Get the embed reponse from a document section."""
     if not url:
         external = version.type == EXTERNAL
         url = resolve(
@@ -225,6 +228,7 @@ def _get_doc_content(project, version, doc):
 
 
 def parse_sphinx(content, section, url):
+    """Get the embed content for the section."""
     ret = []
     headers = []
 
@@ -322,7 +326,8 @@ def parse_sphinx(content, section, url):
     return (ret, headers, section)
 
 
-def parse_mkdocs(content, section, url):
+def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
+    """Get the embed content for the section."""
     ret = []
     headers = []
 
@@ -343,11 +348,11 @@ def parse_mkdocs(content, section, url):
         section_list = body_obj(
             ':header:contains("{title}")'.format(title=str(escaped_section)))
         for num in range(len(section_list)):
-            h2 = section_list.eq(num)
+            header2 = section_list.eq(num)
             # h2_title = h2.text().strip()
             # section_id = h2.attr('id')
             h2_content = ""
-            next_p = h2.next()
+            next_p = header2.next()
             while next_p:
                 if next_p[0].tag == 'h2':
                     break
