@@ -25,7 +25,9 @@ You can also host your documentation from your own domain.
 
 .. note::
  
-   If your custom domain was previously used in GitBook, contact GitBook support(via live chat in their website) to remove the domain name from their DNS Zone in order for your domain name to work with ReadtheDocs, else it will always redirect to GitBook.
+   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
+   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
+   else it will always redirect to GitBook.
 
 .. tabs::
 
