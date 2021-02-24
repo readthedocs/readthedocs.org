@@ -186,6 +186,7 @@ def do_embed(project, version, doc, section=None, path=None, url=None):
             external=external,
         )
     content = None
+    headers = None
     fjson_content = _get_doc_content(project, version, doc)
     if fjson_content:
         content, headers, section = parse_sphinx(fjson_content, section, url)
@@ -218,13 +219,14 @@ def _get_doc_content(project, version, doc):
         include_file=False,
         version_type=version.type,
     )
-    storage_path += f'/{doc}.fjson'
+    file_path = build_media_storage.join(storage_path, f'{doc}.fjson')
+    try:
+        with build_media_storage.open(file_path) as file:
+            return json.load(file)
+    except Exception:  # noqa
+        log.warning('Unable to read file. file_path=%s', file_path)
 
-    if not build_media_storage.exists(storage_path):
-        log.info('File does not exist. file=%s', storage_path)
-        return
-
-    return json.load(build_media_storage.open(storage_path))
+    return None
 
 
 def parse_sphinx(content, section, url):
