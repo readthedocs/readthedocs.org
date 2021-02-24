@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load i18n %}
-{% load core_tags %}
 
 
 {% block title %}Support{% endblock %}
@@ -65,6 +64,7 @@ and we will get back to you as soon as possible.
   enctype="multipart/form-data"
   accept-charset="utf-8"
 >
+  <div>
     <label for="name">Name</label>
     <input type="text" name="name" {% if request.user.is_authenticated %} value="{{ request.user.first_name }} {{ request.user.last_name }}" {% endif %}>
     <p></p>
