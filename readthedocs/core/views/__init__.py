@@ -10,7 +10,7 @@ import logging
 from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
@@ -21,6 +21,11 @@ log = logging.getLogger(__name__)
 
 class NoProjectException(Exception):
     pass
+
+
+class HealthCheckView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'status': 200}, status=200)
 
 
 class HomepageView(TemplateView):

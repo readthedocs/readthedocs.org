@@ -157,8 +157,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Version-Method'] = 'path'
 
     def process_request(self, request):  # noqa
-        if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
-                'testserver' in request.get_host()]):
+        if any([
+            not settings.USE_SUBDOMAIN,
+            'localhost' in request.get_host(),
+            'testserver' in request.get_host(),
+            request.path.startswith('/_/health_check'),
+        ]):
             log.debug('Not processing Proxito middleware')
             return None
 
