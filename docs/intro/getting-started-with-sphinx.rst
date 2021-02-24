@@ -104,7 +104,11 @@ Then in your ``conf.py``:
 
    extensions = ['myst-parser']
 
-.. warning:: Markdown does works for basic prose content. But reStructuredText is the preferred format for technical documentation, please read `this blog post`_ for motivation.
+.. warning::
+
+   Markdown does works for basic prose content.
+   But reStructuredText is the preferred format for technical documentation,
+   please read `this blog post`_ for motivation.
 
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
 
