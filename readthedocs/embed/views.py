@@ -222,10 +222,9 @@ def _get_doc_content(project, version, doc):
     file_path = build_media_storage.join(storage_path, f'{doc}.fjson')
     try:
         with build_media_storage.open(file_path) as file:
-            file_contents = file.read()
-            return json.loads(file_contents)
+            return json.load(file)
     except Exception:  # noqa
-        log.warning('Unable to read file: %s', file_path)
+        log.warning('Unable to read file. file_path=%s', file_path)
 
     return None
 
