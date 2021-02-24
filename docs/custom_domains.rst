@@ -23,12 +23,6 @@ You can also host your documentation from your own domain.
    We don't currently support pointing subdomains or root domains to a project using A records.
    DNS A records require a static IP address and our IPs may change without notice.
 
-.. note::
- 
-   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
-   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
-   else it will always redirect to GitBook.
-
 .. tabs::
 
    .. tab:: Read the Docs Community
@@ -133,6 +127,11 @@ You will need to update your CAA records to allow us to issue the certificate.
 .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
+.. note::
+ 
+   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
+   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
+   else it will always redirect to GitBook.
 
 Proxy SSL
 ---------
