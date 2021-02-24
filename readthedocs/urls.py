@@ -51,6 +51,9 @@ api_urls = [
     url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
     url(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
+    # Deprecated
+    url(r'^api/v1/embed/', include('readthedocs.embed.urls')),
+    url(r'^api/v2/embed/', include('readthedocs.embed.urls')),
     url(
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
