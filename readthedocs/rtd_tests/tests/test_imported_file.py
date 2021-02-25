@@ -4,6 +4,7 @@ from unittest import mock
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks import (
@@ -249,4 +250,27 @@ class ImportedFileTests(TestCase):
             self.assertEqual(
                 SphinxDomain.objects.filter(html_file=html_file_api).count(),
                 1
+            )
+            mock_fetch_inventory.assert_called_once()
+            self.assertRegex(
+                mock_fetch_inventory.call_args[0][2],
+                '^https://{}/media/.*/objects.inv$'.format(settings.PRODUCTION_DOMAIN)
+            )
+        self.assertEqual(ImportedFile.objects.count(), 2)
+
+    @override_settings(RTD_INTERSPHINX_URL='http://localhost:8080')
+    @mock.patch('readthedocs.projects.tasks.os.path.exists')
+    def test_custom_intersphinx_url(self, mock_exists):
+        mock_exists.return_Value = True
+
+        with mock.patch(
+            'sphinx.ext.intersphinx.fetch_inventory',
+            return_value={}
+        ) as mock_fetch_inventory:
+            _create_intersphinx_data(self.version, 'commit01', 1)
+
+            mock_fetch_inventory.assert_called_once()
+            self.assertRegex(
+                mock_fetch_inventory.call_args[0][2],
+                '^http://localhost:8080/media/.*/objects.inv$'
             )
