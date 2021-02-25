@@ -44,7 +44,7 @@ RTD_INTERSPHINX_URL
 Default: :djangosetting:`RTD_INTERSPHINX_URL`
 
 This is the domain that is used to fetch the intersphinx inventory file.
-If not set explicitly this is the `PRODUCTION_DOMAIN`.
+If not set explicitly this is the ``PRODUCTION_DOMAIN``.
 
 MULTIPLE_APP_SERVERS
 --------------------
