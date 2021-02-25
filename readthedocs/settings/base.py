@@ -303,6 +303,7 @@ class CommunityBaseSettings(Settings):
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
+                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
                     'context_processors': [
@@ -314,10 +315,6 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
-                    ],
-                    'loaders': [
-                        'django.template.loaders.filesystem.Loader',
-                        'django.template.loaders.app_directories.Loader',
                     ],
                 },
             },
