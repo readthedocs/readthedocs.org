@@ -765,6 +765,10 @@ class EnvironmentVariableForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
+        # Remove the nullable option from the form
+        self.fields['public'].widget = forms.CheckboxInput()
+        self.fields['public'].empty_value = False
+
     def clean_project(self):
         return self.project
 
