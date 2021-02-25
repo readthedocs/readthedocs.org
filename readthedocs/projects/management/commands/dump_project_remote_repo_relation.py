@@ -24,12 +24,13 @@ class Command(BaseCommand):
             username=Subquery(users.values("username")[:1])
         ).values_list(
             'id',
+            'slug',
             'remote_repository__json',
             'remote_repository__html_url',
             'username'
         ).distinct()
 
-        for project_id, remote_repo_json, url, username in queryset.iterator():
+        for project_id, slug, remote_repo_json, url, username in queryset.iterator():
             try:
                 json_data = json.loads(remote_repo_json)
                 # GitHub and GitLab uses `id` and Bitbucket uses `uuid`
@@ -39,6 +40,7 @@ class Command(BaseCommand):
                 if remote_id:
                     data.append({
                         'project_id': project_id,
+                        'slug': slug,
                         'remote_id': remote_id,
                         'html_url': url,
                         'username': username,
@@ -46,13 +48,13 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.ERROR(
-                            f'Project {project_id} does not have a remote_repository remote_id'
+                            f'Project {slug} does not have a remote_repository remote_id'
                         )
                     )
             except json.decoder.JSONDecodeError:
                 self.stdout.write(
                     self.style.ERROR(
-                        f'Project {project_id} does not have a valid remote_repository__json'
+                        f'Project {slug} does not have a valid remote_repository__json'
                     )
                 )
 
