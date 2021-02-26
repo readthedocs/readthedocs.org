@@ -58,7 +58,7 @@ class RemoteOrganization(TimeStampedModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = (('remote_id', 'vcs_provider'),)
+        unique_together = ('remote_id', 'vcs_provider')
         db_table = 'oauth_remoteorganization_2020'
 
     def __str__(self):
