@@ -329,13 +329,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                     remote_repository_relations__admin=True,
                     then=Value(True)
                 ),
-                When(
-                    remote_repository_relations__user=self.request.user,
-                    remote_repository_relations__admin=False,
-                    then=Value(False)
-                ),
                 default=Value(False),
-                output_field=BooleanField(),
+                output_field=BooleanField()
             )
         )
         full_name = self.request.query_params.get('full_name')
@@ -359,7 +354,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related('organization')
+        query = query.select_related('organization').order_by(
+            'organization__name', 'full_name'
+        )
 
         return query
 

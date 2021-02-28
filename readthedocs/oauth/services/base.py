@@ -228,28 +228,6 @@ class Service:
             .delete()
         )
 
-    def get_remote_repository_relation(self, repo):
-        """Return RemoteRepositoryRelation object for a given remote repository."""
-        remote_repository_relation, _ = (
-            RemoteRepositoryRelation.objects.get_or_create(
-                remote_repository=repo,
-                user=self.user,
-                account=self.account
-            )
-        )
-        return remote_repository_relation
-
-    def get_remote_organization_relation(self, organization):
-        """Return RemoteOrganizationRelation object for a given remote organization."""
-        remote_organization_relation, _ = (
-            RemoteOrganizationRelation.objects.get_or_create(
-                remote_organization=organization,
-                user=self.user,
-                account=self.account
-            )
-        )
-        return remote_organization_relation
-
     def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from API response.

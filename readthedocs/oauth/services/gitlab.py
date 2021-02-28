@@ -198,7 +198,9 @@ class GitLabService(Service):
                 remote_id=fields['id'],
                 vcs_provider=self.vcs_provider_slug
             )
-            remote_repository_relation = self.get_remote_repository_relation(repo)
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
+            )
 
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -268,7 +270,9 @@ class GitLabService(Service):
             remote_id=fields['id'],
             vcs_provider=self.vcs_provider_slug
         )
-        remote_organization_relation = self.get_remote_organization_relation(organization)
+        remote_organization_relation = organization.get_remote_organization_relation(
+            self.user, self.account
+        )
 
         organization.name = fields.get('name')
         organization.slug = fields.get('path')

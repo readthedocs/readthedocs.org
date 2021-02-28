@@ -44,6 +44,7 @@ class RemoteOrganization(TimeStampedModel):
         null=True,
         blank=True,
     )
+    # VCS provider organization id
     remote_id = models.CharField(
         db_index=True,
         max_length=128
@@ -58,11 +59,22 @@ class RemoteOrganization(TimeStampedModel):
 
     class Meta:
         ordering = ['name']
-        unique_together = ('remote_id', 'vcs_provider')
+        unique_together = ('remote_id', 'vcs_provider',)
         db_table = 'oauth_remoteorganization_2020'
 
     def __str__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
+
+    def get_remote_organization_relation(self, user, social_account):
+        """Return RemoteOrganizationRelation object for the remote organization."""
+        remote_organization_relation, _ = (
+            RemoteOrganizationRelation.objects.get_or_create(
+                remote_organization=self,
+                user=user,
+                account=social_account
+            )
+        )
+        return remote_organization_relation
 
 
 class RemoteOrganizationRelation(TimeStampedModel):
@@ -85,7 +97,7 @@ class RemoteOrganizationRelation(TimeStampedModel):
     json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
-        unique_together = (('remote_organization', 'account'),)
+        unique_together = ('remote_organization', 'account',)
 
     def get_serialized(self, key=None, default=None):
         try:
@@ -174,6 +186,7 @@ class RemoteRepository(TimeStampedModel):
         null=True,
         blank=True,
     )
+    # VCS provider repository id
     remote_id = models.CharField(
         db_index=True,
         max_length=128
@@ -187,9 +200,9 @@ class RemoteRepository(TimeStampedModel):
     objects = RemoteRepositoryQuerySet.as_manager()
 
     class Meta:
-        ordering = ['organization__name', 'full_name']
+        ordering = ['full_name']
         verbose_name_plural = 'remote repositories'
-        unique_together = (('remote_id', 'vcs_provider'),)
+        unique_together = ('remote_id', 'vcs_provider',)
         db_table = 'oauth_remoterepository_2020'
 
     def __str__(self):
@@ -223,6 +236,17 @@ class RemoteRepository(TimeStampedModel):
             ),
         } for project in projects]
 
+    def get_remote_repository_relation(self, user, social_account):
+        """Return RemoteRepositoryRelation object for the remote repository."""
+        remote_repository_relation, _ = (
+            RemoteRepositoryRelation.objects.get_or_create(
+                remote_repository=self,
+                user=user,
+                account=social_account
+            )
+        )
+        return remote_repository_relation
+
 
 class RemoteRepositoryRelation(TimeStampedModel):
     remote_repository = models.ForeignKey(
@@ -245,7 +269,7 @@ class RemoteRepositoryRelation(TimeStampedModel):
     json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
-        unique_together = (('remote_repository', 'account'),)
+        unique_together = ('remote_repository', 'account',)
 
     def get_serialized(self, key=None, default=None):
         try:
