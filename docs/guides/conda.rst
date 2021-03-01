@@ -54,8 +54,8 @@ For example, using the second method for an existing environment:
 Read the Docs will override the ``name`` and ``prefix`` of the environment when creating it,
 so they can have any value, or not be present at all.
 
-.. tip:: Bear in mind that ``rasterio==1.2`` will install version ``1.2.0``,
-   whereas ``python=3.8`` will fetch the latest ``3.8.*`` version,
+.. tip:: Bear in mind that ``rasterio==1.2`` (double ``==``) will install version ``1.2.0``,
+   whereas ``python=3.8`` (single ``=``) will fetch the latest ``3.8.*`` version,
    which is ``3.8.8`` at the time of writing.
 
 .. warning:: Pinning Sphinx and other Read the Docs core dependencies
