@@ -18,9 +18,15 @@
 {% block project_edit_content %}
 
   <p>
-    {% blocktrans trimmed %}
-      The value of the environment variable is not shown here for security purposes.
-    {% endblocktrans %}
+    {% if environmentvariable.public %}
+      {% blocktrans trimmed with value=environmentvariable.value %}
+        Value of the environment variable: {{ value }}
+      {% endblocktrans %}
+    {% else %}
+      {% blocktrans trimmed %}
+        The value of the environment variable is not shown here for security purposes.
+      {% endblocktrans %}
+    {% endif %}
   </p>
 
   <form method="post" action="{% url 'projects_environmentvariables_delete' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">

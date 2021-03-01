@@ -32,6 +32,13 @@
           <li class="module-item">
             <a href="{% url 'projects_environmentvariables_detail' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
               {{ environmentvariable.name }}
+              <span class="right quiet">
+                {% if environmentvariable.public %}
+                  {% trans "Public" %}
+                {% else %}
+                  {% trans "Private" %}
+                {% endif %}
+              </span>
             </a>
           </li>
         {% empty %}
