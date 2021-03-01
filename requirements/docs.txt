@@ -22,7 +22,7 @@ git+https://github.com/readthedocs/sphinx-hoverxref@master
 Pygments==2.8.0
 
 mkdocs==1.1.2
-Markdown==3.3.3
+Markdown==3.3.4
 
 # Docs
 sphinxemoji==0.1.8
