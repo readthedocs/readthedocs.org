@@ -28,10 +28,12 @@ There are several ways of `exporting a conda environment`_:
 - ``conda env export`` will produce a complete list of all the packages installed in the environment
   with their exact versions. This is the best option to ensure reproducibility,
   but can create problems if done from a different operative system than the target machine.
-- ``conda env export --from-history`` will only include packages that were explicitly requested,
-  excluding the transitive dependencies. This is the best option to maximize cross-platform compatibility.
-- And finally, you can also write it by hand. This allows for more fine-tuned control and overcomes
-  some limitations in the conda exporting capabilities.
+- ``conda env export --from-history`` will only include packages that were explicitly requested
+  in the environment, excluding the transitive dependencies. This is the best option to maximize
+  cross-platform compatibility, however it may include packages that are not needed to build your docs.
+- And finally, you can also write it by hand. This allows you to pick exactly the packages needed to
+  build your docs (which also results in faster builds) and overcomes some limitations in the conda
+  exporting capabilities.
 
 For example, using the second method for an existing environment:
 
