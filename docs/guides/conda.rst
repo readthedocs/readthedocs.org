@@ -49,7 +49,7 @@ For example, using the second method for an existing environment:
       - rasterio==1.2
       - python=3.8
       - pytorch-cpu=1.7
-    prefix: /home/juanlu/.mambaforge/envs/rtd38
+    prefix: /home/docs/.conda/envs/rtd38
 
 Read the Docs will override the ``name`` and ``prefix`` of the environment when creating it,
 so they can have any value, or not be present at all.
@@ -115,7 +115,6 @@ that will be installed with pip in the ``environment.yml`` file. For example:
       - pip>=20.1  # pip is needed as dependency
       - pip:
         - black==20.8b1
-    prefix: /home/juanlu/.mambaforge/envs/rtd38
 
 The `conda developers recommend in their best practices`_ to install as many
 requirements as possible with conda, then use pip to minimize possible conflicts
@@ -152,7 +151,6 @@ For example, this conda environment contains the required dependencies to compil
       - cmake
       - numpy
       - compilers
-    prefix: /home/docs/.conda/envs/slycot38
 
 .. _Slycot: https://github.com/python-control/Slycot
 
