@@ -681,7 +681,6 @@ class APITests(TestCase):
             EnvironmentVariable,
             name='TOKEN',
             value='a1b2c3',
-            public=True,
             project=project,
         )
 

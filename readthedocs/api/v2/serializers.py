@@ -31,6 +31,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         )
 
 
+class AllEnvVarsField(serializers.ReadOnlyField):
+    def get_attribute(self, instance):
+        assert self.source_attrs == ['environment_variables']
+        return instance.environment_variables(public_only=False)
+
+
 class ProjectAdminSerializer(ProjectSerializer):
 
     """
@@ -45,6 +51,8 @@ class ProjectAdminSerializer(ProjectSerializer):
         read_only=True,
         slug_field='feature_id',
     )
+
+    environment_variables = AllEnvVarsField()
 
     def get_environment_variables(self, obj):
         return {
