@@ -16,7 +16,7 @@ Activating Conda
 Conda support is available using a :doc:`../config-file/index`, see :ref:`config-file/v2:conda`.
 
 Our :ref:`Docker images <builds:Docker images>` use Miniconda, a minimal conda installer.
-After specifying your project requirements using conda ``environment.yml`` files,
+After specifying your project requirements using a conda ``environment.yml`` file,
 Read the Docs will create the environment (using ``conda env create``)
 and add the core dependencies needed to build the documentation.
 
@@ -53,7 +53,7 @@ Read the Docs will override the ``name`` and ``prefix`` of the environment when 
 so they can have any value, or not be present at all.
 
 .. tip:: Bear in mind that ``rasterio==1.2`` will install version ``1.2.0``,
-   whereas ``python=3.8`` will fetch the latest ``3.8.*``,
+   whereas ``python=3.8`` will fetch the latest ``3.8.*`` version,
    which is ``3.8.8`` at the time of writing.
 
 .. warning:: Pinning Sphinx and other Read the Docs core dependencies
@@ -98,7 +98,7 @@ There are valid reasons to use pip inside a conda environment: some dependency
 might not be avaliable yet as a conda package in any channel,
 or you might want to avoid precompiled binaries entirely.
 In either case, it is possible to specify the subset of packages
-that will be installed with pip in the `environment.yml` file. For example:
+that will be installed with pip in the ``environment.yml`` file. For example:
 
 .. code-block:: yaml
 
@@ -184,4 +184,3 @@ we can't safely install it as a normal dependency into the normal Python virtual
 
 .. warning:: Installing conda into a virtualenv will override the ``activate`` script,
              making it so you can't properly activate that virtualenv anymore.
-
