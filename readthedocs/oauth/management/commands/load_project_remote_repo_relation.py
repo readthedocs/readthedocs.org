@@ -36,9 +36,19 @@ class Command(BaseCommand):
 
         for item in data:
             try:
-                RemoteRepository.objects.filter(
+                update_count = RemoteRepository.objects.filter(
                     remote_id=item['remote_id']
                 ).update(project_id=item['project_id'])
+
+                if update_count < 1:
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"Could not update {item['slug']}'s "
+                            f"relationship with {item['html_url']}, "
+                            f"remote_id {item['remote_id']}, "
+                            f"username: {item['username']}."
+                        )
+                    )
 
             except Exception as e:
                 self.stdout.write(
