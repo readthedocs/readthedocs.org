@@ -72,8 +72,8 @@ Effective use of channels
 Conda packages are usually hosted on https://anaconda.org/, a registration-free artifact archive
 maintained by Anaconda Inc. Contrary to what happens with the Python Package Index,
 different users can potentially host the same package in the same repository,
-each of them using their own **channel**. Therefore, when installing a conda package,
-conda also needs to know which channels should use, and which ones take precedence.
+each of them using their own *channel*. Therefore, when installing a conda package,
+conda also needs to know which channels to use, and which ones take precedence.
 
 If not specified, conda will use ``defaults``, the channel maintained by Anaconda Inc.
 and subject to `Anaconda Terms of Service`_. It contains well-tested versions of the most widely used
