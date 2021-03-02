@@ -219,7 +219,10 @@ def _get_doc_content(project, version, doc):
         include_file=False,
         version_type=version.type,
     )
-    file_path = build_media_storage.join(storage_path, f'{doc}.fjson')
+    file_path = build_media_storage.join(
+        storage_path,
+        f'{doc}.fjson'.lstrip('/'),
+    )
     try:
         with build_media_storage.open(file_path) as file:
             return json.load(file)
