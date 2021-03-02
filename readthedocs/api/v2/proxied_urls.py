@@ -16,12 +16,8 @@ from .views.proxied import ProxiedFooterHTML
 api_footer_urls = [
     url(r'footer_html/', ProxiedFooterHTML.as_view(), name='footer_html'),
     url(r'search/$', ProxiedPageSearchAPIView.as_view(), name='search_api'),
+    url(r'embed/', include('readthedocs.embed.urls')),
     url(r'analytics/$', AnalyticsView.as_view(), name='analytics_api'),
 ]
 
 urlpatterns = api_footer_urls
-
-if 'readthedocsext.embed' in settings.INSTALLED_APPS:
-    urlpatterns += [
-        url(r'embed/', include('readthedocsext.embed.urls'))
-    ]
