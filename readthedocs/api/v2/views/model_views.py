@@ -5,7 +5,6 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -19,6 +18,7 @@ from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, Project
+from readthedocs.storage import build_commands_storage
 
 from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
@@ -257,14 +257,13 @@ class BuildViewSet(UserSelectViewSet):
         serializer = self.get_serializer(instance)
         data = serializer.data
         if instance.cold_storage:
-            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
             storage_path = '{date}/{id}.json'.format(
                 date=str(instance.date.date()),
                 id=instance.id,
             )
-            if storage.exists(storage_path):
+            if build_commands_storage.exists(storage_path):
                 try:
-                    json_resp = storage.open(storage_path).read()
+                    json_resp = build_commands_storage.open(storage_path).read()
                     data['commands'] = json.loads(json_resp)
                 except Exception:
                     log.exception(

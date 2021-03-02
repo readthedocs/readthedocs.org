@@ -22,6 +22,7 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.builds.signals import version_changed
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
@@ -88,6 +89,8 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
         obj = super().save(commit=commit)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
+        if self.has_changed():
+            version_changed.send(sender=self.__class__, version=obj)
         return obj
 
 

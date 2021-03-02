@@ -12,7 +12,6 @@ from readthedocs.api.v2.views import (
 )
 from readthedocs.constants import pattern_opts
 from readthedocs.gold.views import StripeEventView
-from readthedocs.sphinx_domains.api import SphinxDomainAPIView
 
 from .views.model_views import (
     BuildCommandViewSet,
@@ -32,7 +31,6 @@ router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
 router.register(r'version', VersionViewSet, basename='version')
 router.register(r'project', ProjectViewSet, basename='project')
 router.register(r'domain', DomainViewSet, basename='domain')
-router.register(r'sphinx_domain', SphinxDomainAPIView, basename='sphinxdomain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
@@ -119,8 +117,9 @@ urlpatterns += [
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error
-    from readthedocsext.donate.restapi.urls import urlpatterns \
-        as sustainability_urls
+    from readthedocsext.donate.restapi.urls import (
+        urlpatterns as sustainability_urls,
+    )
 
     urlpatterns += [
         url(r'^sustainability/', include(sustainability_urls)),

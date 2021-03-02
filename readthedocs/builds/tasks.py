@@ -5,7 +5,6 @@ from io import BytesIO
 
 from celery import Task
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 
 from readthedocs.api.v2.serializers import BuildSerializer
 from readthedocs.api.v2.utils import (
@@ -16,6 +15,7 @@ from readthedocs.api.v2.utils import (
 )
 from readthedocs.builds.constants import (
     BRANCH,
+    EXTERNAL,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
@@ -27,6 +27,7 @@ from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import send_build_status
+from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
@@ -38,10 +39,11 @@ class TaskRouter:
     Celery tasks router.
 
     It allows us to decide which queue is where we want to execute the task
-    based on project's settings but also in queue availability.
+    based on project's settings.
 
     1. the project is using conda
     2. new project with less than N successful builds
+    3. version to be built is external
 
     It ignores projects that have already set ``build_queue`` attribute.
 
@@ -79,6 +81,24 @@ class TaskRouter:
                 project.slug, project.build_queue,
             )
             return project.build_queue
+
+        # Use last queue used by the default version for external versions
+        if version.type == EXTERNAL:
+            last_build_for_default_version = (
+                project.builds
+                .filter(version__slug=project.get_default_version())
+                .order_by('-date')
+                .first()
+            )
+            if 'default' in last_build_for_default_version.builder:
+                routing_queue = self.BUILD_DEFAULT_QUEUE
+            else:
+                routing_queue = self.BUILD_LARGE_QUEUE
+            log.info(
+                'Routing task because is a external version. project=%s queue=%s',
+                project.slug, routing_queue,
+            )
+            return routing_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
@@ -158,7 +178,6 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
         queryset = queryset.exclude(cold_storage=True)
     queryset = queryset.filter(date__lt=max_date)[:limit]
 
-    storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
     for build in queryset:
         data = BuildSerializer(build).data['commands']
         if data:
@@ -172,7 +191,7 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
             output.seek(0)
             filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
             try:
-                storage.save(name=filename, content=output)
+                build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True
                 build.save()
                 if delete:

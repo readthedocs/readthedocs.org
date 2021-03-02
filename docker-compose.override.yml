@@ -27,7 +27,7 @@ services:
         GITHUB_TOKEN: ${GITHUB_TOKEN:-}
 
   cache:
-    image: redis:4.0.14
+    image: redis:6.0.5
 
   nginx:
     networks:
