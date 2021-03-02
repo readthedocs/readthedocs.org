@@ -86,7 +86,17 @@ of packages and more up-to-date versions of them, the most popular one being ``c
 
 To use the ``conda-forge`` channel when specifying your project dependencies, include it in the list
 of ``channels`` in ``environment.yml``, and conda will rank them in order of appearance.
-To maximize compatibility, we recommend putting ``conda-forge`` above ``defaults``.
+To maximize compatibility, we recommend putting ``conda-forge`` above ``defaults``:
+
+.. code-block:: yaml
+
+    name: rtd38
+    channels:
+      - conda-forge
+      - defaults
+    dependencies:
+      - python=3.8
+      # Rest of the dependencies
 
 .. tip:: If you want to opt out the ``defaults`` channel completely, replace it by ``nodefaults``
    in the list of channels. See `the relevant conda docs`_ for more information.
@@ -107,8 +117,8 @@ that will be installed with pip in the ``environment.yml`` file. For example:
 
     name: rtd38
     channels:
-      - defaults
       - conda-forge
+      - defaults
     dependencies:
       - rasterio==1.2
       - python=3.8
@@ -145,8 +155,8 @@ For example, this conda environment contains the required dependencies to compil
 
     name: slycot38
     channels:
-      - defaults
       - conda-forge
+      - defaults
     dependencies:
       - python=3.8
       - cmake
