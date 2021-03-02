@@ -1415,7 +1415,7 @@ def _create_intersphinx_data(version, commit, build):
     if object_file_url.startswith('/'):
         # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
         # This can cause an issue if MEDIA_URL is not fully qualified
-        object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
+        object_file_url = settings.RTD_INTERSPHINX_URL + object_file_url
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):

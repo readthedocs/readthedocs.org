@@ -1,3 +1,23 @@
+Version 5.11.0
+--------------
+
+:Date: March 02, 2021
+
+* `@saadmk11 <https://github.com/saadmk11>`__: Add management command to Load Project and RemoteRepository Relationship from JSON file (`#7966 <https://github.com/readthedocs/readthedocs.org/pull/7966>`__)
+* `@humitos <https://github.com/humitos>`__: Lower rank of development/install.html (`#7960 <https://github.com/readthedocs/readthedocs.org/pull/7960>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Management Command to Dump Project and RemoteRepository Relationship in JSON format (`#7957 <https://github.com/readthedocs/readthedocs.org/pull/7957>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Enable the cached template loader (`#7953 <https://github.com/readthedocs/readthedocs.org/pull/7953>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common to master (`#7951 <https://github.com/readthedocs/readthedocs.org/pull/7951>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: refactor tests (`#7947 <https://github.com/readthedocs/readthedocs.org/pull/7947>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade jedi (`#7946 <https://github.com/readthedocs/readthedocs.org/pull/7946>`__)
+* `@FatGrizzly <https://github.com/FatGrizzly>`__: Added warnings for previous gitbook users (`#7945 <https://github.com/readthedocs/readthedocs.org/pull/7945>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move embed app (`#7943 <https://github.com/readthedocs/readthedocs.org/pull/7943>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change our sponsored hosting from Azure -> AWS. (`#7940 <https://github.com/readthedocs/readthedocs.org/pull/7940>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Docs: Adds Myst to the getting started with sphinx (`#7938 <https://github.com/readthedocs/readthedocs.org/pull/7938>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a support form to the website (`#7929 <https://github.com/readthedocs/readthedocs.org/pull/7929>`__)
+* `@stsewd <https://github.com/stsewd>`__: Drop six (`#7890 <https://github.com/readthedocs/readthedocs.org/pull/7890>`__)
+* `@fabianmp <https://github.com/fabianmp>`__: Allow to use a different url for intersphinx object file download (`#7807 <https://github.com/readthedocs/readthedocs.org/pull/7807>`__)
+
 Version 5.10.0
 --------------
 
