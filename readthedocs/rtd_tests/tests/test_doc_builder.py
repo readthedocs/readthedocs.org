@@ -107,6 +107,7 @@ class SphinxBuilderTest(TestCase):
         self.assertEqual(params['version'], self.version)
         self.assertEqual(params['build_url'], 'https://readthedocs.org/projects/pip/builds/123/')
 
+    @override_settings(USE_SUBDOMAIN=True)
     @patch('readthedocs.doc_builder.backends.sphinx.api')
     @patch('readthedocs.projects.models.api')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
@@ -155,8 +156,8 @@ class SphinxBuilderTest(TestCase):
         base_sphinx.config_file = tempfile.mktemp()
         context = base_sphinx.get_config_params()
         versions = {
-            v.slug
-            for v in context['versions']
+            slug
+            for slug, _ in context['versions']
         }
         self.assertEqual(versions, {'v1', 'v2'})
 
