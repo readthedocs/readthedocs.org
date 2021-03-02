@@ -200,6 +200,7 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                 log.exception('Cold Storage save failure')
 
 
+@app.task(queue='web')
 def delete_inactive_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as inactive after ``days``.
