@@ -51,8 +51,8 @@ Celery is isolated from database
 Use NGINX as web server
     All the site is served via NGINX with the ability to change some configuration locally.
 
-Azurite as Django storage backend
-    All static and media files are served using Azurite --an emulator of Azure Blob Storage,
+MinIO as Django storage backend
+    All static and media files are served using Minio --an emulator of S3,
     which is the one used in production.
 
 Serve documentation via El Proxito
