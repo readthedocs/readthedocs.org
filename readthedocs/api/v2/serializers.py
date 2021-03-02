@@ -202,7 +202,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
     def is_admin(self, obj):
         request = self.context['request']
 
-        # Use cached value
+        # Use annotated value from RemoteRepositoryViewSet queryset
         if hasattr(obj, 'admin'):
             return obj.admin
 
