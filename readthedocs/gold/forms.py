@@ -12,7 +12,7 @@ from .models import LEVEL_CHOICES, GoldUser
 
 class GoldSubscriptionForm(forms.ModelForm):
 
-    """Gold subscription payment form."""
+    """Gold subscription form."""
 
     class Meta:
         model = GoldUser
@@ -25,6 +25,9 @@ class GoldSubscriptionForm(forms.ModelForm):
 
 
 class GoldProjectForm(forms.Form):
+
+    """Gold users form to select projects to remove ads from."""
+
     project = forms.ChoiceField(
         required=True,
         help_text='Select a project.',

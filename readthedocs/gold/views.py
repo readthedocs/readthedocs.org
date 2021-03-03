@@ -2,22 +2,19 @@
 
 """Gold subscription views."""
 
-import json
 import logging
 import stripe
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from vanilla import DeleteView, DetailView, FormView, GenericView, UpdateView
+from vanilla import DetailView, FormView, GenericView
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from rest_framework import permissions
