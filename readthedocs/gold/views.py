@@ -247,9 +247,8 @@ class StripeEventView(APIView):
                     )
 
                 elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
-                    # TODO: check if the subscription was canceled, past due,
-                    # etc and take the according action
-                    level = event.data.object.plan.id
+                    subscription = event.data.object
+                    level = subscription.plan.id
                     log.info(
                         'Gold User subscription updated. customer=%s level=%s',
                         stripe_customer,
@@ -263,6 +262,15 @@ class StripeEventView(APIView):
                             modified_date=timezone.now(),
                         )
                     )
+
+                    if subscription.status != 'active':
+                        # TODO: check if the subscription was canceled, past due, etc
+                        # and take the according action. Only acummulate errors on Sentry for now.
+                        log.error(
+                            'GoldUser is not active anymore. '
+                            'stripe_customer=%s',
+                            stripe_customer,
+                        )
 
                 return Response({
                     'OK': True,
