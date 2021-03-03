@@ -86,19 +86,20 @@ class TaskRouter:
         if version.type == EXTERNAL:
             last_build_for_default_version = (
                 project.builds
-                .filter(version__slug=project.get_default_version())
+                .filter(version__slug=project.get_default_version(), builder__isnull=False)
                 .order_by('-date')
                 .first()
             )
-            if 'default' in last_build_for_default_version.builder:
-                routing_queue = self.BUILD_DEFAULT_QUEUE
-            else:
-                routing_queue = self.BUILD_LARGE_QUEUE
-            log.info(
-                'Routing task because is a external version. project=%s queue=%s',
-                project.slug, routing_queue,
-            )
-            return routing_queue
+            if last_build_for_default_version:
+                if 'default' in last_build_for_default_version.builder:
+                    routing_queue = self.BUILD_DEFAULT_QUEUE
+                else:
+                    routing_queue = self.BUILD_LARGE_QUEUE
+                log.info(
+                    'Routing task because is a external version. project=%s queue=%s',
+                    project.slug, routing_queue,
+                )
+                return routing_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
