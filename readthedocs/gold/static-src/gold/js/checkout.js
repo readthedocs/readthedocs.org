@@ -47,6 +47,6 @@ StripeCheckoutView.init = function (config) {
     var view = new StripeCheckoutView(config);
     view.initForm();
     return view;
-}
+};
 
 module.exports.StripeCheckoutView = StripeCheckoutView;
