@@ -16,18 +16,39 @@
 {% endblock %}
 
 {% block project_edit_content %}
+  <dl>
+    <dt>{% trans "Privacy Level" %}</dt>
+    <dd>
+      {% if environmentvariable.public %}
+        <p><strong>{% trans "Public" %}</strong></p>
+        <p>
+          {% blocktrans trimmed %}
+            The environment variable is available in pull request builds and shown here.
+          {% endblocktrans %}
+        </p>
+      {% else %}
+        <p><strong>{% trans "Private" %}</strong></p>
+        <p>
+          {% blocktrans trimmed %}
+            The environment variable is not available in pull request builds and hidden here.
+          {% endblocktrans %}
+        </p>
+      {% endif %}
+    </dd>
 
-  <p>
-    {% if environmentvariable.public %}
-      {% blocktrans trimmed with value=environmentvariable.value %}
-        Value of the environment variable: {{ value }}
-      {% endblocktrans %}
-    {% else %}
-      {% blocktrans trimmed %}
-        The value of the environment variable is not shown here for security purposes.
-      {% endblocktrans %}
-    {% endif %}
-  </p>
+    <dt>{% trans "Value" %}</dt>
+    <dd>
+      {% if environmentvariable.public %}
+        <pre>{{ environmentvariable.value }}</pre>
+      {% else %}
+        <p>
+          {% blocktrans trimmed %}
+            The value of the environment variable is not shown here for security purposes.
+          {% endblocktrans %}
+        </p>
+      {% endif %}
+    </dd>
+  </dl>
 
   <form method="post" action="{% url 'projects_environmentvariables_delete' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
     {% csrf_token %}
