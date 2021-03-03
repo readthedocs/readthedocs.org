@@ -2,6 +2,7 @@
 
 """Gold subscription views."""
 
+import json
 import logging
 import stripe
 
@@ -31,15 +32,27 @@ from .models import GoldUser, LEVEL_CHOICES
 log = logging.getLogger(__name__)
 
 
-class GoldSubscriptionMixin(
-        SuccessMessageMixin,
+class GoldSubscription(
         PrivateViewMixin,
+        DetailView,
+        FormView,
 ):
 
-    """Gold subscription mixin for view classes."""
+    """Gold subscription view."""
 
     model = GoldUser
     form_class = GoldSubscriptionForm
+    template_name = 'gold/subscription_detail.html'
+
+    def get(self, *args, **kwargs):
+        subscribed = self.request.GET.get('subscribed', None)
+        if subscribed == 'true':
+            messages.success(
+                self.request,
+                'Thanks for supporting Read the Docs! It really means a lot to us.'
+            )
+
+        return super().get(*args, **kwargs)
 
     def get_object(self):
         try:
@@ -50,37 +63,12 @@ class GoldSubscriptionMixin(
     def get_success_url(self, **__):
         return reverse_lazy('gold_detail')
 
-    def get_template_names(self):
-        return ('gold/subscription{}.html'.format(self.template_name_suffix))
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        domains = Domain.objects.filter(project__users=self.request.user)
-        context['domains'] = domains
+        context['form'] = self.get_form()
+        context['golduser'] = self.get_object()
         context['stripe_publishable'] = settings.STRIPE_PUBLISHABLE
         return context
-
-
-# Subscription Views
-
-
-class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
-
-    def get(self, request, *args, **kwargs):
-        """
-        GET handling for this view.
-
-        If there is a gold subscription instance, then we show the normal detail
-        page, otherwise show the registration form
-        """
-        resp = super().get(request, *args, **kwargs)
-        if self.object is None:
-            return HttpResponseRedirect(reverse('gold_subscription'))
-        return resp
-
-
-class UpdateGoldSubscription(GoldSubscriptionMixin, UpdateView):
-    success_message = _('Your subscription has been updated')
 
 
 class GoldProjectsMixin(PrivateViewMixin):
@@ -92,7 +80,7 @@ class GoldProjectsMixin(PrivateViewMixin):
         return self.get_gold_user().projects.all()
 
     def get_success_url(self):
-        return reverse('gold_projects')
+        return reverse_lazy('gold_projects')
 
 
 class GoldProjectsListCreate(GoldProjectsMixin, FormView):
@@ -146,7 +134,7 @@ class GoldCreateCheckoutSession(GenericView):
         try:
             user = request.user
             schema = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-            url = reverse('gold_subscription')
+            url = reverse_lazy('gold_detail')
             url = f'{schema}://{settings.PRODUCTION_DOMAIN}{url}'
             price = json.loads(request.body).get('priceId')
             log.info('Creating Stripe Checkout Session. user=%s price=%s', user, price)
@@ -162,8 +150,8 @@ class GoldCreateCheckoutSession(GenericView):
                 ],
                 mode='subscription',
                 # We use the same URL to redirect the user. We only show a different notification.
-                success_url=url,
-                cancel_url=url,
+                success_url=f'{url}?subscribed=true',
+                cancel_url=f'{url}?subscribed=false',
             )
             return JsonResponse({'session_id': checkout_session.id})
         except:  # noqa
@@ -195,6 +183,11 @@ class GoldSubscriptionPortal(GenericView):
             )
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
+            log.exception(
+                'There was an error connecting to Stripe. user=%s stripe_customer=%s',
+                user.username,
+                stripe_customer,
+            )
             messages.error(
                 request,
                 _('There was an error connecting to Stripe, please try again in a few minutes'),
@@ -202,7 +195,7 @@ class GoldSubscriptionPortal(GenericView):
             return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('gold_detail')
+        return reverse_lazy('gold_detail')
 
 
 # TODO: where this code should live? (readthedocs-ext?)

@@ -10,11 +10,10 @@ from readthedocs.projects.constants import PROJECT_SLUG_REGEX
 
 
 urlpatterns = [
-    url(r'^$', views.DetailGoldSubscription.as_view(), name='gold_detail'),
     url(
-        r'^subscription/$',
-        views.UpdateGoldSubscription.as_view(),
-        name='gold_subscription',
+        r'^$',
+        views.GoldSubscription.as_view(),
+        name='gold_detail',
     ),
     url(
         r'^subscription/checkout/create/$',
