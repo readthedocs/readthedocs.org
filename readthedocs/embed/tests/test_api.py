@@ -193,6 +193,64 @@ class TestEmbedAPI:
 
         assert response.data == expected
 
+    @pytest.mark.parametrize(
+        'section',
+        [
+            'glossary',
+            'term-builder',
+            'term-configuration-directory',
+            'term-directive',
+            'term-document-name',
+            'term-domain',
+            'term-environment',
+            'term-extension',
+            'term-master-document',
+            'term-object',
+            'term-RemoveInSphinxXXXWarning',
+            'term-role',
+            'term-source-directory',
+            'term-reStructuredText',
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_sphinx_glossary(self, storage_mock, section):
+        # TODO: render definition lists as a definition list with one element.
+        json_file = data_path / 'sphinx/glossary/page.json'
+        html_file = data_path / 'sphinx/glossary/page.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
+        response = do_embed(
+            project=self.project,
+            version=self.version,
+            section=section,
+            path='index.html',
+        )
+
+        section_content = self._get_html_content(
+            data_path / f'sphinx/glossary/page-{section}.html'
+        )
+
+        expected = {
+            'content': section_content,
+            'headers': [
+                {'Glossary': '#'},
+            ],
+            'url': 'http://project.readthedocs.io/en/latest/index.html',
+            'meta': {
+                'project': 'project',
+                'version': 'latest',
+                'doc': None,
+                'section': section,
+            },
+        }
+
+        assert response.data == expected
+
     @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_mkdocs(self, storage_mock):
         json_file = data_path / 'mkdocs/latest/index.json'
