@@ -692,7 +692,7 @@ class APITests(TestCase):
         self.assertIn('environment_variables', resp.data)
         self.assertEqual(
             resp.data['environment_variables'],
-            {'TOKEN': 'a1b2c3'},
+            {'TOKEN': dict(value='a1b2c3', public=False)},
         )
 
     def test_init_api_project(self):

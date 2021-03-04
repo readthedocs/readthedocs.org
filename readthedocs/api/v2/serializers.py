@@ -51,7 +51,10 @@ class ProjectAdminSerializer(ProjectSerializer):
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""
         return {
-            variable.name: variable.value
+            variable.name: dict(
+                value=variable.value,
+                public=variable.public,
+            )
             for variable in obj.environmentvariable_set.all()
         }
 
