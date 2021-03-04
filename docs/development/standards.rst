@@ -74,7 +74,7 @@ After cloning ``readthedocs.org`` repository, you need to
 
    .. prompt:: bash
 
-      git clone --recurse-submodules git@github.com:readthedocs/readthedocs.org.git
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
 #. install the requirements from ``common`` submodule:
 
@@ -178,7 +178,7 @@ save some work while typing docker compose commands. This section explains these
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Docker image for the servers is built with the requirements defined in the checked out branch.
+The Docker image for the servers is built with the requirements defined in the current checked out branch.
 In case you need to add a new Python dependency while developing,
 you can use the ``common/dockerfiles/entrypoints/common.sh`` script as shortcut.
 
