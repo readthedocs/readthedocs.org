@@ -189,7 +189,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
                    alias='alias',
                    version=VersionData(
                         "latest",
-                        "sphinx",
                         "https://requests.readthedocs.io/en/latest/",
                     ),
                ),
@@ -197,7 +196,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
                    alias=None,
                    version=VersionData(
                        "latest",
-                       "sphinx_htmldir",
                        "https://requests-oauth.readthedocs.io/en/latest/",
                    ),
                ),
@@ -215,7 +213,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
                 alias=None,
                 version=VersionData(
                     slug=main_version.slug,
-                    doctype=main_version.documentation_type,
                     docs_url=main_project.get_docs_url(version_slug=main_version.slug),
                 ),
             )
@@ -246,7 +243,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
                 project_alias = subproject.superprojects.values_list('alias', flat=True).first()
                 version_data = VersionData(
                     slug=version.slug,
-                    doctype=version.documentation_type,
                     docs_url=url,
                 )
                 projects_data[subproject.slug] = ProjectData(

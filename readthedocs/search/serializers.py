@@ -22,7 +22,7 @@ from readthedocs.projects.models import Project
 
 # Structure used for storing cached data of a version mostly.
 ProjectData = namedtuple('ProjectData', ['version', 'alias'])
-VersionData = namedtuple('VersionData', ['slug', 'docs_url', 'doctype'])
+VersionData = namedtuple('VersionData', ['slug', 'docs_url'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -89,7 +89,6 @@ class PageSearchSerializer(serializers.Serializer):
             version_data = VersionData(
                 slug=obj.version,
                 docs_url=docs_url,
-                doctype=None,
             )
             projects_data[obj.project] = ProjectData(
                 alias=project_alias,
@@ -126,7 +125,7 @@ class PageSearchSerializer(serializers.Serializer):
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if project_data.version.doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            if obj.doctype in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')
