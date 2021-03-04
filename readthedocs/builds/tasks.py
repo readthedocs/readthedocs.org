@@ -83,6 +83,8 @@ class TaskRouter:
             return project.build_queue
 
         # Use last queue used by the default version for external versions
+        # We always want the same queue as the previous default version,
+        # so that users will have the same outcome for PR's as normal builds.
         if version.type == EXTERNAL:
             last_build_for_default_version = (
                 project.builds
