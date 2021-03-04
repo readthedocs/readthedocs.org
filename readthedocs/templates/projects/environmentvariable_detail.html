@@ -23,14 +23,14 @@
         <p><strong>{% trans "Public" %}</strong></p>
         <p>
           {% blocktrans trimmed %}
-            The environment variable is available in pull request builds and shown here.
+            The environment variable is available in pull request builds.
           {% endblocktrans %}
         </p>
       {% else %}
         <p><strong>{% trans "Private" %}</strong></p>
         <p>
           {% blocktrans trimmed %}
-            The environment variable is not available in pull request builds and hidden here.
+            The environment variable is not available in pull request builds.
           {% endblocktrans %}
         </p>
       {% endif %}
