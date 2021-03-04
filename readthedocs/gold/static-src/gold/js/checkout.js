@@ -30,11 +30,11 @@ function StripeCheckoutView(config) {
     self.createCheckoutSession = function () {
         var priceId = document.getElementById(self.levelId).value;
         // One-time donation fields
-        var name = document.getElementById('id_name').value;
-        var email = document.getElementById('id_email').value;
-        var logoUrl = document.getElementById('id_logo_url').value;
-        var siteUrl = document.getElementById('id_site_url').value;
-        var public = document.getElementById('id_public').checked;
+        var name = document.getElementById('id_name');
+        var email = document.getElementById('id_email');
+        var logoUrl = document.getElementById('id_logo_url');
+        var siteUrl = document.getElementById('id_site_url');
+        var public = document.getElementById('id_public');
 
         return fetch(self.checkoutSessionUrl, {
             method: "POST",
@@ -44,11 +44,11 @@ function StripeCheckoutView(config) {
             },
             body: JSON.stringify({
                 priceId: priceId,
-                name: name,
-                email: email,
-                logoUrl: logoUrl,
-                siteUrl: siteUrl,
-                public: public,
+                name: name ? name.value : null,
+                email: email ? email.value : null,
+                logoUrl: logoUrl ? logUrl.value : null,
+                siteUrl: siteUrl ? siteUrl.value : null,
+                public: public ? public.checked : null,
             })
         });
     };
