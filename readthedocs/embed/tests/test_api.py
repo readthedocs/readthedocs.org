@@ -41,7 +41,7 @@ class TestEmbedAPI:
 
     def _patch_sphinx_json_file(self, storage_mock, json_file, html_file):
         storage_mock.exists.return_value = True
-        html_content = data_path / 'sphinx/latest/page.html'
+        html_content = data_path / html_file
         json_content = json.load(json_file.open())
         json_content['body'] = html_content.open().read()
         storage_mock.open.side_effect = self._mock_open(
@@ -128,6 +128,59 @@ class TestEmbedAPI:
                 {'Subsub title': '#subsub-title'},
                 # TODO: detect this header
                 # {'Adding a new scenario to the repository': 'adding-a-new-scenario-to-the-repository'}
+            ],
+            'url': 'http://project.readthedocs.io/en/latest/index.html',
+            'meta': {
+                'project': 'project',
+                'version': 'latest',
+                'doc': None,
+                'section': section,
+            },
+        }
+
+        assert response.data == expected
+
+    @pytest.mark.parametrize(
+        'section',
+        [
+            'getting-started',
+            'overview',
+            'installation',
+            'minimal-example',
+            # TODO: return just one element for definition lists
+            'nel87a',
+            'nel87b',
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_sphinx_bibtex(self, storage_mock, section):
+        json_file = data_path / 'sphinx/bibtex/page.json'
+        html_file = data_path / 'sphinx/bibtex/page.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
+        response = do_embed(
+            project=self.project,
+            version=self.version,
+            section=section,
+            path='index.html',
+        )
+
+        section_content = self._get_html_content(
+            data_path / f'sphinx/bibtex/page-{section}.html'
+        )
+
+        expected = {
+            'content': section_content,
+            'headers': [
+                {'Getting Started': '#'},
+                {'Overview': '#overview'},
+                {'Installation': '#installation'},
+                {'Minimal Example': '#minimal-example'},
             ],
             'url': 'http://project.readthedocs.io/en/latest/index.html',
             'meta': {
