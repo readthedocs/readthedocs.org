@@ -11,6 +11,7 @@ from readthedocs.api.v2.views import (
     task_views,
 )
 from readthedocs.constants import pattern_opts
+from readthedocs.gold.views import StripeEventView
 
 from .views.model_views import (
     BuildCommandViewSet,
@@ -110,6 +111,9 @@ integration_urls = [
 urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
+urlpatterns += [
+    url(r'^webhook/stripe/', StripeEventView.as_view(), name='api_webhook_stripe'),
+]
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error
