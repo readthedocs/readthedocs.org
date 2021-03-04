@@ -246,7 +246,9 @@ class StripeEventView(APIView):
                             price = event.data.object.amount_total
                             handle_payment_webhook(username, stripe_customer, stripe_session, price)
                         except ImportError:
-                            log.warning('Not able to import handle_payment_webhook for one-time donation.')
+                            log.warning(
+                                'Not able to import handle_payment_webhook for one-time donation.',
+                            )
                     # TODO: add user notification saying it was successful
 
                 elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:

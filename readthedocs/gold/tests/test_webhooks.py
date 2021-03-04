@@ -23,7 +23,8 @@ class GoldStripeWebhookTests(TestCase):
                 "client_reference_id": "golduser",
                 "customer": "cus_a1b2c3",
                 "customer_email": "golduser@golduser.com",
-                "subscription": "sub_a1b2c3"
+                "subscription": "sub_a1b2c3",
+                "mode": "subscription"
             }
         },
         "type": "checkout.session.completed"
