@@ -51,9 +51,6 @@ elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.1.4  # pyup: <8.0
 selectolax==0.2.10
 
-# embed
-pyquery==1.4.3
-
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.1
 

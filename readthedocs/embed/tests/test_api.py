@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 from django_dynamic_fixture import get
-from pyquery import PyQuery
+from selectolax.parser import HTMLParser
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.embed.views import do_embed
@@ -49,8 +49,15 @@ class TestEmbedAPI:
         )
 
     def _get_html_content(self, html_file):
-        section_content = [PyQuery(html_file.open().read()).outerHtml()]
-        return section_content
+        content = HTMLParser(html_file.open().read())
+        # We override all links inside the embed,
+        # when doing so, the href attribute gets moved to the end.
+        # Do the same here.
+        for anchor in content.css('a'):
+            href = anchor.attributes.get('href')
+            if href and 'project.readthedocs.io' in href:
+                anchor.attrs['href'] = href
+        return content.body.child.html
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_unknown_section(self, storage_mock):
@@ -119,7 +126,7 @@ class TestEmbedAPI:
         )
 
         expected = {
-            'content': section_content,
+            'content': [section_content],
             'headers': [
                 # TODO: return the full id here
                 {'I Need Secrets (or Environment Variables) in my Build': '#'},
@@ -175,7 +182,7 @@ class TestEmbedAPI:
         )
 
         expected = {
-            'content': section_content,
+            'content': [section_content],
             'headers': [
                 {'Getting Started': '#'},
                 {'Overview': '#overview'},
@@ -236,7 +243,7 @@ class TestEmbedAPI:
         )
 
         expected = {
-            'content': section_content,
+            'content': [section_content],
             'headers': [
                 {'Glossary': '#'},
             ],
@@ -246,50 +253,6 @@ class TestEmbedAPI:
                 'version': 'latest',
                 'doc': None,
                 'section': section,
-            },
-        }
-
-        assert response.data == expected
-
-    @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_mkdocs(self, storage_mock):
-        json_file = data_path / 'mkdocs/latest/index.json'
-        storage_mock.exists.return_value = True
-        storage_mock.open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            doc='index',
-            section='Installation',
-            path='index.html',
-        )
-
-        expected = {
-            'content': mock.ANY,  # too long to compare here
-            'headers': [
-                {'Overview': 'overview'},
-                {'Installation': 'installation'},
-                {'Getting Started': 'getting-started'},
-                {'Adding pages': 'adding-pages'},
-                {'Theming our documentation': 'theming-our-documentation'},
-                {'Changing the Favicon Icon': 'changing-the-favicon-icon'},
-                {'Building the site': 'building-the-site'},
-                {'Other Commands and Options': 'other-commands-and-options'},
-                {'Deploying': 'deploying'},
-                {'Getting help': 'getting-help'},
-            ],
-            'url': 'http://project.readthedocs.io/en/latest/index.html',
-            'meta': {
-                'project': 'project',
-                'version': 'latest',
-                'doc': 'index',
-                'section': 'Installation',
             },
         }
 

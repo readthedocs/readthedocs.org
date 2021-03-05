@@ -10,18 +10,18 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
 from docutils.nodes import make_id
-from pyquery import PyQuery as PQ  # noqa
 from rest_framework import status
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selectolax.parser import HTMLParser
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none
+from readthedocs.embed.utils import next_tag, recurse_while_none
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
@@ -35,7 +35,7 @@ def escape_selector(selector):
     return ret
 
 
-def clean_links(obj, url):
+def clean_links(node, url):
     """
     Rewrite (internal) links to make them absolute.
 
@@ -44,24 +44,24 @@ def clean_links(obj, url):
     3. prepend URL (without filename) to internal relative links
     """
     if url is None:
-        return obj
+        return node
 
-    for link in obj.find('a'):
+    for link in node.css('a'):
         base_url = urlparse(url)
         # We need to make all internal links, to be absolute
-        href = link.attrib['href']
+        href = link.attributes.get('href')
+        if not href:
+            continue
+
         parsed_href = urlparse(href)
         if parsed_href.scheme or parsed_href.path.startswith('/'):
-            # don't change external links
+            # don't change absolute paths/URLs
             continue
 
         if not parsed_href.path and parsed_href.fragment:
             # href="#section-link"
-            new_href = base_url.geturl() + href
-            link.attrib['href'] = new_href
-            continue
-
-        if not base_url.path.endswith('/'):
+            link.attrs['href'] = base_url.geturl() + href
+        elif not base_url.path.endswith('/'):
             # internal relative link
             # href="../../another.html" and ``base_url`` is not HTMLDir
             # (e.g. /en/latest/deep/internal/section/page.html)
@@ -73,11 +73,7 @@ def clean_links(obj, url):
             path, _ = base_url.path.rsplit('/', 1)
             # append the value of href (../../another.html) to the base URL.
             base_url = base_url._replace(path=path + '/')
-
-        new_href = base_url.geturl() + href
-        link.attrib['href'] = new_href
-
-    return obj
+            link.attrs['href'] = base_url.geturl() + href
 
 
 class EmbedAPIBase(APIView):
@@ -276,7 +272,7 @@ def parse_sphinx(content, section, url):
 
     headers = [
         recurse_while_none(element)
-        for element in PQ(toc)('a')
+        for element in HTMLParser(toc).css('a')
     ]
 
     if not section and headers:
@@ -288,7 +284,7 @@ def parse_sphinx(content, section, url):
     if not section:
         return [], headers, None
 
-    body_obj = PQ(body)
+    body_obj = HTMLParser(body)
     escaped_section = escape_selector(section)
 
     elements_id = [
@@ -297,22 +293,24 @@ def parse_sphinx(content, section, url):
         make_id(escaped_section),
         f'module-{escaped_section}',
     ]
-    query_result = []
+    query_result = None
     for element_id in elements_id:
         if not element_id:
             continue
-        query_result = body_obj(f'#{element_id}')
+        query_result = body_obj.css_first(f'#{element_id}')
         if query_result:
             break
 
     if not query_result:
-        selector = f':header:contains("{escaped_section}")'
-        query_result = body_obj(selector).parent()
+        selector = f'[header~={escaped_section}]'
+        query_result = body_obj.css_first(selector)
+        if query_result:
+            query_result = query_result.parent
 
     # Handle ``dt`` special cases
-    if len(query_result) == 1 and query_result[0].tag == 'dt':
-        parent = query_result.parent()
-        if 'glossary' in parent.attr('class'):
+    if query_result and query_result.tag == 'dt':
+        parent = query_result.parent
+        if 'glossary' in parent.attributes.get('class'):
             # Sphinx HTML structure for term glossary puts the ``id`` in the
             # ``dt`` element with the title of the term. In this case, we
             # need to return the next sibling which contains the definition
@@ -324,8 +322,8 @@ def parse_sphinx(content, section, url):
             # <dd>Text definition for the term</dd>
             # ...
             # </dl>
-            query_result = query_result.next()
-        elif 'citation' in parent.attr('class'):
+            query_result = next_tag(query_result)
+        elif 'citation' in parent.attributes.get('class'):
             # Sphinx HTML structure for sphinxcontrib-bibtex puts the ``id`` in the
             # ``dt`` element with the title of the cite. In this case, we
             # need to return the next sibling which contains the cite itself.
@@ -336,7 +334,7 @@ def parse_sphinx(content, section, url):
             # <dd>Content of the cite</dd>
             # ...
             # </dl>
-            query_result = query_result.next()
+            query_result = next_tag(query_result)
         else:
             # Sphinx HTML structure for definition list puts the ``id``
             # the ``dt`` element, instead of the ``dl``. This makes
@@ -352,58 +350,20 @@ def parse_sphinx(content, section, url):
             # </dl>
             query_result = parent
 
-    def dump(obj):
-        """Handle API-based doc HTML."""
-        if obj[0].tag in ['span', 'h2']:
-            return obj.parent().outerHtml()
-        return obj.outerHtml()
+    # Return the outer html for these elements
+    if query_result and query_result.tag in ['span', 'h2'] and query_result.parent:
+        query_result = query_result.parent
 
-    ret = [
-        dump(clean_links(PQ(obj), url))
-        for obj in query_result
-    ]
-    return ret, headers, section
+    section_html = []
+    if query_result:
+        clean_links(query_result, url)
+        section_html = [query_result.html]
+
+    return section_html, headers, section
 
 
 def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
     """Get the embed content for the section."""
     ret = []
     headers = []
-
-    if not content or not content.get('content'):
-        return (None, None, section)
-
-    body = content['content']
-    for element in PQ(body)('h2'):
-        headers.append(recurse_while_none(element))
-
-    if not section and headers:
-        # If no section is sent, return the content of the first one
-        section = list(headers[0].keys())[0].lower()
-
-    if section:
-        body_obj = PQ(body)
-        escaped_section = escape_selector(section)
-        section_list = body_obj(
-            ':header:contains("{title}")'.format(title=str(escaped_section)))
-        for num in range(len(section_list)):
-            header2 = section_list.eq(num)
-            # h2_title = h2.text().strip()
-            # section_id = h2.attr('id')
-            h2_content = ""
-            next_p = header2.next()
-            while next_p:
-                if next_p[0].tag == 'h2':
-                    break
-                h2_html = next_p.outerHtml()
-                if h2_html:
-                    h2_content += "\n%s\n" % h2_html
-                next_p = next_p.next()
-            if h2_content:
-                ret.append(h2_content)
-                # ret.append({
-                #     'id': section_id,
-                #     'title': h2_title,
-                #     'content': h2_content,
-                # })
-    return (ret, headers, section)
+    return ret, headers, section

@@ -3,10 +3,20 @@
 
 def recurse_while_none(element):
     """Recursively find the leaf node with the ``href`` attribute."""
-    if element.text is None and element.getchildren():
-        return recurse_while_none(element.getchildren()[0])
+    children = list(element.iter())
+    if children:
+        return recurse_while_none(children[0])
 
-    href = element.attrib.get('href')
+    href = element.attributes.get('href')
     if not href:
-        href = element.attrib.get('id')
-    return {element.text: href}
+        href = element.attributes.get('id')
+    return {element.text(): href}
+
+
+def next_tag(element):
+    """Return the next non-text sibling of element."""
+    while element:
+        element = element.next
+        if element.tag != '-text':
+            return element
+    return None
