@@ -175,6 +175,9 @@ save some work while typing docker compose commands. This section explains these
 
     * ``--only-latest`` does not pull ``stable`` and ``testing`` images.
 
+``inv docker.buildassets``
+    Build all the assets and "deploy" them to the storage.
+
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
