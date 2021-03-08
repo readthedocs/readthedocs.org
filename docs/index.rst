@@ -24,7 +24,7 @@ Multiple versions |:card_index_dividers:|
 Open Source and User Focused |:heartbeat:|
     Our code is free and `open source <https://github.com/readthedocs/>`_.
     :doc:`Our company </about>` is bootstrapped and 100% user focused.
-    |org_brand| hosts documentation for over 100,000 large 
+    |org_brand| hosts documentation for over 100,000 large
     and small open source projects,
     in almost every human and computer language.
     |com_brand| supports hundreds of organizations with product and internal documentation.
@@ -81,7 +81,7 @@ and some of the core features of Read the Docs.
   :doc:`/pull-requests`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
-  :doc:`Connecting your VCS account </connected-accounts>` | 
+  :doc:`Connecting your VCS account </connected-accounts>` |
   :doc:`VCS webhooks </webhooks>`
 
 * **Read the Docs build process**:
@@ -219,9 +219,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Read the Docs for Business**:
   :doc:`Support and additional features <commercial/index>`
-
-* **Running your own version of Read the Docs**:
-  :doc:`Private installations <custom_installs/index>`
 
 
 .. toctree::

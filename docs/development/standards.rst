@@ -1,6 +1,9 @@
 Development Setup and Standards
 ===============================
 
+.. meta::
+   :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
+
 These are development setup and standards that are adhered to by the core development team while
 developing Read the Docs and related services. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
