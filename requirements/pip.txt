@@ -28,7 +28,7 @@ requests==2.25.1
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.4.1
-Pygments==2.8.0
+Pygments==2.8.1
 
 # Basic tools
 redis==3.5.3
@@ -43,7 +43,7 @@ celery==5.0.5
 # override ``account/base.html`` within your project.
 django-allauth==0.42.0  # pyup: ignore
 
-GitPython==3.1.13
+GitPython==3.1.14
 
 # Search
 elasticsearch==7.11.0  # pyup: <8.0.0
@@ -74,7 +74,7 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.2
 django-crispy-forms==1.11.1
 
-docker==4.4.3
+docker==4.4.4
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
