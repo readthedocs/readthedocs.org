@@ -50,6 +50,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
@@ -65,6 +66,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
     SUPPORT_EMAIL = None
+    SUPPORT_FORM_ENDPOINT = None
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -177,6 +179,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.analytics',
             'readthedocs.sphinx_domains',
             'readthedocs.search',
+            'readthedocs.embed',
 
             # allauth
             'allauth',
@@ -191,7 +194,6 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
-            apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
@@ -303,6 +305,7 @@ class CommunityBaseSettings(Settings):
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
+                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
                     'context_processors': [
@@ -314,10 +317,6 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
-                    ],
-                    'loaders': [
-                        'django.template.loaders.filesystem.Loader',
-                        'django.template.loaders.app_directories.Loader',
                     ],
                 },
             },
@@ -483,7 +482,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
                     3: 3.7,
@@ -610,7 +609,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
-    ES_TASK_CHUNK_SIZE = 100
+    ES_TASK_CHUNK_SIZE = 500
 
     # Info from Honza about this:
     # The key to determine shard number is actually usually not the node count,
