@@ -102,7 +102,7 @@ Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['myst-parser']
+   extensions = ['myst_parser']
 
 .. warning::
 
