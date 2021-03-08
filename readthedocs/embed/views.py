@@ -55,7 +55,8 @@ def clean_links(node, url):
 
         parsed_href = urlparse(href)
         if parsed_href.scheme or parsed_href.path.startswith('/'):
-            # don't change absolute paths/URLs
+            # TODO: replace absolute paths to a full URL.
+            # Don't change absolute paths/URLs
             continue
 
         if not parsed_href.path and parsed_href.fragment:
@@ -73,7 +74,8 @@ def clean_links(node, url):
             path, _ = base_url.path.rsplit('/', 1)
             # append the value of href (../../another.html) to the base URL.
             base_url = base_url._replace(path=path + '/')
-            link.attrs['href'] = base_url.geturl() + href
+
+        link.attrs['href'] = base_url.geturl() + href
 
 
 class EmbedAPIBase(APIView):

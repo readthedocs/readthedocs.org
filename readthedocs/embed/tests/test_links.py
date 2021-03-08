@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 import pytest
-from pyquery import PyQuery
+from selectolax.parser import HTMLParser
 
 from readthedocs.embed.views import clean_links
 
@@ -93,9 +93,9 @@ dirhtmldata = [
 
 @pytest.mark.parametrize('url', htmldata + dirhtmldata)
 def test_clean_links(url):
-    pq = PyQuery(f'<body><a href="{url.href}">Click here</a></body>')
-    response = clean_links(pq, url.docurl)
-    assert response.find('a').attr['href'] == url.expected
+    body = HTMLParser(f'<a href="{url.href}">Click here</a>')
+    clean_links(body, url.docurl)
+    assert body.css_first('a').attributes['href'] == url.expected
 
 
 def test_two_links():
@@ -115,7 +115,8 @@ def test_two_links():
         '#to-a-section',
         'https://t.readthedocs.io/en/latest/internal/deep/page/section.html#to-a-section',
     )
-    pq = PyQuery(f'<body><a href="{firsturl.href}">Click here</a><a href="{secondurl.href}">Click here</a></body>')
-    response = clean_links(pq, firsturl.docurl)
-    firstlink, secondlink = response.find('a')
-    assert (firstlink.attrib['href'], secondlink.attrib['href']) == (firsturl.expected, secondurl.expected)
+    body = HTMLParser(f'<a href="{firsturl.href}">Click here</a><a href="{secondurl.href}">Click here</a>')
+    clean_links(body, firsturl.docurl)
+    firstlink, secondlink = body.css('a')
+    assert firstlink.attributes['href'] == firsturl.expected
+    assert secondlink.attributes['href'] == secondurl.expected
