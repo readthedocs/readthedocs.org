@@ -83,7 +83,7 @@ by :doc:`importing your docs </intro/import-guide>`.
 
 .. warning::
 
-   We strongly recommend to :ref:`pin the Sphinx version <guides/specifying-dependencies:Specifying Dependencies>`
+   We strongly recommend to :ref:`pin the Sphinx version <guides/reproducible-builds:pinning dependencies>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
 .. _this template: https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/#id1

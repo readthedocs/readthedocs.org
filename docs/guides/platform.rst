@@ -11,12 +11,12 @@ These guides will help you customize or tune aspects of Read the Docs.
    canonical
    conda
    deprecating-content
+   embedding-content
    environment-variables
    feature-flags
    google-analytics
    hiding-a-version
+   reproducible-builds
    searching-with-readthedocs
-   embedding-content
-   specifying-dependencies
    technical-docs-seo-guide
    wipe-environment
