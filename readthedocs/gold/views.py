@@ -243,8 +243,13 @@ class StripeEventView(APIView):
                             # TODO: find a better way to extend this view for one-time donations.
                             from readthedocsext.donate.utils import handle_payment_webhook
                             stripe_session = event.data.object.id
-                            price = event.data.object.amount_total
-                            handle_payment_webhook(username, stripe_customer, stripe_session, price)
+                            price_in_cents = event.data.object.amount_total
+                            handle_payment_webhook(
+                                username,
+                                stripe_customer,
+                                stripe_session,
+                                price_in_cents,
+                            )
                         except ImportError:
                             log.warning(
                                 'Not able to import handle_payment_webhook for one-time donation.',
