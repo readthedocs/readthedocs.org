@@ -14,11 +14,11 @@ This guide will help you to keep your builds working over time, and in a reprodu
 Building your docs
 ------------------
 
-A way to know the build process of your docs is by building them locally in a clean environment
-(this is without any dependencies installed),
-and making sure you are replicating those same steps on Read the Docs.
+To test your build process, you can build them locally in a clean environment
+(this is without any dependencies installed).
+Then you should make sure you are running those same steps on Read the Docs.
 
-You can configure how your project is build from the web interface (:guilabel:`Admin` tab),
+You can configure how your project is built from the web interface (:guilabel:`Admin` tab),
 or by :ref:`using a configuration file <guides/reproducible-builds:using a configuration file>`.
 If you aren't familiar with these tools, check our docs:
 
@@ -43,7 +43,7 @@ A configuration file with explicit dependencies looks like this:
 
 .. code-block:: yaml
    
-   # File: readthedocs.yaml
+   # File: .readthedocs.yaml
 
    version: 2
 
@@ -61,7 +61,7 @@ A configuration file with explicit dependencies looks like this:
 
    # File: docs/requirements.txt
 
-   # Explicitly dependencies and versions
+   # Defining the exact version will make sure things don't break
    sphinx==3.4.3
    sphinx_rtd_theme==0.5.1
    readthedocs-sphinx-search==0.1.0rc3
@@ -110,7 +110,7 @@ Pinning dependencies
 --------------------
 
 As you shouldn't rely on implicit dependencies,
-you shouldn't rely on arbitrary versions of your dependencies.
+you shouldn't rely on undefined versions of your dependencies.
 Some examples:
 
 ✅ Good:
@@ -171,7 +171,7 @@ or the Conda docs about `environment files`_.
 .. _`pip user guide`: https://pip.pypa.io/en/stable/user_guide/#requirements-files
 .. _`environment files`: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
-.. note::
+.. tip::
 
    Remember to update your docs' dependencies from time to time to get new improvements and fixes.
    It also makes it easy to manage in case a version reaches it's end of support date.
