@@ -36,7 +36,7 @@ class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
 
     def test_health_check(self):
-        url = '/_/health_check/'
+        url = reverse('health_check')
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 200)
