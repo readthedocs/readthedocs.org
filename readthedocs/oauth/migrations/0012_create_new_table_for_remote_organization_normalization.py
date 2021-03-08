@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django_extensions.db.fields
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -41,7 +40,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('json', jsonfield.fields.JSONField(verbose_name='Serialized API response')),
                 ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to='socialaccount.SocialAccount', verbose_name='Connected account')),
                 ('remote_organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to='oauth.RemoteOrganization')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remote_organization_relations', to=settings.AUTH_USER_MODEL)),

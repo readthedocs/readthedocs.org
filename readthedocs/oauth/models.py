@@ -11,7 +11,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from allauth.socialaccount.models import SocialAccount
 from django_extensions.db.models import TimeStampedModel
-from jsonfield import JSONField
 
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
@@ -94,19 +93,9 @@ class RemoteOrganizationRelation(TimeStampedModel):
         related_name='remote_organization_relations',
         on_delete=models.CASCADE
     )
-    json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
         unique_together = ('remote_organization', 'account',)
-
-    def get_serialized(self, key=None, default=None):
-        try:
-            data = self.json
-            if key is not None:
-                return data.get(key, default)
-            return data
-        except ValueError:
-            pass
 
 
 class RemoteRepository(TimeStampedModel):
@@ -266,16 +255,6 @@ class RemoteRepositoryRelation(TimeStampedModel):
         on_delete=models.CASCADE
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
-    json = JSONField(_('Serialized API response'))  # noqa: F811
 
     class Meta:
         unique_together = ('remote_repository', 'account',)
-
-    def get_serialized(self, key=None, default=None):
-        try:
-            data = self.json
-            if key is not None:
-                return data.get(key, default)
-            return data
-        except ValueError:
-            pass

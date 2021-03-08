@@ -55,8 +55,8 @@ class GitLabService(Service):
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
         try:
-            repo_id = json.loads(project.remote_repository.json).get('id')
-        except Exception:
+            repo_id = project.remote_repository.remote_id
+        except Project.remote_repository.RelatedObjectDoesNotExist:
             # Handle "Manual Import" when there is no RemoteRepository
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)
@@ -248,7 +248,6 @@ class GitLabService(Service):
                 project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
                 group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
             ])
-            remote_repository_relation.json = fields
             remote_repository_relation.save()
 
             return repo
@@ -270,7 +269,7 @@ class GitLabService(Service):
             remote_id=fields['id'],
             vcs_provider=self.vcs_provider_slug
         )
-        remote_organization_relation = organization.get_remote_organization_relation(
+        organization.get_remote_organization_relation(
             self.user, self.account
         )
 
@@ -286,9 +285,6 @@ class GitLabService(Service):
             organization.avatar_url = self.default_user_avatar_url
 
         organization.save()
-
-        remote_organization_relation.json = fields
-        remote_organization_relation.save()
 
         return organization
 
