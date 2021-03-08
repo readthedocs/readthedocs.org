@@ -56,7 +56,7 @@ class GitLabService(Service):
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
         try:
             repo_id = project.remote_repository.remote_id
-        except RemoteRepository.DoesNotExist:
+        except Project.remote_repository.RelatedObjectDoesNotExist:
             # Handle "Manual Import" when there is no RemoteRepository
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)
