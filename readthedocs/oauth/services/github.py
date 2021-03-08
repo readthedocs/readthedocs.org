@@ -141,7 +141,6 @@ class GitHubService(Service):
 
             repo.save()
 
-            remote_repository_relation.json = fields
             remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
             remote_repository_relation.save()
 
@@ -163,7 +162,7 @@ class GitHubService(Service):
             remote_id=fields['id'],
             vcs_provider=self.vcs_provider_slug
         )
-        remote_organization_relation = organization.get_remote_organization_relation(
+        organization.get_remote_organization_relation(
             self.user, self.account
         )
 
@@ -178,9 +177,6 @@ class GitHubService(Service):
             organization.avatar_url = self.default_org_avatar_url
 
         organization.save()
-
-        remote_organization_relation.json = fields
-        remote_organization_relation.save()
 
         return organization
 
