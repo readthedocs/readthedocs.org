@@ -226,15 +226,34 @@ class StripeEventView(APIView):
 
                 if event.type == self.EVENT_CHECKOUT_COMPLETED:
                     username = event.data.object.client_reference_id
-                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-
-                    user = User.objects.get(username=username)
-                    GoldUser.objects.create(
-                        user=user,
-                        level=subscription.plan.id,
-                        stripe_id=stripe_customer,
-                        subscribed=True,
-                    )
+                    mode = event.data.object.mode
+                    if mode == 'subscription':
+                        # Gold Membership
+                        user = User.objects.get(username=username)
+                        subscription = stripe.Subscription.retrieve(event.data.object.subscription)
+                        GoldUser.objects.create(
+                            user=user,
+                            level=subscription.plan.id,
+                            stripe_id=stripe_customer,
+                            subscribed=True,
+                        )
+                    elif mode == 'payment':
+                        # One-time donation
+                        try:
+                            # TODO: find a better way to extend this view for one-time donations.
+                            from readthedocsext.donate.utils import handle_payment_webhook
+                            stripe_session = event.data.object.id
+                            price_in_cents = event.data.object.amount_total
+                            handle_payment_webhook(
+                                username,
+                                stripe_customer,
+                                stripe_session,
+                                price_in_cents,
+                            )
+                        except ImportError:
+                            log.warning(
+                                'Not able to import handle_payment_webhook for one-time donation.',
+                            )
                     # TODO: add user notification saying it was successful
 
                 elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
