@@ -25,4 +25,4 @@ jedi>0.17,<0.18  # pyup: ignore
 argh==0.26.2
 
 # run tests
-tox==3.22.0
+tox==3.23.0
