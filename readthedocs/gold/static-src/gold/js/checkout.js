@@ -46,7 +46,7 @@ function StripeCheckoutView(config) {
                 priceId: priceId,
                 name: name ? name.value : null,
                 email: email ? email.value : null,
-                logoUrl: logoUrl ? logUrl.value : null,
+                logoUrl: logoUrl ? logoUrl.value : null,
                 siteUrl: siteUrl ? siteUrl.value : null,
                 public: public ? public.checked : null,
             })
