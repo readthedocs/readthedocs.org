@@ -153,6 +153,10 @@ form.form-wide textarea {
     width: 100%;
 }
 
+/* settings display */
+
+dl.setting dt { margin-bottom: 4px; font-weight: bold; color: #444; }
+
 /* content */
 
 #content { padding: 50px 0; }
