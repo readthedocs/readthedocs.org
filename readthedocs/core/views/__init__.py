@@ -40,7 +40,7 @@ class HomepageView(TemplateView):
         return context
 
 
-class SupportView(TemplateView, PrivateViewMixin):
+class SupportView(PrivateViewMixin, TemplateView):
 
     template_name = 'support/index.html'
 
