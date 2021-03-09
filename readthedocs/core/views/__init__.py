@@ -14,6 +14,7 @@ from django.views.generic import View, TemplateView
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ class HomepageView(TemplateView):
         return context
 
 
-class SupportView(TemplateView):
+class SupportView(TemplateView, PrivateViewMixin):
 
     template_name = 'support/index.html'
 
