@@ -116,7 +116,7 @@ and we will get back to you as soon as possible.
         {% if request.user.gold.exists or request.user.goldonce.exists %}
         <p> Please rate the severity of this event. </p>
         {% else %}
-        <p>This option is only enabled for <a href="{% url "gold_subscription" %}">Gold users</a>.</p>
+        <p>This option is only enabled for <a href="{% url "gold_detail" %}">Gold users</a>.</p>
         {% endif %}
   </div>
 

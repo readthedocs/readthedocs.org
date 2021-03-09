@@ -45,12 +45,8 @@ class Command(BaseCommand):
             yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
-        apply_async_kwargs = {'priority': 0}
-        if queue:
-            log.info('Adding indexing tasks to queue %s', queue)
-            apply_async_kwargs['queue'] = queue
-        else:
-            log.info('Adding indexing tasks to default queue')
+        apply_async_kwargs = {'queue': queue}
+        log.info('Adding indexing tasks to queue %s', queue)
 
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
@@ -107,7 +103,7 @@ class Command(BaseCommand):
                 app_label, model_name, new_index_name, index_name,
             )
 
-    def _reindex_from(self, days_ago, models, queue=None):
+    def _reindex_from(self, days_ago, models, queue):
         functions = {
             apps.get_model('projects.HTMLFile'): self._reindex_files_from,
             apps.get_model('projects.Project'): self._reindex_projects_from,
@@ -119,15 +115,13 @@ class Command(BaseCommand):
                 continue
             functions[model](days_ago=days_ago, queue=queue)
 
-    def _reindex_projects_from(self, days_ago, queue=None):
+    def _reindex_projects_from(self, days_ago, queue):
         """Reindex projects with recent changes."""
         since = datetime.now() - timedelta(days=days_ago)
         queryset = Project.objects.filter(modified_date__gte=since).distinct()
         app_label = Project._meta.app_label
         model_name = Project.__name__
-        apply_async_kwargs = {}
-        if queue:
-            apply_async_kwargs['queue'] = queue
+        apply_async_kwargs = {'queue': queue}
 
         for doc in registry.get_documents(models=[Project]):
             indexing_tasks = self._get_indexing_tasks(
@@ -144,7 +138,7 @@ class Command(BaseCommand):
                 app_label, model_name, str(queryset.count())
             )
 
-    def _reindex_files_from(self, days_ago, queue=None):
+    def _reindex_files_from(self, days_ago, queue):
         """Reindex HTML files from versions with recent builds."""
         chunk_size = settings.ES_TASK_CHUNK_SIZE
         since = datetime.now() - timedelta(days=days_ago)
@@ -152,13 +146,12 @@ class Command(BaseCommand):
         app_label = HTMLFile._meta.app_label
         model_name = HTMLFile.__name__
         apply_async_kwargs = {
+            'queue': queue,
             'kwargs': {
                 'app_label': app_label,
                 'model_name': model_name,
             },
         }
-        if queue:
-            apply_async_kwargs['queue'] = queue
 
         for doc in registry.get_documents(models=[HTMLFile]):
             apply_async_kwargs['kwargs']['document_class'] = str(doc)
@@ -193,6 +186,7 @@ class Command(BaseCommand):
             '--queue',
             dest='queue',
             action='store',
+            required=True,
             help="Set the celery queue name for the task."
         )
         parser.add_argument(
@@ -237,10 +231,7 @@ class Command(BaseCommand):
         if options['models']:
             models = [apps.get_model(model_name) for model_name in options['models']]
 
-        queue = None
-        if options.get('queue'):
-            queue = options['queue']
-
+        queue = options['queue']
         change_index = options['change_index']
         update_from = options['update_from']
         if change_index:
