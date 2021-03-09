@@ -51,7 +51,9 @@ var sources = {
         'css/import.less': {},
         'css/admin.less': {},
     },
-    gold: {'js/gold.js': {}},
+    gold: {
+        'js/checkout.js': {},
+    },
     donate: {'js/donate.js': {}}
 };
 
@@ -226,11 +228,6 @@ gulp.task('build', function (done) {
     es
         .merge(Object.keys(sources).map(function (n) {
             return build_app_sources(n, true);
-        }))
-        .pipe(es.wait(function (err, body) {
-            gulp_util.log('Collecting static files');
-            run('./manage.py collectstatic --noinput')
-                .exec('', function (err) { done(err); });
         }));
 });
 

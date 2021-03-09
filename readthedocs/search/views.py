@@ -57,16 +57,10 @@ class SearchView(View):
         return project
 
     def _get_project_data(self, project, version_slug):
-        version_doctype = (
-            project.versions
-            .values_list('documentation_type', flat=True)
-            .get(slug=version_slug)
-        )
         docs_url = project.get_docs_url(version_slug=version_slug)
         version_data = VersionData(
             slug=version_slug,
             docs_url=docs_url,
-            doctype=version_doctype,
         )
         project_data = {
             project.slug: ProjectData(

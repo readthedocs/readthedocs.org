@@ -4,10 +4,11 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
 
-from django.test import TestCase
-from django.test.utils import override_settings
+import pytest
 from django_dynamic_fixture import get
+from pyquery import PyQuery
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.embed.views import do_embed
 from readthedocs.projects.constants import MKDOCS
 from readthedocs.projects.models import Project
@@ -15,19 +16,20 @@ from readthedocs.projects.models import Project
 data_path = Path(__file__).parent.resolve() / 'data'
 
 
-@override_settings(
-    USE_SUBDOMAIN=True,
-    PUBLIC_DOMAIN='readthedocs.io',
-    DEBUG=True,
-)
-class APITest(TestCase):
+@pytest.mark.django_db
+class TestEmbedAPI:
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup_method(self, settings):
         self.project = get(
             Project,
             main_language_project=None,
             slug='project',
         )
+        self.version = self.project.versions.get(slug=LATEST)
+
+        settings.USE_SUBDOMAIN = True
+        settings.PUBLIC_DOMAIN = 'readthedocs.io'
 
     def _mock_open(self, content):
         @contextmanager
@@ -37,22 +39,33 @@ class APITest(TestCase):
             yield read_mock
         return f
 
-    @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_sphinx(self, storage_mock):
-        json_file = data_path / 'sphinx/latest/index.fjson'
-        html_content = data_path / 'sphinx/latest/index.html'
-
+    def _patch_sphinx_json_file(self, storage_mock, json_file, html_file):
+        storage_mock.exists.return_value = True
+        html_content = data_path / 'sphinx/latest/page.html'
         json_content = json.load(json_file.open())
         json_content['body'] = html_content.open().read()
-
-        storage_mock.exists.return_value = True
         storage_mock.open.side_effect = self._mock_open(
             json.dumps(json_content)
         )
 
+    def _get_html_content(self, html_file):
+        section_content = [PyQuery(html_file.open().read()).outerHtml()]
+        return section_content
+
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_unknown_section(self, storage_mock):
+        json_file = data_path / 'sphinx/latest/index.json'
+        html_file = data_path / 'sphinx/latest/index.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
         response = do_embed(
             project=self.project,
-            version=self.project.versions.first(),
+            version=self.version,
             doc='index',
             section='Features',
             path='index.html',
@@ -72,7 +85,60 @@ class APITest(TestCase):
             },
         }
 
-        self.assertDictEqual(response.data, expected)
+        assert response.data == expected
+
+    @pytest.mark.parametrize(
+        'section',
+        [
+            'i-need-secrets-or-environment-variables-in-my-build',
+            'title-one',
+            'sub-title-one',
+            'subsub-title',
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_sphinx(self, storage_mock, section):
+        json_file = data_path / 'sphinx/latest/page.json'
+        html_file = data_path / 'sphinx/latest/page.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
+        response = do_embed(
+            project=self.project,
+            version=self.version,
+            section=section,
+            path='index.html',
+        )
+
+        section_content = self._get_html_content(
+            data_path / f'sphinx/latest/page-{section}.html'
+        )
+
+        expected = {
+            'content': section_content,
+            'headers': [
+                # TODO: return the full id here
+                {'I Need Secrets (or Environment Variables) in my Build': '#'},
+                {'Title One': '#title-one'},
+                {'Sub-title one': '#sub-title-one'},
+                {'Subsub title': '#subsub-title'},
+                # TODO: detect this header
+                # {'Adding a new scenario to the repository': 'adding-a-new-scenario-to-the-repository'}
+            ],
+            'url': 'http://project.readthedocs.io/en/latest/index.html',
+            'meta': {
+                'project': 'project',
+                'version': 'latest',
+                'doc': None,
+                'section': section,
+            },
+        }
+
+        assert response.data == expected
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_mkdocs(self, storage_mock):
@@ -82,11 +148,12 @@ class APITest(TestCase):
             json_file.open().read()
         )
 
-        self.project.versions.update(documentation_type=MKDOCS)
+        self.version.documentation_type = MKDOCS
+        self.version.save()
 
         response = do_embed(
             project=self.project,
-            version=self.project.versions.first(),
+            version=self.version,
             doc='index',
             section='Installation',
             path='index.html',
@@ -114,4 +181,5 @@ class APITest(TestCase):
                 'section': 'Installation',
             },
         }
-        self.assertDictEqual(response.data, expected)
+
+        assert response.data == expected

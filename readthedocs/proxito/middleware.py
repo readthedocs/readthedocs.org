@@ -11,6 +11,7 @@ import sys
 from django.conf import settings
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
+from django.urls import reverse
 
 from readthedocs.projects.models import Domain, Project
 
@@ -161,7 +162,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             not settings.USE_SUBDOMAIN,
             'localhost' in request.get_host(),
             'testserver' in request.get_host(),
-            request.path.startswith('/_/health_check'),
+            request.path.startswith(reverse('health_check')),
         ]):
             log.debug('Not processing Proxito middleware')
             return None
