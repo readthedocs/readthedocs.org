@@ -55,6 +55,11 @@ eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
+    def setUp(self):
+        self.user = User.objects.get(username='eric')
+        self.project = get(Project, users=[self.user])
+        self.version = self.project.versions.get(slug=LATEST)
+
     def test_make_build(self):
         """Test that a superuser can use the API."""
         client = APIClient()
@@ -81,6 +86,27 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
+
+    def test_restart_build(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        command = get(
+            BuildCommandResult,
+            build=build,
+        )
+        build.commands.add(command)
+
+        self.assertEqual(build.commands.count(), 1)
+
+        client = APIClient()
+        client.force_login(self.user)
+        r = client.post(reverse('build-restart', args=(build.pk,)))
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(build.commands.count(), 0)
+
 
     def test_api_does_not_have_private_config_key_superuser(self):
         client = APIClient()

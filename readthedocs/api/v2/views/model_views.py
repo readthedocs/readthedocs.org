@@ -272,6 +272,25 @@ class BuildViewSet(UserSelectViewSet):
                     )
         return Response(data)
 
+    @decorators.action(
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['post'],
+    )
+    def restart(self, request, **kwargs):
+        """
+        Restart the build so it can be re-used when re-trying.
+
+        Dates and states are usually overriden by the build,
+        we care more about deleting the commands.
+        """
+        instance = self.get_object()
+        instance.output = ''
+        instance.cold_storage = False
+        instance.commands.all().delete()
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BuildCommandViewSet(UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
