@@ -83,22 +83,25 @@ class TaskRouter:
             return project.build_queue
 
         # Use last queue used by the default version for external versions
+        # We always want the same queue as the previous default version,
+        # so that users will have the same outcome for PR's as normal builds.
         if version.type == EXTERNAL:
             last_build_for_default_version = (
                 project.builds
-                .filter(version__slug=project.get_default_version())
+                .filter(version__slug=project.get_default_version(), builder__isnull=False)
                 .order_by('-date')
                 .first()
             )
-            if 'default' in last_build_for_default_version.builder:
-                routing_queue = self.BUILD_DEFAULT_QUEUE
-            else:
-                routing_queue = self.BUILD_LARGE_QUEUE
-            log.info(
-                'Routing task because is a external version. project=%s queue=%s',
-                project.slug, routing_queue,
-            )
-            return routing_queue
+            if last_build_for_default_version:
+                if 'default' in last_build_for_default_version.builder:
+                    routing_queue = self.BUILD_DEFAULT_QUEUE
+                else:
+                    routing_queue = self.BUILD_LARGE_QUEUE
+                log.info(
+                    'Routing task because is a external version. project=%s queue=%s',
+                    project.slug, routing_queue,
+                )
+                return routing_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
@@ -200,6 +203,7 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                 log.exception('Cold Storage save failure')
 
 
+@app.task(queue='web')
 def delete_inactive_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as inactive after ``days``.
