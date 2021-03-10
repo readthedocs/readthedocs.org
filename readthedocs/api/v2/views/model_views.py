@@ -305,8 +305,8 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
             self.model.objects.api(self.request.user).filter(
                 remote_organization_relations__account__provider__in=[
                     service.adapter.provider_id for service in registry
-                ],
-            )
+                ]
+            ).distinct()
         )
 
 
