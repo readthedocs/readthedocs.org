@@ -11,7 +11,6 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
-from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
@@ -46,6 +45,7 @@ from readthedocs.projects.validators import (
 )
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
+from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -844,12 +844,11 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
             version_type=version_type
         )
-        return storage.exists(storage_path)
+        return build_media_storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -1596,6 +1595,7 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
 
@@ -1711,6 +1711,7 @@ class Feature(models.Model):
             DEFAULT_TO_MKDOCS_0_17_3,
             _('Install mkdocs 0.17.3 by default'),
         ),
+        (USE_MKDOCS_LATEST, _('Use latest version of MkDocs')),
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),

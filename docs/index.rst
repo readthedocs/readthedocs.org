@@ -77,6 +77,7 @@ and some of the core features of Read the Docs.
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
   :doc:`/server-side-search` |
+  :doc:`/analytics`
   :doc:`/pull-requests`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
@@ -102,9 +103,10 @@ and some of the core features of Read the Docs.
    /custom_domains
    /versions
    /downloadable-documentation
-   /server-side-search
-   /pull-requests
    /hosting
+   /server-side-search
+   /analytics
+   /pull-requests
 
    /connected-accounts
 

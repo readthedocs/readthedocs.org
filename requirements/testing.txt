@@ -6,7 +6,7 @@ django-dynamic-fixture==3.1.1
 pytest==6.2.2
 pytest-custom-exit-code==0.3.0
 pytest-django==4.1.0
-pytest-xdist==2.2.0
+pytest-xdist==2.2.1
 pytest-cov==2.11.1
 apipkg==1.5
 execnet==1.8.0
@@ -24,6 +24,6 @@ pytest-mock==3.5.1
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.13.4
+ipdb==0.13.5
 
 requests-mock==1.8.0

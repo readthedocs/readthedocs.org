@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+
+{% block title %}Support{% endblock %}
+
+{% block content %}
+<div id="support_page">
+
+<h2 id="usage-questions">Usage Questions</h2>
+
+<p>
+If you have questions about how to use Read the Docs, or have an issue that isn't related to a bug, <a href="http://stackoverflow.com/questions/tagged/read-the-docs">Stack Overflow</a> is the best place to ask. Tag questions with <span class="pre">read-the-docs</span> so other folks can find them easily.
+</p>
+
+<p>
+You might also find the answers you are looking for in our <a href="https://docs.readthedocs.io/page/guides/">documentation guides</a>.
+These provide step-by-step solutions to common user requirements.
+</p>
+
+<h2 id="bug-reports">Bug Reports</h2>
+
+<p>
+If you have an issue with the actual functioning of the site,
+you can file bug reports on our <a href="https://github.com/readthedocs/readthedocs.org/issues">GitHub issue tracker</a>.
+You can also <a href="http://docs.readthedocs.io/page/contribute.html">contribute</a> to Read the Docs,
+as the code is open source.
+</p>
+
+<h2 id="commercial-support">Commercial Support</h2>
+
+<p>
+We offer commercial support for Read the Docs
+and commercial hosting with <a href="https://readthedocs.com">Read the Docs for Business</a>.
+We have a dedicated team that responds to support requests during business hours.
+</p>
+
+<h2 id="user-support">User Support</h2>
+
+<p>
+If you need a specific request for your project or account,
+like more resources, change of the project's slug or username.
+</p>
+
+{% if not SUPPORT_FORM_ENDPOINT %}
+
+<p>
+Please send an email to <a href="mailto:{{SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>
+and we will get back to you as soon as possible.
+</p>
+
+{% else %}
+
+<p>
+Fill out the form below,
+and we will get back to you as soon as possible.
+</p>
+
+<form
+  method="POST"
+  name="support-request"
+  action="{{ SUPPORT_FORM_ENDPOINT }}"
+  enctype="multipart/form-data"
+  accept-charset="utf-8"
+>
+  <div>
+    <label for="name">Name</label>
+    <input type="text" name="name" {% if request.user.is_authenticated %} value="{{ request.user.first_name }} {{ request.user.last_name }}" {% endif %}>
+    <p></p>
+  </div>
+
+  <div>
+    <label for="email">Email</label>
+    <input type="email" name="email"  {% if request.user.is_authenticated %} value="{{ request.user.email }}" {% endif %}>
+    <p></p>
+  </div>
+
+  <div>
+    <label for="body">Explanation of issue</label>
+    <textarea name="body" required></textarea>
+    <p>
+       Please provide as much detail as possible.
+     </p>
+  </div>
+
+  <div>
+    <label for="url">URL</label>
+    <input type="text" name="url"></textarea>
+    <p>
+       Is there a specific page this happened?
+    </p>
+  </div>
+
+  <div>
+    <label for="file">Screenshot or additional file</label>
+    <input type="file" name="attachment">
+    <p>
+       Anything else that would help us solve this issue?
+    </p>
+  </div>
+
+  <div>
+    <label for="level">Severity Level</label>
+        {% if request.user.gold.exists or request.user.goldonce.exists %}
+        <select>
+            <option value="" selected>Select level</option>
+        {% else %}
+        <select disabled>
+            <option value="" selected>Field disabled</option>
+        {% endif %}
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+        {% if request.user.gold.exists or request.user.goldonce.exists %}
+        <p> Please rate the severity of this event. </p>
+        {% else %}
+        <p>This option is only enabled for <a href="{% url "gold_detail" %}">Gold users</a>.</p>
+        {% endif %}
+  </div>
+
+
+  {% if request.user.is_authenticated %}
+  <input type="hidden" name="username" value="{{ request.user.username }}">
+  <input type="hidden" name="pk" value="{{ request.user.pk }}">
+  {% else %}
+  <input type="hidden" name="auth" value="Unknown">
+  {% endif %}
+
+  <input type="hidden" name="subject" value="Community Support Request">
+
+  <input type="submit" value="Submit support request">
+
+  </div>
+</form>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

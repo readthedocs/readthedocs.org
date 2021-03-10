@@ -410,6 +410,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -427,6 +432,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -446,6 +456,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -463,6 +478,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -482,6 +502,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -499,6 +524,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,

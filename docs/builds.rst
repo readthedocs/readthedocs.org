@@ -67,9 +67,7 @@ An example in code:
 .. note::
 
     Regardless of whether you build your docs with Sphinx or MkDocs,
-    we recommend you pin the version of Sphinx or Mkdocs you want us to use.
-    You can do this the same way other
-    :doc:`dependencies are specified <guides/specifying-dependencies>`.
+    we recommend you :ref:`pinning the version <guides/reproducible-builds:pinning dependencies>` of Sphinx or Mkdocs you want us to use.
     Some examples of pinning versions might be ``sphinx<2.0`` or ``mkdocs>=1.0``.
 
 Build environment

@@ -9,6 +9,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
@@ -116,7 +117,7 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class PageSearchAPIView(GenericAPIView):
+class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
 
     """
     Main entry point to perform a search using Elasticsearch.
@@ -137,6 +138,7 @@ class PageSearchAPIView(GenericAPIView):
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
+    project_cache_tag = 'rtd-search'
 
     @lru_cache(maxsize=1)
     def _get_project(self):
@@ -187,7 +189,6 @@ class PageSearchAPIView(GenericAPIView):
                    alias='alias',
                    version=VersionData(
                         "latest",
-                        "sphinx",
                         "https://requests.readthedocs.io/en/latest/",
                     ),
                ),
@@ -195,7 +196,6 @@ class PageSearchAPIView(GenericAPIView):
                    alias=None,
                    version=VersionData(
                        "latest",
-                       "sphinx_htmldir",
                        "https://requests-oauth.readthedocs.io/en/latest/",
                    ),
                ),
@@ -213,7 +213,6 @@ class PageSearchAPIView(GenericAPIView):
                 alias=None,
                 version=VersionData(
                     slug=main_version.slug,
-                    doctype=main_version.documentation_type,
                     docs_url=main_project.get_docs_url(version_slug=main_version.slug),
                 ),
             )
@@ -244,7 +243,6 @@ class PageSearchAPIView(GenericAPIView):
                 project_alias = subproject.superprojects.values_list('alias', flat=True).first()
                 version_data = VersionData(
                     slug=version.slug,
-                    doctype=version.documentation_type,
                     docs_url=url,
                 )
                 projects_data[subproject.slug] = ProjectData(
