@@ -231,12 +231,13 @@ class StripeEventView(APIView):
                         # Gold Membership
                         user = User.objects.get(username=username)
                         subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-                        GoldUser.objects.create(
+                        gold, _ = GoldUser.objects.get_or_create(
                             user=user,
-                            level=subscription.plan.id,
                             stripe_id=stripe_customer,
-                            subscribed=True,
                         )
+                        gold.level = subscription.plan.id
+                        gold.subscribed = True
+                        gold.save()
                     elif mode == 'payment':
                         # One-time donation
                         try:
