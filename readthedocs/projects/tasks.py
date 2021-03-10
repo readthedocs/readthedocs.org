@@ -670,7 +670,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         Return True if successful.
         """
-        api_v2.build(self.build['id']).restart.post()
+        api_v2.build(self.build['id']).reset.post()
 
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment

@@ -37,7 +37,13 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import (
+    BUILD_STATE_CLONING,
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_DUPLICATED,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -87,11 +93,19 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
 
-    def test_restart_build(self):
+    def test_reset_build(self):
         build = get(
             Build,
             project=self.project,
             version=self.version,
+            state=BUILD_STATE_CLONING,
+            status=BUILD_STATUS_DUPLICATED,
+            success=False,
+            output='Output',
+            error='Error',
+            exit_code=9,
+            builder='Builder',
+            cold_storage=True,
         )
         command = get(
             BuildCommandResult,
@@ -103,8 +117,20 @@ class APIBuildTests(TestCase):
 
         client = APIClient()
         client.force_login(self.user)
-        r = client.post(reverse('build-restart', args=(build.pk,)))
+        r = client.post(reverse('build-reset', args=(build.pk,)))
+
         self.assertEqual(r.status_code, 204)
+        build.refresh_from_db()
+        self.assertEqual(build.project, self.project)
+        self.assertEqual(build.version, self.version)
+        self.assertEqual(build.state, BUILD_STATE_TRIGGERED)
+        self.assertEqual(build.status, '')
+        self.assertTrue(build.success)
+        self.assertEqual(build.output, '')
+        self.assertEqual(build.error, '')
+        self.assertIsNone(build.exit_code)
+        self.assertEqual(build.builder, '')
+        self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
 
 
