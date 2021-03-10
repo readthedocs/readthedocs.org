@@ -97,6 +97,9 @@ class RemoteOrganizationRelation(TimeStampedModel):
     class Meta:
         unique_together = ('remote_organization', 'account',)
 
+    def __str__(self):
+        return f'{self.user.username} <-> {self.remote_organization.name}'
+
 
 class RemoteRepository(TimeStampedModel):
 
@@ -258,3 +261,6 @@ class RemoteRepositoryRelation(TimeStampedModel):
 
     class Meta:
         unique_together = ('remote_repository', 'account',)
+
+    def __str__(self):
+        return f'{self.user.username} <-> {self.remote_repository.full_name}'
