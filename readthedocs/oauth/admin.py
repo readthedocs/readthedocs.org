@@ -16,7 +16,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteRepository model."""
 
-    raw_id_fields = ('users',)
+    raw_id_fields = ('project', 'organization',)
 
 
 class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
@@ -25,13 +25,6 @@ class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('account', 'remote_repository', 'user',)
     list_select_related = ('remote_repository', 'user',)
-
-
-class RemoteOrganizationAdmin(admin.ModelAdmin):
-
-    """Admin configuration for the RemoteOrganization model."""
-
-    raw_id_fields = ('users',)
 
 
 class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
@@ -44,5 +37,5 @@ class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
 
 admin.site.register(RemoteRepository, RemoteRepositoryAdmin)
 admin.site.register(RemoteRepositoryRelation, RemoteRepositoryRelationAdmin)
-admin.site.register(RemoteOrganization, RemoteOrganizationAdmin)
+admin.site.register(RemoteOrganization)
 admin.site.register(RemoteOrganizationRelation, RemoteOrganizationRelationAdmin)
