@@ -797,3 +797,19 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _('Only letters, numbers and underscore are allowed'),
             )
         return name
+
+
+class EnvironmentVariableReadOnlyForm(EnvironmentVariableForm):
+
+    """Make all fields readonly and hide the value from private variables."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.instance.public:
+            self.initial['value'] = ''
+            self.fields['value'].help_text = _('The value isn\'t shown for security reasons')
+
+        for __, field in self.fields.items():
+            field.widget.attrs['readonly'] = True
+            field.widget.attrs['disabled'] = True

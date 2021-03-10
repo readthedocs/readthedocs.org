@@ -21,6 +21,7 @@ from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
+    EnvironmentVariableReadOnlyForm,
     ProjectAdvancedForm,
     ProjectBasicsForm,
     ProjectExtraForm,
@@ -761,6 +762,12 @@ class TestProjectEnvironmentVariablesForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
+        self.envar = get(
+            EnvironmentVariable,
+            name='foo',
+            value='bar',
+            public=False,
+        )
 
     def test_use_invalid_names(self):
         data = {
@@ -841,3 +848,24 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
         self.assertEqual(EnvironmentVariable.objects.latest().name, 'ESCAPED')
         self.assertEqual(EnvironmentVariable.objects.latest().value, r"'string escaped here: #$\1[]{}\|'")
+
+    def test_readonly_form_private_var(self):
+        self.assertFalse(self.envar.public)
+        form = EnvironmentVariableReadOnlyForm(instance=self.envar)
+
+        # The rendered form doesn't include the value of the envar
+        html = form.as_p()
+        self.assertIn(self.envar.name, html)
+        self.assertNotIn(self.envar.value, html)
+
+    def test_readonly_form_public_var(self):
+        self.envar.public = True
+        self.envar.save()
+
+        self.assertTrue(self.envar.public)
+        form = EnvironmentVariableReadOnlyForm(instance=self.envar)
+
+        # The rendered form includes the value of the envar
+        html = form.as_p()
+        self.assertIn(self.envar.name, html)
+        self.assertIn(self.envar.value, html)

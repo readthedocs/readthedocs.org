@@ -52,6 +52,7 @@ from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
     EnvironmentVariableForm,
+    EnvironmentVariableReadOnlyForm,
     IntegrationForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
@@ -940,7 +941,12 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
 
 class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
 
-    pass
+    form_class = EnvironmentVariableReadOnlyForm
+
+    def get_context_data(self, **kwargs):
+        form = self.get_form(instance=self.object)
+        context = super().get_context_data(form=form, **kwargs)
+        return context
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
