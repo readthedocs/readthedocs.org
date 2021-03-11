@@ -235,7 +235,7 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             url=url,
         )
 
-    if not content:
+    if content is None:
         return None
 
     return {

@@ -5,12 +5,13 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
+from django.urls import reverse
 from django_dynamic_fixture import get
 from pyquery import PyQuery
+from rest_framework import status
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.embed.views import do_embed
-from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.constants import MKDOCS, PUBLIC
 from readthedocs.projects.models import Project
 
 data_path = Path(__file__).parent.resolve() / 'data'
@@ -23,10 +24,14 @@ class TestEmbedAPI:
     def setup_method(self, settings):
         self.project = get(
             Project,
+            language='en',
             main_language_project=None,
             slug='project',
+            privacy_level=PUBLIC,
         )
         self.version = self.project.versions.get(slug=LATEST)
+        self.version.privacy_level = PUBLIC
+        self.version.save()
 
         settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
@@ -41,7 +46,7 @@ class TestEmbedAPI:
 
     def _patch_sphinx_json_file(self, storage_mock, json_file, html_file):
         storage_mock.exists.return_value = True
-        html_content = data_path / 'sphinx/latest/page.html'
+        html_content = data_path / html_file
         json_content = json.load(json_file.open())
         json_content['body'] = html_content.open().read()
         storage_mock.open.side_effect = self._mock_open(
@@ -52,8 +57,49 @@ class TestEmbedAPI:
         section_content = [PyQuery(html_file.open().read()).outerHtml()]
         return section_content
 
+    def test_invalid_arguments(self, client):
+        urls = [
+            f'?project={self.project.slug}&version={self.version.slug}',
+            f'?project={self.project.slug}&version={self.version.slug}&section=foo',
+        ]
+
+        api_endpoint = reverse('api_embed')
+        for url in urls:
+            r = client.get(api_endpoint + url)
+            assert r.status_code == status.HTTP_400_BAD_REQUEST
+
     @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_unknown_section(self, storage_mock):
+    def test_valid_arguments(self, storage_mock, client):
+        json_file = data_path / 'sphinx/latest/page.json'
+        html_file = data_path / 'sphinx/latest/page.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
+        urls = (
+            # URL only
+            'url=https://project.readthedocs.io/en/latest/index.html#title-one',
+            'url=http://project.readthedocs.io/en/latest/index.html#title-one',
+            'url=http://project.readthedocs.io/en/latest/#title-one',
+            'url=http://project.readthedocs.io/en/latest/index.html?foo=bar#title-one',
+            'url=http://project.readthedocs.io/en/latest/?foo=bar#title-one',
+
+            # doc & path
+            f'project={self.project.slug}&version={self.version.slug}&path=index.html&section=title-one',
+            f'project={self.project.slug}&version={self.version.slug}&path=/index.html&section=title-one',
+            f'project={self.project.slug}&version={self.version.slug}&doc=index&section=title-one',
+            f'project={self.project.slug}&version={self.version.slug}&path=index.html&doc=index&section=title-one',
+        )
+        api_endpoint = reverse('api_embed')
+        for url in urls:
+            r = client.get(api_endpoint + f'?{url}')
+            assert r.status_code == status.HTTP_200_OK
+
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_unknown_section(self, storage_mock, client):
         json_file = data_path / 'sphinx/latest/index.json'
         html_file = data_path / 'sphinx/latest/index.html'
 
@@ -63,13 +109,13 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            doc='index',
-            section='Features',
-            path='index.html',
+        url = (
+            reverse('api_embed') +
+            f'?project={self.project.slug}&version={self.version.slug}'
+            '&path=index.html'
+            '&section=Features'
         )
+        response = client.get(url)
 
         expected = {
             'content': [],
@@ -85,6 +131,7 @@ class TestEmbedAPI:
             },
         }
 
+        assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
 
     @pytest.mark.parametrize(
@@ -97,7 +144,7 @@ class TestEmbedAPI:
         ]
     )
     @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_sphinx(self, storage_mock, section):
+    def test_embed_sphinx(self, storage_mock, section, client):
         json_file = data_path / 'sphinx/latest/page.json'
         html_file = data_path / 'sphinx/latest/page.html'
 
@@ -107,12 +154,13 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            section=section,
-            path='index.html',
+        url = (
+            reverse('api_embed') +
+            f'?project={self.project.slug}&version={self.version.slug}'
+            f'&section={section}'
+            '&path=index.html'
         )
+        response = client.get(url)
 
         section_content = self._get_html_content(
             data_path / f'sphinx/latest/page-{section}.html'
@@ -133,15 +181,16 @@ class TestEmbedAPI:
             'meta': {
                 'project': 'project',
                 'version': 'latest',
-                'doc': None,
+                'doc': 'index',
                 'section': section,
             },
         }
 
+        assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_mkdocs(self, storage_mock):
+    def test_embed_mkdocs(self, storage_mock, client):
         json_file = data_path / 'mkdocs/latest/index.json'
         storage_mock.exists.return_value = True
         storage_mock.open.side_effect = self._mock_open(
@@ -151,13 +200,13 @@ class TestEmbedAPI:
         self.version.documentation_type = MKDOCS
         self.version.save()
 
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            doc='index',
-            section='Installation',
-            path='index.html',
+        url = (
+            reverse('api_embed') +
+            f'?project={self.project.slug}&version={self.version.slug}'
+            '&section=Installation'
+            '&path=index.html'
         )
+        response = client.get(url)
 
         expected = {
             'content': mock.ANY,  # too long to compare here
@@ -182,4 +231,5 @@ class TestEmbedAPI:
             },
         }
 
+        assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
