@@ -89,23 +89,21 @@ class EmbedAPIBase(APIView):
 
     ### Arguments
 
-    We support two different ways to query this API:
+    We support two different ways to query the API:
 
-        * project (required)
-        * version (required)
-        * doc
-        * section
-        * path
+    * project (required)
+    * version (required)
+    * doc or path (required)
+    * section
 
     or:
 
-        * url (required)
+    * url (with fragment) (required)
 
     ### Example
 
-        GET https://readthedocs.org/api/v2/embed/?project=requests&doc=index&section=User%20Guide&path=/index.html  # noqa
-
-        GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration # noqa
+    - GET https://readthedocs.org/api/v2/embed/?project=requestsF&version=latest&doc=index&section=User%20Guide&path=/index.html  # noqa
+    - GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration # noqa
 
     # Current Request
     """
@@ -141,36 +139,35 @@ class EmbedAPIBase(APIView):
         """Handle the get request."""
         project = self._get_project()
         version = self._get_version()
+
+        url = request.GET.get('url')
+        path = request.GET.get('path', '')
         doc = request.GET.get('doc')
         section = request.GET.get('section')
-        path = request.GET.get('path')
-        url = request.GET.get('url')
 
-        if self.unresolved_url:
+        if url:
             unresolved = self.unresolved_url
-            project = unresolved.project
             path = unresolved.filename
             section = unresolved.fragment
-
-            # update docpath from unresolved URL
-            if path.endswith('/'):
-                doc = doc.path.rstrip('/')
-            else:
-                doc = path.split('.html', 1)[0]
-
-        # Check for None here becuase '' is valid for no filename
-        if not project.slug and doc is not None:
+        elif not path and not doc:
             return Response(
                 {
                     'error': (
                         'Invalid Arguments. '
-                        'Please provide "project" and "doc", or "url" GET argument.'
+                        'Please provide "url" or "section" and "path" GET arguments.'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        return do_embed(
+        # Update doc from path
+        if path:
+            if path.endswith('/'):
+                doc = doc.path.rstrip('/')
+            else:
+                doc = path.split('.html', 1)[0]
+
+        response = do_embed(
             project=project,
             version=version,
             doc=doc,
@@ -178,6 +175,19 @@ class EmbedAPIBase(APIView):
             path=path,
             url=url,
         )
+
+        if not response:
+            return Response(
+                {
+                    'error': (
+                        "Can't find content for section: "
+                        f"doc={doc} path={path} section={section}"
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(response)
 
 
 class EmbedAPI(SettingsOverrideObject):
@@ -203,6 +213,9 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             version=version,
             doc=doc,
         )
+        if not file_content:
+            return None
+
         content, headers, section = parse_sphinx(
             content=file_content,
             section=section,
@@ -222,18 +235,10 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             url=url,
         )
 
-    if content is None:
-        return Response(
-            {
-                'error': (
-                    "Can't find content for section: "
-                    f"doc={doc} path={path} section={section}"
-                )
-            },
-            status=status.HTTP_404_NOT_FOUND
-        )
+    if not content:
+        return None
 
-    return Response({
+    return {
         'content': content,
         'headers': headers,
         'url': url,
@@ -243,7 +248,7 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             'doc': doc,
             'section': section,
         },
-    })
+    }
 
 
 def _get_doc_content(project, version, doc):
