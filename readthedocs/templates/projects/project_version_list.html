@@ -24,6 +24,21 @@ Versions
           <h1>{% trans "Active Versions" %}</h1>
         </div>
 
+        {% block resync_versions %}
+          {% if request.user|is_admin:project %}
+            <div class="button-bar">
+              <ul>
+                <li>
+                  <form method="post" action="{% url 'project_version_sync' project_slug=project.slug %}">
+                    {% csrf_token %}
+                      <button type="submit" class="refresh-versions"></button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
+        {% endblock %}
+
         <div class="module-list">
           <div class="module-list-wrapper">
             <ul>

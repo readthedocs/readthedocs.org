@@ -43,6 +43,7 @@ from readthedocs.builds.models import (
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.views.hooks import sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -216,6 +217,33 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                 )
                 version.built = False
                 version.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectVersionsSync(ProjectVersionMixin, GenericView):
+
+    """
+    Re-sync a project repository.
+
+    The signal will add a success/failure message on the request.
+    """
+
+    def post(self, request, *args, **kwargs):
+        # pylint: disable=unused-argument
+        project = self.get_project()
+        sync = sync_versions(project)
+
+        if sync:
+            messages.success(
+                request,
+                _('Project versions are being updated'),
+            )
+        else:
+            messages.error(
+                request,
+                _("There was a problem updating the project versions"),
+            )
+
         return HttpResponseRedirect(self.get_success_url())
 
 
