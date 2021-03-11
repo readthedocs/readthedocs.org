@@ -180,7 +180,7 @@ class ServeRedirectMixin:
             external=hasattr(request, 'external_domain'),
         )
 
-        if full_path == to:
+        if full_path == to or request.build_absolute_uri() == to:
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
@@ -188,7 +188,7 @@ class ServeRedirectMixin:
             )
             raise InfiniteRedirectException()
 
-        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), full_path, to)
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
