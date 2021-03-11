@@ -58,14 +58,21 @@ class TestEmbedAPI:
         return section_content
 
     def test_invalid_arguments(self, client):
-        urls = [
-            f'?project={self.project.slug}&version={self.version.slug}',
-            f'?project={self.project.slug}&version={self.version.slug}&section=foo',
-        ]
+        query_params = (
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+            },
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'section': 'foo',
+            },
+        )
 
         api_endpoint = reverse('api_embed')
-        for url in urls:
-            r = client.get(api_endpoint + url)
+        for param in query_params:
+            r = client.get(api_endpoint, param)
             assert r.status_code == status.HTTP_400_BAD_REQUEST
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -79,23 +86,44 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        urls = (
+        query_params = (
             # URL only
-            'url=https://project.readthedocs.io/en/latest/index.html#title-one',
-            'url=http://project.readthedocs.io/en/latest/index.html#title-one',
-            'url=http://project.readthedocs.io/en/latest/#title-one',
-            'url=http://project.readthedocs.io/en/latest/index.html?foo=bar#title-one',
-            'url=http://project.readthedocs.io/en/latest/?foo=bar#title-one',
+            {'url': 'https://project.readthedocs.io/en/latest/index.html#title-one'},
+            {'url': 'http://project.readthedocs.io/en/latest/index.html#title-one'},
+            {'url': 'http://project.readthedocs.io/en/latest/#title-one'},
+            {'url': 'http://project.readthedocs.io/en/latest/index.html?foo=bar#title-one'},
+            {'url': 'http://project.readthedocs.io/en/latest/?foo=bar#title-one'},
 
             # doc & path
-            f'project={self.project.slug}&version={self.version.slug}&path=index.html&section=title-one',
-            f'project={self.project.slug}&version={self.version.slug}&path=/index.html&section=title-one',
-            f'project={self.project.slug}&version={self.version.slug}&doc=index&section=title-one',
-            f'project={self.project.slug}&version={self.version.slug}&path=index.html&doc=index&section=title-one',
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': 'title-one',
+            },
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': '/index.html',
+                'section': 'title-one',
+            },
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'doc': 'index',
+                'section': 'title-one',
+            },
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'doc': 'index',
+                'section': 'title-one',
+            },
         )
         api_endpoint = reverse('api_embed')
-        for url in urls:
-            r = client.get(api_endpoint + f'?{url}')
+        for param in query_params:
+            r = client.get(api_endpoint, param)
             assert r.status_code == status.HTTP_200_OK
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -109,13 +137,15 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        url = (
-            reverse('api_embed') +
-            f'?project={self.project.slug}&version={self.version.slug}'
-            '&path=index.html'
-            '&section=Features'
+        response = client.get(
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': 'Features',
+            }
         )
-        response = client.get(url)
 
         expected = {
             'content': [],
@@ -154,13 +184,15 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        url = (
-            reverse('api_embed') +
-            f'?project={self.project.slug}&version={self.version.slug}'
-            f'&section={section}'
-            '&path=index.html'
+        response = client.get(
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': section,
+            }
         )
-        response = client.get(url)
 
         section_content = self._get_html_content(
             data_path / f'sphinx/latest/page-{section}.html'
@@ -200,13 +232,15 @@ class TestEmbedAPI:
         self.version.documentation_type = MKDOCS
         self.version.save()
 
-        url = (
-            reverse('api_embed') +
-            f'?project={self.project.slug}&version={self.version.slug}'
-            '&section=Installation'
-            '&path=index.html'
+        response = client.get(
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': 'Installation',
+            }
         )
-        response = client.get(url)
 
         expected = {
             'content': mock.ANY,  # too long to compare here

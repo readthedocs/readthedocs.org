@@ -82,6 +82,8 @@ def clean_links(obj, url):
 
 class EmbedAPIBase(APIView):
 
+    # pylint: disable=line-too-long
+
     """
     Embed a section of content from any Read the Docs page.
 
@@ -102,11 +104,11 @@ class EmbedAPIBase(APIView):
 
     ### Example
 
-    - GET https://readthedocs.org/api/v2/embed/?project=requestsF&version=latest&doc=index&section=User%20Guide&path=/index.html  # noqa
-    - GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration # noqa
+    - GET https://readthedocs.org/api/v2/embed/?project=requestsF&version=latest&doc=index&section=User%20Guide&path=/index.html
+    - GET https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23github-bitbucket-and-gitlab-integration
 
     # Current Request
-    """
+    """  # noqa
 
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
