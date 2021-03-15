@@ -78,7 +78,7 @@ class Command(BaseCommand):
             socialaccount__isnull=False
         ).distinct()
 
-        if logged_in_days_ago:
+        if logged_in_days_ago > 0:
             users = users.filter(
                 last_login__gte=timezone.now() - datetime.timedelta(days=logged_in_days_ago),
             )
