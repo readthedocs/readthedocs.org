@@ -1,3 +1,7 @@
+import datetime
+import json
+
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
@@ -20,6 +24,18 @@ class Command(BaseCommand):
             type=str,
             default=[],
             help='Re-sync VCS provider data for specific users only.',
+        )
+        parser.add_argument(
+            '--logged-in-days-ago',
+            type=int,
+            default=0,
+            help='Re-sync users logged in in the last days.',
+        )
+        parser.add_argument(
+            '--skip-revoked-users',
+            action='store_true',
+            default=False,
+            help='Skip users who revoked our access token (pulled down from Sentry).',
         )
         parser.add_argument(
             '--skip-users',
@@ -49,6 +65,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         queue = options.get('queue')
+        logged_in_days_ago = options.get('logged_in_days_ago')
+        skip_revoked_users = options.get('skip_revoked_users')
         sync_users = options.get('users')
         skip_users = options.get('skip_users')
         max_users = options.get('max_users')
@@ -59,6 +77,11 @@ class Command(BaseCommand):
         users = User.objects.filter(
             socialaccount__isnull=False
         ).distinct()
+
+        if logged_in_days_ago > 0:
+            users = users.filter(
+                last_login__gte=timezone.now() - datetime.timedelta(days=logged_in_days_ago),
+            )
 
         if not force_sync:
             users = users.filter(
@@ -77,7 +100,19 @@ class Command(BaseCommand):
         if skip_users:
             users = users.exclude(username__in=skip_users)
 
-        if sync_users or skip_users:
+        revoked_users = []
+        if skip_revoked_users:
+            # `revoked-users.json` was created by a script pullig down data from Sentry
+            # https://gist.github.com/humitos/aba1a004abeb3552fd8ef9a741f5dce1
+            revoked_users = json.load(open('revoked-users.json', 'r'))
+            users = users.exclude(username__in=revoked_users)
+            self.stdout.write(
+                self.style.WARNING(
+                    f'Excluding {len(revoked_users)} revoked users.'
+                )
+            )
+
+        if sync_users or skip_users or revoked_users:
             self.stdout.write(
                 self.style.SUCCESS(
                     f'Found {users.count()} user(s) with the given parameters'
