@@ -292,10 +292,6 @@ class StripeEventView(APIView):
                             'stripe_customer=%s',
                             stripe_customer,
                         )
-
-                return Response({
-                    'OK': True,
-                })
         except Exception:
             log.exception('Unexpected data in Stripe Event object')
             return Response(
@@ -304,3 +300,7 @@ class StripeEventView(APIView):
                 },
                 status=500,
             )
+
+        return Response({
+            'OK': True,
+        })
