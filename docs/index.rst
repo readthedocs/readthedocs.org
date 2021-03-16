@@ -76,7 +76,9 @@ and some of the core features of Read the Docs.
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search`
+  :doc:`/server-side-search` |
+  :doc:`/analytics`
+  :doc:`/pull-requests`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>` | 
@@ -101,8 +103,10 @@ and some of the core features of Read the Docs.
    /custom_domains
    /versions
    /downloadable-documentation
-   /server-side-search
    /hosting
+   /server-side-search
+   /analytics
+   /pull-requests
 
    /connected-accounts
 

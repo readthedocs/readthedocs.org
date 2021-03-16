@@ -2,39 +2,62 @@ Configuration File V2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project.
-We recommend the filename ``.readthedocs.yml``.
+The :doc:`configuration file <index>` must be in the root directory of your project
+an be named ``.readthedocs.yaml``.
 
 All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
 
-.. code:: yaml
+.. tabs::
 
-    # .readthedocs.yml
-    # Read the Docs configuration file
-    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+   .. tab:: Sphinx
 
-    # Required
-    version: 2
+      .. code:: yaml
 
-    # Build documentation in the docs/ directory with Sphinx
-    sphinx:
-      configuration: docs/conf.py
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-    # Build documentation with MkDocs
-    #mkdocs:
-    #  configuration: mkdocs.yml
+         # Required
+         version: 2
 
-    # Optionally build your docs in additional formats such as PDF
-    formats:
-      - pdf
+         # Build documentation in the docs/ directory with Sphinx
+         sphinx:
+            configuration: docs/conf.py
 
-    # Optionally set the version of Python and requirements required to build your docs
-    python:
-      version: 3.7
-      install:
-        - requirements: docs/requirements.txt
+         # Optionally build your docs in additional formats such as PDF
+         formats:
+            - pdf
 
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
+
+   .. tab:: MkDocs
+
+      .. code:: yaml
+
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+         # Required
+         version: 2
+
+         mkdocs:
+           configuration: mkdocs.yml
+
+         # Optionally build your docs in additional formats such as PDF
+         formats:
+            - pdf
+
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -114,16 +137,16 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - method: pip
-           path: .
-           extra_requirements:
-               - docs
-         - method: setuptools
-           path: another/package
-      system_packages: true
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: another/package
+     system_packages: true
 
 python.version
 ``````````````
@@ -165,10 +188,10 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - requirements: requirements.txt
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - requirements: requirements.txt
 
 .. warning::
 
@@ -213,14 +236,14 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - method: pip
-           path: .
-           extra_requirements:
-              - docs
-         - method: setuptools
-           path: package
+     version: 3.7
+     install:
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
@@ -296,8 +319,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
 
 sphinx
 ~~~~~~
@@ -400,8 +423,8 @@ VCS submodules configuration.
 
    submodules:
      include:
-        - one
-        - two
+       - one
+       - two
      recursive: true
 
 submodules.include
@@ -465,11 +488,11 @@ Settings for more control over :doc:`/server-side-search`.
    version: 2
 
    search:
-      ranking:
-        api/v1/*: -1
-        api/v2/*: 4
-      ignore:
-        - 404.html
+     ranking:
+       api/v1/*: -1
+       api/v2/*: 4
+     ignore:
+       - 404.html
 
 search.ranking
 ``````````````
@@ -500,15 +523,15 @@ check :ref:`config-file/v2:search.ignore`.
    version: 2
 
    search:
-      ranking:
-        # Match a single file
-        tutorial.html: 2
+     ranking:
+       # Match a single file
+       tutorial.html: 2
 
-        # Match all files under the api/v1 directory
-        api/v1/*: -5
+       # Match all files under the api/v1 directory
+       api/v1/*: -5
 
-        # Match all files that end with tutorial.html
-        '*/tutorial.html': 3
+       # Match all files that end with tutorial.html
+       '*/tutorial.html': 3
 
 .. note::
 
@@ -550,6 +573,22 @@ Patterns can include some special characters:
 
         # Ignore all files that end with ref.html
         - '*/ref.html'
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Custom files to ignore
+        - file.html
+        - api/v1/*
+
+        # Defaults
+        - search.html
+        - search/index.html
+        - 404.html
+        - 404/index.html'
 
 .. note::
 

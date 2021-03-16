@@ -23,7 +23,7 @@ Our current build limits are:
 
       * 30 minutes build time
       * 7GB of memory
-      * 4 concurrent builds
+      * Concurrent builds vary based on your pricing plan
 
       If you are having trouble with your documentation builds,
       you can reach our support at support@readthedocs.com.
@@ -67,9 +67,7 @@ An example in code:
 .. note::
 
     Regardless of whether you build your docs with Sphinx or MkDocs,
-    we recommend you pin the version of Sphinx or Mkdocs you want us to use.
-    You can do this the same way other
-    :doc:`dependencies are specified <guides/specifying-dependencies>`.
+    we recommend you :ref:`pinning the version <guides/reproducible-builds:pinning dependencies>` of Sphinx or Mkdocs you want us to use.
     Some examples of pinning versions might be ``sphinx<2.0`` or ``mkdocs>=1.0``.
 
 Build environment
@@ -80,7 +78,7 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 .. csv-table:: Environment Variables
    :header: Environment variable, Description, Example value
    :widths: 15, 10, 30
-    
+
    ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
    ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``
    ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``

@@ -20,8 +20,9 @@ from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
 
-# Structure used for storing cached data of a project mostly.
-ProjectData = namedtuple('ProjectData', ['docs_url', 'version_doctype'])
+# Structure used for storing cached data of a version mostly.
+ProjectData = namedtuple('ProjectData', ['version', 'alias'])
+VersionData = namedtuple('VersionData', ['slug', 'docs_url'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -37,6 +38,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
+    description = serializers.CharField()
     highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
@@ -57,12 +59,49 @@ class PageSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='page', source=None, read_only=True)
     project = serializers.CharField()
+    project_alias = serializers.SerializerMethodField()
     version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.SerializerMethodField()
     domain = serializers.SerializerMethodField()
     highlights = PageHighlightSerializer(source='meta.highlight', default=dict)
     blocks = serializers.SerializerMethodField()
+
+    def _get_project_data(self, obj):
+        """
+        Get and cache the project data.
+
+        Try to get the data from the ``projects_data`` context,
+        and fallback to get it from the database.
+        If the result is fetched from the database,
+        it's cached into ``projects_data``.
+        """
+        project_data = self.context.get('projects_data', {}).get(obj.project)
+        if project_data:
+            return project_data
+
+        project = Project.objects.filter(slug=obj.project).first()
+        if project:
+            docs_url = project.get_docs_url(version_slug=obj.version)
+            project_alias = project.superprojects.values_list('alias', flat=True).first()
+
+            projects_data = self.context.setdefault('projects_data', {})
+            version_data = VersionData(
+                slug=obj.version,
+                docs_url=docs_url,
+            )
+            projects_data[obj.project] = ProjectData(
+                alias=project_alias,
+                version=version_data,
+            )
+            return projects_data[obj.project]
+        return None
+
+    def get_project_alias(self, obj):
+        project_data = self._get_project_data(obj)
+        if project_data:
+            return project_data.alias
+        return None
 
     def get_domain(self, obj):
         full_path = self._get_full_path(obj)
@@ -79,36 +118,17 @@ class PageSearchSerializer(serializers.Serializer):
         return None
 
     def _get_full_path(self, obj):
-        """
-        Get the page link.
-
-        Try to get the link from the ``project_data`` context,
-        and fallback to get it from the database.
-        If the result is fetched from the database,
-        it's cached into ``project_data``.
-        """
-        # First try to build the URL from the context.
-        project_data = self.context.get('projects_data', {}).get(obj.project)
+        project_data = self._get_project_data(obj)
         if project_data:
-            docs_url, doctype = project_data
+            docs_url = project_data.version.docs_url
             path = obj.full_path
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            if obj.doctype in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')
-
-        # Fallback to build the URL querying the db.
-        project = Project.objects.filter(slug=obj.project).first()
-        if project:
-            docs_url = project.get_docs_url(version_slug=obj.version)
-            # cache the project URL
-            projects_data = self.context.setdefault('projects_data', {})
-            projects_data[obj.project] = ProjectData(docs_url, '')
-            return docs_url + obj.full_path
-
         return None
 
     def get_blocks(self, obj):

@@ -8,13 +8,17 @@ python:
     - requirements: requirements/docs.txt
 
 search:
+  ignore:
+    # Internal documentation
+    - development/design/*
+    - search.html
+    - 404.html
   ranking:
     # Deprecated content
     api/v1.html: -1
     config-file/v1.html: -1
 
-    # Internal documentation
-    development/design/*: -5
-
     # Useful content, but not something we want most users finding
     custom_installs/*: -6
+    changelog.html: -6
+    development/install.html: -6

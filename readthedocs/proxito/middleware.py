@@ -11,6 +11,7 @@ import sys
 from django.conf import settings
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
+from django.urls import reverse
 
 from readthedocs.projects.models import Domain, Project
 
@@ -118,9 +119,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
-        """Add debugging headers to proxito responses."""
+        """Add debugging and cache headers to proxito responses."""
 
-        project_slug = getattr(request, 'host_project_slug', '')
+        project_slug = getattr(request, 'path_project_slug', '')
         version_slug = getattr(request, 'path_version_slug', '')
         path = getattr(response, 'proxito_path', '')
 
@@ -134,9 +135,15 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Path'] = path
 
         # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{project_slug}'
+        cache_tag = response.get('Cache-Tag')
+        cache_tags = [cache_tag] if cache_tag else []
+        if project_slug:
+            cache_tags.append(project_slug)
         if version_slug:
-            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+            cache_tags.append(f'{project_slug}-{version_slug}')
+
+        if cache_tags:
+            response['Cache-Tag'] = ','.join(cache_tags)
 
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Project-Method'] = 'rtdheader'
@@ -151,8 +158,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Version-Method'] = 'path'
 
     def process_request(self, request):  # noqa
-        if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
-                'testserver' in request.get_host()]):
+        if any([
+            not settings.USE_SUBDOMAIN,
+            'localhost' in request.get_host(),
+            'testserver' in request.get_host(),
+            request.path.startswith(reverse('health_check')),
+        ]):
             log.debug('Not processing Proxito middleware')
             return None
 
