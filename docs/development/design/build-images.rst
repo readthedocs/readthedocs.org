@@ -5,7 +5,7 @@ This document describes how Read the Docs uses the `Docker Images`_ and how they
 Besides, it proposes a new way to create and name them to allow
 sharing as many image layers as possible to support more customization while keeping the stability.
 
-.. _Docker Build Images: https://github.com/readthedocs/readthedocs-docker-images
+.. _Docker Images: https://github.com/readthedocs/readthedocs-docker-images
 
 
 Introduction
@@ -28,10 +28,11 @@ when re-deploying these images with bugfixes: **the images are not reproducible 
 
 .. note::
 
-   The reproducibility of the images will be better once
-   https://github.com/readthedocs/readthedocs-docker-images/pull/145 and
-   https://github.com/readthedocs/readthedocs-docker-images/pull/146
-   get merged but OS packages still won't be 100% the exact same versions.
+   The reproducibility of the images will be better once these PRs are merged,
+   but OS packages still won't be 100% the exact same versions.
+
+   * https://github.com/readthedocs/readthedocs-docker-images/pull/145
+   * https://github.com/readthedocs/readthedocs-docker-images/pull/146
 
 To allow users to pin the image we ended up exposing three images: ``stable``, ``latest`` and ``testing``.
 With that naming, we were able to bugfix issues and add more features
@@ -64,6 +65,7 @@ New build image structure
 .. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/master/Dockerfile
 
 * ``ubuntu20-base``
+
   * labels
   * environment variables
   * system dependencies
@@ -74,12 +76,19 @@ New build image structure
 
 The following images all are based on ``ubuntu20-base``:
 
-* ``ubuntu20-py27``
-* ``ubuntu20-py36``
-* ``ubuntu20-py37``
-* ``ubuntu20-py38``
-* ``ubuntu20-py39``
-* ``ubuntu20-conda47`` (contains ``mamba`` executable as well)
+* ``ubuntu20-py*``
+
+  * Python version installed via ``pyenv``
+  * default Python packages (pinned versions)
+    * pip
+    * setuptools
+    * virtualenv
+  * labels
+
+* ``ubuntu20-conda*``
+
+  * same as ``-py*`` versions
+  * ``mamba`` executable
 
 Note that all these images only need to run ``pyenv install ${PYTHON_VERSION}``
 to install a specific Python/Conda version.
@@ -92,6 +101,9 @@ to install a specific Python/Conda version.
 
    Check the shared space between images
    docker system df --verbose | grep -E 'SHARED SIZE|readthedocs'
+
+   Initial Dockerfile.* as example for this are pushed in this PR
+   https://github.com/readthedocs/readthedocs-docker-images/pull/166
 
 
 Specifying extra users' dependencies
@@ -106,7 +118,7 @@ using ``.readthedocs.yaml`` config file. Example:
 .. code:: yaml
 
    build:
-   image: ubuntu20-py39
+     image: ubuntu20-py39
      apt:
        - swig
        - imagemagick
@@ -119,7 +131,7 @@ using ``.readthedocs.yaml`` config file. Example:
 
    Once this config file is parsed, the builder builds a Docker image on-demand with a command similar to:
 
-   .. console::
+   .. code:: bash
 
       docker build \
         --tag ${BUILD_ID} \
@@ -133,6 +145,7 @@ using ``.readthedocs.yaml`` config file. Example:
 
    .. code:: Dockerfile
 
+      # Dockerfile.custom
       ARG RTD_IMAGE
       FROM readthedocs:${RTD_IMAGE}
 
@@ -219,12 +232,12 @@ Deprecation plan
 It seems we have ~50Gb free on builders disks.
 Considering that the new images will be sized approximately (built locally as test):
 
-* ``ubuntu20-base``: ~
-* ``ubuntu20-py27``: ~
-* ``ubuntu20-py39``: ~
-* ``ubuntu20-conda47``: ~
+* ``ubuntu20-base``: ~5Gb
+* ``ubuntu20-py27``: ~150Mb
+* ``ubuntu20-py39``: ~20Mb
+* ``ubuntu20-conda47``: ~713Mb
 
-which is about ~10Gb in total, we will still have space to support multiple custom images.
+which is about ~6Gb in total, we will still have space to support multiple custom images.
 
 We could keep ``stable``, ``latest`` and ``testing`` for some time without worry too much.
 New projects shouldn't be able to select these images and they will be forced to use ``ubuntu20``
