@@ -52,10 +52,6 @@ class GoldUser(models.Model):
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
 
-    # TODO: these are managed completely by Stripe now; we could remove them
-    last_4_card_digits = models.CharField(max_length=4, null=True, blank=True)
-    business_vat_id = models.CharField(max_length=128, null=True, blank=True)
-
     def __str__(self):
         return 'Gold Level {} for {}'.format(self.level, self.user)
 

@@ -213,6 +213,7 @@ class StripeEventView(APIView):
     EVENT_CUSTOMER_SUBSCRIPTION_UPDATED = 'customer.subscription.updated'
 
     EVENTS = [
+        EVENT_CHECKOUT_PAYMENT_FAILED,
         EVENT_CHECKOUT_PAYMENT_SUCCEEDED,
         EVENT_CHECKOUT_COMPLETED,
         EVENT_CUSTOMER_SUBSCRIPTION_UPDATED,
@@ -221,60 +222,82 @@ class StripeEventView(APIView):
     def post(self, request, format=None):
         try:
             event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
-            if event.type in self.EVENTS:
-                stripe_customer = event.data.object.customer
-
-                if event.type == self.EVENT_CHECKOUT_COMPLETED:
-                    username = event.data.object.client_reference_id
-                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-
-                    user = User.objects.get(username=username)
-                    GoldUser.objects.create(
-                        user=user,
-                        level=subscription.plan.id,
-                        stripe_id=stripe_customer,
-                        subscribed=True,
-                    )
-                    # TODO: add user notification saying it was successful
-
-                elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
-                    username = event.data.object.client_reference_id
-                    # TODO: add user notification saying it failed
-                    log.exception(
-                        'Gold User payment failed. username=%s customer=%s',
-                        username,
-                        stripe_customer,
-                    )
-
-                elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
-                    subscription = event.data.object
-                    level = subscription.plan.id
-                    log.info(
-                        'Gold User subscription updated. customer=%s level=%s',
-                        stripe_customer,
-                        level,
-                    )
-                    (
-                        GoldUser.objects
-                        .filter(stripe_id=stripe_customer)
-                        .update(
-                            level=level,
-                            modified_date=timezone.now(),
-                        )
-                    )
-
-                    if subscription.status != 'active':
-                        # TODO: check if the subscription was canceled, past due, etc
-                        # and take the according action. Only acummulate errors on Sentry for now.
-                        log.error(
-                            'GoldUser is not active anymore. '
-                            'stripe_customer=%s',
-                            stripe_customer,
-                        )
-
+            if event.type not in self.EVENTS:
+                log.warning('Unhandled Stripe event. event=%s', event.type)
                 return Response({
-                    'OK': True,
+                    'OK': False,
+                    'msg': f'Unhandled event. event={event.type}'
                 })
+
+            stripe_customer = event.data.object.customer
+
+            if event.type == self.EVENT_CHECKOUT_COMPLETED:
+                username = event.data.object.client_reference_id
+                mode = event.data.object.mode
+                if mode == 'subscription':
+                    # Gold Membership
+                    user = User.objects.get(username=username)
+                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
+                    gold, _ = GoldUser.objects.get_or_create(
+                        user=user,
+                        stripe_id=stripe_customer,
+                    )
+                    gold.level = subscription.plan.id
+                    gold.subscribed = True
+                    gold.save()
+                elif mode == 'payment':
+                    # One-time donation
+                    try:
+                        # TODO: find a better way to extend this view for one-time donations.
+                        from readthedocsext.donate.utils import handle_payment_webhook
+                        stripe_session = event.data.object.id
+                        price_in_cents = event.data.object.amount_total
+                        handle_payment_webhook(
+                            username,
+                            stripe_customer,
+                            stripe_session,
+                            price_in_cents,
+                        )
+                    except ImportError:
+                        log.warning(
+                            'Not able to import handle_payment_webhook for one-time donation.',
+                        )
+                # TODO: add user notification saying it was successful
+
+            elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
+                username = event.data.object.client_reference_id
+                # TODO: add user notification saying it failed
+                log.exception(
+                    'Gold User payment failed. username=%s customer=%s',
+                    username,
+                    stripe_customer,
+                )
+
+            elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
+                subscription = event.data.object
+                level = subscription.plan.id
+                log.info(
+                    'Gold User subscription updated. customer=%s level=%s',
+                    stripe_customer,
+                    level,
+                )
+                (
+                    GoldUser.objects
+                    .filter(stripe_id=stripe_customer)
+                    .update(
+                        level=level,
+                        modified_date=timezone.now(),
+                    )
+                )
+
+                if subscription.status != 'active':
+                    # TODO: check if the subscription was canceled, past due, etc
+                    # and take the according action. Only acummulate errors on Sentry for now.
+                    log.error(
+                        'GoldUser is not active anymore. '
+                        'stripe_customer=%s',
+                        stripe_customer,
+                    )
         except Exception:
             log.exception('Unexpected data in Stripe Event object')
             return Response(
@@ -283,3 +306,7 @@ class StripeEventView(APIView):
                 },
                 status=500,
             )
+
+        return Response({
+            'OK': True,
+        })

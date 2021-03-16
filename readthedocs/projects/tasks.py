@@ -1397,10 +1397,11 @@ def _create_intersphinx_data(version, commit, build):
             log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
 
     # These classes are copied from Sphinx
-    # https://git.io/fhFbI
+    # https://github.com/sphinx-doc/sphinx/blob/d79d041f4f90818e0b495523fdcc28db12783caf/sphinx/ext/intersphinx.py#L400-L403  # noqa
     class MockConfig:
         intersphinx_timeout = None
         tls_verify = False
+        user_agent = None
 
     class MockApp:
         srcdir = ''

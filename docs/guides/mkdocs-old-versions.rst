@@ -29,8 +29,7 @@ To make your project continue using this version you will need to create a ``req
      markdown>=2.3.1,<2.5
 
 
-More detailed information about how to specify dependencies can be found :ref:`here <guides/specifying-dependencies:Specifying Dependencies>`.
-
+More detailed information about how to specify dependencies can be found :ref:`here <guides/reproducible-builds:pinning dependencies>`.
 
 Upgrade your custom theme to be compatible with later MkDocs versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
