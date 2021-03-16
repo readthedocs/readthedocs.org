@@ -1,3 +1,35 @@
+Version 5.12.1
+--------------
+
+:Date: March 16, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 11 (`#8019 <https://github.com/readthedocs/readthedocs.org/pull/8019>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: Allow to override embed view for proxied use (`#8018 <https://github.com/readthedocs/readthedocs.org/pull/8018>`__)
+* `@humitos <https://github.com/humitos>`__: RemoteRepository: Improvements to `sync_vcs_data.py` script (`#8017 <https://github.com/readthedocs/readthedocs.org/pull/8017>`__)
+* `@humitos <https://github.com/humitos>`__: Stripe checkout: handle events (`#8016 <https://github.com/readthedocs/readthedocs.org/pull/8016>`__)
+* `@humitos <https://github.com/humitos>`__: Remove `contrib/` directory (`#8014 <https://github.com/readthedocs/readthedocs.org/pull/8014>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dockerfile: install lsb_release (`#8010 <https://github.com/readthedocs/readthedocs.org/pull/8010>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Fix AWS image so it looks sharp (`#8009 <https://github.com/readthedocs/readthedocs.org/pull/8009>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8008 <https://github.com/readthedocs/readthedocs.org/pull/8008>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update Sphinx (`#8007 <https://github.com/readthedocs/readthedocs.org/pull/8007>`__)
+* `@2Fake <https://github.com/2Fake>`__: fix small typo (`#8005 <https://github.com/readthedocs/readthedocs.org/pull/8005>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: validate query arguments (`#8003 <https://github.com/readthedocs/readthedocs.org/pull/8003>`__)
+* `@humitos <https://github.com/humitos>`__: Stripe Checkout: handle duplicated wehbook (`#8002 <https://github.com/readthedocs/readthedocs.org/pull/8002>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add __str__ to RemoteRepositoryRelation and RemoteOrganizationRelation and Use raw_id_fields in Admin (`#8001 <https://github.com/readthedocs/readthedocs.org/pull/8001>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remove duplicate results from RemoteOrganization API (`#8000 <https://github.com/readthedocs/readthedocs.org/pull/8000>`__)
+* `@humitos <https://github.com/humitos>`__: Typo fixed on `checkout.js` (`#7998 <https://github.com/readthedocs/readthedocs.org/pull/7998>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make SupportView login_required (`#7997 <https://github.com/readthedocs/readthedocs.org/pull/7997>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.12.0 (`#7996 <https://github.com/readthedocs/readthedocs.org/pull/7996>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 10 (`#7995 <https://github.com/readthedocs/readthedocs.org/pull/7995>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remove json field from RemoteRepositoryRelation and RemoteOrganizationRelation model (`#7993 <https://github.com/readthedocs/readthedocs.org/pull/7993>`__)
+* `@humitos <https://github.com/humitos>`__: Use independent Docker image to build assets (`#7992 <https://github.com/readthedocs/readthedocs.org/pull/7992>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Fixes typo in getting-started-with-sphinx: (`#7991 <https://github.com/readthedocs/readthedocs.org/pull/7991>`__)
+* `@humitos <https://github.com/humitos>`__: Allow `donate` app to use Stripe Checkout for one-time donations (`#7983 <https://github.com/readthedocs/readthedocs.org/pull/7983>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito healthcheck (`#7948 <https://github.com/readthedocs/readthedocs.org/pull/7948>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Docs: Adds Myst to the getting started with sphinx (`#7938 <https://github.com/readthedocs/readthedocs.org/pull/7938>`__)
+* `@humitos <https://github.com/humitos>`__: Use Stripe Checkout for Gold Users (`#7889 <https://github.com/readthedocs/readthedocs.org/pull/7889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: guide about reproducible builds (`#7888 <https://github.com/readthedocs/readthedocs.org/pull/7888>`__)
+
 Version 5.12.0
 --------------
 
