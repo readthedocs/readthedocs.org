@@ -26,7 +26,6 @@ from readthedocs.api.v2.views.integrations import (
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
-    GITLAB_MERGE_REQUEST_OPEN,
     GITLAB_MERGE_REQUEST_REOPEN,
     GITLAB_MERGE_REQUEST_UPDATE,
     GITLAB_NULL_HASH,
@@ -40,7 +39,12 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.projects.models import (
     APIProject,
     EnvironmentVariable,
@@ -649,8 +653,15 @@ class APITests(TestCase):
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider='github')
         user = get(User)
+
         for _ in range(20):
-            get(RemoteRepository, users=[user], account=account)
+            repo = get(RemoteRepository)
+            get(
+                RemoteRepositoryRelation,
+                remote_repository=repo,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -664,7 +675,13 @@ class APITests(TestCase):
         account = get(SocialAccount, provider='github')
         user = get(User)
         for _ in range(30):
-            get(RemoteOrganization, users=[user], account=account)
+            org = get(RemoteOrganization)
+            get(
+                RemoteOrganizationRelation,
+                remote_organization=org,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -761,18 +778,33 @@ class APIImportTests(TestCase):
         user_a = get(User, password='test')
         user_b = get(User, password='test')
         user_c = get(User, password='test')
-        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        org_a = get(RemoteOrganization)
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=org_a,
+            user=user_a,
+            account=account_a
+        )
         repo_a = get(
             RemoteRepository,
-            users=[user_a],
             organization=org_a,
-            account=account_a,
         )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_a,
+            user=user_a,
+            account=account_a
+        )
+
         repo_b = get(
             RemoteRepository,
-            users=[user_b],
             organization=None,
-            account=account_b,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_b,
+            user=user_b,
+            account=account_b
         )
 
         client.force_authenticate(user=user_a)
