@@ -180,6 +180,8 @@ class ImportedFileTests(TestCase):
         self.assertNotEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
         self.assertEqual(ImportedFile.objects.count(), 2)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(RTD_INTERSPHINX_URL='https://readthedocs.org')
     @mock.patch('readthedocs.projects.tasks.os.path.exists')
     def test_create_intersphinx_data(self, mock_exists):
         mock_exists.return_Value = True
@@ -254,7 +256,7 @@ class ImportedFileTests(TestCase):
             mock_fetch_inventory.assert_called_once()
             self.assertRegex(
                 mock_fetch_inventory.call_args[0][2],
-                '^https://{}/media/.*/objects.inv$'.format(settings.PRODUCTION_DOMAIN)
+                r'^https://readthedocs\.org/media/.*/objects\.inv$'
             )
         self.assertEqual(ImportedFile.objects.count(), 2)
 
