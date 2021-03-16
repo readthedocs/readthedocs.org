@@ -25,7 +25,8 @@ RUN apt-get -y install \
         libjpeg-dev \
         sqlite \
         netcat \
-        telnet
+        telnet \
+        lsb-release
 
 # https://www.postgresql.org/download/linux/ubuntu/
 # Use PostgreSQL client 12 from official PostgreSQL Ubuntu's repository to avoid this WARNING
