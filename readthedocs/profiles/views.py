@@ -27,6 +27,7 @@ from readthedocs.core.forms import (
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.utils import get_projects_only_owner
 
 
 class LoginViewBase(AllAuthLoginView):
@@ -68,7 +69,7 @@ class ProfileEdit(PrivateViewMixin, UpdateView):
         )
 
 
-class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
+class AccountDeleteBase(PrivateViewMixin, SuccessMessageMixin, FormView):
 
     form_class = UserDeleteForm
     template_name = 'profiles/private/delete_account.html'
@@ -87,8 +88,24 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         kwargs['initial'] = {'username': ''}
         return super().get_form(data, files, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.get_objects_to_be_deleted())
+        return context
+
+    def get_objects_to_be_deleted(self):
+        """Return an additional context with objects to be deleted to show in the template."""
+        return {
+            'projects_to_be_deleted': get_projects_only_owner(self.request.user),
+        }
+
     def get_success_url(self):
         return reverse('homepage')
+
+
+class AccountDelete(SettingsOverrideObject):
+
+    _default_class = AccountDeleteBase
 
 
 class ProfileDetailBase(DetailView):
