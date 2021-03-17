@@ -7,9 +7,10 @@ Additional processing is done to get the project from the URL in the ``views.py`
 """
 import logging
 import sys
+import re
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.deprecation import MiddlewareMixin
 from django.urls import reverse
 
@@ -172,6 +173,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Handle returning a response
         if hasattr(ret, 'status_code'):
             return ret
+
+        if '//' in request.path:
+            # Remove multiple slashes from URL's
+            return redirect(re.sub('//+', '/', request.get_full_path()))
 
         log.debug('Proxito Project: slug=%s', ret)
 
