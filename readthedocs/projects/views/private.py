@@ -1066,6 +1066,8 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             .order_by('-created')
             .values_list('created', 'query', 'total_results')
         )
+        # Add headers to the CSV
+        data.insert(0, 'Created Date', 'Query', 'Total Results')
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
             project_slug=project.slug,
