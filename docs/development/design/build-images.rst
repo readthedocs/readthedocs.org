@@ -137,7 +137,7 @@ using ``.readthedocs.yaml`` config file. Example:
         --tag ${BUILD_ID} \
         --file Dockerfile.custom \
         --build-arg RTD_IMAGE=ubuntu20-py39
-        --build-arg RTD_NODE_VERSION=14.16 \
+        --build-arg RTD_NODE_VERSION=14.16.0 \
         --build-arg RTD_RUST_VERSION=1.46.0 \
         --build-arg RTD_APT_PACKAGES="swig imagemagick"
 
@@ -147,7 +147,7 @@ using ``.readthedocs.yaml`` config file. Example:
 
       # Dockerfile.custom
       ARG RTD_IMAGE
-      FROM readthedocs:${RTD_IMAGE}
+      FROM readthedocs/build:${RTD_IMAGE}
 
       ARG RTD_NODE_VERSION
       ARG RTD_RUST_VERSION
@@ -171,7 +171,7 @@ using ``.readthedocs.yaml`` config file. Example:
       RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain ${RTD_RUST_VERSION}
       ENV PATH="/home/docs/.cargo/bin:$PATH"
 
-   Building this image should be pretty fast since all the requirements to install these extra packages
+   Building this image should be pretty fast (~2 minutes locally) since all the requirements to install these extra packages
    are already installed and all of them are pre-compiles binaries. It will take the time it takes to download them.
 
 
@@ -234,6 +234,7 @@ Considering that the new images will be sized approximately (built locally as te
 
 * ``ubuntu20-base``: ~5Gb
 * ``ubuntu20-py27``: ~150Mb
+* ``ubuntu20-py36``: ~210Mb
 * ``ubuntu20-py39``: ~20Mb
 * ``ubuntu20-conda47``: ~713Mb
 
