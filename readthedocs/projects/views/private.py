@@ -1080,7 +1080,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             for time, query, total_results in data
         ]
         # Add headers to the CSV
-        csv_data.insert(0, 'Created Date', 'Query', 'Total Results')
+        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse(
