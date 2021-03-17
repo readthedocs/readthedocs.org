@@ -69,7 +69,7 @@ All the Sphinx documents are indexed into Elasticsearch after the build is succe
 Currently, we do not index MkDocs documents to elasticsearch, but
 `any kind of help is welcome <https://github.com/readthedocs/readthedocs.org/issues/1088>`_.
 
-Troubelshooting
+Troubleshooting
 ^^^^^^^^^^^^^^^
 
 If you get an error like::

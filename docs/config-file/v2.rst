@@ -2,8 +2,8 @@ Configuration File V2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project.
-We recommend the filename ``.readthedocs.yml``.
+The :doc:`configuration file <index>` must be in the root directory of your project
+an be named ``.readthedocs.yaml``.
 
 All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
@@ -14,7 +14,7 @@ Below is an example YAML file which shows the most common configuration options:
 
       .. code:: yaml
 
-         # .readthedocs.yml
+         # .readthedocs.yaml
          # Read the Docs configuration file
          # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
@@ -39,7 +39,7 @@ Below is an example YAML file which shows the most common configuration options:
 
       .. code:: yaml
 
-         # .readthedocs.yml
+         # .readthedocs.yaml
          # Read the Docs configuration file
          # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
@@ -319,8 +319,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
 
 sphinx
 ~~~~~~
