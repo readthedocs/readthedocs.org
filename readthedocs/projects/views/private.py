@@ -1066,8 +1066,6 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             .order_by('-created')
             .values_list('created', 'query', 'total_results')
         )
-        # Add headers to the CSV
-        data.insert(0, 'Created Date', 'Query', 'Total Results')
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
             project_slug=project.slug,
@@ -1077,10 +1075,12 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         # remove any spaces in filename.
         file_name = '-'.join([text for text in file_name.split() if text])
 
-        csv_data = (
+        csv_data = [
             [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
             for time, query, total_results in data
-        )
+        ]
+        # Add headers to the CSV
+        csv_data.insert(0, 'Created Date', 'Query', 'Total Results')
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse(
