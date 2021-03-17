@@ -1111,7 +1111,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             return context
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project)
+        top_pages = PageView.top_viewed_pages(project, limit=25)
         top_viewed_pages = list(zip(
             top_pages['pages'],
             top_pages['view_counts']
