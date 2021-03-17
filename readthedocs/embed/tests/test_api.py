@@ -9,6 +9,7 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from pyquery import PyQuery
 from rest_framework import status
+from sphinx.testing.path import path
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import MKDOCS, PUBLIC
@@ -17,9 +18,7 @@ from readthedocs.projects.models import Project
 data_path = Path(__file__).parent.resolve() / 'data'
 
 
-@pytest.mark.sphinx
-@pytest.mark.django_db
-class BaseTestEmbedAPISphinx:
+class EmbedAPISetUp:
 
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
@@ -60,6 +59,10 @@ class BaseTestEmbedAPISphinx:
 
     def get(self, client, *args, **kwargs):
         return client.get(*args, **kwargs)
+
+
+@pytest.mark.django_db
+class BaseTestEmbedAPI(EmbedAPISetUp):
 
     def test_invalid_arguments(self, client):
         query_params = (
@@ -348,16 +351,129 @@ class BaseTestEmbedAPISphinx:
         assert response.data == expected
 
 
-class TestEmbedAPISphinx(BaseTestEmbedAPISphinx):
+class TestEmbedAPI(BaseTestEmbedAPI):
 
     pass
 
 
 @pytest.mark.proxito
-class TestProxiedEmbedAPISphinx(BaseTestEmbedAPISphinx):
+class TestProxiedEmbedAPISphinx(BaseTestEmbedAPI):
 
     host = 'project.readthedocs.io'
 
     def get(self, client, *args, **kwargs):
         r = client.get(*args, HTTP_HOST=self.host, **kwargs)
         return r
+
+
+@pytest.mark.sphinxtest
+@pytest.mark.django_db
+class TestEmbedAPISphinx(EmbedAPISetUp):
+
+    @pytest.mark.parametrize(
+        'section',
+        [
+            'title',
+            'subtitle',
+            'sub-sub-title',
+            'another-title',
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_sphinx_index(self, storage_mock, section, client, make_app):
+        srcdir = path(str(data_path / "sphinx/source"))
+        app = make_app("html", srcdir=srcdir)
+        app.build()
+
+        json_file = Path(app.outdir).parent / 'json/index.fjson'
+        storage_mock.open.side_effect = self._mock_open(
+            json_file.open().read()
+        )
+
+        response = self.get(
+            client,
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': section,
+            }
+        )
+
+        section_content = self._get_html_content(
+            data_path / f'sphinx/source/out/index-{section}.html'
+        )
+
+        expected = {
+            'content': section_content,
+            'headers': [
+                {'Title': '#'},
+                {'Subtitle': '#subtitle'},
+                {'Sub-sub title': '#sub-sub-title'},
+                {'Another title': '#another-title'},
+            ],
+            'url': 'http://project.readthedocs.io/en/latest/index.html',
+            'meta': {
+                'project': 'project',
+                'version': 'latest',
+                'doc': 'index',
+                'section': section,
+            },
+        }
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == expected
+
+    @pytest.mark.parametrize(
+        'section',
+        [
+            'glossary',
+            'term-builder',
+            'term-configuration-directory',
+            'term-directive',
+            'term-environment',
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_sphinx_glossary(self, storage_mock, section, client, make_app):
+        srcdir = path(str(data_path / "sphinx/source"))
+        app = make_app("html", srcdir=srcdir)
+        app.build()
+
+        json_file = Path(app.outdir).parent / 'json/glossary.fjson'
+        storage_mock.open.side_effect = self._mock_open(
+            json_file.open().read()
+        )
+
+        response = self.get(
+            client,
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': 'index.html',
+                'section': section,
+            },
+        )
+
+        section_content = self._get_html_content(
+            data_path / f'sphinx/source/out/glossary-{section}.html'
+        )
+
+        expected = {
+            'content': section_content,
+            'headers': [
+                {'Glossary': '#'},
+            ],
+            'url': 'http://project.readthedocs.io/en/latest/index.html',
+            'meta': {
+                'project': 'project',
+                'version': 'latest',
+                'doc': 'index',
+                'section': section,
+            },
+        }
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == expected
