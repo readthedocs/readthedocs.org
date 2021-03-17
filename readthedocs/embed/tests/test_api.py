@@ -17,8 +17,9 @@ from readthedocs.projects.models import Project
 data_path = Path(__file__).parent.resolve() / 'data'
 
 
+@pytest.mark.sphinx
 @pytest.mark.django_db
-class TestEmbedAPI:
+class BaseTestEmbedAPISphinx:
 
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
@@ -57,6 +58,9 @@ class TestEmbedAPI:
         section_content = [PyQuery(html_file.open().read()).outerHtml()]
         return section_content
 
+    def get(self, client, *args, **kwargs):
+        return client.get(*args, **kwargs)
+
     def test_invalid_arguments(self, client):
         query_params = (
             {
@@ -72,7 +76,7 @@ class TestEmbedAPI:
 
         api_endpoint = reverse('api_embed')
         for param in query_params:
-            r = client.get(api_endpoint, param)
+            r = self.get(client, api_endpoint, param)
             assert r.status_code == status.HTTP_400_BAD_REQUEST
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -123,7 +127,7 @@ class TestEmbedAPI:
         )
         api_endpoint = reverse('api_embed')
         for param in query_params:
-            r = client.get(api_endpoint, param)
+            r = self.get(client, api_endpoint, param)
             assert r.status_code == status.HTTP_200_OK
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -137,7 +141,8 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = client.get(
+        response = self.get(
+            client,
             reverse('api_embed'),
             {
                 'project': self.project.slug,
@@ -184,7 +189,8 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = client.get(
+        response = self.get(
+            client,
             reverse('api_embed'),
             {
                 'project': self.project.slug,
@@ -234,7 +240,7 @@ class TestEmbedAPI:
         ]
     )
     @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_sphinx_bibtex(self, storage_mock, section):
+    def test_embed_sphinx_bibtex(self, storage_mock, section, client):
         json_file = data_path / 'sphinx/bibtex/page.json'
         html_file = data_path / 'sphinx/bibtex/page.html'
 
@@ -244,11 +250,15 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            section=section,
-            path='index.html',
+        response = self.get(
+            client,
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'section': section,
+                'path': 'index.html',
+            }
         )
 
         section_content = self._get_html_content(
@@ -267,7 +277,7 @@ class TestEmbedAPI:
             'meta': {
                 'project': 'project',
                 'version': 'latest',
-                'doc': None,
+                'doc': 'index',
                 'section': section,
             },
         }
@@ -294,7 +304,7 @@ class TestEmbedAPI:
         ]
     )
     @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_sphinx_glossary(self, storage_mock, section):
+    def test_embed_sphinx_glossary(self, storage_mock, section, client):
         # TODO: render definition lists as a definition list with one element.
         json_file = data_path / 'sphinx/glossary/page.json'
         html_file = data_path / 'sphinx/glossary/page.html'
@@ -305,11 +315,15 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = do_embed(
-            project=self.project,
-            version=self.version,
-            section=section,
-            path='index.html',
+        response = self.get(
+            client,
+            reverse('api_embed'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'section': section,
+                'path': 'index.html',
+            }
         )
 
         section_content = self._get_html_content(
@@ -325,56 +339,25 @@ class TestEmbedAPI:
             'meta': {
                 'project': 'project',
                 'version': 'latest',
-                'doc': None,
-                'section': section,
-            },
-        }
-
-        assert response.data == expected
-
-    @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_mkdocs(self, storage_mock, client):
-        json_file = data_path / 'mkdocs/latest/index.json'
-        storage_mock.exists.return_value = True
-        storage_mock.open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        response = client.get(
-            reverse('api_embed'),
-            {
-                'project': self.project.slug,
-                'version': self.version.slug,
-                'path': 'index.html',
-                'section': 'Installation',
-            }
-        )
-
-        expected = {
-            'content': mock.ANY,  # too long to compare here
-            'headers': [
-                {'Overview': 'overview'},
-                {'Installation': 'installation'},
-                {'Getting Started': 'getting-started'},
-                {'Adding pages': 'adding-pages'},
-                {'Theming our documentation': 'theming-our-documentation'},
-                {'Changing the Favicon Icon': 'changing-the-favicon-icon'},
-                {'Building the site': 'building-the-site'},
-                {'Other Commands and Options': 'other-commands-and-options'},
-                {'Deploying': 'deploying'},
-                {'Getting help': 'getting-help'},
-            ],
-            'url': 'http://project.readthedocs.io/en/latest/index.html',
-            'meta': {
-                'project': 'project',
-                'version': 'latest',
                 'doc': 'index',
-                'section': 'Installation',
+                'section': section,
             },
         }
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
+
+
+class TestEmbedAPISphinx(BaseTestEmbedAPISphinx):
+
+    pass
+
+
+@pytest.mark.proxito
+class TestProxiedEmbedAPISphinx(BaseTestEmbedAPISphinx):
+
+    host = 'project.readthedocs.io'
+
+    def get(self, client, *args, **kwargs):
+        r = client.get(*args, HTTP_HOST=self.host, **kwargs)
+        return r
