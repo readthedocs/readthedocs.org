@@ -53,14 +53,6 @@ e.g. python-reno release notes manager is known to do that
 
 ``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
 
-``SHARE_SPHINX_DOCTREE``: :featureflags:`SHARE_SPHINX_DOCTREE`
-
-By default, when Read the Docs runs Sphinx it passes a different output directory for the generated/parsed doctrees
-(the argument ``-d _build/doctrees-{builder}`` is passed to ``sphinx-build``).
-While this is a way to ensure that all the outputs are generated from scratch,
-it may cause your builds to be slow if you have a big set of documentation and builds multiple formats.
-In that case, enabling ``SHARE_SPHINX_DOCTREE`` could help to speed up your builds by sharing the doctree among all the formats.
-
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`
 
 When Read the Docs detects that your project doesn't have an ``index.md`` or ``README.rst``,

@@ -1568,7 +1568,6 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     CLEAN_AFTER_BUILD = 'clean_after_build'
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
@@ -1632,10 +1631,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _('Try alternative method of posting large data'),
-        ),
-        (
-            SHARE_SPHINX_DOCTREE,
-            _('Use shared directory for doctrees'),
         ),
         (
             CLEAN_AFTER_BUILD,
