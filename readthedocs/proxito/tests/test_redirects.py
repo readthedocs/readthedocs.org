@@ -153,3 +153,25 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html',
         )
+
+        url = '///en/latest////awesome///index.html?foo=bar'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp['Location'], '/en/latest/awesome/index.html?foo=bar',
+        )
+
+        url = '///en/latest////awesome///'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp['Location'], '/en/latest/awesome/',
+        )
+
+        # Don't change the values of params
+        url = '///en/latest////awesome///index.html?foo=bar//bas'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
+        )
