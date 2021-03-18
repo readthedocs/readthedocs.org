@@ -1592,7 +1592,6 @@ class Feature(models.Model):
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1706,10 +1705,6 @@ class Feature(models.Model):
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
-            INSTALL_LATEST_SETUPTOOLS,
-            _('Install latest version of setuptools'),
         ),
 
         # Search related features.
