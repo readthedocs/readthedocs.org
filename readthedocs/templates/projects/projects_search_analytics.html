@@ -18,7 +18,7 @@
     {% endblock %}
   {% endif %}
 
-  <h3>{% trans "Top queries" %}</h3>
+  <h3>{% trans "Top queries in the past 30 days" %}</h3>
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul class="long-list-overflow">
@@ -43,7 +43,7 @@
 
   <br/>
   {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
-    <h2>{% trans "Overview of the past month" %}</h2>
+    <h2>{% trans "Daily search totals" %}</h2>
     <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
   {% endif %}
 
