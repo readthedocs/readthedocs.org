@@ -12,7 +12,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, INTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -278,23 +278,9 @@ class BuildViewSet(UserSelectViewSet):
         methods=['post'],
     )
     def reset(self, request, **kwargs):
-        """
-        Reset the build so it can be re-used when re-trying.
-
-        Dates and states are usually overriden by the build,
-        we care more about deleting the commands.
-        """
+        """Reset the build so it can be re-used when re-trying."""
         instance = self.get_object()
-        instance.state = BUILD_STATE_TRIGGERED
-        instance.status = ''
-        instance.success = True
-        instance.output = ''
-        instance.error = ''
-        instance.exit_code = None
-        instance.builder = ''
-        instance.cold_storage = False
-        instance.commands.all().delete()
-        instance.save()
+        instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
