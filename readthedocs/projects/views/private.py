@@ -1057,15 +1057,17 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         now = timezone.now().date()
         last_3_month = now - timezone.timedelta(days=90)
 
-        data = (
-            SearchQuery.objects.filter(
-                project=project,
-                created__date__gte=last_3_month,
-                created__date__lte=now,
+        data = []
+        if self._is_enabled(project):
+            data = (
+                SearchQuery.objects.filter(
+                    project=project,
+                    created__date__gte=last_3_month,
+                    created__date__lte=now,
+                )
+                .order_by('-created')
+                .values_list('created', 'query', 'total_results')
             )
-            .order_by('-created')
-            .values_list('created', 'query', 'total_results')
-        )
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
             project_slug=project.slug,
