@@ -351,11 +351,6 @@ class Virtualenv(PythonEnvironment):
         )
 
         requirements = [
-            self.project.get_feature_value(
-                Feature.DONT_INSTALL_DOCUTILS,
-                positive='',
-                negative='docutils==0.14',
-            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
