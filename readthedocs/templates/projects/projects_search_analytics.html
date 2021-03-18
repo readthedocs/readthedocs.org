@@ -65,8 +65,8 @@
 {% endblock %}
 
 {% block footerjs %}
-
   {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
+  <script>
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
     var line_chart_labels = {{ query_count_of_1_month.labels|safe }};
@@ -85,5 +85,6 @@
         }]
       }
     });
+  </script>
   {% endif %}
 {% endblock %}

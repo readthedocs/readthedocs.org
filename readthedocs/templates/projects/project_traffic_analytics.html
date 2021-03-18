@@ -57,6 +57,7 @@
 {% endblock %}
 
 {% block footerjs %}
+<script>
   var line_chart = document.getElementById("page-views-per-page").getContext("2d");
 
   {# Using |safe here is ok since this is just integers and formatted dates #}
@@ -76,4 +77,5 @@
       }]
     },
   });
+</script>
 {% endblock %}
