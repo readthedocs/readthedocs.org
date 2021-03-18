@@ -607,7 +607,7 @@ class Build(models.Model):
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
-        default='finished',
+        default=BUILD_STATE_TRIGGERED,
         db_index=True,
     )
 
