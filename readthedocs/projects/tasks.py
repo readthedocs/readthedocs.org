@@ -72,7 +72,7 @@ from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
-from readthedocs.storage import build_media_storage, build_environment_storage
+from readthedocs.storage import build_environment_storage, build_media_storage
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -670,6 +670,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         Return True if successful.
         """
+        # Reset build only if it has some commands already.
+        if self.build.get('commands'):
+            api_v2.build(self.build['id']).reset.post()
+
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
         else:
