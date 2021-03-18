@@ -8,7 +8,7 @@ Additional processing is done to get the project from the URL in the ``views.py`
 import logging
 import sys
 import re
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -180,7 +180,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             url_parsed = urlparse(request.get_full_path())
             clean_path = re.sub('//+', '/', url_parsed.path)
             new_parsed = url_parsed._replace(path=clean_path)
-            return redirect(urlunparse(new_parsed))
+            return redirect(new_parsed.geturl())
 
         log.debug('Proxito Project: slug=%s', ret)
 
