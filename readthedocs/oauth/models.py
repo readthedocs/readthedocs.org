@@ -200,22 +200,16 @@ class RemoteRepository(TimeStampedModel):
     def __str__(self):
         return 'Remote repository: {}'.format(self.html_url)
 
-    @property
-    def clone_fuzzy_url(self):
-        """Try to match against several permutations of project URL."""
-
     def matches(self, user):
-        """Projects that exist with repository URL already."""
-        # Support Git scheme GitHub url format that may exist in database
-        truncated_url = self.clone_url.replace('.git', '')
-        http_url = self.clone_url.replace('git://', 'https://').replace('.git', '')
+        """Existing projects connected to this RemoteRepository."""
+
+        # TODO: remove this method and refactor the API response in ``/api/v2/repos/``
+        # (or v3) to just return the linked Project (slug, url) if the ``RemoteRepository``
+        # connection exists. Note the frontend needs to be simplified as well in
+        # ``import.js`` and ``project_import.html``.
 
         projects = Project.objects.public(user).filter(
-            Q(repo=self.clone_url) |
-            Q(repo=truncated_url) |
-            Q(repo=truncated_url + '.git') |
-            Q(repo=http_url) |
-            Q(repo=http_url + '.git')
+            remote_repository=self,
         ).values('slug')
 
         return [{
