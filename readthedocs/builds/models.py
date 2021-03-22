@@ -66,7 +66,6 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -920,6 +919,24 @@ class Build(models.Model):
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+
+    def reset(self):
+        """
+        Reset the build so it can be re-used when re-trying.
+
+        Dates and states are usually overriden by the build,
+        we care more about deleting the commands.
+        """
+        self.state = BUILD_STATE_TRIGGERED
+        self.status = ''
+        self.success = True
+        self.output = ''
+        self.error = ''
+        self.exit_code = None
+        self.builder = ''
+        self.cold_storage = False
+        self.commands.all().delete()
+        self.save()
 
 
 class BuildCommandResultMixin:

@@ -1,3 +1,25 @@
+Version 5.12.2
+--------------
+
+:Date: March 23, 2021
+
+* `@humitos <https://github.com/humitos>`__: AWS homepage link (`#8037 <https://github.com/readthedocs/readthedocs.org/pull/8037>`__)
+* `@hukkinj1 <https://github.com/hukkinj1>`__: Fix a typo in the docs (`#8035 <https://github.com/readthedocs/readthedocs.org/pull/8035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Clean some feature flags (`#8034 <https://github.com/readthedocs/readthedocs.org/pull/8034>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Standardize footerjs code (`#8032 <https://github.com/readthedocs/readthedocs.org/pull/8032>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: remove pdf format in MkdDocs example (`#8030 <https://github.com/readthedocs/readthedocs.org/pull/8030>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't leak data for projects with this feature disabled (`#8029 <https://github.com/readthedocs/readthedocs.org/pull/8029>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Canonicalize all proxito slashes (`#8028 <https://github.com/readthedocs/readthedocs.org/pull/8028>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make pageviews analytics show top 25 pages (`#8027 <https://github.com/readthedocs/readthedocs.org/pull/8027>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CSV header data for search analytics  (`#8026 <https://github.com/readthedocs/readthedocs.org/pull/8026>`__)
+* `@stsewd <https://github.com/stsewd>`__: HTMLFile: make md5 field nullable (`#8025 <https://github.com/readthedocs/readthedocs.org/pull/8025>`__)
+* `@humitos <https://github.com/humitos>`__: Use `RemoteRepository` releation to match already imported projects (`#8024 <https://github.com/readthedocs/readthedocs.org/pull/8024>`__)
+* `@stsewd <https://github.com/stsewd>`__: Badge: exclude duplicated builds (`#8023 <https://github.com/readthedocs/readthedocs.org/pull/8023>`__)
+* `@stsewd <https://github.com/stsewd>`__: Intersphinx: declare user agent (`#8022 <https://github.com/readthedocs/readthedocs.org/pull/8022>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: restart build commands before a new build (`#7999 <https://github.com/readthedocs/readthedocs.org/pull/7999>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remote Repository and  Remote Organization Normalization (`#7949 <https://github.com/readthedocs/readthedocs.org/pull/7949>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: don't track changed files (`#7874 <https://github.com/readthedocs/readthedocs.org/pull/7874>`__)
+
 Version 5.12.1
 --------------
 
