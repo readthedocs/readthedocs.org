@@ -86,7 +86,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
-def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+def delete_projects(sender, instance, *args, **kwargs):
     # Here we count the owner list from the projects that the user own
     # Then exclude the projects where there are more than one owner
     # Add annotate before filter
@@ -98,16 +98,7 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
                                           ).exclude(num_users__gt=1)
     )
 
-    # Here we count the users list from the organization that the user belong
-    # Then exclude the organizations where there are more than one user
-    oauth_organizations = (
-        RemoteOrganization.objects.annotate(num_users=Count('users')
-                                            ).filter(users=instance.id
-                                                     ).exclude(num_users__gt=1)
-    )
-
     projects.delete()
-    oauth_organizations.delete()
 
 
 signals.check_request_enabled.connect(decide_if_cors)
