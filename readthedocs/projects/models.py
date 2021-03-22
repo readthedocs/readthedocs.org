@@ -1593,7 +1593,7 @@ class Feature(models.Model):
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
+    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptools'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
