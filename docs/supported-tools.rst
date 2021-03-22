@@ -58,8 +58,7 @@ For this reason we are now installing their latest version (or latest supported 
 
    In order to keep your builds reproducible,
    it's highly recommended declaring its dependencies and versions explicitly.
-
-   .. TODO: link to this guide once it's written https://github.com/readthedocs/readthedocs.org/issues/7852.
+   See :doc:`/guides/reproducible-builds`.
 
 External dependencies (Python)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,6 +71,7 @@ Sphinx:
 
 Mkdocs:
   Projects created before April 3, 2019 (April 23, 2019 for :doc:`/commercial/index`) use ``0.17.3``.
+  Projects created before March 9, 2021 use ``1.0.4``.
   New projects use the latest version.
 
 sphinx-rtd-theme:
