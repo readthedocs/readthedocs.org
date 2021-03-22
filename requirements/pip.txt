@@ -70,7 +70,7 @@ regex==2021.3.17
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.2
-django-crispy-forms==1.11.1
+django-crispy-forms==1.11.2
 
 docker==4.4.4
 
