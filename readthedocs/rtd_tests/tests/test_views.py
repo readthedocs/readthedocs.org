@@ -359,8 +359,9 @@ class TestSearchAnalyticsView(TestCase):
             csv_data = csv.reader(content)
             body = list(csv_data)
 
-            self.assertEqual(len(body), 23)
-            self.assertEqual(body[0][1], 'advertising')
+            self.assertEqual(len(body), 24)
+            self.assertEqual(body[0][0], 'Created Date')
+            self.assertEqual(body[1][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
 
 

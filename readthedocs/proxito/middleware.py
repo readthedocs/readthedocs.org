@@ -7,10 +7,13 @@ Additional processing is done to get the project from the URL in the ``views.py`
 """
 import logging
 import sys
+import re
+from urllib.parse import urlparse
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.deprecation import MiddlewareMixin
+from django.urls import reverse
 
 from readthedocs.projects.models import Domain, Project
 
@@ -157,8 +160,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Version-Method'] = 'path'
 
     def process_request(self, request):  # noqa
-        if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
-                'testserver' in request.get_host()]):
+        if any([
+            not settings.USE_SUBDOMAIN,
+            'localhost' in request.get_host(),
+            'testserver' in request.get_host(),
+            request.path.startswith(reverse('health_check')),
+        ]):
             log.debug('Not processing Proxito middleware')
             return None
 
@@ -167,6 +174,13 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Handle returning a response
         if hasattr(ret, 'status_code'):
             return ret
+
+        if '//' in request.path:
+            # Remove multiple slashes from URL's
+            url_parsed = urlparse(request.get_full_path())
+            clean_path = re.sub('//+', '/', url_parsed.path)
+            new_parsed = url_parsed._replace(path=clean_path)
+            return redirect(new_parsed.geturl())
 
         log.debug('Proxito Project: slug=%s', ret)
 

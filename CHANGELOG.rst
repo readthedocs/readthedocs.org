@@ -1,3 +1,156 @@
+Version 5.12.1
+--------------
+
+:Date: March 16, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 11 (`#8019 <https://github.com/readthedocs/readthedocs.org/pull/8019>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: Allow to override embed view for proxied use (`#8018 <https://github.com/readthedocs/readthedocs.org/pull/8018>`__)
+* `@humitos <https://github.com/humitos>`__: RemoteRepository: Improvements to `sync_vcs_data.py` script (`#8017 <https://github.com/readthedocs/readthedocs.org/pull/8017>`__)
+* `@humitos <https://github.com/humitos>`__: Stripe checkout: handle events (`#8016 <https://github.com/readthedocs/readthedocs.org/pull/8016>`__)
+* `@humitos <https://github.com/humitos>`__: Remove `contrib/` directory (`#8014 <https://github.com/readthedocs/readthedocs.org/pull/8014>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dockerfile: install lsb_release (`#8010 <https://github.com/readthedocs/readthedocs.org/pull/8010>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Fix AWS image so it looks sharp (`#8009 <https://github.com/readthedocs/readthedocs.org/pull/8009>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8008 <https://github.com/readthedocs/readthedocs.org/pull/8008>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update Sphinx (`#8007 <https://github.com/readthedocs/readthedocs.org/pull/8007>`__)
+* `@2Fake <https://github.com/2Fake>`__: fix small typo (`#8005 <https://github.com/readthedocs/readthedocs.org/pull/8005>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: validate query arguments (`#8003 <https://github.com/readthedocs/readthedocs.org/pull/8003>`__)
+* `@humitos <https://github.com/humitos>`__: Stripe Checkout: handle duplicated wehbook (`#8002 <https://github.com/readthedocs/readthedocs.org/pull/8002>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add __str__ to RemoteRepositoryRelation and RemoteOrganizationRelation and Use raw_id_fields in Admin (`#8001 <https://github.com/readthedocs/readthedocs.org/pull/8001>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remove duplicate results from RemoteOrganization API (`#8000 <https://github.com/readthedocs/readthedocs.org/pull/8000>`__)
+* `@humitos <https://github.com/humitos>`__: Typo fixed on `checkout.js` (`#7998 <https://github.com/readthedocs/readthedocs.org/pull/7998>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make SupportView login_required (`#7997 <https://github.com/readthedocs/readthedocs.org/pull/7997>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.12.0 (`#7996 <https://github.com/readthedocs/readthedocs.org/pull/7996>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 10 (`#7995 <https://github.com/readthedocs/readthedocs.org/pull/7995>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remove json field from RemoteRepositoryRelation and RemoteOrganizationRelation model (`#7993 <https://github.com/readthedocs/readthedocs.org/pull/7993>`__)
+* `@humitos <https://github.com/humitos>`__: Use independent Docker image to build assets (`#7992 <https://github.com/readthedocs/readthedocs.org/pull/7992>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Fixes typo in getting-started-with-sphinx: (`#7991 <https://github.com/readthedocs/readthedocs.org/pull/7991>`__)
+* `@humitos <https://github.com/humitos>`__: Allow `donate` app to use Stripe Checkout for one-time donations (`#7983 <https://github.com/readthedocs/readthedocs.org/pull/7983>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito healthcheck (`#7948 <https://github.com/readthedocs/readthedocs.org/pull/7948>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Docs: Adds Myst to the getting started with sphinx (`#7938 <https://github.com/readthedocs/readthedocs.org/pull/7938>`__)
+* `@humitos <https://github.com/humitos>`__: Use Stripe Checkout for Gold Users (`#7889 <https://github.com/readthedocs/readthedocs.org/pull/7889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: guide about reproducible builds (`#7888 <https://github.com/readthedocs/readthedocs.org/pull/7888>`__)
+
+Version 5.12.0
+--------------
+
+:Date: March 08, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 10 (`#7995 <https://github.com/readthedocs/readthedocs.org/pull/7995>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remove json field from RemoteRepositoryRelation and RemoteOrganizationRelation model (`#7993 <https://github.com/readthedocs/readthedocs.org/pull/7993>`__)
+* `@humitos <https://github.com/humitos>`__: Use independent Docker image to build assets (`#7992 <https://github.com/readthedocs/readthedocs.org/pull/7992>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Fixes typo in getting-started-with-sphinx: (`#7991 <https://github.com/readthedocs/readthedocs.org/pull/7991>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use doctype from indexed pages instead of the db (`#7984 <https://github.com/readthedocs/readthedocs.org/pull/7984>`__)
+* `@humitos <https://github.com/humitos>`__: Allow `donate` app to use Stripe Checkout for one-time donations (`#7983 <https://github.com/readthedocs/readthedocs.org/pull/7983>`__)
+* `@humitos <https://github.com/humitos>`__: Update development/standards guide (`#7981 <https://github.com/readthedocs/readthedocs.org/pull/7981>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update expand_tabs to work with the latest version of sphinx-tabs (`#7979 <https://github.com/readthedocs/readthedocs.org/pull/7979>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix build routing (`#7978 <https://github.com/readthedocs/readthedocs.org/pull/7978>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: register tasks to delete inactive external versions (`#7975 <https://github.com/readthedocs/readthedocs.org/pull/7975>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: fix join (`#7974 <https://github.com/readthedocs/readthedocs.org/pull/7974>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: change proxied urls (`#7973 <https://github.com/readthedocs/readthedocs.org/pull/7973>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: refactor footer, add jobs & status page (`#7970 <https://github.com/readthedocs/readthedocs.org/pull/7970>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx domain: remove API (`#7969 <https://github.com/readthedocs/readthedocs.org/pull/7969>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade `postgres-client` to v12 in Docker image (`#7967 <https://github.com/readthedocs/readthedocs.org/pull/7967>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add management command to Load Project and RemoteRepository Relationship from JSON file (`#7966 <https://github.com/readthedocs/readthedocs.org/pull/7966>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update guide on conda support (`#7965 <https://github.com/readthedocs/readthedocs.org/pull/7965>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: add more tests (`#7962 <https://github.com/readthedocs/readthedocs.org/pull/7962>`__)
+* `@humitos <https://github.com/humitos>`__: Lower rank of development/install.html (`#7960 <https://github.com/readthedocs/readthedocs.org/pull/7960>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: refactor view (`#7955 <https://github.com/readthedocs/readthedocs.org/pull/7955>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: make --queue required for management command (`#7952 <https://github.com/readthedocs/readthedocs.org/pull/7952>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito healthcheck (`#7948 <https://github.com/readthedocs/readthedocs.org/pull/7948>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Docs: Adds Myst to the getting started with sphinx (`#7938 <https://github.com/readthedocs/readthedocs.org/pull/7938>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a support form to the website (`#7929 <https://github.com/readthedocs/readthedocs.org/pull/7929>`__)
+* `@humitos <https://github.com/humitos>`__: Use Stripe Checkout for Gold Users (`#7889 <https://github.com/readthedocs/readthedocs.org/pull/7889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: guide about reproducible builds (`#7888 <https://github.com/readthedocs/readthedocs.org/pull/7888>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update links from build images (`#7886 <https://github.com/readthedocs/readthedocs.org/pull/7886>`__)
+* `@stsewd <https://github.com/stsewd>`__: Install latest mkdocs by default as we do with sphinx (`#7869 <https://github.com/readthedocs/readthedocs.org/pull/7869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: document analytics (`#7857 <https://github.com/readthedocs/readthedocs.org/pull/7857>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove some feature flags (`#7846 <https://github.com/readthedocs/readthedocs.org/pull/7846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update requirements/deploy.txt (`#7843 <https://github.com/readthedocs/readthedocs.org/pull/7843>`__)
+* `@humitos <https://github.com/humitos>`__: Implementation of APIv3 (`#4863 <https://github.com/readthedocs/readthedocs.org/pull/4863>`__)
+
+Version 5.11.0
+--------------
+
+:Date: March 02, 2021
+
+* `@saadmk11 <https://github.com/saadmk11>`__: Add management command to Load Project and RemoteRepository Relationship from JSON file (`#7966 <https://github.com/readthedocs/readthedocs.org/pull/7966>`__)
+* `@humitos <https://github.com/humitos>`__: Lower rank of development/install.html (`#7960 <https://github.com/readthedocs/readthedocs.org/pull/7960>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Management Command to Dump Project and RemoteRepository Relationship in JSON format (`#7957 <https://github.com/readthedocs/readthedocs.org/pull/7957>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Enable the cached template loader (`#7953 <https://github.com/readthedocs/readthedocs.org/pull/7953>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common to master (`#7951 <https://github.com/readthedocs/readthedocs.org/pull/7951>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: refactor tests (`#7947 <https://github.com/readthedocs/readthedocs.org/pull/7947>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade jedi (`#7946 <https://github.com/readthedocs/readthedocs.org/pull/7946>`__)
+* `@FatGrizzly <https://github.com/FatGrizzly>`__: Added warnings for previous gitbook users (`#7945 <https://github.com/readthedocs/readthedocs.org/pull/7945>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move embed app (`#7943 <https://github.com/readthedocs/readthedocs.org/pull/7943>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change our sponsored hosting from Azure -> AWS. (`#7940 <https://github.com/readthedocs/readthedocs.org/pull/7940>`__)
+* `@Pradhvan <https://github.com/Pradhvan>`__: Docs: Adds Myst to the getting started with sphinx (`#7938 <https://github.com/readthedocs/readthedocs.org/pull/7938>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a support form to the website (`#7929 <https://github.com/readthedocs/readthedocs.org/pull/7929>`__)
+* `@stsewd <https://github.com/stsewd>`__: Drop six (`#7890 <https://github.com/readthedocs/readthedocs.org/pull/7890>`__)
+* `@fabianmp <https://github.com/fabianmp>`__: Allow to use a different url for intersphinx object file download (`#7807 <https://github.com/readthedocs/readthedocs.org/pull/7807>`__)
+
+Version 5.10.0
+--------------
+
+:Date: February 23, 2021
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 08 (`#7941 <https://github.com/readthedocs/readthedocs.org/pull/7941>`__)
+* `@PawelBorkar <https://github.com/PawelBorkar>`__: Update license (`#7934 <https://github.com/readthedocs/readthedocs.org/pull/7934>`__)
+* `@humitos <https://github.com/humitos>`__: Route external versions to the queue were default version was built (`#7933 <https://github.com/readthedocs/readthedocs.org/pull/7933>`__)
+* `@humitos <https://github.com/humitos>`__: Pin jedi dependency to avoid breaking ipython (`#7932 <https://github.com/readthedocs/readthedocs.org/pull/7932>`__)
+* `@humitos <https://github.com/humitos>`__: Use `admin` user for SLUMBER API on local environment (`#7925 <https://github.com/readthedocs/readthedocs.org/pull/7925>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: add cache tags (`#7922 <https://github.com/readthedocs/readthedocs.org/pull/7922>`__)
+* `@humitos <https://github.com/humitos>`__: Use S3 from community (`#7920 <https://github.com/readthedocs/readthedocs.org/pull/7920>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use only one variant of the config file (`#7918 <https://github.com/readthedocs/readthedocs.org/pull/7918>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 07 (`#7913 <https://github.com/readthedocs/readthedocs.org/pull/7913>`__)
+* `@humitos <https://github.com/humitos>`__: Router PRs builds to last queue where a build was executed (`#7912 <https://github.com/readthedocs/readthedocs.org/pull/7912>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve re-index management command (`#7904 <https://github.com/readthedocs/readthedocs.org/pull/7904>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: link to main project in subproject results (`#7880 <https://github.com/readthedocs/readthedocs.org/pull/7880>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Celery and friends to latest versions (`#7786 <https://github.com/readthedocs/readthedocs.org/pull/7786>`__)
+
+Version 5.9.0
+-------------
+
+:Date: February 16, 2021
+
+Last Friday we migrated our site from Azure to AWS (`read the blog post <https://blog.readthedocs.com/aws-migration/>`_).
+This is the first release into our new AWS infra.
+
+* `@humitos <https://github.com/humitos>`__: Router PRs builds to last queue where a build was executed (`#7912 <https://github.com/readthedocs/readthedocs.org/pull/7912>`__)
+* `@humitos <https://github.com/humitos>`__: Update common/ submodule (`#7910 <https://github.com/readthedocs/readthedocs.org/pull/7910>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Redis version to match production (`#7909 <https://github.com/readthedocs/readthedocs.org/pull/7909>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Make storage classes into module level vars (`#7908 <https://github.com/readthedocs/readthedocs.org/pull/7908>`__)
+* `@csdev <https://github.com/csdev>`__: fix typo (`#7902 <https://github.com/readthedocs/readthedocs.org/pull/7902>`__)
+* `@humitos <https://github.com/humitos>`__: Match Redis version from AWS producion (`#7897 <https://github.com/readthedocs/readthedocs.org/pull/7897>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 06 (`#7896 <https://github.com/readthedocs/readthedocs.org/pull/7896>`__)
+* `@nedbat <https://github.com/nedbat>`__: Doc fix: two endpoints had 'pip' for the project_slug (`#7895 <https://github.com/readthedocs/readthedocs.org/pull/7895>`__)
+* `@stsewd <https://github.com/stsewd>`__: Set storage for BuildCommand and BuildEnvironment as private (`#7893 <https://github.com/readthedocs/readthedocs.org/pull/7893>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 05 (`#7887 <https://github.com/readthedocs/readthedocs.org/pull/7887>`__)
+* `@humitos <https://github.com/humitos>`__: Add support for Python 3.9 on "testing" Docker image (`#7885 <https://github.com/readthedocs/readthedocs.org/pull/7885>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add version_changed signal (`#7878 <https://github.com/readthedocs/readthedocs.org/pull/7878>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't index permalinks (`#7876 <https://github.com/readthedocs/readthedocs.org/pull/7876>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7873 <https://github.com/readthedocs/readthedocs.org/pull/7873>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 04 (`#7867 <https://github.com/readthedocs/readthedocs.org/pull/7867>`__)
+* `@humitos <https://github.com/humitos>`__: Log Stripe errors when trying to delete customer/subscription (`#7853 <https://github.com/readthedocs/readthedocs.org/pull/7853>`__)
+* `@humitos <https://github.com/humitos>`__: Save builder when the build is concurrency limited (`#7851 <https://github.com/readthedocs/readthedocs.org/pull/7851>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove some feature flags (`#7846 <https://github.com/readthedocs/readthedocs.org/pull/7846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix conf.py for external versions (`#7845 <https://github.com/readthedocs/readthedocs.org/pull/7845>`__)
+* `@humitos <https://github.com/humitos>`__: Metric tasks for community (`#7841 <https://github.com/readthedocs/readthedocs.org/pull/7841>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 03 (`#7840 <https://github.com/readthedocs/readthedocs.org/pull/7840>`__)
+* `@humitos <https://github.com/humitos>`__: Speed up concurrent builds by limited to 5 hours ago (`#7839 <https://github.com/readthedocs/readthedocs.org/pull/7839>`__)
+* `@humitos <https://github.com/humitos>`__: Match Redis version with production (`#7838 <https://github.com/readthedocs/readthedocs.org/pull/7838>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Option to Enable External Builds Through Project Update API (`#7834 <https://github.com/readthedocs/readthedocs.org/pull/7834>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: mention the version warning is for sphinx only (`#7832 <https://github.com/readthedocs/readthedocs.org/pull/7832>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Hide design docs from documentation (`#7826 <https://github.com/readthedocs/readthedocs.org/pull/7826>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update docs about preview from pull/merge requests (`#7823 <https://github.com/readthedocs/readthedocs.org/pull/7823>`__)
+* `@humitos <https://github.com/humitos>`__: Register MetricsTask to send metrics to AWS CloudWatch (`#7817 <https://github.com/readthedocs/readthedocs.org/pull/7817>`__)
+* `@humitos <https://github.com/humitos>`__: Use S3 (MinIO emulator) as storage backend (`#7812 <https://github.com/readthedocs/readthedocs.org/pull/7812>`__)
+* `@zachdeibert <https://github.com/zachdeibert>`__: Cloudflare to Cloudflare CNAME Records (`#7801 <https://github.com/readthedocs/readthedocs.org/pull/7801>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for `/organizations/` endpoint in commercial (`#7800 <https://github.com/readthedocs/readthedocs.org/pull/7800>`__)
+* `@stsewd <https://github.com/stsewd>`__: Privacy Levels: migrate protected projects to private (`#7608 <https://github.com/readthedocs/readthedocs.org/pull/7608>`__)
+* `@pawamoy <https://github.com/pawamoy>`__: Don't lose python/name tags values in mkdocs.yml (`#7507 <https://github.com/readthedocs/readthedocs.org/pull/7507>`__)
+* `@stsewd <https://github.com/stsewd>`__: Install latest version of setuptools (`#7290 <https://github.com/readthedocs/readthedocs.org/pull/7290>`__)
+* `@humitos <https://github.com/humitos>`__: Implementation of APIv3 (`#4863 <https://github.com/readthedocs/readthedocs.org/pull/4863>`__)
+
 Version 5.8.5
 -------------
 

@@ -2,13 +2,12 @@
 
 import os
 
-from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.shortcuts import get_object_or_404
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.tasks import remove_dirs
 from readthedocs.builds.models import Version
+from readthedocs.storage import build_environment_storage
 
 
 def wipe_version_via_slugs(version_slug, project_slug):
@@ -28,5 +27,4 @@ def wipe_version_via_slugs(version_slug, project_slug):
         broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
 
     # Delete the cache environment from storage
-    storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-    storage.delete(version.get_storage_environment_cache_path())
+    build_environment_storage.delete(version.get_storage_environment_cache_path())

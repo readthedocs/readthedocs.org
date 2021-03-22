@@ -53,7 +53,7 @@ clean:
 	rm -rf $(BUILDDIR)/*
 
 auto:
-	sphinx-autobuild -p 8888 $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	sphinx-autobuild --port 8888 $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

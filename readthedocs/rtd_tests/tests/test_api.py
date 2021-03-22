@@ -26,7 +26,6 @@ from readthedocs.api.v2.views.integrations import (
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
-    GITLAB_MERGE_REQUEST_OPEN,
     GITLAB_MERGE_REQUEST_REOPEN,
     GITLAB_MERGE_REQUEST_UPDATE,
     GITLAB_NULL_HASH,
@@ -37,10 +36,21 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import (
+    BUILD_STATE_CLONING,
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_DUPLICATED,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.projects.models import (
     APIProject,
     EnvironmentVariable,
@@ -54,6 +64,11 @@ eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
+
+    def setUp(self):
+        self.user = User.objects.get(username='eric')
+        self.project = get(Project, users=[self.user])
+        self.version = self.project.versions.get(slug=LATEST)
 
     def test_make_build(self):
         """Test that a superuser can use the API."""
@@ -81,6 +96,47 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
+
+    def test_reset_build(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_CLONING,
+            status=BUILD_STATUS_DUPLICATED,
+            success=False,
+            output='Output',
+            error='Error',
+            exit_code=9,
+            builder='Builder',
+            cold_storage=True,
+        )
+        command = get(
+            BuildCommandResult,
+            build=build,
+        )
+        build.commands.add(command)
+
+        self.assertEqual(build.commands.count(), 1)
+
+        client = APIClient()
+        client.force_login(self.user)
+        r = client.post(reverse('build-reset', args=(build.pk,)))
+
+        self.assertEqual(r.status_code, 204)
+        build.refresh_from_db()
+        self.assertEqual(build.project, self.project)
+        self.assertEqual(build.version, self.version)
+        self.assertEqual(build.state, BUILD_STATE_TRIGGERED)
+        self.assertEqual(build.status, '')
+        self.assertTrue(build.success)
+        self.assertEqual(build.output, '')
+        self.assertEqual(build.error, '')
+        self.assertIsNone(build.exit_code)
+        self.assertEqual(build.builder, '')
+        self.assertFalse(build.cold_storage)
+        self.assertEqual(build.commands.count(), 0)
+
 
     def test_api_does_not_have_private_config_key_superuser(self):
         client = APIClient()
@@ -649,8 +705,15 @@ class APITests(TestCase):
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider='github')
         user = get(User)
+
         for _ in range(20):
-            get(RemoteRepository, users=[user], account=account)
+            repo = get(RemoteRepository)
+            get(
+                RemoteRepositoryRelation,
+                remote_repository=repo,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -664,7 +727,13 @@ class APITests(TestCase):
         account = get(SocialAccount, provider='github')
         user = get(User)
         for _ in range(30):
-            get(RemoteOrganization, users=[user], account=account)
+            org = get(RemoteOrganization)
+            get(
+                RemoteOrganizationRelation,
+                remote_organization=org,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -761,18 +830,33 @@ class APIImportTests(TestCase):
         user_a = get(User, password='test')
         user_b = get(User, password='test')
         user_c = get(User, password='test')
-        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        org_a = get(RemoteOrganization)
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=org_a,
+            user=user_a,
+            account=account_a
+        )
         repo_a = get(
             RemoteRepository,
-            users=[user_a],
             organization=org_a,
-            account=account_a,
         )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_a,
+            user=user_a,
+            account=account_a
+        )
+
         repo_b = get(
             RemoteRepository,
-            users=[user_b],
             organization=None,
-            account=account_b,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_b,
+            user=user_b,
+            account=account_b
         )
 
         client.force_authenticate(user=user_a)
