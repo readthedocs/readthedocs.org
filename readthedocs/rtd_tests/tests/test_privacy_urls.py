@@ -382,6 +382,7 @@ class APIMixin(URLAccessMixin):
         }
         self.response_data = {
             'build-concurrent': {'status_code': 403},
+            'build-reset': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},

@@ -277,6 +277,17 @@ class BuildViewSet(UserSelectViewSet):
                     )
         return Response(data)
 
+    @decorators.action(
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['post'],
+    )
+    def reset(self, request, **kwargs):
+        """Reset the build so it can be re-used when re-trying."""
+        instance = self.get_object()
+        instance.reset()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BuildCommandViewSet(UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]

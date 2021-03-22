@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
@@ -629,6 +629,25 @@ class TestBadges(TestCase):
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertContains(res, 'passing')
+        self.assertEqual(res['Content-Type'], 'image/svg+xml')
+
+    def test_ignore_duplicated_build(self):
+        """Ignore builds marked as duplicate from the badge status."""
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+        )
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            status=BUILD_STATUS_DUPLICATED,
+        )
         res = self.client.get(self.badge_url, {'version': self.version.slug})
         self.assertContains(res, 'passing')
         self.assertEqual(res['Content-Type'], 'image/svg+xml')

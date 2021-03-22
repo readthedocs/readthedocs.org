@@ -26,7 +26,7 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, BUILD_STATUS_DUPLICATED
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -177,10 +177,13 @@ class ProjectBadgeView(View):
             ).first()
 
         if version:
-            last_build = version.builds.filter(
-                type='html',
-                state='finished',
-            ).order_by('-date').first()
+            last_build = (
+                version.builds
+                .filter(type='html', state='finished')
+                .exclude(status=BUILD_STATUS_DUPLICATED)
+                .order_by('-date')
+                .first()
+            )
             if last_build:
                 if last_build.success:
                     status = self.STATUS_PASSING
