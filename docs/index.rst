@@ -248,5 +248,3 @@ of Read the Docs and the larger software documentation ecosystem.
    sponsors
 
    commercial/index
-
-   custom_installs/index

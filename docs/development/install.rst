@@ -4,7 +4,7 @@ Install local development instance
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <Core team standards>` that are adhered to by the core development team while
+These are development setup and :ref:`standards <development/install:Core team standards>` that are adhered to by the core development team while
 developing Read the Docs and related services. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
 
@@ -61,14 +61,14 @@ Set up your environment
 #. add read permissions to the storage backend:
 
    * go to http://localhost:9000/ (MinIO S3 storage backend)
-   * login as admin / password
+   * login as ``admin`` / ``password``
    * click "..." next to the bucket name and then "Edit Policy"
    * give "Read Only" access on all the buckets (``static`` and ``media``)
 
-.. note::
+   .. note::
 
-   ``media`` bucket may be created after the first build is finished.
-   You will need to repeat this step after that.
+      ``media`` bucket may be created after the first build is finished.
+      You will need to repeat this step after that.
 
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
