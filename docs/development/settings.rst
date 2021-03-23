@@ -46,13 +46,6 @@ Default: :djangosetting:`RTD_INTERSPHINX_URL`
 This is the domain that is used to fetch the intersphinx inventory file.
 If not set explicitly this is the ``PRODUCTION_DOMAIN``.
 
-MULTIPLE_APP_SERVERS
---------------------
-
-Default: :djangosetting:`MULTIPLE_APP_SERVERS`
-
-This is a list of application servers that built documentation is copied to. This allows you to run an independent build server, and then have it rsync your built documentation across multiple front end documentation/app servers.
-
 DEFAULT_PRIVACY_LEVEL
 ---------------------
 
