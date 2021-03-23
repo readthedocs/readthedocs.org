@@ -150,6 +150,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_front_slash(self):
         domain = 'pip.dev.readthedocs.io'
 
+        # The HttpRequest needs to be created manually,
+        # because the RequestFactory strips leading /'s
         request = HttpRequest()
         request.path = '//'
         request.META = {'HTTP_HOST': domain}
