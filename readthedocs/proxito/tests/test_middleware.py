@@ -1,6 +1,7 @@
 # Copied from test_middleware.py
 
 import pytest
+from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -145,6 +146,39 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         request = self.request(self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 400)
+
+    def test_front_slash(self):
+        domain = 'pip.dev.readthedocs.io'
+
+        request = HttpRequest()
+        request.path = '//'
+        request.META = {'HTTP_HOST': domain}
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '///'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '////'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '////?foo'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/%3Ffoo',  # Encoded because it's in the middleware
+        )
 
 
 @pytest.mark.proxito
