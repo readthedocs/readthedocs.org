@@ -5,6 +5,7 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -20,7 +21,11 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
+from ..permissions import (
+    APIPermission,
+    APIRestrictedPermission,
+    IsOwner,
+)
 from ..serializers import (
     BuildAdminSerializer,
     BuildCommandSerializer,
@@ -272,6 +277,17 @@ class BuildViewSet(UserSelectViewSet):
                     )
         return Response(data)
 
+    @decorators.action(
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['post'],
+    )
+    def reset(self, request, **kwargs):
+        """Reset the build so it can be re-used when re-trying."""
+        instance = self.get_object()
+        instance.reset()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BuildCommandViewSet(UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
@@ -298,10 +314,10 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return (
             self.model.objects.api(self.request.user).filter(
-                account__provider__in=[
+                remote_organization_relations__account__provider__in=[
                     service.adapter.provider_id for service in registry
-                ],
-            )
+                ]
+            ).distinct()
         )
 
 
@@ -313,7 +329,21 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
-        query = self.model.objects.api(self.request.user)
+        if not self.request.user.is_authenticated:
+            return self.model.objects.none()
+
+        # TODO: Optimize this query after deployment
+        query = self.model.objects.api(self.request.user).annotate(
+            admin=Case(
+                When(
+                    remote_repository_relations__user=self.request.user,
+                    remote_repository_relations__admin=True,
+                    then=Value(True)
+                ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
         full_name = self.request.query_params.get('full_name')
         if full_name is not None:
             query = query.filter(full_name__icontains=full_name)
@@ -324,18 +354,20 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         own = self.request.query_params.get('own', None)
         if own is not None:
             query = query.filter(
-                account__provider=own,
+                remote_repository_relations__account__provider=own,
                 organization=None,
             )
 
         query = query.filter(
-            account__provider__in=[
+            remote_repository_relations__account__provider__in=[
                 service.adapter.provider_id for service in registry
             ],
-        )
+        ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related('organization')
+        query = query.select_related('organization').order_by(
+            'organization__name', 'full_name'
+        )
 
         return query
 

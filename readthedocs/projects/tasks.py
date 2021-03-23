@@ -45,6 +45,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
 from readthedocs.doc_builder.config import load_yaml_config
@@ -72,7 +73,7 @@ from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
-from readthedocs.storage import build_media_storage, build_environment_storage
+from readthedocs.storage import build_environment_storage, build_media_storage
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -670,6 +671,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         Return True if successful.
         """
+        # Reset build only if it has some commands already.
+        if self.build.get('commands'):
+            api_v2.build(self.build['id']).reset.post()
+
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
         else:
@@ -1341,7 +1346,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         },
     )
     try:
-        changed_files = _create_imported_files(
+        _create_imported_files(
             version=version,
             commit=commit,
             build=build,
@@ -1349,7 +1354,6 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
             search_ignore=search_ignore,
         )
     except Exception:
-        changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
@@ -1358,7 +1362,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         log.exception('Failed during SphinxDomain creation')
 
     try:
-        _sync_imported_files(version, build, changed_files)
+        _sync_imported_files(version, build)
     except Exception:
         log.exception('Failed during ImportedFile syncing')
 
@@ -1398,10 +1402,11 @@ def _create_intersphinx_data(version, commit, build):
             log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
 
     # These classes are copied from Sphinx
-    # https://git.io/fhFbI
+    # https://github.com/sphinx-doc/sphinx/blob/d79d041f4f90818e0b495523fdcc28db12783caf/sphinx/ext/intersphinx.py#L400-L403  # noqa
     class MockConfig:
         intersphinx_timeout = None
         tls_verify = False
+        user_agent = None
 
     class MockApp:
         srcdir = ''
@@ -1530,56 +1535,21 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
     :param version: Version instance
     :param commit: Commit that updated path
     :param build: Build id
-    :returns: paths of changed files
-    :rtype: set
     """
-    changed_files = set()
-
     # Re-create all objects from the new build of the version
     storage_path = version.project.get_storage_path(
         type_='html', version_slug=version.slug, include_file=False
     )
     for root, __, filenames in build_media_storage.walk(storage_path):
         for filename in filenames:
-            if filename.endswith('.html'):
-                model_class = HTMLFile
-            elif version.project.cdn_enabled:
-                # We need to track all files for CDN enabled projects so the files can be purged
-                model_class = ImportedFile
-            else:
-                # For projects not behind a CDN, we don't care about non-HTML
+            # We don't care about non-HTML files
+            if not filename.endswith('.html'):
                 continue
 
             full_path = build_media_storage.join(root, filename)
 
             # Generate a relative path for storage similar to os.path.relpath
             relpath = full_path.replace(storage_path, '', 1).lstrip('/')
-
-            try:
-                md5 = hashlib.md5(build_media_storage.open(full_path, 'rb').read()).hexdigest()
-            except Exception:
-                log.exception(
-                    'Error while generating md5 for %s:%s:%s. Don\'t stop.',
-                    version.project.slug,
-                    version.slug,
-                    relpath,
-                )
-                md5 = ''
-            # Keep track of changed files to be purged in the CDN
-            obj = (
-                model_class.objects
-                .filter(project=version.project, version=version, path=relpath)
-                .order_by('-modified_date')
-                .first()
-            )
-            if obj and md5 and obj.md5 != md5:
-                changed_files.add(
-                    resolve_path(
-                        version.project,
-                        filename=relpath,
-                        version_slug=version.slug,
-                    ),
-                )
 
             page_rank = 0
             # Last pattern to match takes precedence
@@ -1598,37 +1568,31 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
                     break
 
             # Create imported files from new build
-            model_class.objects.create(
+            HTMLFile.objects.create(
                 project=version.project,
                 version=version,
                 path=relpath,
                 name=filename,
-                md5=md5,
                 rank=page_rank,
                 commit=commit,
                 build=build,
                 ignore=ignore,
             )
 
-    # This signal is used for clearing the CDN,
-    # so send it as soon as we have the list of changed files
+    # This signal is used for purging the CDN.
     files_changed.send(
         sender=Project,
         project=version.project,
         version=version,
-        files=changed_files,
     )
 
-    return changed_files
 
-
-def _sync_imported_files(version, build, changed_files):
+def _sync_imported_files(version, build):
     """
     Sync/Update/Delete ImportedFiles objects of this version.
 
     :param version: Version instance
     :param build: Build id
-    :param changed_files: path of changed files
     """
 
     # Index new HTMLFiles to ElasticSearch
@@ -1915,8 +1879,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param status: build status failed, pending, or success to be sent.
     """
     # TODO: Send build status for BitBucket.
-    service = None
-    success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
@@ -1925,48 +1887,56 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+        users = build.project.users.all()
 
-        # First, try using user who imported the project's account
         try:
-            service = service_class(
-                build.project.remote_repository.users.first(),
-                build.project.remote_repository.account
+            remote_repository = build.project.remote_repository
+            remote_repository_relations = (
+                remote_repository.remote_repository_relations.filter(
+                    account__isnull=False,
+                    # Use ``user_in=`` instead of ``user__projects=`` here
+                    # because User's are not related to Project's directly in
+                    # Read the Docs for Business
+                    user__in=AdminPermission.members(build.project),
+                ).select_related('account', 'user').only('user', 'account')
             )
+
+            # Try using any of the users' maintainer accounts
+            # Try to loop through all remote repository relations for the projects users
+            for relation in remote_repository_relations:
+                service = service_class(relation.user, relation.account)
+                # Send status report using the API.
+                success = service.send_build_status(
+                    build=build,
+                    commit=commit,
+                    state=status,
+                    link_to_build=link_to_build,
+                )
+
+                if success:
+                    log.info(
+                        'Build status report sent correctly. '
+                        'project=%s build=%s status=%s commit=%s user=%s',
+                        build.project.slug,
+                        build.pk,
+                        status,
+                        commit,
+                        relation.user.username,
+                    )
+                    return True
 
         except RemoteRepository.DoesNotExist:
             log.warning(
                 'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
             )
-
-        if service is not None:
-            # Send status report using the API.
-            success = service.send_build_status(
-                build=build,
-                commit=commit,
-                state=status,
-                link_to_build=link_to_build,
-            )
-
-        if success:
-            log.info(
-                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
-                build.project.slug,
-                build.pk,
-                status,
-                commit,
-            )
-            return True
-
-        # Try using any of the users' maintainer accounts
-        # Try to loop through all project users to get their social accounts
-        users = build.project.users.all()
-        for user in users:
-            user_accounts = service_class.for_user(user)
-            # Try to loop through users all social accounts to send a successful request
-            for account in user_accounts:
-                if account.provider_name == provider_name:
-                    success = account.send_build_status(build, commit, status)
+            # Try to send build status for projects with no RemoteRepository
+            for user in users:
+                services = service_class.for_user(user)
+                # Try to loop through services for users all social accounts
+                # to send successful build status
+                for service in services:
+                    success = service.send_build_status(build, commit, status)
                     if success:
                         log.info(
                             'Build status report sent correctly using an user account. '

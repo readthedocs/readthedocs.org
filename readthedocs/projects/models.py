@@ -1370,7 +1370,7 @@ class ImportedFile(models.Model):
     # of 4096 characters for most filesystems (including EXT4).
     # https://github.com/rtfd/readthedocs.org/issues/5061
     path = models.CharField(_('Path'), max_length=4096)
-    md5 = models.CharField(_('MD5 checksum'), max_length=255)
+    md5 = models.CharField(_('MD5 checksum'), max_length=255, null=True)
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -1572,7 +1572,6 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     CLEAN_AFTER_BUILD = 'clean_after_build'
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
@@ -1593,11 +1592,9 @@ class Feature(models.Model):
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    INSTALL_LATEST_SETUPTOOLS = 'install_latest_setuptoold'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1636,10 +1633,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _('Try alternative method of posting large data'),
-        ),
-        (
-            SHARE_SPHINX_DOCTREE,
-            _('Use shared directory for doctrees'),
         ),
         (
             CLEAN_AFTER_BUILD,
@@ -1704,10 +1697,6 @@ class Feature(models.Model):
         ),
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (
-            DONT_INSTALL_DOCUTILS,
-            _('Do not install docutils as requirement for build documentation'),
-        ),
-        (
             DEFAULT_TO_MKDOCS_0_17_3,
             _('Install mkdocs 0.17.3 by default'),
         ),
@@ -1715,10 +1704,6 @@ class Feature(models.Model):
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
-            INSTALL_LATEST_SETUPTOOLS,
-            _('Install latest version of setuptools'),
         ),
 
         # Search related features.
