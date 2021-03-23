@@ -1,75 +1,21 @@
-Development Setup and Standards
-===============================
+Install local development instance
+==================================
 
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and standards that are adhered to by the core development team while
+These are development setup and :ref:`standards <Core team standards>` that are adhered to by the core development team while
 developing Read the Docs and related services. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
 
+.. note::
 
-Core team standards
--------------------
-
-Core team members expect to have a development environment that closely
-approximates our production environment, in order to spot bugs and logical
-inconsistencies before they make their way to production.
-
-This solution gives us many features that allows us to have an
-environment closer to production:
-
-Celery runs as a separate process
-    Avoids masking bugs that could be introduced by Celery tasks in a race conditions.
-
-Celery runs multiple processes
-    We run celery with multiple worker processes to discover race conditions
-    between tasks.
-
-Docker for builds
-    Docker is used for a build backend instead of the local host build backend.
-    There are a number of differences between the two execution methods in how
-    processes are executed, what is installed, and what can potentially leak
-    through and mask bugs -- for example, local SSH agent allowing code check
-    not normally possible.
-
-Serve documentation under a subdomain
-    There are a number of resolution bugs and cross-domain behavior that can
-    only be caught by using `USE_SUBDOMAIN` setting.
-
-PostgreSQL as a database
-    It is recommended that Postgres be used as the default database whenever
-    possible, as SQLite has issues with our Django version and we use Postgres
-    in production.  Differences between Postgres and SQLite should be masked for
-    the most part however, as Django does abstract database procedures, and we
-    don't do any Postgres-specific operations yet.
-
-Celery is isolated from database
-    Celery workers on our build servers do not have database access and need
-    to be written to use API access instead.
-
-Use NGINX as web server
-    All the site is served via NGINX with the ability to change some configuration locally.
-
-MinIO as Django storage backend
-    All static and media files are served using Minio --an emulator of S3,
-    which is the one used in production.
-
-Serve documentation via El Proxito
-    Documentation is proxied by NGINX to El Proxito and proxied back to NGINX to be served finally.
-    El Proxito is a small application put in front of the documentation to serve files
-    from the Django Storage Backend.
-
-Search enabled by default
-    Elasticsearch is properly configured and enabled by default.
-    All the documentation indexes are updated after a build is finished.
+   We do not recommend to follow this guide to deploy an instance of Read the Docs for production usage.
+   Take into account that this setup is only useful for developing purposes.
 
 
 Set up your environment
 -----------------------
-
-After cloning ``readthedocs.org`` repository, you need to
-
 
 #. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
 
@@ -112,7 +58,17 @@ After cloning ``readthedocs.org`` repository, you need to
 
       inv docker.up  --init  # --init is only needed the first time
 
-#. go to http://localhost:9000/ (MinIO S3 storage backend), click "..." and then "Edit Policy" and give "Read Only" access on all the buckets (``static`` and ``media``).
+#. add read permissions to the storage backend:
+
+   * go to http://localhost:9000/ (MinIO S3 storage backend)
+   * login as admin / password
+   * click "..." next to the bucket name and then "Edit Policy"
+   * give "Read Only" access on all the buckets (``static`` and ``media``)
+
+.. note::
+
+   ``media`` bucket may be created after the first build is finished.
+   You will need to repeat this step after that.
 
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
@@ -137,7 +93,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.shell``
     Opens a shell in a container (web by default).
 
-    * ``--running`` the shell is open in a container that it's already running
+    * ``--no-running`` spins up a new container and open a shell
     * ``--container`` specifies in which container the shell is open
 
 ``inv docker.manage {command}``
@@ -253,3 +209,59 @@ For others, the webhook will simply fail to connect when there are new commits t
 * Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
   ``http://community.dev.readthedocs.io/admin/socialaccount/socialapp/``.
   Make sure to apply it to the "Site".
+
+
+Core team standards
+-------------------
+
+Core team members expect to have a development environment that closely
+approximates our production environment, in order to spot bugs and logical
+inconsistencies before they make their way to production.
+
+This solution gives us many features that allows us to have an
+environment closer to production:
+
+Celery runs as a separate process
+    Avoids masking bugs that could be introduced by Celery tasks in a race conditions.
+
+Celery runs multiple processes
+    We run celery with multiple worker processes to discover race conditions
+    between tasks.
+
+Docker for builds
+    Docker is used for a build backend instead of the local host build backend.
+    There are a number of differences between the two execution methods in how
+    processes are executed, what is installed, and what can potentially leak
+    through and mask bugs -- for example, local SSH agent allowing code check
+    not normally possible.
+
+Serve documentation under a subdomain
+    There are a number of resolution bugs and cross-domain behavior that can
+    only be caught by using `USE_SUBDOMAIN` setting.
+
+PostgreSQL as a database
+    It is recommended that Postgres be used as the default database whenever
+    possible, as SQLite has issues with our Django version and we use Postgres
+    in production.  Differences between Postgres and SQLite should be masked for
+    the most part however, as Django does abstract database procedures, and we
+    don't do any Postgres-specific operations yet.
+
+Celery is isolated from database
+    Celery workers on our build servers do not have database access and need
+    to be written to use API access instead.
+
+Use NGINX as web server
+    All the site is served via NGINX with the ability to change some configuration locally.
+
+MinIO as Django storage backend
+    All static and media files are served using Minio --an emulator of S3,
+    which is the one used in production.
+
+Serve documentation via El Proxito
+    Documentation is proxied by NGINX to El Proxito and proxied back to NGINX to be served finally.
+    El Proxito is a small application put in front of the documentation to serve files
+    from the Django Storage Backend.
+
+Search enabled by default
+    Elasticsearch is properly configured and enabled by default.
+    All the documentation indexes are updated after a build is finished.

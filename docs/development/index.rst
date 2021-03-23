@@ -8,7 +8,7 @@ for development or taking the open source Read the Docs codebase for your own cu
    :maxdepth: 1
 
    architecture
-   standards
+   install
    design
    docs
    front-end

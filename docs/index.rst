@@ -195,7 +195,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`Contributing <contribute>` |
-  :doc:`Development setup </development/standards>` |
+  :doc:`Development setup </development/install>` |
   :doc:`roadmap` |
   :doc:`Code of conduct <code-of-conduct>`
 
