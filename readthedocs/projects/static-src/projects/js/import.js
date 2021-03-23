@@ -106,6 +106,7 @@ function Project(instance, view) {
     self.full_name = ko.observable(instance.full_name);
     self.description = ko.observable(instance.description);
     self.vcs = ko.observable(instance.vcs);
+    self.default_branch = ko.observable(instance.default_branch);
     self.organization = ko.observable(instance.organization);
     self.html_url = ko.observable(instance.html_url);
     self.clone_url = ko.observable(instance.clone_url);
@@ -118,7 +119,6 @@ function Project(instance, view) {
         }
     });
     self.private = ko.observable(instance.private);
-    self.active = ko.observable(instance.active);
     self.admin = ko.observable(instance.admin);
     self.is_locked = ko.computed(function () {
         if (view.has_sso_enabled) {
@@ -135,6 +135,7 @@ function Project(instance, view) {
                 name: self.name(),
                 repo: self.clone_url(),
                 repo_type: self.vcs(),
+                default_branch: self.default_branch(),
                 description: self.description(),
                 project_url: self.html_url(),
                 remote_repository: self.id(),

@@ -13,7 +13,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
-from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -27,7 +26,7 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, BUILD_STATUS_DUPLICATED
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -37,6 +36,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
+from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin
@@ -54,7 +54,11 @@ class ProjectTagIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        queryset = queryset.exclude(users__profile__banned=True)
+
+        # Filters out projects from banned users
+        # This is disabled for performance reasons
+        # https://github.com/readthedocs/readthedocs.org/pull/7671
+        # queryset = queryset.exclude(users__profile__banned=True)
 
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
@@ -173,10 +177,13 @@ class ProjectBadgeView(View):
             ).first()
 
         if version:
-            last_build = version.builds.filter(
-                type='html',
-                state='finished',
-            ).order_by('-date').first()
+            last_build = (
+                version.builds
+                .filter(type='html', state='finished')
+                .exclude(status=BUILD_STATUS_DUPLICATED)
+                .order_by('-date')
+                .first()
+            )
             if last_build:
                 if last_build.success:
                     status = self.STATUS_PASSING
@@ -361,7 +368,6 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             uip=get_client_ip(request),
         )
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
             type_=type_,
             version_slug=version_slug,
@@ -369,7 +375,7 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
         )
 
         # URL without scheme and domain to perform an NGINX internal redirect
-        url = storage.url(storage_path)
+        url = build_media_storage.url(storage_path)
         url = urlparse(url)._replace(scheme='', netloc='').geturl()
 
         return self._serve_docs(

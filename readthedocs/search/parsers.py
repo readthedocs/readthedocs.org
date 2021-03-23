@@ -7,19 +7,22 @@ import re
 from urllib.parse import urlparse
 
 import orjson as json
-from django.conf import settings
-from django.core.files.storage import get_storage_class
 from selectolax.parser import HTMLParser
+
+from readthedocs.storage import build_media_storage
 
 log = logging.getLogger(__name__)
 
 
 class BaseParser:
 
+    # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
+    max_inner_documents = 10000
+
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
-        self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        self.storage = build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""
@@ -140,6 +143,21 @@ class BaseParser:
                 except Exception as e:
                     log.info('Unable to index section: %s', str(e))
 
+    def _get_sections(self, title, body):
+        """Get the first `self.max_inner_documents` sections."""
+        iterator = self._parse_sections(title=title, body=body)
+        sections = list(itertools.islice(iterator, 0, self.max_inner_documents))
+        try:
+            next(iterator)
+        except StopIteration:
+            pass
+        else:
+            log.warning(
+                'Limit of inner sections exceeded. project=%s version=%s limit=%d',
+                self.project.slug, self.version.slug, self.max_inner_documents,
+            )
+        return sections
+
     def _clean_body(self, body):
         """
         Removes nodes with irrelevant content before parsing its sections.
@@ -148,11 +166,13 @@ class BaseParser:
 
            This will mutate the original `body`.
         """
-        # Remove all navigation nodes
         nodes_to_be_removed = itertools.chain(
+            # Navigation nodes
             body.css('nav'),
             body.css('[role=navigation]'),
             body.css('[role=search]'),
+            # Permalinks
+            body.css('.headerlink'),
         )
         for node in nodes_to_be_removed:
             node.decompose()
@@ -363,7 +383,7 @@ class SphinxParser(BaseParser):
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
-                sections = list(self._parse_sections(title=title, body=body.body))
+                sections = self._get_sections(title=title, body=body.body)
             except Exception as e:
                 log.info('Unable to index sections for: %s', fjson_path)
 
@@ -423,10 +443,15 @@ class SphinxParser(BaseParser):
                 "domain-id-1": "docstrings for the domain-id-1",
                 "domain-id-2": "docstrings for the domain-id-2",
             }
+
+        .. note::
+
+           Only the first `self.max_inner_documents` domains are returned.
         """
 
         domain_data = {}
         dl_tags = body.css('dl')
+        number_of_domains = 0
 
         for dl_tag in dl_tags:
 
@@ -441,6 +466,13 @@ class SphinxParser(BaseParser):
                     if id_:
                         docstrings = self._parse_domain_tag(desc)
                         domain_data[id_] = docstrings
+                        number_of_domains += 1
+                    if number_of_domains >= self.max_inner_documents:
+                        log.warning(
+                            'Limit of inner domains exceeded. project=%s version=%s limit=%i',
+                            self.project.slug, self.version.slug, self.max_inner_documents,
+                        )
+                        break
                 except Exception:
                     log.exception('Error parsing docstring for domains')
 
@@ -497,7 +529,7 @@ class MkDocsParser(BaseParser):
         sections = []
         if body:
             title = self._get_page_title(body, html) or page
-            sections = list(self._parse_sections(title, body))
+            sections = self._get_sections(title=title, body=body)
         else:
             log.info(
                 'Page doesn\'t look like it has valid content, skipping. '

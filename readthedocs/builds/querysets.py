@@ -1,12 +1,14 @@
 """Build and Version QuerySet classes."""
+import datetime
 import logging
 
-from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.projects.models import Project
 
 from .constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
 
@@ -134,11 +136,20 @@ class BuildQuerySetBase(models.QuerySet):
 
         - translation: concurrent builds of all the translations + builds of main project
 
+        .. note::
+
+          If the project/translation belongs to an organization, we count all concurrent
+          builds for all the projects from the organization.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
         limit_reached = False
-        query = Q(project__slug=project.slug)
+        query = Q(
+            project__slug=project.slug,
+            # Limit builds to 5 hours ago to speed up the query
+            date__gte=timezone.now() - datetime.timedelta(hours=5),
+        )
 
         if project.main_language_project:
             # Project is a translation, counts all builds of all the translations
@@ -149,12 +160,18 @@ class BuildQuerySetBase(models.QuerySet):
             # The project has translations, counts their builds as well
             query |= Q(project__in=project.translations.all())
 
+        # If the project belongs to an organization, count all the projects
+        # from this organization as well
+        organization = project.organizations.first()
+        if organization:
+            query |= Q(project__in=organization.projects.all())
+
         concurrent = (
             self.filter(query)
             .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        ).count()
+        ).distinct().count()
 
-        max_concurrent = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
+        max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
             'Concurrent builds. project=%s running=%s max=%s',
             project.slug,

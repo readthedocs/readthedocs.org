@@ -8,13 +8,16 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
@@ -41,6 +44,7 @@ from readthedocs.builds.constants import (
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
+    AutomationRuleMatchManager,
     BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
@@ -58,6 +62,7 @@ from readthedocs.builds.utils import (
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
+    get_vcs_url,
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
@@ -68,12 +73,10 @@ from readthedocs.projects.constants import (
     GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITHUB_PULL_REQUEST_URL,
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
-    GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
@@ -83,13 +86,27 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_environment_storage
 
 log = logging.getLogger(__name__)
 
 
-class Version(models.Model):
+class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
+
+    # Overridden from TimeStampedModel just to allow null values.
+    # TODO: remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -194,47 +211,22 @@ class Version(models.Model):
 
     @property
     def vcs_url(self):
-        """
-        Generate VCS (github, gitlab, bitbucket) URL for this version.
+        version_name = self.verbose_name
+        if not self.is_external:
+            if self.slug == STABLE:
+                version_name = self.ref
+            elif self.slug == LATEST:
+                version_name = self.project.get_default_branch()
+            else:
+                version_name = self.slug
+            if 'bitbucket' in self.project.repo:
+                version_name = self.identifier
 
-        Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
-        External Version Example: https://github.com/rtfd/readthedocs.org/pull/99/.
-        """
-        if self.type == EXTERNAL:
-            if 'github' in self.project.repo:
-                user, repo = get_github_username_repo(self.project.repo)
-                return GITHUB_PULL_REQUEST_URL.format(
-                    user=user,
-                    repo=repo,
-                    number=self.verbose_name,
-                )
-            if 'gitlab' in self.project.repo:
-                user, repo = get_gitlab_username_repo(self.project.repo)
-                return GITLAB_MERGE_REQUEST_URL.format(
-                    user=user,
-                    repo=repo,
-                    number=self.verbose_name,
-                )
-            # TODO: Add VCS URL for BitBucket.
-            return ''
-
-        url = ''
-        if self.slug == STABLE:
-            slug_url = self.ref
-        elif self.slug == LATEST:
-            slug_url = self.project.get_default_branch()
-        else:
-            slug_url = self.slug
-
-        if ('github' in self.project.repo) or ('gitlab' in self.project.repo):
-            url = f'/tree/{slug_url}/'
-
-        if 'bitbucket' in self.project.repo:
-            slug_url = self.identifier
-            url = f'/src/{slug_url}'
-
-        # TODO: improve this replacing
-        return self.project.repo.replace('git://', 'https://').replace('.git', '') + url
+        return get_vcs_url(
+            project=self.project,
+            version_type=self.type,
+            version_name=version_name,
+        )
 
     @property
     def last_build(self):
@@ -327,9 +319,7 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        # Remove resources if the version is not external
-        if self.type != EXTERNAL:
-            tasks.clean_project_resources(self.project, self)
+        tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -346,7 +336,7 @@ class Version(models.Model):
     @property
     def supports_wipe(self):
         """Return True if version is not external."""
-        return not self.type == EXTERNAL
+        return self.type != EXTERNAL
 
     @property
     def is_sphinx_type(self):
@@ -420,8 +410,7 @@ class Version(models.Model):
 
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
-        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-        return storage.join(self.project.slug, f'{self.slug}.tar')
+        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -605,7 +594,7 @@ class Build(models.Model):
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
     type = models.CharField(
         _('Type'),
@@ -644,9 +633,31 @@ class Build(models.Model):
     output = models.TextField(_('Output'), default='', blank=True)
     error = models.TextField(_('Error'), default='', blank=True)
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
+
+    # Metadata from were the build happened.
+    # This is also used after the version is deleted.
     commit = models.CharField(
         _('Commit'),
         max_length=255,
+        null=True,
+        blank=True,
+    )
+    version_slug = models.CharField(
+        _('Version slug'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    version_name = models.CharField(
+        _('Version name'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    version_type = models.CharField(
+        _('Version type'),
+        max_length=32,
+        choices=VERSION_TYPES,
         null=True,
         blank=True,
     )
@@ -746,14 +757,18 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
-            # yapf: disable
             if (
-                previous is not None and self._config and
-                self._config == previous.config
+                previous is not None
+                and self._config
+                and self._config == previous.config
             ):
-                # yapf: enable
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
+
+        if self.version:
+            self.version_name = self.version.verbose_name
+            self.version_slug = self.version.slug
+            self.version_type = self.version.type
         super().save(*args, **kwargs)
         self._config_changed = False
 
@@ -785,6 +800,31 @@ class Build(models.Model):
         )
         return full_url
 
+    def get_version_name(self):
+        if self.version:
+            return self.version.verbose_name
+        return self.version_name
+
+    def get_version_slug(self):
+        if self.version:
+            return self.version.verbose_name
+        return self.version_name
+
+    def get_version_type(self):
+        if self.version:
+            return self.version.type
+        return self.version_type
+
+    @property
+    def vcs_url(self):
+        if self.version:
+            return self.version.vcs_url
+        return get_vcs_url(
+            project=self.project,
+            version_type=self.get_version_type(),
+            version_name=self.get_version_name(),
+        )
+
     def get_commit_url(self):
         """Return the commit URL."""
         repo_url = self.project.repo
@@ -797,7 +837,7 @@ class Build(models.Model):
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
-                    number=self.version.verbose_name,
+                    number=self.get_version_name(),
                     commit=self.commit
                 )
             if 'gitlab' in repo_url:
@@ -808,7 +848,7 @@ class Build(models.Model):
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
-                    number=self.version.verbose_name,
+                    number=self.get_version_name(),
                     commit=self.commit
                 )
             # TODO: Add External Version Commit URL for BitBucket.
@@ -859,7 +899,10 @@ class Build(models.Model):
 
     @property
     def is_external(self):
-        return self.version.type == EXTERNAL
+        type = self.version_type
+        if self.version:
+            type = self.version.type
+        return type == EXTERNAL
 
     @property
     def external_version_name(self):
@@ -876,6 +919,24 @@ class Build(models.Model):
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+
+    def reset(self):
+        """
+        Reset the build so it can be re-used when re-trying.
+
+        Dates and states are usually overriden by the build,
+        we care more about deleting the commands.
+        """
+        self.state = BUILD_STATE_TRIGGERED
+        self.status = ''
+        self.success = True
+        self.output = ''
+        self.error = ''
+        self.exit_code = None
+        self.builder = ''
+        self.cold_storage = False
+        self.commands.all().delete()
+        self.save()
 
 
 class BuildCommandResultMixin:
@@ -946,6 +1007,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
+    DELETE_VERSION_ACTION = 'delete-version'
     HIDE_VERSION_ACTION = 'hide-version'
     MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
     MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
@@ -957,7 +1019,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
         (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
+        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
     )
+
+    allowed_actions_on_create = {}
+    allowed_actions_on_delete = {}
 
     project = models.ForeignKey(
         Project,
@@ -1024,18 +1090,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, *args, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :returns: True if the action was performed
         """
-        if version.type == self.version_type:
-            match, result = self.match(version, self.get_match_arg())
-            if match:
-                self.apply_action(version, result)
-                return True
+        if version.type != self.version_type:
+            return False
+
+        match, result = self.match(version, self.get_match_arg())
+        if match:
+            self.apply_action(version, result)
+            AutomationRuleMatch.objects.register_match(
+                rule=self,
+                version=version,
+            )
+            return True
         return False
 
     def match(self, version, match_arg):
@@ -1051,14 +1123,17 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def apply_action(self, version, match_result):
         """
-        Apply the action from allowed_actions.
+        Apply the action from allowed_actions_on_*.
 
         :type version: readthedocs.builds.models.Version
         :param any match_result: Additional context from the match operation
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
-        action = self.allowed_actions.get(self.action)
+        action = (
+            self.allowed_actions_on_create.get(self.action)
+            or self.allowed_actions_on_delete.get(self.action)
+        )
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
@@ -1165,12 +1240,16 @@ class RegexAutomationRule(VersionAutomationRule):
 
     TIMEOUT = 1  # timeout in seconds
 
-    allowed_actions = {
+    allowed_actions_on_create = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
         VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
         VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+    }
+
+    allowed_actions_on_delete = {
+        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
     }
 
     class Meta:
@@ -1211,3 +1290,29 @@ class RegexAutomationRule(VersionAutomationRule):
             'projects_automation_rule_regex_edit',
             args=[self.project.slug, self.pk],
         )
+
+
+class AutomationRuleMatch(TimeStampedModel):
+    rule = models.ForeignKey(
+        VersionAutomationRule,
+        verbose_name=_('Matched rule'),
+        related_name='matches',
+        on_delete=models.CASCADE,
+    )
+
+    # Metadata from when the match happened.
+    version_name = models.CharField(max_length=255)
+    match_arg = models.CharField(max_length=255)
+    action = models.CharField(
+        max_length=255,
+        choices=VersionAutomationRule.ACTIONS,
+    )
+    version_type = models.CharField(
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    objects = AutomationRuleMatchManager()
+
+    class Meta:
+        ordering = ('-modified', '-created')

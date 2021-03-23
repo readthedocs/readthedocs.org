@@ -1,19 +1,20 @@
 """An abstraction over virtualenv and Conda environments."""
 
-import copy
 import codecs
+import copy
 import hashlib
 import itertools
 import json
 import logging
 import os
 import shutil
-import yaml
 
+import yaml
 from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
+from readthedocs.config import PIP, SETUPTOOLS, ParseError
+from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
@@ -21,7 +22,6 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-
 
 log = logging.getLogger(__name__)
 
@@ -106,7 +106,6 @@ class PythonEnvironment:
                 '--upgrade-strategy',
                 'eager',
                 *self._pip_cache_cmd_argument(),
-                *self._pip_extra_args(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -123,12 +122,6 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
-
-    def _pip_extra_args(self):
-        extra_args = []
-        if self.project.has_feature(Feature.USE_NEW_PIP_RESOLVER):
-            extra_args.extend(['--use-feature', '2020-resolver'])
-        return extra_args
 
     def _pip_cache_cmd_argument(self):
         """
@@ -344,21 +337,20 @@ class Virtualenv(PythonEnvironment):
             *self._pip_cache_cmd_argument(),
         ]
 
-        # Install latest pip first,
+        # Install latest pip and setuptools first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version, 'setuptools']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            'Pygments==2.3.1',
-            'setuptools==41.0.1',
-            self.project.get_feature_value(
-                Feature.DONT_INSTALL_DOCUTILS,
-                positive='',
-                negative='docutils==0.14',
-            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
@@ -371,7 +363,11 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative='mkdocs<1.1',
+                    negative=self.project.get_feature_value(
+                        Feature.USE_MKDOCS_LATEST,
+                        positive='mkdocs<1.1',
+                        negative='mkdocs',
+                    ),
                 ),
             )
         else:
@@ -381,16 +377,21 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx',
                     negative='sphinx<2',
                 ),
-                'sphinx-rtd-theme<0.5',
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx-rtd-theme',
+                    negative='sphinx-rtd-theme<0.5',
+                ),
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
                     positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<1.1',
+                    negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
 
         cmd = copy.copy(pip_install_cmd)
-        cmd.extend(self._pip_extra_args())
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
@@ -439,7 +440,6 @@ class Virtualenv(PythonEnvironment):
                 '-m',
                 'pip',
                 'install',
-                *self._pip_extra_args(),
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
                 args += ['--upgrade']
@@ -481,6 +481,23 @@ class Conda(PythonEnvironment):
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
+    def conda_bin_name(self):
+        """
+        Decide whether use ``mamba`` or ``conda`` to create the environment.
+
+        Return ``mamba`` if the project has ``CONDA_USES_MAMBA`` feature and
+        ``conda`` otherwise. This will be the executable name to be used when
+        creating the conda environment.
+
+        ``mamba`` is really fast to solve dependencies and download channel
+        metadata on startup.
+
+        See https://github.com/QuantStack/mamba
+        """
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            return 'mamba'
+        return 'conda'
+
     def _update_conda_startup(self):
         """
         Update ``conda`` before use it for the first time.
@@ -489,6 +506,8 @@ class Conda(PythonEnvironment):
         independently the version of Miniconda that it has installed.
         """
         self.build_env.run(
+            # TODO: use ``self.conda_bin_name()`` once ``mamba`` is installed in
+            # the Docker image
             'conda',
             'update',
             '--yes',
@@ -496,6 +515,19 @@ class Conda(PythonEnvironment):
             '--name=base',
             '--channel=defaults',
             'conda',
+            cwd=self.checkout_path,
+        )
+
+    def _install_mamba(self):
+        self.build_env.run(
+            'conda',
+            'install',
+            '--yes',
+            '--quiet',
+            '--name=base',
+            '--channel=conda-forge',
+            'python=3.7',
+            'mamba',
             cwd=self.checkout_path,
         )
 
@@ -522,8 +554,12 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
+        # TODO: remove it when ``mamba`` is installed in the Docker image
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            self._install_mamba()
+
         self.build_env.run(
-            'conda',
+            self.conda_bin_name(),
             'env',
             'create',
             '--quiet',
@@ -609,6 +645,9 @@ class Conda(PythonEnvironment):
             'pillow',
         ]
 
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            conda_requirements.append('pip')
+
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
@@ -635,7 +674,7 @@ class Conda(PythonEnvironment):
         # Install requirements via ``conda install`` command if they were
         # not appended to the ``environment.yml`` file.
         cmd = [
-            'conda',
+            self.conda_bin_name(),
             'install',
             '--yes',
             '--quiet',
@@ -656,7 +695,6 @@ class Conda(PythonEnvironment):
             'install',
             '-U',
             *self._pip_cache_cmd_argument(),
-            *self._pip_extra_args(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(

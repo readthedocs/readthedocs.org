@@ -60,10 +60,9 @@ when you push to GitHub.
 #. All done.  Commit away and your project will auto-update.
 
 
-.. |build-status| image:: https://img.shields.io/travis/readthedocs/readthedocs.org.svg?style=flat
+.. |build-status| image:: https://circleci.com/gh/readthedocs/readthedocs.org.svg?style=svg
     :alt: build status
-    :scale: 100%
-    :target: https://travis-ci.org/readthedocs/readthedocs.org
+    :target: https://circleci.com/gh/readthedocs/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
@@ -78,6 +77,6 @@ when you push to GitHub.
 License
 -------
 
-`MIT`_ © 2010-2020 Read the Docs, Inc & contributors
+`MIT`_ © 2010-2021 Read the Docs, Inc. & contributors
 
 .. _MIT: LICENSE

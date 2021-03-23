@@ -35,4 +35,4 @@ Advertising-free
    organizations
    single-sign-on
    sharing
-   analytics
+   privacy-level

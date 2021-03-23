@@ -13,9 +13,6 @@ Core team members expect to have a development environment that closely
 approximates our production environment, in order to spot bugs and logical
 inconsistencies before they make their way to production.
 
-Currently, core team members are migrating to a Docker Compose based
-solution that is not yet recommended for contributing to development.
-
 This solution gives us many features that allows us to have an
 environment closer to production:
 
@@ -51,8 +48,8 @@ Celery is isolated from database
 Use NGINX as web server
     All the site is served via NGINX with the ability to change some configuration locally.
 
-Azurite as Django storage backend
-    All static and media files are served using Azurite --an emulator of Azure Blob Storage,
+MinIO as Django storage backend
+    All static and media files are served using Minio --an emulator of S3,
     which is the one used in production.
 
 Serve documentation via El Proxito
@@ -72,6 +69,12 @@ After cloning ``readthedocs.org`` repository, you need to
 
 
 #. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
+
+#. clone the ``readthedocs.org`` repository:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
 #. install the requirements from ``common`` submodule:
 
@@ -106,6 +109,8 @@ After cloning ``readthedocs.org`` repository, you need to
 
       inv docker.up  --init  # --init is only needed the first time
 
+#. go to http://localhost:9000/ (MinIO S3 storage backend), click "..." and then "Edit Policy" and give "Read Only" access on all the buckets (``static`` and ``media``).
+
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
 
@@ -122,8 +127,7 @@ save some work while typing docker compose commands. This section explains these
     Starts all the containers needed to run Read the Docs completely.
 
     * ``--no-search`` can be passed to disable search
-    * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user,
-      setup Azurite containers, etc
+    * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
 
@@ -157,6 +161,10 @@ save some work while typing docker compose commands. This section explains these
        you can run ``inv docker.attach web`` and jump into a pdb session
        (it also works with ipdb and pdb++)
 
+    .. tip::
+
+       You can hit CTRL-p CTRL-p to detach it without stopping the running process.
+
 ``inv docker.test``
     Runs all the test suites inside the container.
 
@@ -167,10 +175,13 @@ save some work while typing docker compose commands. This section explains these
 
     * ``--only-latest`` does not pull ``stable`` and ``testing`` images.
 
+``inv docker.buildassets``
+    Build all the assets and "deploy" them to the storage.
+
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Docker image for the servers is built with the requirements defined in the ``master`` branch.
+The Docker image for the servers is built with the requirements defined in the current checked out branch.
 In case you need to add a new Python dependency while developing,
 you can use the ``common/dockerfiles/entrypoints/common.sh`` script as shortcut.
 
@@ -183,7 +194,7 @@ To do this, add the ``pip`` command required for your dependency in ``common.sh`
    # common.sh
    pip install my-dependency==1.2.3
 
-Once the PR that adds this dependency was merged into ``master``, you can rebuild the image
+Once the PR that adds this dependency was merged, you can rebuild the image
 so the dependency is added to the Docker image itself and it's not needed to be installed
 each time the container spins up.
 

@@ -349,6 +349,8 @@ class DomainAdmin(admin.ModelAdmin):
         'https',
         'count',
         'ssl_status',
+        'created',
+        'modified',
     )
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
@@ -359,7 +361,7 @@ class DomainAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
-    list_display = ('feature_id', 'project_count', 'default_true')
+    list_display = ('feature_id', 'project_count', 'default_true', 'future_default_true')
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)

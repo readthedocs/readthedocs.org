@@ -1,5 +1,6 @@
 from unittest import mock
 
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -10,10 +11,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import (
-    BitbucketWebhook,
     GitHubWebhook,
     GitLabWebhook,
 )
+from readthedocs.oauth.constants import GITHUB, BITBUCKET, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -32,9 +33,12 @@ class GitHubOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitHubService(user=self.user, account=None)
+        self.service = GitHubService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit='1234',
@@ -59,6 +63,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -72,6 +77,8 @@ class GitHubOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testuser/testrepo')
+        self.assertEqual(repo.remote_id, '12345678')
+        self.assertEqual(repo.vcs_provider, GITHUB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
@@ -91,6 +98,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': '',
             'full_name': '',
+            'id': '',
             'description': '',
             'git_url': '',
             'private': True,
@@ -105,6 +113,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_make_organization(self):
         org_json = {
+            'id': 12345,
             'html_url': 'https://github.com/testorg',
             'name': 'Test Org',
             'email': 'test@testorg.org',
@@ -121,13 +130,14 @@ class GitHubOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a GitHub SocialToken does not return a service."""
-        services = GitHubService.for_user(self.user)
+        services = GitHubService.for_user(get(User))
         self.assertEqual(services, [])
 
     def test_multiple_users_same_repo(self):
         repo_json = {
             'name': '',
             'full_name': 'testrepo/multiple',
+            'id': '12345678',
             'description': '',
             'git_url': '',
             'private': False,
@@ -141,13 +151,16 @@ class GitHubOAuthTests(TestCase):
         )
 
         user2 = User.objects.get(pk=2)
-        service = GitHubService(user=user2, account=None)
+        service = GitHubService(
+            user=user2,
+            account=get(SocialAccount, user=self.user)
+        )
         github_project_2 = service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
         )
         self.assertIsInstance(github_project, RemoteRepository)
         self.assertIsInstance(github_project_2, RemoteRepository)
-        self.assertNotEqual(github_project_2, github_project)
+        self.assertEqual(github_project_2, github_project)
 
         github_project_3 = self.service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
@@ -229,6 +242,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -442,101 +456,6 @@ class GitHubOAuthTests(TestCase):
 class BitbucketOAuthTests(TestCase):
 
     fixtures = ['eric', 'test_data']
-    repo_response_data = {
-        'scm': 'hg',
-        'has_wiki': True,
-        'description': 'Site for tutorial101 files',
-        'links': {
-            'watchers': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/watchers',
-            },
-            'commits': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/commits',
-            },
-            'self': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org',
-            },
-            'html': {
-                'href': 'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
-            },
-            'avatar': {
-                'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2012/Nov/28/tutorials.bitbucket.org-logo-1456883302-9_avatar.png',
-            },
-            'forks': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/forks',
-            },
-            'clone': [
-                {
-                    'href': 'https://tutorials@bitbucket.org/tutorials/tutorials.bitbucket.org',
-                    'name': 'https',
-                },
-                {
-                    'href': 'ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org',
-                    'name': 'ssh',
-                },
-            ],
-            'pullrequests': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/pullrequests',
-            },
-        },
-        'fork_policy': 'allow_forks',
-        'name': 'tutorials.bitbucket.org',
-        'language': 'html/css',
-        'created_on': '2011-12-20T16:35:06.480042+00:00',
-        'full_name': 'tutorials/tutorials.bitbucket.org',
-        'has_issues': True,
-        'owner': {
-            'username': 'tutorials',
-            'display_name': 'tutorials account',
-            'uuid': '{c788b2da-b7a2-404c-9e26-d3f077557007}',
-            'links': {
-                'self': {
-                    'href': 'https://api.bitbucket.org/2.0/users/tutorials',
-                },
-                'html': {
-                    'href': 'https://bitbucket.org/tutorials',
-                },
-                'avatar': {
-                    'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2013/Nov/25/tutorials-avatar-1563784409-6_avatar.png',
-                },
-            },
-        },
-        'updated_on': '2014-11-03T02:24:08.409995+00:00',
-        'size': 76182262,
-        'is_private': False,
-        'uuid': '{9970a9b6-2d86-413f-8555-da8e1ac0e542}',
-    }
-
-    team_response_data = {
-        'username': 'teamsinspace',
-        'website': None,
-        'display_name': 'Teams In Space',
-        'uuid': '{61fc5cf6-d054-47d2-b4a9-061ccf858379}',
-        'links': {
-            'self': {
-                'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace',
-            },
-            'repositories': {
-                'href': 'https://api.bitbucket.org/2.0/repositories/teamsinspace',
-            },
-            'html': {'href': 'https://bitbucket.org/teamsinspace'},
-            'followers': {
-                'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/followers',
-            },
-            'avatar': {
-                'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png',
-            },
-            'members': {
-                'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/members',
-            },
-            'following': {
-                'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/following',
-            },
-        },
-        'created_on': '2014-04-08T00:00:14.070969+00:00',
-        'location': None,
-        'type': 'team',
-    }
 
     def setUp(self):
         self.client.login(username='eric', password='test')
@@ -544,9 +463,12 @@ class BitbucketOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://bitbucket.org/testuser/testrepo/'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = BitbucketService(user=self.user, account=None)
+        self.service = BitbucketService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.integration = get(
             GitHubWebhook,
             project=self.project,
@@ -567,9 +489,142 @@ class BitbucketOAuthTests(TestCase):
                 },
                 'url': 'https://readthedocs.io/api/v2/webhook/test/99999999/',
             },]
-    }
+        }
+        self.repo_response_data = {
+            'scm': 'hg',
+            'has_wiki': True,
+            'description': 'Site for tutorial101 files',
+            'links': {
+                'watchers': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/watchers',
+                },
+                'commits': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/commits',
+                },
+                'self': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org',
+                },
+                'html': {
+                    'href': 'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
+                },
+                'avatar': {
+                    'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2012/Nov/28/tutorials.bitbucket.org-logo-1456883302-9_avatar.png',
+                },
+                'forks': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/forks',
+                },
+                'clone': [
+                    {
+                        'href': 'https://tutorials@bitbucket.org/tutorials/tutorials.bitbucket.org',
+                        'name': 'https',
+                    },
+                    {
+                        'href': 'ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org',
+                        'name': 'ssh',
+                    },
+                ],
+                'pullrequests': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/pullrequests',
+                },
+            },
+            'fork_policy': 'allow_forks',
+            'name': 'tutorials.bitbucket.org',
+            'language': 'html/css',
+            'created_on': '2011-12-20T16:35:06.480042+00:00',
+            'full_name': 'tutorials/tutorials.bitbucket.org',
+            'has_issues': True,
+            'owner': {
+                'username': 'tutorials',
+                'display_name': 'tutorials account',
+                'uuid': '{c788b2da-b7a2-404c-9e26-d3f077557007}',
+                'links': {
+                    'self': {
+                        'href': 'https://api.bitbucket.org/2.0/users/tutorials',
+                    },
+                    'html': {
+                        'href': 'https://bitbucket.org/tutorials',
+                    },
+                    'avatar': {
+                        'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2013/Nov/25/tutorials-avatar-1563784409-6_avatar.png',
+                    },
+                },
+            },
+            'updated_on': '2014-11-03T02:24:08.409995+00:00',
+            'size': 76182262,
+            'is_private': False,
+            'uuid': '{9970a9b6-2d86-413f-8555-da8e1ac0e542}',
+            'mainbranch': {
+                'type': 'branch',
+                'name': 'main',
+            },
+        }
+
+        self.team_response_data = {
+            'username': 'teamsinspace',
+            'website': None,
+            'display_name': 'Teams In Space',
+            'uuid': '{61fc5cf6-d054-47d2-b4a9-061ccf858379}',
+            'links': {
+                'self': {
+                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace',
+                },
+                'repositories': {
+                    'href': 'https://api.bitbucket.org/2.0/repositories/teamsinspace',
+                },
+                'html': {'href': 'https://bitbucket.org/teamsinspace'},
+                'followers': {
+                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/followers',
+                },
+                'avatar': {
+                    'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png',
+                },
+                'members': {
+                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/members',
+                },
+                'following': {
+                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/following',
+                },
+            },
+            'created_on': '2014-04-08T00:00:14.070969+00:00',
+            'location': None,
+            'type': 'team',
+        }
 
     def test_make_project_pass(self):
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org,
+            privacy=self.privacy,
+        )
+        self.assertIsInstance(repo, RemoteRepository)
+        self.assertEqual(repo.name, 'tutorials.bitbucket.org')
+        self.assertEqual(repo.full_name, 'tutorials/tutorials.bitbucket.org')
+        self.assertEqual(repo.remote_id, '{9970a9b6-2d86-413f-8555-da8e1ac0e542}')
+        self.assertEqual(repo.vcs_provider, BITBUCKET)
+        self.assertEqual(repo.description, 'Site for tutorial101 files')
+        self.assertEqual(repo.default_branch, 'main')
+        self.assertEqual(
+            repo.avatar_url, (
+                'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2012/Nov/28/'
+                'tutorials.bitbucket.org-logo-1456883302-9_avatar.png'
+            ),
+        )
+        self.assertIn(self.user, repo.users.all())
+        self.assertEqual(repo.organization, self.org)
+        self.assertEqual(
+            repo.clone_url,
+            'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
+        self.assertEqual(
+            repo.ssh_url,
+            'ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
+        self.assertEqual(
+            repo.html_url,
+            'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
+
+    def test_make_project_mainbranch_none(self):
+        self.repo_response_data['mainbranch'] = None
         repo = self.service.create_repository(
             self.repo_response_data, organization=self.org,
             privacy=self.privacy,
@@ -598,6 +653,7 @@ class BitbucketOAuthTests(TestCase):
             repo.html_url,
             'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
         )
+        self.assertEqual(repo.default_branch, None)
 
     def test_make_project_fail(self):
         data = self.repo_response_data.copy()
@@ -632,7 +688,7 @@ class BitbucketOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a Bitbucket SocialToken does not return a service."""
-        services = BitbucketService.for_user(self.user)
+        services = BitbucketService.for_user(get(User))
         self.assertEqual(services, [])
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -921,9 +977,12 @@ class GitLabOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://gitlab.com/testorga/testrepo'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='testorga', json='')
+        self.org = RemoteOrganization.objects.create(slug='testorga')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitLabService(user=self.user, account=None)
+        self.service = GitLabService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit=1234,
@@ -951,15 +1010,15 @@ class GitLabOAuthTests(TestCase):
         return data
 
     def test_make_project_pass(self):
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(
-                self.repo_response_data, organization=self.org,
-                privacy=self.privacy,
-            )
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org,
+            privacy=self.privacy,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
-        self.assertEqual(repo.full_name, 'testorga / testrepo')
+        self.assertEqual(repo.full_name, 'testorga/testrepo')
+        self.assertEqual(repo.remote_id, 42)
+        self.assertEqual(repo.vcs_provider, GITLAB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
@@ -973,7 +1032,7 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
-        self.assertTrue(repo.admin)
+        self.assertTrue(repo.remote_repository_relations.first().admin)
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):
@@ -1009,9 +1068,7 @@ class GitLabOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data['visibility'] = 'public'
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')

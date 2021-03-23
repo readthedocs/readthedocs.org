@@ -1,13 +1,13 @@
 import csv
+from unittest import mock
 from urllib.parse import urlsplit
 
-from unittest import mock
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
-from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
@@ -17,6 +17,7 @@ from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
 
 
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class Testmaker(TestCase):
 
     def setUp(self):
@@ -225,6 +226,7 @@ class SubprojectViewTests(TestCase):
         )
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -357,8 +359,9 @@ class TestSearchAnalyticsView(TestCase):
             csv_data = csv.reader(content)
             body = list(csv_data)
 
-            self.assertEqual(len(body), 23)
-            self.assertEqual(body[0][1], 'advertising')
+            self.assertEqual(len(body), 24)
+            self.assertEqual(body[0][0], 'Created Date')
+            self.assertEqual(body[1][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
 
 
