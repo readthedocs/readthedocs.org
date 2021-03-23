@@ -761,12 +761,6 @@ class TestProjectEnvironmentVariablesForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.envar = get(
-            EnvironmentVariable,
-            name='foo',
-            value='bar',
-            public=False,
-        )
 
     def test_use_invalid_names(self):
         data = {
@@ -826,8 +820,6 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         )
 
     def test_create(self):
-        self.assertEqual(EnvironmentVariable.objects.count(), 1)
-
         data = {
             'name': 'MYTOKEN',
             'value': 'string here',
@@ -835,7 +827,7 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form = EnvironmentVariableForm(data, project=self.project)
         form.save()
 
-        self.assertEqual(EnvironmentVariable.objects.count(), 2)
+        self.assertEqual(EnvironmentVariable.objects.count(), 1)
         self.assertEqual(EnvironmentVariable.objects.latest().name, 'MYTOKEN')
         self.assertEqual(EnvironmentVariable.objects.latest().value, "'string here'")
 
@@ -846,6 +838,6 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form = EnvironmentVariableForm(data, project=self.project)
         form.save()
 
-        self.assertEqual(EnvironmentVariable.objects.count(), 3)
+        self.assertEqual(EnvironmentVariable.objects.count(), 2)
         self.assertEqual(EnvironmentVariable.objects.latest().name, 'ESCAPED')
         self.assertEqual(EnvironmentVariable.objects.latest().value, r"'string escaped here: #$\1[]{}\|'")
