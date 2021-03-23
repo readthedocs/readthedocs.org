@@ -185,7 +185,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             # urlparse treats those as completely empty URLs
             if not final_url.startswith('/'):
                 final_url = '/' + final_url
-            log.info('Redirecting double slash from=%s to=%s', request.get_full_path(), final_url)
+            log.info('Proxito Slash Redirect: from=%s to=%s', request.get_full_path(), final_url)
             return redirect(final_url)
 
         log.debug('Proxito Project: slug=%s', ret)
