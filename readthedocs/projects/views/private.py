@@ -52,7 +52,6 @@ from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
     EnvironmentVariableForm,
-    EnvironmentVariableReadOnlyForm,
     IntegrationForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
@@ -82,7 +81,6 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
-
 
 log = logging.getLogger(__name__)
 
@@ -937,16 +935,6 @@ class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
 
     pass
-
-
-class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
-
-    form_class = EnvironmentVariableReadOnlyForm
-
-    def get_context_data(self, **kwargs):
-        form = self.get_form(instance=self.object)
-        context = super().get_context_data(form=form, **kwargs)
-        return context
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):

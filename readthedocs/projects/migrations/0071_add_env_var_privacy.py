@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0069_migrate_protected_projects'),
+        ('projects', '0070_make_md5_field_nullable'),
     ]
 
     operations = [
