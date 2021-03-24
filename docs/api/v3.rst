@@ -1624,6 +1624,69 @@ Organization projects list
        }
 
 
+Remote Organizations
+~~~~~~~~~~~~~~~~~~~
+
+Remote Organizations are the importable organizations connected via
+``GitHub``, ``GitLab`` and ``BitBucket``.
+
+
+Remote Organization listing
++++++++++++++++++++++++++++
+
+
+.. http:get:: /api/v3/remote/organizations/
+
+    Retrieve a list of all Remote Organizations for the authenticated user.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/organizations/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/remote/organizations/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 20,
+            "next": "api/v3/remote/organizations/?limit=10&offset=10",
+            "previous": null,
+            "results": [
+                {
+                    "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                    "created": "2019-04-29T10:00:00Z",
+                    "modified": "2019-04-29T12:00:00Z",
+                    "name": "Organization Name",
+                    "pk": 1,
+                    "slug": "organization",
+                    "url": "https://github.com/organization",
+                    "vcs_provider": "github"
+                }
+            ]
+        }
+
+
+    The ``results`` in response is an array of remote repositories data.
+
+    :query string name: return remote organizations with matching name
+    :query string vcs_provider: return remote organizations for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
+
+    :requestheader Authorization: token to authenticate.
+
+
 Remote Repositories
 ~~~~~~~~~~~~~~~~~~~
 
