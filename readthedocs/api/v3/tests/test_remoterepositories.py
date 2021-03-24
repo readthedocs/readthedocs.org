@@ -10,7 +10,6 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-
 from readthedocs.projects.constants import REPO_TYPE_GIT
 from .mixins import APIEndpointMixin
 
