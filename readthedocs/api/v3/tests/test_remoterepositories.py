@@ -4,7 +4,13 @@ from allauth.socialaccount.models import SocialAccount
 import django_dynamic_fixture as fixture
 
 from readthedocs.oauth.constants import GITHUB
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
+
 from readthedocs.projects.constants import REPO_TYPE_GIT
 from .mixins import APIEndpointMixin
 
@@ -15,8 +21,20 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
     def setUp(self):
         super().setUp()
 
+        self.remote_organization = fixture.get(
+            RemoteOrganization,
+            created=self.created,
+            modified=self.modified,
+            avatar_url="https://avatars.githubusercontent.com/u/366329?v=4",
+            name="Read the Docs",
+            slug="readthedocs",
+            url="https://github.com/readthedocs",
+            vcs_provider=GITHUB,
+        )
+
         self.remote_repository = fixture.get(
             RemoteRepository,
+            organization=self.remote_organization,
             created=self.created,
             modified=self.modified,
             avatar_url="https://avatars3.githubusercontent.com/u/test-rtd?v=4",
@@ -36,6 +54,12 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             user=self.me,
             account=social_account,
             admin=True
+        )
+        fixture.get(
+            RemoteOrganizationRelation,
+            remote_organization=self.remote_organization,
+            user=self.me,
+            account=social_account
         )
 
     def test_remote_repository_list(self):
