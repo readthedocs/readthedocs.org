@@ -13,7 +13,7 @@ from rest_framework import serializers
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
@@ -894,8 +894,26 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
         }
 
 
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'pk',
+            'slug',
+            'name',
+            'avatar_url',
+            'url',
+            'vcs_provider',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+
+
 class RemoteRepositorySerializer(serializers.ModelSerializer):
     admin = serializers.SerializerMethodField('is_admin')
+    organization = RemoteOrganizationSerializer()
 
     class Meta:
         model = RemoteRepository
@@ -913,6 +931,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
             'vcs_provider',
             'created',
             'modified',
+            'organization',
         ]
         read_only_fields = fields
 

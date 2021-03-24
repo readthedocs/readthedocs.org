@@ -5,6 +5,7 @@ from .views import (
     EnvironmentVariablesViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
+    RemoteOrganizationViewSet,
     RemoteRepositoryViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
@@ -93,6 +94,13 @@ router.register(
     r'remote/repositories',
     RemoteRepositoryViewSet,
     basename='remoterepositories',
+)
+
+# allows /api/v3/remote/organizations/
+router.register(
+    r'remote/organizations',
+    RemoteOrganizationViewSet,
+    basename='remoteorganizations',
 )
 
 urlpatterns = []

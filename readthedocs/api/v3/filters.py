@@ -2,7 +2,7 @@ import django_filters.rest_framework as filters
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.projects.models import Project
 
 
@@ -60,4 +60,15 @@ class RemoteRepositoryFilter(filters.FilterSet):
             'vcs',
             'vcs_provider',
             'organization',
+        ]
+
+
+class RemoteOrganizationFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'name',
+            'vcs_provider',
         ]

@@ -22,10 +22,18 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
@@ -33,6 +41,7 @@ from readthedocs.redirects.models import Redirect
 from .filters import (
     BuildFilter,
     ProjectFilter,
+    RemoteOrganizationFilter,
     RemoteRepositoryFilter,
     VersionFilter,
 )
@@ -52,6 +61,7 @@ from .serializers import (
     ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
+    RemoteOrganizationSerializer,
     RemoteRepositorySerializer,
     SubprojectCreateSerializer,
     SubprojectSerializer,
@@ -442,3 +452,14 @@ class RemoteRepositoryViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
         return queryset.select_related('organization').order_by(
             'organization__name', 'full_name'
         ).distinct()
+
+
+class RemoteOrganizationViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
+    model = RemoteOrganization
+    serializer_class = RemoteOrganizationSerializer
+    filterset_class = RemoteOrganizationFilter
+    queryset = RemoteOrganization.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return super().get_queryset().api(self.request.user)
