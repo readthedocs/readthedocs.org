@@ -1694,7 +1694,7 @@ Remote Repositories are the importable repositories connected via
 ``GitHub``, ``GitLab`` and ``BitBucket``.
 
 
-Remote Repositories listing
+Remote Repository listing
 +++++++++++++++++++++++++++
 
 
@@ -1729,6 +1729,16 @@ Remote Repositories listing
             "previous": null,
             "results": [
                 {
+                    "organization": {
+                        "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                        "created": "2019-04-29T10:00:00Z",
+                        "modified": "2019-04-29T12:00:00Z",
+                        "name": "Organization Name",
+                        "pk": 1,
+                        "slug": "organization",
+                        "url": "https://github.com/organization",
+                        "vcs_provider": "github"
+                    },
                     "avatar_url": "https://avatars3.githubusercontent.com/u/test-rtd?v=4",
                     "clone_url": "https://github.com/rtd/project.git",
                     "created": "2019-04-29T10:00:00Z",
