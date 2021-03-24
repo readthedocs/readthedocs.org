@@ -1,4 +1,4 @@
-from django.db.models import Case, When, Value, BooleanField
+from django.db.models import Exists, OuterRef
 
 import django_filters.rest_framework as filters
 from rest_flex_fields.views import FlexFieldsMixin
@@ -22,7 +22,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
@@ -431,14 +431,12 @@ class RemoteRepositoryViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset().api(self.request.user).annotate(
-            _admin=Case(
-                When(
-                    remote_repository_relations__user=self.request.user,
-                    remote_repository_relations__admin=True,
-                    then=Value(True)
-                ),
-                default=Value(False),
-                output_field=BooleanField()
+            _admin=Exists(
+                RemoteRepositoryRelation.objects.filter(
+                    remote_repository=OuterRef('pk'),
+                    user=self.request.user,
+                    admin=True
+                )
             )
         )
         return queryset.select_related('organization').order_by(
