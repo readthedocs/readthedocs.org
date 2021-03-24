@@ -1581,7 +1581,6 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
-    SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
 
     # Dependecies related features
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
@@ -1678,10 +1677,6 @@ class Feature(models.Model):
         (
             SKIP_SYNC_VERSIONS,
             _('Skip sync versions task'),
-        ),
-        (
-            SYNC_VERSIONS_USING_A_TASK,
-            _('Sync versions using a task instead of the API'),
         ),
 
         # Dependecies related features
