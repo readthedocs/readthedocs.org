@@ -1138,12 +1138,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             pdf=False,
             epub=False,
     ):
-        """
-        Update application instances with build artifacts.
-
-        This triggers updates across application instances for html, pdf, epub,
-        downloads, and search. Tasks are broadcast to all web servers from here.
-        """
+        """Update build artifacts and index search data."""
         # Update version if we have successfully built HTML output
         # And store whether the build had other media types
         try:
@@ -1162,7 +1157,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 self.version,
             )
 
-        # Broadcast finalization steps to web application instances
+        # Index search data
         fileify.delay(
             version_pk=self.version.pk,
             commit=self.build['commit'],
