@@ -1624,7 +1624,6 @@ Organization projects list
        }
 
 
-
 Remote Repositories
 ~~~~~~~~~~~~~~~~~~~
 
