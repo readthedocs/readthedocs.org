@@ -1679,7 +1679,7 @@ Remote Organization listing
         }
 
 
-    The ``results`` in response is an array of remote repositories data.
+    The ``results`` in response is an array of remote organizations data.
 
     :query string name: return remote organizations with matching name
     :query string vcs_provider: return remote organizations for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
