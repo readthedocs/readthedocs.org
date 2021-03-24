@@ -273,10 +273,6 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
 
-        # Enable PR builder option on projects w/ feature flag
-        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
-            self.fields.pop('external_builds_enabled')
-
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
         if filename and 'conf.py' not in filename:
