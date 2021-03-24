@@ -1625,7 +1625,7 @@ Organization projects list
 
 
 Remote Organizations
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 Remote Organizations are the importable organizations connected via
 ``GitHub``, ``GitLab`` and ``BitBucket``.
@@ -1695,7 +1695,7 @@ Remote Repositories are the importable repositories connected via
 
 
 Remote Repository listing
-+++++++++++++++++++++++++++
++++++++++++++++++++++++++
 
 
 .. http:get:: /api/v3/remote/repositories/
