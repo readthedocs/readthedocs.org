@@ -1,5 +1,5 @@
-Install local development instance
-==================================
+Development Installation
+========================
 
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
