@@ -1,20 +1,24 @@
+from allauth.socialaccount.models import SocialAccount
 from django.urls import reverse
 
 import django_dynamic_fixture as fixture
 
+from readthedocs.oauth.constants import GITHUB
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.projects.constants import REPO_TYPE_GIT
 from .mixins import APIEndpointMixin
-from readthedocs.oauth.models import RemoteRepository
 
 
-class ProjectsEndpointTests(APIEndpointMixin):
+
+class RemoteRepositoryEndpointTests(APIEndpointMixin):
 
     def setUp(self):
         super().setUp()
 
         self.remote_repository = fixture.get(
             RemoteRepository,
-            pub_date=self.created,
-            modified_date=self.modified,
+            created=self.created,
+            modified=self.modified,
             avatar_url="https://avatars3.githubusercontent.com/u/test-rtd?v=4",
             clone_url="https://github.com/rtd/project.git",
             description="This is a test project.",
@@ -22,11 +26,19 @@ class ProjectsEndpointTests(APIEndpointMixin):
             html_url="https://github.com/rtd/project",
             name="project",
             ssh_url="git@github.com:rtd/project.git",
-            vcs="git",
-            users=[self.me]
+            vcs=REPO_TYPE_GIT,
+            vcs_provider=GITHUB,
+        )
+        social_account = fixture.get(SocialAccount, user=self.me, provider=GITHUB)
+        fixture.get(
+            RemoteRepositoryRelation,
+            remote_repository=self.remote_repository,
+            user=self.me,
+            account=social_account,
+            admin=True
         )
 
-    def test_projects_list(self):
+    def test_remote_repository_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse('remoterepositories-list')

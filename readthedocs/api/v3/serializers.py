@@ -895,8 +895,7 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
-    created = serializers.DateTimeField(source='pub_date', read_only=True)
-    modified = serializers.DateTimeField(source='modified_date', read_only=True)
+    admin = serializers.SerializerMethodField('is_admin')
 
     class Meta:
         model = RemoteRepository
@@ -905,12 +904,25 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
             'name',
             'full_name',
             'description',
+            'admin',
             'avatar_url',
             'ssh_url',
             'clone_url',
             'html_url',
             'vcs',
+            'vcs_provider',
             'created',
             'modified',
         ]
         read_only_fields = fields
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use annotated value from RemoteRepositoryViewSet queryset
+        if hasattr(obj, '_admin'):
+            return obj._admin
+
+        return obj.remote_repository_relations.filter(
+            user=request.user, admin=True
+        ).exists()

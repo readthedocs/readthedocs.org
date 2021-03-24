@@ -14,7 +14,9 @@
       "name": "project",
       "pk": 1,
       "ssh_url": "git@github.com:rtd/project.git",
-      "vcs": "git"
+      "vcs": "git",
+      "vcs_provider": "github",
+      "admin": true
     }
   ]
 }

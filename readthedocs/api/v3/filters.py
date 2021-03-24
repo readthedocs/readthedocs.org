@@ -58,4 +58,6 @@ class RemoteRepositoryFilter(filters.FilterSet):
         fields = [
             'name',
             'vcs',
+            'vcs_provider',
+            'organization',
         ]

@@ -88,9 +88,9 @@ projects.register(
     parents_query_lookups=['project__slug'],
 )
 
-# allows /api/v3/remoterepositories/
-remoterepositories = router.register(
-    r'remoterepositories',
+# allows /api/v3/remote/repositories/
+router.register(
+    r'remote/repositories',
     RemoteRepositoryViewSet,
     basename='remoterepositories',
 )

@@ -1,3 +1,5 @@
+from django.db.models import Case, When, Value, BooleanField
+
 import django_filters.rest_framework as filters
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -428,5 +430,17 @@ class RemoteRepositoryViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(users=self.request.user)
+        queryset = super().get_queryset().api(self.request.user).annotate(
+            _admin=Case(
+                When(
+                    remote_repository_relations__user=self.request.user,
+                    remote_repository_relations__admin=True,
+                    then=Value(True)
+                ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
+        return queryset.select_related('organization').order_by(
+            'organization__name', 'full_name'
+        ).distinct()

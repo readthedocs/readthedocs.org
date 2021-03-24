@@ -1635,7 +1635,7 @@ Remote Repositories listing
 +++++++++++++++++++++++++++
 
 
-.. http:get:: /api/v3/remoterepositories/
+.. http:get:: /api/v3/remote/repositories/
 
     Retrieve a list of all Remote Repositories for the authenticated user.
 
@@ -1645,12 +1645,12 @@ Remote Repositories listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remoterepositories/
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remoterepositories/'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1662,7 +1662,7 @@ Remote Repositories listing
 
         {
             "count": 20,
-            "next": "api/v3/remoterepositories/?limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -1685,7 +1685,9 @@ Remote Repositories listing
     The ``results`` in response is an array of remote repositories data.
 
     :query string name: return remote repositories with matching name
-    :query string vcs: return remote repositories with specific vcs (``git``, ``svn``, ``hg`` or ``bzr``)
+    :query string vcs: return remote repositories for specific vcs (``git``, ``svn``, ``hg`` or ``bzr``)
+    :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
+    :query string organization: return remote repositories for specific remote organization (Using remote organization ``pk``)
 
     :requestheader Authorization: token to authenticate.
 
