@@ -295,27 +295,12 @@ class SyncRepositoryMixin:
             branches_data=branches_data,
         )
 
-        if self.project.has_feature(Feature.SYNC_VERSIONS_USING_A_TASK):
-            from readthedocs.builds import tasks as build_tasks
-            build_tasks.sync_versions_task.delay(
-                project_pk=self.project.pk,
-                tags_data=tags_data,
-                branches_data=branches_data,
-            )
-        else:
-            try:
-                version_post_data = {
-                    'repo': version_repo.repo_url,
-                    'tags': tags_data,
-                    'branches': branches_data,
-                }
-                api_v2.project(self.project.pk).sync_versions.post(
-                    version_post_data,
-                )
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
+        from readthedocs.builds import tasks as build_tasks
+        build_tasks.sync_versions_task.delay(
+            project_pk=self.project.pk,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
@@ -1858,6 +1843,7 @@ def finish_inactive_builds():
     )
 
 
+# TODO: Move this to builds/tasks
 @app.task(queue='web')
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """
