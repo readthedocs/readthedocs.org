@@ -1232,17 +1232,18 @@ class Project(models.Model):
 
         return True
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, public_only=True):
         """
         Environment variables to build this particular project.
 
-        :returns: dictionary with all the variables {name: value}
+        :param public_only: Only return publicly visible variables?
+        :returns: dictionary with all visible variables {name: value}
         :rtype: dict
         """
         return {
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
+            if variable.public or not public_only
         }
 
     def is_valid_as_superproject(self, error_class):
@@ -1333,9 +1334,12 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    @property
-    def environment_variables(self):
-        return self._environment_variables
+    def environment_variables(self, *, public_only=True):
+        return {
+            name: spec['value']
+            for name, spec in self._environment_variables.items()
+            if spec['public'] or not public_only
+        }
 
 
 class ImportedFile(models.Model):
@@ -1800,6 +1804,12 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         Project,
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
+    )
+    public = models.BooleanField(
+        _('Public'),
+        default=False,
+        null=True,
+        help_text=_('Expose this environment variable in PR builds?'),
     )
 
     objects = RelatedProjectQuerySet.as_manager()

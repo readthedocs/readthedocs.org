@@ -971,10 +971,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             })
 
         # Update environment from Project's specific environment variables,
-        # avoiding to expose environment variables if the version is external
-        # for security reasons.
-        if self.version.type != EXTERNAL:
-            env.update(self.project.environment_variables)
+        # avoiding to expose private environment variables
+        # if the version is external (i.e. a PR build).
+        env.update(self.project.environment_variables(
+            public_only=self.version.is_external
+        ))
 
         return env
 

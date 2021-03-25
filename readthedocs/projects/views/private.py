@@ -85,7 +85,6 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 
-
 log = logging.getLogger(__name__)
 
 
@@ -937,11 +936,6 @@ class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
-
-    pass
-
-
-class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
 
     pass
 
