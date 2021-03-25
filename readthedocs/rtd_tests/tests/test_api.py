@@ -901,11 +901,6 @@ class IntegrationsTests(TestCase):
             build_queue=None,
             external_builds_enabled=True,
         )
-        self.feature_flag = get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.EXTERNAL_VERSION_BUILD,
-        )
         self.version = get(
             Version, slug='master', verbose_name='master',
             active=True, project=self.project,
@@ -1301,30 +1296,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_github_pull_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
-        resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            self.github_pull_request_payload,
-            format='json',
-            **headers
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_delete_event(self, sync_repository_task, trigger_build):
@@ -2065,31 +2036,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_gitlab_merge_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        resp = client.post(
-            reverse(
-                'api_webhook_gitlab',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            self.gitlab_merge_request_payload,
-            format='json',
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""

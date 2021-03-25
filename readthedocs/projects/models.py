@@ -1569,7 +1569,6 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     CLEAN_AFTER_BUILD = 'clean_after_build'
-    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     CONDA_USES_MAMBA = 'conda_uses_mamba'
@@ -1633,10 +1632,6 @@ class Feature(models.Model):
         (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
-        ),
-        (
-            EXTERNAL_VERSION_BUILD,
-            _('Enable project to build on pull/merge requests'),
         ),
         (
             UPDATE_CONDA_STARTUP,
