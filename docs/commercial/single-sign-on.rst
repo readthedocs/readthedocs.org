@@ -14,11 +14,6 @@ Currently, we support two different types of Single Sign-On:
 * Authentication *and* authorization are managed by the Identity Provider (e.g. GitHub, Bitbucket or GitLab)
 * Authentication (*only*) is managed by the Identity Provider (e.g. an active GSuite/Google ``@company.com`` with a verified email address)
 
-.. note::
-
-   SSO is currently in **Beta** and only GitHub, Bitbucket, GitLab and Google are supported for now.
-   If you would like to apply for the Beta, please `contact us <mailto:support@readthedocs.com>`_.
-
 .. contents::
    :local:
    :depth: 2
@@ -31,6 +26,10 @@ Using an Identity Provider that supports authentication and authorization allows
 "who have access to what projects on Read the Docs" directly from the provider itself.
 In case you want a user to have access to your documentation project under Read the Docs,
 that user just needs to be granted permissions in the VCS repository associated with it.
+
+You can enable this feature in your organization by going to
+"your organization detail's page" > :guilabel:`Settings` > :guilabel:`Authorization`
+and selecting :guilabel:`GitHub, GitLab or Bitbucket` as provider.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
 :doc:`account connected </connected-accounts>` in order to make SSO to work.
@@ -89,6 +88,10 @@ permissions are managed by the :ref:`internal Read the Docs's Teams <commercial/
 By default, users that Sign Up with a Google account do not have any permissions over any project.
 However, you can define which Teams users matching your company's domain email address will auto-join when they Sign Up.
 Read the following sections to learn how to grant read and admin access.
+
+You can enable this feature in your organization by going to
+"your organization detail's page" > :guilabel:`Settings` > :guilabel:`Authorization`
+and selecting :guilabel:`Google` as provider and writing your ``company.com`` domain in :guilabel:`Domain` field.
 
 
 Grant access to read a project
