@@ -1,0 +1,34 @@
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#glossary" title="Permalink to this headline">¶</a></h1>
+<dl class="glossary">
+<dt id="term-builder">builder<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#term-builder" title="Permalink to this term">¶</a></dt><dd><p>A class (inheriting from <code class="xref py py-class docutils literal notranslate"><span class="pre">Builder</span></code>) that takes
+parsed documents and performs an action on them.  Normally, builders
+translate the documents to an output format, but it is also possible to
+use builders that e.g. check for broken links in the documentation, or
+build coverage information.</p>
+<p>See <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage.html"><span class="doc">Usage</span></a> for an overview over Sphinx’s built-in
+builders.</p>
+</dd>
+<dt id="term-configuration-directory">configuration directory<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#term-configuration-directory" title="Permalink to this term">¶</a></dt><dd><p>The directory containing <code class="file docutils literal notranslate"><span class="pre">conf.py</span></code>.  By default, this is the same as
+the <a class="reference internal" href="http://project.readthedocs.io/en/latest/index.html#term-builder"><span class="xref std std-term">builder</span></a>, but can be set differently with the <strong>-c</strong>
+command-line option.</p>
+</dd>
+<dt id="term-directive">directive<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#term-directive" title="Permalink to this term">¶</a></dt><dd><p>A reStructuredText markup element that allows marking a block of content
+with special meaning.  Directives are supplied not only by docutils, but
+Sphinx and custom extensions can add their own.  The basic directive
+syntax looks like this:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">directivename</span><span class="p">::</span> argument ...
+   <span class="nc">:option:</span> value
+
+   Content of the directive.
+</pre></div>
+</div>
+<p>See <span class="xref std std-ref">index:Another title</span> for more information.</p>
+</dd>
+<dt id="term-environment">environment<a class="headerlink" href="http://project.readthedocs.io/en/latest/index.html#term-environment" title="Permalink to this term">¶</a></dt><dd><p>A structure where information about all documents under the root is saved,
+and used for cross-referencing.  The environment is pickled after the
+parsing stage, so that successive runs only need to read and parse new and
+changed documents.</p>
+</dd>
+</dl>
+</div>

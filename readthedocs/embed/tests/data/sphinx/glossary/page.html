@@ -1,0 +1,193 @@
+<!-- Extracted from https://www.sphinx-doc.org/en/master/glossary.html -->
+<div class="section" id="glossary">
+  <span id="id1"></span>
+  <h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+  <dl class="glossary">
+    <dt id="term-builder">builder<a class="headerlink" href="#term-builder" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        A class (inheriting from <a class="reference internal" href="extdev/builderapi.html#sphinx.builders.Builder"
+          title="sphinx.builders.Builder"><code
+            class="xref py py-class docutils literal notranslate"><span class="pre">Builder</span></code></a>) that
+        takes
+        parsed documents and performs an action on them. Normally, builders
+        translate the documents to an output format, but it is also possible to
+        use builders that e.g. check for broken links in the documentation, or
+        build coverage information.
+      </p>
+      <p>
+        See <a class="reference internal" href="usage/builders/index.html"><span class="doc">Builders</span></a> for an
+        overview over Sphinx\u2019s built-in
+        builders.
+      </p>
+    </dd>
+    <dt id="term-configuration-directory">configuration directory<a class="headerlink"
+        href="#term-configuration-directory" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        The directory containing <code
+          class="file docutils literal notranslate"><span class="pre">conf.py</span></code>. By default, this is the
+        same as
+        the <a class="reference internal" href="#term-source-directory"><span class="xref std std-term">source
+            directory</span></a>, but can be set differently with the <strong>-c</strong>
+        command-line option.
+      </p>
+    </dd>
+    <dt id="term-directive">directive<a class="headerlink" href="#term-directive" title="Permalink to this term">¶</a>
+    </dt>
+    <dd>
+      <p>
+        A reStructuredText markup element that allows marking a block of content
+        with special meaning. Directives are supplied not only by docutils, but
+        Sphinx and custom extensions can add their own. The basic directive
+        syntax looks like this:
+      </p>
+      <div class="highlight-rst notranslate">
+        <div class="highlight">
+          <pre><span></span><span class="p">..</span> <span class="ow">directivename</span><span class="p">::</span> argument ...
+   <span class="nc">:option:</span> value
+
+   Content of the directive.
+</pre>
+        </div>
+      </div>
+      <p>
+        See <a class="reference internal" href="usage/restructuredtext/basics.html#rst-directives"><span
+            class="std std-ref">Directives</span></a> for more information.
+      </p>
+    </dd>
+    <dt id="term-document-name">document name<a class="headerlink" href="#term-document-name"
+        title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        Since reST source files can have different extensions (some people like
+        <code class="docutils literal notranslate"><span class="pre">.txt</span></code>, some like <code
+          class="docutils literal notranslate"><span class="pre">.rst</span></code> \u2013 the extension can be
+        configured with
+        <a class="reference internal" href="usage/configuration.html#confval-source_suffix"><code
+            class="xref std std-confval docutils literal notranslate"><span class="pre">source_suffix</span></code></a>)
+        and different OSes have different path
+        separators, Sphinx abstracts them: <em class="dfn">document names</em> are always
+        relative to the <a class="reference internal" href="#term-source-directory"><span
+            class="xref std std-term">source directory</span></a>, the extension is stripped, and
+        path separators are converted to slashes. All values, parameters and such
+        referring to \u201cdocuments\u201d expect such document names.
+      </p>
+      <p>
+        Examples for document names are <code
+          class="docutils literal notranslate"><span class="pre">index</span></code>, <code
+          class="docutils literal notranslate"><span class="pre">library/zipfile</span></code>, or
+        <code class="docutils literal notranslate"><span class="pre">reference/datamodel/types</span></code>. Note that
+        there is no leading or trailing
+        slash.
+      </p>
+    </dd>
+    <dt id="term-domain">domain<a class="headerlink" href="#term-domain" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        A domain is a collection of markup (reStructuredText <a class="reference internal" href="#term-directive"><span
+            class="xref std std-term">directive</span></a>s
+        and <a class="reference internal" href="#term-role"><span class="xref std std-term">role</span></a>s) to
+        describe and link to <a class="reference internal" href="#term-object"><span
+            class="xref std std-term">object</span></a>s belonging
+        together, e.g. elements of a programming language. Directive and role
+        names in a domain have names like <code
+          class="docutils literal notranslate"><span class="pre">domain:name</span></code>, e.g. <code
+          class="docutils literal notranslate"><span class="pre">py:function</span></code>.
+      </p>
+      <p>
+        Having domains means that there are no naming problems when one set of
+        documentation wants to refer to e.g. C++ and Python classes. It also
+        means that extensions that support the documentation of whole new
+        languages are much easier to write.
+      </p>
+      <p>
+        For more information, refer to <a class="reference internal" href="usage/restructuredtext/domains.html"><span
+            class="doc">Domains</span></a>.
+      </p>
+    </dd>
+    <dt id="term-environment">environment<a class="headerlink" href="#term-environment"
+        title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        A structure where information about all documents under the root is saved,
+        and used for cross-referencing. The environment is pickled after the
+        parsing stage, so that successive runs only need to read and parse new and
+        changed documents.
+      </p>
+    </dd>
+    <dt id="term-extension">extension<a class="headerlink" href="#term-extension" title="Permalink to this term">¶</a>
+    </dt>
+    <dd>
+      <p>
+        A custom <a class="reference internal" href="#term-role"><span class="xref std std-term">role</span></a>, <a
+          class="reference internal" href="#term-directive"><span class="xref std std-term">directive</span></a> or
+        other aspect of Sphinx that
+        allows users to modify any aspect of the build process within Sphinx.
+      </p>
+      <p>
+        For more information, refer to <a class="reference internal" href="usage/extensions/index.html"><span
+            class="doc">Extensions</span></a>.
+      </p>
+    </dd>
+    <dt id="term-master-document">master document<a class="headerlink" href="#term-master-document"
+        title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        The document that contains the root <a class="reference internal"
+          href="usage/restructuredtext/directives.html#directive-toctree" title="toctree directive"><code
+            class="xref rst rst-dir docutils literal notranslate"><span class="pre">toctree</span></code></a> directive.
+      </p>
+    </dd>
+    <dt id="term-object">object<a class="headerlink" href="#term-object" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        The basic building block of Sphinx documentation. Every \u201cobject
+        directive\u201d (e.g. <code
+          class="xref rst rst-dir docutils literal notranslate"><span class="pre">function</span></code> or <a
+          class="reference internal" href="usage/restructuredtext/domains.html#directive-object"
+          title="object directive"><code
+            class="xref rst rst-dir docutils literal notranslate"><span class="pre">object</span></code></a>) creates
+        such a
+        block; and most objects can be cross-referenced to.
+      </p>
+    </dd>
+    <dt id="term-RemoveInSphinxXXXWarning">RemoveInSphinxXXXWarning<a class="headerlink"
+        href="#term-RemoveInSphinxXXXWarning" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        The feature which is warned will be removed in Sphinx-XXX version.
+        It usually caused from Sphinx extensions which is using deprecated.
+        See also <a class="reference internal"
+          href="man/sphinx-build.html#when-deprecation-warnings-are-displayed"><span class="std std-ref">Deprecation
+            Warnings</span></a>.
+      </p>
+    </dd>
+    <dt id="term-role">role<a class="headerlink" href="#term-role" title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        A reStructuredText markup element that allows marking a piece of text.
+        Like directives, roles are extensible. The basic syntax looks like this:
+        <code class="docutils literal notranslate"><span class="pre">:rolename:`content`</span></code>. See <a
+          class="reference internal" href="usage/restructuredtext/basics.html#rst-inline-markup"><span
+            class="std std-ref">Inline markup</span></a> for details.
+      </p>
+    </dd>
+    <dt id="term-source-directory">source directory<a class="headerlink" href="#term-source-directory"
+        title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        The directory which, including its subdirectories, contains all source
+        files for one Sphinx project.
+      </p>
+    </dd>
+    <dt id="term-reStructuredText">reStructuredText<a class="headerlink" href="#term-reStructuredText"
+        title="Permalink to this term">¶</a></dt>
+    <dd>
+      <p>
+        An easy-to-read, what-you-see-is-what-you-get plaintext markup syntax and
+        parser system.
+      </p>
+    </dd>
+  </dl>
+</div>

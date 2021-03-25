@@ -17,6 +17,14 @@ jobs:
       - run: pip install --user tox
       - run: tox -e py36,codecov
 
+  sphinx-tests:
+    docker:
+      - image: 'cimg/python:3.6'
+    steps:
+      - checkout
+      - run: pip install --user tox
+      - run: tox -c sphinx-tox.ini
+
   checks:
     docker:
       - image: 'cimg/python:3.6'
@@ -45,3 +53,4 @@ workflows:
     jobs:
       - checks
       - tests
+      - sphinx-tests

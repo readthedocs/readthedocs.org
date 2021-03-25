@@ -1,0 +1,24 @@
+    <dd>
+      <p>
+        Since reST source files can have different extensions (some people like
+        <code class="docutils literal notranslate"><span class="pre">.txt</span></code>, some like <code
+          class="docutils literal notranslate"><span class="pre">.rst</span></code> \u2013 the extension can be
+        configured with
+        <a class="reference internal" href="http://project.readthedocs.io/en/latest/usage/configuration.html#confval-source_suffix"><code
+            class="xref std std-confval docutils literal notranslate"><span class="pre">source_suffix</span></code></a>)
+        and different OSes have different path
+        separators, Sphinx abstracts them: <em class="dfn">document names</em> are always
+        relative to the <a class="reference internal" href="http://project.readthedocs.io/en/latest/index.html#term-source-directory"><span
+            class="xref std std-term">source directory</span></a>, the extension is stripped, and
+        path separators are converted to slashes. All values, parameters and such
+        referring to \u201cdocuments\u201d expect such document names.
+      </p>
+      <p>
+        Examples for document names are <code
+          class="docutils literal notranslate"><span class="pre">index</span></code>, <code
+          class="docutils literal notranslate"><span class="pre">library/zipfile</span></code>, or
+        <code class="docutils literal notranslate"><span class="pre">reference/datamodel/types</span></code>. Note that
+        there is no leading or trailing
+        slash.
+      </p>
+    </dd>

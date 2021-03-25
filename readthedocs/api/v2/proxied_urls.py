@@ -15,7 +15,7 @@ from readthedocs.search.proxied_api import ProxiedPageSearchAPIView
 api_footer_urls = [
     url(r'footer_html/', ProxiedFooterHTML.as_view(), name='footer_html'),
     url(r'search/$', ProxiedPageSearchAPIView.as_view(), name='search_api'),
-    url(r'embed/', ProxiedEmbedAPI.as_view(), name='embed_api'),
+    url(r'embed/', ProxiedEmbedAPI.as_view(), name='api_embed'),
     url(r'analytics/$', AnalyticsView.as_view(), name='analytics_api'),
 ]
 
