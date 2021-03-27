@@ -1,6 +1,7 @@
 from django.db.models import Exists, OuterRef
 
 import django_filters.rest_framework as filters
+from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -45,7 +46,12 @@ from .filters import (
     RemoteRepositoryFilter,
     VersionFilter,
 )
-from .mixins import OrganizationQuerySetMixin, ProjectQuerySetMixin, UpdateMixin
+from .mixins import (
+    OrganizationQuerySetMixin,
+    ProjectQuerySetMixin,
+    RemoteQuerySetMixin,
+    UpdateMixin,
+)
 from .permissions import (
     CommonPermissions,
     IsProjectAdmin,
@@ -432,15 +438,25 @@ class OrganizationsProjectsViewSet(SettingsOverrideObject):
     _default_class = OrganizationsProjectsViewSetBase
 
 
-class RemoteRepositoryViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
+class RemoteRepositoryViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet
+):
     model = RemoteRepository
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
     queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
+    permit_list_expands = [
+        'organization',
+        'project'
+    ]
 
     def get_queryset(self):
-        queryset = super().get_queryset().api(self.request.user).annotate(
+        queryset = super().get_queryset().annotate(
             _admin=Exists(
                 RemoteRepositoryRelation.objects.filter(
                     remote_repository=OuterRef('pk'),
@@ -449,17 +465,26 @@ class RemoteRepositoryViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
                 )
             )
         )
-        return queryset.select_related('organization').order_by(
-            'organization__name', 'full_name'
-        ).distinct()
+
+        if is_expanded(self.request, 'organization'):
+            queryset = queryset.select_related('organization')
+
+        if is_expanded(self.request, 'project'):
+            queryset = queryset.select_related('project').prefetch_related(
+                'project__users',
+            )
+
+        return queryset.order_by('organization__name', 'full_name').distinct()
 
 
-class RemoteOrganizationViewSet(APIv3Settings, ListModelMixin, GenericViewSet):
+class RemoteOrganizationViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    ListModelMixin,
+    GenericViewSet
+):
     model = RemoteOrganization
     serializer_class = RemoteOrganizationSerializer
     filterset_class = RemoteOrganizationFilter
     queryset = RemoteOrganization.objects.all()
     permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return super().get_queryset().api(self.request.user)

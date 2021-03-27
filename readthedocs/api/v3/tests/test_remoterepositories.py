@@ -33,6 +33,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
 
         self.remote_repository = fixture.get(
             RemoteRepository,
+            project=self.project,
             organization=self.remote_organization,
             created=self.created,
             modified=self.modified,
@@ -45,6 +46,8 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             ssh_url="git@github.com:rtd/project.git",
             vcs=REPO_TYPE_GIT,
             vcs_provider=GITHUB,
+            default_branch="master",
+            private=False
         )
         social_account = fixture.get(SocialAccount, user=self.me, provider=GITHUB)
         fixture.get(
@@ -64,11 +67,39 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
     def test_remote_repository_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
-            reverse('remoterepositories-list')
+            reverse('remoterepositories-list'),
+            {
+                'expand': (
+                    'project,'
+                    'organization'
+                )
+            }
         )
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(
             response.json(),
+            self._get_response_dict('remoterepositories-list'),
+        )
+
+    def test_remote_repository_list_name__contains_filter(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse('remoterepositories-list'),
+            {
+                'expand': (
+                    'project,'
+                    'organization'
+                ),
+                'name__contains': 'proj'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_data = response.json()
+        self.assertEqual(len(response_data['results']), 1)
+
+        self.assertDictEqual(
+            response_data,
             self._get_response_dict('remoterepositories-list'),
         )

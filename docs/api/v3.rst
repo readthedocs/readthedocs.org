@@ -1627,7 +1627,7 @@ Organization projects list
 Remote Organizations
 ~~~~~~~~~~~~~~~~~~~~
 
-Remote Organizations are the importable organizations connected via
+Remote Organizations are the VCS organizations connected via
 ``GitHub``, ``GitLab`` and ``BitBucket``.
 
 
@@ -1681,7 +1681,7 @@ Remote Organization listing
 
     The ``results`` in response is an array of remote organizations data.
 
-    :query string name: return remote organizations with matching name
+    :query string name__contains: return remote organizations with containing the name
     :query string vcs_provider: return remote organizations for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
 
     :requestheader Authorization: token to authenticate.
@@ -1708,12 +1708,12 @@ Remote Repository listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remote/repositories/'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1725,7 +1725,7 @@ Remote Repository listing
 
         {
             "count": 20,
-            "next": "api/v3/remote/repositories/?limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?expand=project,organization&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -1739,18 +1739,64 @@ Remote Repository listing
                         "url": "https://github.com/organization",
                         "vcs_provider": "github"
                     },
-                    "avatar_url": "https://avatars3.githubusercontent.com/u/test-rtd?v=4",
-                    "clone_url": "https://github.com/rtd/project.git",
+                    "project": {
+                        "id": 12345,
+                        "name": "project",
+                        "slug": "project",
+                        "created": "2010-10-23T18:12:31+00:00",
+                        "modified": "2018-12-11T07:21:11+00:00",
+                        "language": {
+                            "code": "en",
+                            "name": "English"
+                        },
+                        "programming_language": {
+                            "code": "py",
+                            "name": "Python"
+                        },
+                        "repository": {
+                            "url": "https://github.com/organization/project",
+                            "type": "git"
+                        },
+                        "default_version": "stable",
+                        "default_branch": "master",
+                        "subproject_of": null,
+                        "translation_of": null,
+                        "urls": {
+                            "documentation": "http://project.readthedocs.io/en/stable/",
+                            "home": "https://readthedocs.org/projects/project/"
+                        },
+                        "tags": [
+                            "test"
+                        ],
+                        "users": [
+                            {
+                                "username": "dstufft"
+                            }
+                        ],
+                        "_links": {
+                            "_self": "/api/v3/projects/project/",
+                            "versions": "/api/v3/projects/project/versions/",
+                            "builds": "/api/v3/projects/project/builds/",
+                            "subprojects": "/api/v3/projects/project/subprojects/",
+                            "superproject": "/api/v3/projects/project/superproject/",
+                            "redirects": "/api/v3/projects/project/redirects/",
+                            "translations": "/api/v3/projects/project/translations/"
+                        }
+                    }
+                    "avatar_url": "https://avatars3.githubusercontent.com/u/test-organization?v=4",
+                    "clone_url": "https://github.com/organization/project.git",
                     "created": "2019-04-29T10:00:00Z",
                     "description": "This is a test project.",
-                    "full_name": "rtd/project",
-                    "html_url": "https://github.com/rtd/project",
+                    "full_name": "organization/project",
+                    "html_url": "https://github.com/organization/project",
                     "modified": "2019-04-29T12:00:00Z",
                     "name": "project",
                     "pk": 1,
-                    "ssh_url": "git@github.com:rtd/project.git",
+                    "ssh_url": "git@github.com:organization/project.git",
                     "vcs": "git",
                     "vcs_provider": "github",
+                    "default_branch": "master",
+                    "private": false,
                     "admin": true
                 }
             ]
@@ -1759,10 +1805,12 @@ Remote Repository listing
 
     The ``results`` in response is an array of remote repositories data.
 
-    :query string name: return remote repositories with matching name
-    :query string vcs: return remote repositories for specific vcs (``git``, ``svn``, ``hg`` or ``bzr``)
+    :query string name__contains: return remote repositories containing the name
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
-    :query string organization: return remote repositories for specific remote organization (Using remote organization ``pk``)
+    :query string organization: return remote repositories for specific remote organization (Using remote organization ``slug``)
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``project`` and ``organization``.
+                          Multiple fields can be passed separated by commas.
 
     :requestheader Authorization: token to authenticate.
 

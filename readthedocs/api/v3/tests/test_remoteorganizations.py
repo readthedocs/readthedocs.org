@@ -46,3 +46,21 @@ class RemoteOrganizationEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict('remoteorganizations-list'),
         )
+
+    def test_remote_organization_list_name__contains_filter(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse('remoteorganizations-list'),
+            {
+                'name__contains': 'Read'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_data = response.json()
+
+        self.assertEqual(len(response_data['results']), 1)
+        self.assertDictEqual(
+            response_data,
+            self._get_response_dict('remoteorganizations-list'),
+        )

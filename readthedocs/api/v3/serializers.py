@@ -911,9 +911,8 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class RemoteRepositorySerializer(serializers.ModelSerializer):
+class RemoteRepositorySerializer(FlexFieldsModelSerializer):
     admin = serializers.SerializerMethodField('is_admin')
-    organization = RemoteOrganizationSerializer()
 
     class Meta:
         model = RemoteRepository
@@ -929,11 +928,20 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
             'html_url',
             'vcs',
             'vcs_provider',
+            'private',
+            'default_branch',
             'created',
             'modified',
-            'organization',
         ]
         read_only_fields = fields
+        expandable_fields = {
+            'organization': (
+                RemoteOrganizationSerializer, {'source': 'organization'}
+            ),
+            'project': (
+                ProjectSerializer, {'source': 'project'}
+            )
+        }
 
     def is_admin(self, obj):
         request = self.context['request']

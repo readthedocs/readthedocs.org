@@ -51,24 +51,24 @@ class BuildFilter(filters.FilterSet):
 
 
 class RemoteRepositoryFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='icontains')
+    name__contains = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    organization = filters.CharFilter(field_name='organization__slug')
 
     class Meta:
         model = RemoteRepository
         fields = [
-            'name',
-            'vcs',
+            'name__contains',
             'vcs_provider',
             'organization',
         ]
 
 
 class RemoteOrganizationFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='icontains')
+    name__contains = filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = RemoteOrganization
         fields = [
-            'name',
+            'name__contains',
             'vcs_provider',
         ]
