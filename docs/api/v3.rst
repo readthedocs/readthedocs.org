@@ -1807,7 +1807,7 @@ Remote Repository listing
 
     :query string name__contains: return remote repositories containing the name
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
-    :query string organization: return remote repositories for specific remote organization (Using remote organization ``slug``)
+    :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: allows to add/expand some extra fields in the response.
                           Allowed values are ``project`` and ``organization``.
                           Multiple fields can be passed separated by commas.
