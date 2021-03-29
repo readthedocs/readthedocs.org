@@ -82,7 +82,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             self._get_response_dict('remoterepositories-list'),
         )
 
-    def test_remote_repository_list_name__contains_filter(self):
+    def test_remote_repository_list_name_filter(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse('remoterepositories-list'),
@@ -91,7 +91,7 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
                     'project,'
                     'organization'
                 ),
-                'name__contains': 'proj'
+                'name': 'proj'
             }
         )
         self.assertEqual(response.status_code, 200)

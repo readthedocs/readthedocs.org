@@ -1681,7 +1681,7 @@ Remote Organization listing
 
     The ``results`` in response is an array of remote organizations data.
 
-    :query string name__contains: return remote organizations with containing the name
+    :query string name: return remote organizations with containing the name
     :query string vcs_provider: return remote organizations for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
 
     :requestheader Authorization: token to authenticate.
@@ -1805,7 +1805,7 @@ Remote Repository listing
 
     The ``results`` in response is an array of remote repositories data.
 
-    :query string name__contains: return remote repositories containing the name
+    :query string name: return remote repositories containing the name
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: allows to add/expand some extra fields in the response.
