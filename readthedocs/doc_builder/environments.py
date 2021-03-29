@@ -25,11 +25,11 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.projects.models import Feature
 from readthedocs.projects.exceptions import (
-    RepositoryError,
     ProjectConfigurationError,
+    RepositoryError,
 )
+from readthedocs.projects.models import Feature
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -51,7 +51,6 @@ from .exceptions import (
     VersionLockedError,
     YAMLParseError,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +83,8 @@ class BuildCommand(BuildCommandResultMixin):
     :param combine_output: combine stdout/stderr, default=True
     :param input_data: data to pass in on stdin
     :type input_data: str
+    :param str user: User used to execute the command, it can be in form of ``user:group``
+        or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
@@ -98,6 +99,7 @@ class BuildCommand(BuildCommandResultMixin):
             environment=None,
             combine_output=True,
             input_data=None,
+            user=None,
             build_env=None,
             bin_path=None,
             description=None,
@@ -106,9 +108,8 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        if cwd is None:
-            cwd = os.getcwd()
-        self.cwd = cwd
+        self.cwd = cwd or os.getcwd()
+        self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
             raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
@@ -314,7 +315,7 @@ class DockerBuildCommand(BuildCommand):
         :type escape_command: bool
         """
         self.escape_command = escape_command
-        super(DockerBuildCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self):
         """Execute command in existing Docker container."""
@@ -332,6 +333,7 @@ class DockerBuildCommand(BuildCommand):
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
+                user=self.user,
                 stdout=True,
                 stderr=True,
             )
