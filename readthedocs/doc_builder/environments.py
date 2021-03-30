@@ -130,10 +130,6 @@ class BuildCommand(BuildCommandResultMixin):
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
         self.start_time = datetime.utcnow()
-        stdout = subprocess.PIPE
-        stderr = subprocess.STDOUT
-        stdin = None
-
         environment = self.environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
@@ -158,9 +154,9 @@ class BuildCommand(BuildCommandResultMixin):
                 # This is done here for local builds, but not for docker,
                 # as we want docker to expand inside the container
                 cwd=os.path.expandvars(self.cwd),
-                stdin=stdin,
-                stdout=stdout,
-                stderr=stderr,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
