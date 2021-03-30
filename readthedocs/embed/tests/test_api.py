@@ -18,7 +18,7 @@ data_path = Path(__file__).parent.resolve() / 'data'
 
 
 @pytest.mark.django_db
-class TestEmbedAPI:
+class BaseTestEmbedAPI:
 
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
@@ -35,6 +35,10 @@ class TestEmbedAPI:
 
         settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
+
+    def get(self, client, *args, **kwargs):
+        """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
+        return client.get(*args, **kwargs)
 
     def _mock_open(self, content):
         @contextmanager
@@ -70,9 +74,9 @@ class TestEmbedAPI:
             },
         )
 
-        api_endpoint = reverse('api_embed')
+        api_endpoint = reverse('embed_api')
         for param in query_params:
-            r = client.get(api_endpoint, param)
+            r = self.get(client, api_endpoint, param)
             assert r.status_code == status.HTTP_400_BAD_REQUEST
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -121,9 +125,9 @@ class TestEmbedAPI:
                 'section': 'title-one',
             },
         )
-        api_endpoint = reverse('api_embed')
+        api_endpoint = reverse('embed_api')
         for param in query_params:
-            r = client.get(api_endpoint, param)
+            r = self.get(client, api_endpoint, param)
             assert r.status_code == status.HTTP_200_OK
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
@@ -137,8 +141,9 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = client.get(
-            reverse('api_embed'),
+        response = self.get(
+            client,
+            reverse('embed_api'),
             {
                 'project': self.project.slug,
                 'version': self.version.slug,
@@ -184,8 +189,9 @@ class TestEmbedAPI:
             html_file=html_file,
         )
 
-        response = client.get(
-            reverse('api_embed'),
+        response = self.get(
+            client,
+            reverse('embed_api'),
             {
                 'project': self.project.slug,
                 'version': self.version.slug,
@@ -233,8 +239,9 @@ class TestEmbedAPI:
         self.version.documentation_type = MKDOCS
         self.version.save()
 
-        response = client.get(
-            reverse('api_embed'),
+        response = self.get(
+            client,
+            reverse('embed_api'),
             {
                 'project': self.project.slug,
                 'version': self.version.slug,
@@ -268,3 +275,18 @@ class TestEmbedAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
+
+
+class TestEmbedAPI(BaseTestEmbedAPI):
+
+    pass
+
+
+@pytest.mark.proxito
+class TestProxiedEmbedAPI(BaseTestEmbedAPI):
+
+    host = 'project.readthedocs.io'
+
+    def get(self, client, *args, **kwargs):
+        r = client.get(*args, HTTP_HOST=self.host, **kwargs)
+        return r
