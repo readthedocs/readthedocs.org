@@ -1,7 +1,7 @@
 # Base packages
 
 pip==21.0.1
-virtualenv==20.4.2
+virtualenv==20.4.3
 
 django==2.2.19  # pyup: <2.3
 django-extensions==3.1.1
@@ -11,7 +11,7 @@ django-autoslug==1.9.8
 djangorestframework==3.12.2
 
 # For intersphinx during builds
-Sphinx==3.5.2
+Sphinx==3.5.3
 
 # Filtering for the REST API
 django-filter==2.4.0
@@ -64,13 +64,13 @@ pytz==2021.1
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.56.0
-regex==2020.11.13
+regex==2021.3.17
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.2
-django-crispy-forms==1.11.1
+django-crispy-forms==1.11.2
 
 docker==4.4.4
 
