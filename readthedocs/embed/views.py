@@ -16,6 +16,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
@@ -80,7 +81,7 @@ def clean_links(obj, url):
     return obj
 
 
-class EmbedAPIBase(APIView):
+class EmbedAPIBase(CachedResponseMixin, APIView):
 
     # pylint: disable=line-too-long
 

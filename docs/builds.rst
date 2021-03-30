@@ -84,8 +84,6 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
    ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
    ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
-If you want to learn more about how the build environment works as a low level,
-you can read about it in our :doc:`/development/buildenvironments` docs.
 
 .. tip::
 

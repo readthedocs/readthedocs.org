@@ -17,7 +17,6 @@ from readthedocs.projects.views.private import (
     DomainUpdate,
     EnvironmentVariableCreate,
     EnvironmentVariableDelete,
-    EnvironmentVariableDetail,
     EnvironmentVariableList,
     ImportView,
     IntegrationCreate,
@@ -26,7 +25,6 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    TrafficAnalyticsView,
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
@@ -45,6 +43,7 @@ from readthedocs.projects.views.private import (
     RegexAutomationRuleCreate,
     RegexAutomationRuleUpdate,
     SearchAnalytics,
+    TrafficAnalyticsView,
 )
 
 urlpatterns = [
@@ -289,11 +288,6 @@ environmentvariable_urls = [
         r'^(?P<project_slug>[-\w]+)/environmentvariables/create/$',
         EnvironmentVariableCreate.as_view(),
         name='projects_environmentvariables_create',
-    ),
-    url(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/$',
-        EnvironmentVariableDetail.as_view(),
-        name='projects_environmentvariables_detail',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',  # noqa

@@ -415,7 +415,6 @@ class CommunityBaseSettings(Settings):
         },
     }
 
-    MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
