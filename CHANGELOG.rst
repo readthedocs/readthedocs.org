@@ -1,3 +1,41 @@
+Version 5.13.0
+--------------
+
+:Date: March 30, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Test proxied embed API (`#8051 <https://github.com/readthedocs/readthedocs.org/pull/8051>`__)
+* `@stsewd <https://github.com/stsewd>`__: Feature flag: remove EXTERNAL_BUILD (`#8050 <https://github.com/readthedocs/readthedocs.org/pull/8050>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: always use a task (`#8049 <https://github.com/readthedocs/readthedocs.org/pull/8049>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: don't create versions in bulk (`#8046 <https://github.com/readthedocs/readthedocs.org/pull/8046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: add cache tags (`#8045 <https://github.com/readthedocs/readthedocs.org/pull/8045>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix proxito slash redirect for leading slash (`#8044 <https://github.com/readthedocs/readthedocs.org/pull/8044>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 12 (`#8038 <https://github.com/readthedocs/readthedocs.org/pull/8038>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: cleanup of old/deprecated documents (`#7994 <https://github.com/readthedocs/readthedocs.org/pull/7994>`__)
+* `@flying-sheep <https://github.com/flying-sheep>`__: Add publicly visible env vars (`#7891 <https://github.com/readthedocs/readthedocs.org/pull/7891>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove broadcast function (`#7044 <https://github.com/readthedocs/readthedocs.org/pull/7044>`__)
+
+Version 5.12.2
+--------------
+
+:Date: March 23, 2021
+
+* `@humitos <https://github.com/humitos>`__: AWS homepage link (`#8037 <https://github.com/readthedocs/readthedocs.org/pull/8037>`__)
+* `@hukkinj1 <https://github.com/hukkinj1>`__: Fix a typo in the docs (`#8035 <https://github.com/readthedocs/readthedocs.org/pull/8035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Clean some feature flags (`#8034 <https://github.com/readthedocs/readthedocs.org/pull/8034>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Standardize footerjs code (`#8032 <https://github.com/readthedocs/readthedocs.org/pull/8032>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: remove pdf format in MkdDocs example (`#8030 <https://github.com/readthedocs/readthedocs.org/pull/8030>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't leak data for projects with this feature disabled (`#8029 <https://github.com/readthedocs/readthedocs.org/pull/8029>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Canonicalize all proxito slashes (`#8028 <https://github.com/readthedocs/readthedocs.org/pull/8028>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make pageviews analytics show top 25 pages (`#8027 <https://github.com/readthedocs/readthedocs.org/pull/8027>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CSV header data for search analytics  (`#8026 <https://github.com/readthedocs/readthedocs.org/pull/8026>`__)
+* `@stsewd <https://github.com/stsewd>`__: HTMLFile: make md5 field nullable (`#8025 <https://github.com/readthedocs/readthedocs.org/pull/8025>`__)
+* `@humitos <https://github.com/humitos>`__: Use `RemoteRepository` releation to match already imported projects (`#8024 <https://github.com/readthedocs/readthedocs.org/pull/8024>`__)
+* `@stsewd <https://github.com/stsewd>`__: Badge: exclude duplicated builds (`#8023 <https://github.com/readthedocs/readthedocs.org/pull/8023>`__)
+* `@stsewd <https://github.com/stsewd>`__: Intersphinx: declare user agent (`#8022 <https://github.com/readthedocs/readthedocs.org/pull/8022>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: restart build commands before a new build (`#7999 <https://github.com/readthedocs/readthedocs.org/pull/7999>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remote Repository and  Remote Organization Normalization (`#7949 <https://github.com/readthedocs/readthedocs.org/pull/7949>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: don't track changed files (`#7874 <https://github.com/readthedocs/readthedocs.org/pull/7874>`__)
+
 Version 5.12.1
 --------------
 

@@ -54,11 +54,6 @@ class TestCeleryBuilding(TestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
-        get(
-            Feature,
-            feature_id=Feature.SYNC_VERSIONS_USING_A_TASK,
-            projects=[self.project],
-        )
 
     def get_update_docs_task(self, version):
         build_env = LocalBuildEnvironment(

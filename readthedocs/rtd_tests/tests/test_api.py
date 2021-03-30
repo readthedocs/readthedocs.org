@@ -761,7 +761,7 @@ class APITests(TestCase):
         self.assertIn('environment_variables', resp.data)
         self.assertEqual(
             resp.data['environment_variables'],
-            {'TOKEN': 'a1b2c3'},
+            {'TOKEN': dict(value='a1b2c3', public=False)},
         )
 
     def test_init_api_project(self):
@@ -776,16 +776,27 @@ class APITests(TestCase):
         self.assertEqual(api_project.features, [])
         self.assertFalse(api_project.ad_free)
         self.assertTrue(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables, {})
+        self.assertEqual(api_project.environment_variables(public_only=False), {})
+        self.assertEqual(api_project.environment_variables(public_only=True), {})
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
-        project_data['environment_variables'] = {'TOKEN': 'a1b2c3'}
+        project_data['environment_variables'] = {
+            'TOKEN': dict(value='a1b2c3', public=False),
+            'RELEASE': dict(value='prod', public=True),
+        }
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)
         self.assertFalse(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
+        self.assertEqual(
+            api_project.environment_variables(public_only=False),
+            {'TOKEN': 'a1b2c3', 'RELEASE': 'prod'},
+        )
+        self.assertEqual(
+            api_project.environment_variables(public_only=True),
+            {'RELEASE': 'prod'},
+        )
 
     def test_concurrent_builds(self):
         expected = {
@@ -900,11 +911,6 @@ class IntegrationsTests(TestCase):
             Project,
             build_queue=None,
             external_builds_enabled=True,
-        )
-        self.feature_flag = get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.EXTERNAL_VERSION_BUILD,
         )
         self.version = get(
             Version, slug='master', verbose_name='master',
@@ -1301,30 +1307,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_github_pull_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
-        resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            self.github_pull_request_payload,
-            format='json',
-            **headers
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_delete_event(self, sync_repository_task, trigger_build):
@@ -2065,31 +2047,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_gitlab_merge_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        resp = client.post(
-            reverse(
-                'api_webhook_gitlab',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            self.gitlab_merge_request_payload,
-            format='json',
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""

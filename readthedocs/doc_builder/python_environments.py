@@ -241,9 +241,9 @@ class PythonEnvironment:
         """
         m = hashlib.sha256()
 
-        env_vars = self.version.project.environment_variables
-        if self.version.type == EXTERNAL:
-            env_vars = {}
+        env_vars = self.version.project.environment_variables(
+            public_only=self.version.is_external
+        )
 
         for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
@@ -345,22 +345,12 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        setuptools_version = self.project.get_feature_value(
-            Feature.INSTALL_LATEST_SETUPTOOLS,
-            positive='setuptools',
-            negative='setuptools==41.0.1',
-        )
-        cmd = pip_install_cmd + [pip_version, setuptools_version]
+        cmd = pip_install_cmd + [pip_version, 'setuptools']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            self.project.get_feature_value(
-                Feature.DONT_INSTALL_DOCUTILS,
-                positive='',
-                negative='docutils==0.14',
-            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
