@@ -37,6 +37,7 @@ class BaseTestEmbedAPI:
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
 
     def get(self, client, *args, **kwargs):
+        """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
         return client.get(*args, **kwargs)
 
     def _mock_open(self, content):
