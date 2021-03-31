@@ -48,7 +48,7 @@ These commands will be run before the Python setup step and after the clone step
 Using ``docker exec``
 ---------------------
 
-Currently we user ``docker exec`` to execute commands in a running container.
+Currently we use ``docker exec`` to execute commands in a running container.
 This command also allows to pass a user which is used to run the commands (#8058_).
 We can run the ``apt`` commands in our current containers using a super user momentarily.
 
