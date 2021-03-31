@@ -81,6 +81,7 @@ gettext_compact = False
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_js_files = ['js/expand_tabs.js']
+html_css_files = ['css/custom.css']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {
@@ -139,7 +140,3 @@ linkcheck_ignore = [
     # This page is under login
     r'https://readthedocs\.org/accounts/gold',
 ]
-
-
-def setup(app):
-    app.add_css_file('css/sphinx_prompt_css.css')
