@@ -55,6 +55,7 @@ Going ad-free
 Users can go completely ad-free when logged in
 by becoming a `Gold member <https://readthedocs.org/accounts/gold/>`_
 or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
+Gold members may also completely remove advertising for all visitors to their projects.
 Thank you for supporting Read the Docs.
 
 
