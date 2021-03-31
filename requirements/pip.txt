@@ -8,7 +8,7 @@ django-extensions==3.1.1
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
 
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 
 # For intersphinx during builds
 Sphinx==3.5.3
@@ -44,7 +44,7 @@ django-allauth==0.42.0  # pyup: ignore
 GitPython==3.1.14
 
 # Search
-elasticsearch==7.11.0  # pyup: <8.0.0
+elasticsearch==7.12.0  # pyup: <8.0.0
 elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.1.4  # pyup: <8.0
 selectolax==0.2.10
