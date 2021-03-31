@@ -28,7 +28,7 @@ class Base:
 
 class Build(Base):
 
-    __slots__ = ('image',)
+    __slots__ = ('image', 'apt_packages')
 
 
 class Python(Base):

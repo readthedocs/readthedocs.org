@@ -794,7 +794,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     environment=self.build_env,
                 )
                 with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_python_environment()
+                    self.setup_build()
 
                     # TODO the build object should have an idea of these states,
                     # extend the model to include an idea of these outcomes
@@ -1152,6 +1152,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             search_ignore=self.config.search.ignore,
         )
 
+    def setup_build(self):
+        self.install_system_dependencies()
+        self.setup_python_environment()
+
     def setup_python_environment(self):
         """
         Build the virtualenv and install the project into it.
@@ -1176,6 +1180,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.install_requirements()
         if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
             self.python_env.list_packages_installed()
+
+    def install_system_dependencies(self):
+        packages = self.config.build.apt_packages
+        if packages:
+            self.build_env.run(
+                'apt-get', 'update', '-y', '-q',
+                user=settings.RTD_BUILD_SUPER_USER,
+            )
+            self.build_env.run(
+                'apt-get', 'install', '-y', '-q', *packages,
+                user=settings.RTD_BUILD_SUPER_USER,
+            )
 
     def build_docs(self):
         """
