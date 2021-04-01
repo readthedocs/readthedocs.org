@@ -272,13 +272,13 @@ However, we want to prioritize it based on users' impact.
 Conclusion
 ----------
 
-I don't think we need to differentiate the images by its state (stable, latest, testing)
+There is no need to differentiate the images by its state (stable, latest, testing)
 but by its main base differences: OS and Python version.
 The version of the OS will change many library versions,
 LaTeX dependencies, basic required commands like git and more,
 that doesn't seem to be useful to have the same OS version with different states.
 
-Allowing users to install system dependencies and extras will cover most of the support requests we have had in the past
+Allowing users to install system dependencies and extras will cover most of the support requests we have had in the past.
 It also will allow us to know more about how our users are using the platform to make future decisions based on this data.
 Exposing users how we want them to use our platform will allow us to be able to maintain it longer,
 than giving them totally freedom on the Docker image.
