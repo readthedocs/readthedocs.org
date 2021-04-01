@@ -45,6 +45,11 @@ Users will provide a list of packages to install, and under the hook we would ru
 
 These commands will be run before the Python setup step and after the clone step.
 
+.. note::
+
+   All package names must be validated to avoid injection of extra options
+   (like ``-v``).
+
 Using ``docker exec``
 ---------------------
 
@@ -57,21 +62,27 @@ We can run the ``apt`` commands in our current containers using a super user mom
 Config file
 -----------
 
-The config file can add an additional mapping ``build.packages`` to a list of packages to install.
+The config file can add an additional mapping ``build.apt_packages`` to a list of packages to install.
 
 .. code-block:: yaml
 
    version: 2
 
    build:
-     packages:
+     apt_packages:
         - cmatrix
         - mysql-server
 
 .. note::
 
-   We can rename the key to be ``build.apt_packages`` or ``build.extra_packages``
-   so users aren't confused with Python packages or maybe having that option under the ``build`` key is enough.
+   Other names that were considered were:
+
+   - ``build.packages``
+   - ``build.extra_packages``
+   - ``build.system_packages``
+
+   These were rejected to avoid confusion existing keys,
+   and to be explicit about the type of package.
 
 Possible problems
 -----------------
