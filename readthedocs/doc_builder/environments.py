@@ -80,9 +80,6 @@ class BuildCommand(BuildCommandResultMixin):
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
-    :param combine_output: combine stdout/stderr, default=True
-    :param input_data: data to pass in on stdin
-    :type input_data: str
     :param str user: User used to execute the command, it can be in form of ``user:group``
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
@@ -97,8 +94,6 @@ class BuildCommand(BuildCommandResultMixin):
             cwd=None,
             shell=False,
             environment=None,
-            combine_output=True,
-            input_data=None,
             user=None,
             build_env=None,
             bin_path=None,
@@ -114,8 +109,6 @@ class BuildCommand(BuildCommandResultMixin):
         if 'PATH' in self.environment:
             raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
-        self.combine_output = combine_output
-        self.input_data = input_data
         self.build_env = build_env
         self.output = None
         self.error = None
@@ -123,9 +116,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.end_time = None
 
         self.bin_path = bin_path
-        self.description = ''
-        if description is not None:
-            self.description = description
+        self.description = description or ''
         self.record_as_success = record_as_success
         self.exit_code = None
 
@@ -137,24 +128,10 @@ class BuildCommand(BuildCommandResultMixin):
         return '\n'.join([self.get_command(), output])
 
     def run(self):
-        """
-        Set up subprocess and execute command.
-
-        :param cmd_input: input to pass to command in STDIN
-        :type cmd_input: str
-        :param combine_output: combine STDERR into STDOUT
-        """
+        """Set up subprocess and execute command."""
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
         self.start_time = datetime.utcnow()
-        stdout = subprocess.PIPE
-        stderr = subprocess.PIPE
-        stdin = None
-        if self.input_data is not None:
-            stdin = subprocess.PIPE
-        if self.combine_output:
-            stderr = subprocess.STDOUT
-
         environment = self.environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
@@ -179,21 +156,12 @@ class BuildCommand(BuildCommandResultMixin):
                 # This is done here for local builds, but not for docker,
                 # as we want docker to expand inside the container
                 cwd=os.path.expandvars(self.cwd),
-                stdin=stdin,
-                stdout=stdout,
-                stderr=stderr,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 env=environment,
             )
-            cmd_input = None
-            if self.input_data is not None:
-                cmd_input = self.input_data
-
-            if isinstance(cmd_input, str):
-                cmd_input_bytes = cmd_input.encode('utf-8')
-            else:
-                cmd_input_bytes = cmd_input
-            cmd_output = proc.communicate(input=cmd_input_bytes)
-            (cmd_stdout, cmd_stderr) = cmd_output
+            cmd_stdout, cmd_stderr = proc.communicate()
             self.output = self.sanitize_output(cmd_stdout)
             self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
