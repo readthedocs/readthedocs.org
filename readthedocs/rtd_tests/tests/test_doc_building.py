@@ -702,6 +702,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -761,6 +762,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -807,6 +809,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
