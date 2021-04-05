@@ -11,7 +11,7 @@ Pygments==2.8.1
 # AttributeError: 'str' object has no attribute 'rawsource'
 docutils==0.14  # pyup: ignore
 
-sphinx_rtd_theme==0.5.1
+sphinx_rtd_theme==0.5.2
 sphinx-tabs==2.1.0
 sphinx-intl==2.0.1
 
