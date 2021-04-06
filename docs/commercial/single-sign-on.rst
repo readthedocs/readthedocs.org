@@ -12,12 +12,7 @@ Single Sign-On is supported on |com_brand| for Pro and Enterprise plans.
 Currently, we support two different types of Single Sign-On:
 
 * Authentication *and* authorization are managed by the Identity Provider (e.g. GitHub, Bitbucket or GitLab)
-* Authentication (*only*) is managed by the Identity Provider (e.g. an active GSuite/Google ``@company.com`` with a verified email address)
-
-.. note::
-
-   SSO is currently in **Beta** and only GitHub, Bitbucket, GitLab and Google are supported for now.
-   If you would like to apply for the Beta, please `contact us <mailto:support@readthedocs.com>`_.
+* Authentication (*only*) is managed by the Identity Provider (e.g. an active Google Workspace account with a verified email address)
 
 .. contents::
    :local:
@@ -31,6 +26,10 @@ Using an Identity Provider that supports authentication and authorization allows
 "who have access to what projects on Read the Docs" directly from the provider itself.
 In case you want a user to have access to your documentation project under Read the Docs,
 that user just needs to be granted permissions in the VCS repository associated with it.
+
+You can enable this feature in your organization by going to
+your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
+and selecting :guilabel:`GitHub, GitLab or Bitbucket` as provider.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
 :doc:`account connected </connected-accounts>` in order to make SSO to work.
@@ -78,8 +77,8 @@ but still want that user to have access to read the documentation.
 Instead of revoking access completely, just need lower down permissions to **read** only.
 
 
-SSO with GSuite (Google email account)
---------------------------------------
+SSO with Google Workspace
+-------------------------
 
 Using your company's Google email address (e.g. ``employee@company.com``) allows you to
 manage authentication for your organization's members.
@@ -90,12 +89,16 @@ By default, users that Sign Up with a Google account do not have any permissions
 However, you can define which Teams users matching your company's domain email address will auto-join when they Sign Up.
 Read the following sections to learn how to grant read and admin access.
 
+You can enable this feature in your organization by going to
+your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
+and selecting :guilabel:`Google` as provider and specifying your Google Workspace domain in the :guilabel:`Domain` field.
+
 
 Grant access to read a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can add a user under a "Read Only Team" to grant **read** permissions to all the projects under that Team.
-This can be done under "your organization detail's page" > :guilabel:`Teams` > :guilabel:`Read Only` > :guilabel:`Invite Member`.
+This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Read Only` > :guilabel:`Invite Member`.
 
 To avoid this repetitive task for each employee of your company,
 the owner of the Read the Docs organization can mark one or many Teams for users matching the company's domain email
@@ -111,7 +114,7 @@ Grant access to administer a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can add a user under an "Admin Team" to grant **admin** permissions to all the projects under that Team.
-This can be done under "your organization detail's page" > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
+This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
 
 
 Grant access to users to import a project
@@ -128,11 +131,11 @@ Revoke user's access to a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To revoke access to a project for a particular user, you should remove that user from the Team that contains that Project.
-This can be done under "your organization detail's page" > :guilabel:`Teams` > :guilabel:`Read Only` and click :guilabel:`Remove` next to the user you want to revoke access.
+This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Read Only` and click :guilabel:`Remove` next to the user you want to revoke access.
 
 
 Revoke user's access to all the projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By disabling the GSuite/Google account with email ``employee@company.com``,
+By disabling the Google Workspace account with email ``employee@company.com``,
 you revoke access to all the projects that user had access and disable login on Read the Docs completely for that user.
