@@ -1197,12 +1197,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         if packages:
             self.build_env.run(
                 'apt-get', 'update', '--assume-yes', '--quiet',
-                user=settings.RTD_BUILD_SUPER_USER,
+                user=settings.RTD_DOCKER_SUPER_USER,
             )
             # put ``--`` to end all command arguments.
             self.build_env.run(
                 'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
-                user=settings.RTD_BUILD_SUPER_USER,
+                user=settings.RTD_DOCKER_SUPER_USER,
             )
 
     def build_docs(self):
