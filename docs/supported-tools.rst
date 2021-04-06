@@ -36,9 +36,9 @@ This is how we choose an end of support date:
 - For tools that release their versions incrementally without an EOL date,
   we choose a date based on:
 
-  - The release versions with breaking changes (mayor versions).
+  - A version with breaking changes is released (usually a mayor version update).
   - The date since it was last updated.
-  - And its usage on our platform.
+  - Its usage on our platform.
 
 .. note::
 
@@ -152,12 +152,12 @@ Sphinx
    * - ``3.x``
      - Apr 5, 2020
      - \???
-     - 5.0 is released or later/early
+     - 5.0 released or later/early
 
    * - ``2.x``
      - Mar 28, 2019
      - Mar 5, 2020
-     - 4.0 is released or later/early
+     - 4.0 released or later/early
 
    * - ``1.8.x``
      - Sep 12, 2018
