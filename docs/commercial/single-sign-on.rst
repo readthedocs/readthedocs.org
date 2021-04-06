@@ -91,7 +91,7 @@ Read the following sections to learn how to grant read and admin access.
 
 You can enable this feature in your organization by going to
 your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
-and selecting :guilabel:`Google` as provider and writing your ``company.com`` domain in :guilabel:`Domain` field.
+and selecting :guilabel:`Google` as provider and specifying your Google Workspace domain in the :guilabel:`Domain` field.
 
 
 Grant access to read a project
