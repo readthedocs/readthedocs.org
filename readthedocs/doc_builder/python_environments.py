@@ -1,4 +1,4 @@
-"""An abstraction over virtualenv and Conda environments."""
+sphinx-rtd-theme"""An abstraction over virtualenv and Conda environments."""
 
 import codecs
 import copy
@@ -377,12 +377,15 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx',
                     negative='sphinx<2',
                 ),
-                # If defaulting to Sphinx 2+, we need to push the latest theme
-                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                # When using sphinx<2 use a theme version that is supported.
+                # While sphinx-rtd-theme 0.5.2 supports sphinx<2 and sphinx>2,
+                # support for sphinx<2 will be removed in the future.
+                # In that case we may need to modify the versions here
+                # or handle sphinx compatibility in the theme.
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
                     positive='sphinx-rtd-theme',
-                    negative='sphinx-rtd-theme<0.5',
+                    negative='sphinx-rtd-theme<0.6',
                 ),
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
