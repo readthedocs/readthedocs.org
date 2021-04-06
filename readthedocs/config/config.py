@@ -785,7 +785,7 @@ class BuildConfigV2(BuildConfigBase):
         We validate that they aren't interpreted as an option or file.
 
         See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
-        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names
+        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
         for allowed chars in packages names.
         """
         key = f'build.apt_packages.{index}'
