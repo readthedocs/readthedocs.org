@@ -133,7 +133,7 @@ Internal dependencies are needed to integrate your docs with Read the Docs.
 We guarantee that these dependencies will work with all current supported versions of our tools,
 you don't need to specify them in your requirements.
 
-- readthedocs-sphinx-ext
+- `readthedocs-sphinx-ext <https://github.com/readthedocs/readthedocs-sphinx-ext>`__
 
 Table of supported versions
 ---------------------------
