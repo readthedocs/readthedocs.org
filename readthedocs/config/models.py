@@ -30,6 +30,9 @@ class Build(Base):
 
     __slots__ = ('image', 'apt_packages')
 
+    def __init__(self, apt_packages=[], **kwargs):
+        super().__init__(apt_packages=apt_packages, **kwargs)
+
 
 class Python(Base):
 

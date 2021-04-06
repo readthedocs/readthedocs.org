@@ -325,8 +325,8 @@ build.apt_packages
 ``````````````````
 
 List of `APT packages`_ to install.
-Our build servers run Ubuntu, with the default set of package repositories installed.
-We don't currently support PPA's or other custom repositories. 
+Our build servers run Ubuntu 18.04, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories.
 
 .. _APT packages: https://packages.ubuntu.com/
 
@@ -341,6 +341,11 @@ We don't currently support PPA's or other custom repositories.
      apt_packages:
        - mysql-client
        - cmatrix
+
+.. note::
+
+   When possible avoid installing Python packages using apt (``python3-numpy`` for example),
+   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
 sphinx
 ~~~~~~

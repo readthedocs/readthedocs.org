@@ -1182,14 +1182,26 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.python_env.list_packages_installed()
 
     def install_system_dependencies(self):
+        """
+        Install apt packages from the config file.
+
+        We don't allow to pass custom options or install from a path.
+        The packages names are already validated when reading the config file.
+
+        .. note::
+
+           ``--quiet`` won't suppress the output,
+           it would just remove the progress bar.
+        """
         packages = self.config.build.apt_packages
         if packages:
             self.build_env.run(
-                'apt-get', 'update', '-y', '-q',
+                'apt-get', 'update', '--assume-yes', '--quiet',
                 user=settings.RTD_BUILD_SUPER_USER,
             )
+            # put ``--`` to end all command arguments.
             self.build_env.run(
-                'apt-get', 'install', '-y', '-q', *packages,
+                'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
                 user=settings.RTD_BUILD_SUPER_USER,
             )
 

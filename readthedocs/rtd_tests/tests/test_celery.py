@@ -521,8 +521,8 @@ class TestCeleryBuilding(TestCase):
             mock.call(
                 'apt-get',
                 'update',
-                '-y',
-                '-q',
+                '--assume-yes',
+                '--quiet',
                 user='root:root',
             )
         )
@@ -531,8 +531,9 @@ class TestCeleryBuilding(TestCase):
             mock.call(
                 'apt-get',
                 'install',
-                '-y',
-                '-q',
+                '--assume-yes',
+                '--quiet',
+                '--',
                 'clangd',
                 'cmatrix',
                 user='root:root',

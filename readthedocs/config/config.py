@@ -122,8 +122,14 @@ class InvalidConfig(ConfigError):
         super().__init__(message, code=code)
 
     def _get_display_key(self):
-        # Checks for patterns similar to `python.install.0.requirements`
-        # if matched change to `python.install[0].requirements` using backreference.
+        """
+        Display keys in a more friendly format.
+
+        Indexes are displayed like ``n``,
+        but users may be more familiar with the ``[n]`` syntax.
+        For example ``python.install.0.requirements``
+        is changed to `python.install[0].requirements`.
+        """
         return re.sub(
             r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
             r'\1[\2]\3',
@@ -625,10 +631,7 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def build(self):
         """The docker image used by the builders."""
-        return Build(
-            apt_packages=[],
-            **self._config['build'],
-        )
+        return Build(**self._config['build'])
 
     @property
     def doctype(self):
@@ -777,8 +780,13 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validate the package name to avoid injections of extra options.
 
-        Packages names can be a regex pattern.
-        We just validate that they aren't interpreted as an option or file.
+        Packages names can contain a regex pattern,
+        or use the ``package=version``/``package/distribution`` syntax.
+        We validate that they aren't interpreted as an option or file.
+
+        See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
+        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names
+        for allowed chars in packages names.
         """
         key = f'build.apt_packages.{index}'
         package = self.pop_config(key)
@@ -786,9 +794,8 @@ class BuildConfigV2(BuildConfigBase):
             validate_string(package)
             package = package.strip()
             invalid_starts = [
-                # Don't allow to inject extra options.
+                # Don't allow extra options.
                 '-',
-                '\\',
                 # Don't allow to install from a path.
                 '/',
                 '.',
@@ -799,10 +806,18 @@ class BuildConfigV2(BuildConfigBase):
                         key=key,
                         message=(
                             'Invalid package name. '
-                            f'Package can\'t start with {start}',
+                            f'Package can\'t start with {start}.',
                         ),
                         code=INVALID_NAME,
                     )
+            # List of valid chars in packages names + regex chars + separators.
+            pattern = re.compile(r'^[a-zA-Z0-9^]+[a-zA-Z0-9.+?$*/=-]*$')
+            if not pattern.match(package):
+                self.error(
+                    key=key,
+                    message='Invalid package name.',
+                    code=INVALID_NAME,
+                )
         return package
 
     def validate_python(self):
