@@ -1,4 +1,4 @@
-sphinx-rtd-theme"""An abstraction over virtualenv and Conda environments."""
+"""An abstraction over virtualenv and Conda environments."""
 
 import codecs
 import copy
