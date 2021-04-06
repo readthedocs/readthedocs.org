@@ -28,7 +28,7 @@ In case you want a user to have access to your documentation project under Read 
 that user just needs to be granted permissions in the VCS repository associated with it.
 
 You can enable this feature in your organization by going to
-"your organization detail's page" > :guilabel:`Settings` > :guilabel:`Authorization`
+your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
 and selecting :guilabel:`GitHub, GitLab or Bitbucket` as provider.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
@@ -90,7 +90,7 @@ However, you can define which Teams users matching your company's domain email a
 Read the following sections to learn how to grant read and admin access.
 
 You can enable this feature in your organization by going to
-"your organization detail's page" > :guilabel:`Settings` > :guilabel:`Authorization`
+your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
 and selecting :guilabel:`Google` as provider and writing your ``company.com`` domain in :guilabel:`Domain` field.
 
 
