@@ -325,6 +325,8 @@ build.apt_packages
 ``````````````````
 
 List of `APT packages`_ to install.
+Our build servers run Ubuntu, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories. 
 
 .. _APT packages: https://packages.ubuntu.com/
 
