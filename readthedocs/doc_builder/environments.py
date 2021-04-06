@@ -80,6 +80,8 @@ class BuildCommand(BuildCommandResultMixin):
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
+    :param str user: User used to execute the command, it can be in form of ``user:group``
+        or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
@@ -92,6 +94,7 @@ class BuildCommand(BuildCommandResultMixin):
             cwd=None,
             shell=False,
             environment=None,
+            user=None,
             build_env=None,
             bin_path=None,
             description=None,
@@ -100,9 +103,8 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        if cwd is None:
-            cwd = os.getcwd()
-        self.cwd = cwd
+        self.cwd = cwd or os.getcwd()
+        self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
             raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
@@ -281,7 +283,7 @@ class DockerBuildCommand(BuildCommand):
         :type escape_command: bool
         """
         self.escape_command = escape_command
-        super(DockerBuildCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self):
         """Execute command in existing Docker container."""
@@ -299,6 +301,7 @@ class DockerBuildCommand(BuildCommand):
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
+                user=self.user,
                 stdout=True,
                 stderr=True,
             )
