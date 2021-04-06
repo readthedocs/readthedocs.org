@@ -36,7 +36,7 @@ This is how we choose an end of support date:
 - For tools that release their versions incrementally without an EOL date,
   we choose a date based on:
 
-  - A version with breaking changes is released (usually a mayor version update).
+  - A version with breaking changes is released (usually a major version update).
   - The date since it was last updated.
   - Its usage on our platform.
 
