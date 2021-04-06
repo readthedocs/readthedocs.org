@@ -477,7 +477,6 @@ class TestCeleryBuilding(TestCase):
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     @patch.object(BuildEnvironment, 'run')
     @patch('readthedocs.doc_builder.config.load_config')
