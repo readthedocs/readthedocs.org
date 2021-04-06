@@ -295,27 +295,12 @@ class SyncRepositoryMixin:
             branches_data=branches_data,
         )
 
-        if self.project.has_feature(Feature.SYNC_VERSIONS_USING_A_TASK):
-            from readthedocs.builds import tasks as build_tasks
-            build_tasks.sync_versions_task.delay(
-                project_pk=self.project.pk,
-                tags_data=tags_data,
-                branches_data=branches_data,
-            )
-        else:
-            try:
-                version_post_data = {
-                    'repo': version_repo.repo_url,
-                    'tags': tags_data,
-                    'branches': branches_data,
-                }
-                api_v2.project(self.project.pk).sync_versions.post(
-                    version_post_data,
-                )
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
+        from readthedocs.builds import tasks as build_tasks
+        build_tasks.sync_versions_task.delay(
+            project_pk=self.project.pk,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
@@ -986,10 +971,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             })
 
         # Update environment from Project's specific environment variables,
-        # avoiding to expose environment variables if the version is external
-        # for security reasons.
-        if self.version.type != EXTERNAL:
-            env.update(self.project.environment_variables)
+        # avoiding to expose private environment variables
+        # if the version is external (i.e. a PR build).
+        env.update(self.project.environment_variables(
+            public_only=self.version.is_external
+        ))
 
         return env
 
@@ -1138,12 +1124,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             pdf=False,
             epub=False,
     ):
-        """
-        Update application instances with build artifacts.
-
-        This triggers updates across application instances for html, pdf, epub,
-        downloads, and search. Tasks are broadcast to all web servers from here.
-        """
+        """Update build artifacts and index search data."""
         # Update version if we have successfully built HTML output
         # And store whether the build had other media types
         try:
@@ -1162,7 +1143,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 self.version,
             )
 
-        # Broadcast finalization steps to web application instances
+        # Index search data
         fileify.delay(
             version_pk=self.version.pk,
             commit=self.build['commit'],
@@ -1863,6 +1844,7 @@ def finish_inactive_builds():
     )
 
 
+# TODO: Move this to builds/tasks
 @app.task(queue='web')
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """

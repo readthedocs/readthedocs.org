@@ -1,6 +1,26 @@
 Interesting Settings
 ====================
 
+DOCKER_LIMITS
+-------------
+
+Default: :djangosetting:`DOCKER_LIMITS`
+
+A dictionary of limits to virtual machines. These limits include:
+
+time
+    An integer representing the total allowed time limit (in
+    seconds) of build processes. This time limit affects the parent
+    process to the virtual machine and will force a virtual machine
+    to die if a build is still running after the allotted time
+    expires.
+
+memory
+    The maximum memory allocated to the virtual machine. If this
+    limit is hit, build processes will be automatically killed.
+    Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
+    total memory.
+
 SLUMBER_USERNAME
 ----------------
 
@@ -46,13 +66,6 @@ Default: :djangosetting:`RTD_INTERSPHINX_URL`
 This is the domain that is used to fetch the intersphinx inventory file.
 If not set explicitly this is the ``PRODUCTION_DOMAIN``.
 
-MULTIPLE_APP_SERVERS
---------------------
-
-Default: :djangosetting:`MULTIPLE_APP_SERVERS`
-
-This is a list of application servers that built documentation is copied to. This allows you to run an independent build server, and then have it rsync your built documentation across multiple front end documentation/app servers.
-
 DEFAULT_PRIVACY_LEVEL
 ---------------------
 
@@ -65,15 +78,7 @@ INDEX_ONLY_LATEST
 
 Default: :djangosetting:`INDEX_ONLY_LATEST`
 
-In search, only index the `latest` version of a Project. 
-
-DOCUMENT_PYQUERY_PATH
----------------------
-
-Default: :djangosetting:`DOCUMENT_PYQUERY_PATH`
-
-The Pyquery path to an HTML element that is the root of your document. 
-This is used for making sure we are only searching the main content of a document.
+In search, only index the `latest` version of a Project.
 
 PUBLIC_DOMAIN
 -------------
