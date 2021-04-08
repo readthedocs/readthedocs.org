@@ -615,7 +615,8 @@ class Conda(PythonEnvironment):
 
             for item in dependencies:
                 if isinstance(item, dict) and 'pip' in item:
-                    pip_requirements.extend(item.get('pip', []))
+                    # NOTE: pip can be ``None``
+                    pip_requirements.extend(item.get('pip') or [])
                     dependencies.remove(item)
                     break
 
