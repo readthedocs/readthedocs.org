@@ -309,9 +309,15 @@ def parse_sphinx(content, section, url):
     for element_id in elements_id:
         if not element_id:
             continue
-        query_result = body_obj(f'#{element_id}')
-        if query_result:
-            break
+        try:
+            query_result = body_obj(f'#{element_id}')
+            if query_result:
+                break
+        except Exception:
+            log.info(
+                'Failed to query section. url=%s id=%s',
+                url, element_id,
+            )
 
     if not query_result:
         selector = f':header:contains("{escaped_section}")'
