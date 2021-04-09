@@ -1,0 +1,29 @@
+version = 1
+
+test_patterns = [
+    "**/tests/**",
+    "**/tests.py"
+]
+
+exclude_patterns = [
+    "docs/**",
+    "**/migrations/**"
+]
+
+[[analyzers]]
+name = "python"
+enabled = true
+dependency_file_paths = [
+    "requirements/pip.txt",
+    "requirements/testing.txt"
+]
+
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+
+[[analyzers]]
+name = "docker"
+enabled = true
+
+  [analyzers.meta]
+  dockerfile_paths = ["dockerfiles/Dockerfile"]
