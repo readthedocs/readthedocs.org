@@ -15,12 +15,18 @@ Contributing through the Github UI
 
 If you're making small changes to the documentation, you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
 
-1. Click the checkmark next to your commit and it will expand to have multiple options.
-2. Right-click the "details" link next to the "docs/readthedocs.org:docs" item.
-3. Navigate to the section of the documentation you worked on to verify your changes.
+1. click the checkmark next to your commit and it will expand to have multiple options
+2. right-click the "details" link next to the "docs/readthedocs.org:docs" item
+3. navigate to the section of the documentation you worked on to verify your changes
 
 Contributing from your local machine
 ------------------------------------
+
+If you're making large changes to the documentation, you'll want to verify those changes locally before pushing upstream.
+
+1. follow the instructions to [Set up your environment](https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment)
+2. navigate to ??? to view your development version of the Read The Docs documentation.
+3. as long as all your containers are up as shown in step 6 of [Set up your environment](https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment), your changes should be reflected automatically on each save.
 
 Guidelines
 ----------
