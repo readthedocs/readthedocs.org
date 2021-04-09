@@ -10,11 +10,26 @@ The docs are kept in the ``docs/`` directory at the top of the source tree.
    However, if there is going to be periodic/bigger contributions, it may be a
    good idea to install the Sphinx requirements to build our docs.
 
+Contributing through the Github UI
+----------------------------------
+
+If you're making small changes to the documentation, you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
+
+1. Click the checkmark next to your commit and it will expand to have multiple options.
+2. Right-click the "details" link next to the "docs/readthedocs.org:docs" item.
+3. Navigate to the section of the documentation you worked on to verify your changes.
+
+Contributing from your local machine
+------------------------------------
+
+Guidelines
+----------
+
 Please follow these guidelines when updating our docs.
 Let us know if you have any questions or something isn't clear.
 
 The brand
----------
+^^^^^^^^^
 
 We are called **Read the Docs**.
 The *the* is not capitalized.
@@ -22,7 +37,7 @@ The *the* is not capitalized.
 We do however use the acronym **RTD**.
 
 Titles
-------
+^^^^^^
 
 For page titles, or Heading1 as they are sometimes called, we use title-case.
 
@@ -30,7 +45,7 @@ If the page includes multiple sub-headings (H2, H3),
 we usually use sentence-case unless the titles include terminology that is supposed to be capitalized.
 
 Content
--------
+^^^^^^^
 
 * Do not break the content across multiple lines at 80 characters,
   but rather break them on semantic meaning (e.g. periods or commas).
