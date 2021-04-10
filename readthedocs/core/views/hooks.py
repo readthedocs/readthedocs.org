@@ -118,22 +118,22 @@ def trigger_sync_versions(project):
     return None
 
 
-def get_or_create_external_version(project, identifier, verbose_name):
+def get_or_create_external_version(project, version_data):
     """
-    Get or create external versions using `identifier` and `verbose_name`.
+    Get or create version using the ``commit`` as identifier, and PR id as ``verbose_name``.
 
     if external version does not exist create an external version
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns:  External version.
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+                         instance.
+    :returns: External version.
     :rtype: Version
     """
     external_version, created = project.versions.get_or_create(
-        verbose_name=verbose_name,
+        verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={'identifier': identifier, 'active': True},
+        defaults={'identifier': version_data.commit, 'active': True},
     )
 
     if created:
@@ -143,11 +143,10 @@ def get_or_create_external_version(project, identifier, verbose_name):
         )
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
-        external_version.identifier = identifier
+        external_version.identifier = version_data.commit
         # If the PR was previously closed it was marked as inactive.
         external_version.active = True
         external_version.save()
-
         log.info(
             'External version updated: project=%s version=%s',
             project.slug, external_version.slug,
@@ -155,7 +154,7 @@ def get_or_create_external_version(project, identifier, verbose_name):
     return external_version
 
 
-def deactivate_external_version(project, identifier, verbose_name):
+def deactivate_external_version(project, version_data):
     """
     Deactivate external versions using `identifier` and `verbose_name`.
 
@@ -165,14 +164,21 @@ def deactivate_external_version(project, identifier, verbose_name):
     so another celery task will remove it after some days.
 
     :param project: Project instance
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+                         instance.
     :param identifier: Commit Hash
     :param verbose_name: pull/merge request number
     :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
-    external_version = project.versions(manager=EXTERNAL).filter(
-        verbose_name=verbose_name, identifier=identifier
-    ).first()
+    external_version = (
+        project.versions(manager=EXTERNAL)
+        .filter(
+            verbose_name=version_data.id,
+            identifier=version_data.commit,
+        )
+        .first()
+    )
 
     if external_version:
         external_version.active = False
@@ -185,11 +191,14 @@ def deactivate_external_version(project, identifier, verbose_name):
     return None
 
 
-def build_external_version(project, version, commit):
+def build_external_version(project, version, version_data):
     """
     Where we actually trigger builds for external versions.
 
     All pull/merge request webhook logic should route here to call ``trigger_build``.
+
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+                         instance.
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True
@@ -201,6 +210,6 @@ def build_external_version(project, version, commit):
         project.slug,
         version.slug,
     )
-    trigger_build(project=project, version=version, commit=commit, force=True)
+    trigger_build(project=project, version=version, commit=version.identifier, force=True)
 
     return version.verbose_name
