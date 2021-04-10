@@ -24,9 +24,9 @@ Contributing from your local machine
 
 If you're making large changes to the documentation, you'll want to verify those changes locally before pushing upstream.
 
-1. follow the instructions to [Set up your environment](https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment)
+1. follow the instructions to `Set up your environment <https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment>`__
 2. navigate to ??? to view your development version of the Read The Docs documentation
-3. as long as all your containers are up as shown in step 6 of [Set up your environment](https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment), your changes should be reflected automatically on each save
+3. as long as all your containers are up as shown in step 6 of `Set up your environment <https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment>`__, your changes should be reflected automatically on each save
 
 Guidelines
 ----------
