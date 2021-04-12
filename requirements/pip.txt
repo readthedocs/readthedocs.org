@@ -72,7 +72,7 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.2
 django-crispy-forms==1.11.2
 
-docker==4.4.4
+docker==5.0.0
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
