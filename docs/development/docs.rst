@@ -24,10 +24,10 @@ Contributing from your local machine
 
 If you're making large changes to the documentation, you'll want to verify those changes locally before pushing upstream.
 
-1. follow the instructions to `Set up your environment <https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment>`__
-2. go back to <http://community.dev.readthedocs.io/>`__ and login as `admin/admin`
+1. follow the instructions to `Set up your environment <https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment>`_
+2. go back to `http://community.dev.readthedocs.io/ <http://community.dev.readthedocs.io/>`_ and login as `admin/admin`
 3. find the "Read the Docs" Project, click through, and build the `latest` version
-4. once the build completes, click the "View Docs" button in the top right to view your development docs
+4. once the build completes, click the "View Docs" button or nagigate to `http://read-the-docs.community.dev.readthedocs.io/en/latest/ <http://read-the-docs.community.dev.readthedocs.io/en/latest/>`_ in the top right to view your development docs
 5. rebuild the "Read the Docs" Project each time you'd like to see your latest changes
 
 Guidelines
