@@ -191,9 +191,7 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
-
-    template_name = 'projects/project_version_detail.html'
+class ProjectVersionEditMixin(ProjectVersionMixin):
 
     def get_queryset(self):
         return Version.internal.public(
@@ -219,6 +217,16 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectVersionCreate(ProjectVersionEditMixin, CreateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+
+class ProjectVersionDetail(ProjectVersionEditMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
 
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
