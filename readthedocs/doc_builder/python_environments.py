@@ -326,37 +326,16 @@ class Virtualenv(PythonEnvironment):
             cwd='$HOME',
         )
 
-    def install_core_requirements(self):
-        """Install basic Read the Docs requirements into the virtualenv."""
-        pip_install_cmd = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'install',
-            '--upgrade',
-            *self._pip_cache_cmd_argument(),
-        ]
-
-        # Install latest pip and setuptools first,
-        # so it is used when installing the other requirements.
-        pip_version = self.project.get_feature_value(
-            Feature.DONT_INSTALL_LATEST_PIP,
-            # 20.3 uses the new resolver by default.
-            positive='pip<20.3',
-            negative='pip',
-        )
-        cmd = pip_install_cmd + [pip_version, 'setuptools']
-        self.build_env.run(
-            *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
-        )
-
-        requirements = [
-            'mock==1.0.1',
-            'pillow==5.4.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.8.1',
-            'recommonmark==0.5.0',
-        ]
+    def _get_core_requirements(self):
+        requirements = []
+        if not self.project.has_feature(Feature.DONT_INSTALL_IMPLICIT_DEPS):
+            requirements.extend([
+                'mock==1.0.1',
+                'pillow==5.4.1',
+                'alabaster>=0.7,<0.8,!=0.7.5',
+                'commonmark==0.8.1',
+                'recommonmark==0.5.0',
+            ])
 
         if self.config.doctype == 'mkdocs':
             requirements.append(
@@ -377,19 +356,50 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx',
                     negative='sphinx<2',
                 ),
-                # If defaulting to Sphinx 2+, we need to push the latest theme
-                # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx-rtd-theme',
-                    negative='sphinx-rtd-theme<0.5',
-                ),
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
                     positive='readthedocs-sphinx-ext',
                     negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
+
+            if not self.project.has_feature(Feature.DONT_INSTALL_IMPLICIT_DEPS):
+                # If defaulting to Sphinx 2+, we need to push the latest theme
+                # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                requirements.append(
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive='sphinx-rtd-theme',
+                        negative='sphinx-rtd-theme<0.5',
+                    ),
+                )
+        return requirements
+
+    def install_core_requirements(self):
+        """Install basic Read the Docs requirements into the virtualenv."""
+        pip_install_cmd = [
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
+            'install',
+            '--upgrade',
+            *self._pip_cache_cmd_argument(),
+        ]
+
+        # Install latest pip and setuptools first,
+        # so they are used when installing the other requirements.
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version, 'setuptools']
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
+        )
 
         cmd = copy.copy(pip_install_cmd)
         if self.config.python.use_system_site_packages:
@@ -398,11 +408,12 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
-        cmd.extend(requirements)
+
+        cmd.extend(self._get_core_requirements())
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
     def install_requirements_file(self, install):
@@ -640,25 +651,29 @@ class Conda(PythonEnvironment):
                 )
 
     def _get_core_requirements(self):
-        # Use conda for requirements it packages
-        conda_requirements = [
-            'mock',
-            'pillow',
-        ]
+        # Use Conda for requirements that exist in their repositories.
+        conda_requirements = []
+        if not self.project.has_feature(Feature.DONT_INSTALL_IMPLICIT_DEPS):
+            conda_requirements.extend([
+                'mock',
+                'pillow',
+            ])
 
         if self.project.has_feature(Feature.CONDA_USES_MAMBA):
             conda_requirements.append('pip')
 
         # Install pip-only things.
-        pip_requirements = [
-            'recommonmark',
-        ]
+        pip_requirements = []
+        if not self.project.has_feature(Feature.DONT_INSTALL_IMPLICIT_DEPS):
+            pip_requirements.append('recommonmark')
 
         if self.config.doctype == 'mkdocs':
             pip_requirements.append('mkdocs')
         else:
+            conda_requirements.append('sphinx')
             pip_requirements.append('readthedocs-sphinx-ext')
-            conda_requirements.extend(['sphinx', 'sphinx_rtd_theme'])
+            if not self.project.has_feature(Feature.DONT_INSTALL_IMPLICIT_DEPS):
+                conda_requirements.append('sphinx_rtd_theme')
 
         return pip_requirements, conda_requirements
 

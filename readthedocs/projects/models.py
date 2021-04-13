@@ -1593,6 +1593,7 @@ class Feature(models.Model):
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    DONT_INSTALL_IMPLICIT_DEPS = 'dont_install_implicit_deps'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1694,6 +1695,10 @@ class Feature(models.Model):
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
+            DONT_INSTALL_IMPLICIT_DEPS,
+            _('Don\'t install explicit dependencies'),
         ),
 
         # Search related features.

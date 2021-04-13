@@ -1220,8 +1220,8 @@ class TestPythonEnvironment(TestCase):
             'commonmark',
             'recommonmark',
             'sphinx',
-            'sphinx-rtd-theme',
             'readthedocs-sphinx-ext',
+            'sphinx-rtd-theme',
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)
