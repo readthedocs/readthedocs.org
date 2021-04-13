@@ -13,7 +13,8 @@ The docs are kept in the ``docs/`` directory at the top of the source tree.
 Contributing through the Github UI
 ----------------------------------
 
-If you're making small changes to the documentation, you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
+If you're making small changes to the documentation,
+you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
 
 1. click the checkmark next to your commit and it will expand to have multiple options
 2. right-click the "details" link next to the "docs/readthedocs.org:docs" item
@@ -22,13 +23,29 @@ If you're making small changes to the documentation, you can verify those change
 Contributing from your local machine
 ------------------------------------
 
-If you're making large changes to the documentation, you'll want to verify those changes locally before pushing upstream.
+If you're making large changes to the documentation,
+you may want to verify those changes locally before pushing upstream.
 
-1. follow the instructions to `Set up your environment <https://docs.readthedocs.io/en/stable/development/install.html#set-up-your-environment>`_
-2. go back to `http://community.dev.readthedocs.io/ <http://community.dev.readthedocs.io/>`_ and login as `admin/admin`
-3. find the "Read the Docs" Project, click through, and build the `latest` version
-4. once the build completes, click the "View Docs" button or nagigate to `http://read-the-docs.community.dev.readthedocs.io/en/latest/ <http://read-the-docs.community.dev.readthedocs.io/en/latest/>`_ in the top right to view your development docs
-5. rebuild the "Read the Docs" Project each time you'd like to see your latest changes
+1. install documentation requirements
+
+.. prompt:: bash
+
+   pip install -r requirements/docs.txt
+
+2. move to the docs directory
+
+.. prompt:: bash
+
+   cd docs
+
+3. build the documents
+
+.. prompt:: bash
+
+   make html
+
+4. the documents will be available in the `_build` folder.
+Double-click the `index.html` file to open the documentation in a webpage
 
 Guidelines
 ----------
