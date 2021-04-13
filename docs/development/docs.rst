@@ -16,9 +16,9 @@ Contributing through the Github UI
 If you're making small changes to the documentation,
 you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
 
-1. click the checkmark next to your commit and it will expand to have multiple options
-2. right-click the "details" link next to the "docs/readthedocs.org:docs" item
-3. navigate to the section of the documentation you worked on to verify your changes
+#. click the checkmark next to your commit and it will expand to have multiple options
+#. right-click the "details" link next to the "docs/readthedocs.org:docs" item
+#. navigate to the section of the documentation you worked on to verify your changes
 
 Contributing from your local machine
 ------------------------------------
@@ -26,25 +26,27 @@ Contributing from your local machine
 If you're making large changes to the documentation,
 you may want to verify those changes locally before pushing upstream.
 
-1. install documentation requirements
+#. clone the `readthedocs.org` repository:
 
 .. prompt:: bash
 
+   git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+
+#. install documentation requirements
+
+.. prompt:: bash
+
+   cd readthedocs.org
    pip install -r requirements/docs.txt
 
-2. move to the docs directory
+#. build the documents
 
 .. prompt:: bash
 
    cd docs
-
-3. build the documents
-
-.. prompt:: bash
-
    make html
 
-4. the documents will be available in the `_build` folder.
+#. the documents will be available in the `_build` folder.
 Double-click the `index.html` file to open the documentation in a webpage
 
 Guidelines
