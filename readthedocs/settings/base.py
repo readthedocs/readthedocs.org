@@ -50,6 +50,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
@@ -65,6 +66,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
     SUPPORT_EMAIL = None
+    SUPPORT_FORM_ENDPOINT = None
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -134,9 +136,14 @@ class CommunityBaseSettings(Settings):
             'django.contrib.contenttypes',
             'django.contrib.sessions',
             'django.contrib.sites',
-            'django.contrib.staticfiles',
             'django.contrib.messages',
             'django.contrib.humanize',
+
+            # readthedocs.core app needs to be before
+            # django.contrib.staticfiles to use our custom collectstatic
+            # command
+            'readthedocs.core',
+            'django.contrib.staticfiles',
 
             # third party apps
             'dj_pagination',
@@ -158,7 +165,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.projects',
             'readthedocs.organizations',
             'readthedocs.builds',
-            'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
             'readthedocs.redirects',
@@ -173,6 +179,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.analytics',
             'readthedocs.sphinx_domains',
             'readthedocs.search',
+            'readthedocs.embed',
 
             # allauth
             'allauth',
@@ -187,7 +194,6 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
-            apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
@@ -299,6 +305,7 @@ class CommunityBaseSettings(Settings):
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
+                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
                     'context_processors': [
@@ -310,10 +317,6 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
-                    ],
-                    'loaders': [
-                        'django.template.loaders.filesystem.Loader',
-                        'django.template.loaders.app_directories.Loader',
                     ],
                 },
             },
@@ -405,6 +408,11 @@ class CommunityBaseSettings(Settings):
                 'days': 1,
             },
         },
+        'every-day-delete-inactive-external-versions': {
+            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -474,7 +482,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
                     3: 3.7,
@@ -488,6 +496,8 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
         'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
+    # Additional binds for the build container
+    RTD_DOCKER_ADDITIONAL_BINDS = {}
 
     def _get_docker_memory_limit(self):
         try:
@@ -495,7 +505,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return total_memory, round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 1000, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
@@ -599,7 +609,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
-    ES_TASK_CHUNK_SIZE = 100
+    ES_TASK_CHUNK_SIZE = 500
 
     # Info from Honza about this:
     # The key to determine shard number is actually usually not the node count,

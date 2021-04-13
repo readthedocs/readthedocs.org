@@ -427,7 +427,7 @@ class TestVersionCompareFooter(TestCase):
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 18
+    EXPECTED_QUERIES = 14
 
     def setUp(self):
         self.pip = get(
@@ -448,17 +448,9 @@ class TestFooterPerformance(TestCase):
 
         self.url = (
             reverse('footer_html') +
-            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/docs/' +
-            '&absolute_uri=https://pip.readthedocs.io/en/latest/index.html'
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/docs/'
         )
         self.host = 'pip.readthedocs.io'
-
-        # Run tests with all available features
-        # that can increase the number of queries.
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        self.pip.feature_set.add(feature)
 
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
