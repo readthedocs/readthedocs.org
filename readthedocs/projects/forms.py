@@ -273,10 +273,6 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
 
-        # Enable PR builder option on projects w/ feature flag
-        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
-            self.fields.pop('external_builds_enabled')
-
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
         if filename and 'conf.py' not in filename:
@@ -759,11 +755,16 @@ class EnvironmentVariableForm(forms.ModelForm):
 
     class Meta:
         model = EnvironmentVariable
-        fields = ('name', 'value', 'project')
+        fields = ('name', 'value', 'public', 'project')
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields['public'].widget = forms.CheckboxInput()
+        self.fields['public'].empty_value = False
 
     def clean_project(self):
         return self.project

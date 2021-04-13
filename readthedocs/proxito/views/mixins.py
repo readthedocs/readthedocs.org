@@ -119,6 +119,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
+        # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
         return response
 

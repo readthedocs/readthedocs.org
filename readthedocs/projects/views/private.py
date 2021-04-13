@@ -40,8 +40,11 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.mixins import (
+    ListViewWithForm,
+    PrivateViewMixin,
+)
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
@@ -81,7 +84,6 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
-
 
 log = logging.getLogger(__name__)
 
@@ -189,9 +191,7 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
-
-    template_name = 'projects/project_version_detail.html'
+class ProjectVersionEditMixin(ProjectVersionMixin):
 
     def get_queryset(self):
         return Version.internal.public(
@@ -217,6 +217,16 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectVersionCreate(ProjectVersionEditMixin, CreateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+
+class ProjectVersionDetail(ProjectVersionEditMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
 
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
@@ -934,11 +944,6 @@ class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
-
-    pass
-
-
-class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
 
     pass
 

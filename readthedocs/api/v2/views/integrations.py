@@ -409,12 +409,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
-        if all([
-                self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
-                self.project.external_builds_enabled,
-                event == GITHUB_PULL_REQUEST,
-                action,
-        ]):
+        if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
             if (
                 action in
                 [
@@ -569,11 +564,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
-        if (
-            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
-            self.project.external_builds_enabled and
-            event == GITLAB_MERGE_REQUEST and action
-        ):
+        if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
             if (
                 action in
                 [

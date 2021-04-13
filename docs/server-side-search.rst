@@ -90,6 +90,8 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
    :query q: Search query
    :query project: Project slug
    :query version: Version slug
+   :query page: Jump to a specific page
+   :query page_size: Limits the results per page, default is 50
 
    .. Response
 

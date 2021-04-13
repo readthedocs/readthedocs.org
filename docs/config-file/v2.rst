@@ -64,7 +64,7 @@ This is to avoid typos and provide feedback on invalid configurations.
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 3
 
 version
 ~~~~~~~
@@ -298,6 +298,9 @@ Configuration for the documentation build process.
 
    build:
      image: latest
+     apt_packages:
+       - mysql-client
+       - cmatrix
 
    python:
      version: 3.7
@@ -317,6 +320,32 @@ as defined here:
 
 * `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
 * `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+
+build.apt_packages
+``````````````````
+
+List of `APT packages`_ to install.
+Our build servers run Ubuntu 18.04, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories.
+
+.. _APT packages: https://packages.ubuntu.com/
+
+:Type: ``list``
+:Default: ``[]``
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     apt_packages:
+       - mysql-client
+       - cmatrix
+
+.. note::
+
+   When possible avoid installing Python packages using apt (``python3-numpy`` for example),
+   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
 sphinx
 ~~~~~~

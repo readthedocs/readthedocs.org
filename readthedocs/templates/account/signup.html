@@ -13,6 +13,22 @@
   <small>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</small>
 </p>
 
+{% if signup_providers %}
+<p>
+    You have been invited to join
+    {% if organization %}
+    the organization "{{ organization.name }}"
+    {% else %}
+    an organization
+    {% endif %}
+    at Read the Docs.
+</p>
+<p>
+    Sign up using the following provider.
+    If you don't have an account on this provider,
+    please contant your organization owner and ask about this.
+</p>
+{% else %}
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
   {{ form.as_p }}
@@ -26,11 +42,11 @@
 </form>
 
 <h3>{% trans 'Or' %}</h3>
+{% endif %}
 
 <div class="clearfix">
   <ul class="socialaccount_providers">
     {% include "socialaccount/snippets/provider_list.html" with process="login" next="" verbiage="Sign up with" %}
   </ul>
 </div>
-
 {% endblock %}

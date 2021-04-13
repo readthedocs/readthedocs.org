@@ -814,6 +814,7 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             'modified',
             'name',
             'value',
+            'public',
             'project',
             '_links',
         ]

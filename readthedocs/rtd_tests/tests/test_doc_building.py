@@ -702,6 +702,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -761,6 +762,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -807,6 +809,7 @@ class TestDockerBuildEnvironment(TestCase):
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -1038,12 +1041,6 @@ class TestBuildCommand(TestCase):
         missing_re = re.compile(r'(?:No such file or directory|not found)')
         self.assertRegex(cmd.error, missing_re)
 
-    def test_input(self):
-        """Test input to command."""
-        cmd = BuildCommand('/bin/cat', input_data='FOOBAR')
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
-
     def test_output(self):
         """Test output command."""
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
@@ -1061,19 +1058,10 @@ class TestBuildCommand(TestCase):
 
     def test_error_output(self):
         """Test error output from command."""
-        # Test default combined output/error streams
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
         self.assertIsNone(cmd.error)
-        # Test non-combined streams
-        cmd = BuildCommand(
-            ['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'],
-            combine_output=False,
-        )
-        cmd.run()
-        self.assertEqual(cmd.output, '')
-        self.assertEqual(cmd.error, 'FOOBAR')
 
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
@@ -1232,8 +1220,8 @@ class TestPythonEnvironment(TestCase):
             'commonmark',
             'recommonmark',
             'sphinx',
-            'sphinx-rtd-theme',
             'readthedocs-sphinx-ext',
+            'sphinx-rtd-theme',
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)

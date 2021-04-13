@@ -1,3 +1,33 @@
+Version 5.14.0
+--------------
+
+:Date: April 06, 2021
+
+This release includes a security update which was done in a private branch PR.
+See our `security changelog <https://docs.readthedocs.io/en/latest/security.html#version-5-14-0>`__ for more details.
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 14 (`#8071 <https://github.com/readthedocs/readthedocs.org/pull/8071>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify ad-free conditions (`#8064 <https://github.com/readthedocs/readthedocs.org/pull/8064>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: add small paragraph mentioning how to enable it on commercial (`#8063 <https://github.com/readthedocs/readthedocs.org/pull/8063>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build environment: allow to run commands with a custom user (`#8058 <https://github.com/readthedocs/readthedocs.org/pull/8058>`__)
+* `@humitos <https://github.com/humitos>`__: Design document for new Docker images structure (`#7566 <https://github.com/readthedocs/readthedocs.org/pull/7566>`__)
+
+Version 5.13.0
+--------------
+
+:Date: March 30, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Test proxied embed API (`#8051 <https://github.com/readthedocs/readthedocs.org/pull/8051>`__)
+* `@stsewd <https://github.com/stsewd>`__: Feature flag: remove EXTERNAL_BUILD (`#8050 <https://github.com/readthedocs/readthedocs.org/pull/8050>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: always use a task (`#8049 <https://github.com/readthedocs/readthedocs.org/pull/8049>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: don't create versions in bulk (`#8046 <https://github.com/readthedocs/readthedocs.org/pull/8046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: add cache tags (`#8045 <https://github.com/readthedocs/readthedocs.org/pull/8045>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix proxito slash redirect for leading slash (`#8044 <https://github.com/readthedocs/readthedocs.org/pull/8044>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 12 (`#8038 <https://github.com/readthedocs/readthedocs.org/pull/8038>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: cleanup of old/deprecated documents (`#7994 <https://github.com/readthedocs/readthedocs.org/pull/7994>`__)
+* `@flying-sheep <https://github.com/flying-sheep>`__: Add publicly visible env vars (`#7891 <https://github.com/readthedocs/readthedocs.org/pull/7891>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove broadcast function (`#7044 <https://github.com/readthedocs/readthedocs.org/pull/7044>`__)
+
 Version 5.12.2
 --------------
 

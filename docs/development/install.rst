@@ -1,194 +1,267 @@
-Installation
-============
+Development Installation
+========================
 
 .. meta::
-   :description lang=en: Install a local instance of Read the Docs on your own servers with our step by step guide.
+   :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-
-Here is a step by step guide on how to install Read the Docs.
-It will get you to a point of having a local running instance.
-
-.. note::
-
-    It may be worth familiarizing yourself with the Read the Docs
-    :doc:`development setup and standards </development/standards>`.
-    That document details the local setup with Docker which may be useful
-    for setting up your own instance.
-
-
-Requirements
-------------
-
-First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them.
-Using a virtual environment is strongly recommended,
-since it will help you to avoid clutter in your system-wide libraries.
-
-.. warning::
-
-    Currently Read the Docs is using ``Django 1.11.x`` and this version of Django
-    has a `bug`_ which breaks database migrations if you are using ``sqlite 3.26.0 or Newer``.
-    So, we recommend using ``sqlite < 3.26.0`` to run Read the Docs properly on your machine.
-
-Additionally Read the Docs depends on:
-
-* `Git`_ (version >=2.17.0)
-* `Mercurial`_ (only if you need to work with mercurial repositories)
-* `Pip`_ (version >1.5)
-* `Redis`_
-* `Elasticsearch`_ (only if you want full support for searching inside the site)
-
-    * Follow :doc:`/development/search` documentation for more instruction.
+These are development setup and :ref:`standards <development/install:Core team standards>` that are adhered to by the core development team while
+developing Read the Docs and related services. If you are a contributor to Read the Docs,
+it might a be a good idea to follow these guidelines as well.
 
 .. note::
 
-    You can import Python 2.x or 3.x projects in RTD, make sure you install the
-    appropriate Python version (2.x or 3.x) with virtualenv.
-
-In order to get all the dependencies successfully installed,
-you need these libraries.
-
-.. tabs::
-
-   .. tab:: Mac OS
-
-      If you are having trouble on OS X Mavericks
-      (or possibly other versions of OS X) with building ``lxml``,
-      you probably might need to use Homebrew_ to ``brew install libxml2``,
-      and invoke the install with::
-
-          CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 \
-          LDFLAGS=-L/usr/local/opt/libxml2/lib \
-          pip install -r requirements.txt
-
-   .. tab:: Ubuntu
-
-      Install::
-
-         sudo apt-get install build-essential
-         sudo apt-get install python-dev python-pip python-setuptools
-         sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
-
-      If you don't have redis installed yet, you can do it with::
-
-         sudo apt-get install redis-server
-
-   .. tab:: CentOS/RHEL 7
-
-      Install::
-
-         sudo yum install python-devel python-pip libxml2-devel libxslt-devel
-
-   .. tab:: Other OS
-
-      On other operating systems no further dependencies are required,
-      or you need to find the proper equivalent libraries.
+   We do not recommend to follow this guide to deploy an instance of Read the Docs for production usage.
+   Take into account that this setup is only useful for developing purposes.
 
 
-.. _Python 3.6: https://www.python.org/
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/
-.. _Git: https://git-scm.com/
-.. _Mercurial: https://www.mercurial-scm.org/
-.. _Pip: https://pip.pypa.io/en/stable/
-.. _Homebrew: https://brew.sh/
-.. _Elasticsearch: https://www.elastic.co/products/elasticsearch
-.. _Redis: https://redis.io/
-.. _bug: https://code.djangoproject.com/ticket/29182
+Set up your environment
+-----------------------
+
+#. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
+
+#. clone the ``readthedocs.org`` repository:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+
+#. install the requirements from ``common`` submodule:
+
+   .. prompt:: bash
+
+      pip install -r common/dockerfiles/requirements.txt
+
+#. build the Docker image for the servers:
+
+   .. warning::
+
+      This command could take a while to finish since it will download several Docker images.
+
+   .. prompt:: bash
+
+      inv docker.build
+
+   .. tip::
+
+      If you pass ``GITHUB_TOKEN`` environment variable to this command,
+      it will add support for readthedocs-ext.
+
+#. pull down Docker images for the builders:
+
+   .. prompt:: bash
+
+      inv docker.pull --only-latest
+
+#. start all the containers:
+
+   .. prompt:: bash
+
+      inv docker.up  --init  # --init is only needed the first time
+
+#. add read permissions to the storage backend:
+
+   * go to http://localhost:9000/ (MinIO S3 storage backend)
+   * login as ``admin`` / ``password``
+   * click "..." next to the bucket name and then "Edit Policy"
+   * give "Read Only" access on all the buckets (``static`` and ``media``)
+
+   .. note::
+
+      ``media`` bucket may be created after the first build is finished.
+      You will need to repeat this step after that.
+
+#. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
 
-Get and run Read the Docs
--------------------------
+Working with Docker Compose
+---------------------------
 
-Clone the repository somewhere on your disk and enter to the repository::
+We wrote a wrapper with ``invoke`` around ``docker-compose`` to have some shortcuts and
+save some work while typing docker compose commands. This section explains these ``invoke`` commands:
 
-    git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org.git
-    cd readthedocs.org
+``inv docker.build``
+    Builds the generic Docker image used by our servers (web, celery, build and proxito).
 
-Create a virtual environment and activate it::
+``inv docker.up``
+    Starts all the containers needed to run Read the Docs completely.
 
-    virtualenv --python=python3 venv
-    source venv/bin/activate
+    * ``--no-search`` can be passed to disable search
+    * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
+    * ``--no-reload`` makes all celery processes and django runserver
+      to use no reload and do not watch for files changes
 
-Next, install the dependencies using ``pip``
-(make sure you are inside of the virtual environment)::
+``inv docker.shell``
+    Opens a shell in a container (web by default).
 
-    pip install -r requirements.txt
+    * ``--no-running`` spins up a new container and open a shell
+    * ``--container`` specifies in which container the shell is open
 
-This may take a while, so go grab a beverage.
-When it's done, build the database::
+``inv docker.manage {command}``
+    Executes a Django management command in a container.
 
-    python manage.py migrate
+    .. tip::
 
-Then create a superuser account for Django::
+       Useful when modifying models to run ``makemigrations``.
 
-    python manage.py createsuperuser
+``inv docker.down``
+    Stops and removes all containers running.
 
-Now let's properly generate the static assets::
+    * ``--volumes`` will remove the volumes as well (database data will be lost)
 
-    python manage.py collectstatic
+``inv docker.restart {containers}``
+    Restarts the containers specified (automatically restarts NGINX when needed).
 
-Now you can optionally load a couple users and test projects::
+``inv docker.attach {container}``
+    Grab STDIN/STDOUT control of a running container.
 
-    python manage.py loaddata test_data
+    .. tip::
 
-.. note::
+       Useful to debug with ``pdb``. Once the program has stopped in your pdb line,
+       you can run ``inv docker.attach web`` and jump into a pdb session
+       (it also works with ipdb and pdb++)
 
-    If you do not opt to install test data, you'll need to create an account for
-    API use and set ``SLUMBER_USERNAME`` and ``SLUMBER_PASSWORD`` in order for
-    everything to work properly.
-    This can be done by using ``createsuperuser``, then attempting a manual login to
-    create an ``EmailAddress`` entry for the user, then you can use ``shell_plus`` to
-    update the object with ``primary=True``, ``verified=True``.
+    .. tip::
 
-Finally, you're ready to start the web server::
+       You can hit CTRL-p CTRL-p to detach it without stopping the running process.
 
-    python manage.py runserver
+``inv docker.test``
+    Runs all the test suites inside the container.
 
-Visit http://127.0.0.1:8000/ in your browser to see how it looks;
-you can use the admin interface via http://127.0.0.1:8000/admin
-(logging in with the superuser account you just created).
+    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py36 -- -k test_api"``)
 
-For builds to properly work as expected,
-it is necessary that the port you're serving on
-(i.e. ``python manage.py runserver 0.0.0.0:8080``)
-matches the port defined in ``PRODUCTION_DOMAIN``.
-You can use ``readthedocs/settings/local_settings.py`` to modify this
-(by default, it's ``localhost:8000``).
+``inv docker.pull``
+    Downloads and tags all the Docker images required for builders.
 
-While the web server is running,
-you can build the documentation for the latest version of any project using the ``update_repos`` command.
-For example to update the ``pip`` repo::
+    * ``--only-latest`` does not pull ``stable`` and ``testing`` images.
 
-    python manage.py update_repos pip
+``inv docker.buildassets``
+    Build all the assets and "deploy" them to the storage.
 
-.. note::
+Adding a new Python dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    If you have problems building a project successfully,
-    it is probably because of some missing libraries for ``pdf`` and ``epub`` generation.
-    You can uncheck this on the advanced settings of your project.
+The Docker image for the servers is built with the requirements defined in the current checked out branch.
+In case you need to add a new Python dependency while developing,
+you can use the ``common/dockerfiles/entrypoints/common.sh`` script as shortcut.
 
-What's available
-----------------
+This script is run at startup on all the servers (web, celery, builder, proxito) which
+allows you to test your dependency without re-building the whole image.
+To do this, add the ``pip`` command required for your dependency in ``common.sh`` file:
 
-After registering with the site (or creating yourself a superuser account),
-you will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
+.. code-block:: bash
 
-Importing your docs
-~~~~~~~~~~~~~~~~~~~
+   # common.sh
+   pip install my-dependency==1.2.3
 
-One of the goals of readthedocs.org is to make it easy for any open source developer to get high quality hosted docs with great visibility!
-Simply provide us with the clone URL to your repo, we'll pull your code, extract your docs, and build them!
+Once the PR that adds this dependency was merged, you can rebuild the image
+so the dependency is added to the Docker image itself and it's not needed to be installed
+each time the container spins up.
 
-We make available a post-commit webhook that can be configured to update the docs whenever you commit to your repo.
-See our :doc:`/intro/import-guide` page to learn more.
 
-Further steps
--------------
+Debugging Celery
+~~~~~~~~~~~~~~~~
 
-By now you can trigger builds on your local environment,
-to encapsulate the build process inside a Docker container,
-see :doc:`buildenvironments`.
+In order to step into the worker process, you can't use ``pdb`` or ``ipdb``, but
+you can use ``celery.contrib.rdb``:
 
-For building this documentation,
-see :doc:`docs`.
+.. code-block:: python
 
-And for setting up for the front end development, see :doc:`front-end`.
+    from celery.contrib import rdb; rdb.set_trace()
+
+When the breakpoint is hit, the Celery worker will pause on the breakpoint and
+will alert you on STDOUT of a port to connect to. You can open a shell into the container
+with ``inv docker.shell celery`` (or ``build``) and then use ``telnet`` or ``netcat``
+to connect to the debug process port:
+
+.. prompt:: bash
+
+    nc 127.0.0.1 6900
+
+The ``rdb`` debugger is similar to ``pdb``, there is no ``ipdb`` for remote
+debugging currently.
+
+
+Configuring connected accounts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These are optional steps to setup the :doc:`connected accounts </connected-accounts>`
+(GitHub, GitLab, and BitBucket) in your development environment.
+This will allow you to login to your local development instance
+using your GitHub, Bitbucket, or GitLab credentials
+and this makes the process of importing repositories easier.
+
+However, because these services will not be able to connect back to your local development instance,
+:doc:`webhooks </webhooks>` will not function correctly.
+For some services, the webhooks will fail to be added when the repository is imported.
+For others, the webhook will simply fail to connect when there are new commits to the repository.
+
+.. figure:: ../_static/images/development/bitbucket-oauth-setup.png
+    :align: center
+    :figwidth: 80%
+    :target: ../_static/images/development/bitbucket-oauth-setup.png
+
+    Configuring an OAuth consumer for local development on Bitbucket
+
+* Configure the applications on GitHub, Bitbucket, and GitLab.
+  For each of these, the callback URI is ``http://community.dev.readthedocs.io/accounts/<provider>/login/callback/``
+  where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
+  When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
+* Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
+  ``http://community.dev.readthedocs.io/admin/socialaccount/socialapp/``.
+  Make sure to apply it to the "Site".
+
+
+Core team standards
+-------------------
+
+Core team members expect to have a development environment that closely
+approximates our production environment, in order to spot bugs and logical
+inconsistencies before they make their way to production.
+
+This solution gives us many features that allows us to have an
+environment closer to production:
+
+Celery runs as a separate process
+    Avoids masking bugs that could be introduced by Celery tasks in a race conditions.
+
+Celery runs multiple processes
+    We run celery with multiple worker processes to discover race conditions
+    between tasks.
+
+Docker for builds
+    Docker is used for a build backend instead of the local host build backend.
+    There are a number of differences between the two execution methods in how
+    processes are executed, what is installed, and what can potentially leak
+    through and mask bugs -- for example, local SSH agent allowing code check
+    not normally possible.
+
+Serve documentation under a subdomain
+    There are a number of resolution bugs and cross-domain behavior that can
+    only be caught by using `USE_SUBDOMAIN` setting.
+
+PostgreSQL as a database
+    It is recommended that Postgres be used as the default database whenever
+    possible, as SQLite has issues with our Django version and we use Postgres
+    in production.  Differences between Postgres and SQLite should be masked for
+    the most part however, as Django does abstract database procedures, and we
+    don't do any Postgres-specific operations yet.
+
+Celery is isolated from database
+    Celery workers on our build servers do not have database access and need
+    to be written to use API access instead.
+
+Use NGINX as web server
+    All the site is served via NGINX with the ability to change some configuration locally.
+
+MinIO as Django storage backend
+    All static and media files are served using Minio --an emulator of S3,
+    which is the one used in production.
+
+Serve documentation via El Proxito
+    Documentation is proxied by NGINX to El Proxito and proxied back to NGINX to be served finally.
+    El Proxito is a small application put in front of the documentation to serve files
+    from the Django Storage Backend.
+
+Search enabled by default
+    Elasticsearch is properly configured and enabled by default.
+    All the documentation indexes are updated after a build is finished.

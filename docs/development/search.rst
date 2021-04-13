@@ -9,7 +9,7 @@ Currently we are using `Elasticsearch 6.3`_.
 Local Development Configuration
 -------------------------------
 
-Elasticsearch is installed and run as part of the :doc:`development setup </development/standards>`.
+Elasticsearch is installed and run as part of the :doc:`development installation guide </development/install>`.
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -31,25 +31,6 @@ By default, Auto Indexing is turned off in development mode. To turn it on, chan
 ``ELASTICSEARCH_DSL_AUTOSYNC`` settings to `True` in the `readthedocs/settings/dev.py` file.
 After that, whenever a documentation successfully builds, or project gets added,
 the search index will update automatically.
-
-Manual Elasticsearch installation and setup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Usually you can just rely on the Docker Compose
-:doc:`development setup </development/standards>` which includes Elasticsearch.
-However, if you're developing or testing Read the Docs' search integration, you may need this.
-
-You need to install and run Elasticsearch_ version 6.3 on your local development machine.
-You can get the installation instructions
-`here <https://www.elastic.co/guide/en/elasticsearch/reference/6.3/install-elasticsearch.html>`_.
-Otherwise, you can also start an Elasticsearch Docker container by running the following command:
-
-.. prompt:: bash
-
-    docker run -p 9200:9200 -p 9300:9300 \
-           -e "discovery.type=single-node" \
-           docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-
 
 Architecture
 ------------
@@ -123,7 +104,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
     `django-elasticsearch-dsl`_ listens to the `post_save` signal of `Project` model and
     then index/delete into Elasticsearch.
 
-    **PageDocument**: It is used for indexing documentation of projects. 
+    **PageDocument**: It is used for indexing documentation of projects.
     As mentioned above, our `Search` app listens to the `bulk_post_create` and `bulk_post_delete`
     signals and indexes/deleted documentation into Elasticsearch. The signal listeners are in
     the `readthedocs/search/signals.py` file. Both of the signals are dispatched

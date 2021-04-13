@@ -47,8 +47,6 @@ e.g. python-reno release notes manager is known to do that
 
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
 
-``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
-
 ``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
 
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`

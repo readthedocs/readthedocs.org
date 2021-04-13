@@ -145,7 +145,23 @@ you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilab
 
 .. note::
 
-   This feature is available only for :doc:`Sphinx projects </intro/getting-started-with-sphinx>`.
+   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
+   For example:
+
+   .. code-block:: html
+
+      <div role="main">
+        <!-- The banner would be injected here -->
+        ...
+      </div>
+
+   .. code-block:: html
+
+      <main>
+        <!-- The banner would be injected here -->
+        ...
+      </main>
+
 
 Redirects on root URLs
 ----------------------

@@ -15,17 +15,12 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from ..permissions import (
-    APIPermission,
-    APIRestrictedPermission,
-    IsOwner,
-)
+from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
     BuildAdminSerializer,
     BuildCommandSerializer,
@@ -161,53 +156,6 @@ class ProjectViewSet(UserSelectViewSet):
         )
         return Response({
             'url': project.get_docs_url(),
-        })
-
-    @decorators.action(
-        detail=True,
-        permission_classes=[permissions.IsAdminUser],
-        methods=['post'],
-    )
-    def sync_versions(self, request, **kwargs):  # noqa
-        """
-        Sync the version data in the repo (on the build server).
-
-        Version data in the repo is synced with what we have in the database.
-
-        :returns: the identifiers for the versions that have been deleted.
-
-        .. note::
-
-           This endpoint is deprecated in favor of `sync_versions_task`.
-        """
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
-
-        added_versions = []
-        deleted_versions = []
-
-        try:
-            data = request.data
-            # Calling the task synchronically to keep backward compatibility
-            added_versions, deleted_versions = sync_versions_task(
-                project_pk=project.pk,
-                tags_data=data.get('tags', []),
-                branches_data=data.get('branches', []),
-            )
-        except Exception as e:
-            log.exception('Sync Versions Error')
-            return Response(
-                {
-                    'error': str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response({
-            'added_versions': added_versions,
-            'deleted_versions': deleted_versions,
         })
 
 
