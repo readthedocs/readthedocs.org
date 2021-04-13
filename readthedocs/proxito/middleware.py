@@ -175,12 +175,20 @@ class ProxitoMiddleware(MiddlewareMixin):
         if hasattr(ret, 'status_code'):
             return ret
 
+        # Remove multiple slashes from URL's
         if '//' in request.path:
-            # Remove multiple slashes from URL's
             url_parsed = urlparse(request.get_full_path())
             clean_path = re.sub('//+', '/', url_parsed.path)
             new_parsed = url_parsed._replace(path=clean_path)
-            return redirect(new_parsed.geturl())
+            final_url = new_parsed.geturl()
+            # This protects against a couple issues:
+            # * First is a URL like `//` which urlparse will return as a path of ''
+            # * Second is URLs like `//google.com` which urlparse will return as `//google.com`
+            #   We make sure there is _always_ a single slash in front to ensure relative redirects,
+            #   instead of `//` redirects which are actually alternative domains.
+            final_url = '/' + final_url.lstrip('/')
+            log.info('Proxito Slash Redirect: from=%s to=%s', request.get_full_path(), final_url)
+            return redirect(final_url)
 
         log.debug('Proxito Project: slug=%s', ret)
 

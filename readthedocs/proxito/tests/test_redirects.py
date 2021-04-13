@@ -140,28 +140,28 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome.html',
         )
 
-        url = '///en/latest////awesome.html'
+        url = '/en/latest////awesome.html'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome.html',
         )
 
-        url = '///en/latest////awesome///index.html'
+        url = '/en/latest////awesome///index.html'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html',
         )
 
-        url = '///en/latest////awesome///index.html?foo=bar'
+        url = '/en/latest////awesome///index.html?foo=bar'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar',
         )
 
-        url = '///en/latest////awesome///'
+        url = '/en/latest////awesome///'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
@@ -169,9 +169,13 @@ class RedirectTests(BaseDocServing):
         )
 
         # Don't change the values of params
-        url = '///en/latest////awesome///index.html?foo=bar//bas'
+        url = '/en/latest////awesome///index.html?foo=bar//bas'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
         )
+
+        # WARNING
+        # The test client strips multiple slashes at the front of the URL
+        # Additional tests for this are in ``test_middleware:test_front_slash``

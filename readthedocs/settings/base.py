@@ -415,7 +415,6 @@ class CommunityBaseSettings(Settings):
         },
     }
 
-    MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
@@ -434,6 +433,7 @@ class CommunityBaseSettings(Settings):
     # instance to avoid file permissions issues.
     # https://docs.docker.com/engine/reference/run/#user
     RTD_DOCKER_USER = 'docs:docs'
+    RTD_DOCKER_SUPER_USER = 'root:root'
 
     RTD_DOCKER_COMPOSE = False
 

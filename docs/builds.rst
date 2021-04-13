@@ -70,10 +70,74 @@ An example in code:
     we recommend you :ref:`pinning the version <guides/reproducible-builds:pinning dependencies>` of Sphinx or Mkdocs you want us to use.
     Some examples of pinning versions might be ``sphinx<2.0`` or ``mkdocs>=1.0``.
 
+Implicit dependencies
+---------------------
+
+Read the Docs install some dependencies by default.
+We recommend to :ref:`not rely on these <guides/reproducible-builds:don't rely on implicit dependencies>`,
+and always declare them when building your documentation.
+
+Python environment
+``````````````````
+
+These are the dependencies that are installed by default when using a Python environment.
+
+pip:
+  Latest version.
+
+setuptools:
+  Latest version.
+
+sphinx:
+  Projects created before Oct 20, 2020 use ``1.8.x``.
+  New projects use the latest version.
+
+mkdocs:
+  Projects created before April 3, 2019 (April 23, 2019 for :doc:`/commercial/index`) use ``0.17.3``.
+  Projects created before March 9, 2021 use ``1.0.4``.
+  New projects use the latest version.
+
+sphinx-rtd-theme:
+  Projects created before October 20, 2020 (January 21, 2021 for :doc:`/commercial/index`) use ``0.4.3``,
+  projects after that date will use the latest version.
+  Projects created after April 13, 2021 won't have this dependency installed by default.
+
+Others:
+   Projects created after April 13, 2021 won't include these dependencies.
+
+   - mock: ``1.0.1``
+   - pillow: ``5.4.1``
+   - alabaster: ``0.7.x``
+   - commonmark: ``0.8.1``
+   - recommonmark: ``0.5.0``
+
+Conda environment
+`````````````````
+
+These are the dependencies that are installed by default when using a Conda environment.
+
+conda:
+   Miniconda2 ``4.6.14``
+   (could be updated in the future to use the latest version by default).
+
+mkdocs:
+  Latest version installed via ``conda``.
+
+sphinx:
+  Latest version installed via ``conda``.
+
+Others:
+   Projects created after April 13, 2021 won't include these dependencies.
+
+   - sphinx-rtd-theme: Latest version installed via ``conda``.
+   - recommonmark: Latest version installed via ``conda``.
+   - mock: Latest version installed via ``pip``.
+   - pillow: Latest version installed via ``pip``.
+
 Build environment
 -----------------
 
-The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment variables when building your documentation:
+The following RTD-specific environment variables are set when building your documentation:
 
 .. csv-table:: Environment Variables
    :header: Environment variable, Description, Example value
@@ -84,15 +148,11 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
    ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
    ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
-If you want to learn more about how the build environment works as a low level,
-you can read about it in our :doc:`/development/buildenvironments` docs.
-
 .. tip::
 
    In case extra environment variables are needed to the build process (like secrets, tokens, etc),
    you can add them going to :guilabel:`Admin` > :guilabel:`Environment Variables` in your project.
    See :doc:`guides/environment-variables`.
-
 
 Docker images
 -------------

@@ -30,7 +30,6 @@ class DockerBaseSettings(CommunityDevSettings):
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host

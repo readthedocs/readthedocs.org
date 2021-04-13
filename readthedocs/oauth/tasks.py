@@ -53,8 +53,12 @@ def attach_webhook(project_pk, user_pk, integration=None):
     connections -- that is, projects that do not have a remote repository them
     and were not set up with a VCS provider.
     """
-    project = Project.objects.get(pk=project_pk)
-    user = User.objects.get(pk=user_pk)
+    project = Project.objects.filter(pk=project_pk).first()
+    user = User.objects.filter(pk=user_pk).first()
+
+    if not project or not user:
+        return False
+
     project_notification = InvalidProjectWebhookNotification(
         context_object=project,
         user=user,

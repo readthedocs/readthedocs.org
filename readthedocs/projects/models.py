@@ -26,7 +26,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -1232,17 +1232,18 @@ class Project(models.Model):
 
         return True
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, public_only=True):
         """
         Environment variables to build this particular project.
 
-        :returns: dictionary with all the variables {name: value}
+        :param public_only: Only return publicly visible variables?
+        :returns: dictionary with all visible variables {name: value}
         :rtype: dict
         """
         return {
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
+            if variable.public or not public_only
         }
 
     def is_valid_as_superproject(self, error_class):
@@ -1333,9 +1334,12 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    @property
-    def environment_variables(self):
-        return self._environment_variables
+    def environment_variables(self, *, public_only=True):
+        return {
+            name: spec['value']
+            for name, spec in self._environment_variables.items()
+            if spec['public'] or not public_only
+        }
 
 
 class ImportedFile(models.Model):
@@ -1569,7 +1573,6 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     CLEAN_AFTER_BUILD = 'clean_after_build'
-    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     CONDA_USES_MAMBA = 'conda_uses_mamba'
@@ -1581,7 +1584,6 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
-    SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
 
     # Dependecies related features
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
@@ -1591,6 +1593,7 @@ class Feature(models.Model):
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    DONT_INSTALL_IMPLICIT_DEPS = 'dont_install_implicit_deps'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1635,10 +1638,6 @@ class Feature(models.Model):
             _('Clean all files used in the build process'),
         ),
         (
-            EXTERNAL_VERSION_BUILD,
-            _('Enable project to build on pull/merge requests'),
-        ),
-        (
             UPDATE_CONDA_STARTUP,
             _('Upgrade conda before creating the environment'),
         ),
@@ -1679,10 +1678,6 @@ class Feature(models.Model):
             SKIP_SYNC_VERSIONS,
             _('Skip sync versions task'),
         ),
-        (
-            SYNC_VERSIONS_USING_A_TASK,
-            _('Sync versions using a task instead of the API'),
-        ),
 
         # Dependecies related features
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
@@ -1700,6 +1695,10 @@ class Feature(models.Model):
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
+            DONT_INSTALL_IMPLICIT_DEPS,
+            _('Don\'t install explicit dependencies'),
         ),
 
         # Search related features.
@@ -1810,6 +1809,12 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         Project,
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
+    )
+    public = models.BooleanField(
+        _('Public'),
+        default=False,
+        null=True,
+        help_text=_('Expose this environment variable in PR builds?'),
     )
 
     objects = RelatedProjectQuerySet.as_manager()

@@ -295,27 +295,12 @@ class SyncRepositoryMixin:
             branches_data=branches_data,
         )
 
-        if self.project.has_feature(Feature.SYNC_VERSIONS_USING_A_TASK):
-            from readthedocs.builds import tasks as build_tasks
-            build_tasks.sync_versions_task.delay(
-                project_pk=self.project.pk,
-                tags_data=tags_data,
-                branches_data=branches_data,
-            )
-        else:
-            try:
-                version_post_data = {
-                    'repo': version_repo.repo_url,
-                    'tags': tags_data,
-                    'branches': branches_data,
-                }
-                api_v2.project(self.project.pk).sync_versions.post(
-                    version_post_data,
-                )
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
+        from readthedocs.builds import tasks as build_tasks
+        build_tasks.sync_versions_task.delay(
+            project_pk=self.project.pk,
+            tags_data=tags_data,
+            branches_data=branches_data,
+        )
 
     def validate_duplicate_reserved_versions(self, tags_data, branches_data):
         """
@@ -809,7 +794,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     environment=self.build_env,
                 )
                 with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_python_environment()
+                    self.setup_build()
 
                     # TODO the build object should have an idea of these states,
                     # extend the model to include an idea of these outcomes
@@ -986,10 +971,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             })
 
         # Update environment from Project's specific environment variables,
-        # avoiding to expose environment variables if the version is external
-        # for security reasons.
-        if self.version.type != EXTERNAL:
-            env.update(self.project.environment_variables)
+        # avoiding to expose private environment variables
+        # if the version is external (i.e. a PR build).
+        env.update(self.project.environment_variables(
+            public_only=self.version.is_external
+        ))
 
         return env
 
@@ -1138,12 +1124,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             pdf=False,
             epub=False,
     ):
-        """
-        Update application instances with build artifacts.
-
-        This triggers updates across application instances for html, pdf, epub,
-        downloads, and search. Tasks are broadcast to all web servers from here.
-        """
+        """Update build artifacts and index search data."""
         # Update version if we have successfully built HTML output
         # And store whether the build had other media types
         try:
@@ -1162,7 +1143,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 self.version,
             )
 
-        # Broadcast finalization steps to web application instances
+        # Index search data
         fileify.delay(
             version_pk=self.version.pk,
             commit=self.build['commit'],
@@ -1170,6 +1151,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             search_ranking=self.config.search.ranking,
             search_ignore=self.config.search.ignore,
         )
+
+    def setup_build(self):
+        self.install_system_dependencies()
+        self.setup_python_environment()
 
     def setup_python_environment(self):
         """
@@ -1195,6 +1180,30 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.install_requirements()
         if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
             self.python_env.list_packages_installed()
+
+    def install_system_dependencies(self):
+        """
+        Install apt packages from the config file.
+
+        We don't allow to pass custom options or install from a path.
+        The packages names are already validated when reading the config file.
+
+        .. note::
+
+           ``--quiet`` won't suppress the output,
+           it would just remove the progress bar.
+        """
+        packages = self.config.build.apt_packages
+        if packages:
+            self.build_env.run(
+                'apt-get', 'update', '--assume-yes', '--quiet',
+                user=settings.RTD_DOCKER_SUPER_USER,
+            )
+            # put ``--`` to end all command arguments.
+            self.build_env.run(
+                'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
+                user=settings.RTD_DOCKER_SUPER_USER,
+            )
 
     def build_docs(self):
         """
@@ -1863,6 +1872,7 @@ def finish_inactive_builds():
     )
 
 
+# TODO: Move this to builds/tasks
 @app.task(queue='web')
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """

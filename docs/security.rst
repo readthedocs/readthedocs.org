@@ -57,6 +57,13 @@ to securely communicate with us and to verify signed messages you receive from u
 Security issue archive
 ----------------------
 
+Version 5.14.0
+~~~~~~~~~~~~~~
+
+:ref:`changelog:Version 5.14.0` fixes an issue where that affected new code that removed multiple slashes in URL paths. The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain on Read the Docs (either `*.readthedocs.io` or a [custom docs domain](https://docs.readthedocs.io/en/stable/custom_domains.html)) but instead went to a different domain.
+
+This issue was reported by Nick Georgieff at Splunk after it was reported by a security audit.
+
 Version 3.5.1
 ~~~~~~~~~~~~~
 

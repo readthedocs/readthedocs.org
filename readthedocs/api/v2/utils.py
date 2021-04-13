@@ -94,9 +94,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             # New Version
             versions_to_create.append((version_id, version_name))
 
-    added.update(
-        _create_versions_in_bulk(project, type, versions_to_create)
-    )
+    added.update(_create_versions(project, type, versions_to_create))
 
     if not has_user_stable:
         stable_version = (
@@ -121,15 +119,18 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     return added
 
 
-def _create_versions_in_bulk(project, type, versions):
+def _create_versions(project, type, versions):
     """
-    Create versions (tuple of version_id and version_name) in batch.
+    Create versions (tuple of version_id and version_name).
 
     Returns the slug of all added versions.
+
+    .. note::
+
+       ``Version.slug`` relies on the post_save signal,
+       so we can't use bulk_create.
     """
-    added = set()
-    batch_size = 150
-    objs = (
+    versions_objs = (
         Version(
             project=project,
             type=type,
@@ -138,12 +139,10 @@ def _create_versions_in_bulk(project, type, versions):
         )
         for version_id, version_name in versions
     )
-    while True:
-        batch = list(itertools.islice(objs, batch_size))
-        if not batch:
-            break
-        Version.objects.bulk_create(batch, batch_size)
-        added.update(v.slug for v in batch)
+    added = set()
+    for version in versions_objs:
+        version.save()
+        added.add(version.slug)
     return added
 
 
