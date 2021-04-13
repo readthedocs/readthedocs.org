@@ -67,7 +67,7 @@ def pull(ctx):
 def docs(ctx, regenerate_config=False, push=False):
     """Pull and push translations to Transifex for our docs"""
     with ctx.cd(os.path.join(ROOT_PATH, 'docs')):
-        # Update our tanslations
+        # Update our translations
         ctx.run('tx pull -a')
         # Update resources
         if regenerate_config:

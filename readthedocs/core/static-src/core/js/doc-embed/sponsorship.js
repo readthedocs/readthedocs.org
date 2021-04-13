@@ -19,6 +19,7 @@ function inject_ads_client() {
     script.src = "https://media.ethicalads.io/media/client/beta/ethicalads.min.js";
     script.type = "text/javascript";
     script.async = true;
+    script.id = "ethicaladsjs";
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
@@ -32,6 +33,11 @@ function create_ad_placement() {
     var offset;
 
     if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-publisher", "readthedocs");
+        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-manual", "true");
+        if ($(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "image" && $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "text") {
+            $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type", "readthedocs-sidebar");
+        }
         return $(EXPLICIT_PLACEMENT_SELECTOR);
     } else if ($(OLD_EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
         selector = OLD_EXPLICIT_PLACEMENT_SELECTOR;
@@ -54,9 +60,10 @@ function create_ad_placement() {
     if (selector) {
         // Determine if this element would be above the fold
         // If this is off screen, instead create an ad in the footer
+        // Assumes the ad would be ~200px high
         element = $("<div />").appendTo(selector);
         offset = element.offset();
-        if (!offset || offset.top > $(window).height()) {
+        if (!offset || (offset.top - $(window).scrollTop() + 200) > $(window).height()) {
             if (rtd.is_rtd_like_theme()) {
                 selector = $('<div />').insertAfter('footer hr');
                 class_name = 'ethical-rtd';
@@ -180,6 +187,14 @@ function init() {
                 // Ad client prevented from loading - check ad blockers
                 adblock_admonition();
                 adblock_nag(placement);
+            } else {
+                // The ad client hasn't loaded yet which could happen due to a variety of issues
+                // Add an event listener for it to load
+                $("#ethicaladsjs").on("load", function () {
+                    if (typeof ethicalads !== "undefined") {
+                        ethicalads.load();
+                    }
+                });
             }
         },
         error: function () {
