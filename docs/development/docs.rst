@@ -30,39 +30,39 @@ Contributing from your local machine
 If you're making large changes to the documentation,
 you may want to verify those changes locally before pushing upstream.
 
-1. clone the `readthedocs.org` repository:
+#. clone the `readthedocs.org` repository:
 
-.. prompt:: bash
+   .. prompt:: bash
 
-   git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-2. install documentation requirements
+#. install documentation requirements
 
-Run the `tox` command below to install the requirements.
-More information about the `docs` option can be found on :ref:`development tests <development/tests:Testing>` section.
+   Run the `tox` command below to install the requirements.
+   More information about the `docs` option can be found on :ref:`development tests <development/tests:Testing>` section.
 
-.. prompt:: bash
+   .. prompt:: bash
 
-   cd readthedocs.org
-   tox -e docs
+      cd readthedocs.org
+      tox -e docs
 
-Alternatively, you can try running the following commands if the `tox` command does not work for you.
+   Alternatively, you can try running the following commands if the `tox` command does not work for you.
 
-.. prompt:: bash
+   .. prompt:: bash
 
-   cd readthedocs.org
-   pip install -r requirements/testing.txt
-   pip install -r requirements/docs.txt
+      cd readthedocs.org
+      pip install -r requirements/testing.txt
+      pip install -r requirements/docs.txt
 
-3. build the documents
+#. build the documents
 
-.. prompt:: bash
+   .. prompt:: bash
 
-   cd docs
-   make html
+      cd docs
+      make html
 
-4. the documents will be available in the `_build` folder.
-Double-click the `index.html` file to open the documentation in a webpage
+#. the documents will be available in the `_build` folder.
+   Double-click the `index.html` file to open the documentation in a webpage
 
 Guidelines
 ----------
