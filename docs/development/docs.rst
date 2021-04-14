@@ -38,18 +38,6 @@ you may want to verify those changes locally before pushing upstream.
 
 #. install documentation requirements
 
-   Run the `tox` command below to install the requirements.
-   More information about the `docs` option can be found on :ref:`development tests <development/tests:Testing>` section.
-
-   .. prompt:: bash
-
-      cd readthedocs.org
-      tox -e docs
-
-   Alternatively, you can try running the following commands if the `tox` command does not work for you.
-
-   .. prompt:: bash
-
       cd readthedocs.org
       pip install -r requirements/testing.txt
       pip install -r requirements/docs.txt
