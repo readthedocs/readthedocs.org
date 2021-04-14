@@ -37,6 +37,8 @@ you may want to verify those changes locally before pushing upstream.
 
 #. install documentation requirements
 
+   .. prompt:: bash
+
       cd readthedocs.org
       pip install -r requirements/testing.txt
       pip install -r requirements/docs.txt
@@ -46,10 +48,9 @@ you may want to verify those changes locally before pushing upstream.
    .. prompt:: bash
 
       cd docs
-      make html
+      make livehtml
 
-#. the documents will be available in the `_build` folder.
-   Double-click the `index.html` file to open the documentation in a webpage
+#. the documents will be available at http://127.0.0.1:4444/ and will rebuild each time you edit and save a file.
 
 Guidelines
 ----------
