@@ -23,30 +23,45 @@ you can verify those changes through the documentation generated when you open a
 Contributing from your local machine
 ------------------------------------
 
+.. note::
+
+    As of April 2021, you must use python 3.7 or lower to generate the documentation.
+
 If you're making large changes to the documentation,
 you may want to verify those changes locally before pushing upstream.
 
-#. clone the `readthedocs.org` repository:
+1. clone the `readthedocs.org` repository:
 
 .. prompt:: bash
 
    git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-#. install documentation requirements
+2. install documentation requirements
+
+Run the `tox` command below to install the requirements.
+More information about the `docs` option can be found on :ref:`development tests <development/tests:Testing>` section.
 
 .. prompt:: bash
 
    cd readthedocs.org
+   tox -e docs
+
+Alternatively, you can try running the following commands if the `tox` command does not work for you.
+
+.. prompt:: bash
+
+   cd readthedocs.org
+   pip install -r requirements/testing.txt
    pip install -r requirements/docs.txt
 
-#. build the documents
+3. build the documents
 
 .. prompt:: bash
 
    cd docs
    make html
 
-#. the documents will be available in the `_build` folder.
+4. the documents will be available in the `_build` folder.
 Double-click the `index.html` file to open the documentation in a webpage
 
 Guidelines
