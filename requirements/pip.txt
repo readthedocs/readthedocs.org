@@ -3,7 +3,7 @@
 pip==21.0.1
 virtualenv==20.4.3
 
-django==2.2.19  # pyup: <2.3
+django==2.2.20  # pyup: <2.3
 django-extensions==3.1.2
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
@@ -11,7 +11,7 @@ django-autoslug==1.9.8
 djangorestframework==3.12.4
 
 # For intersphinx during builds
-Sphinx==3.5.3
+Sphinx==3.5.4
 
 # Filtering for the REST API
 django-filter==2.4.0
@@ -72,12 +72,12 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.2
 django-crispy-forms==1.11.2
 
-docker==4.4.4
+docker==5.0.0
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
 # if there is an update they could break our code
-nltk==3.5
+nltk==3.6.1
 textblob==0.15.3
 
 django-annoying==0.10.6
