@@ -17,7 +17,11 @@ If you're making small changes to the documentation,
 you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
 
 #. click the checkmark next to your commit and it will expand to have multiple options
+
 #. right-click the "details" link next to the "docs/readthedocs.org:docs" item
+
+   .. image:: /img/details_link.png
+
 #. navigate to the section of the documentation you worked on to verify your changes
 
 Contributing from your local machine
