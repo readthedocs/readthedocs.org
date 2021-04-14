@@ -17,7 +17,7 @@ execnet==1.8.0
 # supported platform.
 # mercurial-scm.org/wiki/SupportedPythonVersions
 # (Pinned to 4.4.2 since what we need for testing is still useful)
-# Mercurial==4.4.2  # pyup: ignore
+Mercurial==4.4.2  # pyup: ignore
 
 yamale==2.2.0  # pyup: <3.0
 pytest-mock==3.5.1
