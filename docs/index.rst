@@ -164,7 +164,8 @@ out of your documentation and Read the Docs.
   :doc:`How-to guides <guides/index>`
 
 * **Extending Read the Docs**:
-  :doc:`REST API <api/index>`
+  :doc:`REST API <api/index>` |
+  :doc:`/embed-api`
 
 .. toctree::
    :maxdepth: 2
@@ -182,9 +183,8 @@ out of your documentation and Read the Docs.
 
    automation-rules
 
-
    api/index
-
+   embed-api
 
 The Read the Docs project and organization
 ------------------------------------------
