@@ -1,3 +1,16 @@
+Version 5.14.1
+--------------
+
+:Date: April 13, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: protection against deleted objects (`#8081 <https://github.com/readthedocs/readthedocs.org/pull/8081>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Add page and page_size to server side api documentation (`#8080 <https://github.com/readthedocs/readthedocs.org/pull/8080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version warning banner: inject on role="main" or main tag (`#8079 <https://github.com/readthedocs/readthedocs.org/pull/8079>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: avoid undefined var (`#8078 <https://github.com/readthedocs/readthedocs.org/pull/8078>`__)
+* `@stsewd <https://github.com/stsewd>`__: Conda: protect against None when appending core requirements (`#8077 <https://github.com/readthedocs/readthedocs.org/pull/8077>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: add small paragraph mentioning how to enable it on commercial (`#8063 <https://github.com/readthedocs/readthedocs.org/pull/8063>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add separate version create view and create view URL (`#7595 <https://github.com/readthedocs/readthedocs.org/pull/7595>`__)
+
 Version 5.14.0
 --------------
 
