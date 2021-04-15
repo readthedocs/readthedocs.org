@@ -6,13 +6,13 @@ Single Sign-On
    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`__.
 
 
-Single Sign-On is supported on |com_brand| for Pro and Enterprise plans.
-:abbr:`SSO (Single Sign-On)` will allow you to grant permissions to your organization's projects in an easy way.
+Single sign-on is supported on |com_brand| for Pro and Enterprise plans.
+:abbr:`SSO (single sign-on)` will allow you to grant permissions to your organization's projects in an easy way.
 
-Currently, we support two different types of Single Sign-On:
+Currently, we support two different types of single sign-on:
 
-* Authentication *and* authorization are managed by the Identity Provider (e.g. GitHub, Bitbucket or GitLab)
-* Authentication (*only*) is managed by the Identity Provider (e.g. an active Google Workspace account with a verified email address)
+* Authentication *and* authorization are managed by the identity provider (e.g. GitHub, Bitbucket or GitLab)
+* Authentication (*only*) is managed by the identity provider (e.g. an active Google Workspace account with a verified email address)
 
 .. contents::
    :local:
@@ -22,7 +22,7 @@ Currently, we support two different types of Single Sign-On:
 SSO with VCS provider (GitHub, Bitbucket or GitLab)
 ---------------------------------------------------
 
-Using an Identity Provider that supports authentication and authorization allows you to manage
+Using an identity provider that supports authentication and authorization allows you to manage
 "who have access to what projects on Read the Docs" directly from the provider itself.
 In case you want a user to have access to your documentation project under Read the Docs,
 that user just needs to be granted permissions in the VCS repository associated with it.
@@ -82,11 +82,11 @@ SSO with Google Workspace
 
 Using your company's Google email address (e.g. ``employee@company.com``) allows you to
 manage authentication for your organization's members.
-As this Identity Provider does not provide authorization over each repositories/projects per user,
-permissions are managed by the :ref:`internal Read the Docs's Teams <commercial/organizations:Team Types>` authorization system.
+As this identity provider does not provide authorization over each repositories/projects per user,
+permissions are managed by the :ref:`internal Read the Docs's teams <commercial/organizations:Team Types>` authorization system.
 
-By default, users that Sign Up with a Google account do not have any permissions over any project.
-However, you can define which Teams users matching your company's domain email address will auto-join when they Sign Up.
+By default, users that sign up with a Google account do not have any permissions over any project.
+However, you can define which teams users matching your company's domain email address will auto-join when they sign up.
 Read the following sections to learn how to grant read and admin access.
 
 You can enable this feature in your organization by going to
@@ -97,30 +97,30 @@ and selecting :guilabel:`Google` as provider and specifying your Google Workspac
 Grant access to read a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can add a user under a "Read Only Team" to grant **read** permissions to all the projects under that Team.
+You can add a user under a "Read Only team" to grant **read** permissions to all the projects under that team.
 This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Read Only` > :guilabel:`Invite Member`.
 
 To avoid this repetitive task for each employee of your company,
-the owner of the Read the Docs organization can mark one or many Teams for users matching the company's domain email
-to join these Teams automaically when they Sign Up.
+the owner of the Read the Docs organization can mark one or many teams for users matching the company's domain email
+to join these teams automaically when they sign up.
 
 For example, you can create a "General Documentation (Read Only)" team
 with the projects that all employees of your company should have access to
 and mark it as :guilabel:`Auto join users with an organization's email address to this team`.
-Then all users that Sign Up with their ``employee@company.com`` email will automatically join this Team and have **read** access to those projects.
+Then all users that sign up with their ``employee@company.com`` email will automatically join this team and have **read** access to those projects.
 
 
 Grant access to administer a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can add a user under an "Admin Team" to grant **admin** permissions to all the projects under that Team.
+You can add a user under an "Admin team" to grant **admin** permissions to all the projects under that team.
 This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
 
 
 Grant access to users to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Making the user member of any "Admin Team" under your organization (as mentioned in the previous section),
+Making the user member of any "Admin team" under your organization (as mentioned in the previous section),
 they will be granted access to import a project.
 
 Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated,
@@ -130,7 +130,7 @@ and their social account connected with Read the Docs.
 Revoke user's access to a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To revoke access to a project for a particular user, you should remove that user from the Team that contains that Project.
+To revoke access to a project for a particular user, you should remove that user from the team that contains that project.
 This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Read Only` and click :guilabel:`Remove` next to the user you want to revoke access.
 
 
