@@ -24,7 +24,7 @@ Contributing from your local machine
 
 .. note::
 
-    As of April 2021, you must use python 3.6 to generate the documentation.
+   You must use python 3.6 to generate the documentation.
 
 If you're making large changes to the documentation,
 you may want to verify those changes locally before pushing upstream.
