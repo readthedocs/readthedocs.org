@@ -25,7 +25,7 @@ SSO with VCS provider (GitHub, Bitbucket or GitLab)
 Using an identity provider that supports authentication and authorization allows you to manage
 who has access to projects on Read the Docs, directly from the provider itself.
 If a user needs access to your documentation project on Read the Docs,
-that user just needs to be granted permissions in the VCS repository associated with with the project.
+that user just needs to be granted permissions in the VCS repository associated with the project.
 
 You can enable this feature in your organization by going to
 your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
