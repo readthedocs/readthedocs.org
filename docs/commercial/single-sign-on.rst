@@ -23,9 +23,9 @@ SSO with VCS provider (GitHub, Bitbucket or GitLab)
 ---------------------------------------------------
 
 Using an identity provider that supports authentication and authorization allows you to manage
-"who have access to what projects on Read the Docs" directly from the provider itself.
-In case you want a user to have access to your documentation project under Read the Docs,
-that user just needs to be granted permissions in the VCS repository associated with it.
+who has access to projects on Read the Docs, directly from the provider itself.
+If a user needs access to your documentation project on Read the Docs,
+that user just needs to be granted permissions in the VCS repository associated with with the project.
 
 You can enable this feature in your organization by going to
 your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorization`
@@ -59,7 +59,7 @@ of the associated project on Read the Docs to that user.
 Grant access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When SSO with VCS provider is enabled only owners of the Read the Docs organization can import projects.
+When SSO with a VCS provider is enabled, only owners of the Read the Docs organization can import projects.
 Adding users as owners of your organization will give them permissions to import projects.
 
 Note that to be able to import a project, that user must have **admin** permissions in the VCS repository associated.
@@ -68,7 +68,7 @@ Note that to be able to import a project, that user must have **admin** permissi
 Revoke access to a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a user should not have access anymore to a project for any reason,
+If a user should not have access anymore to a project, for any reason,
 a VCS repository's admin (e.g. user with Admin role on GitHub for that specific repository)
 can revoke access to the VCS repository and this will be automatically reflected in Read the Docs.
 
@@ -79,6 +79,8 @@ Instead of revoking access completely, just need lower down permissions to **rea
 
 SSO with Google Workspace
 -------------------------
+
+.. note:: Google Workspace was formerly called G Suite
 
 Using your company's Google email address (e.g. ``employee@company.com``) allows you to
 manage authentication for your organization's members.
@@ -97,15 +99,14 @@ and selecting :guilabel:`Google` as provider and specifying your Google Workspac
 Grant access to read a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can add a user under a "Read Only team" to grant **read** permissions to all the projects under that team.
+You can add a user under a read-only team to grant **read** permissions to all the projects under that team.
 This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Read Only` > :guilabel:`Invite Member`.
 
 To avoid this repetitive task for each employee of your company,
 the owner of the Read the Docs organization can mark one or many teams for users matching the company's domain email
 to join these teams automaically when they sign up.
 
-For example, you can create a "General Documentation (Read Only)" team
-with the projects that all employees of your company should have access to
+For example, you can create a team with the projects that all employees of your company should have access to
 and mark it as :guilabel:`Auto join users with an organization's email address to this team`.
 Then all users that sign up with their ``employee@company.com`` email will automatically join this team and have **read** access to those projects.
 
@@ -113,14 +114,14 @@ Then all users that sign up with their ``employee@company.com`` email will autom
 Grant access to administer a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can add a user under an "Admin team" to grant **admin** permissions to all the projects under that team.
+You can add a user under an admin team to grant **admin** permissions to all the projects under that team.
 This can be done under your organization's detail page > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
 
 
 Grant access to users to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Making the user member of any "Admin team" under your organization (as mentioned in the previous section),
+Making the user member of any admin team under your organization (as mentioned in the previous section),
 they will be granted access to import a project.
 
 Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated,
