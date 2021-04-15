@@ -57,7 +57,8 @@ We would need to refactor those classes into two types: the new build, and the o
 
 Both builders create an ``index.{rst,md}`` file with some suggestions if one doesn't exist,
 this is to avoid surprises to users, but sometimes this is done on purpose.
-We could change our default 404 page to include some of these suggestions instead.
+We could change our default 404 page to include some of these suggestions instead,
+or fail the build if there isn't an ``index.html`` file created (do users want to do this on purpose?).
 Related to `#1800`_.
 
 .. _#1800: https://github.com/readthedocs/readthedocs.org/issues/1800
@@ -101,6 +102,7 @@ Extension
 
 There are some things our extension does that are already supported by Sphinx or themes
 (analytics, canonical URL, etc), we should write a guide instead of applying our magic.
+Alternative, we can make this options, analytics is already an option.
 
 The extension also injects some custom js and css files.
 We could try another more general approach and inject these on each HTML file after the build is complete.
@@ -153,8 +155,8 @@ Some are:
 
 Other settings are used for things that can be done from the user side:
 
-- Analytics code
-- Canonical domain (Sphinx only)
+- Analytics code (exposed as an option)
+- Canonical domain (Sphinx only, and isn't exposed as an option)
 
 Adoption
 --------
@@ -162,8 +164,9 @@ Adoption
 If we remove some magical behaviour that was doing things for the user,
 we should document how to do them using Sphinx/MkDocs.
 
-These new builders/environments would be under a feature flag,
-where projects created after ``x`` date would use the new builders and environments,
+These new builders/environments would be under a feature flag.
+We can keep the implementation incrementally by start using a feature flag on some of our projects first,
+after we everything is implemented we can move the flag to be active for projects created after ``x`` date,
 and past projects would use the old ones.
 
 Deprecation
@@ -175,4 +178,26 @@ and other after that date. We can opt-in users into the new builders by adding t
 In order to simplify our code and have all projects using the same options and dependencies
 we want to fully migrate all projects to use the new builders.
 We could put a date to do this, and contact all users of old projects about this change
-(an entry in our blog would also be nice).
+Some things to do would be:
+
+- Write several guides on how to do things explicitly
+- Write several guides on how users can implement the magic things we were doing
+  (canonical domain, analytics, custom theme, dependencies, PDF improvements for Japanese and Chinese languages, etc)
+- An entry in our blog
+- Email all users that have old projects
+- Give users some time to migrate (six months, one year?)
+- Migrate all projects to the new builders
+  (allow users to opt-in into the old builders with a feature flag for a short time in case they didn't get to migrate? Could be useful for commercial)
+- Remove old code
+
+The future
+----------
+
+We may also take this as an opportunity to get ready to support more tools,
+this is by depending less on overrides and extensions, and work over the generated HTML.
+
+For Sphinx, it could be useful to implement our new context :doc:`/development/design/theme-context`,
+but do we really need to inject that context anymore? We have API v3 now.
+
+As proposed, we can make this changes incrementally and test in our own projects before
+making the final decisions.
