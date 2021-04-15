@@ -313,7 +313,7 @@ def parse_sphinx(content, section, url):
             query_result = body_obj(f'#{element_id}')
             if query_result:
                 break
-        except Exception:
+        except Exception:  # noqa
             log.info(
                 'Failed to query section. url=%s id=%s',
                 url, element_id,
