@@ -62,6 +62,11 @@ Read the Docs validates every configuration file.
 Any configuration option that isn't supported will make the build fail.
 This is to avoid typos and provide feedback on invalid configurations.
 
+.. warning::
+
+   When using a v2 configuration file,
+   the local settings from the web interface are ignored.
+
 .. contents::
    :local:
    :depth: 1
