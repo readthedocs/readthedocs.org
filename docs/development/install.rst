@@ -70,6 +70,20 @@ Set up your environment
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
 
+Check that everything works
+---------------------------
+
+#. go to http://community.dev.readthedocs.io and check that the appearance and style looks correct
+   (otherwise the MinIO buckets might be misconfigured, see above)
+
+#. login as ``admin`` /  ``admin`` and verify that the project list appears
+
+#. go to the "Read the Docs" project, click on the "Build version" button to build ``latest``,
+   and wait until it finishes
+
+#. click on the "View docs" button to browse the documentation, and verify that it works
+
+
 Working with Docker Compose
 ---------------------------
 
