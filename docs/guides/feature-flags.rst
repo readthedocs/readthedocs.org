@@ -1,11 +1,10 @@
 Feature Flags
 =============
 
-Read the Docs offers some additional flag settings which can be only be configured by the site admin.
-These are optional settings and you might not need it for every project.
-By default, these flags are disabled for every project.
-A separate request can be made by `contacting us via email`_ to enable
-or disable one or more of these featured flags for a particular project.
+Read the Docs offers some additional flag settings
+which are disabled by default for every project
+and can only be enabled by `contacting us via email`_
+or the admininstrator of your service.
 
 .. _contacting us via email: mailto:support@readthedocs.org
 
