@@ -1,3 +1,17 @@
+Version 5.14.2
+--------------
+
+:Date: April 20, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: check if user exists (`#8115 <https://github.com/readthedocs/readthedocs.org/pull/8115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: don't fetch/return all versions (`#8114 <https://github.com/readthedocs/readthedocs.org/pull/8114>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Improve contributing docs, take 2 (`#8113 <https://github.com/readthedocs/readthedocs.org/pull/8113>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: remove md5 field (`#8111 <https://github.com/readthedocs/readthedocs.org/pull/8111>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: improve docs and help text (`#8110 <https://github.com/readthedocs/readthedocs.org/pull/8110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add warning about design docs (`#8104 <https://github.com/readthedocs/readthedocs.org/pull/8104>`__)
+* `@Harmon758 <https://github.com/Harmon758>`__: Docs: fix typo in config-file/v2.rst (`#8102 <https://github.com/readthedocs/readthedocs.org/pull/8102>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Improve documentation on contributing to documentation (`#8082 <https://github.com/readthedocs/readthedocs.org/pull/8082>`__)
+
 Version 5.14.1
 --------------
 
