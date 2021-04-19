@@ -47,7 +47,7 @@ GitPython==3.1.14
 elasticsearch==7.12.0  # pyup: <8.0.0
 elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.2.0  # pyup: <8.0
-selectolax==0.2.10
+selectolax==0.2.11
 
 # embed
 pyquery==1.4.3
