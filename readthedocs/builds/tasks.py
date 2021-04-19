@@ -255,7 +255,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 
     :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
     :param branches_data: Same as ``tags_data`` but for branches.
-    :returns: the identifiers for the versions that have been deleted.
+    :returns: `True` or `False` if the task succeeded.
     """
     project = Project.objects.get(pk=project_pk)
 
@@ -296,7 +296,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         )
     except Exception:
         log.exception('Sync Versions Error')
-        return [], []
+        return False
 
     try:
         # The order of added_versions isn't deterministic.
@@ -333,3 +333,4 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
             promoted_version.active = True
             promoted_version.save()
             trigger_build(project=project, version=promoted_version)
+    return True
