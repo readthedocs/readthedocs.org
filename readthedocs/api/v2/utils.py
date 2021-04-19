@@ -115,7 +115,10 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             latest_version.verbose_name = LATEST_VERBOSE_NAME
             latest_version.save()
     if added:
-        log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
+        log.info(
+            '(Sync Versions) Added Versions: versions_count=%d versions=[%s] ',
+            len(added), ' '.join(added[:100]),
+        )
     return added
 
 
