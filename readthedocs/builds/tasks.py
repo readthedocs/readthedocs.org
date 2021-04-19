@@ -15,10 +15,10 @@ from readthedocs.api.v2.utils import (
 )
 from readthedocs.builds.constants import (
     BRANCH,
-    EXTERNAL,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
+    EXTERNAL,
     MAX_BUILD_COMMAND_SIZE,
     TAG,
 )
@@ -284,7 +284,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         )
         added_versions.update(result)
 
-        deleted_versions = delete_versions_from_db(
+        delete_versions_from_db(
             project=project,
             tags_data=tags_data,
             branches_data=branches_data,
@@ -333,5 +333,3 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
             promoted_version.active = True
             promoted_version.save()
             trigger_build(project=project, version=promoted_version)
-
-    return list(added_versions), list(deleted_versions)

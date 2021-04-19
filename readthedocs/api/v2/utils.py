@@ -208,15 +208,12 @@ def delete_versions_from_db(project, tags_data, branches_data):
         )
         .exclude(active=True)
     )
-    deleted_versions = set(to_delete_qs.values_list('slug', flat=True))
-    if deleted_versions:
-        log.info(
-            '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
-            project.slug, ' '.join(deleted_versions),
-        )
-        to_delete_qs.delete()
-
-    return deleted_versions
+    _, deleted = to_delete_qs.delete()
+    versions_count = deleted.get('builds.Version')
+    log.info(
+        '(Sync Versions) Deleted Versions: project=%s versions_count=[%d]',
+        project.slug, versions_count,
+    )
 
 
 def get_deleted_active_versions(project, tags_data, branches_data):
