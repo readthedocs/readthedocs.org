@@ -184,7 +184,8 @@ Support for external sites
 --------------------------
 
 Currently this document uses ``project``, ``version``, and ``path`` to query the API,
-but since the CZI grant requires this to work with external sites, those arguments can be replaced with ``url``.
+but since the CZI grant and intersphinx support requires this to work with external sites,
+those arguments can be replaced with ``url``.
 
 Considerations
 ``````````````
