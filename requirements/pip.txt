@@ -3,15 +3,15 @@
 pip==21.0.1
 virtualenv==20.4.3
 
-django==2.2.19  # pyup: <2.3
-django-extensions==3.1.1
+django==2.2.20  # pyup: <2.3
+django-extensions==3.1.2
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
 
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 
 # For intersphinx during builds
-Sphinx==3.5.3
+Sphinx==3.5.4
 
 # Filtering for the REST API
 django-filter==2.4.0
@@ -44,7 +44,7 @@ django-allauth==0.42.0  # pyup: ignore
 GitPython==3.1.14
 
 # Search
-elasticsearch==7.11.0  # pyup: <8.0.0
+elasticsearch==7.12.0  # pyup: <8.0.0
 elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.1.4  # pyup: <8.0
 selectolax==0.2.10
@@ -64,7 +64,7 @@ pytz==2021.1
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.56.0
-regex==2021.3.17
+regex==2021.4.4
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -72,12 +72,12 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.2
 django-crispy-forms==1.11.2
 
-docker==4.4.4
+docker==5.0.0
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
 # if there is an update they could break our code
-nltk==3.5
+nltk==3.6.1
 textblob==0.15.3
 
 django-annoying==0.10.6

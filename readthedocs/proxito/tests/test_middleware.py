@@ -182,6 +182,20 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             res['Location'], '/%3Ffoo',  # Encoded because it's in the middleware
         )
 
+    def test_front_slash_url(self):
+        domain = 'pip.dev.readthedocs.io'
+
+        # The HttpRequest needs to be created manually,
+        # because the RequestFactory strips leading /'s
+        request = HttpRequest()
+        request.path = '//google.com'
+        request.META = {'HTTP_HOST': domain}
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/google.com',
+        )
+
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')

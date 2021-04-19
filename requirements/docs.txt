@@ -1,6 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-Sphinx==3.5.3
+Sphinx==3.5.4
 Pygments==2.8.1
 
 # doctuils==0.15 produces this error
@@ -11,7 +11,7 @@ Pygments==2.8.1
 # AttributeError: 'str' object has no attribute 'rawsource'
 docutils==0.14  # pyup: ignore
 
-sphinx_rtd_theme==0.5.1
+sphinx_rtd_theme==0.5.2
 sphinx-tabs==2.1.0
 sphinx-intl==2.0.1
 
@@ -27,6 +27,7 @@ sphinx-prompt==1.4.0
 sphinx-notfound-page==0.6
 commonmark==0.9.1
 recommonmark==0.7.1
+sphinx-autobuild==2021.3.14
 
 # Linting
 rstcheck==3.3.1

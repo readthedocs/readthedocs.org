@@ -147,6 +147,7 @@ class Service:
         :param kwargs: optional parameters passed to .get() method
         :type kwargs: dict
         """
+        resp = None
         try:
             resp = self.get_session().get(url, data=kwargs)
 
@@ -179,7 +180,7 @@ class Service:
             # Response data should always be JSON, still try to log if not
             # though
             try:
-                debug_data = resp.json()
+                debug_data = resp.json() if resp else {}
             except ValueError:
                 debug_data = resp.content
             log.debug(
