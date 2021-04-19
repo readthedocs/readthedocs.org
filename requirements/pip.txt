@@ -111,7 +111,7 @@ git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c0
 
 
 # Required only in development and linting
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
 
 # For enabling content-security-policy
 django-csp==3.7
