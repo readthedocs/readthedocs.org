@@ -197,13 +197,17 @@ and if it's from an external site fetch it from the internet.
 The API could be missused.
 This is already true if we don't support external sites,
 since we host arbitrary HTML already.
-But it can be abussed to crawl external sites without the consent.
+But it can be abussed to crawl external sites without the consent of the site admin.
 We can integrate support for external sites in a later stage,
 or have a list of allowed sites.
 
 We would need to make our parsing code more generic.
 This is already proposed in this document,
 but testing is going to be done with Sphinx and MkDocs mainly.
+
+If we want to support external site to use the API,
+then we would need to expose it in a general public endpoint
+instead of the proxied API.
 
 Deprecation
 -----------
