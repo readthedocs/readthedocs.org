@@ -1370,7 +1370,6 @@ class ImportedFile(models.Model):
     # of 4096 characters for most filesystems (including EXT4).
     # https://github.com/rtfd/readthedocs.org/issues/5061
     path = models.CharField(_('Path'), max_length=4096)
-    md5 = models.CharField(_('MD5 checksum'), max_length=255, null=True)
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
