@@ -28,6 +28,11 @@ Here is an example of what this file looks like:
 Supported settings
 ------------------
 
+.. warning::
+
+   When using a v1 configuration file,
+   the local settings from the web interface are overridden.
+
 version
 ~~~~~~~
 
