@@ -4,7 +4,7 @@ Feature Flags
 Read the Docs offers some additional flag settings
 which are disabled by default for every project
 and can only be enabled by `contacting us via email`_
-or the admininstrator of your service.
+or the administrator of your service.
 
 .. _contacting us via email: mailto:support@readthedocs.org
 
