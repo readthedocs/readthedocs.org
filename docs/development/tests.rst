@@ -23,30 +23,17 @@ environments by running:
 
     tox
 
-By default, tox won't run tests from search,
-in order to run all test including the search tests,
-you need to override tox's posargs.
-If you don't have any additional arguments to pass,
-you can also set the ``TOX_POSARGS`` environment variable to an empty string:
-
-.. prompt:: bash
-
-    TOX_POSARGS='' tox
-
-.. note::
-
-   If you need to override tox's posargs, but you still don't want to run the search tests,
-   you need to include ``-m 'not search'`` to your command:
-
-.. prompt:: bash
-
-       tox -- -m 'not search' -x
-
 To target a specific environment:
 
 .. prompt:: bash
 
     tox -e py36
+
+You can override any pytest's options by running tox like:
+
+.. prompt:: bash
+
+   tox -e py36 -- -m 'not search' -x
 
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite:

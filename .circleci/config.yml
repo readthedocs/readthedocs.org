@@ -4,8 +4,6 @@ jobs:
   tests:
     docker:
       - image: 'cimg/python:3.6'
-        environment:
-          TOX_POSARGS: ''
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
         name: search
         environment:
