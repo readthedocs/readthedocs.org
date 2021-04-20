@@ -126,7 +126,13 @@ highly recommended.
       usefulness of the next section.
 
 7. Autogenerating documentation from code in Sphinx
-8. Appendix: Using Jupyter notebooks inside Sphinx
+8. Deploying a Sphinx project online
+
+   - A bit of background on the options: GitHub/GitLab Pages,
+     custom server, Netlify, Read the Docs
+   - Make reference to Read the Docs tutorial
+
+9. Appendix: Using Jupyter notebooks inside Sphinx
 
 .. note 
 
@@ -139,8 +145,6 @@ Some ideas for extra guides on specific topics,
 still for beginners but more problem-oriented documents,
 covering a wide range of use cases:
 
--  How to publish (deploy) a Sphinx project
--  How to publish (deploy) the documentation of a Python library to PyPI
 -  How to turn a bunch of Markdown files into a Sphinx project
 -  How to turn a bunch of Jupyter notebooks into a Sphinx project
 -  How to localize an existing Sphinx project
