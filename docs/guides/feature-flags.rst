@@ -3,10 +3,10 @@ Feature Flags
 
 Read the Docs offers some additional flag settings
 which are disabled by default for every project
-and can only be enabled by `contacting us via email`_
+and can only be enabled by `contacting us through our support form`_
 or the administrator of your service.
 
-.. _contacting us via email: mailto:support@readthedocs.org
+.. _contacting us through our support form: https://docs.readthedocs.io/en/stable/support.html
 
 Available Flags
 ---------------
