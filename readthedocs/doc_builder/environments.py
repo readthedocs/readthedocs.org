@@ -6,7 +6,6 @@ import re
 import socket
 import subprocess
 import sys
-import traceback
 import uuid
 from datetime import datetime
 
@@ -166,8 +165,7 @@ class BuildCommand(BuildCommandResultMixin):
             self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
-            self.error = traceback.format_exc()
-            self.output = self.error
+            log.exception("Operating system error.")
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
