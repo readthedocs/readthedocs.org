@@ -84,6 +84,8 @@ class BuildCommand(BuildCommandResultMixin):
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
+    :param bool stdout: Include stdout in the output.
+    :param bool stderr: Include stderr in the output.
     :param description: a more grokable description of the command being run
     :param kwargs: allow to subclass this class and extend it
     """
@@ -97,6 +99,8 @@ class BuildCommand(BuildCommandResultMixin):
             user=None,
             build_env=None,
             bin_path=None,
+            stdout=True,
+            stderr=True,
             description=None,
             record_as_success=False,
             **kwargs,
@@ -114,6 +118,9 @@ class BuildCommand(BuildCommandResultMixin):
         self.error = None
         self.start_time = None
         self.end_time = None
+
+        self.stdout = stdout
+        self.stderr = stderr
 
         self.bin_path = bin_path
         self.description = description or ''
@@ -157,8 +164,8 @@ class BuildCommand(BuildCommandResultMixin):
                 # as we want docker to expand inside the container
                 cwd=os.path.expandvars(self.cwd),
                 stdin=None,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stdout=subprocess.PIPE if self.stdout else None,
+                stderr=subprocess.STDOUT if self.stderr else None,
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
@@ -302,8 +309,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
                 user=self.user,
-                stdout=True,
-                stderr=True,
+                stdout=self.stdout,
+                stderr=self.stderr,
             )
 
             cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
