@@ -56,6 +56,7 @@ class TestSyncVersions(TestCase):
             type=TAG,
         )
         self.pip.update_stable_version()
+        self.pip.save()
 
     def test_proper_url_no_slash(self):
         branches_data = [
@@ -69,13 +70,19 @@ class TestSyncVersions(TestCase):
             },
         ]
 
-        added_versions, deleted_versions = sync_versions_task(
+        self.assertEqual(
+            set(self.pip.versions.all().values_list('slug', flat=True)),
+            {'master', 'latest', 'stable', '0.8.1', '0.8', 'to_delete'},
+        )
+        sync_versions_task(
             self.pip.pk,
             branches_data=branches_data,
             tags_data=[],
         )
-        self.assertEqual(deleted_versions, ['to_delete'])
-        self.assertEqual(added_versions, ['to_add'])
+        self.assertEqual(
+            set(self.pip.versions.all().values_list('slug', flat=True)),
+            {'master', 'latest', 'stable', '0.8.1', '0.8', 'to_add'},
+        )
 
     def test_new_tag_update_active(self):
         Version.objects.create(
