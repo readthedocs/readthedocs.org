@@ -96,6 +96,32 @@ class TestRegexAutomationRules:
         assert rule.run(version) is result
         assert rule.matches.all().count() == (1 if result else 0)
 
+    @pytest.mark.parametrize('type', [TAG, BRANCH])
+    def test_not_match(self, trigger_build, type):
+        version = get(
+            Version,
+            verbose_name='dont-match',
+            project=self.project,
+            active=False,
+            type=type,
+            built=False,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            on_match=False,
+            priority=0,
+            match_arg='^match$',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=type,
+        )
+
+        assert rule.run(version) is True
+
+        version.verbose_name = 'match'
+        version.save()
+        assert rule.run(version) is False
+
     @pytest.mark.parametrize(
         'version_name,result',
         [
