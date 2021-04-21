@@ -372,7 +372,6 @@ class TestHTMLFileManager(TestCase):
             version=self.external_version,
             name='file.html',
             path='file.html',
-            md5='abcdef',
             commit='1234567890abcdef',
         )
         self.internal_html_file = HTMLFile.objects.create(
@@ -380,7 +379,6 @@ class TestHTMLFileManager(TestCase):
             version=self.internal_version,
             name='file.html',
             path='file.html',
-            md5='abcdef',
             commit='1234567890abcdef',
         )
 
