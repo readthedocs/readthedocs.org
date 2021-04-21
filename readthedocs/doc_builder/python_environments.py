@@ -455,6 +455,30 @@ class Virtualenv(PythonEnvironment):
                 bin_path=self.venv_bin(),
             )
 
+    def get_installed_packages(self):
+        args = [
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
+            'list',
+            # Inlude pre-release versions.
+            '--pre',
+            # Don't include global packages if --system-site-packages was used.
+            '--local',
+            # List only top packages, not their dependencies.
+            '--not-required',
+            '--format',
+            'json',
+        ]
+        # TODO: return the output.
+        self.build_env.run(
+            *args,
+            # Don't add warnings to the output.
+            stderr=False,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
+
     def list_packages_installed(self):
         """List packages installed in pip."""
         args = [
@@ -708,6 +732,44 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
+
+    def get_installed_packages(self):
+        args = [
+            self.conda_bin_name(),
+            'list',
+            '--json',
+            '--name',
+            self.version.slug,
+        ]
+        self.build_env.run(
+            *args,
+            # Don't add warnings to the output.
+            stderr=False,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
+        args = [
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
+            'list',
+            # Inlude pre-release versions.
+            '--pre',
+            # Don't include global packages if --system-site-packages was used.
+            '--local',
+            # List only top packages, not their dependencies.
+            '--not-required',
+            '--format',
+            'json',
+        ]
+        # TODO: return the output.
+        self.build_env.run(
+            *args,
+            # Don't add warnings to the output.
+            stderr=False,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
 
     def list_packages_installed(self):
         """List packages installed in conda."""
