@@ -212,9 +212,9 @@ def delete_versions_from_db(project, tags_data, branches_data):
         .exclude(active=True)
     )
     _, deleted = to_delete_qs.delete()
-    versions_count = deleted.get('builds.Version')
+    versions_count = deleted.get('builds.Version', 0)
     log.info(
-        '(Sync Versions) Deleted Versions: project=%s versions_count=[%d]',
+        '(Sync Versions) Deleted Versions: project=%s versions_count=%s',
         project.slug, versions_count,
     )
 
