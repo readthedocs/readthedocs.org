@@ -176,17 +176,17 @@ Read the Docs tutorial
       - Edit a file from the GitHub UI as part of a new branch, and open a pull request
       - See the RTD check on the GitHub PR UI, wait a few minutes, open result (yay!)
 
+#. Customizing the build process
+
+   - Use `.readthedocs.yaml` (rather than the web UI) to customize build formats,
+     change build requirements and Python version, enable fail-on-warnings
+
 #. Versioning documentation
 
    - Explain how to manage versions on RTD: create release branches,
      activate the corresponding version, browse them in the version selector,
      selectively build versions
    - Intermediate topics: hide versions, create Automation Rules
-
-#. Customizing the build process
-
-   - Use `.readthedocs.yaml` (rather than the web UI) to customize build formats,
-     change build requirements and Python version, enable fail-on-warnings
 
 #. Getting insights from your projects
 
