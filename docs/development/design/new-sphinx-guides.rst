@@ -176,10 +176,6 @@ Read the Docs tutorial
       - Edit a file from the GitHub UI as part of a new branch, and open a pull request
       - See the RTD check on the GitHub PR UI, wait a few minutes, open result (yay!)
 
-   #. Using custom domains
-
-      - Essentially the steps already described in our Custom Domains reference
-
 #. Versioning documentation
 
    - Explain how to manage versions on RTD: create release branches,
@@ -198,10 +194,11 @@ Read the Docs tutorial
    - Play around with server-side search, explore results in Search Analytics
 
 #. Managing translations
+
 #. Where to go from here
 
    - Reference our existing guides, prominent projects already using RTD,
-     our support form, our contributing documentation
+     domain configuration, our support form, our contributing documentation
 
 Possible new how-to Guides
 --------------------------
