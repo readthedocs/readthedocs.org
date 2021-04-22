@@ -29,7 +29,6 @@ Some characteristics/problems are:
 - The content is always an array of one element.
 - The section can be an identifier or any other four variants or the title of the section.
 - It doesn't return valid HTML for definition lists (``dd`` tags without a ``dt`` tag).
-- The client doesn't know if the page requires extra JS or CSS in order to make it work or look nice.
 - It doesn't support external sites.
 
 New API
@@ -40,7 +39,7 @@ The API would be split into two endpoints, and only have one way of querying the
 Get page
 --------
 
-Allow us to query information about a page, like its list of sections and extra js/css scripts.
+Allow us to query information about a page, like its list of sections.
 
 .. http:get:: /_/api/v3/embed/pages?project=docs&version=latest&path=install.html
 
@@ -65,11 +64,7 @@ Allow us to query information about a page, like its list of sections and extra 
                "title": "Examples",
                "id": "examples"
             }
-         ],
-         "extras": {
-            "js": ["https://docs.readthedocs.io/en/latest/index.js"],
-            "css": ["https://docs.readthedocs.io/en/latest/index.css"],
-         }
+         ]
       }
 
 Get section
@@ -92,11 +87,7 @@ Allow us to query the content of the section, with all links re-written as absol
          "url": "https://docs.readthedocs.io/en/latest/install.html#examples",
          "id": "examples",
          "title": "Examples",
-         "content": "<div>I'm a html block!<div>",
-         "extras": {
-            "js": ["https://docs.readthedocs.io/en/latest/index.js"],
-            "css": ["https://docs.readthedocs.io/en/latest/index.css"],
-         }
+         "content": "<div>I'm a html block!<div>"
       }
 
 Implemention
@@ -163,17 +154,6 @@ Parse the HTML page itself rather than the relying on the fjson files.
   We can re-use code from the search parsing to detect the main content.
   This improvement can be shared with the current API (v2).
 
-Return extra js and css that may be required to render the page correctly.
-  We return a list of js and css files that are included in the page ``style`` and ``script`` tags.
-  The returned js and css files aren't guaranteed to be required in order to render the content,
-  but a decision for the client to make. Of course users can also anticipate the kind of content
-  they want to embed and extract the correct css and js in order to make it work.
-  We won't check for inline scripts.
-
-``extras`` could be returned only on ``/pages``, or only on ``/sections``.
-  It makes more sense to be only on ``/pages``,
-  but them querying a section would require to query a page to get the extra js/css files.
-
 .. note::
 
    We should probably make a distinction between our general API that handles Read the Docs resources,
@@ -228,3 +208,12 @@ Having a guide on how to use it would be better than having to maintain and publ
 
 Most users would use the embed API in their docs in form of an extension (like sphinx-hoverxref).
 Users using the API in other pages would probably have the sufficient knowledge to use the fetch and DOM API.
+
+Rejected/posponed ideas
+-----------------------
+
+Including a list of extra js/css files that may be required to make the embedded content work.
+  The client should be aware of the content it's embedding,
+  and it's their responsibility to include the required js/css to make it work.
+  We can't guarantee that the given files are necessary,
+  and could present a security threat.
