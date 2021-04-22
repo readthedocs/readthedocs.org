@@ -147,7 +147,7 @@ highly recommended.
 Read the Docs tutorial
 ----------------------
 
-#. What is Read the Docs
+#. The Read the Docs way
 #. Getting started
 
    #. Preparing our project on GitHub
