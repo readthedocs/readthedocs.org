@@ -132,6 +132,7 @@ highly recommended.
    - Make reference to Read the Docs tutorial
 
 #. Appendix: Using Jupyter notebooks inside Sphinx
+#. Appendix: Understanding the docutils document tree
 #. Appendix: Where to go from here
 
    - Refer the user to the Sphinx, reST and MyST references,
