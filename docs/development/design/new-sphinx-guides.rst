@@ -172,11 +172,6 @@ Read the Docs tutorial
       - Add a description, homepage, and tags
       - Configure your email for build failure notification
         (until we turn them on by default)
-
-#. Improving our workflow
-
-   #. Rendering our documentation from pull requests
-
       - Enable "build pull requests for this project" in the advanced settings
       - Edit a file from the GitHub UI as part of a new branch, and open a pull request
       - See the RTD check on the GitHub PR UI, wait a few minutes, open result (yay!)
