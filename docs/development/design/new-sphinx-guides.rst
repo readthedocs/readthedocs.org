@@ -164,7 +164,8 @@ Read the Docs tutorial
       - Import the project (don't "Edit advanced project options", we
         will do this later)
       - The project is created on RTD
-      - Browse "builds", wait a couple of minutes, open the docs (yay!)
+      - Browse "builds", open the build live logs, wait a couple of minutes,
+        open the docs (yay!)
 
    #. Basic configuration changes
 
