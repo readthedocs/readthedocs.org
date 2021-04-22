@@ -51,7 +51,7 @@ class TaskRouter:
     https://docs.celeryproject.org/en/stable/userguide/configuration.html#std:setting-task_routes
     """
 
-    N_BUILDS = 5
+    MIN_SUCCESSFUL_BUILDS = 5
     N_LAST_BUILDS = 15
     TIME_AVERAGE = 350
 
@@ -103,9 +103,7 @@ class TaskRouter:
                 )
                 return routing_queue
 
-        queryset = version.builds.filter(success=True).order_by('-date')
-        last_builds = queryset[:self.N_LAST_BUILDS]
-
+        last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
             if build.config.get('conda', None):
@@ -115,10 +113,16 @@ class TaskRouter:
                 )
                 return self.BUILD_LARGE_QUEUE
 
+        successful_builds_count = (
+            version.builds
+            .filter(success=True)
+            .order_by('-date')
+            .count()
+        )
         # We do not have enough builds for this version yet
-        if queryset.count() < self.N_BUILDS:
+        if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
             log.info(
-                'Routing task because it does not have enough success builds yet. '
+                'Routing task because it does not have enough successful builds yet. '
                 'project=%s queue=%s',
                 project.slug, self.BUILD_LARGE_QUEUE,
             )
