@@ -17,19 +17,19 @@ Sphinx tutorial
 Appendixes are optional, i.e. not required to follow the tutorial, but
 highly recommended.
 
-0. The Sphinx way
+1. The Sphinx way
 
    -  Preliminary section giving an overview of what Sphinx is, how it works,
       how reStructuredText and Markdown/MyST are related to it, some terminology
       (toctree, builders), what can be done with it.
 
-1. About this tutorial
+2. About this tutorial
 
    -  A section explaining the approach of the tutorial,
       as well as how to download the result of each section
       for closer inspection or for skipping parts of it.
 
-2. Getting started
+3. Getting started
 
    1. Creating our project
 
@@ -61,7 +61,7 @@ highly recommended.
       -  Add a proper ``.gitignore`` file (copied from gitignore.io)
       -  Create the first commit for the project (yay!)
 
-3. First steps to document our project using Sphinx
+4. First steps to document our project using Sphinx
 
    1. Converting our documentation to local HTML
 
@@ -90,7 +90,7 @@ highly recommended.
 
    4. Appendix: PDF without LaTeX using rinoh (beta)
 
-4. Customizing Sphinx configuration
+5. Customizing Sphinx configuration
 
    1. Changing the HTML theme
 
@@ -112,7 +112,7 @@ highly recommended.
       -  Rebuild the HTML docs ``make html`` and notice that now the
          times are printed (yay!)
 
-5. Writing narrative documentation with Sphinx
+6. Writing narrative documentation with Sphinx
 
    -  First focus on ``index.md``, diving more into Markdown
       and mentioning Semantic Line Breaks.
@@ -120,21 +120,21 @@ highly recommended.
    -  Then continue introducing elements of the syntax to add pictures,
       cross-references, and the like.
 
-6. Describing code in Sphinx
+7. Describing code in Sphinx
 
    -  Explain the Python domain as part of narrative documentation to
       interleave code with text, include doctests, and justify the
       usefulness of the next section.
 
-7. Autogenerating documentation from code in Sphinx
-8. Deploying a Sphinx project online
+8. Autogenerating documentation from code in Sphinx
+9. Deploying a Sphinx project online
 
    - A bit of background on the options: GitHub/GitLab Pages,
      custom server, Netlify, Read the Docs
    - Make reference to Read the Docs tutorial
 
-9. Appendix: Using Jupyter notebooks inside Sphinx
-10. Appendix: Where to go from here
+10. Appendix: Using Jupyter notebooks inside Sphinx
+11. Appendix: Where to go from here
 
    - Refer the user to the Sphinx, reST and MyST references,
      prominent projects already using Sphinx,
@@ -148,8 +148,8 @@ highly recommended.
 Read the Docs tutorial
 ----------------------
 
-0. What is Read the Docs
-1. Getting started
+1. What is Read the Docs
+2. Getting started
 
    1. Preparing our project on GitHub
 
@@ -181,7 +181,7 @@ Read the Docs tutorial
       - Configure your email for build failure notification
         (until we turn them on by default)
 
-2. Improving our workflow
+3. Improving our workflow
 
    1. Rendering our documentation from pull requests
 
@@ -193,25 +193,25 @@ Read the Docs tutorial
 
       - Essentially the steps already described in our Custom Domains reference
 
-3. Versioning documentation
+4. Versioning documentation
 
    - Explain how to manage versions on RTD: create release branches,
      activate the corresponding version, browse them in the version selector,
      selectively build versions
    - Intermediate topics: hide versions, create Automation Rules
 
-4. Customizing the build process
+5. Customizing the build process
 
    - Use `.readthedocs.yaml` (rather than the web UI) to customize build formats,
      change build requirements and Python version, enable fail-on-warnings
 
-5. Getting insights from your projects
+6. Getting insights from your projects
 
    - Move around the project, explore results in Traffic Analytics
    - Play around with server-side search, explore results in Search Analytics
 
-6. Managing translations
-7. Where to go from here
+7. Managing translations
+8. Where to go from here
 
    - Reference our existing guides, prominent projects already using RTD,
      our support form, our contributing documentation
