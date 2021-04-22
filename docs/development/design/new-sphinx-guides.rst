@@ -17,27 +17,27 @@ Sphinx tutorial
 Appendixes are optional, i.e. not required to follow the tutorial, but
 highly recommended.
 
-1. The Sphinx way
+#. The Sphinx way
 
    -  Preliminary section giving an overview of what Sphinx is, how it works,
       how reStructuredText and Markdown/MyST are related to it, some terminology
       (toctree, builders), what can be done with it.
 
-2. About this tutorial
+#. About this tutorial
 
    -  A section explaining the approach of the tutorial,
       as well as how to download the result of each section
       for closer inspection or for skipping parts of it.
 
-3. Getting started
+#. Getting started
 
-   1. Creating our project
+   #. Creating our project
 
       -  Present a fictitious goal for a documentation project
       -  Create a blank ``README.md`` to introduce the most basic elements of Markdown
          (headings and paragraph text)
 
-   2. Installing Sphinx and cookiecutter in a new development environment
+   #. Installing Sphinx and cookiecutter in a new development environment
 
       -  Install Python (or miniforge)
       -  Create a virtual environment (and/or conda environment)
@@ -46,7 +46,7 @@ highly recommended.
       -  Install Sphinx inside the virtual environment
       -  Check that ``sphinx-build --help`` works (yay!)
 
-   3. Creating the documentation layout
+   #. Creating the documentation layout
 
       -  Apply our cookiecutter to create a minimal ``docs/`` directory
          (similar to what ``sphinx-quickstart`` does, but
@@ -55,15 +55,15 @@ highly recommended.
          and a MyST index, if at all) [1]_
       -  Check that the correct files are created (yay!)
 
-   4. Appendix: Using version control
+   #. Appendix: Using version control
 
       -  Install git (we will not use it during the tutorial)
       -  Add a proper ``.gitignore`` file (copied from gitignore.io)
       -  Create the first commit for the project (yay!)
 
-4. First steps to document our project using Sphinx
+#. First steps to document our project using Sphinx
 
-   1. Converting our documentation to local HTML
+   #. Converting our documentation to local HTML
 
       -  Create (or minimally tweak) ``index.md``
       -  Build the HTML output using
@@ -73,44 +73,44 @@ highly recommended.
       -  Open http://localhost:8000 in a web browser, and see the HTML
          documentation (yay!)
 
-   2. Converting our documentation to other formats
+   #. Converting our documentation to other formats
 
       -  Build PseudoXML using ``make pseudoxml``
       - Build Text using ``make text``
       -  See how the various formats change the output (yay!)
 
-   3. Appendix: Simplify documentation building by using Make [3]_
+   #. Appendix: Simplify documentation building by using Make [3]_
 
       -  Install Make (nothing is needed on Windows, `make.bat` is standalone)
       -  Add more content to ``index.md``
       -  Build HTML doing ``cd doc && make html``
       -  Observe that the HTML docs have changed (yay!)
 
-   4. Appendix: PDF without LaTeX using rinoh (beta)
+   #. Appendix: PDF without LaTeX using rinoh (beta)
 
-5. Customizing Sphinx configuration
+#. Customizing Sphinx configuration
 
-   1. Changing the HTML theme
+   #. Changing the HTML theme
 
       -  Install https://pypi.org/project/furo/
       -  Change the ``html_theme`` in ``conf.py``
       -  Rebuild the HTML documentation and observe that the theme has
          changed (yay!)
 
-   2. Changing the PDF appearance
+   #. Changing the PDF appearance
 
       -  Add a ``latex_theme`` and set it to ``howto``
       -  Rebuild ``make latexpdf``
       -  Check that the appearance changed (yay!)
 
-   3. Enable an extension
+   #. Enable an extension
 
       -  Add a string to the ``extensions`` list in ``conf.py`` for
          ``sphinx.ext.duration``
       -  Rebuild the HTML docs ``make html`` and notice that now the
          times are printed (yay!)
 
-6. Writing narrative documentation with Sphinx
+#. Writing narrative documentation with Sphinx
 
    -  First focus on ``index.md``, diving more into Markdown
       and mentioning Semantic Line Breaks.
@@ -118,21 +118,21 @@ highly recommended.
    -  Then continue introducing elements of the syntax to add pictures,
       cross-references, and the like.
 
-7. Describing code in Sphinx
+#. Describing code in Sphinx
 
    -  Explain the Python domain as part of narrative documentation to
       interleave code with text, include doctests, and justify the
       usefulness of the next section.
 
-8. Autogenerating documentation from code in Sphinx
-9. Deploying a Sphinx project online
+#. Autogenerating documentation from code in Sphinx
+#. Deploying a Sphinx project online
 
    - A bit of background on the options: GitHub/GitLab Pages,
      custom server, Netlify, Read the Docs
    - Make reference to Read the Docs tutorial
 
-10. Appendix: Using Jupyter notebooks inside Sphinx
-11. Appendix: Where to go from here
+#. Appendix: Using Jupyter notebooks inside Sphinx
+#. Appendix: Where to go from here
 
    - Refer the user to the Sphinx, reST and MyST references,
      prominent projects already using Sphinx,
@@ -146,10 +146,10 @@ highly recommended.
 Read the Docs tutorial
 ----------------------
 
-1. What is Read the Docs
-2. Getting started
+#. What is Read the Docs
+#. Getting started
 
-   1. Preparing our project on GitHub
+   #. Preparing our project on GitHub
 
       - Fork a starter GitHub repository (notice that
         even an empty project is ready for build the first time without changes,
@@ -160,7 +160,7 @@ Read the Docs tutorial
         helps mimicking the `sphinx-quickstart` or `cookiecutter` step
         without having to checkout the code locally)
 
-   2. Importing our project to Read the Docs
+   #. Importing our project to Read the Docs
 
       - Sign up on RTD
       - Connect your GitHub account (is this step necessary
@@ -171,7 +171,7 @@ Read the Docs tutorial
       - The project is created on RTD
       - Browse "builds", wait a couple of minutes, open the docs (yay!)
 
-   3. Basic configuration changes
+   #. Basic configuration changes
 
       - Add a description, homepage, and tags
       - Browse other project with similar tags as yours
@@ -179,37 +179,37 @@ Read the Docs tutorial
       - Configure your email for build failure notification
         (until we turn them on by default)
 
-3. Improving our workflow
+#. Improving our workflow
 
-   1. Rendering our documentation from pull requests
+   #. Rendering our documentation from pull requests
 
       - Enable "build pull requests for this project" in the advanced settings
       - Edit a file from the GitHub UI as part of a new branch, and open a pull request
       - See the RTD check on the GitHub PR UI, wait a few minutes, open result (yay!)
 
-   2. Using custom domains
+   #. Using custom domains
 
       - Essentially the steps already described in our Custom Domains reference
 
-4. Versioning documentation
+#. Versioning documentation
 
    - Explain how to manage versions on RTD: create release branches,
      activate the corresponding version, browse them in the version selector,
      selectively build versions
    - Intermediate topics: hide versions, create Automation Rules
 
-5. Customizing the build process
+#. Customizing the build process
 
    - Use `.readthedocs.yaml` (rather than the web UI) to customize build formats,
      change build requirements and Python version, enable fail-on-warnings
 
-6. Getting insights from your projects
+#. Getting insights from your projects
 
    - Move around the project, explore results in Traffic Analytics
    - Play around with server-side search, explore results in Search Analytics
 
-7. Managing translations
-8. Where to go from here
+#. Managing translations
+#. Where to go from here
 
    - Reference our existing guides, prominent projects already using RTD,
      our support form, our contributing documentation
