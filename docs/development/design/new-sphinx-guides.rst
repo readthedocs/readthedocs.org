@@ -170,8 +170,6 @@ Read the Docs tutorial
    #. Basic configuration changes
 
       - Add a description, homepage, and tags
-      - Browse other project with similar tags as yours
-        (this way we encourage tagging projects, as well as discovery)
       - Configure your email for build failure notification
         (until we turn them on by default)
 
