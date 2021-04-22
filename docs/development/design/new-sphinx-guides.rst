@@ -152,12 +152,9 @@ Read the Docs tutorial
 
    #. Preparing our project on GitHub
 
-      - Fork a starter GitHub repository (notice that
-        even an empty project is ready for build the first time without changes,
-        resulting in a nice "welcome to read the docs" dummy page,
-        but using something like `our demo template
+      - Fork a starter GitHub repository (something like `our demo template
         <https://github.com/readthedocs/template>`_,
-        as a starting point
+        as a starting point that
         helps mimicking the `sphinx-quickstart` or `cookiecutter` step
         without having to checkout the code locally)
 
