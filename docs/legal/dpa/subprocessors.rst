@@ -22,7 +22,7 @@ Infrastructure
 Amazon Web Services, Inc.
     Cloud infrastructure provider.
 
-Serivces
+Services
 --------
 
 Elasticsearch B.V.
