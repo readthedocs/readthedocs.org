@@ -145,6 +145,77 @@ highly recommended.
 
    - Looks like MathJax is enabled by default now? Can't see a reference in the docstrings
 
+Read the Docs tutorial
+----------------------
+
+0. What is Read the Docs
+1. Getting started
+
+   1. Preparing our project on GitHub
+
+      - Fork a starter GitHub repository (notice that
+        even an empty project is ready for build the first time without changes,
+        resulting in a nice "welcome to read the docs" dummy page,
+        but using something like `our demo template
+        <https://github.com/readthedocs/template>`_,
+        as a starting point
+        helps mimicking the `sphinx-quickstart` or `cookiecutter` step
+        without having to checkout the code locally)
+
+   2. Importing our project to Read the Docs
+
+      - Sign up on RTD
+      - Connect your GitHub account (is this step necessary
+        if the user signed up with GitHub?)
+      - Connect your GitHub account (to avoid manual import)
+      - Import the project (don't "Edit advanced project options", we
+        will do this later)
+      - The project is created on RTD
+      - Browse "builds", wait a couple of minutes, open the docs (yay!)
+
+   3. Basic configuration changes
+
+      - Add a description, homepage, and tags
+      - Browse other project with similar tags as yours
+        (this way we encourage tagging projects, as well as discovery)
+      - Configure your email for build failure notification
+        (until we turn them on by default)
+
+2. Improving our workflow
+
+   1. Rendering our documentation from pull requests
+
+      - Enable "build pull requests for this project" in the advanced settings
+      - Edit a file from the GitHub UI as part of a new branch, and open a pull request
+      - See the RTD check on the GitHub PR UI, wait a few minutes, open result (yay!)
+
+   2. Using custom domains
+
+      - Essentially the steps already described in our Custom Domains reference
+
+3. Versioning documentation
+
+   - Explain how to manage versions on RTD: create release branches,
+     activate the corresponding version, browse them in the version selector,
+     selectively build versions
+   - Intermediate topics: hide versions, create Automation Rules
+
+4. Customizing the build process
+
+   - Use `.readthedocs.yaml` (rather than the web UI) to customize build formats,
+     change build requirements and Python version, enable fail-on-warnings
+
+5. Getting insights from your projects
+
+   - Move around the project, explore results in Traffic Analytics
+   - Play around with server-side search, explore results in Search Analytics
+
+6. Managing translations
+7. Where to go from here
+
+   - Reference our existing guides, prominent projects already using RTD,
+     our support form, our contributing documentation
+
 Possible new how-to Guides
 --------------------------
 
