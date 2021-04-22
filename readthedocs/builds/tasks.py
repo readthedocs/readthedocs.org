@@ -259,6 +259,9 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
     project = Project.objects.get(pk=project_pk)
 
+    # TODO: remove this log once we find out what's causing OOM
+    log.info('Running readthedocs.builds.tasks.sync_versions_task. locals=%s', locals())
+
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
     current_stable = project.get_original_stable_version()
