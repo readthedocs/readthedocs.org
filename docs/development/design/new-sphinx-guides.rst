@@ -73,20 +73,20 @@ highly recommended.
       -  Open http://localhost:8000 in a web browser, and see the HTML
          documentation (yay!)
 
-   2. Simplify documentation building by using Make [3]_
-
-      -  Install Make (nothing is needed on Windows, `make.bat` is standalone)
-      -  Add more content to ``index.md``
-      -  Build HTML doing ``cd doc && make html``
-      -  Observe that the HTML docs have changed (yay!)
-
-   3. Converting our documentation to other formats
+   2. Converting our documentation to other formats
 
       -  Install TeX (MiKTeX looks very straightforward on Windows, TeX Live
          is an alternative)
       -  Build PseudoXML using ``make pseudoxml``
       - Build Text using ``make text``
       -  See that the PDF appeared (yay!)
+
+   3. Appendix: Simplify documentation building by using Make [3]_
+
+      -  Install Make (nothing is needed on Windows, `make.bat` is standalone)
+      -  Add more content to ``index.md``
+      -  Build HTML doing ``cd doc && make html``
+      -  Observe that the HTML docs have changed (yay!)
 
    4. Appendix: PDF without LaTeX using rinoh (beta)
 
