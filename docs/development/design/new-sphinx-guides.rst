@@ -160,10 +160,7 @@ Read the Docs tutorial
 
    #. Importing our project to Read the Docs
 
-      - Sign up on RTD
-      - Connect your GitHub account (is this step necessary
-        if the user signed up with GitHub?)
-      - Connect your GitHub account (to avoid manual import)
+      - Sign up with GitHub on RTD
       - Import the project (don't "Edit advanced project options", we
         will do this later)
       - The project is created on RTD
