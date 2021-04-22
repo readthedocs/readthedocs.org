@@ -134,6 +134,12 @@ highly recommended.
    - Make reference to Read the Docs tutorial
 
 9. Appendix: Using Jupyter notebooks inside Sphinx
+10. Appendix: Where to go from here
+
+   - Refer the user to the Sphinx, reST and MyST references,
+     prominent projects already using Sphinx,
+     compilations of themes and extensions,
+     the development documentation.
 
 .. note 
 
