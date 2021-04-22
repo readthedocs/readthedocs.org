@@ -76,7 +76,7 @@ highly recommended.
    #. Converting our documentation to other formats
 
       -  Build PseudoXML using ``make pseudoxml``
-      - Build Text using ``make text``
+      -  Build Text using ``make text``
       -  See how the various formats change the output (yay!)
 
    #. Appendix: Simplify documentation building by using Make [3]_
