@@ -75,11 +75,9 @@ highly recommended.
 
    2. Converting our documentation to other formats
 
-      -  Install TeX (MiKTeX looks very straightforward on Windows, TeX Live
-         is an alternative)
       -  Build PseudoXML using ``make pseudoxml``
       - Build Text using ``make text``
-      -  See that the PDF appeared (yay!)
+      -  See how the various formats change the output (yay!)
 
    3. Appendix: Simplify documentation building by using Make [3]_
 
