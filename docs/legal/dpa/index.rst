@@ -1,6 +1,11 @@
 Data Processing Agreement
 =========================
 
+.. note::
+    This agreement can be included with any subscription on |com_brand|.
+    Contact us at <privacy@readthedocs.com> to include this in your
+    subscription agreement.
+
 This Data Processing Agreement (“\ **DPA**\ ”) is an addendum to the
 Terms of Service (“\ **Agreement**\ ”) between Read the Docs, Inc.,
 along with our affiliates and subsidiaries (collectively, “\ **Read the
