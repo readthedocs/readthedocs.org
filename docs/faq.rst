@@ -236,12 +236,10 @@ following contents::
 
     src/python/
 
-Please note that the path must be relative to the file. So the example path
-above would work if the file is in the root of your repository. If you want to
-put the requirements in a file called ``requirements/requirements.txt``, the
-contents would look like::
-
-    ../python/
+Please note that the path must be relative to the working directory where ``pip`` is launched,
+rather than the directory where the requirements file is located.
+Therefore, even if you want to move the requirements file to a ``requirements/`` directory,
+the example path above would work.
 
 You can customize the path to your requirements file and any other installed dependency
 using a Read the Docs :doc:`config-file/index`.

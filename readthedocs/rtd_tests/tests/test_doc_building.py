@@ -7,7 +7,6 @@ Things to know:
 import hashlib
 import json
 import os
-import re
 import tempfile
 import uuid
 from unittest import mock
@@ -1038,8 +1037,10 @@ class TestBuildCommand(TestCase):
         self.assertFalse(os.path.exists(path))
         cmd = BuildCommand(path)
         cmd.run()
-        missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegex(cmd.error, missing_re)
+        self.assertEqual(cmd.exit_code, -1)
+        # There is no stacktrace here.
+        self.assertIsNone(cmd.output)
+        self.assertIsNone(cmd.error)
 
     def test_output(self):
         """Test output command."""

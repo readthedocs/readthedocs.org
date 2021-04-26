@@ -120,7 +120,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BuildCommandResult
-        exclude = ('')
+        exclude = []
 
 
 class BuildSerializer(serializers.ModelSerializer):
