@@ -3,7 +3,7 @@ Collect Data About Builds
 
 We may want to take some decisions in the future about deprecations and supported versions.
 Right now we don't have data about the usage of packages and their versions on Read the Docs
-to be able to make a good decision.
+to be able to make an informed decision.
 
 .. contents::
    :local:
