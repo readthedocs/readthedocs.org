@@ -610,7 +610,7 @@ class Build(models.Model):
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
-        default='finished',
+        default=BUILD_STATE_TRIGGERED,
     )
 
     # Describe status as *why* the build is in a particular state. It is
