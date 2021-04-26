@@ -165,10 +165,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         # Update doc from path
         if path:
-            if path.endswith('/'):
-                doc = doc.path.rstrip('/')
-            else:
-                doc = path.split('.html', 1)[0]
+            doc = re.sub(r'(.+)\.html$', r'\1', path.strip('/'))
 
         response = do_embed(
             project=project,
