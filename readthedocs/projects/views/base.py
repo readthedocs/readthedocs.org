@@ -3,6 +3,7 @@
 """Mix-in classes for project views."""
 import logging
 from datetime import timedelta
+from functools import lru_cache
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -12,7 +13,6 @@ from django.utils import timezone
 
 from ..exceptions import ProjectSpamError
 from ..models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +64,7 @@ class ProjectAdminMixin:
         self.project = self.get_project()
         return self.model.objects.filter(project=self.project)
 
+    @lru_cache(maxsize=1)
     def get_project(self):
         """Return project determined by url kwarg."""
         if self.project_url_field not in self.kwargs:

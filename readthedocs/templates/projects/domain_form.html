@@ -21,6 +21,13 @@
 {% endblock %}
 
 {% block project_edit_content %}
+
+  {% if not enabled %}
+    {% block disabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% endblock %}
+  {% endif %}
+
   {% if domain.domainssl %}
     {# This references optional code to get the SSL certificate status #}
     <p>

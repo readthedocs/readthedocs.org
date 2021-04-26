@@ -34,10 +34,17 @@
   {% endif %}
 
   <h3> {% trans "Add new Domain" %} </h3>
-  <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
-    {{ form.as_p }}
-    <p>
-      <input style="display: inline;" type="submit" value="{% trans "Add" %}">
-    </p>
-  </form>
+
+  {% if not enabled %}
+    {% block disabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% endblock %}
+  {% else %}
+    <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
+      {{ form.as_p }}
+      <p>
+        <input style="display: inline;" type="submit" value="{% trans "Add" %}">
+      </p>
+    </form>
+  {% endif %}
 {% endblock %}
