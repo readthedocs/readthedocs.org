@@ -247,3 +247,7 @@ Since this information isn't sensitive,
 we should be fine saving this data even if the project/version is deleted.
 As we don't care about historical data,
 we can save the information per-version and from their latest build only.
+
+We can collect data for one year,
+export it to cloud storage after being analyzed (maybe share this data publicity),
+and remove it from our database if it takes too much space.
