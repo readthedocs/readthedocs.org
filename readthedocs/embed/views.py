@@ -163,7 +163,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Update doc from path
+        # Generate the docname from path
+        # by removing the ``.html`` extension and trailing ``/``.
         if path:
             doc = re.sub(r'(.+)\.html$', r'\1', path.strip('/'))
 
