@@ -3,7 +3,7 @@ Configuration File V2
 
 Read the Docs supports configuring your documentation builds with a YAML file.
 The :doc:`configuration file <index>` must be in the root directory of your project
-an be named ``.readthedocs.yaml``.
+and be named ``.readthedocs.yaml``.
 
 All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
@@ -61,6 +61,11 @@ Supported settings
 Read the Docs validates every configuration file.
 Any configuration option that isn't supported will make the build fail.
 This is to avoid typos and provide feedback on invalid configurations.
+
+.. warning::
+
+   When using a v2 configuration file,
+   the local settings from the web interface are ignored.
 
 .. contents::
    :local:

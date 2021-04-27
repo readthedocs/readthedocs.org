@@ -119,7 +119,7 @@
           <div style="padding: 6px;">
             {# We hardcode the URLS because we don't have access to the URLCONF of the main app from proxito #}
             <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/search/" method="get">
-              <input type="text" name="q" placeholder="{% trans "Search docs" %}">
+              <input type="text" name="q" aria-label="{% trans "Search docs" %}" placeholder="{% trans "Search docs" %}">
               </form>
           </div>
         </dd>

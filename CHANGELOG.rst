@@ -1,3 +1,47 @@
+Version 5.14.3
+--------------
+
+:Date: April 26, 2021
+
+* `@humitos <https://github.com/humitos>`__: Metrics: run metrics task every 30 minutes (`#8138 <https://github.com/readthedocs/readthedocs.org/pull/8138>`__)
+* `@humitos <https://github.com/humitos>`__: web-celery: add logging for OOM debug on suspicious tasks (`#8131 <https://github.com/readthedocs/readthedocs.org/pull/8131>`__)
+* `@stsewd <https://github.com/stsewd>`__: Celery router: check all `n` last builds for Conda (`#8129 <https://github.com/readthedocs/readthedocs.org/pull/8129>`__)
+* `@jonels-msft <https://github.com/jonels-msft>`__: Include aria-label in flyout search box (`#8127 <https://github.com/readthedocs/readthedocs.org/pull/8127>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: use %s to format the variable (`#8125 <https://github.com/readthedocs/readthedocs.org/pull/8125>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: improve list_packages_installed (`#8122 <https://github.com/readthedocs/readthedocs.org/pull/8122>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildCommand: don't leak stacktrace to the user (`#8121 <https://github.com/readthedocs/readthedocs.org/pull/8121>`__)
+* `@stsewd <https://github.com/stsewd>`__: API (v2): use empty list in serializer's exclude (`#8120 <https://github.com/readthedocs/readthedocs.org/pull/8120>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Miscellaneous doc improvements (`#8118 <https://github.com/readthedocs/readthedocs.org/pull/8118>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#8117 <https://github.com/readthedocs/readthedocs.org/pull/8117>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix a few style and grammar issues with SSO docs (`#8109 <https://github.com/readthedocs/readthedocs.org/pull/8109>`__)
+
+Version 5.14.2
+--------------
+
+:Date: April 20, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: check if user exists (`#8115 <https://github.com/readthedocs/readthedocs.org/pull/8115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: don't fetch/return all versions (`#8114 <https://github.com/readthedocs/readthedocs.org/pull/8114>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Improve contributing docs, take 2 (`#8113 <https://github.com/readthedocs/readthedocs.org/pull/8113>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: remove md5 field (`#8111 <https://github.com/readthedocs/readthedocs.org/pull/8111>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: improve docs and help text (`#8110 <https://github.com/readthedocs/readthedocs.org/pull/8110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add warning about design docs (`#8104 <https://github.com/readthedocs/readthedocs.org/pull/8104>`__)
+* `@Harmon758 <https://github.com/Harmon758>`__: Docs: fix typo in config-file/v2.rst (`#8102 <https://github.com/readthedocs/readthedocs.org/pull/8102>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Improve documentation on contributing to documentation (`#8082 <https://github.com/readthedocs/readthedocs.org/pull/8082>`__)
+
+Version 5.14.1
+--------------
+
+:Date: April 13, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: protection against deleted objects (`#8081 <https://github.com/readthedocs/readthedocs.org/pull/8081>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Add page and page_size to server side api documentation (`#8080 <https://github.com/readthedocs/readthedocs.org/pull/8080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version warning banner: inject on role="main" or main tag (`#8079 <https://github.com/readthedocs/readthedocs.org/pull/8079>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: avoid undefined var (`#8078 <https://github.com/readthedocs/readthedocs.org/pull/8078>`__)
+* `@stsewd <https://github.com/stsewd>`__: Conda: protect against None when appending core requirements (`#8077 <https://github.com/readthedocs/readthedocs.org/pull/8077>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: add small paragraph mentioning how to enable it on commercial (`#8063 <https://github.com/readthedocs/readthedocs.org/pull/8063>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add separate version create view and create view URL (`#7595 <https://github.com/readthedocs/readthedocs.org/pull/7595>`__)
+
 Version 5.14.0
 --------------
 
