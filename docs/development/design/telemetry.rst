@@ -27,7 +27,8 @@ Metabase:
 
 Summary: We have several tools that can inspect data form a postgres DB,
 and we also have ``Kibana`` that works *only* with ElasticSearch.
-The data to be collected can be saved in a postgres or ES database.
+The data to be collected can be saved in a postgres or ES database,
+if we use postgres, we would need to use *real* json fields.
 
 Data to be collected
 --------------------
