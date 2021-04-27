@@ -304,8 +304,8 @@ Configuration for the documentation build process.
    build:
      image: latest
      apt_packages:
-       - mysql-client
-       - cmatrix
+       - libclang
+       - cmake
 
    python:
      version: 3.7
@@ -344,8 +344,8 @@ We don't currently support PPA's or other custom repositories.
 
    build:
      apt_packages:
-       - mysql-client
-       - cmatrix
+       - libclang
+       - cmake
 
 .. note::
 
