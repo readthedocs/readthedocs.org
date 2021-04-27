@@ -9,6 +9,26 @@ to be able to make an informed decision.
    :local:
    :depth: 3
 
+Tools
+-----
+
+Kibana:
+   - https://www.elastic.co/kibana
+   - We can import data from ES.
+   - Cloud service provided by Elastic.
+Superset:
+   - https://superset.apache.org/
+   - We can import data from several DBs (including postgres and ES).
+   - Easy to setup locally, but doesn't look like there is cloud provider for it.
+Metabase:
+   - https://www.metabase.com/
+   - We can import data from several DBs (including postgres).
+   - Cloud service provided by Metabase.
+
+Summary: We have several tools that can inspect data form a postgres DB,
+and we also have ``Kibana`` that works *only* with ElasticSearch.
+The data to be collected can be saved in a postgres or ES database.
+
 Data to be collected
 --------------------
 
@@ -33,11 +53,13 @@ so we know which settings users are using.
 PIP packages
 ~~~~~~~~~~~~
 
-We can get a json with all root dependencies with ``pip list``.
+We can get a json with all and root dependencies with ``pip list``.
 This will allow us to have the name of the packages and their versions used in the build.
 
 .. code-block::
 
+   $ pip list --pre --local --format json | jq
+   # and
    $ pip list --pre --not-required --local --format json | jq
    [
       {
@@ -69,6 +91,8 @@ This will allow us to have the name of the packages and their versions used in t
          "version": "0.5b1"
       },
    ]
+
+With the ``--not-required`` option, pip will list only the root dependencies.
 
 Conda packages
 ~~~~~~~~~~~~~~
@@ -157,23 +181,6 @@ but since it changes with time, we can get it from the OS itself:
    $ cat /etc/issue
    Ubuntu 18.04.5 LTS \n \l
 
-Storage
--------
-
-We can save all this information in json files in cloud storage,
-then we could use a tool to import all this data into.
-Or we can decide for a tool or service where to fed all this data directly into.
-
-If we decide to save the files in cloud storage,
-we can try to calculate a hash of the file so we don't upload duplicates that happen on the same day/month.
-We can aggregate this data per year/month saving them in following structure:
-``telemetry/builds/{year}/{month}/{year}-{month}-{day}-{timestamp-pk|pk}.json``,
-that way is easy to download, all data per year/month without iterating over all files.
-
-.. Since this information isn't sensitive,
-   I think we are fine with this structure
-   (we can't do bulk deletes of all info about a project if we follow this structure).
-
 Format
 ~~~~~~
 
@@ -205,6 +212,16 @@ The final file to be saved would have the following information:
            "name": "sphinx",
            "version": "3.4.5"
         }],
+        "pip_all": [
+          {
+             "name": "sphinx",
+             "version": "3.4.5"
+          },
+          {
+             "name": "docutils",
+             "version": "0.16.0"
+          }
+        ],
         "conda": [{
            "name": "sphinx",
            "channel": "conda-forge",
@@ -222,11 +239,10 @@ The final file to be saved would have the following information:
      }
    }
 
-Analyzing the data
-------------------
+Storage
+-------
 
-.. How we would analyze this data? If we decide for a tool to fed the information into
-   this wouldn't be a problem, but if we decide to go for storing the files for ourselves
-   we can pick a tool later.
-   Should we make this data public so other people can analyze it?
-   Make it public after being analyzed and curated by us?
+Since this information isn't sensitive,
+we should be fine saving this data even if the project/version is deleted.
+As we don't care about historical data,
+we can save the information per-version and from their latest build only.
