@@ -780,10 +780,7 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validate the package name to avoid injections of extra options.
 
-        Packages names can contain a regex pattern,
-        or use the ``package=version``/``package/distribution`` syntax.
         We validate that they aren't interpreted as an option or file.
-
         See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
         and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
         for allowed chars in packages names.
@@ -810,8 +807,8 @@ class BuildConfigV2(BuildConfigBase):
                         ),
                         code=INVALID_NAME,
                     )
-            # List of valid chars in packages names + regex chars + separators.
-            pattern = re.compile(r'^[a-zA-Z0-9^]+[a-zA-Z0-9.+?$*/=-]*$')
+            # List of valid chars in packages names.
+            pattern = re.compile(r'^[a-zA-Z0-9]+[a-zA-Z0-9.+-]*$')
             if not pattern.match(package):
                 self.error(
                     key=key,

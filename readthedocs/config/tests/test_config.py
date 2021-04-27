@@ -943,8 +943,6 @@ class TestBuildConfigV2:
             [],
             ['cmatrix'],
             ['Mysql', 'cmatrix', 'postgresql-dev'],
-            ['mysql', 'cmatrix$', 'postgresql=1.2.3'],
-            ['^mysql-*', 'cmatrix/bionic', 'postgresql=1.2.3'],
         ],
     )
     def test_build_apt_packages_check_valid(self, value):
@@ -979,6 +977,13 @@ class TestBuildConfigV2:
             (2, ['cmatrix', 'quiet', ' ../package.deb']),
             (1, ['one', '$two']),
             (1, ['one', 'non-ascíí']),
+            # We don't allow regex for now.
+            (1, ['mysql', 'cmatrix$']),
+            (0, ['^mysql-*', 'cmatrix$']),
+            # We don't allow specifying versions for now.
+            (0, ['postgresql=1.2.3']),
+            # We don't allow specifying distributions for now.
+            (0, ['cmatrix/bionic']),
         ],
     )
     def test_build_apt_packages_invalid_value(self, error_index, value):
