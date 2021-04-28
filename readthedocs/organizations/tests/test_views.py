@@ -2,6 +2,7 @@ import django_dynamic_fixture as fixture
 from allauth.account.views import SignupView
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from readthedocs.organizations.models import (
@@ -16,6 +17,7 @@ from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import RequestFactoryTestMixin
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
     """Organization views tests."""
@@ -51,6 +53,7 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
                         .exists())
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
 
     """Tests for invite handling in views."""
@@ -189,6 +192,7 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
             TeamInvite.objects.get(pk=invite.pk)
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationSignupTestCase(TestCase):
 
     def test_organization_signup(self):
