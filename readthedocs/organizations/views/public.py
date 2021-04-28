@@ -18,7 +18,6 @@ from readthedocs.organizations.models import (
 )
 from readthedocs.projects.models import Project
 
-from ...corporate.mixins import PricingMixin
 from .base import (
     OrganizationMixin,
     OrganizationTeamMemberView,
@@ -54,7 +53,7 @@ class CreateOrganizationSignup(OrganizationView, CreateView):
 
         .. note::
 
-            This method is override here from
+            This method is overridden here from
             ``OrganizationView.get_success_url`` because that method
             redirects to Organization's Edit page.
         """
@@ -71,16 +70,17 @@ class DetailOrganization(OrganizationView, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         org = self.get_object()
-        context['projects'] = (Project.objects
-                               .for_user(self.request.user)
-                               .filter(organizations=org)
-                               .all())
-        context['teams'] = (Team.objects
-                            .member(
-                                self.request.user,
-                                organization=org,
-                            )
-                            .all())
+        context['projects'] = (
+            Project.objects
+            .for_user(self.request.user)
+            .filter(organizations=org)
+            .all()
+        )
+        context['teams'] = (
+            Team.objects
+            .member(self.request.user, organization=org)
+            .all()
+        )
         context['owners'] = org.owners.all()
         return context
 

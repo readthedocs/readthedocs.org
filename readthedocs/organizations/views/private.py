@@ -1,12 +1,9 @@
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-from vanilla import CreateView, DeleteView, UpdateView, FormView
+from vanilla import CreateView, DeleteView, ListView, UpdateView
 
 from readthedocs.organizations.forms import OrganizationTeamProjectForm
-from readthedocsinc.acl.sso.forms import SSOIntegrationForm
-from readthedocsinc.acl.sso.models import SSOIntegration
-from readthedocsinc.core.mixins import ListViewWithForm
 
 from .base import (
     OrganizationOwnerView,
@@ -28,41 +25,14 @@ class DeleteOrganization(OrganizationView, DeleteView):
         return reverse_lazy('organization_list')
 
 
-class OrganizationSSO(OrganizationView, UpdateView):
-    form_class = SSOIntegrationForm
-    template_name = 'organizations/admin/sso_edit.html'
-
-    def get_form(self, data=None, files=None, **kwargs):
-        self.organization = self.object
-        try:
-            ssointegration = self.organization.ssointegration
-            ssodomain = ssointegration.domains.first()
-            initial = {
-                'enabled': True,
-                'provider': ssointegration.provider,
-                'domain': ssodomain.domain if ssodomain else None,
-            }
-        except SSOIntegration.DoesNotExist:
-            ssointegration = None
-            initial = {}
-
-        kwargs.update({
-            'instance': ssointegration,
-            'initial': initial,
-        })
-        cls = self.get_form_class()
-        return cls(self.organization, data, files, **kwargs)
-
-    def get_success_url(self):
-        return reverse_lazy(
-            'organization_sso',
-            args=[self.organization.slug],
-        )
-
-
 # Owners
-class EditOrganizationOwners(OrganizationOwnerView, ListViewWithForm):
+class EditOrganizationOwners(OrganizationOwnerView, ListView):
     template_name = 'organizations/admin/owners_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(data=None, files=None)
+        return context
 
 
 class AddOrganizationOwner(OrganizationOwnerView, CreateView):
@@ -111,8 +81,6 @@ class UpdateOrganizationTeamProject(OrganizationTeamView, UpdateView):
 
 
 # Team Views
-
-
 class AddOrganizationTeamMember(OrganizationTeamMemberView, CreateView):
     success_message = _('Member added to team')
     template_name = 'organizations/team_member_create.html'
