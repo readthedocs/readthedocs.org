@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from ..views import private as views
+from readthedocs.organizations.views import private as views
 
 urlpatterns = [
     url(
@@ -28,11 +28,6 @@ urlpatterns = [
         r'^(?P<slug>[\w.-]+)/owners/$',
         views.EditOrganizationOwners.as_view(),
         name='organization_owners',
-    ),
-    url(
-        r'^(?P<slug>[\w.-]+)/authorization/$',
-        views.OrganizationSSO.as_view(),
-        name='organization_sso',
     ),
     # Teams
     url(
