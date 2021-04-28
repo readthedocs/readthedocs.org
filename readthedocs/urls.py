@@ -10,7 +10,12 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.urls import core_urls
-from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    do_not_track,
+    server_error_500,
+)
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import SearchView
 
@@ -52,6 +57,17 @@ rtd_urls = [
 
 project_urls = [
     url(r'^projects/', include('readthedocs.projects.urls.public')),
+]
+
+organization_urls = [
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.public'),
+    ),
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.private'),
+    ),
 ]
 
 api_urls = [
@@ -116,6 +132,9 @@ groups = [
     core_urls,
     i18n_urls,
 ]
+
+if settings.RTD_ALLOW_ORGANIZATIONS:
+    groups.append(organization_urls)
 
 if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported
