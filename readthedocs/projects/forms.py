@@ -204,8 +204,9 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             'analytics_disabled',
             'show_version_warning',
             'single_version',
-            'external_builds_enabled',
             'privacy_level',
+            'external_builds_enabled',
+            'external_builds_privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -237,8 +238,9 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
 
         per_project_settings = list(self.Meta.per_project_settings)
         if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop('privacy_level')
-            per_project_settings.remove('privacy_level')
+            for field in ['privacy_level', 'external_builds_privacy_level']:
+                self.fields.pop(field)
+                per_project_settings.remove(field)
 
         field_sets = [
             Fieldset(
