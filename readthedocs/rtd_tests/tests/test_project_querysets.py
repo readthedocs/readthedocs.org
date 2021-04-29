@@ -1,13 +1,13 @@
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
-from django_dynamic_fixture import get
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.constants import PRIVATE, PUBLIC, PROTECTED
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     ParentRelatedProjectQuerySet,
@@ -32,12 +32,6 @@ class ProjectQuerySetTests(TestCase):
             users=[self.user],
             main_language_project=None,
         )
-        self.project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
-            users=[self.user],
-            main_language_project=None,
-        )
 
         self.another_project = get(
             Project,
@@ -48,12 +42,6 @@ class ProjectQuerySetTests(TestCase):
         self.another_project_private = get(
             Project,
             privacy_level=PRIVATE,
-            users=[self.another_user],
-            main_language_project=None,
-        )
-        self.another_project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
             users=[self.another_user],
             main_language_project=None,
         )
@@ -70,29 +58,19 @@ class ProjectQuerySetTests(TestCase):
             users=[self.user, self.another_user],
             main_language_project=None,
         )
-        self.shared_project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
-            users=[self.user, self.another_user],
-            main_language_project=None,
-        )
 
         self.user_projects = {
             self.project,
             self.project_private,
-            self.project_protected,
             self.shared_project,
             self.shared_project_private,
-            self.shared_project_protected,
         }
 
         self.another_user_projects = {
             self.another_project,
             self.another_project_private,
-            self.another_project_protected,
             self.shared_project,
             self.shared_project_private,
-            self.shared_project_protected,
         }
 
     def test_subproject_queryset_attributes(self):
@@ -185,37 +163,6 @@ class ProjectQuerySetTests(TestCase):
         projects = (
             self.another_user_projects |
             {self.project}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-
-    def test_protected(self):
-        query = Project.objects.protected()
-        projects = {
-            self.project,
-            self.project_protected,
-            self.another_project,
-            self.another_project_protected,
-            self.shared_project,
-            self.shared_project_protected,
-        }
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-    def test_protected_user(self):
-        query = Project.objects.protected(user=self.user)
-        projects = (
-            self.user_projects |
-            {self.another_project, self.another_project_protected}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-        query = Project.objects.protected(user=self.another_user)
-        projects = (
-            self.another_user_projects |
-            {self.project, self.project_protected}
         )
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
