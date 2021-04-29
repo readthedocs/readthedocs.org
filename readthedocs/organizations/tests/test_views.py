@@ -114,7 +114,8 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
             '/organizations/invite/{}/redeem'.format(invite.hash),
         )
         view = public_views.UpdateOrganizationTeamMember.as_view()
-        view(req, hash=invite.hash)
+        resp = view(req, hash=invite.hash)
+        self.assertEqual(resp.status_code, 302)
 
         self.assertEqual(team_member.invite, invite)
         self.assertIsNone(team_member.member)
