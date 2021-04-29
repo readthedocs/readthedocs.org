@@ -144,7 +144,6 @@ class ProjectQuerySetBase(models.QuerySet):
 
 class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
-    _override_setting = 'PROJECT_MANAGER'
 
 
 class RelatedProjectQuerySetBase(models.QuerySet):

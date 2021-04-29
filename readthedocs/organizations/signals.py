@@ -3,8 +3,9 @@
 import logging
 
 from allauth.account.signals import user_signed_up
+from django.conf import settings
 from django.db.models import Count
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from readthedocs.builds.models import Version
@@ -17,6 +18,50 @@ from readthedocs.organizations.models import (
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
+
+
+@receiver(post_save, sender=Organization)
+def sync_org_owners(sender, **kwargs):
+    org = kwargs['instance']
+    projects = org.projects.all()
+    for project in projects:
+        project.users.clear()
+        for org_owner in org.owners.all():
+            project.users.add(org_owner)
+
+
+@receiver(post_save, sender=Project)
+def sync_project_owners(sender, **kwargs):
+    """
+    Hack to sync organization owners as project users.
+
+    Project users is the readthedocs.org nomenclature for users associated with
+    a project. Because projects are organization owned, there should be no users
+    outside the projects organization allowed ownership. With each save, clear
+    the list of project users and re-add all owners of the organization.
+
+    Projects without owning organizations, which should not exist on
+    readthedocs.com, will be orphaned, but not removed.
+    """
+    if not settings.RTD_ALLOW_ORGANIZATIONS:
+        return
+
+    project = kwargs['instance']
+    orgs = project.organizations.all()
+    if orgs.count():
+        log.info(
+            'Syncing organization owners to project users for %s',
+            project.name,
+        )
+        org = orgs[0]
+        project.users.clear()
+        for org_owner in org.owners.all():
+            project.users.add(org_owner)
+    else:
+        log.warning(
+            'Syncing organization %s failed. No organizations',
+            project.name,
+        )
 
 
 # pylint: disable=unused-argument
