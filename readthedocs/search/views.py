@@ -2,6 +2,7 @@
 import collections
 import logging
 
+from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
@@ -32,7 +33,6 @@ UserInput = collections.namedtuple(
         'version',
         'language',
         'role_name',
-        'index',
     ),
 )
 
@@ -78,6 +78,7 @@ class SearchView(View):
     def get(self, request, project_slug=None):
         request_type = None
         use_advanced_query = True
+        project_obj = None
         if project_slug:
             project_obj = self._get_project(project_slug)
             use_advanced_query = not project_obj.has_feature(
@@ -94,12 +95,27 @@ class SearchView(View):
             version=version_slug,
             language=request.GET.get('language'),
             role_name=request.GET.get('role_name'),
-            index=request.GET.get('index'),
         )
         results = []
         facets = {}
 
-        if user_input.query:
+        projects = []
+        # If we allow private projects,
+        # we only filter by the projects the user belongs or have access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            if project_obj:
+                projects = [project_obj.slug]
+            else:
+                projects = list(
+                    Project.objects.for_user(request.user)
+                    .values_list('slug', flat=True)
+                )
+
+        if (
+            user_input.query
+            # Allow to filter by any project if we don't allow private projects.
+            and (settings.ALLOW_PRIVATE_REPOS and projects or  not settings.ALLOW_PRIVATE_REPOS)
+        ):
             filters = {}
 
             for avail_facet in ALL_FACETS:
@@ -118,7 +134,7 @@ class SearchView(View):
             search = faceted_search_class(
                 query=user_input.query,
                 filters=filters,
-                user=request.user,
+                projects=projects,
                 use_advanced_query=use_advanced_query,
             )
             results = search[:self.max_search_results].execute()
@@ -147,7 +163,7 @@ class SearchView(View):
             'file': PageSearchSerializer,
         }
         serializer = serializers.get(user_input.type, ProjectSearchSerializer)
-        if project_slug:
+        if project_obj:
             context = self.get_serializer_context(project_obj, version_slug)
         else:
             context = {}
@@ -159,7 +175,7 @@ class SearchView(View):
             'facets': facets,
         })
 
-        if project_slug:
+        if project_obj:
             template_vars.update({'project_obj': project_obj})
 
         return render(

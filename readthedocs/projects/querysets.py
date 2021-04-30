@@ -42,6 +42,12 @@ class ProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
 
+    def for_user(self, user):
+        """Return all projects that an user belongs to."""
+        # In .org all users of a project are admins.
+        return self.for_admin_user(user)
+
+    # Remove?
     def private(self, user=None):
         queryset = self.filter(privacy_level=constants.PRIVATE)
         if user:
@@ -122,7 +128,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def dashboard(self, user):
         """Get the projects for this user including the latest build."""
-        return self.for_admin_user(user).prefetch_latest_build()
+        return self.for_user(user).prefetch_latest_build()
 
     def api(self, user=None, detail=True):
         if detail:
@@ -136,7 +142,6 @@ class ProjectQuerySetBase(models.QuerySet):
 
 class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
-    _override_setting = 'PROJECT_MANAGER'
 
 
 class RelatedProjectQuerySetBase(models.QuerySet):
