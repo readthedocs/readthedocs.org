@@ -6,28 +6,15 @@ from django.db import models
 from django.db.models import Value, CharField, Q, F
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 log = logging.getLogger(__name__)
 
-
-class RedirectQuerySetBase(models.QuerySet):
+class RedirectQuerySetBase(RelatedProjectQuerySet):
 
     """Redirects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
-
-    def _add_user_repos(self, queryset, user):
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
-            user_queryset = self.filter(project__in=projects_pk)
-            queryset = user_queryset | queryset
-        return queryset.distinct()
-
-    def api(self, user=None, detail=True):
-        queryset = self.none()
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset
 
     def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
         # add extra fields with the ``path`` and ``full_path`` to perform a
