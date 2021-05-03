@@ -228,11 +228,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
             )
 
             # Fallback to the default version of the subproject.
-            if (
-                not version
-                and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
-                and subproject.default_version
-            ):
+            if not version and subproject.default_version:
                 version = self._get_subproject_version(
                     version_slug=subproject.default_version,
                     subproject=subproject,
@@ -307,35 +303,21 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         main_project = self._get_project()
         main_version = self._get_version()
         projects = {}
-        filters = {}
 
-        if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
-            projects = {
-                project: project_data.version.slug
-                for project, project_data in self._get_all_projects_data().items()
-            }
-            # Check to avoid searching all projects in case it's empty.
-            if not projects:
-                log.info('Unable to find a version to search')
-                return []
-        else:
-            filters['project'] = list(self._get_all_projects_data().keys())
-            filters['version'] = main_version.slug
-            # Check to avoid searching all projects in case these filters are empty.
-            if not filters['project']:
-                log.info('Unable to find a project to search')
-                return []
-            if not filters['version']:
-                log.info('Unable to find a version to search')
-                return []
+        projects = {
+            project: project_data.version.slug
+            for project, project_data in self._get_all_projects_data().items()
+        }
+        # Check to avoid searching all projects in case it's empty.
+        if not projects:
+            log.info('Unable to find a version to search')
+            return []
 
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
             projects=projects,
-            filters=filters,
-            user=self.request.user,
-            # We use a permission class to control authorization
+            # We use a permission class to control authorization.
             filter_by_user=False,
             use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
