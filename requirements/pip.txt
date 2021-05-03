@@ -26,7 +26,7 @@ requests==2.25.1
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.4.1
-Pygments==2.8.1
+Pygments==2.9.0
 
 # Basic tools
 redis==3.5.3
