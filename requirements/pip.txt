@@ -44,7 +44,7 @@ django-allauth==0.42.0  # pyup: ignore
 GitPython==3.1.15
 
 # Search
-elasticsearch==7.12.0  # pyup: <8.0.0
+elasticsearch==7.12.1  # pyup: <8.0.0
 elasticsearch-dsl==7.3.0  # pyup: <8.0
 django-elasticsearch-dsl==7.2.0  # pyup: <8.0
 selectolax==0.2.11
