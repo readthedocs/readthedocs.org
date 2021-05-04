@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.querysets import (
@@ -113,33 +112,6 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(self.another_user_projects))
         self.assertEqual(set(query), self.another_user_projects)
 
-    def test_private(self):
-        query = Project.objects.private()
-        projects = {
-            self.project_private,
-            self.another_project_private,
-            self.shared_project_private,
-        }
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-    def test_private_user(self):
-        query = Project.objects.private(user=self.user)
-        projects = (
-            self.user_projects |
-            {self.another_project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-        query = Project.objects.private(user=self.another_user)
-        projects = (
-            self.another_user_projects |
-            {self.project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
     def test_public(self):
         query = Project.objects.public()
         projects = {
@@ -164,6 +136,17 @@ class ProjectQuerySetTests(TestCase):
             self.another_user_projects |
             {self.project}
         )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_for_user(self):
+        query = Project.objects.for_user(user=self.user)
+        projects = self.user_projects
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        query = Project.objects.for_user(user=self.another_user)
+        projects = self.another_user_projects
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 

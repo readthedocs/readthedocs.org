@@ -42,11 +42,10 @@ class ProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
 
-    def private(self, user=None):
-        queryset = self.filter(privacy_level=constants.PRIVATE)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
+    def for_user(self, user):
+        """Return all projects that an user belongs to."""
+        # In .org all users of a project are admins.
+        return self.for_admin_user(user)
 
     def is_active(self, project):
         """
@@ -122,7 +121,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def dashboard(self, user):
         """Get the projects for this user including the latest build."""
-        return self.for_admin_user(user).prefetch_latest_build()
+        return self.for_user(user).prefetch_latest_build()
 
     def api(self, user=None, detail=True):
         if detail:
@@ -136,7 +135,6 @@ class ProjectQuerySetBase(models.QuerySet):
 
 class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
-    _override_setting = 'PROJECT_MANAGER'
 
 
 class RelatedProjectQuerySetBase(models.QuerySet):
@@ -188,7 +186,6 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
 class RelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = RelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class ParentRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
@@ -198,7 +195,6 @@ class ParentRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
 
 class ParentRelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = ParentRelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
@@ -208,7 +204,6 @@ class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
 
 class ChildRelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = ChildRelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class FeatureQuerySet(models.QuerySet):
@@ -222,7 +217,7 @@ class FeatureQuerySet(models.QuerySet):
         ).distinct()
 
 
-class HTMLFileQuerySetBase(models.QuerySet):
+class HTMLFileQuerySet(models.QuerySet):
 
     def internal(self):
         """
@@ -240,7 +235,3 @@ class HTMLFileQuerySetBase(models.QuerySet):
         It will only include pull request/merge request Version html files in the queries.
         """
         return self.filter(version__type=EXTERNAL)
-
-
-class HTMLFileQuerySet(SettingsOverrideObject):
-    _default_class = HTMLFileQuerySetBase
