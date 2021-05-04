@@ -4,7 +4,10 @@ sphinx==4.0b1
 Pygments==2.9.0
 
 sphinx_rtd_theme==0.5.2
-sphinx-tabs==2.1.0
+
+# sphinx-tabs@master pins Sphinx<5
+git+https://github.com/executablebooks/sphinx-tabs@master
+
 sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.0
