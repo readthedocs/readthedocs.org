@@ -1,8 +1,8 @@
 """Project model QuerySet classes."""
 
+from django.conf import settings
 from django.db import models
 from django.db.models import OuterRef, Prefetch, Q, Subquery
-from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -38,14 +38,6 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
-
-    def protected(self, user=None):
-        queryset = self.filter(
-            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
-        )
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
@@ -172,20 +164,6 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def public(self, user=None, project=None):
         kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
-        queryset = self.filter(**kwargs)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        return queryset.distinct()
-
-    def protected(self, user=None, project=None):
-        kwargs = {
-            '%s__privacy_level__in' % self.project_field: [
-                constants.PUBLIC,
-                constants.PROTECTED,
-            ],
-        }
         queryset = self.filter(**kwargs)
         if user:
             queryset = self._add_user_repos(queryset, user)
