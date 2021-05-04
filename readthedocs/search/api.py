@@ -301,7 +301,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
            is compatible with DRF's paginator.
         """
         main_project = self._get_project()
-        main_version = self._get_version()
         projects = {}
 
         projects = {
@@ -317,8 +316,6 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         queryset = PageSearch(
             query=query,
             projects=projects,
-            # We use a permission class to control authorization.
-            filter_by_user=False,
             use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
