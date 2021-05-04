@@ -81,7 +81,7 @@ The config file can add an additional mapping ``build.apt_packages`` to a list o
    - ``build.extra_packages``
    - ``build.system_packages``
 
-   These were rejected to avoid confusion existing keys,
+   These were rejected to avoid confusion with existing keys,
    and to be explicit about the type of package.
 
 Possible problems
