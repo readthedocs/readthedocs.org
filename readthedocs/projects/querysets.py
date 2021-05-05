@@ -163,18 +163,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def public(self, user=None, project=None):
-        kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
-        queryset = self.filter(**kwargs)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        return queryset.distinct()
-
-    def private(self, user=None, project=None):
-        kwargs = {
-            '%s__privacy_level' % self.project_field: constants.PRIVATE,
-        }
+        kwargs = {f'{self.project_field}__privacy_level': constants.PUBLIC}
         queryset = self.filter(**kwargs)
         if user:
             queryset = self._add_user_repos(queryset, user)
