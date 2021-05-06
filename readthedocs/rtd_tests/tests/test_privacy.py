@@ -1,6 +1,6 @@
 import logging
-
 from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -9,7 +9,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -309,7 +308,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/htmlzip/django-kong/latest/django-kong.zip')
         self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.zip')
 
-# Build Filtering
+    # Build Filtering
 
     def test_build_filtering(self):
         kong = self._create_kong('public', 'private')
@@ -331,11 +330,3 @@ class PrivacyTests(TestCase):
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/builds/')
         self.assertNotContains(r, 'test-slug')
-
-    def test_queryset_chaining(self):
-        """Test that manager methods get set on related querysets."""
-        kong = self._create_kong('public', 'private')
-        self.assertEqual(
-            kong.versions.private().get(slug='latest').slug,
-            'latest',
-        )
