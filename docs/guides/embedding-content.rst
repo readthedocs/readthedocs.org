@@ -1,9 +1,7 @@
 Embedding Content From Your Documentation
 =========================================
 
-Read the Docs allows you to embed content from any of the projects we host.
-This allows reuse of content across sites, making sure the content is always up to date.
-
+In this guide you'll learn how to use the :doc:`/embed-api` to embed content from projects hosted on Read the Docs.
 There are a number of uses cases for embedding content,
 so we've built our integration in a way that enables users to build on top of it.
 This guide will show you some of our favorite integrations:
@@ -43,15 +41,15 @@ Inline help on application website
 This allows us to keep the official documentation as the single source of truth,
 while having great inline help in our application website as well.
 On the "Automation Rules" admin page we could embed the content of our :doc:`/automation-rules` documentation
-page and be sure it will be always up to date.
+page and be sure it will be always up to date using the :doc:`/embed-api`.
 
 .. note::
 
    We recommend you point at tagged releases instead of latest.
    Tags don't change over time, so you don't have to worry about the content you are embedding disappearing.
 
-The following example will fetch the section "Creating an automation rule" in page ``automation-rules.html``
-from our own docs and will populate the content of it into the ``#help-container`` div element.
+The following example will fetch the "Creating an automation rule" section from the ``automation-rules.html`` page of our own docs,
+and will populate the content of it into the ``#help-container`` div element.
 
 .. code-block:: html
 
@@ -59,7 +57,7 @@ from our own docs and will populate the content of it into the ``#help-container
     var params = {
       'project': 'docs',
       'version': 'stable',
-      'doc': 'automation-rules',
+      'path': 'automation-rules.html',
       'section': 'creating-an-automation-rule',
     };
     var url = 'https://readthedocs.org/api/v2/embed/?' + $.param(params);
@@ -70,7 +68,7 @@ from our own docs and will populate the content of it into the ``#help-container
 
     <div id="help-container"></div>
 
-You can modify this example to subscribe to ``.onclick`` Javascript event,
+You can modify this example to subscribe to ``.onclick`` JavaScript event,
 and show a modal when the user clicks in a "Help" link.
 
 .. tip::
@@ -97,25 +95,3 @@ and show a modal when the user clicks in a "Help" link.
     Please, take a look at the Sphinx `:ref:` `role documentation`_ for more information about how to create references.
 
     .. _role documentation: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/roles.html#role-ref
-
-
-Calling the Embed API directly
-------------------------------
-
-Embed API lives under ``https://readthedocs.org/api/v2/embed/`` URL and accept two different ways of using it:
-
-* passing the exact URL of the section you want to embed
-* sending all the attributes required as GET arguments
-
-The following links return exactly the same response, however the first one passes the ``url`` attribute
-and the second example sends ``project``, ``version``, ``doc``, ``section`` and ``path`` as different attributes.
-You can use the one that works best for your use case.
-
-* https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23automatic-documentation-deployment
-* https://readthedocs.org/api/v2/embed/?project=docs&version=latest&doc=features&section=automatic-documentation-deployment&path=features.html
-
-You can click on these links and check the response directly in the browser.
-
-.. note::
-
-   All relative links to pages contained in the remote content will continue to point at the remote page.
