@@ -205,6 +205,7 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Terms of service <terms-of-service>` |
   :doc:`DMCA takedown policy <dmca/index>` |
   :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/supported-tools` |
   :doc:`Release notes & changelog <changelog>`
 
 * **The people and philosophy behind Read the Docs**:
@@ -237,6 +238,7 @@ of Read the Docs and the larger software documentation ecosystem.
    terms-of-service
    dmca/index
    abandoned-projects
+   supported-tools
    changelog
 
    about
