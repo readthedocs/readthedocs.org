@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.querysets import (
@@ -91,16 +92,28 @@ class ProjectQuerySetTests(TestCase):
         )
 
     def test_is_active(self):
-        project = fixture.get(Project, skip=False)
+        project = get(Project, skip=False)
         self.assertTrue(Project.objects.is_active(project))
 
-        project = fixture.get(Project, skip=True)
+        project = get(Project, skip=True)
         self.assertFalse(Project.objects.is_active(project))
 
-        user = fixture.get(User)
+        user = get(User)
         user.profile.banned = True
         user.profile.save()
         project = fixture.get(Project, skip=False, users=[user])
+        self.assertFalse(Project.objects.is_active(project))
+
+        user.profile.banned = False
+        user.profile.save()
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization = get(Organization, disabled=False)
+        organization.projects.add(project)
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization.disabled = True
+        organization.save()
         self.assertFalse(Project.objects.is_active(project))
 
     def test_dashboard(self):
