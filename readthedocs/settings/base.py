@@ -99,6 +99,12 @@ class CommunityBaseSettings(Settings):
         "/admin/",
     )
 
+    # Permissions Policy
+    # https://github.com/adamchainz/django-permissions-policy
+    PERMISSIONS_POLICY = {
+        "interest-cohort": [],
+    }
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -228,6 +234,7 @@ class CommunityBaseSettings(Settings):
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
+        'django_permissions_policy.PermissionsPolicyMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
