@@ -3,7 +3,6 @@ Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
-import codecs
 import itertools
 import logging
 import os
@@ -12,6 +11,7 @@ import zipfile
 from glob import glob
 from pathlib import Path
 
+import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
@@ -212,34 +212,135 @@ class BaseSphinx(BaseBuilder):
 
         return data
 
-    def append_conf(self):
-        """
-        Find or create a ``conf.py`` and appends default content.
+    def _append_python_conf(self):
+        config_file = Path(self.config_file)
+        tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
+        rendered = tmpl.render(self.get_config_params())
 
-        The default content is rendered from ``doc_builder/conf.py.tmpl``.
-        """
+        try:
+            with config_file.open(mode='a') as outfile:
+                outfile.write('\n')
+                outfile.write(rendered)
+        except IOError:
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+
+    def _append_yaml_conf(self):
+        config_file = Path(self.config_file)
+        try:
+            with config_file.open() as file:
+                config = yaml.safe_load(file)
+        except IOError:
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+        except yaml.YAMLError:
+            raise ProjectConfigurationError(ProjectConfigurationError.INVALID_FORMAT)
+
+        params = self.get_config_params()
+
+        extensions = config.get('extensions', [])
+        if not isinstance(extensions, list):
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.INVALID_FORMAT.format('`extensions` should be a list.')
+            )
+
+        # Insert at the beginning because it can interfere
+        # with other extensions.
+        extensions.insert(0, 'readthedocs_ext.readthedocs')
+        if self.version.is_external:
+            extensions.insert(1, 'readthedocs_ext.external_version_warning')
+            config['readthedocs_vcs_url'] = params['vcs_url']
+            config['readthedocs_build_url'] = params['build_url']
+        config['extensions'] = extensions
+
+        # Use sphinx to set the canonical URL.
+        if not config.get('html_baseurl'):
+            config['html_baseurl'] = self.project.get_canonical_url()
+
+        # Make sure our build directory is always excluded.
+        exclude_patterns = config.get('exclude_patterns', [])
+        if not isinstance(exclude_patterns, list):
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.INVALID_FORMAT.format(
+                    '`exclude_patterns` should be a list.'
+                )
+            )
+        exclude_patterns.append('_build')
+        config['exclude_patterns'] = exclude_patterns
+
+        # Fill html_context.
+        context = {
+            'html_theme': config.get('html_theme'),
+            'current_version': self.version.verbose_name,
+            'version_slug': self.version.slug,
+            'STATIC_URL': settings.STATIC_URL,
+            'PRODUCTION_DOMAIN': settings.PRODUCTION_DOMAIN,
+            'versions': [
+                (version.slug, f"/{self.project.language}/{version.slug}/")
+                for version in params['versions']
+            ],
+            'downloads': params['downloads'].items(),
+            'subprojects': params['subproject_urls'],
+            'slug': self.project.slug,
+            'name': self.project.name,
+            'rtd_language': self.project.language,
+            'programming_language': self.project.programming_language,
+            'analytics_code': self.project.analytics_code,
+            'conf_py_path': params['conf_py_path'],
+            'api_host': params['api_host'],
+            'proxied_api_host': self.project.proxied_api_host,
+            'github_user': 'github_user',
+            'github_repo': 'github_repo',
+            'github_version': 'github_version',
+            'display_github': 'display_github',
+            'bitbucket_user': 'bitbucket_user',
+            'bitbucket_repo': 'bitbucket_repo',
+            'bitbucket_version': 'bitbucket_version',
+            'display_bitbucket': 'display_bitbucket',
+            'gitlab_user': 'gitlab_user',
+            'gitlab_repo': 'gitlab_repo',
+            'gitlab_version': 'gitlab_version',
+            'display_gitlab': 'display_gitlab',
+            'READTHEDOCS': True,
+            'add_free': self.project.show_advertising,
+            'docsearch_disabled': params['docsearch_disabled'],
+            'user_analytics_code': self.project.analytics_code,
+            'global_analytics_code': (
+                None
+                if self.project.analytics_disabled
+                else settings.GLOBAL_ANALYTICS_CODE
+            ),
+            'commit': params['commit'][:8],
+        }
+        html_context = config.get('html_context', {})
+        if not isinstance(html_context, dict):
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.INVALID_FORMAT.format(
+                    '`html_context` should be a dictionary.'
+                )
+            )
+        for key, value in context.items():
+            if key not in html_context:
+                html_context[key] = value
+        config['html_context'] = html_context
+
+        with config_file.open('w') as file:
+            yaml.safe_dump(config, file)
+
+    def append_conf(self):
+        """Finds or creates a Sphinx config file, and injects rtd-specific content."""
         if self.config_file is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
-        try:
-            self.config_file = (
-                self.config_file or self.project.conf_file(self.version.slug)
-            )
-            outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
-        except IOError:
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+        self.config_file = (
+            self.config_file or self.project.conf_file(self.version.slug)
+        )
 
-        # Append config to project conf file
-        tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
-        rendered = tmpl.render(self.get_config_params())
+        if self.config_file.endswith('.yaml'):
+            self._append_yaml_conf()
+        else:
+            self._append_python_conf()
 
-        with outfile:
-            outfile.write('\n')
-            outfile.write(rendered)
-
-        # Print the contents of conf.py in order to make the rendered
-        # configfile visible in the build logs
+        # Show the rendered config file in the build logs.
         self.run(
             'cat',
             os.path.relpath(

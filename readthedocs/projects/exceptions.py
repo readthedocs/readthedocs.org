@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project exceptions."""
 
 from django.conf import settings
@@ -16,6 +14,8 @@ class ProjectConfigurationError(BuildEnvironmentError):
         'A configuration file was not found. '
         'Make sure you have a conf.py file in your repository.',
     )
+
+    INVALID_FORMAT = _('The configuration file format isn\'t valid. {}')
 
     MULTIPLE_CONF_FILES = _(
         'We found more than one conf.py and are not sure which one to use. '
