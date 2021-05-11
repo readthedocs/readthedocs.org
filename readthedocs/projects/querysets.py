@@ -1,8 +1,8 @@
 """Project model QuerySet classes."""
 
+from django.conf import settings
 from django.db import models
 from django.db.models import OuterRef, Prefetch, Q, Subquery
-from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -42,27 +42,20 @@ class ProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
 
-    def protected(self, user=None):
-        queryset = self.filter(
-            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
-        )
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
-
-    def private(self, user=None):
-        queryset = self.filter(privacy_level=constants.PRIVATE)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
+    def for_user(self, user):
+        """Return all projects that an user belongs to."""
+        # In .org all users of a project are admins.
+        return self.for_admin_user(user)
 
     def is_active(self, project):
         """
         Check if the project is active.
 
-        The check consists on,
-          * the Project shouldn't be marked as skipped.
-          * any of the project's owners is banned.
+        The check consists on:
+
+        * the Project shouldn't be marked as skipped.
+        * any of the project's owners shouldn't be banned.
+        * the organization associated to the project should not be disabled.
 
         :param project: project to be checked
         :type project: readthedocs.projects.models.Project
@@ -71,7 +64,12 @@ class ProjectQuerySetBase(models.QuerySet):
         :rtype: bool
         """
         any_owner_banned = any(u.profile.banned for u in project.users.all())
-        if project.skip or any_owner_banned:
+        organization = project.organizations.first()
+        if (
+            project.skip
+            or any_owner_banned
+            or (organization and organization.disabled)
+        ):
             return False
 
         return True
@@ -130,7 +128,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def dashboard(self, user):
         """Get the projects for this user including the latest build."""
-        return self.for_admin_user(user).prefetch_latest_build()
+        return self.for_user(user).prefetch_latest_build()
 
     def api(self, user=None, detail=True):
         if detail:
@@ -144,7 +142,6 @@ class ProjectQuerySetBase(models.QuerySet):
 
 class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
-    _override_setting = 'PROJECT_MANAGER'
 
 
 class RelatedProjectQuerySetBase(models.QuerySet):
@@ -179,20 +176,6 @@ class RelatedProjectQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         return queryset.distinct()
 
-    def protected(self, user=None, project=None):
-        kwargs = {
-            '%s__privacy_level__in' % self.project_field: [
-                constants.PUBLIC,
-                constants.PROTECTED,
-            ],
-        }
-        queryset = self.filter(**kwargs)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        return queryset.distinct()
-
     def private(self, user=None, project=None):
         kwargs = {
             '%s__privacy_level' % self.project_field: constants.PRIVATE,
@@ -210,7 +193,6 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
 class RelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = RelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class ParentRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
@@ -220,7 +202,6 @@ class ParentRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
 
 class ParentRelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = ParentRelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
@@ -230,7 +211,6 @@ class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
 
 class ChildRelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = ChildRelatedProjectQuerySetBase
-    _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
 class FeatureQuerySet(models.QuerySet):
@@ -244,7 +224,7 @@ class FeatureQuerySet(models.QuerySet):
         ).distinct()
 
 
-class HTMLFileQuerySetBase(models.QuerySet):
+class HTMLFileQuerySet(models.QuerySet):
 
     def internal(self):
         """
@@ -262,7 +242,3 @@ class HTMLFileQuerySetBase(models.QuerySet):
         It will only include pull request/merge request Version html files in the queries.
         """
         return self.filter(version__type=EXTERNAL)
-
-
-class HTMLFileQuerySet(SettingsOverrideObject):
-    _default_class = HTMLFileQuerySetBase

@@ -163,12 +163,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Update doc from path
+        # Generate the docname from path
+        # by removing the ``.html`` extension and trailing ``/``.
         if path:
-            if path.endswith('/'):
-                doc = doc.path.rstrip('/')
-            else:
-                doc = path.split('.html', 1)[0]
+            doc = re.sub(r'(.+)\.html$', r'\1', path.strip('/'))
 
         response = do_embed(
             project=project,
@@ -309,9 +307,15 @@ def parse_sphinx(content, section, url):
     for element_id in elements_id:
         if not element_id:
             continue
-        query_result = body_obj(f'#{element_id}')
-        if query_result:
-            break
+        try:
+            query_result = body_obj(f'#{element_id}')
+            if query_result:
+                break
+        except Exception:  # noqa
+            log.info(
+                'Failed to query section. url=%s id=%s',
+                url, element_id,
+            )
 
     if not query_result:
         selector = f':header:contains("{escaped_section}")'

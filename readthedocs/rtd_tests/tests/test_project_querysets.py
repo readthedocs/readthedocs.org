@@ -1,13 +1,13 @@
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
-from django_dynamic_fixture import get
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django_dynamic_fixture import get
 
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.constants import PRIVATE, PUBLIC, PROTECTED
-from readthedocs.builds.models import Version
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     ParentRelatedProjectQuerySet,
@@ -32,12 +32,6 @@ class ProjectQuerySetTests(TestCase):
             users=[self.user],
             main_language_project=None,
         )
-        self.project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
-            users=[self.user],
-            main_language_project=None,
-        )
 
         self.another_project = get(
             Project,
@@ -48,12 +42,6 @@ class ProjectQuerySetTests(TestCase):
         self.another_project_private = get(
             Project,
             privacy_level=PRIVATE,
-            users=[self.another_user],
-            main_language_project=None,
-        )
-        self.another_project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
             users=[self.another_user],
             main_language_project=None,
         )
@@ -70,29 +58,19 @@ class ProjectQuerySetTests(TestCase):
             users=[self.user, self.another_user],
             main_language_project=None,
         )
-        self.shared_project_protected = get(
-            Project,
-            privacy_level=PROTECTED,
-            users=[self.user, self.another_user],
-            main_language_project=None,
-        )
 
         self.user_projects = {
             self.project,
             self.project_private,
-            self.project_protected,
             self.shared_project,
             self.shared_project_private,
-            self.shared_project_protected,
         }
 
         self.another_user_projects = {
             self.another_project,
             self.another_project_private,
-            self.another_project_protected,
             self.shared_project,
             self.shared_project_private,
-            self.shared_project_protected,
         }
 
     def test_subproject_queryset_attributes(self):
@@ -114,16 +92,28 @@ class ProjectQuerySetTests(TestCase):
         )
 
     def test_is_active(self):
-        project = fixture.get(Project, skip=False)
+        project = get(Project, skip=False)
         self.assertTrue(Project.objects.is_active(project))
 
-        project = fixture.get(Project, skip=True)
+        project = get(Project, skip=True)
         self.assertFalse(Project.objects.is_active(project))
 
-        user = fixture.get(User)
+        user = get(User)
         user.profile.banned = True
         user.profile.save()
         project = fixture.get(Project, skip=False, users=[user])
+        self.assertFalse(Project.objects.is_active(project))
+
+        user.profile.banned = False
+        user.profile.save()
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization = get(Organization, disabled=False)
+        organization.projects.add(project)
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization.disabled = True
+        organization.save()
         self.assertFalse(Project.objects.is_active(project))
 
     def test_dashboard(self):
@@ -134,33 +124,6 @@ class ProjectQuerySetTests(TestCase):
         query = Project.objects.dashboard(user=self.another_user)
         self.assertEqual(query.count(), len(self.another_user_projects))
         self.assertEqual(set(query), self.another_user_projects)
-
-    def test_private(self):
-        query = Project.objects.private()
-        projects = {
-            self.project_private,
-            self.another_project_private,
-            self.shared_project_private,
-        }
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-    def test_private_user(self):
-        query = Project.objects.private(user=self.user)
-        projects = (
-            self.user_projects |
-            {self.another_project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-        query = Project.objects.private(user=self.another_user)
-        projects = (
-            self.another_user_projects |
-            {self.project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
 
     def test_public(self):
         query = Project.objects.public()
@@ -189,34 +152,14 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
-
-    def test_protected(self):
-        query = Project.objects.protected()
-        projects = {
-            self.project,
-            self.project_protected,
-            self.another_project,
-            self.another_project_protected,
-            self.shared_project,
-            self.shared_project_protected,
-        }
+    def test_for_user(self):
+        query = Project.objects.for_user(user=self.user)
+        projects = self.user_projects
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
-    def test_protected_user(self):
-        query = Project.objects.protected(user=self.user)
-        projects = (
-            self.user_projects |
-            {self.another_project, self.another_project_protected}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-        query = Project.objects.protected(user=self.another_user)
-        projects = (
-            self.another_user_projects |
-            {self.project, self.project_protected}
-        )
+        query = Project.objects.for_user(user=self.another_user)
+        projects = self.another_user_projects
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 

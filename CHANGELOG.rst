@@ -1,3 +1,21 @@
+Version 5.15.0
+--------------
+
+:Date: May 10, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Ads: don't load script if a project is marked as ad_free (`#8164 <https://github.com/readthedocs/readthedocs.org/pull/8164>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: include organizations in is_active check (`#8163 <https://github.com/readthedocs/readthedocs.org/pull/8163>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: simplify project querysets (`#8154 <https://github.com/readthedocs/readthedocs.org/pull/8154>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#8153 <https://github.com/readthedocs/readthedocs.org/pull/8153>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: default to search on default version of subprojects (`#8148 <https://github.com/readthedocs/readthedocs.org/pull/8148>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove protected privacy level (`#8146 <https://github.com/readthedocs/readthedocs.org/pull/8146>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: fix paths that start with `/` (`#8139 <https://github.com/readthedocs/readthedocs.org/pull/8139>`__)
+* `@humitos <https://github.com/humitos>`__: Metrics: run metrics task every 30 minutes (`#8138 <https://github.com/readthedocs/readthedocs.org/pull/8138>`__)
+* `@humitos <https://github.com/humitos>`__: web-celery: add logging for OOM debug on suspicious tasks (`#8131 <https://github.com/readthedocs/readthedocs.org/pull/8131>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix a few style and grammar issues with SSO docs (`#8109 <https://github.com/readthedocs/readthedocs.org/pull/8109>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: don't fail while querying sections with bad id (`#8084 <https://github.com/readthedocs/readthedocs.org/pull/8084>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: allow to install packages using apt (`#8060 <https://github.com/readthedocs/readthedocs.org/pull/8060>`__)
+
 Version 5.14.3
 --------------
 
