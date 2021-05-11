@@ -3,7 +3,7 @@
 -r pip.txt
 
 django-dynamic-fixture==3.1.1
-pytest==6.2.3
+pytest==6.2.4
 pytest-custom-exit-code==0.3.0
 pytest-django==4.2.0
 pytest-xdist==2.2.1
@@ -20,7 +20,7 @@ execnet==1.8.0
 Mercurial==4.4.2  # pyup: ignore
 
 yamale==2.2.0  # pyup: <3.0
-pytest-mock==3.6.0
+pytest-mock==3.6.1
 
 # local debugging tools
 datadiff==2.0.0
