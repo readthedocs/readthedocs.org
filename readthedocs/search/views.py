@@ -51,8 +51,7 @@ class SearchView(View):
     max_search_results = 50
 
     def _get_project(self, project_slug):
-        # TODO: see if this can be just public().
-        queryset = Project.objects.protected(self.request.user)
+        queryset = Project.objects.public(self.request.user)
         project = get_object_or_404(queryset, slug=project_slug)
         return project
 

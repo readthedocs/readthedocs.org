@@ -10,8 +10,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
-from .constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
-
+from .constants import BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED
 
 log = logging.getLogger(__name__)
 
@@ -47,18 +46,6 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(built=True)
         if not include_hidden:
             queryset = queryset.filter(hidden=False)
-        return queryset.distinct()
-
-    def protected(self, user=None, project=None, only_active=True):
-        queryset = self.filter(
-            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
-        )
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
         return queryset.distinct()
 
     def private(self, user=None, project=None, only_active=True):
