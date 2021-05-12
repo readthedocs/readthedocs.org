@@ -808,7 +808,7 @@ class BuildConfigV2(BuildConfigBase):
                         code=INVALID_NAME,
                     )
             # List of valid chars in packages names.
-            pattern = re.compile(r'^[a-zA-Z0-9]+[a-zA-Z0-9.+-]*$')
+            pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
             if not pattern.match(package):
                 self.error(
                     key=key,
