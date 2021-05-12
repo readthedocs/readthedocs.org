@@ -9,7 +9,6 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
@@ -86,7 +85,7 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type', 'default_branch')
 
-    remote_repository = forms.CharField(
+    remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
         required=False,
     )
