@@ -31,16 +31,6 @@ class TeamManagerBase(models.Manager):
 
         return teams.distinct()
 
-    def api(self, user):
-        if user and user.is_superuser:
-            return self.get_queryset().all()
-        return self.teams_for_user(
-            user,
-            organization=None,
-            admin=True,
-            member=True,
-        )
-
     def admin(self, user, organization=None, include_all=False):
         if user.is_superuser and include_all:
             return self.get_queryset().all()
