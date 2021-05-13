@@ -47,6 +47,7 @@ class ProjectAdminSerializer(ProjectSerializer):
     )
 
     environment_variables = serializers.SerializerMethodField()
+    skip = serializers.SerializerMethodField()
 
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""
@@ -57,6 +58,9 @@ class ProjectAdminSerializer(ProjectSerializer):
             )
             for variable in obj.environmentvariable_set.all()
         }
+
+    def get_skip(self, obj):
+        return not Project.objects.is_active(obj)
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
