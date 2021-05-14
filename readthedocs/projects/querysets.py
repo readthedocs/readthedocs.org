@@ -15,7 +15,15 @@ class ProjectQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_user_projects(self, queryset, user, admin=False, member=False):
+        """
+        Add projects from where `user` is an `admin` or a `member`.
+
+        .. note::
+
+           In .org all users are admin and member of a project.
+           This will change with organizations soon.
+        """
         if user.is_superuser:
             return self.all()
         if user.is_authenticated:
@@ -26,7 +34,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def for_user_and_viewer(self, user, viewer):
         """Show projects that a user owns, that another user can see."""
         queryset = self.filter(privacy_level=constants.PUBLIC)
-        queryset = self._add_user_repos(queryset, viewer)
+        queryset = self._add_user_projects(queryset, viewer)
         queryset = queryset.filter(users__in=[user])
         return queryset.distinct()
 
@@ -38,7 +46,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_user_projects(queryset, user)
         return queryset.distinct()
 
     def for_user(self, user):
@@ -135,7 +143,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
         queryset = self.none()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_user_projects(queryset, user)
         return queryset.distinct()
 
 
@@ -143,7 +151,7 @@ class ProjectQuerySet(SettingsOverrideObject):
     _default_class = ProjectQuerySetBase
 
 
-class RelatedProjectQuerySetBase(models.QuerySet):
+class RelatedProjectQuerySet(models.QuerySet):
 
     """
     Useful for objects that relate to Project and its permissions.
@@ -156,7 +164,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
     use_for_related_fields = True
     project_field = 'project'
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user):
         if user.is_superuser:
             return self.all()
         if user.is_authenticated:
@@ -170,7 +178,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         kwargs = {f'{self.project_field}__privacy_level': constants.PUBLIC}
         queryset = self.filter(**kwargs)
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
         return queryset.distinct()
@@ -179,26 +187,14 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         return self.public(user)
 
 
-class RelatedProjectQuerySet(SettingsOverrideObject):
-    _default_class = RelatedProjectQuerySetBase
-
-
-class ParentRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
+class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):
     project_field = 'parent'
     use_for_related_fields = True
 
 
-class ParentRelatedProjectQuerySet(SettingsOverrideObject):
-    _default_class = ParentRelatedProjectQuerySetBase
-
-
-class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
+class ChildRelatedProjectQuerySet(RelatedProjectQuerySet):
     project_field = 'child'
     use_for_related_fields = True
-
-
-class ChildRelatedProjectQuerySet(SettingsOverrideObject):
-    _default_class = ChildRelatedProjectQuerySetBase
 
 
 class FeatureQuerySet(models.QuerySet):
