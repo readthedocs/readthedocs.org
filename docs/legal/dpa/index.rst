@@ -7,7 +7,7 @@ Data Processing Agreement
     subscription agreement.
 
 This Data Processing Agreement (“\ **DPA**\ ”) is an addendum to the
-Terms of Service (“\ **Agreement**\ ”) between Read the Docs, Inc.,
+Master Services Agreement (“\ **Agreement**\ ”) between Read the Docs, Inc.,
 along with our affiliates and subsidiaries (collectively, “\ **Read the
 Docs**,” “\ **us**,” or “\ **we**\ ”) and the organization subscribing
 to our Services (“\ **Organization**\ ”). This DPA takes effect on the
@@ -236,6 +236,24 @@ Personal Data on a global basis as necessary to provide the Services in
 accordance with the Agreement, and in particular that Personal Data will be
 transferred to and Processed by Read the Docs in the United States and to other
 jurisdictions where Read the Docs’s Sub-Processors have operations.
+
+Personal Data Breaches
+----------------------
+
+If Read the Docs becomes aware of any Personal Data Breach involving
+Organization Data, Read the Docs will promptly, and in no case more than five
+calendar days after becoming aware, notify Organization in writing of the
+Personal Data Breach. Following such notification, to the extent required by
+applicable Data Protection Laws, Read the Docs will: (a) provide Organization
+with timely information relating to such Personal Data Breach as it becomes
+known or is reasonably requested by Organization; and (b) upon Organization’s
+request, provide Organization with commercially reasonable assistance as
+necessary to enable Organization to notify authorities and/or affected Data
+Subjects. Each Party shall be solely responsible for all costs, damages, and
+liabilities incurred as the result of a Personal Data Breach of the Party’s own
+information system and shall, at the other Party’s request and cost, provide the
+other Party with reasonable assistance to investigate, respond to, and mitigate
+the effects of a Breach of the other Party’s information system.
 
 Data Subject Requests
 ---------------------
