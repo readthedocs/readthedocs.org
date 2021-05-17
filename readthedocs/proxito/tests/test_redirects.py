@@ -55,6 +55,57 @@ class RedirectTests(BaseDocServing):
             r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
         )
 
+    def test_subproject_redirect(self):
+        r = self.client.get('/', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+        )
+
+        r = self.client.get('/en/latest/', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+        )
+
+        r = self.client.get('/en/latest/foo/bar', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/foo/bar',
+        )
+
+        self.domain.canonical = True
+        self.domain.save()
+        r = self.client.get('/en/latest/foo/bar', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://docs1.example.com/projects/subproject/en/latest/foo/bar',
+        )
+
+    def test_single_version_subproject_redirect(self):
+        self.subproject.single_version = True
+        self.subproject.save()
+
+        r = self.client.get('/', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
+        )
+
+        r = self.client.get('/foo/bar/', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/foo/bar/',
+        )
+
+        self.domain.canonical = True
+        self.domain.save()
+        r = self.client.get('/foo/bar', HTTP_HOST='subproject.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://docs1.example.com/projects/subproject/foo/bar',
+        )
+
     def test_root_redirect_with_query_params(self):
         r = self.client.get('/?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)

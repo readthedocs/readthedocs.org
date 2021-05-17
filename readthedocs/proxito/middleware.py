@@ -6,16 +6,16 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
-import sys
 import re
+import sys
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.utils.deprecation import MiddlewareMixin
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -66,6 +66,12 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
                 request.canonicalize = 'canonical-cname'
+            elif (
+                ProjectRelationship.objects.
+                filter(child__slug=project_slug).exists()
+            ):
+                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect: host=%s', host)
+                request.canonicalize = 'subproject-main-domain'
             return project_slug
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
