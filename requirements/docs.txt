@@ -6,7 +6,7 @@ Sphinx==3.5.4  # pyup: <4.0
 Pygments==2.9.0
 
 sphinx_rtd_theme==0.5.2
-sphinx-tabs==2.1.0
+sphinx-tabs==3.0.0
 sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.0
