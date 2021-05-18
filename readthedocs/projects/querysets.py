@@ -6,8 +6,7 @@ from django.db.models import OuterRef, Prefetch, Q, Subquery
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
-
-from . import constants
+from readthedocs.projects import constants
 
 
 class ProjectQuerySetBase(models.QuerySet):
@@ -17,7 +16,7 @@ class ProjectQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
-        if user.has_perm('projects.view_project'):
+        if user.is_superuser:
             return self.all()
         if user.is_authenticated:
             user_queryset = user.projects.all()
@@ -157,8 +156,8 @@ class RelatedProjectQuerySetBase(models.QuerySet):
     use_for_related_fields = True
     project_field = 'project'
 
-    def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('projects.view_project'):
+    def _add_user_repos(self, queryset, user):
+        if user.is_superuser:
             return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
@@ -168,18 +167,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def public(self, user=None, project=None):
-        kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
-        queryset = self.filter(**kwargs)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        return queryset.distinct()
-
-    def private(self, user=None, project=None):
-        kwargs = {
-            '%s__privacy_level' % self.project_field: constants.PRIVATE,
-        }
+        kwargs = {f'{self.project_field}__privacy_level': constants.PUBLIC}
         queryset = self.filter(**kwargs)
         if user:
             queryset = self._add_user_repos(queryset, user)
