@@ -60,6 +60,12 @@ class ProjectAdminSerializer(ProjectSerializer):
         }
 
     def get_skip(self, obj):
+        """
+        Override ``Project.skip`` to consider more cases whether skip a project.
+
+        We rely on ``.is_active`` manager's method here that encapsulates all
+        these possible cases.
+        """
         return not Project.objects.is_active(obj)
 
     class Meta(ProjectSerializer.Meta):
