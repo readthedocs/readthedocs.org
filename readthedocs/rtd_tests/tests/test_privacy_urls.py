@@ -381,10 +381,10 @@ class APIMixin(URLAccessMixin):
             'api_webhook_stripe': {},
         }
         self.response_data = {
-            'domain-list': {'status_code': 409},
-            'buildcommandresult-list': {'status_code': 409},
+            'domain-list': {'status_code': 410},
+            'buildcommandresult-list': {'status_code': 410},
             'build-concurrent': {'status_code': 403},
-            'build-list': {'status_code': 409},
+            'build-list': {'status_code': 410},
             'build-reset': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
@@ -405,11 +405,11 @@ class APIMixin(URLAccessMixin):
             'api_webhook_generic': {'status_code': 403},
             'api_webhook_stripe': {'status_code': 405},
             'sphinxdomain-detail': {'status_code': 404},
-            'project-list': {'status_code': 409},
+            'project-list': {'status_code': 410},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
             'remoteaccount-detail': {'status_code': 404},
-            'version-list': {'status_code': 409},
+            'version-list': {'status_code': 410},
         }
 
 

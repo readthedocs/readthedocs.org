@@ -100,12 +100,12 @@ class DisableListEndpoint:
             {
                 'error': 'disabled',
                 'msg': (
-                    'List endpoint have been disabled: please provide a resource identifier. '
+                    'List endpoint have been disabled due to heavy resource usage. '
                     'Take into account than APIv2 is planned to be deprecated soon. '
                     'Please use APIv3: https://docs.readthedocs.io/page/api/v3.html'
                 )
             },
-            status=status.HTTP_409_CONFLICT,
+            status=status.HTTP_410_GONE,
         )
 
 
