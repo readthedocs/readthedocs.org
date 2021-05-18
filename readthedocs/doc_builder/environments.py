@@ -102,7 +102,7 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        self.cwd = cwd or os.getcwd()
+        self.cwd = cwd or '$HOME'
         self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
