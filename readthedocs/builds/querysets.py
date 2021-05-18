@@ -6,11 +6,13 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from readthedocs.builds.constants import (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+)
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-
-from .constants import BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +27,7 @@ class VersionQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
-        if user.has_perm('builds.view_version'):
+        if user.is_superuser:
             return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
@@ -48,16 +50,6 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(hidden=False)
         return queryset.distinct()
 
-    def private(self, user=None, project=None, only_active=True):
-        queryset = self.filter(privacy_level__in=[constants.PRIVATE])
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
-        return queryset.distinct()
-
     def api(self, user=None, detail=True):
         if detail:
             return self.public(user, only_active=False)
@@ -66,13 +58,6 @@ class VersionQuerySetBase(models.QuerySet):
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
-
-    def for_project(self, project):
-        """Return all versions for a project, including translations."""
-        return self.filter(
-            models.Q(project=project) |
-            models.Q(project__main_language_project=project),
-        )
 
 
 class VersionQuerySet(SettingsOverrideObject):
@@ -89,8 +74,8 @@ class BuildQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('builds.view_version'):
+    def _add_user_repos(self, queryset, user):
+        if user.is_superuser:
             return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
@@ -180,8 +165,8 @@ class RelatedBuildQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('builds.view_version'):
+    def _add_user_repos(self, queryset, user):
+        if user.is_superuser:
             return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)

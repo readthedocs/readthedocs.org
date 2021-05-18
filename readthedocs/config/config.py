@@ -64,6 +64,7 @@ PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
+INVALID_NAME = 'invalid-name'
 
 LATEST_CONFIGURATION_VERSION = 2
 
@@ -121,10 +122,18 @@ class InvalidConfig(ConfigError):
         super().__init__(message, code=code)
 
     def _get_display_key(self):
-        # Checks for patterns similar to `python.install.0.requirements`
-        # if matched change to `python.install[0].requirements` using backreference.
+        """
+        Display keys in a more friendly format.
+
+        Indexes are displayed like ``n``,
+        but users may be more familiar with the ``[n]`` syntax.
+        For example ``python.install.0.requirements``
+        is changed to `python.install[0].requirements`.
+        """
         return re.sub(
-            r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', self.key
+            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
+            r'\1[\2]\3',
+            self.key
         )
 
 
@@ -745,11 +754,68 @@ class BuildConfigV2(BuildConfigBase):
                 ),
             )
 
-        # Allow to override specific project
-        config_image = self.defaults.get('build_image')
-        if config_image:
-            build['image'] = config_image
+            # Allow to override specific project
+            config_image = self.defaults.get('build_image')
+            if config_image:
+                build['image'] = config_image
+
+        with self.catch_validation_error('build.apt_packages'):
+            raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
+            validate_list(raw_packages)
+            # Transform to a dict, so is easy to validate individual entries.
+            self._raw_config.setdefault('build', {})['apt_packages'] = (
+                list_to_dict(raw_packages)
+            )
+
+            build['apt_packages'] = [
+                self.validate_apt_package(index)
+                for index in range(len(raw_packages))
+            ]
+            if not raw_packages:
+                self.pop_config('build.apt_packages')
+
         return build
+
+    def validate_apt_package(self, index):
+        """
+        Validate the package name to avoid injections of extra options.
+
+        We validate that they aren't interpreted as an option or file.
+        See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
+        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
+        for allowed chars in packages names.
+        """
+        key = f'build.apt_packages.{index}'
+        package = self.pop_config(key)
+        with self.catch_validation_error(key):
+            validate_string(package)
+            package = package.strip()
+            invalid_starts = [
+                # Don't allow extra options.
+                '-',
+                # Don't allow to install from a path.
+                '/',
+                '.',
+            ]
+            for start in invalid_starts:
+                if package.startswith(start):
+                    self.error(
+                        key=key,
+                        message=(
+                            'Invalid package name. '
+                            f'Package can\'t start with {start}.',
+                        ),
+                        code=INVALID_NAME,
+                    )
+            # List of valid chars in packages names.
+            pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
+            if not pattern.match(package):
+                self.error(
+                    key=key,
+                    message='Invalid package name.',
+                    code=INVALID_NAME,
+                )
+        return package
 
     def validate_python(self):
         """
