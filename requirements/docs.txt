@@ -1,8 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-# Our deps aren't ready for 4.0 yet.
-# - sphinx-tabs
-Sphinx==3.5.4  # pyup: <4.0
+Sphinx==4.0.1
 Pygments==2.9.0
 
 sphinx_rtd_theme==0.5.2
