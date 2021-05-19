@@ -270,6 +270,11 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     """
 
+    bash_escape_re = re.compile(
+        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
+        r'\[\\\]\^\`\{\|\}\~])'
+    )
+
     def __init__(self, *args, escape_command=True, **kwargs):
         """
         Override default to extend behavior.
@@ -345,19 +350,16 @@ class DockerBuildCommand(BuildCommand):
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
         """
-        bash_escape_re = re.compile(
-            r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-            r'\[\\\]\^\`\{\|\}\~])',
-        )
         prefix = ''
         if self.bin_path:
-            prefix += 'PATH={}:$PATH '.format(self.bin_path)
+            bin_path = self._escape_command(self.bin_path)
+            prefix += f'PATH={bin_path}:$PATH '
 
         command = (
-            ' '.join([
-                bash_escape_re.sub(r'\\\1', part) if self.escape_command else part
+            ' '.join(
+                self._escape_command(part) if self.escape_command else part
                 for part in self.command
-            ])
+            )
         )
         return (
             "/bin/sh -c '{prefix}{cmd}'".format(
@@ -365,6 +367,10 @@ class DockerBuildCommand(BuildCommand):
                 cmd=command,
             )
         )
+
+    def _escape_command(self, cmd):
+        r"""Escape the command by prefixing suspicious chars with `\`."""
+        return self.bash_escape_re.sub(r'\\\1', cmd)
 
 
 class BaseEnvironment:
