@@ -1,3 +1,20 @@
+Version 5.16.0
+--------------
+
+:Date: May 18, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: check for .is_superuser instead of has_perm (`#8181 <https://github.com/readthedocs/readthedocs.org/pull/8181>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use `is_active` method to know if the build should be skipped (`#8179 <https://github.com/readthedocs/readthedocs.org/pull/8179>`__)
+* `@humitos <https://github.com/humitos>`__: APIv2: disable listing endpoints (`#8178 <https://github.com/readthedocs/readthedocs.org/pull/8178>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use IntegerField for `remote_repository` from project form. (`#8176 <https://github.com/readthedocs/readthedocs.org/pull/8176>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: remove some lies from cross referencing guide (`#8173 <https://github.com/readthedocs/readthedocs.org/pull/8173>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add space to bash code (`#8171 <https://github.com/readthedocs/readthedocs.org/pull/8171>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 19 (`#8170 <https://github.com/readthedocs/readthedocs.org/pull/8170>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: include organizations in is_active check (`#8163 <https://github.com/readthedocs/readthedocs.org/pull/8163>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: remove private and for_project (`#8158 <https://github.com/readthedocs/readthedocs.org/pull/8158>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Disable FLOC by introducing permissions policy header (`#8145 <https://github.com/readthedocs/readthedocs.org/pull/8145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: allow to install packages with apt (`#8065 <https://github.com/readthedocs/readthedocs.org/pull/8065>`__)
+
 Version 5.15.0
 --------------
 
