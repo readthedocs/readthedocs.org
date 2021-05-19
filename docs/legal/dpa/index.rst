@@ -3,7 +3,7 @@ Data Processing Agreement
 
 .. note::
     This agreement can be included with any subscription on |com_brand|.
-    Contact us at <privacy@readthedocs.com> to include this in your
+    Contact us at privacy@readthedocs.com to include this in your
     subscription agreement.
 
 This Data Processing Agreement (“\ **DPA**\ ”) is an addendum to the
@@ -16,12 +16,10 @@ processing, or receipt of Personal Data by Read the Docs on behalf of
 the Organization in the course of providing the Services. Terms not
 defined herein shall have the meaning as set forth in the Agreement. If
 you have questions or would like to receive a signed copy of this DPA,
-please contact us at ``privacy@readthedocs.com``.
+please contact us at privacy@readthedocs.com.
 
-
-Definitions
------------
-
+1. Definitions
+--------------
 
 a. “\ **Applicable Laws**\ ” means all laws, rules, regulations, and
    orders applicable to the subject matter herein, including without
@@ -117,8 +115,8 @@ o. “\ **Sub-Processor**\ ” means any entity that provides processing
    services to Read the Docs in furtherance of Read the Docs’s
    processing of Organization Data.
 
-Nature, Purpose, and Subject Matter
------------------------------------
+2. Nature, Purpose, and Subject Matter
+--------------------------------------
 
 The nature, purpose, and subject matter of Read the Docs’s data processing
 activities performed as part of the Services are set out in the Agreement. The
@@ -129,15 +127,15 @@ Processed may include identifiers, internet activity, education or
 employment-related information, commercial information, and any other Personal
 Data that may be processed pursuant to the Agreement.
 
-Duration
---------
+3. Duration
+-----------
 
 The term of this DPA shall follow the term of the Agreement. Read the Docs will
 Process Personal Data for the duration of the Agreement, unless otherwise agreed
 in writing.
 
-Processing of Organization Data
--------------------------------
+4. Processing of Organization Data
+----------------------------------
 
 Read the Docs shall process Organization Data only for the purposes described in
 the Agreement (including this DPA) or as otherwise agreed within the scope of
@@ -152,8 +150,8 @@ is able to comply. If this provision is invoked, Read the Docs will not be
 liable to Organization under the Agreement for any failure to perform the
 Services until such time as Organization issues new lawful Instructions.
 
-Confidentiality
----------------
+5. Confidentiality
+------------------
 
 Read the Docs shall ensure that any personnel who Read the Docs authorizes to
 Process Organization Data on its behalf is subject to appropriate
@@ -163,8 +161,8 @@ reasonable steps to ensure that (i) persons employed by Read the Docs and (ii)
 other persons engaged to perform on Read the Docs’s behalf comply with the terms
 of the Agreement.
 
-Organization Responsibilities
------------------------------
+6. Organization Responsibilities
+--------------------------------
 
 Within the scope of the Agreement (including this DPA) and in Organization’s use
 of the Services, Organization shall take sole responsibility for: (i) the
@@ -187,8 +185,8 @@ of doubt, Read the Docs is not responsible for compliance with any Data
 Protection Laws applicable to Organization or Organization's industry that are
 not generally applicable to Read the Docs.
 
-Sub-Processors
---------------
+7. Sub-Processors
+-----------------
 
 Organization agrees that Read the Docs may engage Sub-Processors to Process
 Organization Data. Where Read the Docs engages Sub-Processors, Read the Docs
@@ -213,8 +211,8 @@ available to Organization upon written request.
     :doc:`Read the Docs Sub-Processor List <subprocessors>` for an up-to-date
     list of the sub-processors we use for hosting services.
 
-Security
---------
+8. Security
+-----------
 
 Taking into account the state of the art, the costs of implementation and the
 nature, scope, context and purposes of Processing as well as the risk of varying
@@ -228,8 +226,8 @@ particular from a Personal Data Breach. Upon request, Read the Docs shall
 provide Organization with a summary of Read the Docs’s security policies
 applicable to the Services.
 
-Data Transfers
---------------
+9. Data Transfers
+-----------------
 
 Organization acknowledges and agrees that Read the Docs may access and Process
 Personal Data on a global basis as necessary to provide the Services in
@@ -237,8 +235,8 @@ accordance with the Agreement, and in particular that Personal Data will be
 transferred to and Processed by Read the Docs in the United States and to other
 jurisdictions where Read the Docs’s Sub-Processors have operations.
 
-Personal Data Breaches
-----------------------
+10. Personal Data Breaches
+--------------------------
 
 If Read the Docs becomes aware of any Personal Data Breach involving
 Organization Data, Read the Docs will promptly, and in no case more than five
@@ -255,8 +253,8 @@ information system and shall, at the other Party’s request and cost, provide t
 other Party with reasonable assistance to investigate, respond to, and mitigate
 the effects of a Breach of the other Party’s information system.
 
-Data Subject Requests
----------------------
+11. Data Subject Requests
+-------------------------
 
 As part of the Services, Read the Docs provides Organization and with certain
 controls by which the Organization may access, correct, delete, or restrict
@@ -277,8 +275,8 @@ Subject to submit their request to Organization. Organization shall be solely
 responsible for responding substantively to any such Data Subject Requests or
 communications involving Personal Data.
 
-Data Protection Impact Assessment and Prior Consultation
---------------------------------------------------------
+12. Data Protection Impact Assessment and Prior Consultation
+------------------------------------------------------------
 
 To the extent Read the Docs is required under Data Protection Law, Read the Docs
 shall (at Organization's expense) provide reasonably requested information
@@ -286,8 +284,8 @@ regarding Read the Docs’s processing of Organization Data under the Agreement 
 enable Organization to carry out data protection impact assessments or prior
 consultations with data protection authorities as required by law.
 
-Deletion or Return of Personal Data
------------------------------------
+13. Deletion or Return of Personal Data
+---------------------------------------
 
 Upon termination or expiration of the Agreement, Read the Docs will delete or
 return all Organization Data Processed pursuant to this DPA in accordance with
@@ -298,8 +296,8 @@ Docs has archived on back-up systems, which data Read the Docs shall securely
 isolate and protect from any further Processing and delete in accordance with
 Read the Docs’s deletion practices.
 
-Demonstration of Compliance
----------------------------
+14. Demonstration of Compliance
+-------------------------------
 
 Upon Organization's written request, Read the Docs shall make available to
 Organization (on a confidential basis) all information reasonably necessary, and
@@ -309,8 +307,8 @@ once per year. Organization shall take all reasonable measures to limit any
 impact on Read the Docs by combining several information and/or audit requests
 carried out on behalf of Organization in one single audit.
 
-European Data
--------------
+15. European Data
+-----------------
 
 This Section 15 applies only with respect to Processing of European Data by Read
 the Docs.
@@ -364,8 +362,8 @@ d. **Data Protection Impact Assessments and Consultation with
    competent data privacy authorities to the extent required by
    European Data Protection Laws.
 
-California Personal Information
--------------------------------
+16. California Personal Information
+-----------------------------------
 
 This Section 16 applies only with respect to Processing of California Personal
 Information by Read the Docs in Read the Docs’s capacity as a Service Provider.
@@ -403,8 +401,8 @@ d. **No CCPA Sale.** The Parties agree that Organization does not
    Personal Information for the purposes of providing the Services
    to Organization.
 
-General
--------
+17. General
+-----------
 
 Organization represents that it is authorized to, and hereby agrees to, enter
 into and be bound by this DPA for and on behalf of itself and each of its
