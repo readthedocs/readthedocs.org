@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.proxito import constants
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -65,13 +66,13 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
                 https=True,
             ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
-                request.canonicalize = 'canonical-cname'
+                request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
             elif (
                 ProjectRelationship.objects.
                 filter(child__slug=project_slug).exists()
             ):
                 log.debug('Proxito Public Domain -> Subproject Main Domain Redirect: host=%s', host)
-                request.canonicalize = 'subproject-main-domain'
+                request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
             return project_slug
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
@@ -107,7 +108,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            request.canonicalize = 'https'
+            request.canonicalize = constants.REDIRECT_HTTPS
 
         # NOTE: consider redirecting non-canonical custom domains to the canonical one
         # Whether that is another custom domain or the public domain

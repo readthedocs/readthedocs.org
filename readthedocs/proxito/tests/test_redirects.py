@@ -26,6 +26,28 @@ class RedirectTests(BaseDocServing):
             r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
         )
 
+    def test_custom_domain_root_url(self):
+        self.domain.canonical = True
+        self.domain.save()
+
+        r = self.client.get('/', HTTP_HOST=self.domain.domain, secure=True)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'system')
+
+    def test_custom_domain_root_url_no_slash(self):
+        self.domain.canonical = True
+        self.domain.save()
+
+        r = self.client.get('', HTTP_HOST=self.domain.domain, secure=True)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'system')
+
     def test_single_version_root_url_doesnt_redirect(self):
         self.project.single_version = True
         self.project.save()
@@ -121,7 +143,7 @@ class RedirectTests(BaseDocServing):
         r = self.client.get('/', HTTP_HOST=self.domain.domain)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/',
+            r['Location'], f'https://{self.domain.domain}/',
         )
         self.assertEqual(r['X-RTD-Redirect'], 'https')
 
@@ -141,7 +163,7 @@ class RedirectTests(BaseDocServing):
         r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/',
+            r['Location'], f'https://{self.domain.domain}/',
         )
         self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
 
@@ -152,6 +174,22 @@ class RedirectTests(BaseDocServing):
             r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
         )
         self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
+
+    def test_translation_redirect(self):
+        r = self.client.get('/', HTTP_HOST='translation.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'system')
+
+    def test_translation_secure_redirect(self):
+        r = self.client.get('/', HTTP_HOST='translation.dev.readthedocs.io', secure=True)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'system')
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
