@@ -75,7 +75,8 @@ class BuildCommand(BuildCommandResultMixin):
     :py:class:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
-    :param cwd: current working path for the command
+    :param cwd: Absolute path used as the current working path for the command.
+        Defaults to ``RTD_DOCKER_WORKDIR``.
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
@@ -102,7 +103,7 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        self.cwd = cwd or '$HOME'
+        self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
         self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
@@ -152,9 +153,7 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 command,
                 shell=self.shell,
-                # This is done here for local builds, but not for docker,
-                # as we want docker to expand inside the container
-                cwd=os.path.expandvars(self.cwd),
+                cwd=self.cwd,
                 stdin=None,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -300,6 +299,7 @@ class DockerBuildCommand(BuildCommand):
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
                 user=self.user,
+                workdir=self.cwd,
                 stdout=True,
                 stderr=True,
             )
@@ -360,8 +360,7 @@ class DockerBuildCommand(BuildCommand):
             ])
         )
         return (
-            "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
-                cwd=self.cwd,
+            "/bin/sh -c '{prefix}{cmd}'".format(
                 prefix=prefix,
                 cmd=command,
             )
