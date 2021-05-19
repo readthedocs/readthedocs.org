@@ -1048,7 +1048,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 ),
                 name=self.container_id,
                 hostname=self.container_id,
-                volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
