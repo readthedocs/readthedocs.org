@@ -175,7 +175,7 @@ class ServeRedirectMixin:
 
         The following cases are covered:
 
-        - Redirect a custom from http to https (if supported)
+        - Redirect a custom domain from http to https (if supported)
           http://project.rtd.io/ -> https://project.rtd.io/
         - Redirect a domain to a canonical domain (http or https).
           http://project.rtd.io/ -> https://docs.test.com/
@@ -200,10 +200,10 @@ class ServeRedirectMixin:
             )
             # When a canonical redirect is done, only change the domain.
             if redirect_type == REDIRECT_CANONICAL_CNAME:
-                to_parsed = urlparse(to)
+                parsed_to = urlparse(to)
                 to = parsed_from._replace(
-                    scheme=to_parsed.scheme,
-                    netloc=to_parsed.netloc,
+                    scheme=parsed_to.scheme,
+                    netloc=parsed_to.netloc,
                 ).geturl()
 
         if from_url == to:
