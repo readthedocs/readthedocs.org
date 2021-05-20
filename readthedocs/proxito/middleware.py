@@ -126,6 +126,13 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    skip_views = (
+        'health_check',
+        'footer_html',
+        'search_api',
+        'embed_api',
+    )
+
     # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
@@ -167,12 +174,16 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Version-Method'] = 'path'
 
     def process_request(self, request):  # noqa
-        if any([
-            not settings.USE_SUBDOMAIN,
-            'localhost' in request.get_host(),
-            'testserver' in request.get_host(),
-            request.path.startswith(reverse('health_check')),
-        ]):
+        skip = any(
+            request.path.startswith(reverse(view))
+            for view in self.skip_views
+        )
+        if (
+            skip
+            or not settings.USE_SUBDOMAIN
+            or 'localhost' in request.get_host()
+            or 'testserver' in request.get_host()
+        ):
             log.debug('Not processing Proxito middleware')
             return None
 
