@@ -75,7 +75,8 @@ class BuildCommand(BuildCommandResultMixin):
     :py:class:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
-    :param cwd: current working path for the command
+    :param cwd: Absolute path used as the current working path for the command.
+        Defaults to ``RTD_DOCKER_WORKDIR``.
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
@@ -102,7 +103,7 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        self.cwd = cwd or '$HOME'
+        self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
         self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
@@ -152,9 +153,7 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 command,
                 shell=self.shell,
-                # This is done here for local builds, but not for docker,
-                # as we want docker to expand inside the container
-                cwd=os.path.expandvars(self.cwd),
+                cwd=self.cwd,
                 stdin=None,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -271,6 +270,11 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     """
 
+    bash_escape_re = re.compile(
+        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
+        r'\[\\\]\^\`\{\|\}\~])'
+    )
+
     def __init__(self, *args, escape_command=True, **kwargs):
         """
         Override default to extend behavior.
@@ -300,6 +304,7 @@ class DockerBuildCommand(BuildCommand):
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
                 user=self.user,
+                workdir=self.cwd,
                 stdout=True,
                 stderr=True,
             )
@@ -345,27 +350,27 @@ class DockerBuildCommand(BuildCommand):
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
         """
-        bash_escape_re = re.compile(
-            r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-            r'\[\\\]\^\`\{\|\}\~])',
-        )
         prefix = ''
         if self.bin_path:
-            prefix += 'PATH={}:$PATH '.format(self.bin_path)
+            bin_path = self._escape_command(self.bin_path)
+            prefix += f'PATH={bin_path}:$PATH '
 
         command = (
-            ' '.join([
-                bash_escape_re.sub(r'\\\1', part) if self.escape_command else part
+            ' '.join(
+                self._escape_command(part) if self.escape_command else part
                 for part in self.command
-            ])
+            )
         )
         return (
-            "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
-                cwd=self.cwd,
+            "/bin/sh -c '{prefix}{cmd}'".format(
                 prefix=prefix,
                 cmd=command,
             )
         )
+
+    def _escape_command(self, cmd):
+        r"""Escape the command by prefixing suspicious chars with `\`."""
+        return self.bash_escape_re.sub(r'\\\1', cmd)
 
 
 class BaseEnvironment:
