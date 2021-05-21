@@ -126,6 +126,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    # None of these need the proxito request middleware (response is needed).
+    # The analytics API isn't listed because it depends on the unresolver,
+    # which depends on the proxito middleware.
     skip_views = (
         'health_check',
         'footer_html',
