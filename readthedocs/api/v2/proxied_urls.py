@@ -5,8 +5,7 @@ Served from the same domain docs are served,
 so they can make use of features that require to have access to their cookies.
 """
 
-from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import url
 
 from readthedocs.analytics.proxied_api import AnalyticsView
 from readthedocs.api.v2.views.proxied import ProxiedEmbedAPI, ProxiedFooterHTML
