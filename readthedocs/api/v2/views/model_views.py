@@ -84,6 +84,10 @@ class DisableListEndpoint:
     """
 
     def list(self, *args, **kwargs):
+        # Using private repos will list resources the user has access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return super().list(*args, **kwargs)
+
         disabled = True
 
         # NOTE: keep list endpoint that specifies a resource
