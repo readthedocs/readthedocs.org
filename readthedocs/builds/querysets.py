@@ -26,7 +26,15 @@ class VersionQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
+        """
+        Add related objects from projects where `user` is an `admin` or a `member`.
+
+        .. note::
+
+           In .org all users are admin and member of a project.
+           This will change with organizations soon.
+        """
         if user.is_superuser:
             return self.all()
         if user.is_authenticated:
@@ -39,7 +47,7 @@ class VersionQuerySetBase(models.QuerySet):
                include_hidden=True, only_built=False):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -56,7 +64,7 @@ class VersionQuerySetBase(models.QuerySet):
 
         queryset = self.none()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         return queryset.distinct()
 
 
@@ -74,7 +82,15 @@ class BuildQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
+        """
+        Add related objects from projects where `user` is an `admin` or a `member`.
+
+        .. note::
+
+           In .org all users are admin and member of a project.
+           This will change with organizations soon.
+        """
         if user.is_superuser:
             return self.all()
         if user.is_authenticated:
@@ -86,7 +102,7 @@ class BuildQuerySetBase(models.QuerySet):
     def public(self, user=None, project=None):
         queryset = self.filter(version__privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
         return queryset.distinct()
@@ -97,7 +113,7 @@ class BuildQuerySetBase(models.QuerySet):
 
         queryset = self.none()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         return queryset.distinct()
 
     def concurrent(self, project):
@@ -159,13 +175,20 @@ class BuildQuerySet(SettingsOverrideObject):
     _default_class = BuildQuerySetBase
 
 
-class RelatedBuildQuerySetBase(models.QuerySet):
+class RelatedBuildQuerySet(models.QuerySet):
 
-    """For models with association to a project through :py:class:`Build`."""
+    """
+    For models with association to a project through :py:class:`Build`.
+
+    .. note::
+
+       This is only used for ``BuildCommandViewSet`` from api v2.
+       Which is being used to upload build command results from the builders.
+    """
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user):
         if user.is_superuser:
             return self.all()
         if user.is_authenticated:
@@ -174,18 +197,11 @@ class RelatedBuildQuerySetBase(models.QuerySet):
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None):
+    def public(self, user=None):
         queryset = self.filter(build__version__privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(build__project=project)
+            queryset = self._add_from_user_projects(queryset, user)
         return queryset.distinct()
 
     def api(self, user=None):
         return self.public(user)
-
-
-class RelatedBuildQuerySet(SettingsOverrideObject):
-    _default_class = RelatedBuildQuerySetBase
-    _override_setting = 'RELATED_BUILD_MANAGER'
