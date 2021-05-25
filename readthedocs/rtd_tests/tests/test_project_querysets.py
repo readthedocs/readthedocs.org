@@ -79,6 +79,18 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(ChildRelatedProjectQuerySet.project_field, 'child')
         self.assertTrue(ChildRelatedProjectQuerySet.use_for_related_fields)
 
+    def test_subproject_queryset_as_manager_gets_correct_class(self):
+        mgr = ChildRelatedProjectQuerySet.as_manager()
+        self.assertEqual(
+            mgr.__class__.__name__,
+            'ManagerFromChildRelatedProjectQuerySet',
+        )
+        mgr = ParentRelatedProjectQuerySet.as_manager()
+        self.assertEqual(
+            mgr.__class__.__name__,
+            'ManagerFromParentRelatedProjectQuerySet',
+        )
+
     def test_is_active(self):
         project = get(Project, skip=False)
         self.assertTrue(Project.objects.is_active(project))
