@@ -31,10 +31,7 @@ class TeamManagerBase(models.Manager):
 
         return teams.distinct()
 
-    def admin(self, user, organization=None, include_all=False):
-        if user.is_superuser and include_all:
-            return self.get_queryset().all()
-
+    def admin(self, user, organization=None):
         return self.teams_for_user(
             user,
             organization,
@@ -42,10 +39,7 @@ class TeamManagerBase(models.Manager):
             member=False,
         )
 
-    def member(self, user, organization=None, include_all=False):
-        if user.is_superuser and include_all:
-            return self.get_queryset().all()
-
+    def member(self, user, organization=None):
         return self.teams_for_user(
             user,
             organization,
