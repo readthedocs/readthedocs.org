@@ -137,14 +137,8 @@ class ProjectQuerySetBase(models.QuerySet):
         """Get the projects for this user including the latest build."""
         return self.for_user(user).prefetch_latest_build()
 
-    def api(self, user=None, detail=True):
-        if detail:
-            return self.public(user)
-
-        queryset = self.none()
-        if user:
-            queryset = self._add_user_projects(queryset, user)
-        return queryset.distinct()
+    def api(self, user=None):
+        return self.public(user)
 
 
 class ProjectQuerySet(SettingsOverrideObject):

@@ -143,12 +143,6 @@ class VersionQuerySetTests(TestVersionQuerySetBase):
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
 
-    def test_api_user(self):
-        query = Version.objects.api(user=self.user, detail=False)
-        versions = self.user_versions
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
 
 class TestVersionQuerySetWithManagerBase(TestVersionQuerySetBase):
 
@@ -271,12 +265,6 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
 
-    def test_api_user(self):
-        query = Version.internal.api(user=self.user, detail=False)
-        versions = self.user_versions
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
 
 class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase):
 
@@ -336,17 +324,6 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
             self.external_version_public,
             self.another_external_version_public,
             self.shared_external_version_public,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_api_user(self):
-        query = Version.external.api(user=self.user, detail=False)
-        versions = {
-            self.external_version_public,
-            self.external_version_private,
-            self.shared_external_version_public,
-            self.shared_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)

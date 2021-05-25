@@ -58,14 +58,8 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(hidden=False)
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
-        if detail:
-            return self.public(user, only_active=False)
-
-        queryset = self.none()
-        if user:
-            queryset = self._add_from_user_projects(queryset, user)
-        return queryset.distinct()
+    def api(self, user=None):
+        return self.public(user, only_active=False)
 
 
 class VersionQuerySet(SettingsOverrideObject):
@@ -107,14 +101,8 @@ class BuildQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
-        if detail:
-            return self.public(user)
-
-        queryset = self.none()
-        if user:
-            queryset = self._add_from_user_projects(queryset, user)
-        return queryset.distinct()
+    def api(self, user=None):
+        return self.public(user)
 
     def concurrent(self, project):
         """
