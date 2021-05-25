@@ -182,7 +182,7 @@ class RelatedBuildQuerySet(models.QuerySet):
 
     .. note::
 
-       This is currently used for ``BuildCommandViewSet`` from api v2 only.
+       This is only used for ``BuildCommandViewSet`` from api v2.
        Which is being used to upload build command results from the builders.
     """
 
