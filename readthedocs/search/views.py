@@ -156,7 +156,7 @@ class ProjectSearchView(SearchViewBase):
 class GlobalSearchView(SearchViewBase):
 
     """
-    Global user search on the dashboard.
+    Global search enabled for logged out users and anyone using the dashboard.
 
     Query params:
 
