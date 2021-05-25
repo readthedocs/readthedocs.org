@@ -1,5 +1,6 @@
 import os
 import sys
+import pathlib
 from configparser import RawConfigParser
 
 import sphinx_rtd_theme
@@ -46,7 +47,7 @@ copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
 )
 version = get_version()
 release = version
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', 'development/**/*.rst', 'development/*.rst']
 default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
@@ -140,3 +141,9 @@ linkcheck_ignore = [
 
 def setup(app):
     app.add_css_file('css/sphinx_prompt_css.css')
+
+    docset_name = os.environ.get('RTD_DOCSET', None)
+    if docset_name:
+        docset_path = pathlib.Path(app.srcdir) / docset_name
+        app.srcdir = str(docset_path)
+        print(app.srcdir)
