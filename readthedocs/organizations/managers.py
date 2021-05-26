@@ -11,7 +11,6 @@ class TeamManagerBase(models.Manager):
 
     """Manager to control team's access."""
 
-    # pylint: disable=no-self-use
     def teams_for_user(self, user, organization, admin, member):
         teams = self.get_queryset().none()
         if admin:

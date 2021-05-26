@@ -35,8 +35,6 @@ class VersionQuerySetBase(models.QuerySet):
            In .org all users are admin and member of a project.
            This will change with organizations soon.
         """
-        if user.is_superuser:
-            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
@@ -47,7 +45,10 @@ class VersionQuerySetBase(models.QuerySet):
                include_hidden=True, only_built=False):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_from_user_projects(queryset, user)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -85,8 +86,6 @@ class BuildQuerySetBase(models.QuerySet):
            In .org all users are admin and member of a project.
            This will change with organizations soon.
         """
-        if user.is_superuser:
-            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
@@ -94,9 +93,20 @@ class BuildQuerySetBase(models.QuerySet):
         return queryset
 
     def public(self, user=None, project=None):
-        queryset = self.filter(version__privacy_level=constants.PUBLIC)
+        queryset = self.filter(
+            version__privacy_level=constants.PUBLIC,
+            version__project__privacy_level=constants.PUBLIC,
+        )
         if user:
-            queryset = self._add_from_user_projects(queryset, user)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(
+                    queryset,
+                    user,
+                    admin=True,
+                    member=True,
+                )
         if project:
             queryset = queryset.filter(project=project)
         return queryset.distinct()
@@ -177,8 +187,6 @@ class RelatedBuildQuerySet(models.QuerySet):
     use_for_related_fields = True
 
     def _add_from_user_projects(self, queryset, user):
-        if user.is_superuser:
-            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(build__project__in=projects_pk)
@@ -188,7 +196,10 @@ class RelatedBuildQuerySet(models.QuerySet):
     def public(self, user=None):
         queryset = self.filter(build__version__privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_from_user_projects(queryset, user)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(queryset, user)
         return queryset.distinct()
 
     def api(self, user=None):
