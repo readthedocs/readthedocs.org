@@ -118,7 +118,7 @@ The content is an string with a well formed HTML block.
 
   .. code:: html
 
-     <dl>
+     <dl class="some-class">
       ...
 
       <dt id="foo">Foo</dt>
@@ -134,7 +134,7 @@ The content is an string with a well formed HTML block.
 
   .. code:: html
 
-     <dl>
+     <dl class="some-class">
       <dt id="title">Title<dt>
       <dd>Some definition</dd>
      </dl>
@@ -150,7 +150,7 @@ The content is an string with a well formed HTML block.
   This improvement can be shared with the current API (v2).
 
 Parse the HTML page itself rather than the relying on the fjson files.
-  This allow us to use the embed API in any page and tool, and outside Read the Docs.
+  This allow us to use the embed API with any page or tool, and outside Read the Docs.
   We can re-use code from the search parsing to detect the main content.
   This improvement can be shared with the current API (v2).
 
@@ -165,7 +165,7 @@ Support for external sites
 
 Currently this document uses ``project``, ``version``, and ``path`` to query the API,
 but since the CZI grant and intersphinx support requires this to work with external sites,
-those arguments can be replaced with ``url``.
+those arguments can be replaced with ``url`` (or have two ways of querying the API).
 
 Considerations
 ``````````````
@@ -178,9 +178,11 @@ and if it's from an external site fetch it from the internet.
 The API could be missused.
 This is already true if we don't support external sites,
 since we host arbitrary HTML already.
-But it can be abussed to crawl external sites without the consent of the site admin.
+But it can be abussed to do requests to external sites without the consent of the site owner (SSRF_).
 We can integrate support for external sites in a later stage,
 or have a list of allowed sites.
+
+.. _SSRF: https://en.wikipedia.org/wiki/Server-side_request_forgery
 
 We would need to make our parsing code more generic.
 This is already proposed in this document,
@@ -193,7 +195,7 @@ instead of the proxied API.
 Deprecation
 -----------
 
-We should have a section in our docs instead of guide where the embed API is documented.
+We should have a section in our docs instead of a guide where the embed API is documented.
 There we can list v2 as deprecated.
 We would need to migrate our extension as well.
 Most of the parsing code could be shared between the two APIs, so it shouldn't be a burden to maintain.
@@ -202,7 +204,7 @@ API Client
 ----------
 
 Do we really need a JS client?
-The API client is a js script to allow users to use our API in any page.
+The API client is a JS script to allow users to use our API in any page.
 Using the fetch and DOM API should be easy enough to make this work.
 Having a guide on how to use it would be better than having to maintain and publish a JS package.
 
