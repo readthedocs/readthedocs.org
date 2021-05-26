@@ -95,8 +95,10 @@
         "slug": "v1.0",
         "type": "tag",
         "urls": {
+            "dashboard": {
+                "edit": "https://readthedocs.org/dashboard/project/version/v1.0/"
+            },
             "documentation": "http://project.readthedocs.io/en/v1.0/",
-            "edit": "https://readthedocs.org/dashboard/project/version/v1.0/",
             "vcs": "https://github.com/rtfd/project/tree/v1.0/"
         },
         "verbose_name": "v1.0"
