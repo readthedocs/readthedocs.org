@@ -257,17 +257,6 @@ class TestInternalBuildManager(TestBuildManagerBase):
         self.assertEqual(query.count(), len(builds))
         self.assertEqual(set(query), builds)
 
-    def test_api_user(self):
-        query = Build.internal.api(user=self.user, detail=False)
-        builds = {
-            self.build_private,
-            self.shared_build_private,
-            self.build_public,
-            self.shared_build_public,
-        }
-        self.assertEqual(query.count(), len(builds))
-        self.assertEqual(set(query), builds)
-
 
 class TestExternalBuildManager(TestBuildManagerBase):
 
@@ -328,17 +317,6 @@ class TestExternalBuildManager(TestBuildManagerBase):
             self.shared_build_private_external,
             self.build_public_external,
             self.another_build_public_external,
-            self.shared_build_public_external,
-        }
-        self.assertEqual(query.count(), len(builds))
-        self.assertEqual(set(query), builds)
-
-    def test_api_user(self):
-        query = Build.external.api(user=self.user, detail=False)
-        builds = {
-            self.build_private_external,
-            self.shared_build_private_external,
-            self.build_public_external,
             self.shared_build_public_external,
         }
         self.assertEqual(query.count(), len(builds))

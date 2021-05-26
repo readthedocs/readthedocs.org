@@ -21,7 +21,7 @@ class RedirectQuerySet(models.QuerySet):
             queryset = user_queryset | queryset
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
+    def api(self, user=None):
         queryset = self.none()
         if user:
             queryset = self._add_from_user_projects(queryset, user)
