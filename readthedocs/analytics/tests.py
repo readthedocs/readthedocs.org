@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 from .models import PageView
 from .utils import anonymize_ip_address, anonymize_user_agent, get_client_ip

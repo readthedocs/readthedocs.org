@@ -794,7 +794,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     environment=self.build_env,
                 )
                 with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_python_environment()
+                    self.setup_build()
 
                     # TODO the build object should have an idea of these states,
                     # extend the model to include an idea of these outcomes
@@ -1152,6 +1152,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             search_ignore=self.config.search.ignore,
         )
 
+    def setup_build(self):
+        self.install_system_dependencies()
+        self.setup_python_environment()
+
     def setup_python_environment(self):
         """
         Build the virtualenv and install the project into it.
@@ -1176,6 +1180,30 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.install_requirements()
         if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
             self.python_env.list_packages_installed()
+
+    def install_system_dependencies(self):
+        """
+        Install apt packages from the config file.
+
+        We don't allow to pass custom options or install from a path.
+        The packages names are already validated when reading the config file.
+
+        .. note::
+
+           ``--quiet`` won't suppress the output,
+           it would just remove the progress bar.
+        """
+        packages = self.config.build.apt_packages
+        if packages:
+            self.build_env.run(
+                'apt-get', 'update', '--assume-yes', '--quiet',
+                user=settings.RTD_DOCKER_SUPER_USER,
+            )
+            # put ``--`` to end all command arguments.
+            self.build_env.run(
+                'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
+                user=settings.RTD_DOCKER_SUPER_USER,
+            )
 
     def build_docs(self):
         """
@@ -1303,6 +1331,9 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
     if not version or version.type == EXTERNAL:
         return
     project = version.project
+
+    # TODO: remove this log once we find out what's causing OOM
+    log.info('Running readthedocs.projects.tasks.fileify. locals=%s', locals())
 
     if not commit:
         log.warning(

@@ -323,7 +323,7 @@ class Virtualenv(PythonEnvironment):
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
-            cwd='$HOME',
+            cwd=None,
         )
 
     def install_core_requirements(self):
