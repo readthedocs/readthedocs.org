@@ -16,7 +16,7 @@ Get in touch
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
-.. _Gitter: https://gitter.im/rtfd/readthedocs.org
+.. _Gitter: https://gitter.im/readthedocs/community
 
 Contributing to development
 ---------------------------
