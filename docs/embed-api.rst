@@ -11,9 +11,7 @@ Usage
 -----
 
 Check our :doc:`/guides/embedding-content` guide to learn how to use the embed API in your projects.
-Additionally, you can use the API with:
-
-- `sphinx-hoverxref`_: Sphinx extension
+You can also use the API with our `sphinx-hoverxref`_ Sphinx extension.
 
 .. _sphinx-hoverxref: https://sphinx-hoverxref.readthedocs.io
 
@@ -42,12 +40,16 @@ This is ``https://docs.readthedocs.io/_/api/v2/embed`` for the ``docs`` project,
 
    :query project: Project slug
    :query version: Version slug
-   :query path: Path of file
-   :query section: Section ID
+   :query path:
+      Path to the HTML page relative the the root of your documentation,
+      this is without the language or version.
+   :query section:
+      ID from the HTML element,
+      this is usually the anchor part used in a URL to link to a section.
 
    Using the URL.
 
-   :query url: Full URL with fragment
+   :query url: Full URL to the section with the fragment included.
 
    .. Response
 
@@ -63,11 +65,15 @@ This is ``https://docs.readthedocs.io/_/api/v2/embed`` for the ``docs`` project,
 
    **Example request**:
 
+   For example to request the content from https://docs.readthedocs.io/en/latest/badges.html#style
+
    .. tabs::
 
       .. code-tab:: bash
 
          $ curl "https://docs.readthedocs.io/_/api/v2/embed/?project=docs&version=latest&path=badges.html&section=style"
+         # Or using the URL
+         $ curl "https://docs.readthedocs.io/_/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/badges.html#style
 
       .. code-tab:: python
 
@@ -78,6 +84,13 @@ This is ``https://docs.readthedocs.io/_/api/v2/embed`` for the ``docs`` project,
             'version': 'latest',
             'path': 'badges.html',
             'section': 'style',
+         }
+         response = requests.get(URL, params=params)
+         print(response.json())
+
+         # Or using the URL
+         params = {
+            'url': 'https://docs.readthedocs.io/en/latest/badges.html#style',
          }
          response = requests.get(URL, params=params)
          print(response.json())
