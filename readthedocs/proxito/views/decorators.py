@@ -65,7 +65,7 @@ def map_project_slug(view_func):
         if project is None:
             # Get a slug from the request if it can't be found in the URL
             if not project_slug:
-                project_slug = request.host_project_slug
+                project_slug = getattr(request, 'host_project_slug', None)
                 log.debug(
                     'Inserting project slug from request slug=[%s]',
                     project_slug

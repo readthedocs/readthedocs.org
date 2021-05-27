@@ -13,6 +13,7 @@ from rest_framework import serializers
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
@@ -892,3 +893,64 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
             'projects': (ProjectSerializer, {'many': True}),
             'teams': (TeamSerializer, {'many': True}),
         }
+
+
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'pk',
+            'slug',
+            'name',
+            'avatar_url',
+            'url',
+            'vcs_provider',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+
+
+class RemoteRepositorySerializer(FlexFieldsModelSerializer):
+    admin = serializers.SerializerMethodField('is_admin')
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'pk',
+            'name',
+            'full_name',
+            'description',
+            'admin',
+            'avatar_url',
+            'ssh_url',
+            'clone_url',
+            'html_url',
+            'vcs',
+            'vcs_provider',
+            'private',
+            'default_branch',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+        expandable_fields = {
+            'organization': (
+                RemoteOrganizationSerializer, {'source': 'organization'}
+            ),
+            'project': (
+                ProjectSerializer, {'source': 'project'}
+            )
+        }
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use annotated value from RemoteRepositoryViewSet queryset
+        if hasattr(obj, '_admin'):
+            return obj._admin
+
+        return obj.remote_repository_relations.filter(
+            user=request.user, admin=True
+        ).exists()

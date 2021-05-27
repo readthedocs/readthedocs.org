@@ -1,5 +1,7 @@
+from django.db.models import Exists, OuterRef
+
 import django_filters.rest_framework as filters
-from django.utils.safestring import mark_safe
+from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -21,20 +23,38 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
 
-from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import OrganizationQuerySetMixin, ProjectQuerySetMixin, UpdateMixin
+from .filters import (
+    BuildFilter,
+    ProjectFilter,
+    RemoteOrganizationFilter,
+    RemoteRepositoryFilter,
+    VersionFilter,
+)
+from .mixins import (
+    OrganizationQuerySetMixin,
+    ProjectQuerySetMixin,
+    RemoteQuerySetMixin,
+    UpdateMixin,
+)
 from .permissions import (
     CommonPermissions,
     IsProjectAdmin,
-    IsOrganizationAdmin,
-    UserOrganizationsListing,
 )
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -47,6 +67,8 @@ from .serializers import (
     ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
+    RemoteOrganizationSerializer,
+    RemoteRepositorySerializer,
     SubprojectCreateSerializer,
     SubprojectSerializer,
     SubprojectDestroySerializer,
@@ -414,3 +436,55 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
 
 class OrganizationsProjectsViewSet(SettingsOverrideObject):
     _default_class = OrganizationsProjectsViewSetBase
+
+
+class RemoteRepositoryViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet
+):
+    model = RemoteRepository
+    serializer_class = RemoteRepositorySerializer
+    filterset_class = RemoteRepositoryFilter
+    queryset = RemoteRepository.objects.all()
+    permission_classes = (IsAuthenticated,)
+    permit_list_expands = [
+        'organization',
+        'project'
+    ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset().annotate(
+            _admin=Exists(
+                RemoteRepositoryRelation.objects.filter(
+                    remote_repository=OuterRef('pk'),
+                    user=self.request.user,
+                    admin=True
+                )
+            )
+        )
+
+        if is_expanded(self.request, 'organization'):
+            queryset = queryset.select_related('organization')
+
+        if is_expanded(self.request, 'project'):
+            queryset = queryset.select_related('project').prefetch_related(
+                'project__users',
+            )
+
+        return queryset.order_by('organization__name', 'full_name').distinct()
+
+
+class RemoteOrganizationViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    ListModelMixin,
+    GenericViewSet
+):
+    model = RemoteOrganization
+    serializer_class = RemoteOrganizationSerializer
+    filterset_class = RemoteOrganizationFilter
+    queryset = RemoteOrganization.objects.all()
+    permission_classes = (IsAuthenticated,)

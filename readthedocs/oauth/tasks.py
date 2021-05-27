@@ -11,8 +11,8 @@ from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
     InvalidProjectWebhookNotification,
 )
-from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.oauth.services.base import SyncServiceError
+from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
@@ -25,7 +25,13 @@ log = logging.getLogger(__name__)
 @PublicTask.permission_check(user_id_matches)
 @app.task(queue='web', base=PublicTask)
 def sync_remote_repositories(user_id):
-    user = User.objects.get(pk=user_id)
+    user = User.objects.filter(pk=user_id).first()
+    if not user:
+        return
+
+    # TODO: remove this log once we find out what's causing OOM
+    log.info('Running readthedocs.oauth.tasks.sync_remote_repositories. locals=%s', locals())
+
     failed_services = set()
     for service_cls in registry:
         for service in service_cls.for_user(user):
