@@ -17,7 +17,7 @@ Other APIs
 Some Read the Docs features have their own APIs.
 
 - :ref:`Server Side Search <server-side-search:api>`
-- :doc:`/embed-api`
+- :doc:`/api/embed`
 
 Internal APIs
 -------------
