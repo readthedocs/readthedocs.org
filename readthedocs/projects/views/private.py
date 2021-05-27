@@ -102,11 +102,12 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         # Set the default search to search files instead of projects
         context['type'] = 'file'
 
-        filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
-        context['filter'] = filter
-        context['project_list'] = filter.qs
-        # Alternatively, dynamically override super()-derived `project_list` context_data
-        # context[self.get_context_object_name(filter.qs)] = filter.qs
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
+            context['filter'] = filter
+            context['project_list'] = filter.qs
+            # Alternatively, dynamically override super()-derived `project_list` context_data
+            # context[self.get_context_object_name(filter.qs)] = filter.qs
 
         return context
 

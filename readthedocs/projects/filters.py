@@ -8,7 +8,7 @@ from django_filters import CharFilter, ChoiceFilter, FilterSet, OrderingFilter
 log = logging.getLogger(__name__)
 
 
-class SortOrderingFilter(OrderingFilter):
+class VersionSortOrderingFilter(OrderingFilter):
 
     """
     Version list sort ordering django_filters filter.
@@ -17,6 +17,11 @@ class SortOrderingFilter(OrderingFilter):
     well with empty/null values in the filter choices. In our case, empty/null
     values are used for a default query. So, to make this work, we will use a
     custom filter, instead of an automated model filter.
+
+    The empty/None value is used to provide both a default value to the filter
+    (when there is no ``sort`` query param), but also provide an option that is
+    manually selectable (``?sort=relevance``). We can't do this with the default
+    filter, because result would be params like ``?sort=None``.
     """
 
     def __init__(self, *args, **kwargs):
@@ -144,7 +149,7 @@ class ProjectVersionListFilterSet(FilterSet):
         empty_label=_('Any'),
     )
 
-    sort = ProjectSortOrderingFilter(
+    sort = VersionSortOrderingFilter(
         field_name='sort',
         label=_('Sort by'),
         empty_label=_('Relevance'),
