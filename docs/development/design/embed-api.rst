@@ -1,221 +1,211 @@
-Embed API
-=========
+Embed APIv3
+===========
 
-The Embed API allows to embed content from docs pages in other sites.
-For a while it has been as an *experimental* feature without public documentation or real applications,
-but recently it has been used widely (mainly because we created a Sphinx extension).
+The Embed API allows to embed content from documentation pages in other sites.
+It has been treated as an *experimental* feature without public documentation or real applications,
+but recently it started to be used widely (mainly because we created a Sphinx extension).
 
-This improvement is part of the `CZI grant`_.
-Due to this we need to have more friendly to use API,
-and general and stable enough to support it for a long time and with external sites.
+The main goal of this document is to design a new version of the Embed API to be more user friendly,
+make it more stable over time, support documentation pages not hosted at Read the Docs,
+and remove some quirkiness that makes it hard to maintain and difficult to use.
+
+.. note::
+
+   This work is part of the `CZI grant`_ that Read the Docs received.
 
 .. _CZI grant: https://blog.readthedocs.com/czi-grant-announcement/
 
 .. contents::
    :local:
-   :depth: 3
+   :depth: 2
+
 
 Current implementation
 ----------------------
 
 The current implementation of the API is partially documented in :doc:`/guides/embedding-content`.
-Some characteristics/problems are:
+It has some known problems:
 
-- There are three ways of querying the API, and some rely on Sphinx's concepts like ``doc``.
-- Doesn't support MkDocs.
-- It returns all sections from the current page on every request.
-- Lookups are slow (~500 ms).
-- IDs returned aren't well formed (like empty IDs `#`).
-- The content is always an array of one element.
-- The section can be an identifier or any other four variants or the title of the section.
-- It doesn't return valid HTML for definition lists (``dd`` tags without a ``dt`` tag).
-- It doesn't support external sites.
+* There are different ways of querying the API: ``?url=`` (generic) and ``?doc=`` (relies on Sphinx's specific concept)
+* Doesn't support MkDocs
+* Lookups are slow (~500 ms)
+* IDs returned aren't well formed (like empty IDs ``"headers": [{"title": "#"}]``)
+* The content is always an array of one element
+* It tries different variations of the original ID
+* It doesn't return valid HTML for definition lists (``dd`` tags without a ``dt`` tag)
 
-New API
--------
 
-The API would be split into two endpoints, and only have one way of querying the API.
+Goals
+-----
 
-Get page
---------
+Considering the problems mentioned in the previous section,
+the inclusion of new features and the definition of a contract that works the same for all,
+this document set the following goals for the new version of this endpoint:
 
-Allow us to query information about a page, like its list of sections.
+* Support external documents hosted outside Read the Docs
+* Do not depend on Sphinx ``.fjson`` files
+* Query and parse the ``.html`` file directly (from our storage or from an external request)
+* Rewrite all links returned in the content to make them absolute
+* Always return valid HTML structure
+* Delete HTML tags from the original document if needed
+* Support ``?nwords=`` and ``?nparagraphs=`` to return chunked content
+* Require a valid HTML ``id`` selector
+* Handle special cases for particular doctools (e.g. Sphinx requires to return the ``.parent()`` element for ``dl``)
+* Make explicit the client is asking to handle the special cases (e.g. send ``?doctool=sphinx&version=4.0.1``)
+* Accept only ``?url=`` request GET argument to query the endpoint
+* Add HTTP cache headers to cache responses
+* Allow :abbr:`CORS` from everywhere
 
-.. http:get:: /_/api/v3/embed/pages?project=docs&version=latest&path=install.html
 
-   :query project: (required)
-   :query version: (required)
-   :query path: (required)
+Embed endpoint
+--------------
+
+Returns the exact HTML content for a specific identifier.
+If no anchor identifier is specified the content of the whole page is returned.
+
+.. http:get:: /api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+
+   :query url (required): Full URL for the documentation page with optional anchor identifier.
+   :query expand (optional): Allows to return extra data about the page. Currently, only ``?expand=identifiers`` is supported
+      to return all the identifiers that page accepts.
 
    .. sourcecode:: json
 
       {
          "project": "docs",
          "version": "latest",
-         "path": "install.html",
-         "title": "Installation Guide",
-         "url": "https://docs.readthedocs.io/en/latest/install.html",
-         "sections": [
+         "language": "en",
+         "path": "development/install.html",
+         "title": "Development Installation",
+         "url": "https://docs.readthedocs.io/en/latest/install.html#set-up-your-environment",
+         "id": "#set-up-your-environment",
+         "content": "<div class=\"section\" id=\"development-installation\">\n<h1>Development Installation<a class=\"headerlink\" href=\"https://docs.readthedocs.io/en/stable/development/install.html#development-installation#development-installation\" title=\"Permalink to this headline\">¶</a></h1>\n ..."
+      }
+
+
+   When used together with ``?expand=identifiers`` the follwing field is also returned:
+
+   .. sourcecode:: json
+
+      {
+         "identifiers": [
             {
-               "title": "Installation",
-               "id": "installation"
+               "title": "Set up your environment",
+               "id": "#set-up-your-environment",
+               "url": "https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
             },
             {
-               "title": "Examples",
-               "id": "examples"
-            }
+               "title": "Check that everything works",
+               "id": "#check-that-everything-works",
+               "url": "https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
+            },
+            ...
          ]
       }
 
-Get section
------------
 
-Allow us to query the content of the section, with all links re-written as absolute.
+Handle specific Sphinx cases
+----------------------------
 
-.. http:get:: /_/api/v3/embed/sections?project=docs&version=latest&path=install.html#examples
+.. https://github.com/readthedocs/readthedocs.org/pull/8039#discussion_r640670085
 
-   :query project: (required)
-   :query version: (required)
-   :query path: Path with or without fragment (required)
+We are currently handling some special cases for Sphinx due how it writes the HTML output structure.
+In some cases, we look for the HTML tag with the identifier requested but we return
+the ``.next()`` HTML tag or the ``.parent()`` tag instead of the *requested one*.
 
-   .. sourcecode:: json
+Currently, we have identified that this happens for definition tags (``dl``, ``dt``, ``dd``)
+--but may be other cases we don't know yet.
+Sphinx adds the ``id=`` attribute to the ``dt`` tag, which contains only the title of the definition,
+but as a user, we are expecting the description of it.
 
-      {
-         "project": "docs",
-         "version": "latest",
-         "path": "install.html",
-         "url": "https://docs.readthedocs.io/en/latest/install.html#examples",
-         "id": "examples",
-         "title": "Examples",
-         "content": "<div>I'm a html block!<div>"
-      }
+In the following example we will return the whole ``dl`` HTML tag instead of
+the HTML tag with the identifier ``id="term-name"`` as requested by the client,
+because otherwise the "Term definition for Term Name" content won't be included and the response would be useless.
 
-Implemention
-------------
+.. code:: html
 
-If a section or page doesn't exist, we return 404.
-  This guarantees that the client requesting this resource has a way of knowing the response is correct.
+   <dl class="glossary docutils">
+     <dt id="term-name">Term Name</dt>
+     <dd>Term definition for Term Name</dd>
+   </dl>
 
-All links are re-written to be absolute.
-  Allow the content to be located in any page and in external sites
-  (this is already done).
+If the definition list (``dl``) has more than *one definition* it will return **only the term requested**.
+Considering the following example, with the request ``?url=glossary.html#term-name``
 
-All sections listed are from html tags that are linkeable.
-  This is, they have an ``id``
-  (we don't rely on the toctree from the fjson file anymore).
-  This way is more easy to parse and get the wanted section,
-  instead of restricting to some types of contents.
+.. code:: html
 
-The IDs returned don't contain the redundant ``#`` symbol.
-  The fragment part could be used in external tools.
+   <dl class="glossary docutils">
+     ...
 
-The content is an string with a well formed HTML block.
-  Malformed HTML can cause the content to be rendered in unexpected ways.
-  Some HTML tags are required to be be inside other tags or be surrounded by other tags,
-  examples are ``li`` tags inside ``ul`` or ``dd`` tags inside ``dl`` and having a ``dt`` tag.
+     <dt id="term-name">Term Name</dt>
+     <dd>Term definition for Term Name</dd>
 
-  For example extracting the ``title`` section from this snipped:
+     <dt id="term-unknown">Term Unknown</dt>
+     <dd>Term definition for Term Unknown </dd>
 
-  .. code:: html
+     ...
+   </dl>
 
-     <dl class="some-class">
-      ...
 
-      <dt id="foo">Foo</dt>
-      <dd>Some definition</dd>
+It will return the whole ``dl`` with only the ``dt`` and ``dd`` for ``id`` requested:
 
-      <dt id="title">Title<dt>
-      <dd>Some definition</dd>
+.. code:: html
 
-      ...
-     </dl>
+   <dl class="glossary docutils">
+     <dt id="term-name">Term Name</dt>
+     <dd>Term definition for Term Name</dd>
+   </dl>
 
-  Would result in
 
-  .. code:: html
-
-     <dl class="some-class">
-      <dt id="title">Title<dt>
-      <dd>Some definition</dd>
-     </dl>
-
-  Instead of
-
-  .. code:: html
-
-     <dd>Some definition</dd>
-
-  Note that we only try to keep the current structure,
-  if the page contains malformed HTML, we don't try to *fix it*.
-  This improvement can be shared with the current API (v2).
-
-Parse the HTML page itself rather than the relying on the fjson files.
-  This allow us to use the embed API with any page or tool, and outside Read the Docs.
-  We can re-use code from the search parsing to detect the main content.
-  This improvement can be shared with the current API (v2).
+However, this assumptions may not apply to documentation pages built with a different doctool than Sphinx.
+For this reason, we need to communicate to the API that we want to handle this special cases in the backend.
+This will be done by appending a request GET argument to the Embed API endpoint: ``?doctool=sphinx&version=4.0.1``.
+In this case, the backend will known that has to deal with these special cases.
 
 .. note::
 
-   We should probably make a distinction between our general API that handles Read the Docs resources,
-   vs our APIs that expose features (like server side search, footer, and embed, all of them proxied).
-   This way we can version each endpoint separately.
+   This leaves the door open to be able to support more special cases (e.g. for other doctools) without breaking the actual behavior.
 
-Support for external sites
---------------------------
 
-Currently this document uses ``project``, ``version``, and ``path`` to query the API,
-but since the CZI grant and intersphinx support requires this to work with external sites,
-those arguments can be replaced with ``url`` (or have two ways of querying the API).
+Support for external documents
+------------------------------
 
-Considerations
-``````````````
+When the ``?url=`` argument passed belongs to a documentation page not hosted on Read the Docs,
+the endpoint will do an external request to download the HTML file,
+parse it and return the content for the identifier requested.
 
-If a project changes its custom domain, current usage of the API would break.
+The whole logic should be the same, the only difference would be where the source HTML comes from.
 
-We would need to check if the domain belongs to a project inside RTD and fetch the file from storage,
-and if it's from an external site fetch it from the internet.
+.. warning::
 
-The API could be missused.
-This is already true if we don't support external sites,
-since we host arbitrary HTML already.
-But it can be abussed to do requests to external sites without the consent of the site owner (SSRF_).
-We can integrate support for external sites in a later stage,
-or have a list of allowed sites.
+   We should be carefull with the URL received from the user because those may be internal URLs and we could be leaking some data.
+   Example: ``?url=http://localhost/some-weird-endpoint`` or ``?url=http://169.254.169.254/latest/meta-data/``
+   (see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html).
 
-.. _SSRF: https://en.wikipedia.org/wiki/Server-side_request_forgery
+   This is related to SSRF (https://en.wikipedia.org/wiki/Server-side_request_forgery).
+   It doesn't seem to be a huge problem, but something to consider.
 
-We would need to make our parsing code more generic.
-This is already proposed in this document,
-but testing is going to be done with Sphinx and MkDocs mainly.
+   Also, the endpoint may need to limit the requests per-external domain to avoid using our servers to take down another site.
 
-If we want to support external site to use the API,
-then we would need to expose it in a general public endpoint
-instead of the proxied API.
 
-Deprecation
------------
-
-We should have a section in our docs instead of a guide where the embed API is documented.
-There we can list v2 as deprecated.
-We would need to migrate our extension as well.
-Most of the parsing code could be shared between the two APIs, so it shouldn't be a burden to maintain.
-
-API Client
-----------
-
-Do we really need a JS client?
-The API client is a JS script to allow users to use our API in any page.
-Using the fetch and DOM API should be easy enough to make this work.
-Having a guide on how to use it would be better than having to maintain and publish a JS package.
-
-Most users would use the embed API in their docs in form of an extension (like sphinx-hoverxref).
-Users using the API in other pages would probably have the sufficient knowledge to use the fetch and DOM API.
-
-Rejected/posponed ideas
+Embed APIv2 deprecation
 -----------------------
 
-Including a list of extra js/css files that may be required to make the embedded content work.
-  The client should be aware of the content it's embedding,
-  and it's their responsibility to include the required js/css to make it work.
-  We can't guarantee that the given files are necessary,
-  and could present a security threat.
+The v2 is currently widely used by projects using the ``sphinx-hoverxref`` extension.
+Because of that, we need to keep supporting it as-is for a long time.
+
+Next steps on this direction should be:
+
+* Add a note in the documentation mentioning this endpoint is deprecated
+* Promote the usage of the new Embed APIv3
+* Migrate the ``sphinx-hoverxref`` extension to use the new endpoint
+
+Once we have done them, we could check our NGINX logs to find out if there are people still using APIv2,
+contact them and let them know that they have some months to migrate since the endpoint is deprecated and will be removed.
+
+
+Unanswered questions
+--------------------
+
+* How do we distinguish between our APIv3 for resources (models in the database) from these "feature API endpoints"?
+* What happen if a project changes its custom domain? Do we support redirects in this case?
