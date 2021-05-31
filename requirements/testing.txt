@@ -26,4 +26,4 @@ pytest-mock==3.6.1
 datadiff==2.0.0
 ipdb==0.13.8
 
-requests-mock==1.9.2
+requests-mock==1.9.3
