@@ -16,14 +16,14 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = [
+ALLOW_LIST_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
 ]
 
 # Don't do domain checking on these URL's
-ANY_DOMAIN_WHITELIST_URLS = [
+ANY_DOMAIN_ALLOW_LIST_URLS = [
     '/api/v2/sustainability',
     '/api/v2/embed',
     '/_/api/v2/embed',
@@ -53,7 +53,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    for url in ANY_DOMAIN_WHITELIST_URLS:
+    for url in ANY_DOMAIN_ALLOW_LIST_URLS:
         if request.path_info.startswith(url):
             return True
 
@@ -64,7 +64,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             return True
 
     valid_url = False
-    for url in WHITELIST_URLS:
+    for url in ALLOW_LIST_URLS:
         if request.path_info.startswith(url):
             valid_url = True
             break
