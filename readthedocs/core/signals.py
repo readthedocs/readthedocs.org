@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Signal handling for core app."""
 
 import logging
@@ -22,7 +20,14 @@ WHITELIST_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
+]
+
+# Don't do domain checking on these URL's
+ANY_DOMAIN_WHITELIST_URLS = [
     '/api/v2/sustainability',
+    '/api/v2/embed',
+    '/_/api/v2/embed',
+
 ]
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -45,13 +50,14 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     """
     if 'HTTP_ORIGIN' not in request.META:
         return False
+
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    # Don't do domain checking for this API for now
-    if request.path_info.startswith('/api/v2/sustainability'):
-        return True
+    for url in ANY_DOMAIN_WHITELIST_URLS:
+        if request.path_info.startswith(url):
+            return True
 
-    # Don't do domain checking for APIv2 when the Domain is known
+    # Don't do additional domain checking for APIv2 when the Domain is known
     if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
         domain = Domain.objects.filter(domain__icontains=host)
         if domain.exists():
