@@ -158,6 +158,20 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
+    def test_remote_repository_invalid_type(self):
+        self.step_data['basics']['remote_repository'] = 'Invalid id'
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
+    def test_remote_repository_invalid_id(self):
+        self.step_data['basics']['remote_repository'] = 9
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)
         remote_repo = get(RemoteRepository)

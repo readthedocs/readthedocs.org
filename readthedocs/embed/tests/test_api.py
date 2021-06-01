@@ -170,6 +170,45 @@ class BaseTestEmbedAPI:
         assert response.data == expected
 
     @pytest.mark.parametrize(
+        'path, docname',
+        [
+            ('index.html', 'index'),
+            ('index/', 'index'),
+            ('index//', 'index'),
+            ('/index.html', 'index'),
+            ('/index/', 'index'),
+            ('/index//', 'index'),
+            ('guides/users/index.html', 'guides/users/index'),
+            ('guides/users/', 'guides/users'),
+            ('/guides/users/', 'guides/users'),
+        ]
+    )
+    @mock.patch('readthedocs.embed.views.build_media_storage')
+    def test_embed_dir_path(self, storage_mock, path, docname, client):
+        json_file = data_path / 'sphinx/latest/page.json'
+        html_file = data_path / 'sphinx/latest/page.html'
+
+        self._patch_sphinx_json_file(
+            storage_mock=storage_mock,
+            json_file=json_file,
+            html_file=html_file,
+        )
+
+        response = self.get(
+            client,
+            reverse('embed_api'),
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'path': path,
+                'section': 'title-one',
+            }
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['meta']['doc'] == docname
+
+    @pytest.mark.parametrize(
         'section',
         [
             'i-need-secrets-or-environment-variables-in-my-build',
