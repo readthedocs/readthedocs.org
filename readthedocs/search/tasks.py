@@ -167,8 +167,8 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         modified__gte=before_10_sec,
     ).order_by('-modified')
 
-    # If a partial query exists,
-    # then just update that object.
+    # If a partial query exists, then just update that object.
+    # Check max 30 queries, in case there is a flood of queries.
     max_queries = 30
     for partial_query in partial_query_qs[:max_queries]:
         if query.startswith(partial_query.query):
