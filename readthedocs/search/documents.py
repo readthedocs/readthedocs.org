@@ -168,5 +168,6 @@ class PageDocument(RTDDocTypeMixin, Document):
             queryset
             .internal()
             .exclude(ignore=True)
+            .select_related('version', 'project')
         )
         return queryset
