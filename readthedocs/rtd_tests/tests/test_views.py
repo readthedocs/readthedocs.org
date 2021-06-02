@@ -266,21 +266,39 @@ class BuildViewTests(TestCase):
         self.assertIn(external_version_build, response.context['build_qs'])
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_build_commit_external_version(self, mock):
-        ver = self.pip.versions.first()
-        ver.commit = 'asd324653546'
-        ver.type = 'external'
-        ver.save()
-        build = get(Build, version=ver, project=self.pip)
-        build.save()
-        r = self.client.post('/projects/pip/builds/',
-            {'version_slug': ver.slug, 'commit': ver.commit, 'build_pk': build.pk}
+    def test_rebuild_specific_commit(self, mock):
+        builds_count = Build.objects.count()
+
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        build = get(
+            Build,
+            version=version,
+            project=self.pip,
+            commit='a1b2c3',
         )
+        build.save()
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
         self.assertEqual(r.status_code, 302)
+        self.assertEqual(Build.objects.count(), builds_count + 1)
+
+        newbuild = Build.objects.last()
         self.assertEqual(
             r._headers['location'][1],
-            '/projects/pip/builds/%s/' % build.pk,
+            f'/projects/pip/builds/{newbuild.pk}/',
         )
+        self.assertEqual(newbuild.commit, 'a1b2c3')
+
 
 class TestSearchAnalyticsView(TestCase):
 

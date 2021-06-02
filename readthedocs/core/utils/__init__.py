@@ -17,7 +17,6 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
-    BUILD_STATUS_RETRIGGERED
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.exceptions import (
@@ -36,7 +35,6 @@ log = logging.getLogger(__name__)
 def prepare_build(
         project,
         version=None,
-        build=None,
         commit=None,
         record=True,
         force=False,
@@ -66,6 +64,7 @@ def prepare_build(
         update_docs_task,
     )
 
+    build = None
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because Project is not active: project=%s',
@@ -83,16 +82,7 @@ def prepare_build(
         'commit': commit,
     }
 
-    if build:
-        build.state = BUILD_STATE_TRIGGERED
-        build.status = BUILD_STATUS_RETRIGGERED
-        build.success = True
-        build.commit = commit
-        build.commands.all().delete()
-        build.save()
-        kwargs['build_pk'] = build.pk
-
-    if record and not build:
+    if record:
         build = Build.objects.create(
             project=project,
             version=version,
@@ -221,7 +211,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, build=None, commit=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None, record=True, force=False):
     """
     Trigger a Build.
 
@@ -237,16 +227,14 @@ def trigger_build(project, version=None, build=None, commit=None, record=True, f
     :rtype: tuple
     """
     log.info(
-        'Triggering build. project=%s version=%s commit=%s build=%s',
+        'Triggering build. project=%s version=%s commit=%s',
         project.slug,
         version.slug if version else None,
         commit,
-        build.pk if build else None
     )
     update_docs_task, build = prepare_build(
         project=project,
         version=version,
-        build=build,
         commit=commit,
         record=record,
         force=force,

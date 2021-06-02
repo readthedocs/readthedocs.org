@@ -54,33 +54,31 @@ class BuildTriggerMixin:
             return HttpResponseForbidden()
 
         version_slug = request.POST.get('version_slug')
-        commit = request.POST.get('commit')
         build_pk = request.POST.get('build_pk')
 
         version = get_object_or_404(
             # Don't filter by internal/external here so we can build all versions
             Version.objects.public(self.request.user),
             slug=version_slug,
+            project=project,
         )
 
         # Set either the build or None
         build = version.builds.filter(pk=build_pk).first()
 
         if build:
-
             log.info(
                 'Rebuilding build. project=%s version=%s commit=%s build=%s',
                 project.slug,
                 version.slug,
-                commit,
+                build.commit,
                 build.pk
             )
 
         update_docs_task, build = trigger_build(
             project=project,
             version=version,
-            build=build,
-            commit=commit,
+            commit=build.commit,
         )
         if (update_docs_task, build) == (None, None):
             # Build was skipped
