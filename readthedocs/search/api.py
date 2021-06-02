@@ -116,6 +116,7 @@ class SearchPagination(PageNumberPagination):
 
         return list(result)
 
+
 class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
 
     """
