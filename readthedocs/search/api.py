@@ -78,20 +78,11 @@ class SearchPagination(PageNumberPagination):
         self.request = request
 
         page_size = self.get_page_size(request)
-
-        total_count = 0
-        total_pages = 1
-        if queryset:
-            total_count = queryset.total_count()
-            hits = max(1, total_count)
-            total_pages = ceil(hits / page_size)
-
         page_number = request.query_params.get(self.page_query_param, 1)
-        if page_number in self.last_page_strings:
-            page_number = total_pages
 
         original_page_number = page_number
         page_number = self._get_page_number(page_number)
+
         if page_number <= 0:
             msg = self.invalid_page_message.format(
                 page_number=original_page_number,
@@ -99,13 +90,22 @@ class SearchPagination(PageNumberPagination):
             )
             raise NotFound(msg)
 
+        start = (page_number - 1) * page_size
+        end = page_number * page_size
+
+        if queryset:
+            result = queryset[start:end].execute()
+            total_count = result.hits.total['value']
+            hits = max(1, total_count)
+            total_pages = ceil(hits / page_size)
+        else:
+            result = queryset
+            total_count = 0
+            total_pages = 1
+
         if total_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.
             self.display_page_controls = True
-
-        start = (page_number - 1) * page_size
-        end = page_number * page_size
-        result = list(queryset[start:end])
 
         # Needed for other methods of this class.
         self.page = PaginatorPage(
@@ -114,8 +114,7 @@ class SearchPagination(PageNumberPagination):
             count=total_count,
         )
 
-        return result
-
+        return list(result)
 
 class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
 
