@@ -28,7 +28,11 @@ class Base:
 
 class Build(Base):
 
-    __slots__ = ('image',)
+    __slots__ = ('image', 'apt_packages')
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('apt_packages', [])
+        super().__init__(**kwargs)
 
 
 class Python(Base):
@@ -72,4 +76,4 @@ class Submodules(Base):
 
 class Search(Base):
 
-    __slots__ = ('ranking',)
+    __slots__ = ('ranking', 'ignore')

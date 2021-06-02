@@ -24,7 +24,10 @@ class BuildNotificationsTests(TestCase):
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         send_notifications(version_pk=345343, build_pk=None)
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+        mock_logger.warning.assert_called_with(
+            'Version not found for given kwargs. %s',
+            {'pk': 345343},
+        )
 
 
     def test_send_notification_none(self):

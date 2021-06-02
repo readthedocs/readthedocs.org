@@ -71,6 +71,8 @@ function init() {
         },
         dataType: "jsonp",
         data: get_data,
+        cache: true,
+        jsonpCallback: "callback",
         success: function (data) {
             if (data.show_version_warning) {
                 versionCompare.init(data.version_compare);
@@ -80,6 +82,20 @@ function init() {
         },
         error: function () {
             console.error('Error loading Read the Docs footer');
+        }
+    });
+
+    // Register page view.
+    $.ajax({
+        url: rtd.proxied_api_host + "/api/v2/analytics/",
+        data: {
+            project: rtd['project'],
+            version: rtd['version'],
+            absolute_uri: window.location.href,
+        },
+        cache: false,
+        error: function () {
+            console.error('Error registering page view');
         }
     });
 }

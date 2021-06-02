@@ -2,39 +2,58 @@ Configuration File V2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project.
-We recommend the filename ``.readthedocs.yml``.
+The :doc:`configuration file <index>` must be in the root directory of your project
+and be named ``.readthedocs.yaml``.
 
 All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
 
-.. code:: yaml
+.. tabs::
 
-    # .readthedocs.yml
-    # Read the Docs configuration file
-    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+   .. tab:: Sphinx
 
-    # Required
-    version: 2
+      .. code:: yaml
 
-    # Build documentation in the docs/ directory with Sphinx
-    sphinx:
-      configuration: docs/conf.py
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-    # Build documentation with MkDocs
-    #mkdocs:
-    #  configuration: mkdocs.yml
+         # Required
+         version: 2
 
-    # Optionally build your docs in additional formats such as PDF
-    formats:
-      - pdf
+         # Build documentation in the docs/ directory with Sphinx
+         sphinx:
+            configuration: docs/conf.py
 
-    # Optionally set the version of Python and requirements required to build your docs
-    python:
-      version: 3.7
-      install:
-        - requirements: docs/requirements.txt
+         # Optionally build your docs in additional formats such as PDF
+         formats:
+            - pdf
 
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
+
+   .. tab:: MkDocs
+
+      .. code:: yaml
+
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+         # Required
+         version: 2
+
+         mkdocs:
+           configuration: mkdocs.yml
+
+         # Optionally set the version of Python and requirements required to build your docs
+         python:
+            version: 3.7
+            install:
+            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -43,9 +62,14 @@ Read the Docs validates every configuration file.
 Any configuration option that isn't supported will make the build fail.
 This is to avoid typos and provide feedback on invalid configurations.
 
+.. warning::
+
+   When using a v2 configuration file,
+   the local settings from the web interface are ignored.
+
 .. contents::
    :local:
-   :depth: 1
+   :depth: 3
 
 version
 ~~~~~~~
@@ -114,16 +138,16 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - method: pip
-           path: .
-           extra_requirements:
-               - docs
-         - method: setuptools
-           path: another/package
-      system_packages: true
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: another/package
+     system_packages: true
 
 python.version
 ``````````````
@@ -165,10 +189,10 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - requirements: requirements.txt
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - requirements: requirements.txt
 
 .. warning::
 
@@ -213,14 +237,14 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - method: pip
-           path: .
-           extra_requirements:
-              - docs
-         - method: setuptools
-           path: package
+     version: 3.7
+     install:
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
@@ -279,6 +303,9 @@ Configuration for the documentation build process.
 
    build:
      image: latest
+     apt_packages:
+       - libclang
+       - cmake
 
    python:
      version: 3.7
@@ -296,8 +323,34 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+
+build.apt_packages
+``````````````````
+
+List of `APT packages`_ to install.
+Our build servers run Ubuntu 18.04, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories.
+
+.. _APT packages: https://packages.ubuntu.com/
+
+:Type: ``list``
+:Default: ``[]``
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     apt_packages:
+       - libclang
+       - cmake
+
+.. note::
+
+   When possible avoid installing Python packages using apt (``python3-numpy`` for example),
+   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
 sphinx
 ~~~~~~
@@ -400,8 +453,8 @@ VCS submodules configuration.
 
    submodules:
      include:
-        - one
-        - two
+       - one
+       - two
      recursive: true
 
 submodules.include
@@ -465,9 +518,11 @@ Settings for more control over :doc:`/server-side-search`.
    version: 2
 
    search:
-      ranking:
-        api/v1/*: -1
-        api/v2/*: 4
+     ranking:
+       api/v1/*: -1
+       api/v2/*: 4
+     ignore:
+       - 404.html
 
 search.ranking
 ``````````````
@@ -490,20 +545,23 @@ Pages with a rank closer to -10 will appear further down the list of results,
 and pages with a rank closer to 10 will appear higher in the list of results.
 Note that 0 means *normal rank*, not *no rank*.
 
+If you are looking to completely ignore a page,
+check :ref:`config-file/v2:search.ignore`.
+
 .. code-block:: yaml
 
    version: 2
 
    search:
-      ranking:
-        # Match a single file
-        tutorial.hml: 2
+     ranking:
+       # Match a single file
+       tutorial.html: 2
 
-        # Match all files under the api/v1 directory
-        api/v1/*: -5
+       # Match all files under the api/v1 directory
+       api/v1/*: -5
 
-        # Match all files that end with tutorial.html
-        */tutorial.html: 3
+       # Match all files that end with tutorial.html
+       '*/tutorial.html': 3
 
 .. note::
 
@@ -513,6 +571,59 @@ Note that 0 means *normal rank*, not *no rank*.
 
    Is better to decrease the rank of pages you want to deprecate,
    rather than increasing the rank of the other pages.
+
+search.ignore
+`````````````
+
+Don't index files matching a pattern.
+This is, you won't see search results from these files.
+
+:Type: ``list`` of patterns
+:Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Ignore a single file
+        - 404.html
+
+        # Ignore all files under the search/ directory
+        - search/*
+
+        # Ignore all files that end with ref.html
+        - '*/ref.html'
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Custom files to ignore
+        - file.html
+        - api/v1/*
+
+        # Defaults
+        - search.html
+        - search/index.html
+        - 404.html
+        - 404/index.html'
+
+.. note::
+
+   Since Read the Docs fallbacks to the original search engine when no results are found,
+   you may still see search results from ignored pages.
 
 Schema
 ------

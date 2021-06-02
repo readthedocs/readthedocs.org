@@ -40,6 +40,10 @@ Special query syntax for more specific results.
    We support a full range of search queries.
    You can see some examples in our :ref:`guides/searching-with-readthedocs:search query syntax` guide.
 
+Configurable.
+   Tweak search results according to your needs using a
+   :ref:`configuration file <config-file/v2:search>`.
+
 ..
    Code object searching
       With the user of :doc:`Sphinx Domains <sphinx:/usage/restructuredtext/domains>` we are able to automatically provide direct search results to your Code objects.
@@ -86,14 +90,18 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
    :query q: Search query
    :query project: Project slug
    :query version: Version slug
+   :query page: Jump to a specific page
+   :query page_size: Limits the results per page, default is 50
 
    .. Response
 
    :>json string type: The type of the result, currently page is the only type.
    :>json string project: The project slug
+   :>json string project_alias: Alias of the project if it's a subproject.
    :>json string version: The version slug
    :>json string title: The title of the page
-   :>json string link: An absolute URL to the resulting page
+   :>json string domain: Canonical domain of the resulting page
+   :>json string path: Path to the resulting page
    :>json object highlights: An object containing a list of substrings with matching terms.
                              Note that the text is HTML escaped with the matching terms inside a <span> tag.
    :>json object blocks:
@@ -138,9 +146,11 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
               {
                   "type": "page",
                   "project": "docs",
+                  "project_alias": null,
                   "version": "latest",
                   "title": "Server Side Search",
-                  "link": "https://docs.readthedocs.io/en/latest/server-side-search.html",
+                  "domain": "https://docs.readthedocs.io",
+                  "path": "/en/latest/server-side-search.html",
                   "highlights": {
                       "title": [
                           "<span>Server</span> <span>Side</span> <span>Search</span>"

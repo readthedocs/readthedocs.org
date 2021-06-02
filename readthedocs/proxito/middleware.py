@@ -6,13 +6,17 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import re
 import sys
+from urllib.parse import urlparse
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.proxito import constants
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -62,7 +66,13 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
                 https=True,
             ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
-                request.canonicalize = 'canonical-cname'
+                request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
+            elif (
+                ProjectRelationship.objects.
+                filter(child__slug=project_slug).exists()
+            ):
+                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect: host=%s', host)
+                request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
             return project_slug
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
@@ -98,7 +108,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            request.canonicalize = 'https'
+            request.canonicalize = constants.REDIRECT_HTTPS
 
         # NOTE: consider redirecting non-canonical custom domains to the canonical one
         # Whether that is another custom domain or the public domain
@@ -116,11 +126,21 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    # None of these need the proxito request middleware (response is needed).
+    # The analytics API isn't listed because it depends on the unresolver,
+    # which depends on the proxito middleware.
+    skip_views = (
+        'health_check',
+        'footer_html',
+        'search_api',
+        'embed_api',
+    )
+
     # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
-        """Add debugging headers to proxito responses."""
+        """Add debugging and cache headers to proxito responses."""
 
-        project_slug = getattr(request, 'host_project_slug', '')
+        project_slug = getattr(request, 'path_project_slug', '')
         version_slug = getattr(request, 'path_version_slug', '')
         path = getattr(response, 'proxito_path', '')
 
@@ -134,9 +154,15 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Path'] = path
 
         # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{project_slug}'
+        cache_tag = response.get('Cache-Tag')
+        cache_tags = [cache_tag] if cache_tag else []
+        if project_slug:
+            cache_tags.append(project_slug)
         if version_slug:
-            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+            cache_tags.append(f'{project_slug}-{version_slug}')
+
+        if cache_tags:
+            response['Cache-Tag'] = ','.join(cache_tags)
 
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Project-Method'] = 'rtdheader'
@@ -151,8 +177,16 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Version-Method'] = 'path'
 
     def process_request(self, request):  # noqa
-        if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
-                'testserver' in request.get_host()]):
+        skip = any(
+            request.path.startswith(reverse(view))
+            for view in self.skip_views
+        )
+        if (
+            skip
+            or not settings.USE_SUBDOMAIN
+            or 'localhost' in request.get_host()
+            or 'testserver' in request.get_host()
+        ):
             log.debug('Not processing Proxito middleware')
             return None
 
@@ -161,6 +195,21 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Handle returning a response
         if hasattr(ret, 'status_code'):
             return ret
+
+        # Remove multiple slashes from URL's
+        if '//' in request.path:
+            url_parsed = urlparse(request.get_full_path())
+            clean_path = re.sub('//+', '/', url_parsed.path)
+            new_parsed = url_parsed._replace(path=clean_path)
+            final_url = new_parsed.geturl()
+            # This protects against a couple issues:
+            # * First is a URL like `//` which urlparse will return as a path of ''
+            # * Second is URLs like `//google.com` which urlparse will return as `//google.com`
+            #   We make sure there is _always_ a single slash in front to ensure relative redirects,
+            #   instead of `//` redirects which are actually alternative domains.
+            final_url = '/' + final_url.lstrip('/')
+            log.info('Proxito Slash Redirect: from=%s to=%s', request.get_full_path(), final_url)
+            return redirect(final_url)
 
         log.debug('Proxito Project: slug=%s', ret)
 

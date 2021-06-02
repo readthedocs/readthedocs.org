@@ -4,9 +4,8 @@ import logging
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
-
 
 log = logging.getLogger(__name__)
 
@@ -95,6 +94,10 @@ def trigger_sync_versions(project):
             log.info('Unable to sync from %s version', version_identifier)
             return None
 
+        if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
+            log.info('Skipping sync versions for project: project=%s', project.slug)
+            return None
+
         options = {}
         if project.build_queue:
             # respect the queue for this project
@@ -135,32 +138,36 @@ def get_or_create_external_version(project, identifier, verbose_name):
 
     if created:
         log.info(
-            '(Create External Version) Added Version: [%s] ',
-            external_version.slug
+            'External version created. project=%s version=%s',
+            project.slug, external_version.slug,
         )
     else:
-        # identifier will change if there is a new commit to the Pull/Merge Request
-        if external_version.identifier != identifier:
-            external_version.identifier = identifier
-            external_version.save()
+        # Identifier will change if there is a new commit to the Pull/Merge Request.
+        external_version.identifier = identifier
+        # If the PR was previously closed it was marked as inactive.
+        external_version.active = True
+        external_version.save()
 
-            log.info(
-                '(Update External Version) Updated Version: [%s] ',
-                external_version.slug
-            )
+        log.info(
+            'External version updated: project=%s version=%s',
+            project.slug, external_version.slug,
+        )
     return external_version
 
 
-def delete_external_version(project, identifier, verbose_name):
+def deactivate_external_version(project, identifier, verbose_name):
     """
-    Delete external versions using `identifier` and `verbose_name`.
+    Deactivate external versions using `identifier` and `verbose_name`.
 
     if external version does not exist then returns `None`.
+
+    We mark the version as inactive,
+    so another celery task will remove it after some days.
 
     :param project: Project instance
     :param identifier: Commit Hash
     :param verbose_name: pull/merge request number
-    :returns:  verbose_name (pull/merge request number).
+    :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
     external_version = project.versions(manager=EXTERNAL).filter(
@@ -168,13 +175,12 @@ def delete_external_version(project, identifier, verbose_name):
     ).first()
 
     if external_version:
-        # Delete External Version
-        external_version.delete()
+        external_version.active = False
+        external_version.save()
         log.info(
-            '(Delete External Version) Deleted Version: [%s]',
-            external_version.slug
+            'External version marked as inactive. project=%s version=%s',
+            project.slug, external_version.slug,
         )
-
         return external_version.verbose_name
     return None
 

@@ -221,12 +221,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
-        """
-        Remove HTML/etc artifacts from storage.
-
-        Prior to the query delete, broadcast tasks to delete HTML artifacts from
-        application instances.
-        """
+        """Remove HTML/etc artifacts from storage."""
         if request.POST.get('post'):
             for project in queryset:
                 clean_project_resources(project)
@@ -347,17 +342,26 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
 
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'project', 'canonical', 'https', 'count')
+    list_display = (
+        'domain',
+        'project',
+        'canonical',
+        'https',
+        'count',
+        'ssl_status',
+        'created',
+        'modified',
+    )
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical', 'https')
+    list_filter = ('canonical', 'https', 'ssl_status')
     model = Domain
 
 
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
-    list_display = ('feature_id', 'project_count', 'default_true')
+    list_display = ('feature_id', 'project_count', 'default_true', 'future_default_true')
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
@@ -369,7 +373,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
-    list_display = ('name', 'value', 'project', 'created')
+    list_display = ('name', 'value', 'public', 'project', 'created')
     search_fields = ('name', 'project__slug')
 
 

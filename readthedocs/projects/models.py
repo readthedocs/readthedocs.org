@@ -11,7 +11,6 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
-from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
@@ -19,6 +18,7 @@ from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
+from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -26,7 +26,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -45,6 +45,7 @@ from readthedocs.projects.validators import (
 )
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
+from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -364,7 +365,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository.',
+            'Should the project dashboard be public?',
         ),
     )
 
@@ -564,9 +565,10 @@ class Project(models.Model):
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
 
-        if self.is_subproject:
+        main_project = self.main_language_project or self
+        if main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
@@ -842,12 +844,11 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
             version_type=version_type
         )
-        return storage.exists(storage_path)
+        return build_media_storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -1064,6 +1065,23 @@ class Project(models.Model):
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
 
+    def get_original_stable_version(self):
+        """
+        Get the original version that stable points to.
+
+        Returns None if the current stable doesn't point to a valid version.
+        """
+        current_stable = self.get_stable_version()
+        if not current_stable or not current_stable.machine:
+            return None
+        # Several tags can point to the same identifier.
+        # Return the stable one.
+        original_stable = determine_stable_version(
+            self.versions(manager=INTERNAL)
+            .filter(identifier=current_stable.identifier)
+        )
+        return original_stable
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.
@@ -1214,17 +1232,18 @@ class Project(models.Model):
 
         return True
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, public_only=True):
         """
         Environment variables to build this particular project.
 
-        :returns: dictionary with all the variables {name: value}
+        :param public_only: Only return publicly visible variables?
+        :returns: dictionary with all visible variables {name: value}
         :rtype: dict
         """
         return {
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
+            if variable.public or not public_only
         }
 
     def is_valid_as_superproject(self, error_class):
@@ -1315,9 +1334,12 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    @property
-    def environment_variables(self):
-        return self._environment_variables
+    def environment_variables(self, *, public_only=True):
+        return {
+            name: spec['value']
+            for name, spec in self._environment_variables.items()
+            if spec['public'] or not public_only
+        }
 
 
 class ImportedFile(models.Model):
@@ -1343,13 +1365,11 @@ class ImportedFile(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'))
 
     # max_length is set to 4096 because linux has a maximum path length
     # of 4096 characters for most filesystems (including EXT4).
     # https://github.com/rtfd/readthedocs.org/issues/5061
     path = models.CharField(_('Path'), max_length=4096)
-    md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -1357,6 +1377,12 @@ class ImportedFile(models.Model):
         _('Page search rank'),
         default=0,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
+        # TODO: remove after migration
+        null=True,
     )
 
     def get_absolute_url(self):
@@ -1426,9 +1452,17 @@ class WebHook(Notification):
         return self.url
 
 
-class Domain(models.Model):
+class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -1464,6 +1498,17 @@ class Domain(models.Model):
     count = models.IntegerField(
         default=0,
         help_text=_('Number of times this domain has been hit'),
+    )
+
+    # This is used in readthedocsext.
+    ssl_status = models.CharField(
+        _('SSL certificate status'),
+        max_length=30,
+        choices=constants.SSL_STATUS_CHOICES,
+        default=constants.SSL_STATUS_UNKNOWN,
+        # Remove after deploy
+        null=True,
+        blank=True,
     )
 
     # Strict-Transport-Security header options
@@ -1520,50 +1565,49 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
-    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    CONDA_USES_MAMBA = 'conda_uses_mamba'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
-    SKIP_SYNC_TAGS = 'skip_sync_tags'
-    SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+
+    # Versions sync related features
+    SKIP_SYNC_TAGS = 'skip_sync_tags'
+    SKIP_SYNC_BRANCHES = 'skip_sync_branches'
+    SKIP_SYNC_VERSIONS = 'skip_sync_versions'
+
+    # Dependecies related features
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+
+    # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
-    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
+    INDEX_FROM_HTML_FILES = 'index_from_html_files'
+
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
-    STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
-    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
-    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
 
     FEATURES = (
-        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (
-            DONT_INSTALL_DOCUTILS,
-            _(
-                'Do not install docutils as requirement for build documentation',
-            ),
-        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
-        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1587,20 +1631,8 @@ class Feature(models.Model):
             _('Try alternative method of posting large data'),
         ),
         (
-            SHARE_SPHINX_DOCTREE,
-            _('Use shared directory for doctrees'),
-        ),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default'),
-        ),
-        (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
-        ),
-        (
-            EXTERNAL_VERSION_BUILD,
-            _('Enable project to build on pull/merge requests'),
         ),
         (
             UPDATE_CONDA_STARTUP,
@@ -1611,19 +1643,15 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
+            CONDA_USES_MAMBA,
+            _('Uses mamba binary instead of conda to create the environment'),
+        ),
+        (
             ALL_VERSIONS_IN_HTML_CONTEXT,
             _(
                 'Pass all versions (including private) into the html context '
                 'when building with Sphinx'
             ),
-        ),
-        (
-            SKIP_SYNC_BRANCHES,
-            _('Skip syncing branches'),
-        ),
-        (
-            SKIP_SYNC_TAGS,
-            _('Skip syncing tags'),
         ),
         (
             CACHED_ENVIRONMENT,
@@ -1633,6 +1661,40 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
+
+        # Versions sync related features
+        (
+            SKIP_SYNC_BRANCHES,
+            _('Skip syncing branches'),
+        ),
+        (
+            SKIP_SYNC_TAGS,
+            _('Skip syncing tags'),
+        ),
+        (
+            SKIP_SYNC_VERSIONS,
+            _('Skip sync versions task'),
+        ),
+
+        # Dependecies related features
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
+        ),
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (USE_MKDOCS_LATEST, _('Use latest version of MkDocs')),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+
+        # Search related features.
         (
             DISABLE_SERVER_SIDE_SEARCH,
             _('Disable server side search'),
@@ -1642,9 +1704,14 @@ class Feature(models.Model):
             _('Enable server side search for MkDocs projects'),
         ),
         (
-            FORCE_SPHINX_FROM_VENV,
-            _('Force to use Sphinx from the current virtual environment'),
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
         ),
+        (
+            INDEX_FROM_HTML_FILES,
+            _('Index content directly from html files instead or relying in other sources'),
+        ),
+
         (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
@@ -1657,10 +1724,6 @@ class Feature(models.Model):
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
         (
-            STORE_PAGEVIEWS,
-            _('Store pageviews for this project'),
-        ),
-        (
             SPHINX_PARALLEL,
             _('Use "-j auto" when calling sphinx-build'),
         ),
@@ -1671,18 +1734,6 @@ class Feature(models.Model):
         (
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
-        ),
-        (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
-            DEFAULT_TO_FUZZY_SEARCH,
-            _('Default to fuzzy search for simple search queries'),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _('Index content directly from html files instead or relying in other sources'),
         ),
         (
             DONT_CREATE_INDEX,
@@ -1698,15 +1749,21 @@ class Feature(models.Model):
     # at the database level on this field. Arbitrary values are allowed here.
     feature_id = models.CharField(
         _('Feature identifier'),
-        max_length=32,
+        max_length=255,
         unique=True,
     )
     add_date = models.DateTimeField(
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
-        _('Historical default is True'),
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 
@@ -1738,6 +1795,12 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         Project,
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
+    )
+    public = models.BooleanField(
+        _('Public'),
+        default=False,
+        null=True,
+        help_text=_('Expose this environment variable in PR builds?'),
     )
 
     objects = RelatedProjectQuerySet.as_manager()

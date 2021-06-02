@@ -14,7 +14,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import HTMLFile, Project, Feature
+from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
@@ -22,6 +22,7 @@ from readthedocs.search.tests.utils import (
     SECTION_FIELDS,
     get_search_query_from_project_file,
 )
+from readthedocs.search.utils import index_new_files, remove_indexed_files
 
 
 @pytest.mark.django_db
@@ -34,6 +35,11 @@ class BaseTestDocumentSearch:
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
         self.url = reverse('search_api')
+
+    @pytest.fixture(autouse=True)
+    def setup_settings(self, settings):
+        settings.PUBLIC_DOMAIN = 'readthedocs.io'
+        settings.USE_SUBDOMAIN = True
 
     def get_search(self, api_client, search_params):
         return api_client.get(self.url, search_params)
@@ -176,6 +182,7 @@ class BaseTestDocumentSearch:
         data = resp.data['results']
         assert len(data) == 1
         assert data[0]['project'] == project.slug
+        assert data[0]['project_alias'] is None
 
     def test_doc_search_pagination(self, api_client, project):
         """Test Doc search result can be paginated"""
@@ -258,9 +265,58 @@ class BaseTestDocumentSearch:
         # First result should be the subproject
         first_result = data[0]
         assert first_result['project'] == subproject.slug
+        assert first_result['project_alias'] == subproject.slug
+        # The result is from the same version as the main project.
+        assert first_result['version'] == version.slug
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
-        assert document_link in first_result['link']
+        link = first_result['domain'] + first_result['path']
+        assert document_link in link
+
+    def test_doc_search_subprojects_default_version(self, api_client, all_projects):
+        """Return results from subprojects that match the version from the main project or fallback to its default version."""
+        project = all_projects[0]
+        version = project.versions.all()[0]
+
+        subproject = all_projects[1]
+        subproject_version = subproject.versions.all()[0]
+
+        # Change the name of the version, and make it default.
+        subproject_version.slug = 'different'
+        subproject_version.save()
+        subproject.default_version = subproject_version.slug
+        subproject.save()
+        subproject.versions.filter(slug=version.slug).delete()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=subproject_version)
+        for f in version_files:
+            PageDocument().update(f)
+
+        # Add another project as subproject of the project
+        project.add_subproject(subproject)
+
+        # Now search with subproject content but explicitly filter by the parent project
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        data = resp.data['results']
+        assert len(data) >= 1  # there may be results from another projects
+
+        # First result should be the subproject
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
+        assert first_result['version'] == 'different'
+        # Check the link is the subproject document link
+        document_link = subproject.get_docs_url(version_slug=subproject_version.slug)
+        link = first_result['domain'] + first_result['path']
+        assert document_link in link
 
     def test_doc_search_unexisting_project(self, api_client):
         project = 'notfound'
@@ -286,7 +342,7 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects_data', dict)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
         """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
@@ -350,6 +406,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -360,7 +421,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/support.html')
+        assert result['path'] == '/en/latest/support.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_html_projects(self, api_client, doctype):
@@ -368,6 +429,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -378,13 +444,18 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/index.html')
+        assert result['path'] == '/en/latest/index.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_subdirectory_html_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -396,13 +467,18 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/guides/index.html')
+        assert result['path'] == '/en/latest/guides/index.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_normal_page_htmldir_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -414,13 +490,18 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/support.html')
+        assert result['path'] == '/en/latest/support.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_htmldir_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -432,13 +513,18 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/')
+        assert result['path'] == '/en/latest/'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -450,7 +536,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/guides/')
+        assert result['path'] == '/en/latest/guides/'
 
     def test_search_advanced_query_detection(self, api_client):
         project = Project.objects.get(slug='docs')
@@ -498,6 +584,53 @@ class BaseTestDocumentSearch:
         assert len(results) > 0
         assert 'Index' in results[0]['title']
 
+    def test_search_single_query(self, api_client):
+        """A single query matches substrings."""
+        project = Project.objects.get(slug='docs')
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
+        )
+        project.feature_set.add(feature)
+        project.save()
+        version = project.versions.all().first()
+
+        # Query with a partial word should return results
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'ind',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
+        # Query with a partial word, but we want to match that
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"ind"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 0
+
+        # Exact query still works
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"index"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
     def test_search_custom_ranking(self, api_client):
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
@@ -519,8 +652,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['link'].endswith('/en/latest/index.html')
-        assert results[1]['link'].endswith('/en/latest/guides/index.html')
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with a higher rank over guides/index.html
         page_guides.rank = 5
@@ -537,8 +670,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['link'].endswith('/en/latest/guides/index.html')
-        assert results[1]['link'].endswith('/en/latest/index.html')
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a lower rank over index.html
         page_index.rank = -2
@@ -558,8 +691,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['link'].endswith('/en/latest/guides/index.html')
-        assert results[1]['link'].endswith('/en/latest/index.html')
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a lower rank over index.html
         page_index.rank = 3
@@ -579,8 +712,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['link'].endswith('/en/latest/guides/index.html')
-        assert results[1]['link'].endswith('/en/latest/index.html')
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a same rank over guides/index.html and index.html
         page_index.rank = -10
@@ -600,8 +733,60 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['link'].endswith('/en/latest/index.html')
-        assert results[1]['link'].endswith('/en/latest/guides/index.html')
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
+
+    def test_search_ignore(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        page_index = HTMLFile.objects.get(path='index.html')
+        page_guides = HTMLFile.objects.get(path='guides/index.html')
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+
+        # Query with files not ignored.
+        assert page_index.ignore is None
+        assert page_guides.ignore is None
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
+
+        # Query with guides/index.html ignored.
+        page_guides.ignore = True
+        page_guides.save()
+
+        remove_indexed_files(HTMLFile, project.slug, version.slug)
+        index_new_files(HTMLFile, version, page_index.build)
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 1
+        assert results[0]['path'] == '/en/latest/index.html'
+
+        # Query with index.html and guides/index.html ignored.
+        page_index.ignore = True
+        page_index.save()
+
+        remove_indexed_files(HTMLFile, project.slug, version.slug)
+        index_new_files(HTMLFile, version, page_index.build)
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 0
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):

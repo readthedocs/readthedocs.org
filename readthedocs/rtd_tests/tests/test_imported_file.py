@@ -4,6 +4,7 @@ from unittest import mock
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks import (
@@ -28,16 +29,25 @@ class ImportedFileTests(TestCase):
         self.test_dir = os.path.join(base_dir, 'files')
         self._copy_storage_dir()
 
-    def _manage_imported_files(self, version, commit, build, search_ranking=None):
+    def _manage_imported_files(
+        self,
+        version,
+        commit,
+        build,
+        search_ranking=None,
+        search_ignore=None
+    ):
         """Helper function for the tests to create and sync ImportedFiles."""
         search_ranking = search_ranking or {}
+        search_ignore = search_ignore or []
         _create_imported_files(
             version=version,
             commit=commit,
             build=build,
             search_ranking=search_ranking,
+            search_ignore=search_ignore,
         )
-        _sync_imported_files(version, build, set())
+        _sync_imported_files(version, build)
 
     def _copy_storage_dir(self):
         """Copy the test directory (rtd_tests/files) to storage"""
@@ -53,17 +63,13 @@ class ImportedFileTests(TestCase):
     def test_properly_created(self):
         # Only 2 files in the directory is HTML (test.html, api/index.html)
         self.assertEqual(ImportedFile.objects.count(), 0)
-        self._manage_imported_files(self.version, 'commit01', 1)
+        self._manage_imported_files(version=self.version, commit='commit01', build=1)
         self.assertEqual(ImportedFile.objects.count(), 2)
-        self._manage_imported_files(self.version, 'commit01', 2)
+        self._manage_imported_files(version=self.version, commit='commit01', build=2)
         self.assertEqual(ImportedFile.objects.count(), 2)
 
         self.project.cdn_enabled = True
         self.project.save()
-
-        # CDN enabled projects => save all files
-        self._manage_imported_files(self.version, 'commit01', 3)
-        self.assertEqual(ImportedFile.objects.count(), 4)
 
     def test_update_commit(self):
         self.assertEqual(ImportedFile.objects.count(), 0)
@@ -131,6 +137,23 @@ class ImportedFileTests(TestCase):
         self.assertEqual(file_api.rank, 5)
         self.assertEqual(file_test.rank, 5)
 
+    def test_search_page_ignore(self):
+        search_ignore = [
+            'api/index.html'
+        ]
+        self._manage_imported_files(
+            self.version,
+            'commit01',
+            1,
+            search_ignore=search_ignore,
+        )
+
+        self.assertEqual(HTMLFile.objects.count(), 2)
+        file_api = HTMLFile.objects.get(path='api/index.html')
+        file_test = HTMLFile.objects.get(path='test.html')
+        self.assertTrue(file_api.ignore)
+        self.assertFalse(file_test.ignore)
+
     def test_update_content(self):
         test_dir = os.path.join(base_dir, 'files')
         self.assertEqual(ImportedFile.objects.count(), 0)
@@ -141,7 +164,6 @@ class ImportedFileTests(TestCase):
         self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit01', 1)
-        self.assertEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
         self.assertEqual(ImportedFile.objects.count(), 2)
 
         with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
@@ -150,9 +172,10 @@ class ImportedFileTests(TestCase):
         self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit02', 2)
-        self.assertNotEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
         self.assertEqual(ImportedFile.objects.count(), 2)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(RTD_INTERSPHINX_URL='https://readthedocs.org')
     @mock.patch('readthedocs.projects.tasks.os.path.exists')
     def test_create_intersphinx_data(self, mock_exists):
         mock_exists.return_Value = True
@@ -195,6 +218,7 @@ class ImportedFileTests(TestCase):
                 commit='commit01',
                 build=1,
                 search_ranking={},
+                search_ignore=[],
             )
             _create_intersphinx_data(self.version, 'commit01', 1)
 
@@ -222,4 +246,27 @@ class ImportedFileTests(TestCase):
             self.assertEqual(
                 SphinxDomain.objects.filter(html_file=html_file_api).count(),
                 1
+            )
+            mock_fetch_inventory.assert_called_once()
+            self.assertRegex(
+                mock_fetch_inventory.call_args[0][2],
+                r'^https://readthedocs\.org/media/.*/objects\.inv$'
+            )
+        self.assertEqual(ImportedFile.objects.count(), 2)
+
+    @override_settings(RTD_INTERSPHINX_URL='http://localhost:8080')
+    @mock.patch('readthedocs.projects.tasks.os.path.exists')
+    def test_custom_intersphinx_url(self, mock_exists):
+        mock_exists.return_Value = True
+
+        with mock.patch(
+            'sphinx.ext.intersphinx.fetch_inventory',
+            return_value={}
+        ) as mock_fetch_inventory:
+            _create_intersphinx_data(self.version, 'commit01', 1)
+
+            mock_fetch_inventory.assert_called_once()
+            self.assertRegex(
+                mock_fetch_inventory.call_args[0][2],
+                '^http://localhost:8080/media/.*/objects.inv$'
             )

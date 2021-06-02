@@ -183,14 +183,14 @@
                     {% endfor %}
 
                   {% elif result.type == 'page' %}
-                      <a href="{{ result.link }}?highlight={{ query }}">
+                      <a href="{{ result.domain }}{{ result.path}}?highlight={{ query }}">
                         {{ result.project }} - {% if result.highlights.title %} {{ result.highlights.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
                       {% for block in result.blocks %}
                         {% if block.type == 'domain' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
                               {% if block.highlights.name %}
                                 {% with domain_name=block.highlights.name %}
                                   [{{ block.role }}]: {{ domain_name.0|safe }}
@@ -214,7 +214,7 @@
 
                         {% elif block.type == 'section' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
                               {% if block.highlights.title %}
                                 {% with section_title=block.highlights.title %}
                                   {{ section_title.0|safe }}

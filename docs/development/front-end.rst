@@ -55,16 +55,7 @@ in.
 Getting Started
 ---------------
 
-You will need a working version of Node (tested with ``v10.17.0``) and NPM to get started.
-We won't cover that here, as it varies from platform to platform.
-
-To install these tools and dependencies::
-
-    npm install
-
-Next, install front end dependencies::
-
-    bower install
+You will need to follow our :doc:`guide to install a development Read the Docs instance </development/install>` first.
 
 The sources for our bundles are found in the per-application path
 ``static-src``, which has the same directory structure as ``static``. Files in
@@ -72,26 +63,14 @@ The sources for our bundles are found in the per-application path
 Don't edit files in ``static`` directly, unless you are sure there isn't a
 source file that will compile over your changes.
 
-To test changes while developing, which will watch source files for changes and
-compile as necessary, you can run `Gulp`_ with our development target::
+To compile your changes and make them available in the application you need to run::
 
-    npm run dev
+    inv docker.buildassets
 
-Once you are satisfied with your changes, finalize the bundles (this will
-minify library sources)::
+Once you are happy with your changes,
+make sure to check in both files under ``static`` and ``static-src``,
+and commit those.
 
-    npm run build
-
-If you updated any of our vendor libraries, compile those::
-
-    npm run vendor
-
-Make sure to check in both files under ``static`` and ``static-src``.
-
-.. note::
-
-    We run Gulp  through an ``npm`` script in order to ensure
-    that the correct version from ``package.json`` is used.
 
 Making Changes
 --------------

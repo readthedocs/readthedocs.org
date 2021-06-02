@@ -21,14 +21,13 @@ from readthedocs.core.signals import (
 )
 from readthedocs.core.views.hooks import (
     build_branches,
-    trigger_sync_versions,
-    get_or_create_external_version,
-    delete_external_version,
     build_external_version,
+    deactivate_external_version,
+    get_or_create_external_version,
+    trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Feature
-
+from readthedocs.projects.models import Feature, Project
 
 log = logging.getLogger(__name__)
 
@@ -243,14 +242,14 @@ class WebhookMixin:
             'versions': [to_build],
         }
 
-    def get_delete_external_version_response(self, project):
+    def get_deactivated_external_version_response(self, project):
         """
-        Delete External version on pull/merge request `closed` events and return API response.
+        Deactivate the external version on merge/close events and return the API response.
 
         Return a JSON response with the following::
 
             {
-                "version_deleted": true,
+                "version_deactivated": true,
                 "project": "project_name",
                 "versions": [verbose_name]
             }
@@ -259,14 +258,13 @@ class WebhookMixin:
         :type project: Project
         """
         identifier, verbose_name = self.get_external_version_data()
-        # Delete external version
-        deleted_version = delete_external_version(
+        deactivated_version = deactivate_external_version(
             project, identifier, verbose_name
         )
         return {
-            'version_deleted': deleted_version is not None,
+            'version_deactivated': bool(deactivated_version),
             'project': project.slug,
-            'versions': [deleted_version],
+            'versions': [deactivated_version] if deactivated_version else [],
         }
 
 
@@ -411,12 +409,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
-        if all([
-                self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
-                self.project.external_builds_enabled,
-                event == GITHUB_PULL_REQUEST,
-                action,
-        ]):
+        if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
             if (
                 action in
                 [
@@ -430,7 +423,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Delete external version when PR is closed
-                return self.get_delete_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
         if all([
@@ -557,8 +550,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
             data = self.request.data
-            before = data['before']
-            after = data['after']
+            before = data.get('before')
+            after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
                 log.info('Triggered sync_versions: project=%s before=%s after=%s',
@@ -571,11 +564,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
-        if (
-            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
-            self.project.external_builds_enabled and
-            event == GITLAB_MERGE_REQUEST and action
-        ):
+        if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
             if (
                 action in
                 [
@@ -589,7 +578,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
             if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
                 # Handle merge and close merge_request event.
-                return self.get_delete_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):

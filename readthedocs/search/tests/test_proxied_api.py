@@ -10,11 +10,17 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
     # This project slug needs to exist in the ``all_projects`` fixture.
     host = 'docs.readthedocs.io'
 
-    @pytest.fixture(autouse=True)
-    def setup_settings(self, settings):
-        settings.PUBLIC_DOMAIN = 'readthedocs.io'
-
     def get_search(self, api_client, search_params):
-        # TODO: remove once the api is stable
-        search_params['new-api'] = 'true'
         return api_client.get(self.url, search_params, HTTP_HOST=self.host)
+
+    def test_headers(self, api_client, project):
+        version = project.versions.all().first()
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'test',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        cache_tags = f'{project.slug},{project.slug}-{version.slug},{project.slug}-rtd-search'
+        assert resp['Cache-Tag'] == cache_tags

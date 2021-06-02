@@ -111,6 +111,9 @@ Private versions are available only to people who have permissions to see them.
 They will not display on any list view, and will 404 when you link them to others.
 If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
+In addition, if you want other users to view the build page of your public versions,
+you'll neeed to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+
 Tags and branches
 -----------------
 
@@ -140,12 +143,31 @@ This banner has a text with a link redirecting the users to the latest version o
 This feature is disabled by default on new projects,
 you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
 
+.. note::
+
+   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
+   For example:
+
+   .. code-block:: html
+
+      <div role="main">
+        <!-- The banner would be injected here -->
+        ...
+      </div>
+
+   .. code-block:: html
+
+      <main>
+        <!-- The banner would be injected here -->
+        ...
+      </main>
+
 
 Redirects on root URLs
 ----------------------
 
 When a user hits the root URL for your documentation,
-for example ``http://pip.readthedocs.io/``,
+for example ``https://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.

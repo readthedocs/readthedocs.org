@@ -10,14 +10,15 @@ from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
     REPO_CHOICES,
-    PRIVACY_CHOICES,
-    PROTECTED,
 )
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
@@ -69,14 +70,16 @@ class BuildLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
     def get_version(self, obj):
-        path = reverse(
-            'projects-versions-detail',
-            kwargs={
-                'parent_lookup_project__slug': obj.project.slug,
-                'version_slug': obj.version.slug,
-            },
-        )
-        return self._absolute_url(path)
+        if obj.version:
+            path = reverse(
+                'projects-versions-detail',
+                kwargs={
+                    'parent_lookup_project__slug': obj.project.slug,
+                    'version_slug': obj.version.slug,
+                },
+            )
+            return self._absolute_url(path)
+        return None
 
     def get_project(self, obj):
         path = reverse(
@@ -86,6 +89,33 @@ class BuildLinksSerializer(BaseLinksSerializer):
             },
         )
         return self._absolute_url(path)
+
+
+class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+    build = serializers.URLField(source='get_full_url')
+    project = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects_detail',
+            kwargs={
+                'project_slug': obj.project.slug
+            }
+        )
+        return self._absolute_url(path)
+
+    def get_version(self, obj):
+        if obj.version:
+            path = reverse(
+                'project_version_detail',
+                kwargs={
+                    'project_slug': obj.project.slug,
+                    'version_slug': obj.version.slug
+                }
+            )
+            return self._absolute_url(path)
+        return None
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
@@ -123,6 +153,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
+    urls = BuildURLsSerializer(source='*')
 
     class Meta:
         model = Build
@@ -138,6 +169,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'error',
             'commit',
             '_links',
+            'urls',
         ]
 
         expandable_fields = {
@@ -406,7 +438,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializer(FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
 
     """Serializer used to Import a Project."""
 
@@ -432,7 +464,11 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
         return value
 
 
-class ProjectUpdateSerializer(FlexFieldsModelSerializer):
+class ProjectCreateSerializer(SettingsOverrideObject):
+    _default_class = ProjectCreateSerializerBase
+
+
+class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -459,13 +495,18 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled',
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
 
 
-class ProjectSerializer(FlexFieldsModelSerializer):
+class ProjectUpdateSerializer(SettingsOverrideObject):
+    _default_class = ProjectUpdateSerializerBase
+
+
+class ProjectSerializerBase(FlexFieldsModelSerializer):
 
     homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
@@ -538,6 +579,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class ProjectSerializer(SettingsOverrideObject):
+    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
@@ -770,6 +815,142 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             'modified',
             'name',
             'value',
+            'public',
             'project',
             '_links',
         ]
+
+
+class OrganizationLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'organizations-detail',
+            kwargs={
+                'organization_slug': obj.slug,
+            })
+        return self._absolute_url(path)
+
+    def get_projects(self, obj):
+        path = reverse(
+            'organizations-projects-list',
+            kwargs={
+                'parent_lookup_organizations__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class TeamSerializer(FlexFieldsModelSerializer):
+
+    # TODO: add ``projects`` as flex field when we have a
+    # /organizations/<slug>/teams/<slug>/projects endpoint
+
+    created = serializers.DateTimeField(source='pub_date')
+    modified = serializers.DateTimeField(source='modified_date')
+
+    class Meta:
+        model = Team
+        fields = (
+            'name',
+            'slug',
+            'created',
+            'modified',
+            'access',
+        )
+
+        expandable_fields = {
+            'members': (UserSerializer, {'many': True}),
+        }
+
+
+class OrganizationSerializer(FlexFieldsModelSerializer):
+
+    created = serializers.DateTimeField(source='pub_date')
+    modified = serializers.DateTimeField(source='modified_date')
+    owners = UserSerializer(many=True)
+
+    _links = OrganizationLinksSerializer(source='*')
+
+    class Meta:
+        model = Organization
+        fields = (
+            'name',
+            'description',
+            'url',
+            'slug',
+            'email',
+            'owners',
+            'created',
+            'modified',
+            'disabled',
+            '_links',
+        )
+
+        expandable_fields = {
+            'projects': (ProjectSerializer, {'many': True}),
+            'teams': (TeamSerializer, {'many': True}),
+        }
+
+
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'pk',
+            'slug',
+            'name',
+            'avatar_url',
+            'url',
+            'vcs_provider',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+
+
+class RemoteRepositorySerializer(FlexFieldsModelSerializer):
+    admin = serializers.SerializerMethodField('is_admin')
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'pk',
+            'name',
+            'full_name',
+            'description',
+            'admin',
+            'avatar_url',
+            'ssh_url',
+            'clone_url',
+            'html_url',
+            'vcs',
+            'vcs_provider',
+            'private',
+            'default_branch',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+        expandable_fields = {
+            'organization': (
+                RemoteOrganizationSerializer, {'source': 'organization'}
+            ),
+            'project': (
+                ProjectSerializer, {'source': 'project'}
+            )
+        }
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use annotated value from RemoteRepositoryViewSet queryset
+        if hasattr(obj, '_admin'):
+            return obj._admin
+
+        return obj.remote_repository_relations.filter(
+            user=request.user, admin=True
+        ).exists()

@@ -11,10 +11,10 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
-    PROTECTED,
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
+    SPHINX,
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
@@ -195,7 +195,7 @@ class TestProjectForms(TestCase):
 class TestProjectAdvancedForm(TestCase):
 
     def setUp(self):
-        self.project = get(Project)
+        self.project = get(Project, privacy_level=PUBLIC)
         get(
             Version,
             project=self.project,
@@ -219,7 +219,7 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             slug='public-3',
             active=False,
-            privacy_level=PROTECTED,
+            privacy_level=PUBLIC,
             identifier='public-3',
             verbose_name='public-3',
         )
@@ -241,15 +241,6 @@ class TestProjectAdvancedForm(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_active_versions_on_default_version(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -260,7 +251,7 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'private'},
         )
 
     def test_default_version_field_if_no_active_version(self):
@@ -273,6 +264,35 @@ class TestProjectAdvancedForm(TestCase):
         form = ProjectAdvancedForm(instance=project_1)
         self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
         self.assertEqual(form.fields['default_version'].initial, 'latest')
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cant_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_can_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PRIVATE)
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
@@ -306,15 +326,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -328,7 +339,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'stable', 'public-1', 'protected', 'private',
+                None, 'stable', 'public-1', 'private',
             },
         )
         # Auto generated version `latest` should not be among the choices
