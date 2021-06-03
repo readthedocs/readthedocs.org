@@ -56,29 +56,37 @@ class BuildTriggerMixin:
         version_slug = request.POST.get('version_slug')
         build_pk = request.POST.get('build_pk')
 
-        version = get_object_or_404(
-            # Don't filter by internal/external here so we can build all versions
-            Version.objects.public(self.request.user),
-            slug=version_slug,
-            project=project,
-        )
+        if build_pk:
+            # Filter over external versions only when re-triggering a specific build
+            version = get_object_or_404(
+                Version.external.public(self.request.user),
+                slug=version_slug,
+                project=project,
+            )
+        else:
+            # Use generic query when triggering a normal build
+            version = get_object_or_404(
+                self._get_versions(project),
+                slug=version_slug,
+            )
 
-        # Set either the build or None
-        build = version.builds.filter(pk=build_pk).first()
-
-        if build:
+        # Set either the build to re-trigger it or None
+        build_to_retrigger = version.builds.filter(pk=build_pk).first()
+        commit_to_retrigger = None
+        if build_to_retrigger:
+            commit_to_retrigger = build_to_retrigger.commit
             log.info(
-                'Rebuilding build. project=%s version=%s commit=%s build=%s',
+                'Re-triggering build. project=%s version=%s commit=%s build=%s',
                 project.slug,
                 version.slug,
-                build.commit,
-                build.pk
+                build_to_retrigger.commit,
+                build_to_retrigger.pk
             )
 
         update_docs_task, build = trigger_build(
             project=project,
             version=version,
-            commit=build.commit,
+            commit=commit_to_retrigger,
         )
         if (update_docs_task, build) == (None, None):
             # Build was skipped
@@ -128,6 +136,13 @@ class BuildDetail(BuildBase, DetailView):
         context['project'] = self.project
 
         build = self.get_object()
+        context['is_latest_build'] = (
+            build == Build.objects.filter(
+                project=build.project,
+                version=build.version,
+            ).first()
+        )
+
         if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
