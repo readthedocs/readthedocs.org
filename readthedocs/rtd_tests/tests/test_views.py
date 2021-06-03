@@ -279,7 +279,6 @@ class BuildViewTests(TestCase):
             project=self.pip,
             commit='a1b2c3',
         )
-        build.save()
 
         r = self.client.post(
             '/projects/pip/builds/',
@@ -292,12 +291,44 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Build.objects.count(), builds_count + 1)
 
-        newbuild = Build.objects.last()
+        newbuild = Build.objects.first()
         self.assertEqual(
             r._headers['location'][1],
             f'/projects/pip/builds/{newbuild.pk}/',
         )
         self.assertEqual(newbuild.commit, 'a1b2c3')
+
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_rebuild_invalid_specific_commit(self, mock):
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        for i in range(3):
+            get(
+                Build,
+                version=version,
+                project=self.pip,
+                commit=f'a1b2c3-{i}',
+            )
+
+        build = Build.objects.filter(
+            version=version,
+            project=self.pip,
+        ).last()
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        # It should return 400 because we are re-triggering a build of a
+        # non-lastest build for that version
+        self.assertEqual(r.status_code, 400)
 
 
 class TestSearchAnalyticsView(TestCase):
