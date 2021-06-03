@@ -289,7 +289,7 @@ class BuildViewTests(TestCase):
         )
 
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(Build.objects.count(), builds_count + 1)
+        self.assertEqual(Build.objects.count(), builds_count + 2)
 
         newbuild = Build.objects.first()
         self.assertEqual(
