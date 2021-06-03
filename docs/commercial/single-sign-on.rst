@@ -6,7 +6,7 @@ Single Sign-On
    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`__.
 
 
-Single sign-on is supported on |com_brand| for Pro and Enterprise plans.
+Single sign-on is supported on |com_brand| for all users.
 :abbr:`SSO (single sign-on)` will allow you to grant permissions to your organization's projects in an easy way.
 
 Currently, we support two different types of single sign-on:
@@ -32,13 +32,12 @@ your organization's detail page > :guilabel:`Settings` > :guilabel:`Authorizatio
 and selecting :guilabel:`GitHub, GitLab or Bitbucket` as provider.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
-:doc:`account connected </connected-accounts>` in order to make SSO to work.
+:doc:`account connected </connected-accounts>` in order to make SSO work. 
+You can read more about `granting permissions on GitHub`_.
 
-.. note::
+.. warning:: Once you enable this option, your existing Read the Docs teams will not be used. 
 
-   You can read more about `granting permissions on GitHub`_.
-
-   .. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
+.. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
 
 
 Grant access to read the documentation
