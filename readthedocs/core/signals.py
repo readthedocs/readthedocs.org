@@ -89,25 +89,30 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
         return False
 
-    for url in ALLOWED_URLS:
+    valid_url = False
+    for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
-            project_slug = request.GET.get('project', None)
-            try:
-                project = Project.objects.get(slug=project_slug)
-            except Project.DoesNotExist:
-                log.warning(
-                    'Invalid project passed to domain. [%s:%s]',
-                    project_slug,
-                    host,
-                )
-                return False
+            valid_url = True
+            break
 
-            domain = Domain.objects.filter(
-                Q(domain__icontains=host),
-                Q(project=project) | Q(project__subprojects__child=project),
+    if valid_url:
+        project_slug = request.GET.get('project', None)
+        try:
+            project = Project.objects.get(slug=project_slug)
+        except Project.DoesNotExist:
+            log.warning(
+                'Invalid project passed to domain. [%s:%s]',
+                project_slug,
+                host,
             )
-            if domain.exists():
-                return True
+            return False
+
+        domain = Domain.objects.filter(
+            Q(domain__icontains=host),
+            Q(project=project) | Q(project__subprojects__child=project),
+        )
+        if domain.exists():
+            return True
 
     return False
 
