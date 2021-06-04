@@ -90,7 +90,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         return False
 
     valid_url = False
-    for url in WHITELIST_URLS:
+    for url in ALLOWED_URLS:
         if request.path_info.startswith(url):
             valid_url = True
             break
