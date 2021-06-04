@@ -525,6 +525,9 @@ Version detail
                 "epub": "https://pip.readthedocs.io/_/downloads/epub/pip/stable/"
             },
             "urls": {
+                "dashboard": {
+                    "edit": "https://readthedocs.org/dashboard/pip/version/stable/edit/"
+                },
                 "documentation": "https://pip.pypa.io/en/stable/",
                 "vcs": "https://github.com/pypa/pip/tree/19.0.2"
             },
