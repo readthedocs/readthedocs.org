@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Signal handling for core app."""
 
 import logging
@@ -10,24 +12,19 @@ from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
 
-from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.builds.models import Version
+from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Domain, Project
 
 
 log = logging.getLogger(__name__)
 
-ALLOW_LIST_URLS = [
+ALLOWED_URLS = [
+    '/api/v2/embed',
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
-]
-
-# Don't do domain checking on these URL's
-ANY_DOMAIN_ALLOW_LIST_URLS = [
     '/api/v2/sustainability',
-    '/api/v2/embed',
-    '/_/api/v2/embed',
-
 ]
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -50,43 +47,56 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     """
     if 'HTTP_ORIGIN' not in request.META:
         return False
-
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    for url in ANY_DOMAIN_ALLOW_LIST_URLS:
-        if request.path_info.startswith(url):
-            return True
+    # Don't do domain checking for this API for now
+    if request.path_info.startswith('/api/v2/sustainability'):
+        return True
 
-    # Don't do additional domain checking for APIv2 when the Domain is known
+    # Don't do domain checking for APIv2 when the Domain is known
     if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
         domain = Domain.objects.filter(domain__icontains=host)
         if domain.exists():
             return True
 
-    valid_url = False
-    for url in ALLOW_LIST_URLS:
+    for url in ALLOWED_URLS:
         if request.path_info.startswith(url):
-            valid_url = True
-            break
+            project_slug = request.GET.get('project', None)
+            try:
+                project = Project.objects.get(slug=project_slug)
+            except Project.DoesNotExist:
+                # Check for Embed API, allowing CORS on public projects
+                # since they are already public
+                if request.path_info.startswith('/api/v2/embed'):
+                    unresolved = unresolve(request.GET.get('url'))
+                    if unresolved:
+                        # This is from IsAuthorizedToViewVersion, we should copy it here..
+                        has_access = (
+                            Version.objects
+                            .public(
+                                user=request.user,
+                                project=unresolved.project,
+                                only_active=False,
+                            )
+                            .filter(slug=unresolved.version_slug)
+                            .exists()
+                        )
+                        if has_access:
+                            return True
 
-    if valid_url:
-        project_slug = request.GET.get('project', None)
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            log.warning(
-                'Invalid project passed to domain. [%s:%s]',
-                project_slug,
-                host,
+                log.warning(
+                    'Invalid project passed to domain. [%s:%s]',
+                    project_slug,
+                    host,
+                )
+                return False
+
+            domain = Domain.objects.filter(
+                Q(domain__icontains=host),
+                Q(project=project) | Q(project__subprojects__child=project),
             )
-            return False
-
-        domain = Domain.objects.filter(
-            Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project),
-        )
-        if domain.exists():
-            return True
+            if domain.exists():
+                return True
 
     return False
 
