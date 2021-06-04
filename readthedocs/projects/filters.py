@@ -35,19 +35,26 @@ class VersionSortOrderingFilter(OrderingFilter):
 
     def filter(self, qs, value):
         # This is where we use the None value for this custom filter. This
-        # doesn't work with a standard model filter.
+        # doesn't work with a standard model filter. Note: ``value`` is always
+        # an iterable.
         if value is None:
             value = ['relevance']
-        return qs.annotate(
+
+        # Selectively add anotations as a small query optimization
+        annotations = {
             # Default ordering is number of builds, but could be another proxy
             # for version populatrity
-            relevance=Count('builds'),
+            'relevance': {'relevance': Count('builds')},
             # Most recent build date, this appears inverted in the option value
-            recent=Max('builds__date'),
+            'recent': {'recent': Max('builds__date')},
             # Alias field name here, as ``OrderingFilter`` was having trouble
             # doing this with it's native field mapping
-            name=F('verbose_name'),
-        ).order_by(*value)
+            'name': {'name': F('verbose_name')},
+        }
+        # And copy the negative sort lookups, ``value`` might be ``['-recent']``
+        annotations.update({f'-{key}': value for (key, value) in annotations.items()})
+
+        return qs.annotate(annotations.get(*value)).order_by(*value)
 
 
 class ProjectSortOrderingFilter(OrderingFilter):
