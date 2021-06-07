@@ -13,19 +13,17 @@ Get in touch
 - Ask usage questions ("How do I?") on `StackOverflow`_.
 - Report bugs, suggest features or view the source code `on GitHub`_.
 - Discuss topics on `Gitter`_.
-- On IRC find us at `#readthedocs`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
-.. _Gitter: https://gitter.im/rtfd/readthedocs.org
-.. _#readthedocs: irc://irc.freenode.net/readthedocs
+.. _Gitter: https://gitter.im/readthedocs/community
 
 Contributing to development
 ---------------------------
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:doc:`Installation Guide </development/install>`. After that is done we
+:doc:`installation guide </development/install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.

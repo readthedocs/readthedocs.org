@@ -1,5 +1,5 @@
 import logging
-from functools import namedtuple
+from functools import lru_cache, namedtuple
 from math import ceil
 
 from django.shortcuts import get_object_or_404
@@ -9,13 +9,14 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 
-from .serializers import PageSearchSerializer, VersionData
+from .serializers import PageSearchSerializer, ProjectData, VersionData
 
 log = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class PageSearchAPIView(GenericAPIView):
+class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
 
     """
     Main entry point to perform a search using Elasticsearch.
@@ -137,31 +138,22 @@ class PageSearchAPIView(GenericAPIView):
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
+    project_cache_tag = 'rtd-search'
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
-
-        if not version:
-            version_slug = self.request.GET.get('version', None)
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        version_slug = self.request.GET.get('version', None)
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug=version_slug,
+        )
         return version
 
     def _validate_query_params(self):
@@ -183,6 +175,7 @@ class PageSearchAPIView(GenericAPIView):
         if errors:
             raise ValidationError(errors)
 
+    @lru_cache(maxsize=1)
     def _get_all_projects_data(self):
         """
         Return a dictionary of the project itself and all its subprojects.
@@ -192,15 +185,19 @@ class PageSearchAPIView(GenericAPIView):
         .. code::
 
            {
-               "requests": VersionData(
-                   "latest",
-                   "sphinx",
-                   "https://requests.readthedocs.io/en/latest/",
+               "requests": ProjectData(
+                   alias='alias',
+                   version=VersionData(
+                        "latest",
+                        "https://requests.readthedocs.io/en/latest/",
+                    ),
                ),
-               "requests-oauth": VersionData(
-                   "latest",
-                   "sphinx_htmldir",
-                   "https://requests-oauth.readthedocs.io/en/latest/",
+               "requests-oauth": ProjectData(
+                   alias=None,
+                   version=VersionData(
+                       "latest",
+                       "https://requests-oauth.readthedocs.io/en/latest/",
+                   ),
                ),
            }
 
@@ -208,19 +205,16 @@ class PageSearchAPIView(GenericAPIView):
 
         :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        cache_key = '__cached_projects_data'
-        projects_data = getattr(self, cache_key, None)
-        if projects_data is not None:
-            return projects_data
-
         main_version = self._get_version()
         main_project = self._get_project()
 
         projects_data = {
-            main_project.slug: VersionData(
-                slug=main_version.slug,
-                doctype=main_version.documentation_type,
-                docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+            main_project.slug: ProjectData(
+                alias=None,
+                version=VersionData(
+                    slug=main_version.slug,
+                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+                ),
             )
         }
 
@@ -234,11 +228,7 @@ class PageSearchAPIView(GenericAPIView):
             )
 
             # Fallback to the default version of the subproject.
-            if (
-                not version
-                and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
-                and subproject.default_version
-            ):
+            if not version and subproject.default_version:
                 version = self._get_subproject_version(
                     version_slug=subproject.default_version,
                     subproject=subproject,
@@ -246,13 +236,16 @@ class PageSearchAPIView(GenericAPIView):
 
             if version and self._has_permission(self.request.user, version):
                 url = subproject.get_docs_url(version_slug=version.slug)
-                projects_data[subproject.slug] = VersionData(
+                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
+                version_data = VersionData(
                     slug=version.slug,
-                    doctype=version.documentation_type,
                     docs_url=url,
                 )
+                projects_data[subproject.slug] = ProjectData(
+                    alias=project_alias,
+                    version=version_data,
+                )
 
-        setattr(self, cache_key, projects_data)
         return projects_data
 
     def _get_subproject_version(self, version_slug, subproject):
@@ -310,35 +303,21 @@ class PageSearchAPIView(GenericAPIView):
         main_project = self._get_project()
         main_version = self._get_version()
         projects = {}
-        filters = {}
 
-        if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
-            projects = {
-                project: version.slug
-                for project, version in self._get_all_projects_data().items()
-            }
-            # Check to avoid searching all projects in case it's empty.
-            if not projects:
-                log.info('Unable to find a version to search')
-                return []
-        else:
-            filters['project'] = list(self._get_all_projects_data().keys())
-            filters['version'] = main_version.slug
-            # Check to avoid searching all projects in case these filters are empty.
-            if not filters['project']:
-                log.info('Unable to find a project to search')
-                return []
-            if not filters['version']:
-                log.info('Unable to find a version to search')
-                return []
+        projects = {
+            project: project_data.version.slug
+            for project, project_data in self._get_all_projects_data().items()
+        }
+        # Check to avoid searching all projects in case it's empty.
+        if not projects:
+            log.info('Unable to find a version to search')
+            return []
 
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
             projects=projects,
-            filters=filters,
-            user=self.request.user,
-            # We use a permission class to control authorization
+            # We use a permission class to control authorization.
             filter_by_user=False,
             use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )

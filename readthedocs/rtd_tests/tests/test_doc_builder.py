@@ -1,28 +1,39 @@
 import os
 import tempfile
 from collections import namedtuple
-
 from unittest import mock
+from unittest.mock import patch
+
 import py
 import pytest
 import yaml
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from unittest.mock import patch
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx, HtmlBuilder, HtmlDirBuilder, SingleHtmlBuilder
+from readthedocs.doc_builder.backends.mkdocs import (
+    MkdocsHTML,
+    SafeDumper,
+    yaml_load_safely,
+)
+from readthedocs.doc_builder.backends.sphinx import (
+    BaseSphinx,
+    HtmlBuilder,
+    HtmlDirBuilder,
+    SingleHtmlBuilder,
+)
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 
+@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
 class SphinxBuilderTest(TestCase):
 
     fixtures = ['test_data', 'eric']
@@ -31,9 +42,12 @@ class SphinxBuilderTest(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.version = self.project.versions.first()
 
-        self.build_env = namedtuple('project', 'version')
+        self.build_env = mock.MagicMock()
         self.build_env.project = self.project
         self.build_env.version = self.version
+        self.build_env.build = {
+            'id': 123,
+        }
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
@@ -71,6 +85,32 @@ class SphinxBuilderTest(TestCase):
                 expected,
             )
 
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conf_py_external_version(self, checkout_path, docs_dir):
+        self.version.type = EXTERNAL
+        self.version.verbose_name = '123'
+        self.version.save()
+
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        base_sphinx.config_file = os.path.join(tmp_dir, 'config.py')
+        params = base_sphinx.get_config_params()
+        self.assertEqual(params['current_version'], '123')
+        self.assertEqual(params['version'], self.version)
+        self.assertEqual(params['build_url'], 'https://readthedocs.org/projects/pip/builds/123/')
+
     @patch('readthedocs.doc_builder.backends.sphinx.api')
     @patch('readthedocs.projects.models.api')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
@@ -98,7 +138,7 @@ class SphinxBuilderTest(TestCase):
                 },
                 {
                     'slug': 'v3',
-                    'privacy_level': PROTECTED,
+                    'privacy_level': PRIVATE,
                 },
                 {
                     'slug': 'latest',
@@ -350,10 +390,13 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(builder.get_theme_name({}), 'readthedocs')
         with patch('readthedocs.doc_builder.backends.mkdocs.yaml') as mock_yaml:
             with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
-                mock_load_yaml_config.return_value = {'site_name': self.project.name}
+                mock_load_yaml_config.return_value = {
+                    'site_name': self.project.name,
+                    'docs_dir': tmpdir,
+                }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -362,7 +405,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'readthedocs',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
             mock_yaml.reset_mock()
 
@@ -374,10 +418,11 @@ class MkdocsBuilderTest(TestCase):
                 mock_load_yaml_config.return_value = {
                     'site_name': self.project.name,
                     'theme': 'customtheme',
+                    'docs_dir': tmpdir,
                 }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -386,7 +431,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'customtheme',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')

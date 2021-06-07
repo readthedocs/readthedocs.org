@@ -24,10 +24,22 @@ Token
 The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
 to authenticate as a user and have the same permissions that the user itself.
 
-.. note::
 
-   You will find your access Token under
-   `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
+.. tabs::
+
+  .. tab:: |org_brand|
+
+     .. note::
+
+        On |org_brand|, you will find your access Token under
+        `your profile settings <https://readthedocs.org/accounts/tokens/>`__.
+
+  .. tab:: |com_brand|
+
+     .. note::
+
+        On |com_brand|, you will find your access Token under
+        `your profile settings <https://readthedocs.com/accounts/tokens/>`__.
 
 
 Session
@@ -63,9 +75,25 @@ There are some URL attributes that applies to all of these resources:
    Some resources allow to expand/add extra fields on their responses (see `Project details <#project-details>`__ for example).
 
 
-.. tip::
+.. tabs::
 
-   You can browse the full API by accessing its root URL: https://readthedocs.org/api/v3/
+   .. tab:: |org_brand|
+
+      .. tip::
+
+         You can browse the full API by accessing its root URL: https://readthedocs.org/api/v3/
+
+   .. tab:: |com_brand|
+
+      .. tip::
+
+         You can browse the full API by accessing its root URL: https://readthedocs.com/api/v3/
+
+
+.. note::
+
+   If you are using :doc:`Read the Docs for Business </commercial/index>` take into account that you will need to replace
+   https://readthedocs.org/ by https://readthedocs.com/ in all the URLs used in the following examples.
 
 
 Projects
@@ -164,6 +192,17 @@ Projects list
     The ``results`` in response is an array of project data,
     which is same as :http:get:`/api/v3/projects/(string:project_slug)/`.
 
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :Query Parameters:
+
+         * **expand** (*string*) -- with ``organization`` and ``teams``.
+
+
 
 Project details
 +++++++++++++++
@@ -251,6 +290,16 @@ Project details
                           Allowed values are ``active_versions``, ``active_versions.last_build`` and
                           ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :Query Parameters:
+
+         * **expand** (*string*) -- with ``organization`` and ``teams``.
+
 
 Project create
 ++++++++++++++
@@ -305,6 +354,18 @@ Project create
 
     `See Project details <#project-details>`__
 
+    .. note::
+
+       .. FIXME: we can't use :query string: here because it doesn't render properly
+
+      :doc:`Read the Docs for Business </commercial/index>`, also accepts
+
+      :Request JSON Object:
+
+         * **organization** (*string*) -- required organization's slug under the project will be imported.
+         * **teams** (*string*) -- optional teams' slugs the project will belong to.
+
+
 Project update
 ++++++++++++++
 
@@ -357,6 +418,7 @@ Project update
             "analytics_code": "UA000000",
             "analytics_disabled": false,
             "single_version": false,
+            "external_builds_enabled": true,
 
         }
 
@@ -463,6 +525,9 @@ Version detail
                 "epub": "https://pip.readthedocs.io/_/downloads/epub/pip/stable/"
             },
             "urls": {
+                "dashboard": {
+                    "edit": "https://readthedocs.org/dashboard/pip/version/stable/edit/"
+                },
                 "documentation": "https://pip.pypa.io/en/stable/",
                 "vcs": "https://github.com/pypa/pip/tree/19.0.2"
             },
@@ -1070,7 +1135,7 @@ Redirects listing
 Redirect create
 +++++++++++++++
 
-.. http:post:: /api/v3/projects/pip/redirects/
+.. http:post:: /api/v3/projects/(str:project_slug)/redirects/
 
     Create a redirect for this project.
 
@@ -1210,7 +1275,8 @@ Environment Variables
 
 Environment Variables are variables that you can define for your project.
 These variables are used in the build process when building your documentation.
-They are useful to define secrets in a safe way that can be used by your documentation to build properly.
+They are for example useful to define secrets in a safe way that can be used by your documentation to build properly.
+Environment variables can also be made public, allowing for them to be used in PR builds.
 See :doc:`/guides/environment-variables`
 
 
@@ -1251,6 +1317,7 @@ Environment Variable details
        "modified": "2019-04-29T12:00:00Z",
        "pk": 1,
        "project": "project",
+       "public": false,
        "name": "ENVVAR"
        }
 
@@ -1292,7 +1359,7 @@ Environment Variables listing
 Environment Variable create
 +++++++++++++++++++++++++++
 
-.. http:post:: /api/v3/projects/pip/environmentvariables/
+.. http:post:: /api/v3/projects/(str:project_slug)/environmentvariables/
 
     Create an environment variable for this project.
 
@@ -1368,6 +1435,390 @@ Environment Variable delete
     :requestheader Authorization: token to authenticate.
 
     :statuscode 204: Environment variable deleted successfully
+
+
+Organizations
+~~~~~~~~~~~~~
+
+.. note::
+
+   The ``/api/v3/organizations/`` endpoint is only available in :doc:`Read the Docs for Business </commercial/index>` currently.
+   We plan to have organizations on |org_brand| in a near future and we will add support for this endpoint at the same time.
+
+
+Organizations list
+++++++++++++++++++
+
+
+.. http:get:: /api/v3/organizations/
+
+    Retrieve a list of all the organizations for the current logged in user.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+           "count": 1,
+           "next": null,
+           "previous": null,
+           "results": [
+               {
+                   "_links": {
+                       "_self": "https://readthedocs.com/api/v3/organizations/pypa/",
+                       "projects": "https://readthedocs.com/api/v3/organizations/pypa/projects/"
+                   },
+                   "created": "2019-02-22T21:54:52.768630Z",
+                   "description": "",
+                   "disabled": false,
+                   "email": "pypa@psf.org",
+                   "modified": "2020-07-02T12:35:32.418423Z",
+                   "name": "Python Package Authority",
+                   "owners": [
+                       {
+                           "username": "dstufft"
+                       }
+                   ],
+                   "slug": "pypa",
+                   "url": "https://github.com/pypa/"
+               }
+       }
+
+
+Organization details
+++++++++++++++++++++
+
+.. http:get:: /api/v3/organizations/(string:organization_slug)/
+
+    Retrieve details of a single organization.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/pypa/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/pypa/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "_links": {
+                "_self": "https://readthedocs.com/api/v3/organizations/pypa/",
+                "projects": "https://readthedocs.com/api/v3/organizations/pypa/projects/"
+            },
+            "created": "2019-02-22T21:54:52.768630Z",
+            "description": "",
+            "disabled": false,
+            "email": "pypa@psf.com",
+            "modified": "2020-07-02T12:35:32.418423Z",
+            "name": "Python Package Authority",
+            "owners": [
+                {
+                    "username": "dstufft"
+                }
+            ],
+            "slug": "pypa",
+            "url": "https://github.com/pypa/"
+        }
+
+
+Organization projects list
+++++++++++++++++++++++++++
+
+.. http:get:: /api/v3/organizations/(string:organization_slug)/projects/
+
+    Retrieve list of projects under an organization.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.com/api/v3/organizations/pypa/projects/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.com/api/v3/organizations/pypa/projects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+       {
+           "count": 1,
+           "next": null,
+           "previous": null,
+           "results": [
+               {
+                   "_links": {
+                       "_self": "https://readthedocs.com/api/v3/projects/pypa-pip/",
+                       "builds": "https://readthedocs.com/api/v3/projects/pypa-pip/builds/",
+                       "environmentvariables": "https://readthedocs.com/api/v3/projects/pypa-pip/environmentvariables/",
+                       "redirects": "https://readthedocs.com/api/v3/projects/pypa-pip/redirects/",
+                       "subprojects": "https://readthedocs.com/api/v3/projects/pypa-pip/subprojects/",
+                       "superproject": "https://readthedocs.com/api/v3/projects/pypa-pip/superproject/",
+                       "translations": "https://readthedocs.com/api/v3/projects/pypa-pip/translations/",
+                       "versions": "https://readthedocs.com/api/v3/projects/pypa-pip/versions/"
+                   },
+                   "created": "2019-02-22T21:59:13.333614Z",
+                   "default_branch": "master",
+                   "default_version": "latest",
+                   "homepage": null,
+                   "id": 2797,
+                   "language": {
+                       "code": "en",
+                       "name": "English"
+                   },
+                   "modified": "2019-08-08T16:27:25.939531Z",
+                   "name": "pip",
+                   "programming_language": {
+                       "code": "py",
+                       "name": "Python"
+                   },
+                   "repository": {
+                       "type": "git",
+                       "url": "https://github.com/pypa/pip"
+                   },
+                   "slug": "pypa-pip",
+                   "subproject_of": null,
+                   "tags": [],
+                   "translation_of": null,
+                   "urls": {
+                       "builds": "https://readthedocs.com/projects/pypa-pip/builds/",
+                       "documentation": "https://pypa-pip.readthedocs-hosted.com/en/latest/",
+                       "home": "https://readthedocs.com/projects/pypa-pip/",
+                       "versions": "https://readthedocs.com/projects/pypa-pip/versions/"
+                   }
+               }
+           ]
+       }
+
+
+Remote Organizations
+~~~~~~~~~~~~~~~~~~~~
+
+Remote Organizations are the VCS organizations connected via
+``GitHub``, ``GitLab`` and ``BitBucket``.
+
+
+Remote Organization listing
++++++++++++++++++++++++++++
+
+
+.. http:get:: /api/v3/remote/organizations/
+
+    Retrieve a list of all Remote Organizations for the authenticated user.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/organizations/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/remote/organizations/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 20,
+            "next": "api/v3/remote/organizations/?limit=10&offset=10",
+            "previous": null,
+            "results": [
+                {
+                    "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                    "created": "2019-04-29T10:00:00Z",
+                    "modified": "2019-04-29T12:00:00Z",
+                    "name": "Organization Name",
+                    "pk": 1,
+                    "slug": "organization",
+                    "url": "https://github.com/organization",
+                    "vcs_provider": "github"
+                }
+            ]
+        }
+
+
+    The ``results`` in response is an array of remote organizations data.
+
+    :query string name: return remote organizations with containing the name
+    :query string vcs_provider: return remote organizations for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
+
+    :requestheader Authorization: token to authenticate.
+
+
+Remote Repositories
+~~~~~~~~~~~~~~~~~~~
+
+Remote Repositories are the importable repositories connected via
+``GitHub``, ``GitLab`` and ``BitBucket``.
+
+
+Remote Repository listing
++++++++++++++++++++++++++
+
+
+.. http:get:: /api/v3/remote/repositories/
+
+    Retrieve a list of all Remote Repositories for the authenticated user.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 20,
+            "next": "api/v3/remote/repositories/?expand=project,organization&limit=10&offset=10",
+            "previous": null,
+            "results": [
+                {
+                    "organization": {
+                        "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
+                        "created": "2019-04-29T10:00:00Z",
+                        "modified": "2019-04-29T12:00:00Z",
+                        "name": "Organization Name",
+                        "pk": 1,
+                        "slug": "organization",
+                        "url": "https://github.com/organization",
+                        "vcs_provider": "github"
+                    },
+                    "project": {
+                        "id": 12345,
+                        "name": "project",
+                        "slug": "project",
+                        "created": "2010-10-23T18:12:31+00:00",
+                        "modified": "2018-12-11T07:21:11+00:00",
+                        "language": {
+                            "code": "en",
+                            "name": "English"
+                        },
+                        "programming_language": {
+                            "code": "py",
+                            "name": "Python"
+                        },
+                        "repository": {
+                            "url": "https://github.com/organization/project",
+                            "type": "git"
+                        },
+                        "default_version": "stable",
+                        "default_branch": "master",
+                        "subproject_of": null,
+                        "translation_of": null,
+                        "urls": {
+                            "documentation": "http://project.readthedocs.io/en/stable/",
+                            "home": "https://readthedocs.org/projects/project/"
+                        },
+                        "tags": [
+                            "test"
+                        ],
+                        "users": [
+                            {
+                                "username": "dstufft"
+                            }
+                        ],
+                        "_links": {
+                            "_self": "/api/v3/projects/project/",
+                            "versions": "/api/v3/projects/project/versions/",
+                            "builds": "/api/v3/projects/project/builds/",
+                            "subprojects": "/api/v3/projects/project/subprojects/",
+                            "superproject": "/api/v3/projects/project/superproject/",
+                            "redirects": "/api/v3/projects/project/redirects/",
+                            "translations": "/api/v3/projects/project/translations/"
+                        }
+                    }
+                    "avatar_url": "https://avatars3.githubusercontent.com/u/test-organization?v=4",
+                    "clone_url": "https://github.com/organization/project.git",
+                    "created": "2019-04-29T10:00:00Z",
+                    "description": "This is a test project.",
+                    "full_name": "organization/project",
+                    "html_url": "https://github.com/organization/project",
+                    "modified": "2019-04-29T12:00:00Z",
+                    "name": "project",
+                    "pk": 1,
+                    "ssh_url": "git@github.com:organization/project.git",
+                    "vcs": "git",
+                    "vcs_provider": "github",
+                    "default_branch": "master",
+                    "private": false,
+                    "admin": true
+                }
+            ]
+        }
+
+
+    The ``results`` in response is an array of remote repositories data.
+
+    :query string name: return remote repositories containing the name
+    :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
+    :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``project`` and ``organization``.
+                          Multiple fields can be passed separated by commas.
+
+    :requestheader Authorization: token to authenticate.
+
 
 Additional APIs
 ---------------

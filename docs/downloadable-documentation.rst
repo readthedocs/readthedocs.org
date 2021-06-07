@@ -38,3 +38,13 @@ Users who are about to get on a plane can grab a PDF and have the entire doc set
 
 The other value is having the entire docset in a single file.
 You can send a user an email with a single PDF or ePub and they'll have all the docs in one place.
+
+Deleting downloadable content
+-----------------------------
+
+The entries in the Downloads section of your project dashboard reflect the
+formats specified in your config file for each active version.
+
+This means that if you wish to remove downloadable content for a given version,
+you can do so by removing the matching :ref:`config-file/v2:formats` key from
+your config file.
