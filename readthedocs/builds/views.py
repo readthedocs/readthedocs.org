@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import (
-    HttpResponseBadRequest,
     HttpResponseForbidden,
     HttpResponseRedirect,
 )
@@ -71,9 +70,12 @@ class BuildTriggerMixin:
                 version=version,
             )
             if build != Build.objects.filter(version=version).first():
-                # Return bad request if the build re-triggered is not the
-                # latest for that version
-                return HttpResponseBadRequest()
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This build can't be re-triggered because it's not the latest build for this version.",
+                )
+                return HttpResponseRedirect(request.path)
         else:
             # Use generic query when triggering a normal build
             version = get_object_or_404(
