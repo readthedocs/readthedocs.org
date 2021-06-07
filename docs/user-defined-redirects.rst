@@ -20,7 +20,6 @@ Your redirects will be effective immediately.
 
     For the time being, redirects are only implemented in case of a
     *404 File Not Found* error.
-    In the future, we might implement redirect logic in Javascript.
 
 Redirect Types
 --------------
@@ -143,4 +142,3 @@ If you switch between *HTMLDir* and *HTML*, your URL's will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
 The built in redirects for this will handle redirecting users appropriately.
-
