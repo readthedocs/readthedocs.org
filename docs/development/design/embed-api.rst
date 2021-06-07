@@ -79,7 +79,7 @@ If no anchor identifier is specified the content of the whole page is returned.
          "title": "Development Installation",
          "url": "https://docs.readthedocs.io/en/latest/install.html#set-up-your-environment",
          "id": "set-up-your-environment",
-         "content": "<div class=\"section\" id=\"development-installation\">\n<h1>Development Installation<a class=\"headerlink\" href=\"https://docs.readthedocs.io/en/stable/development/install.html#development-installation#development-installation\" title=\"Permalink to this headline\">¶</a></h1>\n ..."
+         "content": "<div class=\"section\" id=\"development-installation\">\n<h1>Development Installation<a class=\"headerlink\" href=\"https://docs.readthedocs.io/en/stable/development/install.html#development-installation\" title=\"Permalink to this headline\">¶</a></h1>\n ..."
       }
 
 
