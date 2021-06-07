@@ -1,6 +1,7 @@
 # Copied from test_middleware.py
 
 import pytest
+from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -71,6 +72,42 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.assertIsNone(res)
             self.assertTrue(hasattr(request, 'canonicalize'))
             self.assertEqual(request.canonicalize, 'canonical-cname')
+
+    def test_subproject_redirect(self):
+        """Requests to a subproject should redirect to the domain of the main project."""
+        subproject = get(
+            Project,
+            name='subproject',
+            slug='subproject',
+            users=[self.owner],
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(privacy_level=PUBLIC)
+        get(
+            ProjectRelationship,
+            parent=self.pip,
+            child=subproject,
+        )
+
+        for url in (self.url, '/subdir/', '/en/latest/'):
+            request = self.request(url, HTTP_HOST='subproject.dev.readthedocs.io')
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertEqual(getattr(request, 'canonicalize', None), 'subproject-main-domain')
+
+        # Using a custom domain in a subproject isn't supported (or shouldn't be!).
+        cname = 'docs.random.com'
+        domain = get(
+            Domain,
+            project=subproject,
+            domain=cname,
+            canonical=True,
+            https=True,
+        )
+        request = self.request(self.url, HTTP_HOST='subproject.dev.readthedocs.io')
+        res = self.run_middleware(request)
+        self.assertIsNone(res)
+        self.assertEqual(getattr(request, 'canonicalize', None), 'canonical-cname')
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
@@ -145,6 +182,55 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         request = self.request(self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 400)
+
+    def test_front_slash(self):
+        domain = 'pip.dev.readthedocs.io'
+
+        # The HttpRequest needs to be created manually,
+        # because the RequestFactory strips leading /'s
+        request = HttpRequest()
+        request.path = '//'
+        request.META = {'HTTP_HOST': domain}
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '///'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '////'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/',
+        )
+
+        request.path = '////?foo'
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/%3Ffoo',  # Encoded because it's in the middleware
+        )
+
+    def test_front_slash_url(self):
+        domain = 'pip.dev.readthedocs.io'
+
+        # The HttpRequest needs to be created manually,
+        # because the RequestFactory strips leading /'s
+        request = HttpRequest()
+        request.path = '//google.com'
+        request.META = {'HTTP_HOST': domain}
+        res = self.run_middleware(request)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(
+            res['Location'], '/google.com',
+        )
 
 
 @pytest.mark.proxito

@@ -77,11 +77,6 @@ Another example, here we add a target to a paragraph:
 Then we can reference it using ```target to paragraph`_``,
 that will be rendered as: `target to paragraph`_.
 
-The reference displays the name of the target by default,
-but we can use any text you want. For example:
-```my custom text <target to paragraph>`_``,
-that will be rendered as: `my custom text <target to paragraph>`_.
-
 We can also create _`in-line targets` within an element on your page,
 allowing you to, for example, reference text *within* a paragraph.
 
@@ -129,7 +124,7 @@ Next, we will explore the most common ones.
 The ref role
 ~~~~~~~~~~~~
 
-The ``ref`` role can be used to reference any explicit target. For example:
+The ``ref`` role can be used to reference any explicit targets. For example:
 
 .. code-block:: rst
 
@@ -165,7 +160,7 @@ that will be rendered as: :ref:`code <target to code>`.
 The doc role
 ~~~~~~~~~~~~
 
-The `doc` role allows us to link to a page instead of just a section.
+The ``doc`` role allows us to link to a page instead of just a section.
 The target name can be relative to the page where the role exists, or relative
 to your documentation's root folder (in both cases, you should omit the extension).
 

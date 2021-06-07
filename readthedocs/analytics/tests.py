@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 from .models import PageView
 from .utils import anonymize_ip_address, anonymize_user_agent, get_client_ip
@@ -122,17 +122,6 @@ class AnalyticsPageViewsTests(TestCase):
         assert (
             PageView.objects.all().count() == 0
         ), 'There\'s no PageView object created yet.'
-
-        # Without the feature flag, no PageView is created
-        self.client.get(self.url, HTTP_HOST=self.host)
-        assert (
-            PageView.objects.all().count() == 0
-        )
-
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        self.project.feature_set.add(feature)
 
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:

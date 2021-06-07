@@ -46,11 +46,27 @@ class ProjectAdminSerializer(ProjectSerializer):
         slug_field='feature_id',
     )
 
+    environment_variables = serializers.SerializerMethodField()
+    skip = serializers.SerializerMethodField()
+
     def get_environment_variables(self, obj):
+        """Get all environment variables, including public ones."""
         return {
-            variable.name: variable.value
+            variable.name: dict(
+                value=variable.value,
+                public=variable.public,
+            )
             for variable in obj.environmentvariable_set.all()
         }
+
+    def get_skip(self, obj):
+        """
+        Override ``Project.skip`` to consider more cases whether skip a project.
+
+        We rely on ``.is_active`` manager's method here that encapsulates all
+        these possible cases.
+        """
+        return not Project.objects.is_active(obj)
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
@@ -114,7 +130,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BuildCommandResult
-        exclude = ('')
+        exclude = []
 
 
 class BuildSerializer(serializers.ModelSerializer):
@@ -177,7 +193,7 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RemoteOrganization
-        exclude = ('json', 'email', 'users')
+        exclude = ('email', 'users',)
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
@@ -188,15 +204,29 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     # This field does create an additional query per object returned
     matches = serializers.SerializerMethodField()
+    admin = serializers.SerializerMethodField('is_admin')
 
     class Meta:
         model = RemoteRepository
-        exclude = ('json', 'users')
+        exclude = ('users',)
 
     def get_matches(self, obj):
         request = self.context['request']
         if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use annotated value from RemoteRepositoryViewSet queryset
+        if hasattr(obj, 'admin'):
+            return obj.admin
+
+        if request.user and request.user.is_authenticated:
+            return obj.remote_repository_relations.filter(
+                user=request.user, admin=True
+            ).exists()
+        return False
 
 
 class ProviderSerializer(serializers.Serializer):

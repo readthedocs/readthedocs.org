@@ -13,7 +13,11 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
+from readthedocs.doc_builder.backends.mkdocs import (
+    MkdocsHTML,
+    SafeDumper,
+    yaml_load_safely,
+)
 from readthedocs.doc_builder.backends.sphinx import (
     BaseSphinx,
     HtmlBuilder,
@@ -23,7 +27,7 @@ from readthedocs.doc_builder.backends.sphinx import (
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -134,7 +138,7 @@ class SphinxBuilderTest(TestCase):
                 },
                 {
                     'slug': 'v3',
-                    'privacy_level': PROTECTED,
+                    'privacy_level': PRIVATE,
                 },
                 {
                     'slug': 'latest',
@@ -392,7 +396,7 @@ class MkdocsBuilderTest(TestCase):
                 }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -401,7 +405,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'readthedocs',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
             mock_yaml.reset_mock()
 
@@ -417,7 +422,7 @@ class MkdocsBuilderTest(TestCase):
                 }
                 builder.append_conf()
 
-            mock_yaml.safe_dump.assert_called_once_with(
+            mock_yaml.dump.assert_called_once_with(
                 {
                     'site_name': mock.ANY,
                     'docs_dir': mock.ANY,
@@ -426,7 +431,8 @@ class MkdocsBuilderTest(TestCase):
                     'google_analytics': mock.ANY,
                     'theme': 'customtheme',
                 },
-                mock.ANY,
+                stream=mock.ANY,
+                Dumper=SafeDumper,
             )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')

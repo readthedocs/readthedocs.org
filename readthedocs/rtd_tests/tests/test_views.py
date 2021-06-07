@@ -100,7 +100,7 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_version_detail(self):
-        response = self.client.get('/dashboard/pip/version/0.8.1/')
+        response = self.client.get('/dashboard/pip/version/0.8.1/edit/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):
@@ -359,8 +359,9 @@ class TestSearchAnalyticsView(TestCase):
             csv_data = csv.reader(content)
             body = list(csv_data)
 
-            self.assertEqual(len(body), 23)
-            self.assertEqual(body[0][1], 'advertising')
+            self.assertEqual(len(body), 24)
+            self.assertEqual(body[0][0], 'Created Date')
+            self.assertEqual(body[1][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
 
 
