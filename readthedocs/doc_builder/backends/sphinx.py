@@ -156,6 +156,10 @@ class BaseSphinx(BaseBuilder):
             protocol = 'http' if settings.DEBUG else 'https'
             build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build_url}'
 
+        vcs_url = None
+        if self.version.is_external:
+            vcs_url = self.version.vcs_url
+
         data = {
             'html_theme': 'sphinx_rtd_theme',
             'html_theme_import': 'sphinx_rtd_theme',
@@ -170,6 +174,7 @@ class BaseSphinx(BaseBuilder):
             'downloads': downloads,
             'subproject_urls': subproject_urls,
             'build_url': build_url,
+            'vcs_url': vcs_url,
 
             # GitHub
             'github_user': github_user,
@@ -256,14 +261,11 @@ class BaseSphinx(BaseBuilder):
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
             build_command.extend(['-W', '--keep-going'])
-        doctree_path = f'_build/doctrees-{self.sphinx_builder}'
-        if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
-            doctree_path = '_build/doctrees'
         build_command.extend([
             '-b',
             self.sphinx_builder,
             '-d',
-            doctree_path,
+            '_build/doctrees',
             '-D',
             'language={lang}'.format(lang=project.language),
             '.',
@@ -277,15 +279,10 @@ class BaseSphinx(BaseBuilder):
         return cmd_ret.successful
 
     def get_sphinx_cmd(self):
-        if self.project.has_feature(Feature.FORCE_SPHINX_FROM_VENV):
-            return (
-                self.python_env.venv_bin(filename='python'),
-                '-m',
-                'sphinx',
-            )
         return (
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            self.python_env.venv_bin(filename='python'),
+            '-m',
+            'sphinx',
         )
 
     def sphinx_parallel_arg(self):

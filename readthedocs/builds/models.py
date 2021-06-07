@@ -7,7 +7,6 @@ import re
 from shutil import rmtree
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -67,7 +66,6 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -88,6 +86,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_environment_storage
 
 log = logging.getLogger(__name__)
 
@@ -411,8 +410,7 @@ class Version(TimeStampedModel):
 
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
-        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-        return storage.join(self.project.slug, f'{self.slug}.tar')
+        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -921,6 +919,24 @@ class Build(models.Model):
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+
+    def reset(self):
+        """
+        Reset the build so it can be re-used when re-trying.
+
+        Dates and states are usually overriden by the build,
+        we care more about deleting the commands.
+        """
+        self.state = BUILD_STATE_TRIGGERED
+        self.status = ''
+        self.success = True
+        self.output = ''
+        self.error = ''
+        self.exit_code = None
+        self.builder = ''
+        self.cold_storage = False
+        self.commands.all().delete()
+        self.save()
 
 
 class BuildCommandResultMixin:

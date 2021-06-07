@@ -3,13 +3,13 @@
 -r pip.txt
 
 django-dynamic-fixture==3.1.1
-pytest==6.2.1
+pytest==6.2.4
 pytest-custom-exit-code==0.3.0
-pytest-django==4.1.0
-pytest-xdist==2.2.0
-pytest-cov==2.10.1
+pytest-django==4.3.0
+pytest-xdist==2.2.1
+pytest-cov==2.12.0
 apipkg==1.5
-execnet==1.7.1
+execnet==1.8.0
 
 # Mercurial 4.3 and newer require Python 2.7
 # Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
@@ -20,10 +20,10 @@ execnet==1.7.1
 Mercurial==4.4.2  # pyup: ignore
 
 yamale==2.2.0  # pyup: <3.0
-pytest-mock==3.5.1
+pytest-mock==3.6.1
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.13.4
+ipdb==0.13.7
 
-requests-mock==1.8.0
+requests-mock==1.9.2

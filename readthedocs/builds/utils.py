@@ -1,9 +1,10 @@
 """Utilities for the builds app."""
+
 import logging
 from contextlib import contextmanager
+from time import monotonic
 
 import regex
-from celery.five import monotonic
 from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL

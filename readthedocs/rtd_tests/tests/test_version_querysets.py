@@ -4,7 +4,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -34,12 +34,6 @@ class TestVersionQuerySetBase(TestCase):
             project=self.project,
             active=True,
         )
-        self.version_protected = get(
-            Version,
-            privacy_level=PROTECTED,
-            project=self.project,
-            active=True,
-        )
 
         self.another_project = get(
             Project,
@@ -58,12 +52,6 @@ class TestVersionQuerySetBase(TestCase):
         self.another_version_private = get(
             Version,
             privacy_level=PRIVATE,
-            project=self.another_project,
-            active=True,
-        )
-        self.another_version_protected = get(
-            Version,
-            privacy_level=PROTECTED,
             project=self.another_project,
             active=True,
         )
@@ -88,33 +76,23 @@ class TestVersionQuerySetBase(TestCase):
             project=self.shared_project,
             active=True,
         )
-        self.shared_version_protected = get(
-            Version,
-            privacy_level=PROTECTED,
-            project=self.shared_project,
-            active=True,
-        )
 
         self.user_versions = {
             self.version,
             self.version_latest,
             self.version_private,
-            self.version_protected,
             self.shared_version,
             self.shared_version_latest,
             self.shared_version_private,
-            self.shared_version_protected,
         }
 
         self.another_user_versions = {
             self.another_version_latest,
             self.another_version,
             self.another_version_private,
-            self.another_version_protected,
             self.shared_version,
             self.shared_version_latest,
             self.shared_version_private,
-            self.shared_version_protected,
         }
 
 
@@ -148,77 +126,6 @@ class VersionQuerySetTests(TestVersionQuerySetBase):
             self.version,
             self.version_latest,
             self.version_private,
-            self.version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected(self):
-        query = Version.objects.protected()
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_protected,
-            self.another_version,
-            self.another_version_latest,
-            self.another_version_protected,
-            self.shared_version,
-            self.shared_version_latest,
-            self.shared_version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_user(self):
-        query = Version.objects.protected(user=self.user)
-        versions = (
-            self.user_versions |
-            {
-                self.another_version,
-                self.another_version_latest,
-                self.another_version_protected,
-            }
-        )
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_project(self):
-        query = Version.objects.protected(user=self.user, project=self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_private,
-            self.version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private(self):
-        query = Version.objects.private()
-        versions = {
-            self.version_private,
-            self.another_version_private,
-            self.shared_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_user(self):
-        query = Version.objects.private(user=self.user)
-        versions = (
-            self.user_versions |
-            {self.another_version_private}
-        )
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_project(self):
-        query = Version.objects.private(user=self.user, project=self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_private,
-            self.version_protected,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
@@ -232,30 +139,6 @@ class VersionQuerySetTests(TestVersionQuerySetBase):
             self.another_version_latest,
             self.shared_version,
             self.shared_version_latest,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_api_user(self):
-        query = Version.objects.api(user=self.user, detail=False)
-        versions = self.user_versions
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_for_project(self):
-        self.another_project.main_language_project = self.project
-        self.another_project.save()
-
-        query = Version.objects.for_project(self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_protected,
-            self.version_private,
-            self.another_version,
-            self.another_version_latest,
-            self.another_version_protected,
-            self.another_version_private,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
@@ -280,13 +163,6 @@ class TestVersionQuerySetWithManagerBase(TestVersionQuerySetBase):
             type=EXTERNAL,
             privacy_level=PRIVATE,
         )
-        self.external_version_protected = get(
-            Version,
-            project=self.project,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PROTECTED,
-        )
 
         self.another_external_version_public = get(
             Version,
@@ -302,13 +178,6 @@ class TestVersionQuerySetWithManagerBase(TestVersionQuerySetBase):
             type=EXTERNAL,
             privacy_level=PRIVATE,
         )
-        self.another_external_version_protected = get(
-            Version,
-            project=self.another_project,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PROTECTED,
-        )
 
         self.shared_external_version_public = get(
             Version,
@@ -323,13 +192,6 @@ class TestVersionQuerySetWithManagerBase(TestVersionQuerySetBase):
             active=True,
             type=EXTERNAL,
             privacy_level=PRIVATE
-        )
-        self.shared_external_version_protected = get(
-            Version,
-            project=self.shared_project,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PROTECTED
         )
 
 
@@ -347,15 +209,12 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
         versions = {
             self.version_latest,
             self.version,
-            self.version_protected,
             self.version_private,
             self.another_version_latest,
             self.another_version,
-            self.another_version_protected,
             self.another_version_private,
             self.shared_version_latest,
             self.shared_version,
-            self.shared_version_protected,
             self.shared_version_private,
         }
         self.assertEqual(query.count(), len(versions))
@@ -389,77 +248,6 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
             self.version,
             self.version_latest,
             self.version_private,
-            self.version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected(self):
-        query = Version.internal.protected()
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_protected,
-            self.another_version,
-            self.another_version_latest,
-            self.another_version_protected,
-            self.shared_version,
-            self.shared_version_latest,
-            self.shared_version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_user(self):
-        query = Version.internal.protected(user=self.user)
-        versions = (
-            self.user_versions |
-            {
-                self.another_version,
-                self.another_version_latest,
-                self.another_version_protected,
-            }
-        )
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_project(self):
-        query = Version.internal.protected(user=self.user, project=self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_private,
-            self.version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private(self):
-        query = Version.internal.private()
-        versions = {
-            self.version_private,
-            self.another_version_private,
-            self.shared_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_user(self):
-        query = Version.internal.private(user=self.user)
-        versions = (
-            self.user_versions |
-            {self.another_version_private}
-        )
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_project(self):
-        query = Version.internal.private(user=self.user, project=self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_private,
-            self.version_protected,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
@@ -477,30 +265,6 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
 
-    def test_api_user(self):
-        query = Version.internal.api(user=self.user, detail=False)
-        versions = self.user_versions
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_for_project(self):
-        self.another_project.main_language_project = self.project
-        self.another_project.save()
-
-        query = Version.internal.for_project(self.project)
-        versions = {
-            self.version,
-            self.version_latest,
-            self.version_protected,
-            self.version_private,
-            self.another_version,
-            self.another_version_latest,
-            self.another_version_protected,
-            self.another_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
 
 class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase):
 
@@ -514,13 +278,10 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         query = Version.external.all()
         versions = {
             self.external_version_public,
-            self.external_version_protected,
             self.external_version_private,
             self.another_external_version_public,
-            self.another_external_version_protected,
             self.another_external_version_private,
             self.shared_external_version_public,
-            self.shared_external_version_protected,
             self.shared_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
@@ -540,11 +301,9 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         query = Version.external.public(user=self.user)
         versions = {
             self.external_version_public,
-            self.external_version_protected,
             self.external_version_private,
             self.another_external_version_public,
             self.shared_external_version_public,
-            self.shared_external_version_protected,
             self.shared_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
@@ -554,79 +313,6 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         query = Version.external.public(user=self.user, project=self.project)
         versions = {
             self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected(self):
-        query = Version.external.protected()
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.another_external_version_public,
-            self.another_external_version_protected,
-            self.shared_external_version_public,
-            self.shared_external_version_protected,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_user(self):
-        query = Version.external.protected(user=self.user)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-            self.another_external_version_public,
-            self.another_external_version_protected,
-            self.shared_external_version_public,
-            self.shared_external_version_protected,
-            self.shared_external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_protected_project(self):
-        query = Version.external.protected(user=self.user, project=self.project)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private(self):
-        query = Version.external.private()
-        versions = {
-            self.external_version_private,
-            self.another_external_version_private,
-            self.shared_external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_user(self):
-        query = Version.external.private(user=self.user)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-            self.another_external_version_private,
-            self.shared_external_version_public,
-            self.shared_external_version_protected,
-            self.shared_external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_private_project(self):
-        query = Version.external.private(user=self.user, project=self.project)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
             self.external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
@@ -638,35 +324,6 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
             self.external_version_public,
             self.another_external_version_public,
             self.shared_external_version_public,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_api_user(self):
-        query = Version.external.api(user=self.user, detail=False)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-            self.shared_external_version_public,
-            self.shared_external_version_protected,
-            self.shared_external_version_private,
-        }
-        self.assertEqual(query.count(), len(versions))
-        self.assertEqual(set(query), versions)
-
-    def test_for_project(self):
-        self.another_project.main_language_project = self.project
-        self.another_project.save()
-
-        query = Version.external.for_project(self.project)
-        versions = {
-            self.external_version_public,
-            self.external_version_protected,
-            self.external_version_private,
-            self.another_external_version_public,
-            self.another_external_version_protected,
-            self.another_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)

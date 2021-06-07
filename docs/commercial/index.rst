@@ -36,4 +36,3 @@ Advertising-free
    single-sign-on
    sharing
    privacy-level
-   analytics
