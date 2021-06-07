@@ -48,6 +48,7 @@ class BuildTriggerMixin:
 
     @method_decorator(login_required)
     def post(self, request, project_slug):
+        commit_to_retrigger = None
         project = get_object_or_404(Project, slug=project_slug)
 
         if not AdminPermission.is_admin(request.user, project):
@@ -76,24 +77,23 @@ class BuildTriggerMixin:
                     "This build can't be re-triggered because it's not the latest build for this version.",
                 )
                 return HttpResponseRedirect(request.path)
+
+            # Set either the build to re-trigger it or None
+            build_to_retrigger = version.builds.filter(pk=build_pk).first()
+            if build_to_retrigger:
+                commit_to_retrigger = build_to_retrigger.commit
+                log.info(
+                    'Re-triggering build. project=%s version=%s commit=%s build=%s',
+                    project.slug,
+                    version.slug,
+                    build_to_retrigger.commit,
+                    build_to_retrigger.pk
+                )
         else:
             # Use generic query when triggering a normal build
             version = get_object_or_404(
                 self._get_versions(project),
                 slug=version_slug,
-            )
-
-        # Set either the build to re-trigger it or None
-        build_to_retrigger = version.builds.filter(pk=build_pk).first()
-        commit_to_retrigger = None
-        if build_to_retrigger:
-            commit_to_retrigger = build_to_retrigger.commit
-            log.info(
-                'Re-triggering build. project=%s version=%s commit=%s build=%s',
-                project.slug,
-                version.slug,
-                build_to_retrigger.commit,
-                build_to_retrigger.pk
             )
 
         update_docs_task, build = trigger_build(
