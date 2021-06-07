@@ -77,7 +77,6 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             has_access = (
                 Version.objects
                 .public(
-                    user=request.user,
                     project=project,
                     only_active=False,
                 )
