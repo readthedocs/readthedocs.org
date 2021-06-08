@@ -1,19 +1,25 @@
-from pprint import pprint
 import logging
-import markdown
-
-from django.core.management.base import BaseCommand
 from pathlib import Path
+from pprint import pprint
+from textwrap import dedent
 
-from readthedocs.organizations.models import OrganizationOwner
-from readthedocs.notifications import SiteNotification
-from readthedocs.notifications.backends import SiteBackend
-from django.core.mail import send_mail
+import markdown
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+
+from readthedocs.core.utils.contact import contact
 
 log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
+    help = dedent(
+        """
+        Send an email or sticky notification from a file (markdown)
+        to all organization owners.
+        """
+    ).strip()
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -23,7 +29,7 @@ class Command(BaseCommand):
             default=False,
             help=(
                 'Send the email/notification for real, '
-                'otherwise we only print the notification in the console.'
+                'otherwise we only print the notification in the console (dryrun).'
             )
         )
         parser.add_argument(
@@ -40,7 +46,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version."""
-        org_owners = OrganizationOwner.objects.filter(organization__disabled=False).distinct()
+        User = get_user_model()
+        org_owners = (
+            User.objects
+            .filter(organizationowner__organization__disabled=False)
+            .distinct()
+        )
 
         print(
             'len(owners)={} production={} email={} notification={}'.format(
@@ -55,22 +66,11 @@ class Command(BaseCommand):
             print('Aborting run.')
             return
 
-        sent_emails = set()
-        failed_emails = set()
-        sent_notifications = set()
-        failed_notifications = set()
-
         notification_content = ''
         if options['notification']:
             file = Path(options['notification'])
             with file.open() as f:
                 notification_content = markdown.markdown(f.read())
-
-        backend = SiteBackend(request=None)
-        class TempNotification(SiteNotification):
-
-            def render(self, *args, **kwargs):
-                return notification_content
 
         email_subject = ''
         email_content = ''
@@ -83,64 +83,27 @@ class Command(BaseCommand):
             email_content = '\n'.join(content[1:]).strip()
             email_content_html = markdown.markdown(email_content)
 
-        for rel in org_owners.iterator():
-            owner = rel.owner
+        resp = contact(
+            users=org_owners,
+            email_subject=email_subject,
+            email_content=email_content,
+            email_content_html=email_content_html,
+            notification_content=notification_content,
+            dryrun=options['production'],
+        )
 
-            if options['notification']:
-                notification = TempNotification(
-                    user=owner,
-                    success=True,
-                )
-                try:
-                    if options['production']:
-                        backend.send(notification)
-                    else:
-                        pprint(notification_content)
-                except Exception:
-                    log.exception('Notification failed to send')
-                    failed_notifications.add(owner.pk)
-                else:
-                    log.info('Successfully set notification owner=%s', owner)
-                    sent_notifications.add(owner.pk)
-
-            if options['email']:
-                emails = list(
-                    owner.emailaddress_set
-                    .filter(verified=True)
-                    .exclude(email=owner.email)
-                    .values_list('email', flat=True)
-                )
-                emails.append(owner.email)
-
-                try:
-                    kwargs = dict(
-                        subject=email_subject,
-                        message=email_content,
-                        html_message=email_content_html,
-                        from_email='Read the Docs <support@readthedocs.com>',
-                        recipient_list=emails,
-                    )
-                    if options['production']:
-                        send_mail(**kwargs)
-                    else:
-                        pprint(kwargs)
-                except Exception:
-                    log.exception('Mail failed to send')
-                    failed_emails.update(emails)
-                else:
-                    log.info('Email sent to %s', emails)
-                    sent_emails.update(emails)
-
-        total = len(sent_emails)
-        total_failed = len(failed_emails)
+        email = resp['email']
+        total = len(email['sent'])
+        total_failed = len(email['failed'])
         print(f'Emails sent ({total}):')
-        pprint(sent_emails)
+        pprint(email['sent'])
         print(f'Failed emails ({total_failed}):')
-        pprint(failed_emails)
+        pprint(email['failed'])
 
-        total = len(sent_notifications)
-        total_failed = len(failed_notifications)
+        notification = resp['notification']
+        total = len(notification['sent'])
+        total_failed = len(notification['failed'])
         print(f'Notifications sent ({total})')
-        pprint(sent_notifications)
+        pprint(notification['sent'])
         print(f'Failed notifications ({total_failed})')
-        pprint(failed_notifications)
+        pprint(notification['failed'])

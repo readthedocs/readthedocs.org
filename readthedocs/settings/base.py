@@ -66,6 +66,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
     SUPPORT_EMAIL = None
+    SUPPORT_FROM_EMAIL = None
     SUPPORT_FORM_ENDPOINT = None
 
     # Sessions
