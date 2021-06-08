@@ -7,7 +7,7 @@ import markdown
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from readthedocs.core.utils.contact import contact
+from readthedocs.core.utils.contact import contact_users
 
 log = logging.getLogger(__name__)
 
@@ -83,13 +83,13 @@ class Command(BaseCommand):
             email_content = '\n'.join(content[1:]).strip()
             email_content_html = markdown.markdown(email_content)
 
-        resp = contact(
+        resp = contact_users(
             users=org_owners,
             email_subject=email_subject,
             email_content=email_content,
             email_content_html=email_content_html,
             notification_content=notification_content,
-            dryrun=options['production'],
+            dryrun=not options['production'],
         )
 
         email = resp['email']

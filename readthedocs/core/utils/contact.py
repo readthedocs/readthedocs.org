@@ -9,7 +9,7 @@ from readthedocs.notifications.backends import SiteBackend
 
 log = logging.getLogger(__name__)
 
-def contact(
+def contact_users(
     users,
     email_subject=None,
     email_content=None,
@@ -50,7 +50,7 @@ def contact(
                 success=True,
             )
             try:
-                if dryrun:
+                if not dryrun:
                     backend.send(notification)
                 else:
                     pprint(notification_content)
@@ -78,7 +78,7 @@ def contact(
                     from_email=from_email,
                     recipient_list=emails,
                 )
-                if dryrun:
+                if not dryrun:
                     send_mail(**kwargs)
                 else:
                     pprint(kwargs)
