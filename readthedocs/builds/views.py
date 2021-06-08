@@ -65,12 +65,12 @@ class BuildTriggerMixin:
                 project=project,
             )
 
-            build = get_object_or_404(
+            build_to_retrigger = get_object_or_404(
                 Build.objects.all(),
                 pk=build_pk,
                 version=version,
             )
-            if build != Build.objects.filter(version=version).first():
+            if build_to_retrigger != Build.objects.filter(version=version).first():
                 messages.add_message(
                     request,
                     messages.ERROR,
@@ -79,7 +79,6 @@ class BuildTriggerMixin:
                 return HttpResponseRedirect(request.path)
 
             # Set either the build to re-trigger it or None
-            build_to_retrigger = version.builds.filter(pk=build_pk).first()
             if build_to_retrigger:
                 commit_to_retrigger = build_to_retrigger.commit
                 log.info(
