@@ -326,9 +326,9 @@ class BuildViewTests(TestCase):
             }
         )
 
-        # It should return 400 because we are re-triggering a build of a
-        # non-lastest build for that version
-        self.assertEqual(r.status_code, 400)
+        # It should return 302 and show a message to the user because we are
+        # re-triggering a build of a non-lastest build for that version
+        self.assertEqual(r.status_code, 302)
 
 
 class TestSearchAnalyticsView(TestCase):
