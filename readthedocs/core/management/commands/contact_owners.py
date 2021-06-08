@@ -3,6 +3,7 @@ import logging
 import markdown
 
 from django.core.management.base import BaseCommand
+from pathlib import Path
 
 from readthedocs.organizations.models import OrganizationOwner
 from readthedocs.notifications import SiteNotification
@@ -14,127 +15,132 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    subject = 'Read the Docs for Business scheduled maintenance window'
-
-    message = """
-Hi,
-
-You're receiving this email because you're an organization owner on Read the Docs for Business. We wanted to make you aware that on Friday, February 5 at 5:00pm PST (8:00pm EST, Saturday 01:00 UTC),
-Read the Docs for Business (readthedocs.com) will be having a **scheduled downtime of approximately 2 hours**.
-
-During this maintenance window, **documentation will continue to be online** but new documentation builds will not trigger and the Read the Docs dashboard will be read-only. New builds and webhooks will begin processing once the maintenance is over.
-
-To ensure minimal impact for our users, we are performing this upgrade during a Friday afternoon which is one of our lowest usage periods. This maintenance window is for a required database version upgrade which we couldn't perform in place. While these kinds of things do happen from time to time, we haven't had a scheduled downtime on Read the Docs for Business in a few years. Doing this helps us ensure that our services perform well and have up-to-date security.
-
-Thanks for your understanding of this maintenance downtime.
-
-Read the Docs team
-
-    """
-
     def add_arguments(self, parser):
         parser.add_argument(
             '--production',
             action='store_true',
             dest='production',
             default=False,
-            help='Use this flag when actually running in prod',
+            help=(
+                'Send the email/notification for real, '
+                'otherwise we only print the notification in the console.'
+            )
         )
         parser.add_argument(
             '--email',
-            action='store_true',
-            dest='email',
-            default=False,
-            help='Actually send the email',
+            help=(
+                'Path to a file with the email content in markdown. '
+                'The first line would be the subject.'
+            ),       
         )
         parser.add_argument(
             '--notification',
-            action='store_true',
-            dest='notification',
-            default=False,
-            help='Create a notification',
+            help='Path to a file with the notification content in markdown.',
         )
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version."""
-        if options['production']:
-            org_owners = OrganizationOwner.objects.filter(organization__disabled=False)
-        else:
-            org_owners = OrganizationOwner.objects.filter(organization__slug='read-the-docs')
+        org_owners = OrganizationOwner.objects.filter(organization__disabled=False).distinct()
 
-        log.info('len(owners)=%s production=%s email=%s notification=%s',
-                 org_owners.count(), options['production'],
-                 options['email'], options['notification']
-                 )
+        print(
+            'len(owners)={} production={} email={} notification={}'.format(
+                org_owners.count(),
+                options['production'],
+                options['email'],
+                options['notification'],
+            )
+        )
         cont = input('Continue? y/n: ')
         if cont != 'y':
-            log.warning('Aborting run.')
+            print('Aborting run.')
             return
 
         sent_emails = set()
+        failed_emails = set()
         sent_notifications = set()
+        failed_notifications = set()
+
+        notification_content = ''
+        if options['notification']:
+            file = Path(options['notification'])
+            with file.open() as f:
+                notification_content = markdown.markdown(f.read())
 
         backend = SiteBackend(request=None)
         class TempNotification(SiteNotification):
-            name = 'pull-request-builder-general-availability'
-            success_message = 'Blog post: pull request builders are now <a href="https://blog.readthedocs.com/pull-request-builder-general-availability/">available for all organizations</a>'
 
-        html_message = markdown.markdown(self.message)
+            def render(self, *args, **kwargs):
+                return notification_content
+
+        email_subject = ''
+        email_content = ''
+        email_content_html = ''
+        if options['email']:
+            file = Path(options['email'])
+            with file.open() as f:
+                content = f.read().split('\n')
+            email_subject = content[0].strip()
+            email_content = '\n'.join(content[1:]).strip()
+            email_content_html = markdown.markdown(email_content)
 
         for rel in org_owners.iterator():
             owner = rel.owner
 
             if options['notification']:
-
-                if owner.pk in sent_notifications:
-                    log.info('Already sent to this owner: owner=%s', owner)
-                    continue
-
-                sent_notifications.add(owner.pk)
-
                 notification = TempNotification(
                     user=owner,
                     success=True,
                 )
-                backend.send(notification)
-
-                log.info('Successfully set notification owner=%s', owner)
+                try:
+                    if options['production']:
+                        backend.send(notification)
+                    else:
+                        pprint(notification_content)
+                except Exception:
+                    log.exception('Notification failed to send')
+                    failed_notifications.add(owner.pk)
+                else:
+                    log.info('Successfully set notification owner=%s', owner)
+                    sent_notifications.add(owner.pk)
 
             if options['email']:
-                if owner.pk in sent_emails:
-                    log.info('Already sent to this owner: owner=%s', owner)
-                    continue
-
-                sent_emails.add(owner.pk)
-
-                emails = [owner.email]
-                for verified in owner.emailaddress_set.filter(verified=True):
-                    if verified.email not in emails:
-                        emails.append(verified.email)
+                emails = list(
+                    owner.emailaddress_set
+                    .filter(verified=True)
+                    .exclude(email=owner.email)
+                    .values_list('email', flat=True)
+                )
+                emails.append(owner.email)
 
                 try:
                     kwargs = dict(
-                        subject=self.subject,
-                        message=self.message,
-                        html_message=html_message,
+                        subject=email_subject,
+                        message=email_content,
+                        html_message=email_content_html,
                         from_email='Read the Docs <support@readthedocs.com>',
                         recipient_list=emails,
                     )
-                    if options['send']:
-                        log.info('Sending email to %s', emails)
+                    if options['production']:
                         send_mail(**kwargs)
                     else:
-                        log.info('Only printing email')
                         pprint(kwargs)
-                    sent_emails.extend(emails)
                 except Exception:
-                    # Handle errors gracefully
                     log.exception('Mail failed to send')
-                    cont = input('Continue? y/n: ')
-                    if cont != 'y':
-                        log.warning('Aborting run.')
-                        return
+                    failed_emails.update(emails)
+                else:
+                    log.info('Email sent to %s', emails)
+                    sent_emails.update(emails)
 
-                log.info('All emails sent:')
-                pprint(sent_emails)
-                log.info('%s total emails', len(sent_emails))
+        total = len(sent_emails)
+        total_failed = len(failed_emails)
+        print(f'Emails sent ({total}):')
+        pprint(sent_emails)
+        print(f'Failed emails ({total_failed}):')
+        pprint(failed_emails)
+
+        total = len(sent_notifications)
+        total_failed = len(failed_notifications)
+        print(f'Notifications sent ({total})')
+        pprint(sent_notifications)
+        print(f'Failed notifications ({total_failed})')
+        pprint(failed_notifications)
