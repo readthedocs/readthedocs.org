@@ -202,6 +202,8 @@ class TestBuildTask(BuildEnvironmentBase):
             'NO_COLOR': '1',
             'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_VERSION_TYPE': self.version.type,
+            'READTHEDOCS_VERSION_NAME': self.version.verbose_name,
             'READTHEDOCS_PROJECT': self.project.slug,
             'READTHEDOCS_LANGUAGE': self.project.language,
             'BIN_PATH': os.path.join(
