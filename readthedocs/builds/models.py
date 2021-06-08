@@ -30,9 +30,6 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
-    GENERIC_EXTERNAL_VERSION_NAME,
-    GITHUB_EXTERNAL_VERSION_NAME,
-    GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -57,6 +54,8 @@ from readthedocs.builds.querysets import (
     VersionQuerySet,
 )
 from readthedocs.builds.utils import (
+    abbrev,
+    external_version_name,
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
@@ -210,6 +209,43 @@ class Version(TimeStampedModel):
     @property
     def is_external(self):
         return self.type == EXTERNAL
+
+    @property
+    def explicit_external_name(self):
+        """
+        If the version is external, returns a name that is explicit about it.
+
+        For example, if a version originates from GitHub pull request #4, then
+        ``version.explicit_external_name == "#4 (PR)"``.
+
+        On the other hand, if the version is associated with a git tag **v4**
+        and was created by a regular ReadTheDocs build, then
+        ``version.explicit_external_name == None``.
+        """
+        external_origin = external_version_name(self)
+
+        if not external_origin:
+            return None
+
+        origin_abbrev = abbrev(external_origin)
+        template = '#{name} ({abbrev})'
+        return template.format(name=self.verbose_name, abbrev=origin_abbrev)
+
+    @property
+    def explicit_name(self):
+        """
+        Version name that is explicit about external origins.
+
+        This property is similar to :obj:`~.explicit_external_name` but instead
+        of returning ``None`` for versions associated with regular ReadTheDocs
+        builds (not external), simply return :obj:`~.verbose_name`.
+
+        For example, ``version.explicit_name == "#3 (MR)"`` when version
+        originates from GitLab merge request #3;
+        or ``version.explicit_name == "v3"``
+        when version originates from a regular git tag named **v3**.
+        """
+        return self.explicit_external_name or self.verbose_name
 
     @property
     def ref(self):
@@ -946,16 +982,7 @@ class Build(models.Model):
 
     @property
     def external_version_name(self):
-        if self.is_external:
-            if self.project.git_provider_name == GITHUB_BRAND:
-                return GITHUB_EXTERNAL_VERSION_NAME
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                return GITLAB_EXTERNAL_VERSION_NAME
-
-            # TODO: Add External Version Name for BitBucket.
-            return GENERIC_EXTERNAL_VERSION_NAME
-        return None
+        return external_version_name(self)
 
     def using_latest_config(self):
         if self.config:
