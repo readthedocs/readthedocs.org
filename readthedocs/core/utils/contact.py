@@ -9,6 +9,7 @@ from readthedocs.notifications.backends import SiteBackend
 
 log = logging.getLogger(__name__)
 
+
 def contact_users(
     users,
     email_subject=None,
@@ -38,6 +39,7 @@ def contact_users(
     failed_notifications = set()
 
     backend = SiteBackend(request=None)
+
     class TempNotification(SiteNotification):
 
         def render(self, *args, **kwargs):

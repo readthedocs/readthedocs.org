@@ -37,7 +37,7 @@ class Command(BaseCommand):
             help=(
                 'Path to a file with the email content in markdown. '
                 'The first line would be the subject.'
-            ),       
+            ),
         )
         parser.add_argument(
             '--notification',
@@ -46,8 +46,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version."""
-        User = get_user_model()
-        org_owners = (
+        User = get_user_model()  # noqa
+        users = (
             User.objects
             .filter(organizationowner__organization__disabled=False)
             .distinct()
@@ -55,7 +55,7 @@ class Command(BaseCommand):
 
         print(
             'len(owners)={} production={} email={} notification={}'.format(
-                org_owners.count(),
+                users.count(),
                 options['production'],
                 options['email'],
                 options['notification'],
@@ -84,7 +84,7 @@ class Command(BaseCommand):
             email_content_html = markdown.markdown(email_content)
 
         resp = contact_users(
-            users=org_owners,
+            users=users,
             email_subject=email_subject,
             email_content=email_content,
             email_content_html=email_content_html,
