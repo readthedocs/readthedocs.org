@@ -11,6 +11,8 @@ Current sponsors
 
 * `AWS`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, averaging around $5,000/mo.
 * `Cloudflare`_ - Cloudflare is providing us with an enterprise plan of their SSL for SaaS Providers product that enables us to provide SSL certificates for custom domains.
+* `Chan Zuckerberg Initiative`_ - Through their "Essential Open Source Software for Science" programme, they fund our ongoing efforts to improve scientific documentation
+  and make Read the Docs a better service for scientific projects.
 * You? (Email us at hello@readthedocs.org for more info)
 
 Past sponsors
@@ -36,6 +38,7 @@ Past sponsors
 .. _Cloudflare: https://www.cloudflare.com/
 .. _Microsoft Azure: https://azure.microsoft.com/
 .. _AWS: https://aws.amazon.com/
+.. _Chan Zuckerberg Initiative: https://chanzuckerberg.com/
 
 
 Sponsorship Information
