@@ -107,8 +107,8 @@ class Project(models.Model):
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
