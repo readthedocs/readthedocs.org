@@ -13,12 +13,10 @@ Get in touch
 - Ask usage questions ("How do I?") on `StackOverflow`_.
 - Report bugs, suggest features or view the source code `on GitHub`_.
 - Discuss topics on `Gitter`_.
-- On IRC find us at `#readthedocs`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
-.. _Gitter: https://gitter.im/rtfd/readthedocs.org
-.. _#readthedocs: irc://irc.freenode.net/readthedocs
+.. _Gitter: https://gitter.im/readthedocs/community
 
 Contributing to development
 ---------------------------

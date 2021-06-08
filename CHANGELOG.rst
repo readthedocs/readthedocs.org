@@ -1,3 +1,29 @@
+Version 5.18.0
+--------------
+
+:Date: June 08, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#8240 <https://github.com/readthedocs/readthedocs.org/pull/8240>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Backport manual indexes (`#8235 <https://github.com/readthedocs/readthedocs.org/pull/8235>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up SSO docs (`#8233 <https://github.com/readthedocs/readthedocs.org/pull/8233>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cache get_project (`#8231 <https://github.com/readthedocs/readthedocs.org/pull/8231>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't do any CORS checking on Embed API requests (`#8226 <https://github.com/readthedocs/readthedocs.org/pull/8226>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Optimize Index time database query (`#8224 <https://github.com/readthedocs/readthedocs.org/pull/8224>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: check if attribute exists (`#8220 <https://github.com/readthedocs/readthedocs.org/pull/8220>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update gitter channel name (`#8217 <https://github.com/readthedocs/readthedocs.org/pull/8217>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove IRC from our docs (`#8216 <https://github.com/readthedocs/readthedocs.org/pull/8216>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: filter by admin/team (`#8214 <https://github.com/readthedocs/readthedocs.org/pull/8214>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: remove unused `detail` parameter (`#8213 <https://github.com/readthedocs/readthedocs.org/pull/8213>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 21 (`#8206 <https://github.com/readthedocs/readthedocs.org/pull/8206>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: refactor _add_user_repos (`#8182 <https://github.com/readthedocs/readthedocs.org/pull/8182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: simplify querysets/managers (`#8180 <https://github.com/readthedocs/readthedocs.org/pull/8180>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add section about deleting downloadable content (`#8162 <https://github.com/readthedocs/readthedocs.org/pull/8162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor views (`#8157 <https://github.com/readthedocs/readthedocs.org/pull/8157>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: little optimization when saving search queries (`#8132 <https://github.com/readthedocs/readthedocs.org/pull/8132>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add some details to the User Defined Redirects (`#7894 <https://github.com/readthedocs/readthedocs.org/pull/7894>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add APIv3 version edit URL (`#7594 <https://github.com/readthedocs/readthedocs.org/pull/7594>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add List API Endpoint for `RemoteRepository` and `RemoteOrganization` (`#7510 <https://github.com/readthedocs/readthedocs.org/pull/7510>`__)
+
 Version 5.17.0
 --------------
 
