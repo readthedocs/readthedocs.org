@@ -138,18 +138,16 @@
     <h2>{% trans "Read the Docs is funded by the community" %}</h2>
     <p>
 
-    {% url "donate" as sponsors_url %}
-    {% url "gold_detail" as gold_detail %}
+    {% url "donate" as donate_url %}
 
     {% blocktrans trimmed %}
-    Read the Docs is a huge resource that millions of developers rely on
-    for software documentation. It would not be possible without the
-    support of our
-    <a href="{{ sponsors_url }}">sponsors</a>,
-    <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertisers</a>,
-    and <a href="{{ gold_detail }}">readers like you</a>.
-    {% endblocktrans %}
+    <p>
+      We fund our operations through <a href="{{ donate_url }}">donations</a>,
+      <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertising</a>,
+      and corporate-hosted documentation with <a href="https://readthedocs.com">Read the Docs for Business</a>,
+      and we are supported by a number of generous <a href="https://docs.readthedocs.io/page/sponsors.html">sponsors</a>.
     </p>
+    {% endblocktrans %}
 
     <p>
       {% blocktrans trimmed %}
