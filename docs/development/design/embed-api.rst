@@ -46,28 +46,42 @@ this document set the following goals for the new version of this endpoint:
 * Do not depend on Sphinx ``.fjson`` files
 * Query and parse the ``.html`` file directly (from our storage or from an external request)
 * Rewrite all links returned in the content to make them absolute
-* Always return valid HTML structure
-* Delete HTML tags from the original document if needed
-* Support ``?nwords=`` and ``?nparagraphs=`` to return chunked content
 * Require a valid HTML ``id`` selector
+* Accept only ``?url=`` request GET argument to query the endpoint
+* Support ``?nwords=`` and ``?nparagraphs=`` to return chunked content
 * Handle special cases for particular doctools (e.g. Sphinx requires to return the ``.parent()`` element for ``dl``)
 * Make explicit the client is asking to handle the special cases (e.g. send ``?doctool=sphinx&version=4.0.1``)
-* Accept only ``?url=`` request GET argument to query the endpoint
+* Delete HTML tags from the original document if needed
 * Add HTTP cache headers to cache responses
-* Allow :abbr:`CORS` from everywhere
+* Allow :abbr:`CORS` from everywhere *only* for public projects
 
 
-Embed endpoint
---------------
+The contract
+------------
 
-Returns the exact HTML content for a specific identifier.
-If no anchor identifier is specified the content of the whole page is returned.
+Return the HTML tag (and its children) with the ``id`` selector requested
+and replace all the relative links from its content making them absolute.
+
+.. note::
+
+   Any other case outside this contract will be considered *special* and will be implemented
+   only under ``?doctool=`` and ``?version=`` arguments.
+
+If no ``id`` selector is sent to the request, the content of the first meaningfull HTML tag
+(``<main>``, ``<div role="main">``, etc) identifier found is returned.
+
+
+Embed endpoints
+---------------
+
+This is the list of endpoints to be implemented in APIv3:
 
 .. http:get:: /api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
 
+   Returns the exact HTML content for a specific identifier (``id``).
+   If no anchor identifier is specified the content of the first one returned.
+
    :query url (required): Full URL for the documentation page with optional anchor identifier.
-   :query expand (optional): Allows to return extra data about the page. Currently, only ``?expand=identifiers`` is supported
-      to return all the identifiers that page accepts.
 
    .. sourcecode:: json
 
@@ -83,25 +97,31 @@ If no anchor identifier is specified the content of the whole page is returned.
       }
 
 
-   When used together with ``?expand=identifiers`` the follwing field is also returned:
+.. http:get:: /api/v3/embed/identifiers/?url=https://docs.readthedocs.io/en/latest/development/install.html
+
+   Returns all the available identifiers for an specific page.
+
+   :query url (required): Full URL for the documentation page
 
    .. sourcecode:: json
 
-      {
-         "identifiers": [
+      [
             {
-               "title": "Set up your environment",
                "id": "set-up-your-environment",
                "url": "https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
+               "_links": {
+                 "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
+               }
             },
             {
-               "title": "Check that everything works",
                "id": "check-that-everything-works",
                "url": "https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
+               "_links": {
+                 "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
+               }
             },
             ...
-         ]
-      }
+      ]
 
 
 Handle specific Sphinx cases
@@ -188,6 +208,33 @@ The whole logic should be the same, the only difference would be where the sourc
    Also, the endpoint may need to limit the requests per-external domain to avoid using our servers to take down another site.
 
 
+Handle project's domain changes
+-------------------------------
+
+The proposed Embed APIv3 implementation only allows ``?url=`` argument to embed content from that page.
+That URL can be:
+
+* a URL for a project hosted under ``<project-slug>.readthedocs.io``
+* a URL for a project with a custom domain
+
+In the first case, we can easily get the project's slug directly from the URL.
+However, in the second case we get the project's slug by querying our database for a ``Domain`` object
+with the full domain from the URL.
+
+Now, consider that all the links in the documentation page that uses Embed APIv3 are pointing to
+``docs.example.com`` and the author decides to change the domain to be ``docs.newdomain.com``.
+At this point there are different possible scenarios:
+
+* The user creates a new ``Domain`` object with ``docs.newdomain.com`` as domain's name.
+  In this case, old links will keep working because we still have the old ``Domain`` object in our database
+  and we can use it to get the project's slug.
+* The user *deletes* the old ``Domain`` besides creating the new one.
+  In this scenario, our query for a ``Domain`` with name ``docs.example.com`` to our database will fail.
+  We will need to do a request to ``docs.example.com`` and check for a 3xx response status code and in that case,
+  we can read the ``Location:`` HTTP header to find the new domain's name for the documentation.
+  Once we have the new domain from the redirect response, we can query our database again to find out the project's slug.
+
+
 Embed APIv2 deprecation
 -----------------------
 
@@ -208,4 +255,3 @@ Unanswered questions
 --------------------
 
 * How do we distinguish between our APIv3 for resources (models in the database) from these "feature API endpoints"?
-* What happen if a project changes its custom domain? Do we support redirects in this case?
