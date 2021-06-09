@@ -34,9 +34,11 @@ class Config(AppConfig):
                 Metrics1mTask,
                 Metrics5mTask,
                 Metrics10mTask,
+                Metrics30mTask,
             )
             app.tasks.register(Metrics1mTask)
             app.tasks.register(Metrics5mTask)
             app.tasks.register(Metrics10mTask)
+            app.tasks.register(Metrics30mTask)
         except (ModuleNotFoundError, ImportError):
             log.info('Metrics tasks could not be imported.')

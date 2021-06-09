@@ -1,3 +1,139 @@
+Version 5.18.0
+--------------
+
+:Date: June 08, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#8240 <https://github.com/readthedocs/readthedocs.org/pull/8240>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Backport manual indexes (`#8235 <https://github.com/readthedocs/readthedocs.org/pull/8235>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up SSO docs (`#8233 <https://github.com/readthedocs/readthedocs.org/pull/8233>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cache get_project (`#8231 <https://github.com/readthedocs/readthedocs.org/pull/8231>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't do any CORS checking on Embed API requests (`#8226 <https://github.com/readthedocs/readthedocs.org/pull/8226>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Optimize Index time database query (`#8224 <https://github.com/readthedocs/readthedocs.org/pull/8224>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: check if attribute exists (`#8220 <https://github.com/readthedocs/readthedocs.org/pull/8220>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update gitter channel name (`#8217 <https://github.com/readthedocs/readthedocs.org/pull/8217>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove IRC from our docs (`#8216 <https://github.com/readthedocs/readthedocs.org/pull/8216>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: filter by admin/team (`#8214 <https://github.com/readthedocs/readthedocs.org/pull/8214>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: remove unused `detail` parameter (`#8213 <https://github.com/readthedocs/readthedocs.org/pull/8213>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 21 (`#8206 <https://github.com/readthedocs/readthedocs.org/pull/8206>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: refactor _add_user_repos (`#8182 <https://github.com/readthedocs/readthedocs.org/pull/8182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: simplify querysets/managers (`#8180 <https://github.com/readthedocs/readthedocs.org/pull/8180>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add section about deleting downloadable content (`#8162 <https://github.com/readthedocs/readthedocs.org/pull/8162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor views (`#8157 <https://github.com/readthedocs/readthedocs.org/pull/8157>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: little optimization when saving search queries (`#8132 <https://github.com/readthedocs/readthedocs.org/pull/8132>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add some details to the User Defined Redirects (`#7894 <https://github.com/readthedocs/readthedocs.org/pull/7894>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add APIv3 version edit URL (`#7594 <https://github.com/readthedocs/readthedocs.org/pull/7594>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add List API Endpoint for `RemoteRepository` and `RemoteOrganization` (`#7510 <https://github.com/readthedocs/readthedocs.org/pull/7510>`__)
+
+Version 5.17.0
+--------------
+
+:Date: May 24, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Proxito: don't require the middleware for proxied apis (`#8203 <https://github.com/readthedocs/readthedocs.org/pull/8203>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: prevent code injection in cwd (`#8198 <https://github.com/readthedocs/readthedocs.org/pull/8198>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove specific name from security page at user request (`#8195 <https://github.com/readthedocs/readthedocs.org/pull/8195>`__)
+* `@humitos <https://github.com/humitos>`__: Docker: remove `volumes=` argument when creating the container (`#8194 <https://github.com/readthedocs/readthedocs.org/pull/8194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: fix https and canonical redirects (`#8193 <https://github.com/readthedocs/readthedocs.org/pull/8193>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v2: allow listing when using private repos (`#8192 <https://github.com/readthedocs/readthedocs.org/pull/8192>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker: set cwd explicitly (`#8191 <https://github.com/readthedocs/readthedocs.org/pull/8191>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v2: allow to filter more endpoints (`#8189 <https://github.com/readthedocs/readthedocs.org/pull/8189>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: redirect to main project from subprojects (`#8187 <https://github.com/readthedocs/readthedocs.org/pull/8187>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 20 (`#8186 <https://github.com/readthedocs/readthedocs.org/pull/8186>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add DPA to legal docs in documentation (`#8130 <https://github.com/readthedocs/readthedocs.org/pull/8130>`__)
+
+Version 5.16.0
+--------------
+
+:Date: May 18, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: check for .is_superuser instead of has_perm (`#8181 <https://github.com/readthedocs/readthedocs.org/pull/8181>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use `is_active` method to know if the build should be skipped (`#8179 <https://github.com/readthedocs/readthedocs.org/pull/8179>`__)
+* `@humitos <https://github.com/humitos>`__: APIv2: disable listing endpoints (`#8178 <https://github.com/readthedocs/readthedocs.org/pull/8178>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use IntegerField for `remote_repository` from project form. (`#8176 <https://github.com/readthedocs/readthedocs.org/pull/8176>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: remove some lies from cross referencing guide (`#8173 <https://github.com/readthedocs/readthedocs.org/pull/8173>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add space to bash code (`#8171 <https://github.com/readthedocs/readthedocs.org/pull/8171>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 19 (`#8170 <https://github.com/readthedocs/readthedocs.org/pull/8170>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: include organizations in is_active check (`#8163 <https://github.com/readthedocs/readthedocs.org/pull/8163>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: remove private and for_project (`#8158 <https://github.com/readthedocs/readthedocs.org/pull/8158>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Disable FLOC by introducing permissions policy header (`#8145 <https://github.com/readthedocs/readthedocs.org/pull/8145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: allow to install packages with apt (`#8065 <https://github.com/readthedocs/readthedocs.org/pull/8065>`__)
+
+Version 5.15.0
+--------------
+
+:Date: May 10, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Ads: don't load script if a project is marked as ad_free (`#8164 <https://github.com/readthedocs/readthedocs.org/pull/8164>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: include organizations in is_active check (`#8163 <https://github.com/readthedocs/readthedocs.org/pull/8163>`__)
+* `@stsewd <https://github.com/stsewd>`__: Querysets: simplify project querysets (`#8154 <https://github.com/readthedocs/readthedocs.org/pull/8154>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#8153 <https://github.com/readthedocs/readthedocs.org/pull/8153>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: default to search on default version of subprojects (`#8148 <https://github.com/readthedocs/readthedocs.org/pull/8148>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove protected privacy level (`#8146 <https://github.com/readthedocs/readthedocs.org/pull/8146>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: fix paths that start with `/` (`#8139 <https://github.com/readthedocs/readthedocs.org/pull/8139>`__)
+* `@humitos <https://github.com/humitos>`__: Metrics: run metrics task every 30 minutes (`#8138 <https://github.com/readthedocs/readthedocs.org/pull/8138>`__)
+* `@humitos <https://github.com/humitos>`__: web-celery: add logging for OOM debug on suspicious tasks (`#8131 <https://github.com/readthedocs/readthedocs.org/pull/8131>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix a few style and grammar issues with SSO docs (`#8109 <https://github.com/readthedocs/readthedocs.org/pull/8109>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed: don't fail while querying sections with bad id (`#8084 <https://github.com/readthedocs/readthedocs.org/pull/8084>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: allow to install packages using apt (`#8060 <https://github.com/readthedocs/readthedocs.org/pull/8060>`__)
+
+Version 5.14.3
+--------------
+
+:Date: April 26, 2021
+
+* `@humitos <https://github.com/humitos>`__: Metrics: run metrics task every 30 minutes (`#8138 <https://github.com/readthedocs/readthedocs.org/pull/8138>`__)
+* `@humitos <https://github.com/humitos>`__: web-celery: add logging for OOM debug on suspicious tasks (`#8131 <https://github.com/readthedocs/readthedocs.org/pull/8131>`__)
+* `@stsewd <https://github.com/stsewd>`__: Celery router: check all `n` last builds for Conda (`#8129 <https://github.com/readthedocs/readthedocs.org/pull/8129>`__)
+* `@jonels-msft <https://github.com/jonels-msft>`__: Include aria-label in flyout search box (`#8127 <https://github.com/readthedocs/readthedocs.org/pull/8127>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: use %s to format the variable (`#8125 <https://github.com/readthedocs/readthedocs.org/pull/8125>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: improve list_packages_installed (`#8122 <https://github.com/readthedocs/readthedocs.org/pull/8122>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildCommand: don't leak stacktrace to the user (`#8121 <https://github.com/readthedocs/readthedocs.org/pull/8121>`__)
+* `@stsewd <https://github.com/stsewd>`__: API (v2): use empty list in serializer's exclude (`#8120 <https://github.com/readthedocs/readthedocs.org/pull/8120>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Miscellaneous doc improvements (`#8118 <https://github.com/readthedocs/readthedocs.org/pull/8118>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#8117 <https://github.com/readthedocs/readthedocs.org/pull/8117>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix a few style and grammar issues with SSO docs (`#8109 <https://github.com/readthedocs/readthedocs.org/pull/8109>`__)
+
+Version 5.14.2
+--------------
+
+:Date: April 20, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: check if user exists (`#8115 <https://github.com/readthedocs/readthedocs.org/pull/8115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: don't fetch/return all versions (`#8114 <https://github.com/readthedocs/readthedocs.org/pull/8114>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Improve contributing docs, take 2 (`#8113 <https://github.com/readthedocs/readthedocs.org/pull/8113>`__)
+* `@stsewd <https://github.com/stsewd>`__: ImportedFile: remove md5 field (`#8111 <https://github.com/readthedocs/readthedocs.org/pull/8111>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: improve docs and help text (`#8110 <https://github.com/readthedocs/readthedocs.org/pull/8110>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add warning about design docs (`#8104 <https://github.com/readthedocs/readthedocs.org/pull/8104>`__)
+* `@Harmon758 <https://github.com/Harmon758>`__: Docs: fix typo in config-file/v2.rst (`#8102 <https://github.com/readthedocs/readthedocs.org/pull/8102>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Improve documentation on contributing to documentation (`#8082 <https://github.com/readthedocs/readthedocs.org/pull/8082>`__)
+
+Version 5.14.1
+--------------
+
+:Date: April 13, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: OAuth: protection against deleted objects (`#8081 <https://github.com/readthedocs/readthedocs.org/pull/8081>`__)
+* `@cocobennett <https://github.com/cocobennett>`__: Add page and page_size to server side api documentation (`#8080 <https://github.com/readthedocs/readthedocs.org/pull/8080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version warning banner: inject on role="main" or main tag (`#8079 <https://github.com/readthedocs/readthedocs.org/pull/8079>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: avoid undefined var (`#8078 <https://github.com/readthedocs/readthedocs.org/pull/8078>`__)
+* `@stsewd <https://github.com/stsewd>`__: Conda: protect against None when appending core requirements (`#8077 <https://github.com/readthedocs/readthedocs.org/pull/8077>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: add small paragraph mentioning how to enable it on commercial (`#8063 <https://github.com/readthedocs/readthedocs.org/pull/8063>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add separate version create view and create view URL (`#7595 <https://github.com/readthedocs/readthedocs.org/pull/7595>`__)
+
+Version 5.14.0
+--------------
+
+:Date: April 06, 2021
+
+This release includes a security update which was done in a private branch PR.
+See our `security changelog <https://docs.readthedocs.io/en/latest/security.html#version-5-14-0>`__ for more details.
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 14 (`#8071 <https://github.com/readthedocs/readthedocs.org/pull/8071>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify ad-free conditions (`#8064 <https://github.com/readthedocs/readthedocs.org/pull/8064>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: add small paragraph mentioning how to enable it on commercial (`#8063 <https://github.com/readthedocs/readthedocs.org/pull/8063>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build environment: allow to run commands with a custom user (`#8058 <https://github.com/readthedocs/readthedocs.org/pull/8058>`__)
+* `@humitos <https://github.com/humitos>`__: Design document for new Docker images structure (`#7566 <https://github.com/readthedocs/readthedocs.org/pull/7566>`__)
+
 Version 5.13.0
 --------------
 

@@ -6,7 +6,6 @@ import re
 import socket
 import subprocess
 import sys
-import traceback
 import uuid
 from datetime import datetime
 
@@ -25,11 +24,11 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.projects.models import Feature
 from readthedocs.projects.exceptions import (
-    RepositoryError,
     ProjectConfigurationError,
+    RepositoryError,
 )
+from readthedocs.projects.models import Feature
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -51,7 +50,6 @@ from .exceptions import (
     VersionLockedError,
     YAMLParseError,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -77,13 +75,13 @@ class BuildCommand(BuildCommandResultMixin):
     :py:class:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
-    :param cwd: current working path for the command
+    :param cwd: Absolute path used as the current working path for the command.
+        Defaults to ``RTD_DOCKER_WORKDIR``.
     :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
     :type environment: dict
-    :param combine_output: combine stdout/stderr, default=True
-    :param input_data: data to pass in on stdin
-    :type input_data: str
+    :param str user: User used to execute the command, it can be in form of ``user:group``
+        or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
@@ -96,8 +94,7 @@ class BuildCommand(BuildCommandResultMixin):
             cwd=None,
             shell=False,
             environment=None,
-            combine_output=True,
-            input_data=None,
+            user=None,
             build_env=None,
             bin_path=None,
             description=None,
@@ -106,15 +103,12 @@ class BuildCommand(BuildCommandResultMixin):
     ):
         self.command = command
         self.shell = shell
-        if cwd is None:
-            cwd = os.getcwd()
-        self.cwd = cwd
+        self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
+        self.user = user or settings.RTD_DOCKER_USER
         self.environment = environment.copy() if environment else {}
         if 'PATH' in self.environment:
             raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
-        self.combine_output = combine_output
-        self.input_data = input_data
         self.build_env = build_env
         self.output = None
         self.error = None
@@ -122,9 +116,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.end_time = None
 
         self.bin_path = bin_path
-        self.description = ''
-        if description is not None:
-            self.description = description
+        self.description = description or ''
         self.record_as_success = record_as_success
         self.exit_code = None
 
@@ -136,24 +128,10 @@ class BuildCommand(BuildCommandResultMixin):
         return '\n'.join([self.get_command(), output])
 
     def run(self):
-        """
-        Set up subprocess and execute command.
-
-        :param cmd_input: input to pass to command in STDIN
-        :type cmd_input: str
-        :param combine_output: combine STDERR into STDOUT
-        """
+        """Set up subprocess and execute command."""
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
         self.start_time = datetime.utcnow()
-        stdout = subprocess.PIPE
-        stderr = subprocess.PIPE
-        stdin = None
-        if self.input_data is not None:
-            stdin = subprocess.PIPE
-        if self.combine_output:
-            stderr = subprocess.STDOUT
-
         environment = self.environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
@@ -175,30 +153,18 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 command,
                 shell=self.shell,
-                # This is done here for local builds, but not for docker,
-                # as we want docker to expand inside the container
-                cwd=os.path.expandvars(self.cwd),
-                stdin=stdin,
-                stdout=stdout,
-                stderr=stderr,
+                cwd=self.cwd,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 env=environment,
             )
-            cmd_input = None
-            if self.input_data is not None:
-                cmd_input = self.input_data
-
-            if isinstance(cmd_input, str):
-                cmd_input_bytes = cmd_input.encode('utf-8')
-            else:
-                cmd_input_bytes = cmd_input
-            cmd_output = proc.communicate(input=cmd_input_bytes)
-            (cmd_stdout, cmd_stderr) = cmd_output
+            cmd_stdout, cmd_stderr = proc.communicate()
             self.output = self.sanitize_output(cmd_stdout)
             self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
-            self.error = traceback.format_exc()
-            self.output = self.error
+            log.exception("Operating system error.")
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
@@ -304,6 +270,11 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     """
 
+    bash_escape_re = re.compile(
+        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
+        r'\[\\\]\^\`\{\|\}\~])'
+    )
+
     def __init__(self, *args, escape_command=True, **kwargs):
         """
         Override default to extend behavior.
@@ -314,7 +285,7 @@ class DockerBuildCommand(BuildCommand):
         :type escape_command: bool
         """
         self.escape_command = escape_command
-        super(DockerBuildCommand, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self):
         """Execute command in existing Docker container."""
@@ -332,6 +303,8 @@ class DockerBuildCommand(BuildCommand):
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
                 environment=self.environment,
+                user=self.user,
+                workdir=self.cwd,
                 stdout=True,
                 stderr=True,
             )
@@ -377,27 +350,27 @@ class DockerBuildCommand(BuildCommand):
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
         """
-        bash_escape_re = re.compile(
-            r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-            r'\[\\\]\^\`\{\|\}\~])',
-        )
         prefix = ''
         if self.bin_path:
-            prefix += 'PATH={}:$PATH '.format(self.bin_path)
+            bin_path = self._escape_command(self.bin_path)
+            prefix += f'PATH={bin_path}:$PATH '
 
         command = (
-            ' '.join([
-                bash_escape_re.sub(r'\\\1', part) if self.escape_command else part
+            ' '.join(
+                self._escape_command(part) if self.escape_command else part
                 for part in self.command
-            ])
+            )
         )
         return (
-            "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
-                cwd=self.cwd,
+            "/bin/sh -c '{prefix}{cmd}'".format(
                 prefix=prefix,
                 cmd=command,
             )
         )
+
+    def _escape_command(self, cmd):
+        r"""Escape the command by prefixing suspicious chars with `\`."""
+        return self.bash_escape_re.sub(r'\\\1', cmd)
 
 
 class BaseEnvironment:
@@ -1080,7 +1053,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 ),
                 name=self.container_id,
                 hostname=self.container_id,
-                volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,

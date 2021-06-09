@@ -1,18 +1,10 @@
 # Packages required to build docs, independent of application dependencies
 
-Sphinx==3.5.3
-Pygments==2.8.1
+Sphinx==4.0.2
+Pygments==2.9.0
 
-# doctuils==0.15 produces this error
-#   File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
-#    nodes[0][0].rawsource = unescape(text, True)
-# AttributeError: 'str' object has no attribute 'rawsource'  File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
-#     nodes[0][0].rawsource = unescape(text, True)
-# AttributeError: 'str' object has no attribute 'rawsource'
-docutils==0.14  # pyup: ignore
-
-sphinx_rtd_theme==0.5.1
-sphinx-tabs==2.1.0
+sphinx_rtd_theme==0.5.2
+sphinx-tabs==3.0.0
 sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.0
@@ -24,9 +16,8 @@ git+https://github.com/readthedocs/sphinx-hoverxref@master
 sphinxemoji==0.1.8
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.4.0
-sphinx-notfound-page==0.6
-commonmark==0.9.1
-recommonmark==0.7.1
+sphinx-notfound-page==0.7.1
+sphinx-autobuild==2021.3.14
 
 # Linting
 rstcheck==3.3.1

@@ -62,15 +62,26 @@ Set up your environment
 
    * go to http://localhost:9000/ (MinIO S3 storage backend)
    * login as ``admin`` / ``password``
-   * click "..." next to the bucket name and then "Edit Policy"
-   * give "Read Only" access on all the buckets (``static`` and ``media``)
-
-   .. note::
-
-      ``media`` bucket may be created after the first build is finished.
-      You will need to repeat this step after that.
+   * click "..." next to the ``static`` bucket name and then "Edit Policy"
+   * leave "prefix" empty and click "Add" to give "Read Only" access on the ``static`` bucket
+   * click on the "+" icon on the bottom-right corner, then "Create bucket" with the name ``media``,
+     hit Enter on the keyboard, and repeat the operation above to give "Read Only" access to it
 
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+
+
+Check that everything works
+---------------------------
+
+#. go to http://community.dev.readthedocs.io and check that the appearance and style looks correct
+   (otherwise the MinIO buckets might be misconfigured, see above)
+
+#. login as ``admin`` /  ``admin`` and verify that the project list appears
+
+#. go to the "Read the Docs" project, click on the "Build version" button to build ``latest``,
+   and wait until it finishes
+
+#. click on the "View docs" button to browse the documentation, and verify that it works
 
 
 Working with Docker Compose

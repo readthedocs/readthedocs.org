@@ -323,7 +323,7 @@ class Virtualenv(PythonEnvironment):
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
-            cwd='$HOME',
+            cwd=None,
         )
 
     def install_core_requirements(self):
@@ -462,6 +462,8 @@ class Virtualenv(PythonEnvironment):
             '-m',
             'pip',
             'list',
+            # Inlude pre-release versions.
+            '--pre',
         ]
         self.build_env.run(
             *args,
@@ -615,7 +617,8 @@ class Conda(PythonEnvironment):
 
             for item in dependencies:
                 if isinstance(item, dict) and 'pip' in item:
-                    pip_requirements.extend(item.get('pip', []))
+                    # NOTE: pip can be ``None``
+                    pip_requirements.extend(item.get('pip') or [])
                     dependencies.remove(item)
                     break
 
@@ -711,8 +714,10 @@ class Conda(PythonEnvironment):
     def list_packages_installed(self):
         """List packages installed in conda."""
         args = [
-            'conda',
+            self.conda_bin_name(),
             'list',
+            '--name',
+            self.version.slug,
         ]
         self.build_env.run(
             *args,
