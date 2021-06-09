@@ -74,7 +74,8 @@ class BuildTriggerMixin:
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    "This build can't be re-triggered because it's not the latest build for this version.",
+                    "This build can't be re-triggered because it's "
+                    "not the latest build for this version.",
                 )
                 return HttpResponseRedirect(request.path)
 
