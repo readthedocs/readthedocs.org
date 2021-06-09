@@ -97,15 +97,16 @@ This is the list of endpoints to be implemented in APIv3:
       }
 
 
-.. http:get:: /api/v3/embed/identifiers/?url=https://docs.readthedocs.io/en/latest/development/install.html
+.. http:get:: /api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
 
-   Returns all the available identifiers for an specific page.
+   Returns all the available metadata for an specific page.
 
    :query url (required): Full URL for the documentation page
 
    .. sourcecode:: json
 
-      [
+      {
+        "identifiers":
             {
                "id": "set-up-your-environment",
                "url": "https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
@@ -121,7 +122,7 @@ This is the list of endpoints to be implemented in APIv3:
                }
             },
             ...
-      ]
+      }
 
 
 Handle specific Sphinx cases
