@@ -6,7 +6,7 @@ It has been treated as an *experimental* feature without public documentation or
 but recently it started to be used widely (mainly because we created a Sphinx extension).
 
 The main goal of this document is to design a new version of the Embed API to be more user friendly,
-make it more stable over time, support documentation pages not hosted at Read the Docs,
+make it more stable over time, support embedding content from pages not hosted at Read the Docs,
 and remove some quirkiness that makes it hard to maintain and difficult to use.
 
 .. note::
@@ -42,7 +42,7 @@ Considering the problems mentioned in the previous section,
 the inclusion of new features and the definition of a contract that works the same for all,
 this document set the following goals for the new version of this endpoint:
 
-* Support external documents hosted outside Read the Docs
+* Support embedding content from pages hosted outside Read the Docs
 * Do not depend on Sphinx ``.fjson`` files
 * Query and parse the ``.html`` file directly (from our storage or from an external request)
 * Rewrite all links returned in the content to make them absolute
