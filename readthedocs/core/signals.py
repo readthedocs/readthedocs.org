@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Signal handling for core app."""
 
 import logging
@@ -16,14 +14,13 @@ from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Domain, Project
 
-
 log = logging.getLogger(__name__)
 
 ALLOWED_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
-    '/api/v2/sustainability',
+    '/api/v2/embed',
 ]
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -39,28 +36,32 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     Decide whether a request should be given CORS access.
 
     This checks that:
-    * The URL is whitelisted against our CORS-allowed domains
-    * The Domain exists in our database, and belongs to the project being queried.
 
-    Returns True when a request should be given CORS access.
+    * It's a safe HTTP method
+    * Is the sustainability API or in ALLOWED_URLS
+    * The URL is owned by the project that they are requesting data from
+    * The version is public
+    * Or the domain is linked to the project (except for the embed API).
+
+    :returns: `True` when a request should be given CORS access.
     """
-    if 'HTTP_ORIGIN' not in request.META:
+    if 'HTTP_ORIGIN' not in request.META or request.method not in SAFE_METHODS:
         return False
+
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    # Don't do domain checking for this API for now
+    # Always allow the sustainability API,
+    # it's used only on .org to check for ad-free users.
     if request.path_info.startswith('/api/v2/sustainability'):
         return True
 
-    # Don't do domain checking for APIv2 when the Domain is known
-    if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
-        domain = Domain.objects.filter(domain__icontains=host)
-        if domain.exists():
-            return True
+    valid_url = None
+    for url in ALLOWED_URLS:
+        if request.path_info.startswith(url):
+            valid_url = url
+            break
 
-    # Check for Embed API, allowing CORS on public projects
-    # since they are already public
-    if request.path_info.startswith('/api/v2/embed'):
+    if valid_url:
         url = request.GET.get('url')
         if url:
             unresolved = unresolve(url)
@@ -74,7 +75,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         if project and version_slug:
             # This is from IsAuthorizedToViewVersion,
             # we should abstract is a bit perhaps?
-            has_access = (
+            is_public = (
                 Version.objects
                 .public(
                     project=project,
@@ -83,36 +84,25 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
                 .filter(slug=version_slug)
                 .exists()
             )
-            if has_access:
+            # Allowing CORS on public versions,
+            # since they are already public.
+            if is_public:
                 return True
 
-        return False
+            # Don't check for known domains for the embed api.
+            # It gives a lot of information,
+            # we should use a list of trusted domains from the user.
+            if valid_url == '/api/v2/embed':
+                return False
 
-    valid_url = False
-    for url in ALLOWED_URLS:
-        if request.path_info.startswith(url):
-            valid_url = True
-            break
-
-    if valid_url:
-        project_slug = request.GET.get('project', None)
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            log.warning(
-                'Invalid project passed to domain. [%s:%s]',
-                project_slug,
-                host,
+            # Or allow if they have a registered domain
+            # linked to that project.
+            domain = Domain.objects.filter(
+                Q(domain__icontains=host),
+                Q(project=project) | Q(project__subprojects__child=project),
             )
-            return False
-
-        domain = Domain.objects.filter(
-            Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project),
-        )
-        if domain.exists():
-            return True
-
+            if domain.exists():
+                return True
     return False
 
 
