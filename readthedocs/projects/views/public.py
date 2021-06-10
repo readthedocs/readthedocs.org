@@ -26,7 +26,7 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import LATEST, BUILD_STATUS_DUPLICATED
+from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -99,7 +99,7 @@ class ProjectDetailViewBase(
     slug_url_kwarg = 'project_slug'
 
     def get_queryset(self):
-        return Project.objects.protected(self.request.user)
+        return Project.objects.public(self.request.user)
 
     def get_project(self):
         return self.get_object()
@@ -277,7 +277,7 @@ project_badge = never_cache(ProjectBadgeView.as_view())
 def project_downloads(request, project_slug):
     """A detail view for a project with various downloads."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     versions = Version.internal.public(user=request.user, project=project)
@@ -400,7 +400,7 @@ def project_versions(request, project_slug):
     max_inactive_versions = 100
 
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
 
@@ -448,7 +448,7 @@ def project_versions(request, project_slug):
 def project_analytics(request, project_slug):
     """Have a analytics API placeholder."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     analytics_cache = cache.get('analytics:%s' % project_slug)
@@ -509,7 +509,7 @@ def project_analytics(request, project_slug):
 def project_embed(request, project_slug):
     """Have a content API placeholder."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     version = project.versions.get(slug=LATEST)

@@ -16,19 +16,6 @@ has many great features for writing technical documentation including:
 * Syntax highlighted code samples
 * A vibrant ecosystem of first and third-party :doc:`extensions <sphinx:usage/extensions/index>`
 
-Quick start video
------------------
-
-This screencast will help you get started or you can
-:ref:`read our guide below <intro/getting-started-with-sphinx:Quick start>`.
-
-.. raw:: html
-
-    <div style="text-align: center; margin-bottom: 2em;">
-    <iframe width="100%" height="350" src="https://www.youtube-nocookie.com/embed/oJsUvBQyHBs?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-
-
 Quick start
 -----------
 

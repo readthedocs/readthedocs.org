@@ -265,6 +265,71 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_rebuild_specific_commit(self, mock):
+        builds_count = Build.objects.count()
+
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        build = get(
+            Build,
+            version=version,
+            project=self.pip,
+            commit='a1b2c3',
+        )
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(Build.objects.count(), builds_count + 2)
+
+        newbuild = Build.objects.first()
+        self.assertEqual(
+            r._headers['location'][1],
+            f'/projects/pip/builds/{newbuild.pk}/',
+        )
+        self.assertEqual(newbuild.commit, 'a1b2c3')
+
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_rebuild_invalid_specific_commit(self, mock):
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        for i in range(3):
+            get(
+                Build,
+                version=version,
+                project=self.pip,
+                commit=f'a1b2c3-{i}',
+            )
+
+        build = Build.objects.filter(
+            version=version,
+            project=self.pip,
+        ).last()
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        # It should return 302 and show a message to the user because we are
+        # re-triggering a build of a non-lastest build for that version
+        self.assertEqual(r.status_code, 302)
+
 
 class TestSearchAnalyticsView(TestCase):
 

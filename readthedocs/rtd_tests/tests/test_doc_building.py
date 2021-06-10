@@ -7,14 +7,13 @@ Things to know:
 import hashlib
 import json
 import os
-import re
 import tempfile
 import uuid
 from unittest import mock
 from unittest.mock import Mock, PropertyMock, mock_open, patch
 
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
@@ -357,6 +356,7 @@ class TestLocalBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
@@ -700,7 +700,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -760,7 +761,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -807,7 +809,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -1011,6 +1014,7 @@ class TestDockerBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestBuildCommand(TestCase):
 
     """Test build command creation."""
@@ -1038,8 +1042,10 @@ class TestBuildCommand(TestCase):
         self.assertFalse(os.path.exists(path))
         cmd = BuildCommand(path)
         cmd.run()
-        missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegex(cmd.error, missing_re)
+        self.assertEqual(cmd.exit_code, -1)
+        # There is no stacktrace here.
+        self.assertIsNone(cmd.output)
+        self.assertIsNone(cmd.error)
 
     def test_output(self):
         """Test output command."""
@@ -1089,6 +1095,7 @@ class TestBuildCommand(TestCase):
         )
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildCommand(TestCase):
 
     """Test docker build commands."""
@@ -1108,7 +1115,7 @@ class TestDockerBuildCommand(TestCase):
         )
         self.assertEqual(
             cmd.get_wrapped_command(),
-            "/bin/sh -c 'cd /tmp/foobar && pip install requests'",
+            "/bin/sh -c 'pip install requests'",
         )
         cmd = DockerBuildCommand(
             ['python', '/tmp/foo/pip', 'install', 'Django>1.7'],
@@ -1119,7 +1126,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             (
                 '/bin/sh -c '
-                "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
+                "'PATH=/tmp/foo:$PATH "
                 r"python /tmp/foo/pip install Django\>1.7'"
             ),
         )

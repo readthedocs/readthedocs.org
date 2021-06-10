@@ -277,10 +277,6 @@ class BaseTestDocumentSearch:
         """Return results from subprojects that match the version from the main project or fallback to its default version."""
         project = all_projects[0]
         version = project.versions.all()[0]
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
-        )
-        project.feature_set.add(feature)
 
         subproject = all_projects[1]
         subproject_version = subproject.versions.all()[0]
@@ -609,7 +605,12 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) > 0
-        assert 'Index' in results[0]['title']
+        assert 'Support' in results[0]['title']
+        # find is more closer than index, so is listed first.
+        highlights = results[0]['blocks'][0]['highlights']
+        assert '<span>find</span>' in highlights['content'][0]
+
+        assert 'Index' in results[1]['title']
 
         # Query with a partial word, but we want to match that
         search_params = {

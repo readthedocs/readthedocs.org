@@ -611,6 +611,7 @@ class Build(models.Model):
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+        db_index=True,
     )
 
     # Describe status as *why* the build is in a particular state. It is
@@ -625,7 +626,7 @@ class Build(models.Model):
         default=None,
         blank=True,
     )
-    date = models.DateTimeField(_('Date'), auto_now_add=True)
+    date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
     setup = models.TextField(_('Setup'), null=True, blank=True)
@@ -692,6 +693,9 @@ class Build(models.Model):
         index_together = [
             ['version', 'state', 'type'],
             ['date', 'id'],
+        ]
+        indexes = [
+            models.Index(fields=['project', 'date']),
         ]
 
     def __init__(self, *args, **kwargs):
