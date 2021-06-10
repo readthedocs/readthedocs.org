@@ -976,7 +976,7 @@ class Project(models.Model):
         :param version: Version instance to set version checkout path
         """
         matches = []
-        for root, _, filenames in os.walk(self.full_doc_path(version)):
+        for root, __, filenames in os.walk(self.full_doc_path(version)):
             for match in fnmatch.filter(filenames, filename):
                 matches.append(os.path.join(root, match))
         return matches
@@ -989,7 +989,7 @@ class Project(models.Model):
         :param version: Version instance to set version checkout path
         """
         matches = []
-        for root, _, filenames in os.walk(self.checkout_path(version)):
+        for root, __, filenames in os.walk(self.checkout_path(version)):
             for match in fnmatch.filter(filenames, filename):
                 matches.append(os.path.join(root, match))
         return matches
