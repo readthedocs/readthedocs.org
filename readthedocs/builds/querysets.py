@@ -9,6 +9,7 @@ from django.utils import timezone
 from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    EXTERNAL,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -41,9 +42,27 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None, only_active=True,
-               include_hidden=True, only_built=False):
-        queryset = self.filter(privacy_level=constants.PUBLIC)
+    def public(
+        self,
+        user=None,
+        project=None,
+        only_active=True,
+        include_hidden=True,
+        only_built=False,
+    ):
+        """
+        Get all allowed versions.
+
+        .. note::
+
+           External versions use the `Project.external_builds_privacy_level`
+           field instead of its `privacy_level` field.
+        """
+        queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+        queryset |= self.filter(
+            type=EXTERNAL,
+            project__external_builds_privacy_level=constants.PUBLIC,
+        )
         if user:
             if user.is_superuser:
                 queryset = self.all()
@@ -93,9 +112,27 @@ class BuildQuerySetBase(models.QuerySet):
         return queryset
 
     def public(self, user=None, project=None):
-        queryset = self.filter(
-            version__privacy_level=constants.PUBLIC,
-            version__project__privacy_level=constants.PUBLIC,
+        """
+        Get all allowed builds.
+
+        Builds are public if the linked version and project are public.
+
+        .. note::
+
+           External versions use the `Project.external_builds_privacy_level`
+           field instead of its `privacy_level` field.
+        """
+        queryset = (
+            self.filter(
+                version__privacy_level=constants.PUBLIC,
+                version__project__privacy_level=constants.PUBLIC,
+            )
+            .exclude(version__type=EXTERNAL)
+        )
+        queryset |= self.filter(
+            version__type=EXTERNAL,
+            project__external_builds_privacy_level=constants.PUBLIC,
+            project__privacy_level=constants.PUBLIC,
         )
         if user:
             if user.is_superuser:

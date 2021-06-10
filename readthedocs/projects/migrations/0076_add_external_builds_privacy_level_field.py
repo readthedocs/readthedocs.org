@@ -2,6 +2,8 @@
 
 from django.db import migrations, models
 
+import readthedocs.projects.models
+
 
 class Migration(migrations.Migration):
 
@@ -13,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='external_builds_privacy_level',
-            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default='private', null=True, help_text='Should builds from pull requests be public?', max_length=20, verbose_name='Privacy level of Pull Requests'),
+            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default=readthedocs.projects.models.default_privacy_level, help_text='Should builds from pull requests be public?', max_length=20, null=True, verbose_name='Privacy level of Pull Requests'),
         ),
         migrations.AlterField(
             model_name='project',

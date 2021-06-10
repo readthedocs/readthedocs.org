@@ -59,6 +59,10 @@ from .constants import (
 log = logging.getLogger(__name__)
 
 
+def default_privacy_level():
+    return settings.DEFAULT_PRIVACY_LEVEL
+
+
 class ProjectRelationship(models.Model):
 
     """
@@ -225,9 +229,7 @@ class Project(models.Model):
         # TODO: remove after migration
         null=True,
         choices=constants.PRIVACY_CHOICES,
-        # Force it to private so current projects in .com
-        # use this value.
-        default=constants.PRIVATE,
+        default=default_privacy_level,
         help_text=_(
             'Should builds from pull requests be public?',
         ),
@@ -447,8 +449,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -976,7 +976,7 @@ class Project(models.Model):
         :param version: Version instance to set version checkout path
         """
         matches = []
-        for root, __, filenames in os.walk(self.full_doc_path(version)):
+        for root, _, filenames in os.walk(self.full_doc_path(version)):
             for match in fnmatch.filter(filenames, filename):
                 matches.append(os.path.join(root, match))
         return matches
@@ -989,7 +989,7 @@ class Project(models.Model):
         :param version: Version instance to set version checkout path
         """
         matches = []
-        for root, __, filenames in os.walk(self.checkout_path(version)):
+        for root, _, filenames in os.walk(self.checkout_path(version)):
             for match in fnmatch.filter(filenames, filename):
                 matches.append(os.path.join(root, match))
         return matches
@@ -1176,7 +1176,7 @@ class Project(models.Model):
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
-        subproject, __ = ProjectRelationship.objects.get_or_create(
+        subproject, _ = ProjectRelationship.objects.get_or_create(
             parent=self,
             child=child,
             alias=alias,
