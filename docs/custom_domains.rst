@@ -26,7 +26,7 @@ You can also host your documentation from your own domain.
 .. tabs::
 
    .. tab:: Read the Docs Community
-      
+
       In order to setup your custom domain, follow these steps:
 
       #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
@@ -45,7 +45,7 @@ You can also host your documentation from your own domain.
       .. prompt:: bash $, auto
 
          $ dig CNAME +short docs.fabfile.org
-         readthedocs.io.
+           readthedocs.io.
 
    .. tab:: Read the Docs for Business
 
@@ -56,7 +56,7 @@ You can also host your documentation from your own domain.
       #. Enter your domain and click on :guilabel:`Add`
       #. Follow the steps shown on the domain page.
          This will require adding 2 DNS records, one pointing your custom domain to our servers,
-         and another allowing us to provision an SSL certificate. 
+         and another allowing us to provision an SSL certificate.
 
       By default, we provide a validated SSL certificate for the domain.
       The SSL certificate issuance can take a few days,
@@ -127,21 +127,11 @@ You will need to update your CAA records to allow us to issue the certificate.
 .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
-Notes for Cloudflare DNS users
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
 
-Due to a limitation between |org_brand| and Cloudflare,
-a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-You will see a "CNAME Cross-User Banned" error in your Cloudflare dashboard
-and a ``requested hostname resolves to a Cloudflare zone that is not owned by you`` error in the Read the Docs dashboard.
-In order to do SSL termination, we must proxy this connection.
-If you don't want us to do SSL termination for your domain —
-**which means you are responsible for the SSL certificate** —
-then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-For more details, see `this previous issue`_.
-
-.. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
-
+   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
+   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
+   else it will always redirect to GitBook.
 
 Proxy SSL
 ---------

@@ -1,5 +1,6 @@
 from unittest import mock
 
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -10,10 +11,10 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import (
-    BitbucketWebhook,
     GitHubWebhook,
     GitLabWebhook,
 )
+from readthedocs.oauth.constants import GITHUB, BITBUCKET, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -32,9 +33,12 @@ class GitHubOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitHubService(user=self.user, account=None)
+        self.service = GitHubService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit='1234',
@@ -59,6 +63,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -72,6 +77,8 @@ class GitHubOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testuser/testrepo')
+        self.assertEqual(repo.remote_id, '12345678')
+        self.assertEqual(repo.vcs_provider, GITHUB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
@@ -91,6 +98,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': '',
             'full_name': '',
+            'id': '',
             'description': '',
             'git_url': '',
             'private': True,
@@ -105,6 +113,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_make_organization(self):
         org_json = {
+            'id': 12345,
             'html_url': 'https://github.com/testorg',
             'name': 'Test Org',
             'email': 'test@testorg.org',
@@ -121,13 +130,14 @@ class GitHubOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a GitHub SocialToken does not return a service."""
-        services = GitHubService.for_user(self.user)
+        services = GitHubService.for_user(get(User))
         self.assertEqual(services, [])
 
     def test_multiple_users_same_repo(self):
         repo_json = {
             'name': '',
             'full_name': 'testrepo/multiple',
+            'id': '12345678',
             'description': '',
             'git_url': '',
             'private': False,
@@ -141,13 +151,16 @@ class GitHubOAuthTests(TestCase):
         )
 
         user2 = User.objects.get(pk=2)
-        service = GitHubService(user=user2, account=None)
+        service = GitHubService(
+            user=user2,
+            account=get(SocialAccount, user=self.user)
+        )
         github_project_2 = service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
         )
         self.assertIsInstance(github_project, RemoteRepository)
         self.assertIsInstance(github_project_2, RemoteRepository)
-        self.assertNotEqual(github_project_2, github_project)
+        self.assertEqual(github_project_2, github_project)
 
         github_project_3 = self.service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy,
@@ -229,6 +242,7 @@ class GitHubOAuthTests(TestCase):
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
+            'id': '12345678',
             'description': 'Test Repo',
             'git_url': 'git://github.com/testuser/testrepo.git',
             'private': False,
@@ -449,9 +463,12 @@ class BitbucketOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://bitbucket.org/testuser/testrepo/'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = BitbucketService(user=self.user, account=None)
+        self.service = BitbucketService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.integration = get(
             GitHubWebhook,
             project=self.project,
@@ -581,6 +598,8 @@ class BitbucketOAuthTests(TestCase):
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'tutorials.bitbucket.org')
         self.assertEqual(repo.full_name, 'tutorials/tutorials.bitbucket.org')
+        self.assertEqual(repo.remote_id, '{9970a9b6-2d86-413f-8555-da8e1ac0e542}')
+        self.assertEqual(repo.vcs_provider, BITBUCKET)
         self.assertEqual(repo.description, 'Site for tutorial101 files')
         self.assertEqual(repo.default_branch, 'main')
         self.assertEqual(
@@ -669,7 +688,7 @@ class BitbucketOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         """User without a Bitbucket SocialToken does not return a service."""
-        services = BitbucketService.for_user(self.user)
+        services = BitbucketService.for_user(get(User))
         self.assertEqual(services, [])
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -958,9 +977,12 @@ class GitLabOAuthTests(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.project.repo = 'https://gitlab.com/testorga/testrepo'
         self.project.save()
-        self.org = RemoteOrganization.objects.create(slug='testorga', json='')
+        self.org = RemoteOrganization.objects.create(slug='testorga')
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
-        self.service = GitLabService(user=self.user, account=None)
+        self.service = GitLabService(
+            user=self.user,
+            account=get(SocialAccount, user=self.user)
+        )
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version, commit=1234,
@@ -994,7 +1016,9 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
-        self.assertEqual(repo.full_name, 'testorga / testrepo')
+        self.assertEqual(repo.full_name, 'testorga/testrepo')
+        self.assertEqual(repo.remote_id, 42)
+        self.assertEqual(repo.vcs_provider, GITLAB)
         self.assertEqual(repo.description, 'Test Repo')
         self.assertEqual(
             repo.avatar_url,
@@ -1008,7 +1032,7 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
-        self.assertTrue(repo.admin)
+        self.assertTrue(repo.remote_repository_relations.first().admin)
         self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):

@@ -2,22 +2,26 @@ import copy
 import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
-from slugify import slugify as unicode_slugify
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.http import (
     HttpResponse,
-    HttpResponseRedirect,
     HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
 )
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
+from slugify import slugify as unicode_slugify
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
+from readthedocs.proxito.constants import (
+    REDIRECT_CANONICAL_CNAME,
+    REDIRECT_HTTPS,
+)
 from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -72,8 +76,7 @@ class ServeDocsMixin:
         """
         log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        root_path = storage.path('')
+        root_path = build_media_storage.path('')
         # Serve from Python
         return serve(request, path, root_path)
 
@@ -120,6 +123,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
+        # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
         return response
 
@@ -169,19 +173,40 @@ class ServeRedirectMixin:
         """
         Return a redirect to the canonical domain including scheme.
 
-        This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
-        """
-        full_path = request.get_full_path()
-        urlparse_result = urlparse(full_path)
-        to = resolve(
-            project=final_project,
-            version_slug=version_slug,
-            filename=filename,
-            query_params=urlparse_result.query,
-            external=hasattr(request, 'external_domain'),
-        )
+        The following cases are covered:
 
-        if full_path == to:
+        - Redirect a custom domain from http to https (if supported)
+          http://project.rtd.io/ -> https://project.rtd.io/
+        - Redirect a domain to a canonical domain (http or https).
+          http://project.rtd.io/ -> https://docs.test.com/
+          http://project.rtd.io/foo/bar/ -> https://docs.test.com/foo/bar/
+        - Redirect from a subproject domain to the main domain
+          https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
+          https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
+        """
+        from_url = request.build_absolute_uri()
+        parsed_from = urlparse(from_url)
+
+        redirect_type = getattr(request, 'canonicalize', None)
+        if redirect_type == REDIRECT_HTTPS:
+            to = parsed_from._replace(scheme='https').geturl()
+        else:
+            to = resolve(
+                project=final_project,
+                version_slug=version_slug,
+                filename=filename,
+                query_params=parsed_from.query,
+                external=hasattr(request, 'external_domain'),
+            )
+            # When a canonical redirect is done, only change the domain.
+            if redirect_type == REDIRECT_CANONICAL_CNAME:
+                parsed_to = urlparse(to)
+                to = parsed_from._replace(
+                    scheme=parsed_to.scheme,
+                    netloc=parsed_to.netloc,
+                ).geturl()
+
+        if from_url == to:
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL. url=%s',

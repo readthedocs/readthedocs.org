@@ -7,9 +7,9 @@ import re
 from urllib.parse import urlparse
 
 import orjson as json
-from django.conf import settings
-from django.core.files.storage import get_storage_class
 from selectolax.parser import HTMLParser
+
+from readthedocs.storage import build_media_storage
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class BaseParser:
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
-        self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        self.storage = build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""

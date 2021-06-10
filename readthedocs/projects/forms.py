@@ -9,12 +9,10 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -87,7 +85,7 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type', 'default_branch')
 
-    remote_repository = forms.CharField(
+    remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
         required=False,
     )
@@ -191,7 +189,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -274,10 +272,6 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
-
-        # Enable PR builder option on projects w/ feature flag
-        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
-            self.fields.pop('external_builds_enabled')
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -761,11 +755,16 @@ class EnvironmentVariableForm(forms.ModelForm):
 
     class Meta:
         model = EnvironmentVariable
-        fields = ('name', 'value', 'project')
+        fields = ('name', 'value', 'public', 'project')
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields['public'].widget = forms.CheckboxInput()
+        self.fields['public'].empty_value = False
 
     def clean_project(self):
         return self.project

@@ -241,9 +241,9 @@ class PythonEnvironment:
         """
         m = hashlib.sha256()
 
-        env_vars = self.version.project.environment_variables
-        if self.version.type == EXTERNAL:
-            env_vars = {}
+        env_vars = self.version.project.environment_variables(
+            public_only=self.version.is_external
+        )
 
         for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
@@ -323,7 +323,7 @@ class Virtualenv(PythonEnvironment):
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
-            cwd='$HOME',
+            cwd=None,
         )
 
     def install_core_requirements(self):
@@ -345,26 +345,15 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        setuptools_version = self.project.get_feature_value(
-            Feature.INSTALL_LATEST_SETUPTOOLS,
-            positive='setuptools',
-            negative='setuptools==41.0.1',
-        )
-        cmd = pip_install_cmd + [pip_version, setuptools_version]
+        cmd = pip_install_cmd + [pip_version, 'setuptools']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
-            self.project.get_feature_value(
-                Feature.DONT_INSTALL_DOCUTILS,
-                positive='',
-                negative='docutils==0.14',
-            ),
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            'six',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
@@ -374,7 +363,11 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative='mkdocs<1.1',
+                    negative=self.project.get_feature_value(
+                        Feature.USE_MKDOCS_LATEST,
+                        positive='mkdocs<1.1',
+                        negative='mkdocs',
+                    ),
                 ),
             )
         else:
@@ -469,6 +462,8 @@ class Virtualenv(PythonEnvironment):
             '-m',
             'pip',
             'list',
+            # Inlude pre-release versions.
+            '--pre',
         ]
         self.build_env.run(
             *args,
@@ -622,7 +617,8 @@ class Conda(PythonEnvironment):
 
             for item in dependencies:
                 if isinstance(item, dict) and 'pip' in item:
-                    pip_requirements.extend(item.get('pip', []))
+                    # NOTE: pip can be ``None``
+                    pip_requirements.extend(item.get('pip') or [])
                     dependencies.remove(item)
                     break
 
@@ -658,7 +654,6 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
-            'six',
         ]
 
         if self.config.doctype == 'mkdocs':
@@ -719,8 +714,10 @@ class Conda(PythonEnvironment):
     def list_packages_installed(self):
         """List packages installed in conda."""
         args = [
-            'conda',
+            self.conda_bin_name(),
             'list',
+            '--name',
+            self.version.slug,
         ]
         self.build_env.run(
             *args,

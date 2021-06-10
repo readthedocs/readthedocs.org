@@ -40,8 +40,11 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.mixins import (
+    ListViewWithForm,
+    PrivateViewMixin,
+)
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
@@ -81,7 +84,6 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
-
 
 log = logging.getLogger(__name__)
 
@@ -189,9 +191,7 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
-
-    template_name = 'projects/project_version_detail.html'
+class ProjectVersionEditMixin(ProjectVersionMixin):
 
     def get_queryset(self):
         return Version.internal.public(
@@ -217,6 +217,16 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectVersionCreate(ProjectVersionEditMixin, CreateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+
+class ProjectVersionDetail(ProjectVersionEditMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
 
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
@@ -938,11 +948,6 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
     pass
 
 
-class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
-
-    pass
-
-
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
 
     http_method_names = ['post']
@@ -1057,15 +1062,17 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         now = timezone.now().date()
         last_3_month = now - timezone.timedelta(days=90)
 
-        data = (
-            SearchQuery.objects.filter(
-                project=project,
-                created__date__gte=last_3_month,
-                created__date__lte=now,
+        data = []
+        if self._is_enabled(project):
+            data = (
+                SearchQuery.objects.filter(
+                    project=project,
+                    created__date__gte=last_3_month,
+                    created__date__lte=now,
+                )
+                .order_by('-created')
+                .values_list('created', 'query', 'total_results')
             )
-            .order_by('-created')
-            .values_list('created', 'query', 'total_results')
-        )
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
             project_slug=project.slug,
@@ -1075,10 +1082,12 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         # remove any spaces in filename.
         file_name = '-'.join([text for text in file_name.split() if text])
 
-        csv_data = (
+        csv_data = [
             [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
             for time, query, total_results in data
-        )
+        ]
+        # Add headers to the CSV
+        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse(
@@ -1111,7 +1120,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             return context
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project)
+        top_pages = PageView.top_viewed_pages(project, limit=25)
         top_viewed_pages = list(zip(
             top_pages['pages'],
             top_pages['view_counts']

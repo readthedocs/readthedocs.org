@@ -12,13 +12,14 @@ from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
 
-from readthedocs.oauth.models import RemoteOrganization
+from readthedocs.builds.models import Version
+from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Domain, Project
 
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = [
+ALLOWED_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
@@ -57,8 +58,38 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         if domain.exists():
             return True
 
+    # Check for Embed API, allowing CORS on public projects
+    # since they are already public
+    if request.path_info.startswith('/api/v2/embed'):
+        url = request.GET.get('url')
+        if url:
+            unresolved = unresolve(url)
+            project = unresolved.project
+            version_slug = unresolved.version_slug
+        else:
+            project_slug = request.GET.get('project', None)
+            version_slug = request.GET.get('version', None)
+            project = Project.objects.filter(slug=project_slug).first()
+
+        if project and version_slug:
+            # This is from IsAuthorizedToViewVersion,
+            # we should abstract is a bit perhaps?
+            has_access = (
+                Version.objects
+                .public(
+                    project=project,
+                    only_active=False,
+                )
+                .filter(slug=version_slug)
+                .exists()
+            )
+            if has_access:
+                return True
+
+        return False
+
     valid_url = False
-    for url in WHITELIST_URLS:
+    for url in ALLOWED_URLS:
         if request.path_info.startswith(url):
             valid_url = True
             break
@@ -86,7 +117,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
-def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+def delete_projects(sender, instance, *args, **kwargs):
     # Here we count the owner list from the projects that the user own
     # Then exclude the projects where there are more than one owner
     # Add annotate before filter
@@ -98,16 +129,7 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
                                           ).exclude(num_users__gt=1)
     )
 
-    # Here we count the users list from the organization that the user belong
-    # Then exclude the organizations where there are more than one user
-    oauth_organizations = (
-        RemoteOrganization.objects.annotate(num_users=Count('users')
-                                            ).filter(users=instance.id
-                                                     ).exclude(num_users__gt=1)
-    )
-
     projects.delete()
-    oauth_organizations.delete()
 
 
 signals.check_request_enabled.connect(decide_if_cors)

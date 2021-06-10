@@ -10,9 +10,9 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.urls import core_urls
-from readthedocs.core.views import HomepageView, do_not_track, server_error_500
+from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
 from readthedocs.search.api import PageSearchAPIView
-from readthedocs.search.views import SearchView
+from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
 
@@ -20,17 +20,24 @@ handler500 = server_error_500
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
-    url(r'^support/', TemplateView.as_view(template_name='support.html'), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
     url(
         r'^\.well-known/security.txt$',
         TemplateView
         .as_view(template_name='security.txt', content_type='text/plain'),
     ),
+    url(r'^support/$', SupportView.as_view(), name='support'),
+    # These are redirected to from the support form
+    url(r'^support/success/$',
+        TemplateView.as_view(template_name='support/success.html'),
+        name='support_success'),
+    url(r'^support/error/$',
+        TemplateView.as_view(template_name='support/error.html'),
+        name='support_error'),
 ]
 
 rtd_urls = [
-    url(r'^search/$', SearchView.as_view(), name='search'),
+    url(r'^search/$', GlobalSearchView.as_view(), name='search'),
     url(r'^dashboard/', include('readthedocs.projects.urls.private')),
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
@@ -51,6 +58,9 @@ api_urls = [
     url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
     url(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
+    # Deprecated
+    url(r'^api/v1/embed/', include('readthedocs.embed.urls')),
+    url(r'^api/v2/embed/', include('readthedocs.embed.urls')),
     url(
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')

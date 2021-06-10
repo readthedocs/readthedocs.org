@@ -20,6 +20,8 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
+    SLUMBER_USERNAME = 'admin'
+    SLUMBER_PASSWORD = 'admin'
 
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
@@ -28,7 +30,6 @@ class DockerBaseSettings(CommunityDevSettings):
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
