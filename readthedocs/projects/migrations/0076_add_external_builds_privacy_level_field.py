@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0069_migrate_protected_projects'),
+        ('projects', '0075_change_mkdocs_name'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='project',
             name='external_builds_privacy_level',
-            field=models.CharField(choices=[('public', 'Public'), ('protected', 'Protected'), ('private', 'Private')], default='private', null=True, help_text='Should builds from pull requests be public?', max_length=20, verbose_name='Privacy level of builds from pull requests'),
+            field=models.CharField(choices=[('public', 'Public'), ('private', 'Private')], default='private', null=True, help_text='Should builds from pull requests be public?', max_length=20, verbose_name='Privacy level of Pull Requests'),
         ),
         migrations.AlterField(
             model_name='project',

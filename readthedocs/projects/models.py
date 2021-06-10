@@ -220,7 +220,7 @@ class Project(models.Model):
         help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
     )
     external_builds_privacy_level = models.CharField(
-        _('Privacy level of builds from pull requests'),
+        _('Privacy level of Pull Requests'),
         max_length=20,
         # TODO: remove after migration
         null=True,

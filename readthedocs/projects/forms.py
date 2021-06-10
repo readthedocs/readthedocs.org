@@ -198,11 +198,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         per_project_settings = (
             'default_version',
             'default_branch',
+            'privacy_level',
             'analytics_code',
             'analytics_disabled',
             'show_version_warning',
             'single_version',
-            'privacy_level',
             'external_builds_enabled',
             'external_builds_privacy_level',
         )
