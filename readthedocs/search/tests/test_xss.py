@@ -4,7 +4,6 @@ from readthedocs.search.faceted_search import PageSearch
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 class TestXSS:
 
     def test_facted_page_xss(self, client, project):

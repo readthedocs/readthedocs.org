@@ -26,7 +26,6 @@ from readthedocs.search.utils import index_new_files, remove_indexed_files
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 @pytest.mark.usefixtures("all_projects")
 class BaseTestDocumentSearch:
 

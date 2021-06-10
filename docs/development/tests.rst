@@ -1,59 +1,35 @@
 Testing
 =======
 
-.. TODO: upgrade this guide to mention how to do this with ``inv docker.test``.
-
 Before contributing to Read the Docs, make sure your patch passes our test suite
 and your code style passes our code linting suite.
 
-Read the Docs uses `Tox`_ to execute testing and linting procedures. Tox is the
-only dependency you need to run linting or our test suite, the remainder of our
-requirements will be installed by Tox into environment specific virtualenv
-paths. Before testing, make sure you have Tox installed:
+Read the Docs uses `Tox`_ to execute testing and linting procedures.
+You can run tox from your :doc:`Docker development environment </development/install>`.
 
 .. prompt:: bash
 
-    pip install tox
-
-To run the full test and lint suite against your changes, simply run Tox. Tox
-should return without any errors. You can run Tox against all of our
-environments by running:
-
-.. prompt:: bash
-
-    tox
+   inv docker.test
 
 To target a specific environment:
 
 .. prompt:: bash
+   
+   inv docker.test --arguments  "-e lint"
 
-    tox -e py36
-
-You can override any pytest's options by running tox like:
+You can override any pytest's options by running the tests like:
 
 .. prompt:: bash
 
-   tox -e py36 -- -m 'not search' -x
+   inv docker.test --arguments "-e py36 -- -x -k test_views"
 
-The ``tox`` configuration has the following environments configured. You can
-target a single environment to limit the test suite:
+See the list of available environments with:
 
-py36
-    Run our test suite using Python 3.6
+.. prompt:: bash
 
-lint
-    Run code linting using `Prospector`_. This currently runs `pylint`_,
-    `pyflakes`_, `pep8`_ and other linting tools.
-
-docs
-    Test documentation compilation with Sphinx.
+   inv docker.test --arguments "-l"
 
 .. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
-.. _`Prospector`: https://prospector.readthedocs.io/en/master/
-.. _`pylint`: https://pylint.readthedocs.io/
-.. _`pyflakes`: https://github.com/pyflakes/pyflakes
-.. _`pep8`: https://pep8.readthedocs.io/en/latest/index.html
-
 
 Pytest marks
 ------------
@@ -76,7 +52,6 @@ or skip some (like search tests)::
 
 Current marks are:
 
-- search (tests that require Elastic Search)
 - proxito (tests from the serve/proxito instance)
 
 Tests without mark are from the main instance.

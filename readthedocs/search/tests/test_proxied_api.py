@@ -4,7 +4,6 @@ from readthedocs.search.tests.test_api import BaseTestDocumentSearch
 
 
 @pytest.mark.proxito
-@pytest.mark.search
 class TestProxiedSearchAPI(BaseTestDocumentSearch):
 
     # This project slug needs to exist in the ``all_projects`` fixture.

@@ -8,7 +8,6 @@ from readthedocs.projects.models import Project
 from readthedocs.search.documents import ProjectDocument
 
 
-@pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC = True)
 class TestSignals(TestCase):
 

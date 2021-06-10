@@ -14,7 +14,6 @@ from readthedocs.search.tests.utils import (
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 class TestProjectSearch:
 
     @pytest.fixture(autouse=True)
@@ -85,7 +84,6 @@ class TestProjectSearch:
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 @pytest.mark.usefixtures("all_projects")
 class TestPageSearch:
 

@@ -11,7 +11,6 @@ from readthedocs.search import tasks
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 @pytest.mark.usefixtures("all_projects")
 class TestSearchTasks:
 

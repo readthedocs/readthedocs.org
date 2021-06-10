@@ -6,7 +6,6 @@ from readthedocs.search.documents import PageDocument
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 class TestPageDocument:
 
     def test_get_queryset_does_not_include_external_versions(self, project):

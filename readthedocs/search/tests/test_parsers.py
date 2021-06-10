@@ -14,7 +14,6 @@ data_path = Path(__file__).parent.resolve() / 'data'
 
 
 @pytest.mark.django_db
-@pytest.mark.search
 class TestParsers:
 
     def setup_method(self):
