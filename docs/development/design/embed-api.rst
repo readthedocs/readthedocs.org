@@ -1,9 +1,9 @@
 Embed APIv3
 ===========
 
-The Embed API allows to embed content from documentation pages in other sites.
+The Embed API allows users to embed content from documentation pages in other sites.
 It has been treated as an *experimental* feature without public documentation or real applications,
-but recently it started to be used widely (mainly because we created a Sphinx extension).
+but recently it started to be used widely (mainly because we created the ``hoverxref`` Sphinx extension).
 
 The main goal of this document is to design a new version of the Embed API to be more user friendly,
 make it more stable over time, support embedding content from pages not hosted at Read the Docs,
@@ -38,9 +38,8 @@ It has some known problems:
 Goals
 -----
 
-Considering the problems mentioned in the previous section,
-the inclusion of new features and the definition of a contract that works the same for all,
-this document set the following goals for the new version of this endpoint:
+We plan to add new features and define a contract that works the same for all HTML.
+This project has the following goals:
 
 * Support embedding content from pages hosted outside Read the Docs
 * Do not depend on Sphinx ``.fjson`` files
@@ -197,6 +196,9 @@ parse it and return the content for the identifier requested.
 
 The whole logic should be the same, the only difference would be where the source HTML comes from.
 
+To start this would be an allowed list of domains for common Sphinx docs projects.
+Things like Django & Python, where hoverxref users might commonly want to embed from.
+We aren't planning to allow arbitrary HTML from any website.
 .. warning::
 
    We should be carefull with the URL received from the user because those may be internal URLs and we could be leaking some data.
