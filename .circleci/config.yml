@@ -33,8 +33,8 @@ jobs:
             source $BASH_ENV
       - run: tox -e migrations
       - run: tox -e lint
-      - run: tox -e docs-lint
       - run: tox -e docs
+      - run: tox -e docs-lint
       - run: tox -e eslint
 
 workflows:
