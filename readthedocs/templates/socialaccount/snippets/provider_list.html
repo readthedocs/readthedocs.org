@@ -19,7 +19,7 @@
     {% endfor %}
   {% endif %}
   {% if provider.id != 'bitbucket' %}
-  {% if signup_providers and provider.id in signup_providers or not signup_providers %}
+  {% if allowed_providers and provider.id in allowed_providers or not allowed_providers %}
     <li>
       <a title="{{ provider.name }}"
          class="socialaccount-provider {{ provider.id }} button"

@@ -13,7 +13,7 @@
   <small>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</small>
 </p>
 
-{% if signup_providers %}
+{% if allowed_providers %}
 <p>
     {% if organization %}
     {% blocktrans trimmed with organization.name as organization_name %}
