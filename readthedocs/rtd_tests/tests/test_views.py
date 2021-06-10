@@ -233,6 +233,8 @@ class BuildViewTests(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+        self.pip.privacy_level = PUBLIC
+        self.pip.external_builds_privacy_level = PUBLIC
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_build_redirect(self, mock):
