@@ -36,8 +36,8 @@ class VersionSortOrderingFilter(OrderingFilter):
     def filter(self, qs, value):
         # This is where we use the None value for this custom filter. This
         # doesn't work with a standard model filter. Note: ``value`` is always
-        # an iterable.
-        if value is None:
+        # an iterable, but can be empty.
+        if not value:
             value = ['relevance']
 
         # Selectively add anotations as a small query optimization
@@ -54,7 +54,8 @@ class VersionSortOrderingFilter(OrderingFilter):
         # And copy the negative sort lookups, ``value`` might be ``['-recent']``
         annotations.update({f'-{key}': value for (key, value) in annotations.items()})
 
-        return qs.annotate(annotations.get(*value)).order_by(*value)
+        annotation = annotations.get(*value)
+        return qs.annotate(**annotation).order_by(*value)
 
 
 class ProjectSortOrderingFilter(OrderingFilter):
