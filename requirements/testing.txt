@@ -9,7 +9,7 @@ pytest-django==4.4.0
 pytest-xdist==2.2.1
 pytest-cov==2.12.1
 apipkg==1.5
-execnet==1.8.0
+execnet==1.9.0
 
 # Mercurial 4.3 and newer require Python 2.7
 # Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
