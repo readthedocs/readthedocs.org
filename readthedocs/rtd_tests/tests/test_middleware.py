@@ -1,3 +1,5 @@
+from unittest import mock
+
 from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
 from django.http import HttpResponse
@@ -61,7 +63,7 @@ class TestCORSMiddleware(TestCase):
             project=self.another_project,
         )
 
-    def test_proper_domain_public_version(self):
+    def test_allow_linked_domain_from_public_version(self):
         request = self.factory.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
@@ -70,7 +72,7 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
 
-    def test_proper_domain_private_version(self):
+    def test_allow_linked_domain_from_private_version(self):
         self.version.privacy_level = PRIVATE
         self.version.save()
         request = self.factory.get(
@@ -138,6 +140,44 @@ class TestCORSMiddleware(TestCase):
         request = self.factory.get(
             '/api/v2/embed/',
             {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    @mock.patch('readthedocs.core.signals._has_donate_app')
+    def test_sustainability_endpoint_allways_allowed(self, has_donate_app):
+        has_donate_app.return_value = True
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    @mock.patch('readthedocs.core.signals._has_donate_app')
+    def test_sustainability_endpoint_no_ext(self, has_donate_app):
+        has_donate_app.return_value = False
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
