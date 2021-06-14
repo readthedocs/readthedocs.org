@@ -89,12 +89,11 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 
 .. note::
 
-   - The term "slug" is used here to indicate a string without some types characters
-     considered special in certain circunstances. The version slug can contain some
-     characters not usually present in other slugs.
+   - The term slug is used to refer to a unique string across projects/versions containing ASCII characters only.
+     This value is used in the URLs of your documentation.
 
-   - The ``external`` value for ``READTHEDOCS_VERSION_TYPE`` will usually be
-     associated with builds triggered by pull requests. See :doc:`/pull-requests`.
+   - If ``READTHEDOCS_VERSION_TYPE`` is ``external``,
+     it means that the version was built from pull request. See :doc:`/pull-requests`.
 
 
 .. tip::

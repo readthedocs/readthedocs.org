@@ -318,7 +318,7 @@ class SyncRepositoryMixin:
             'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': self.version.slug,
             'READTHEDOCS_VERSION_TYPE': self.version.type,
-            'READTHEDOCS_VERSION_NAME': self.version.explicit_name,
+            'READTHEDOCS_VERSION_NAME': self.version.verbose_name,
             'READTHEDOCS_PROJECT': self.project.slug,
             'READTHEDOCS_LANGUAGE': self.project.language,
         }

@@ -6,7 +6,7 @@
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book">&nbsp;</span>
-      v: {{ version.explicit_name }}
+      v: {{ current_version.explicit_name }}
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
@@ -41,7 +41,7 @@
       <dl>
         <dt>{% trans "Versions" %}</dt>
         {% for version in versions %}
-        <dd {% if version.verbose_name == current_version %} class="rtd-current-item" {% endif %}>
+        <dd {% if version == current_version %} class="rtd-current-item" {% endif %}>
           <a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.explicit_name }}</a>
         </dd>
         {% endfor %}

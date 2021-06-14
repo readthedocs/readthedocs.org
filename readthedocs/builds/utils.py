@@ -103,16 +103,6 @@ def external_version_name(build_or_version):
     return GENERIC_EXTERNAL_VERSION_NAME
 
 
-def abbrev(string):
-    """
-    Returns an abbreviation for the given string.
-
-    The abbreviation is formed for the first letter in each word in the string,
-    capitalized.
-    """
-    return ''.join(word[0].upper() for word in string.split())
-
-
 @contextmanager
 def memcache_lock(lock_id, oid):
     """

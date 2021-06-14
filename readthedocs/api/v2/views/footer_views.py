@@ -166,7 +166,7 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
             'version': version,
             'path': path,
             'downloads': version.get_downloads(pretty=True),
-            'current_version': version.verbose_name,
+            'current_version': version,
             'versions': self._get_active_versions_sorted(),
             'main_project': main_project,
             'translations': main_project.translations.all(),
