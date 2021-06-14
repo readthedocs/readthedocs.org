@@ -49,8 +49,8 @@ This project has the following goals:
 * Accept only ``?url=`` request GET argument to query the endpoint
 * Support ``?nwords=`` and ``?nparagraphs=`` to return chunked content
 * Handle special cases for particular doctools (e.g. Sphinx requires to return the ``.parent()`` element for ``dl``)
-* Make explicit the client is asking to handle the special cases (e.g. send ``?doctool=sphinx&version=4.0.1``)
-* Delete HTML tags from the original document if needed
+* Make explicit the client is asking to handle the special cases (e.g. send ``?doctool=sphinx&version=4.0.1&writer=html4``)
+* Delete HTML tags from the original document (for well-defined special cases)
 * Add HTTP cache headers to cache responses
 * Allow :abbr:`CORS` from everywhere *only* for public projects
 
@@ -64,10 +64,10 @@ and replace all the relative links from its content making them absolute.
 .. note::
 
    Any other case outside this contract will be considered *special* and will be implemented
-   only under ``?doctool=`` and ``?version=`` arguments.
+   only under ``?doctool=``, ``?version=`` and ``?writer=`` arguments.
 
 If no ``id`` selector is sent to the request, the content of the first meaningfull HTML tag
-(``<main>``, ``<div role="main">``, etc) identifier found is returned.
+(``<main>``, ``<div role="main">`` or other well-defined standard tags) identifier found is returned.
 
 
 Embed endpoints
@@ -99,6 +99,16 @@ This is the list of endpoints to be implemented in APIv3:
 .. http:get:: /api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
 
    Returns all the available metadata for an specific page.
+
+   .. note::
+
+      As it's not trivial to get the ``title`` associated with a particular ``id`` and it's not easy to get a nested list of identifiers,
+      we may not implement this endpoint in initial version.
+
+      The endpoint as-is, is mainly useful to explore/discover what are the identifiers available for a particular page
+      --which is handy in the development process of a new tool that consumes the API.
+      Because of this, we don't have too much traction to add it in the initial version.
+
 
    :query url (required): Full URL for the documentation page
 
@@ -179,7 +189,7 @@ It will return the whole ``dl`` with only the ``dt`` and ``dd`` for ``id`` reque
 
 However, this assumptions may not apply to documentation pages built with a different doctool than Sphinx.
 For this reason, we need to communicate to the API that we want to handle this special cases in the backend.
-This will be done by appending a request GET argument to the Embed API endpoint: ``?doctool=sphinx&version=4.0.1``.
+This will be done by appending a request GET argument to the Embed API endpoint: ``?doctool=sphinx&version=4.0.1&writer=html4``.
 In this case, the backend will known that has to deal with these special cases.
 
 .. note::
@@ -196,9 +206,6 @@ parse it and return the content for the identifier requested.
 
 The whole logic should be the same, the only difference would be where the source HTML comes from.
 
-To start this would be an allowed list of domains for common Sphinx docs projects.
-Things like Django & Python, where hoverxref users might commonly want to embed from.
-We aren't planning to allow arbitrary HTML from any website.
 .. warning::
 
    We should be carefull with the URL received from the user because those may be internal URLs and we could be leaking some data.
@@ -209,6 +216,12 @@ We aren't planning to allow arbitrary HTML from any website.
    It doesn't seem to be a huge problem, but something to consider.
 
    Also, the endpoint may need to limit the requests per-external domain to avoid using our servers to take down another site.
+
+.. note::
+
+   Due to the potential security issues mentioned, we will start with an allowed list of domains for common Sphinx docs projects.
+   Projects like Django and Python, where ``sphinx-hoverxref`` users might commonly want to embed from.
+   We aren't planning to allow arbitrary HTML from any website.
 
 
 Handle project's domain changes
@@ -236,6 +249,10 @@ At this point there are different possible scenarios:
   We will need to do a request to ``docs.example.com`` and check for a 3xx response status code and in that case,
   we can read the ``Location:`` HTTP header to find the new domain's name for the documentation.
   Once we have the new domain from the redirect response, we can query our database again to find out the project's slug.
+
+  .. note::
+
+     We will follow up to 5 redirects to find out the project's domain.
 
 
 Embed APIv2 deprecation
