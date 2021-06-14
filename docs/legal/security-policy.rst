@@ -50,7 +50,7 @@ Temporary repository storage
     every project build on Read the Docs.
 
 Authentication
-    Read the Docs supports SSO GitHub, GitLab, Bitbucket and Google Workspaces
+    Read the Docs supports SSO with GitHub, GitLab, Bitbucket, and Google Workspaces
     (formerly G Suite).
 
 Payment security
