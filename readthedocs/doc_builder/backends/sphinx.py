@@ -160,6 +160,14 @@ class BaseSphinx(BaseBuilder):
         if self.version.is_external:
             vcs_url = self.version.vcs_url
 
+        commit = (
+            self.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit
+        )
+
         data = {
             'html_theme': 'sphinx_rtd_theme',
             'html_theme_import': 'sphinx_rtd_theme',
@@ -169,7 +177,7 @@ class BaseSphinx(BaseBuilder):
             'settings': settings,
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
-            'commit': self.project.vcs_repo(self.version.slug).commit,
+            'commit': commit,
             'versions': versions,
             'downloads': downloads,
             'subproject_urls': subproject_urls,
