@@ -75,12 +75,18 @@ Embed endpoints
 
 This is the list of endpoints to be implemented in APIv3:
 
-.. http:get:: /api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+.. http:get:: /api/v3/embed/
 
    Returns the exact HTML content for a specific identifier (``id``).
    If no anchor identifier is specified the content of the first one returned.
 
-   :query url (required): Full URL for the documentation page with optional anchor identifier.
+    **Example request**:
+
+    .. tabs::
+
+       $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+
+    **Example response**:
 
    .. sourcecode:: json
 
@@ -95,8 +101,10 @@ This is the list of endpoints to be implemented in APIv3:
          "content": "<div class=\"section\" id=\"development-installation\">\n<h1>Development Installation<a class=\"headerlink\" href=\"https://docs.readthedocs.io/en/stable/development/install.html#development-installation\" title=\"Permalink to this headline\">¶</a></h1>\n ..."
       }
 
+   :query url (required): Full URL for the documentation page with optional anchor identifier.
 
-.. http:get:: /api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
+
+.. http:get:: /api/v3/embed/metadata/
 
    Returns all the available metadata for an specific page.
 
@@ -109,29 +117,34 @@ This is the list of endpoints to be implemented in APIv3:
       --which is handy in the development process of a new tool that consumes the API.
       Because of this, we don't have too much traction to add it in the initial version.
 
+    **Example request**:
 
-   :query url (required): Full URL for the documentation page
+    .. tabs::
+
+       $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
+
+    **Example response**:
 
    .. sourcecode:: json
 
       {
-        "identifiers":
-            {
-               "id": "set-up-your-environment",
-               "url": "https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
-               "_links": {
-                 "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
-               }
-            },
-            {
-               "id": "check-that-everything-works",
-               "url": "https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
-               "_links": {
-                 "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
-               }
-            },
-            ...
+        "identifiers": {
+            "id": "set-up-your-environment",
+            "url": "https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
+            "_links": {
+                "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment"
+            }
+        },
+        {
+            "id": "check-that-everything-works",
+            "url": "https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
+            "_links": {
+                "embed": "https://docs.readthedocs.io/_/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#check-that-everything-works"
+            }
+         },
       }
+
+   :query url (required): Full URL for the documentation page
 
 
 Handle specific Sphinx cases
