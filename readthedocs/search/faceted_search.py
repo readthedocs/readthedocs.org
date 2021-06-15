@@ -209,11 +209,21 @@ class RTDFacetedSearch(FacetedSearch):
         query_tokens = set(query)
         return not tokens.isdisjoint(query_tokens)
 
+
+class ProjectSearch(RTDFacetedSearch):
+    facets = {'language': TermsFacet(field='language')}
+    doc_types = [ProjectDocument]
+    index = ProjectDocument._index._name
+    fields = ('name^10', 'slug^5', 'description')
+    operators = ['and', 'or']
+    excludes = ['users', 'language']
+
     def query(self, search, query):
         """
-        Add query part to ``search`` when needed.
+        Customize search results to support extra functionality.
 
         If `self.projects` was given, we use it to filter the documents.
+        Only filtering by a list of slugs is supported.
 
         Also:
 
@@ -238,15 +248,6 @@ class RTDFacetedSearch(FacetedSearch):
 
         search = search.query(bool_query)
         return search
-
-
-class ProjectSearch(RTDFacetedSearch):
-    facets = {'language': TermsFacet(field='language')}
-    doc_types = [ProjectDocument]
-    index = ProjectDocument._index._name
-    fields = ('name^10', 'slug^5', 'description')
-    operators = ['and', 'or']
-    excludes = ['users', 'language']
 
 
 class PageSearch(RTDFacetedSearch):
