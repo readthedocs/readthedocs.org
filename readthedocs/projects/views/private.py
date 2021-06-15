@@ -51,6 +51,7 @@ from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects import tasks
+from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
@@ -100,6 +101,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context = super().get_context_data(**kwargs)
         # Set the default search to search files instead of projects
         context['type'] = 'file'
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
+            context['filter'] = filter
+            context['project_list'] = filter.qs
+            # Alternatively, dynamically override super()-derived `project_list` context_data
+            # context[self.get_context_object_name(filter.qs)] = filter.qs
+
         return context
 
     def validate_primary_email(self, user):

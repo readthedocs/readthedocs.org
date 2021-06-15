@@ -31,6 +31,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
@@ -86,12 +87,8 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailViewBase(
-        ProjectRelationListMixin,
-        BuildTriggerMixin,
-        ProjectOnboardMixin,
-        DetailView
-):
+class ProjectDetailViewBase(ProjectRelationListMixin, BuildTriggerMixin,
+                            ProjectOnboardMixin, DetailView):
 
     """Display project onboard steps."""
 
@@ -108,7 +105,17 @@ class ProjectDetailViewBase(
         context = super().get_context_data(**kwargs)
 
         project = self.get_project()
-        context['versions'] = self._get_versions(project)
+
+        # Get filtered and sorted versions
+        versions = self._get_versions(project)
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectVersionListFilterSet(
+                self.request.GET,
+                queryset=versions,
+            )
+            context['filter'] = filter
+            versions = filter.qs
+        context['versions'] = versions
 
         protocol = 'http'
         if self.request.is_secure():

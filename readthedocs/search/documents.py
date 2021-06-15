@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl.field import Keyword
 
 from readthedocs.projects.models import HTMLFile, Project
 
@@ -15,6 +16,12 @@ page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
 log = logging.getLogger(__name__)
+
+
+# TODO: send this upstream (elasticsearch_dsl and django_elasticsearch_dsl).
+class WildcardField(Keyword, fields.DEDField):
+
+    name = 'wildcard'
 
 
 class RTDDocTypeMixin:
@@ -31,6 +38,13 @@ class RTDDocTypeMixin:
 @project_index.document
 class ProjectDocument(RTDDocTypeMixin, Document):
 
+    """
+    Document representation of a Project.
+
+    We use multi-fields to be able to perform other kind of queries over the same field.
+    ``raw`` fields are used for Wildcard queries.
+    """
+
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(
@@ -41,11 +55,30 @@ class ProjectDocument(RTDDocTypeMixin, Document):
     )
     language = fields.KeywordField()
 
+    name = fields.TextField(
+        attr='name',
+        fields={
+            'raw': WildcardField(),
+        },
+    )
+    slug = fields.TextField(
+        attr='slug',
+        fields={
+            'raw': WildcardField(),
+        },
+    )
+    description = fields.TextField(
+        attr='description',
+        fields={
+            'raw': WildcardField(),
+        },
+    )
+
     modified_model_field = 'modified_date'
 
     class Django:
         model = Project
-        fields = ('name', 'slug', 'description')
+        fields = []
         ignore_signals = True
 
 
@@ -61,6 +94,11 @@ class PageDocument(RTDDocTypeMixin, Document):
     instead of [python.submodule].
     See more at https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html  # noqa
 
+    We use multi-fields to be able to perform other kind of queries over the same field.
+    ``raw`` fields are used for Wildcard queries.
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+
     Some text fields use the ``with_positions_offsets`` term vector,
     this is to have faster highlighting on big documents.
     See more at https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-vector.html
@@ -75,13 +113,27 @@ class PageDocument(RTDDocTypeMixin, Document):
     rank = fields.IntegerField()
 
     # Searchable content
-    title = fields.TextField(attr='processed_json.title')
+    title = fields.TextField(
+        attr='processed_json.title',
+        fields={
+            'raw': WildcardField(),
+        },
+    )
     sections = fields.NestedField(
         attr='processed_json.sections',
         properties={
             'id': fields.KeywordField(),
-            'title': fields.TextField(),
-            'content': fields.TextField(term_vector='with_positions_offsets'),
+            'title': fields.TextField(
+                fields={
+                    'raw': WildcardField(),
+                },
+            ),
+            'content': fields.TextField(
+                term_vector='with_positions_offsets',
+                fields={
+                    'raw': WildcardField(),
+                },
+            ),
         }
     )
     domains = fields.NestedField(
@@ -93,11 +145,20 @@ class PageDocument(RTDDocTypeMixin, Document):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(term_vector='with_positions_offsets'),
-
-            # Simple analyzer breaks on `.`,
-            # otherwise search results are too strict for this use case
-            'name': fields.TextField(analyzer='simple'),
+            'docstrings': fields.TextField(
+                term_vector='with_positions_offsets',
+                fields={
+                    'raw': WildcardField(),
+                },
+            ),
+            'name': fields.TextField(
+                # Simple analyzer breaks on `.`,
+                # otherwise search results are too strict for this use case
+                analyzer='simple',
+                fields={
+                    'raw': WildcardField(),
+                },
+            ),
         }
     )
 
@@ -168,5 +229,6 @@ class PageDocument(RTDDocTypeMixin, Document):
             queryset
             .internal()
             .exclude(ignore=True)
+            .select_related('version', 'project')
         )
         return queryset

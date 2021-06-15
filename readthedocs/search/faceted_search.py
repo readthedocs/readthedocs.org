@@ -80,21 +80,13 @@ class RTDFacetedSearch(FacetedSearch):
         """
         Get a list of query objects according to the query.
 
-        If the query is a *single term* (a single word)
-        we try to match partial words and substrings
-        (available only with the DEFAULT_TO_FUZZY_SEARCH feature flag).
-
-        If the query is a phrase or contains the syntax from a simple query string,
-        we use the SimpleQueryString query.
+        If the query is a single term we try to match partial words and substrings
+        (available only with the DEFAULT_TO_FUZZY_SEARCH feature flag),
+        otherwise we use the SimpleQueryString query.
         """
-        is_single_term = (
-            not self.use_advanced_query and
-            query and len(query.split()) <= 1 and
-            not self._is_advanced_query(query)
-        )
         get_queries_function = (
             self._get_single_term_queries
-            if is_single_term
+            if self._is_single_term(query)
             else self._get_text_queries
         )
 
@@ -143,6 +135,7 @@ class RTDFacetedSearch(FacetedSearch):
         The score of "and" should be higher as it satisfies both "or" and "and".
 
         We use the Wildcard query with the query surrounded by ``*`` to match substrings.
+        We use the raw fields (Wildcard fields) instead of the normal field for performance.
 
         For valid options, see:
 
@@ -157,8 +150,9 @@ class RTDFacetedSearch(FacetedSearch):
             )
             queries.append(query_string)
         for field in fields:
-            # Remove boosting from the field
-            field = re.sub(r'\^.*$', '', field)
+            # Remove boosting from the field,
+            # and query from the raw field.
+            field = re.sub(r'\^.*$', '.raw', field)
             kwargs = {
                 field: {'value': f'*{query}*'},
             }
@@ -180,6 +174,21 @@ class RTDFacetedSearch(FacetedSearch):
             fuzziness="AUTO:4,6",
             prefix_length=1,
         )
+
+    def _is_single_term(self, query):
+        """
+        Check if the query is a single term.
+
+        A query is a single term if it is a single word,
+        if it doesn't contain the syntax from a simple query string,
+        and if `self.use_advanced_query` is False.
+        """
+        is_single_term = (
+            not self.use_advanced_query and
+            query and len(query.split()) <= 1 and
+            not self._is_advanced_query(query)
+        )
+        return is_single_term
 
     def _is_advanced_query(self, query):
         """
@@ -348,11 +357,18 @@ class PageSearch(RTDFacetedSearch):
             fields=fields,
         )
 
-        raw_fields = (
+        raw_fields = [
             # Remove boosting from the field
             re.sub(r'\^.*$', '', field)
             for field in fields
-        )
+        ]
+
+        # Highlight from the raw fields too, if it is a single term.
+        if self._is_single_term(query):
+            raw_fields.extend([
+                re.sub(r'\^.*$', '.raw', field)
+                for field in fields
+            ])
 
         highlight = dict(
             self._highlight_options,

@@ -70,7 +70,8 @@ class SearchViewBase(View):
         results = search[:self.max_search_results].execute()
         facets = results.facets
 
-        # Make sure our selected facets are displayed even when they return 0 results.
+        # Make sure the selected facets are displayed,
+        # even when they return 0 results.
         for facet in facets:
             value = getattr(user_input, facet, None)
             if value and value not in (name for name, *_ in facets[facet]):
@@ -81,7 +82,15 @@ class SearchViewBase(View):
 
 class ProjectSearchView(SearchViewBase):
 
-    """Search view on the project page."""
+    """
+    Search view of the ``search`` tab.
+
+    Query params:
+
+    - q: search term
+    - version: version to filter by
+    - role_name: sphinx role to filter by
+    """
 
     def _get_project(self, project_slug):
         queryset = Project.objects.public(self.request.user)
@@ -119,8 +128,8 @@ class ProjectSearchView(SearchViewBase):
             type='file',
             project=project_slug,
             version=request.GET.get('version', LATEST),
-            language=request.GET.get('language'),
             role_name=request.GET.get('role_name'),
+            language=None,
         )
 
         results, facets = self._search(
@@ -148,7 +157,18 @@ class ProjectSearchView(SearchViewBase):
 
 class GlobalSearchView(SearchViewBase):
 
-    """Global user search on the dashboard."""
+    """
+    Global search enabled for logged out users and anyone using the dashboard.
+
+    Query params:
+
+    - q: search term
+    - type: type of document to search (project or file)
+    - project: project to filter by
+    - language: project language to filter by
+    - version: version to filter by
+    - role_name: sphinx role to filter by
+    """
 
     def get(self, request):
         user_input = UserInput(

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.querysets import (
@@ -83,25 +83,37 @@ class ProjectQuerySetTests(TestCase):
         mgr = ChildRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromChildRelatedProjectQuerySetBase',
+            'ManagerFromChildRelatedProjectQuerySet',
         )
         mgr = ParentRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromParentRelatedProjectQuerySetBase',
+            'ManagerFromParentRelatedProjectQuerySet',
         )
 
     def test_is_active(self):
-        project = fixture.get(Project, skip=False)
+        project = get(Project, skip=False)
         self.assertTrue(Project.objects.is_active(project))
 
-        project = fixture.get(Project, skip=True)
+        project = get(Project, skip=True)
         self.assertFalse(Project.objects.is_active(project))
 
-        user = fixture.get(User)
+        user = get(User)
         user.profile.banned = True
         user.profile.save()
         project = fixture.get(Project, skip=False, users=[user])
+        self.assertFalse(Project.objects.is_active(project))
+
+        user.profile.banned = False
+        user.profile.save()
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization = get(Organization, disabled=False)
+        organization.projects.add(project)
+        self.assertTrue(Project.objects.is_active(project))
+
+        organization.disabled = True
+        organization.save()
         self.assertFalse(Project.objects.is_active(project))
 
     def test_dashboard(self):
@@ -112,33 +124,6 @@ class ProjectQuerySetTests(TestCase):
         query = Project.objects.dashboard(user=self.another_user)
         self.assertEqual(query.count(), len(self.another_user_projects))
         self.assertEqual(set(query), self.another_user_projects)
-
-    def test_private(self):
-        query = Project.objects.private()
-        projects = {
-            self.project_private,
-            self.another_project_private,
-            self.shared_project_private,
-        }
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-    def test_private_user(self):
-        query = Project.objects.private(user=self.user)
-        projects = (
-            self.user_projects |
-            {self.another_project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
-
-        query = Project.objects.private(user=self.another_user)
-        projects = (
-            self.another_user_projects |
-            {self.project_private}
-        )
-        self.assertEqual(query.count(), len(projects))
-        self.assertEqual(set(query), projects)
 
     def test_public(self):
         query = Project.objects.public()
@@ -164,6 +149,17 @@ class ProjectQuerySetTests(TestCase):
             self.another_user_projects |
             {self.project}
         )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_for_user(self):
+        query = Project.objects.for_user(user=self.user)
+        projects = self.user_projects
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        query = Project.objects.for_user(user=self.another_user)
+        projects = self.another_user_projects
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
