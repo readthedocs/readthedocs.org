@@ -586,11 +586,7 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    CORS_ORIGIN_REGEX_WHITELIST = (
-        r'^http://(.+)\.readthedocs\.io$',
-        r'^https://(.+)\.readthedocs\.io$',
-    )
-    # So people can post to their accounts
+    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
@@ -600,6 +596,12 @@ class CommunityBaseSettings(Settings):
         'authorization',
         'x-csrftoken'
     )
+    # Additional protecion to allow only idempotent methods.
+    CORS_ALLOW_METHODS = [
+        'GET',
+        'OPTIONS',
+        'HEAD',
+    ]
 
     # RTD Settings
     REPO_LOCK_SECONDS = 30
