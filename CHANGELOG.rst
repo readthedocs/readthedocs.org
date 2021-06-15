@@ -1,6 +1,8 @@
 Version 5.19.0
 --------------
 
+.. warning:: This release contains a security fix to our CSRF settings: https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-3v5m-qmm9-3c6c
+
 :Date: June 15, 2021
 
 * `@stsewd <https://github.com/stsewd>`__: Builds: check for nonexistent object (`#8261 <https://github.com/readthedocs/readthedocs.org/pull/8261>`__)
