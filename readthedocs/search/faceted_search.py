@@ -51,11 +51,11 @@ class RTDFacetedSearch(FacetedSearch):
         Custom wrapper around FacetedSearch.
 
         :param projects: A dictionary of project slugs mapped to a `VersionData` object.
-        Or a list of project slugs.
-        Results are filter with these values.
+         Or a list of project slugs.
+         Results are filter with these values.
 
         :param use_advanced_query: If `True` forces to always use
-        `SimpleQueryString` for the text query object.
+         `SimpleQueryString` for the text query object.
         """
         self.use_advanced_query = use_advanced_query
         self.projects = projects or {}
