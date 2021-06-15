@@ -1,3 +1,21 @@
+Version 5.19.0
+--------------
+
+:Date: June 15, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Builds: check for nonexistent object (`#8261 <https://github.com/readthedocs/readthedocs.org/pull/8261>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove video from our Sphinx quickstart. (`#8246 <https://github.com/readthedocs/readthedocs.org/pull/8246>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove "Markdown" from Mkdocs title (`#8245 <https://github.com/readthedocs/readthedocs.org/pull/8245>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Make sustainability page more visible (`#8244 <https://github.com/readthedocs/readthedocs.org/pull/8244>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: move send_build_status to builds/tasks.py (`#8241 <https://github.com/readthedocs/readthedocs.org/pull/8241>`__)
+* `@humitos <https://github.com/humitos>`__: Add ability to rebuild a specific build (`#8227 <https://github.com/readthedocs/readthedocs.org/pull/8227>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't do any CORS checking on Embed API requests (`#8226 <https://github.com/readthedocs/readthedocs.org/pull/8226>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: return well formed html (`#8202 <https://github.com/readthedocs/readthedocs.org/pull/8202>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add project/build filters (`#8142 <https://github.com/readthedocs/readthedocs.org/pull/8142>`__)
+* `@humitos <https://github.com/humitos>`__: Sign Up: limit the providers allowed to sign up (`#8062 <https://github.com/readthedocs/readthedocs.org/pull/8062>`__)
+* `@stsewd <https://github.com/stsewd>`__:  Search: use multi-fields for Wildcard queries  (`#7613 <https://github.com/readthedocs/readthedocs.org/pull/7613>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
+
 Version 5.18.0
 --------------
 
