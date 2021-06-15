@@ -13,8 +13,8 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_FINISHED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
@@ -65,7 +65,6 @@ def prepare_build(
     )
 
     build = None
-
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because Project is not active: project=%s',
@@ -234,11 +233,11 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         commit,
     )
     update_docs_task, build = prepare_build(
-        project,
-        version,
-        commit,
-        record,
-        force,
+        project=project,
+        version=version,
+        commit=commit,
+        record=record,
+        force=force,
         immutable=True,
     )
 

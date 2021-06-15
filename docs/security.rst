@@ -57,6 +57,15 @@ to securely communicate with us and to verify signed messages you receive from u
 Security issue archive
 ----------------------
 
+Version 5.19.0
+~~~~~~~~~~~~~~
+
+:ref:`changelog:Version 5.19.0` fixes an issue that allowed a malicious user to fetch internal and private information from a logged user in readthedocs.org/readthedocs.com by creating a malicious site hosted on readthedocs.io/readthedocs-hosted.com or from any custom domain registered in the platform.
+
+It would have required the attacker to get a logged in user to visit an attacker controlled web page, which could then have made GET API requests on behalf of the user. This vulnerability was found by our team as part of a routine security audit, and there is no indication it was exploited.
+
+The issue was found by the Read the Docs team.
+
 Version 5.14.0
 ~~~~~~~~~~~~~~
 
