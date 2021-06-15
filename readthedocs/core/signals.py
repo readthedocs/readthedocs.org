@@ -31,17 +31,31 @@ pre_collectstatic = Signal()
 post_collectstatic = Signal()
 
 
+def _has_donate_app():
+    """
+    Check if the current app has the sustainability API.
+
+    This is a separate function so it's easy to mock.
+    """
+    return 'readthedocsext.donate' in settings.INSTALLED_APPS
+
+
 def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
     """
     Decide whether a request should be given CORS access.
 
-    This checks that:
+    Allow the request if:
 
     * It's a safe HTTP method
-    * Is the sustainability API or in ALLOWED_URLS
+    * The origin is in ALLOWED_URLS
     * The URL is owned by the project that they are requesting data from
-    * The version is public
-    * Or the domain is linked to the project (except for the embed API).
+    * The version is public or the domain is linked to the project
+      (except for the embed API).
+
+    .. note::
+
+       Requests from the sustainability API are always allowed
+       if the donate app is installed.
 
     :returns: `True` when a request should be given CORS access.
     """
@@ -52,7 +66,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
     # Always allow the sustainability API,
     # it's used only on .org to check for ad-free users.
-    if request.path_info.startswith('/api/v2/sustainability'):
+    if _has_donate_app() and request.path_info.startswith('/api/v2/sustainability'):
         return True
 
     valid_url = None
@@ -98,7 +112,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             # Or allow if they have a registered domain
             # linked to that project.
             domain = Domain.objects.filter(
-                Q(domain__icontains=host),
+                Q(domain__iexact=host),
                 Q(project=project) | Q(project__subprojects__child=project),
             )
             if domain.exists():
