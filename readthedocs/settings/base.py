@@ -394,9 +394,9 @@ class CommunityBaseSettings(Settings):
 
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
-        'quarter-finish-inactive-builds': {
+        'every-5-minutes-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
-            'schedule': crontab(minute='*/15'),
+            'schedule': crontab(minute='*/5'),
             'options': {'queue': 'web'},
         },
         'every-three-hour-clear-persistent-messages': {

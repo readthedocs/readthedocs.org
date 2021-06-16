@@ -1,11 +1,11 @@
+import base64
 import datetime
 import os
 import shutil
 
-
-from celery.worker.request import Request
+import redis
 import structlog
-
+from celery.worker.request import Request
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -78,42 +78,126 @@ def clean_project_resources(project, version=None):
     )
 
 
-@app.task()
+@app.task(queue="web")
 def finish_inactive_builds():
     """
     Finish inactive builds.
 
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+    A build is consider inactive if all the followings are true:
 
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
-    ``error`` to be communicated to the user.
+    - it's not in ``FINISHED`` state
+    - it was created +15 minutes ago
+    - there is not task queued for it on redis
+    - celery is not currently executing it
+
+    These inactive builds will be marked as ``success=False`` and ``FINISHED`` with an
+    ``error`` to communicate this problem to the user.
     """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
+    time_limit = 15 * 60  # 15 minutes
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
     )
 
-    builds_finished = 0
+    stale_build_pks = []
     builds = Build.objects.filter(query)[:50]
+    redis_client = redis.Redis.from_url(settings.BROKER_URL)
+
+    log.info("Builds not yet finished to check for stale.", count=builds.count())
     for build in builds:
+        build_stale = True
 
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
+        # 1. check if it's being executed by celery
+        #
+        # Ask Celery for all the tasks their workers are running and filter
+        # them by `update_docs_task` only. Over those tasks we check if the
+        # argument `build_pk` is the same than the build object we are
+        # checking. In case it matches, we mark the build as NOT stale.
+        tasks_running = app.control.inspect().active().items()
+        log.debug(
+            "Celery active tasks running.",
+            tasks=tasks_running,
+        )
+        for queue, tasks in tasks_running:
+            for task in tasks:
+                try:
+                    if (
+                        task.get("name")
+                        != "readthedocs.projects.tasks.builds.update_docs_task"
+                    ):
+                        log.debug(
+                            "Skipping not build task. task=%s",
+                            task.get("name"),
+                        )
+                        continue
 
+                    task_build_pk = task.get("kwargs", {}).get("build_id")
+                    log.info(
+                        "Task running.",
+                        task=task.get("name"),
+                        build_id=task_build_pk,
+                    )
+
+                    if task_build_pk == build.pk:
+                        # The build is not stale, it's being executed
+                        log.info(
+                            "Build not stale. Found as an active task on Celery.",
+                            build_id=build.pk,
+                        )
+                        build_stale = False
+                        break
+                except Exception:
+                    log.exception(
+                        "There was an error accesssing the Celery task inspect."
+                    )
+
+            if not build_stale:
+                # Continue with the following build that matches the filter
+                break
+
+        # 2. check if it's queued on redis
+        #
+        # Ask Redis for all the queues starting with `build*` (build:default,
+        # build:large). Then, we check if `build_id` queued matches with the
+        # build object we are checking. In that case we mark the build as NOT
+        # stale.
+        for queue in redis_client.keys("build*"):
+            log.debug("Redis queue with queued tasks.", queue=queue)
+            for task in redis_client.lrange(queue, 0, -1):
+                try:
+                    task = json.loads(task)
+                    body = json.loads(base64.b64decode(task["body"]))
+                    # ``body`` is a 3-element list
+                    # [
+                    #  [int],
+                    #  {'record': bool, 'force': bool, 'commit': None, 'build_id': int},
+                    #  {'callbacks': None, 'errbacks': None, 'chain': None, 'chord': None},
+                    # ]
+                    log.debug("Redis queue task.", queue=queue, body=body)
+
+                    build_pk = body[1]["build_pk"]
+                    if build_pk == build.pk:
+                        # The build is not stale, it's queued to be executed
+                        log.info(
+                            "Build not stale. Found as a queued task in Redis.",
+                            build_id=build.pk,
+                        )
+                        build_stale = False
+                        break
+                except Exception:
+                    log.exception(
+                        "There was an error accesssing the Celery task from Redis."
+                    )
+
+            if not build_stale:
+                # Continue with the following build that matches the filter
+                break
+
+        if build_stale:
+            stale_build_pks.append(build.pk)
+
+    for build_pk in stale_build_pks:
+        build = Build.objects.get(pk=build_pk)
         build.success = False
         build.state = BUILD_STATE_FINISHED
         build.error = _(
@@ -122,11 +206,11 @@ def finish_inactive_builds():
             'request with and reference this build id ({}).'.format(build.pk),
         )
         build.save()
-        builds_finished += 1
 
-    log.info(
+    log.warning(
         'Builds marked as "Terminated due inactivity".',
-        count=builds_finished,
+        count=len(stale_build_pks),
+        build_ids=stale_build_pks,
     )
 
 
