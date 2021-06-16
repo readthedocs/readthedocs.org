@@ -23,11 +23,10 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.builds.signals import version_changed
-from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
 
-class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
+class VersionForm(forms.ModelForm):
 
     class Meta:
         model = Version

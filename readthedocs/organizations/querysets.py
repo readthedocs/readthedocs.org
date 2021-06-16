@@ -13,13 +13,13 @@ class BaseOrganizationQuerySet(models.QuerySet):
 
     """Organizations queryset."""
 
-    def for_user(self, user=None):
+    def for_user(self, user):
         # Never list all for membership
         return self.filter(
             Q(owners__in=[user]) | Q(teams__members__in=[user]),
         ).distinct()
 
-    def for_admin_user(self, user=None, include_all=False):
+    def for_admin_user(self, user, include_all=False):
         if user.is_superuser and include_all:
             return self.all()
         return self.filter(owners__in=[user],).distinct()

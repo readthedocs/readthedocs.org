@@ -99,6 +99,12 @@ class CommunityBaseSettings(Settings):
         "/admin/",
     )
 
+    # Permissions Policy
+    # https://github.com/adamchainz/django-permissions-policy
+    PERMISSIONS_POLICY = {
+        "interest-cohort": [],
+    }
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -228,6 +234,7 @@ class CommunityBaseSettings(Settings):
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
+        'django_permissions_policy.PermissionsPolicyMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -433,6 +440,8 @@ class CommunityBaseSettings(Settings):
     # instance to avoid file permissions issues.
     # https://docs.docker.com/engine/reference/run/#user
     RTD_DOCKER_USER = 'docs:docs'
+    RTD_DOCKER_SUPER_USER = 'root:root'
+    RTD_DOCKER_WORKDIR = '/home/docs/'
 
     RTD_DOCKER_COMPOSE = False
 
@@ -577,11 +586,7 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    CORS_ORIGIN_REGEX_WHITELIST = (
-        r'^http://(.+)\.readthedocs\.io$',
-        r'^https://(.+)\.readthedocs\.io$',
-    )
-    # So people can post to their accounts
+    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
@@ -591,6 +596,12 @@ class CommunityBaseSettings(Settings):
         'authorization',
         'x-csrftoken'
     )
+    # Additional protecion to allow only idempotent methods.
+    CORS_ALLOW_METHODS = [
+        'GET',
+        'OPTIONS',
+        'HEAD',
+    ]
 
     # RTD Settings
     REPO_LOCK_SECONDS = 30

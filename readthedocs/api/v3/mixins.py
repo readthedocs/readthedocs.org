@@ -184,3 +184,9 @@ class UpdateMixin:
         # via Javascript
         super().update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RemoteQuerySetMixin:
+
+    def get_queryset(self):
+        return super().get_queryset().api(self.request.user)

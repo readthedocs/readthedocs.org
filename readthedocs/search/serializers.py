@@ -25,11 +25,28 @@ ProjectData = namedtuple('ProjectData', ['version', 'alias'])
 VersionData = namedtuple('VersionData', ['slug', 'docs_url'])
 
 
+def get_raw_field(obj, field, default=None):
+    """Get the ``raw`` version of this field or fallback to the original field."""
+    return (
+        getattr(obj, f'{field}.raw', default)
+        or getattr(obj, field, default)
+    )
+
+
 class ProjectHighlightSerializer(serializers.Serializer):
 
-    name = serializers.ListField(child=serializers.CharField(), default=list)
-    slug = serializers.ListField(child=serializers.CharField(), default=list)
-    description = serializers.ListField(child=serializers.CharField(), default=list)
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        return list(get_raw_field(obj, 'name', []))
+
+    def get_slug(self, obj):
+        return list(get_raw_field(obj, 'slug', []))
+
+    def get_description(self, obj):
+        return list(get_raw_field(obj, 'description', []))
 
 
 class ProjectSearchSerializer(serializers.Serializer):
@@ -44,7 +61,10 @@ class ProjectSearchSerializer(serializers.Serializer):
 
 class PageHighlightSerializer(serializers.Serializer):
 
-    title = serializers.ListField(child=serializers.CharField(), default=list)
+    title = serializers.SerializerMethodField()
+
+    def get_title(self, obj):
+        return list(get_raw_field(obj, 'title', []))
 
 
 class PageSearchSerializer(serializers.Serializer):
@@ -166,12 +186,10 @@ class DomainHighlightSerializer(serializers.Serializer):
     content = serializers.SerializerMethodField()
 
     def get_name(self, obj):
-        name = getattr(obj, 'domains.name', [])
-        return list(name)
+        return list(get_raw_field(obj, 'domains.name', []))
 
     def get_content(self, obj):
-        docstring = getattr(obj, 'domains.docstrings', [])
-        return list(docstring)
+        return list(get_raw_field(obj, 'domains.docstrings', []))
 
 
 class DomainSearchSerializer(serializers.Serializer):
@@ -190,12 +208,10 @@ class SectionHighlightSerializer(serializers.Serializer):
     content = serializers.SerializerMethodField()
 
     def get_title(self, obj):
-        title = getattr(obj, 'sections.title', [])
-        return list(title)
+        return list(get_raw_field(obj, 'sections.title', []))
 
     def get_content(self, obj):
-        content = getattr(obj, 'sections.content', [])
-        return list(content)
+        return list(get_raw_field(obj, 'sections.content', []))
 
 
 class SectionSearchSerializer(serializers.Serializer):
