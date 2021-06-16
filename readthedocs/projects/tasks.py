@@ -5,6 +5,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+import base64
 import datetime
 import json
 import logging
@@ -1817,37 +1818,67 @@ def finish_inactive_builds():
     """
     Finish inactive builds.
 
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+    A build is consider inactive if all the following are true:
 
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
+    - it's not in ``FINISHED`` state
+    - it was created +15 minutes ago
+    - there is not task queued for it on redis
+    - celery is not currently executing it
+
+    These inactive builds will be marked as ``success=False`` and ``FINISHED`` with an
     ``error`` to be communicated to the user.
     """
-    # TODO similar to the celery task time limit, we can't infer this from
-    # Docker settings anymore, because Docker settings are determined on the
-    # build servers dynamically.
-    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    # Set time as maximum celery task time limit + 5m
-    time_limit = 7200 + 300
+    time_limit = 15 * 60  # 15 minutes
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
     )
 
-    builds_finished = 0
     builds = Build.objects.filter(query)[:50]
+    redis_client = redis.Redis.from_url(settings.BROKER_URL)
+
     for build in builds:
+        build_stale = True
 
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
+        # 1. check if it's being executed by celery
+        for queue, tasks in app.control.inspect().active():
+            for task in tasks:
+                if task['kwargs']['build_pk'] == build.pk:
+                    # The build is not stale, it's being executed
+                    build_stale = False
+                    break
 
+            if not build_stale:
+                # Continue with the following build that matches the filter
+                break
+
+        # 2. check if it's queued on redis
+        for queue in redis_client.keys('build*'):
+            for task in redis_client.lrange(queue, 0, -1):
+                task = json.loads(task)
+                body = json.loads(base64.b64decode(task['body']))
+                # ``body`` is a 3-element list
+                # [
+                #  [int],
+                #  {'record': bool, 'force': bool, 'commit': None, 'build_pk': int},
+                #  {'callbacks': None, 'errbacks': None, 'chain': None, 'chord': None},
+                # ]
+
+                build_pk = body[1]['build_pk']
+                if build_pk == build.pk:
+                    # The build is not stale, it's queued to be executed
+                    build_stale = False
+                    break
+
+            if not build_stale:
+                # Continue with the following build that matches the filter
+                break
+
+        if build_stale:
+            stale_build_pks.append(build.pk)
+
+    for build_pk in stale_build_pks:
+        build = Build.objects.get(pk=build_pk)
         build.success = False
         build.state = BUILD_STATE_FINISHED
         build.error = _(
@@ -1856,11 +1887,10 @@ def finish_inactive_builds():
             'request with and reference this build id ({}).'.format(build.pk),
         )
         build.save()
-        builds_finished += 1
 
     log.info(
         'Builds marked as "Terminated due inactivity": %s',
-        builds_finished,
+        len(stale_build_pks),
     )
 
 
