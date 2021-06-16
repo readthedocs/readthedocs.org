@@ -242,9 +242,12 @@ class ProjectSearch(RTDFacetedSearch):
         bool_query = Bool(should=queries)
 
         # Filter by project slugs.
-        if self.projects and isinstance(self.projects, list):
-            projects_query = Bool(filter=Terms(slug=self.projects))
-            bool_query = Bool(must=[bool_query, projects_query])
+        if self.projects:
+            if isinstance(self.projects, list):
+                projects_query = Bool(filter=Terms(slug=self.projects))
+                bool_query = Bool(must=[bool_query, projects_query])
+            else:
+                raise ValueError('projects must be a list!')
 
         search = search.query(bool_query)
         return search
@@ -308,7 +311,7 @@ class PageSearch(RTDFacetedSearch):
         if isinstance(self.projects, list):
             return Bool(filter=Terms(project=self.projects))
 
-        return None
+        raise ValueError('projects must be a list or a dict!')
 
     def query(self, search, query):
         """
