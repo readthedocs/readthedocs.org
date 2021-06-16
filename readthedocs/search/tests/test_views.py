@@ -112,6 +112,22 @@ class TestProjectSearch:
             assert result['name'] == 'docs'
             assert result['name'] not in other_projects
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={
+                # Search for all projects.
+                'q': ' '.join(project.slug for project in all_projects),
+                'type': 'project',
+            },
+        )
+        assert len(results) == 0
+
 
 @pytest.mark.django_db
 @pytest.mark.search
@@ -446,3 +462,16 @@ class TestPageSearch:
         for result in results:
             assert result['project'] == 'docs'
             assert result['project'] not in other_projects
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            # Search for the most common english word.
+            search_params={'q': 'the', 'type': 'file'},
+        )
+        assert len(results) == 0
