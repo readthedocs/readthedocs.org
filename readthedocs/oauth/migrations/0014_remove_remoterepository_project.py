@@ -3,23 +3,14 @@
 from django.db import migrations
 
 
-def migrate_data(apps, schema_editor):
-    RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
-    queryset = RemoteRepository.objects.filter(project__isnull=False).select_related('project')
-    for rr in queryset.iterator():
-        rr.project.remote_repository = rr
-        rr.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
         ('oauth', '0013_create_new_table_for_remote_repository_normalization'),
-        ('projects', '0076_project_remote_repository'),
+        ('projects', '0077_remote_repository_data_migration'),
     ]
 
     operations = [
-        migrations.RunPython(migrate_data),
         migrations.RemoveField(
             model_name='remoterepository',
             name='project',
