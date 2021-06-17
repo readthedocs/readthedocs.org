@@ -109,11 +109,11 @@ class GitHubOAuthSyncTests(TestCase):
         project = fixture.get(Project)
         repo_3 = fixture.get(
             RemoteRepository,
-            project=project,
             full_name='organization/project-linked-repository',
             remote_id='54321',
             vcs_provider=GITHUB
         )
+        repo_3.projects.add(project)
         fixture.get(
             RemoteRepositoryRelation,
             remote_repository=repo_3,

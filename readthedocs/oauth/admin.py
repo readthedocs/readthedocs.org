@@ -16,7 +16,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteRepository model."""
 
-    raw_id_fields = ('project', 'organization',)
+    raw_id_fields = ('organization',)
 
 
 class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
