@@ -143,12 +143,16 @@ class RTDFacetedSearch(FacetedSearch):
         We need to search for both "and" and "or" operators.
         The score of "and" should be higher as it satisfies both "or" and "and".
 
-        We use the Wildcard query with the query surrounded by ``*`` to match substrings.
+        We use the Wildcard query with the query suffixed by ``*`` to match substrings.
         We use the raw fields (Wildcard fields) instead of the normal field for performance.
 
         For valid options, see:
 
         - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html  # noqa
+
+        .. note::
+
+           Doing a prefix **and** suffix search is slow on big indexes like ours.
         """
         query_string = self._get_fuzzy_query(
             query=query,
@@ -160,7 +164,7 @@ class RTDFacetedSearch(FacetedSearch):
             # and query from the raw field.
             field = re.sub(r'\^.*$', '.raw', field)
             kwargs = {
-                field: {'value': f'*{query}*'},
+                field: {'value': f'{query}*'},
             }
             queries.append(Wildcard(**kwargs))
         return queries
