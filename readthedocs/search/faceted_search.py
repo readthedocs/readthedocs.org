@@ -12,15 +12,15 @@ from elasticsearch_dsl.query import (
     Nested,
     SimpleQueryString,
     Term,
+    Terms,
     Wildcard,
 )
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
 
 log = logging.getLogger(__name__)
 
-ALL_FACETS = ['project', 'version', 'role_name', 'language', 'index']
+ALL_FACETS = ['project', 'version', 'role_name', 'language']
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -44,26 +44,19 @@ class RTDFacetedSearch(FacetedSearch):
             query=None,
             filters=None,
             projects=None,
-            user=None,
             use_advanced_query=True,
             **kwargs,
     ):
         """
-        Pass in a user in order to filter search results by privacy.
+        Custom wrapper around FacetedSearch.
 
         :param projects: A dictionary of project slugs mapped to a `VersionData` object.
-        Results are filter with these values.
+         Or a list of project slugs.
+         Results are filter with these values.
 
         :param use_advanced_query: If `True` forces to always use
-        `SimpleQueryString` for the text query object.
-
-        .. warning::
-
-            The `self.user` and `self.filter_by_user` attributes
-            aren't currently used on the .org, but are used on the .com.
+         `SimpleQueryString` for the text query object.
         """
-        self.user = user
-        self.filter_by_user = kwargs.pop('filter_by_user', True)
         self.use_advanced_query = use_advanced_query
         self.projects = projects or {}
 
@@ -216,9 +209,21 @@ class RTDFacetedSearch(FacetedSearch):
         query_tokens = set(query)
         return not tokens.isdisjoint(query_tokens)
 
+
+class ProjectSearch(RTDFacetedSearch):
+    facets = {'language': TermsFacet(field='language')}
+    doc_types = [ProjectDocument]
+    index = ProjectDocument._index._name
+    fields = ('name^10', 'slug^5', 'description')
+    operators = ['and', 'or']
+    excludes = ['users', 'language']
+
     def query(self, search, query):
         """
-        Add query part to ``search`` when needed.
+        Customize search results to support extra functionality.
+
+        If `self.projects` was given, we use it to filter the documents.
+        Only filtering by a list of slugs is supported.
 
         Also:
 
@@ -233,22 +238,22 @@ class RTDFacetedSearch(FacetedSearch):
             fields=self.fields,
         )
 
-        # run bool query with should, so it returns result where either of the query matches
+        # Run bool query with should, so it returns result where either of the query matches.
         bool_query = Bool(should=queries)
+
+        # Filter by project slugs.
+        if self.projects:
+            if isinstance(self.projects, list):
+                projects_query = Bool(filter=Terms(slug=self.projects))
+                bool_query = Bool(must=[bool_query, projects_query])
+            else:
+                raise ValueError('projects must be a list!')
+
         search = search.query(bool_query)
         return search
 
 
-class ProjectSearchBase(RTDFacetedSearch):
-    facets = {'language': TermsFacet(field='language')}
-    doc_types = [ProjectDocument]
-    index = ProjectDocument._index._name
-    fields = ('name^10', 'slug^5', 'description')
-    operators = ['and', 'or']
-    excludes = ['users', 'language']
-
-
-class PageSearchBase(RTDFacetedSearch):
+class PageSearch(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
@@ -286,6 +291,28 @@ class PageSearchBase(RTDFacetedSearch):
         s = s.execute()
         return s.hits.total['value']
 
+    def _get_projects_query(self):
+        """
+        Get filter by projects query.
+
+        If it's a dict, filter by project and version,
+        if it's a list filter by project.
+        """
+        if not self.projects:
+            return None
+
+        if isinstance(self.projects, dict):
+            versions_query = [
+                Bool(filter=[Term(project=project), Term(version=version)])
+                for project, version in self.projects.items()
+            ]
+            return Bool(should=versions_query)
+
+        if isinstance(self.projects, list):
+            return Bool(filter=Terms(project=self.projects))
+
+        raise ValueError('projects must be a list or a dict!')
+
     def query(self, search, query):
         """
         Manipulates the query to support nested queries and a custom rank for pages.
@@ -316,17 +343,9 @@ class PageSearchBase(RTDFacetedSearch):
         queries.extend([sections_nested_query, domains_nested_query])
         bool_query = Bool(should=queries)
 
-        if self.projects:
-            versions_query = [
-                Bool(
-                    must=[
-                        Term(project={'value': project}),
-                        Term(version={'value': version}),
-                    ]
-                )
-                for project, version in self.projects.items()
-            ]
-            bool_query = Bool(must=[bool_query, Bool(should=versions_query)])
+        projects_query = self._get_projects_query()
+        if projects_query:
+            bool_query = Bool(must=[bool_query, projects_query])
 
         final_query = FunctionScore(
             query=bool_query,
@@ -428,25 +447,3 @@ class PageSearchBase(RTDFacetedSearch):
                 "params": {"ranking": ranking},
             },
         }
-
-
-class PageSearch(SettingsOverrideObject):
-
-    """
-    Allow this class to be overridden based on CLASS_OVERRIDES setting.
-
-    This is primary used on the .com to adjust how we filter our search queries
-    """
-
-    _default_class = PageSearchBase
-
-
-class ProjectSearch(SettingsOverrideObject):
-
-    """
-    Allow this class to be overridden based on CLASS_OVERRIDES setting.
-
-    This is primary used on the .com to adjust how we filter our search queries
-    """
-
-    _default_class = ProjectSearchBase
