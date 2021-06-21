@@ -1,5 +1,6 @@
 import itertools
 import logging
+import sys
 import textwrap
 from datetime import datetime, timedelta
 
@@ -12,7 +13,6 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.tasks import (
     create_new_es_index,
-    index_missing_objects,
     index_objects_to_es,
     switch_es_index,
 )
@@ -26,7 +26,6 @@ class Command(BaseCommand):
     def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
         chunk_size = settings.ES_TASK_CHUNK_SIZE
         qs_iterator = queryset.values_list('pk', flat=True).iterator()
-        is_iterator_empty = False
 
         data = {
             'app_label': app_label,
@@ -236,6 +235,13 @@ class Command(BaseCommand):
         update_from = options['update_from']
         if change_index:
             timestamp = change_index
+            print(
+                f'You are about to change change the index from {models} to `[model]_{timestamp}`',
+                '**The old index will be deleted!**'
+            )
+            if input('Continue? y/n') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
             self._change_index(models=models, timestamp=timestamp)
             print(textwrap.dedent(
                 """
@@ -247,8 +253,22 @@ class Command(BaseCommand):
                 """
             ))
         elif update_from:
+            print(
+                'You are about to reindex all changed objects',
+                f'from the latest {update_from} days from {models}'
+            )
+            if input('Continue? y/n') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
             self._reindex_from(days_ago=update_from, models=models, queue=queue)
         else:
+            print(
+                f'You are about to reindex all objects from {models}',
+                f'into a new index in the {queue} queue.'
+            )
+            if input('Continue? y/n') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
             timestamp = self._run_reindex_tasks(models=models, queue=queue)
             print(textwrap.dedent(
                 f"""
