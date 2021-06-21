@@ -5,7 +5,7 @@ from django.db import migrations
 
 def migrate_data(apps, schema_editor):
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
-    queryset = RemoteRepository.objects.filter(project__isnull=False).select_related('project')
+    queryset = RemoteRepository.objects.filter(project__isnull=False).select_related('project').only('pk', 'project')
     for rr in queryset.iterator():
         rr.project.remote_repository_id = rr.pk
         rr.project.save()
