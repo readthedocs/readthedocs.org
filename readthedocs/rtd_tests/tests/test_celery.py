@@ -352,7 +352,8 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         social_account = get(SocialAccount, user=self.eric, provider='gitlab')
-        remote_repo = get(RemoteRepository, project=self.project)
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,
             remote_repository=remote_repo,
@@ -417,7 +418,8 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         social_account = get(SocialAccount, user=self.eric, provider='gitlab')
-        remote_repo = get(RemoteRepository, project=self.project)
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,
             remote_repository=remote_repo,
