@@ -12,13 +12,20 @@
 
 {% block project_edit_content %}
 
-  <h3>{% trans "Top queries" %}</h3>
+  {% if not enabled %}
+    {% block disabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% endblock %}
+  {% endif %}
+
+  <h3>{% trans "Top queries in the past 30 days" %}</h3>
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul class="long-list-overflow">
-        {% for query, count in queries %}
+        {% for query, count, total_results in queries %}
           <li class="module-item">
             {{ query }}
+            ({{ total_results }} result{{ total_results|pluralize:"s" }})
             <span class="right quiet">
               {{ count }} search{{ count|pluralize:"es" }}
             </span>
@@ -26,7 +33,7 @@
         {% empty %}
           <li class="module-item">
             <p class="quiet">
-              {% trans 'No date available.' %}
+              {% trans 'No data available.' %}
             </p>
           </li>
         {% endfor %}
@@ -36,7 +43,7 @@
 
   <br/>
   {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
-    <h2>{% trans "Overview of the past 1 month:" %}</h2>
+    <h2>{% trans "Daily search totals" %}</h2>
     <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
   {% endif %}
 
@@ -58,8 +65,8 @@
 {% endblock %}
 
 {% block footerjs %}
-
   {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
+  <script>
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
     var line_chart_labels = {{ query_count_of_1_month.labels|safe }};
@@ -78,5 +85,6 @@
         }]
       }
     });
+  </script>
   {% endif %}
 {% endblock %}

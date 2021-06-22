@@ -1,8 +1,8 @@
 import base64
 import datetime
 import json
-
 from unittest import mock
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
@@ -16,17 +16,16 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
-    GITHUB_PUSH,
-    GITHUB_SIGNATURE_HEADER,
     GITHUB_PULL_REQUEST,
+    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
     GITHUB_PULL_REQUEST_REOPENED,
-    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_SYNC,
+    GITHUB_PUSH,
+    GITHUB_SIGNATURE_HEADER,
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
-    GITLAB_MERGE_REQUEST_OPEN,
     GITLAB_MERGE_REQUEST_REOPEN,
     GITLAB_MERGE_REQUEST_UPDATE,
     GITLAB_NULL_HASH,
@@ -37,10 +36,21 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.constants import (
+    BUILD_STATE_CLONING,
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_DUPLICATED,
+    EXTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteOrganizationRelation,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.projects.models import (
     APIProject,
     EnvironmentVariable,
@@ -48,13 +58,17 @@ from readthedocs.projects.models import (
     Project,
 )
 
-
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 
 
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
+
+    def setUp(self):
+        self.user = User.objects.get(username='eric')
+        self.project = get(Project, users=[self.user])
+        self.version = self.project.versions.get(slug=LATEST)
 
     def test_make_build(self):
         """Test that a superuser can use the API."""
@@ -82,6 +96,47 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
+
+    def test_reset_build(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            state=BUILD_STATE_CLONING,
+            status=BUILD_STATUS_DUPLICATED,
+            success=False,
+            output='Output',
+            error='Error',
+            exit_code=9,
+            builder='Builder',
+            cold_storage=True,
+        )
+        command = get(
+            BuildCommandResult,
+            build=build,
+        )
+        build.commands.add(command)
+
+        self.assertEqual(build.commands.count(), 1)
+
+        client = APIClient()
+        client.force_login(self.user)
+        r = client.post(reverse('build-reset', args=(build.pk,)))
+
+        self.assertEqual(r.status_code, 204)
+        build.refresh_from_db()
+        self.assertEqual(build.project, self.project)
+        self.assertEqual(build.version, self.version)
+        self.assertEqual(build.state, BUILD_STATE_TRIGGERED)
+        self.assertEqual(build.status, '')
+        self.assertTrue(build.success)
+        self.assertEqual(build.output, '')
+        self.assertEqual(build.error, '')
+        self.assertIsNone(build.exit_code)
+        self.assertEqual(build.builder, '')
+        self.assertFalse(build.cold_storage)
+        self.assertEqual(build.commands.count(), 0)
+
 
     def test_api_does_not_have_private_config_key_superuser(self):
         client = APIClient()
@@ -354,7 +409,9 @@ class APIBuildTests(TestCase):
         client = APIClient()
         api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
-        build = get(Build, project_id=1, version_id=1, state='cloning')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, state='cloning')
         resp = client.put(
             '/api/v2/build/{}/'.format(build.pk),
             {
@@ -373,7 +430,9 @@ class APIBuildTests(TestCase):
         Super users should be able to read/write the `builder` property, but we
         don't expose this to end users via the API
         """
-        build = get(Build, project_id=1, version_id=1, builder='foo')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, builder='foo')
         client = APIClient()
 
         api_user = get(User, is_staff=False, password='test')
@@ -423,7 +482,9 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['commands'][0]['description'], 'foo')
 
     def test_get_raw_log_success(self):
-        build = get(Build, project_id=1, version_id=1, builder='foo')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, builder='foo')
         get(
             BuildCommandResult,
             build=build,
@@ -462,8 +523,10 @@ class APIBuildTests(TestCase):
         )
 
     def test_get_raw_log_building(self):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
         build = get(
-            Build, project_id=1, version_id=1,
+            Build, project=project, version=version,
             builder='foo', success=False,
             exit_code=1, state='building',
         )
@@ -506,8 +569,10 @@ class APIBuildTests(TestCase):
         )
 
     def test_get_raw_log_failure(self):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
         build = get(
-            Build, project_id=1, version_id=1,
+            Build, project=project, version=version,
             builder='foo', success=False, exit_code=1,
         )
         get(
@@ -562,8 +627,12 @@ class APIBuildTests(TestCase):
         Should return the list of builds according to the
         commit query params
         """
-        get(Build, project_id=1, version_id=1, builder='foo', commit='test')
-        get(Build, project_id=2, version_id=1, builder='foo', commit='other')
+        project1 = Project.objects.get(pk=1)
+        project2 = Project.objects.get(pk=2)
+        version1 = project1.versions.first()
+        version2 = project2.versions.first()
+        get(Build, project=project1, version=version1, builder='foo', commit='test')
+        get(Build, project=project2, version=version2, builder='foo', commit='other')
         client = APIClient()
         api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
@@ -624,20 +693,18 @@ class APITests(TestCase):
         self.assertIn('features', resp.data)
         self.assertEqual(resp.data['features'], [feature.feature_id])
 
-    def test_project_pagination(self):
-        for _ in range(100):
-            get(Project)
-
-        resp = self.client.get('/api/v2/project/')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 100)  # page_size
-        self.assertIn('?page=2', resp.data['next'])
-
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider='github')
-        user = get(User, socialaccount_set=[account])
+        user = get(User)
+
         for _ in range(20):
-            get(RemoteRepository, users=[user], account=account)
+            repo = get(RemoteRepository)
+            get(
+                RemoteRepositoryRelation,
+                remote_repository=repo,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -649,9 +716,15 @@ class APITests(TestCase):
 
     def test_remote_organization_pagination(self):
         account = get(SocialAccount, provider='github')
-        user = get(User, socialaccount_set=[account])
+        user = get(User)
         for _ in range(30):
-            get(RemoteOrganization, users=[user], account=account)
+            org = get(RemoteOrganization)
+            get(
+                RemoteOrganizationRelation,
+                remote_organization=org,
+                user=user,
+                account=account
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
@@ -679,7 +752,7 @@ class APITests(TestCase):
         self.assertIn('environment_variables', resp.data)
         self.assertEqual(
             resp.data['environment_variables'],
-            {'TOKEN': 'a1b2c3'},
+            {'TOKEN': dict(value='a1b2c3', public=False)},
         )
 
     def test_init_api_project(self):
@@ -694,16 +767,53 @@ class APITests(TestCase):
         self.assertEqual(api_project.features, [])
         self.assertFalse(api_project.ad_free)
         self.assertTrue(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables, {})
+        self.assertEqual(api_project.environment_variables(public_only=False), {})
+        self.assertEqual(api_project.environment_variables(public_only=True), {})
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
-        project_data['environment_variables'] = {'TOKEN': 'a1b2c3'}
+        project_data['environment_variables'] = {
+            'TOKEN': dict(value='a1b2c3', public=False),
+            'RELEASE': dict(value='prod', public=True),
+        }
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)
         self.assertFalse(api_project.show_advertising)
-        self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
+        self.assertEqual(
+            api_project.environment_variables(public_only=False),
+            {'TOKEN': 'a1b2c3', 'RELEASE': 'prod'},
+        )
+        self.assertEqual(
+            api_project.environment_variables(public_only=True),
+            {'RELEASE': 'prod'},
+        )
+
+    def test_concurrent_builds(self):
+        expected = {
+            'limit_reached': False,
+            'concurrent': 2,
+            'max_concurrent': 4,
+        }
+        user = get(User, is_staff=True)
+        project = get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        for state in ('triggered', 'building', 'cloning', 'finished'):
+            get(
+                Build,
+                project=project,
+                state=state,
+            )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get(f'/api/v2/build/concurrent/', data={'project__slug': project.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(expected, resp.data)
 
 
 class APIImportTests(TestCase):
@@ -719,21 +829,36 @@ class APIImportTests(TestCase):
         account_a = get(SocialAccount, provider='github')
         account_b = get(SocialAccount, provider='github')
         account_c = get(SocialAccount, provider='github')
-        user_a = get(User, password='test', socialaccount_set=[account_a])
-        user_b = get(User, password='test', socialaccount_set=[account_b])
-        user_c = get(User, password='test', socialaccount_set=[account_c])
-        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        user_a = get(User, password='test')
+        user_b = get(User, password='test')
+        user_c = get(User, password='test')
+        org_a = get(RemoteOrganization)
+        get(
+            RemoteOrganizationRelation,
+            remote_organization=org_a,
+            user=user_a,
+            account=account_a
+        )
         repo_a = get(
             RemoteRepository,
-            users=[user_a],
             organization=org_a,
-            account=account_a,
         )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_a,
+            user=user_a,
+            account=account_a
+        )
+
         repo_b = get(
             RemoteRepository,
-            users=[user_b],
             organization=None,
-            account=account_b,
+        )
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=repo_b,
+            user=user_b,
+            account=account_b
         )
 
         client.force_authenticate(user=user_a)
@@ -776,11 +901,7 @@ class IntegrationsTests(TestCase):
         self.project = get(
             Project,
             build_queue=None,
-        )
-        self.feature_flag = get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.EXTERNAL_VERSION_BUILD,
+            external_builds_enabled=True,
         )
         self.version = get(
             Version, slug='master', verbose_name='master',
@@ -1113,12 +1234,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=pull_request_number)
+        ).get(verbose_name=pull_request_number)
 
-        # external version should be deleted
-        self.assertFalse(external_version.exists())
+        # External version should be inactive.
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
@@ -1177,30 +1298,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_github_pull_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
-        resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            self.github_pull_request_payload,
-            format='json',
-            **headers
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_delete_event(self, sync_repository_task, trigger_build):
@@ -1823,12 +1920,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=merge_request_number)
+        ).get(verbose_name=merge_request_number)
 
-        # external version should be deleted
-        self.assertFalse(external_version.exists())
+        # External version should be inactive.
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
@@ -1867,12 +1964,12 @@ class IntegrationsTests(TestCase):
         )
         external_version = self.project.versions(
             manager=EXTERNAL
-        ).filter(verbose_name=merge_request_number)
+        ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.exists())
+        self.assertFalse(external_version.active)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deleted'])
+        self.assertTrue(resp.data['version_deactivated'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
@@ -1941,31 +2038,6 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-
-    @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_gitlab_merge_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
-        # delete feature flag
-        self.feature_flag.delete()
-
-        client = APIClient()
-
-        resp = client.post(
-            reverse(
-                'api_webhook_gitlab',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            self.gitlab_merge_request_payload,
-            format='json',
-        )
-        # get external version
-        external_version = self.project.versions(
-            manager=EXTERNAL
-        ).filter(verbose_name='2').first()
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
-        core_trigger_build.assert_not_called()
-        self.assertFalse(external_version)
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
@@ -2240,6 +2312,7 @@ class IntegrationsTests(TestCase):
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
+    maxDiff = None  # So we get an actual diff when it fails
 
     def test_get_version_by_id(self):
         """
@@ -2269,6 +2342,7 @@ class APIVersionTests(TestCase):
             'active': True,
             'project': {
                 'analytics_code': None,
+                'analytics_disabled': False,
                 'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
                 'cdn_enabled': False,
                 'conf_py_file': '',
@@ -2288,6 +2362,7 @@ class APIVersionTests(TestCase):
                 'id': 6,
                 'install_project': False,
                 'language': 'en',
+                'max_concurrent_builds': None,
                 'name': 'Pip',
                 'programming_language': 'words',
                 'python_interpreter': 'python3',
@@ -2299,6 +2374,7 @@ class APIVersionTests(TestCase):
                 'slug': 'pip',
                 'use_system_packages': False,
                 'users': [1],
+                'urlconf': None,
             },
             'privacy_level': 'public',
             'downloads': {},

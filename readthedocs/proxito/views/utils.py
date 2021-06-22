@@ -29,7 +29,7 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
     Maze page.
     """
 
-    if request.resolver_match.url_name != 'proxito_404_handler':
+    if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
         return fast_404(request, exception, template_name)
 
     resp = render(request, template_name)
@@ -76,13 +76,24 @@ def _get_project_data_from_request(
 
     # Handle single version by grabbing the default version
     # We might have version_slug when we're serving a PR
-    if final_project.single_version and not version_slug:
+    if any([
+        not version_slug and final_project.single_version,
+        not version_slug and project.urlconf and '$version' not in project.urlconf
+    ]):
         version_slug = final_project.get_default_version()
+
+    # Automatically add the default language if it isn't defined in urlconf
+    if not lang_slug and project.urlconf and '$language' not in project.urlconf:
+        lang_slug = final_project.language
 
     # ``final_project`` is now the actual project we want to serve docs on,
     # accounting for:
     # * Project
     # * Subproject
     # * Translations
+
+    # Set the project and version slug on the request so we can log it in middleware
+    request.path_project_slug = final_project.slug
+    request.path_version_slug = version_slug
 
     return final_project, lang_slug, version_slug, filename

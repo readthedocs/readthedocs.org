@@ -1,15 +1,21 @@
-import datetime
+import itertools
 import logging
+import sys
+import textwrap
+from datetime import datetime, timedelta
 
-from celery import chord, chain
 from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
-from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
-from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
-                      index_missing_objects)
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.tasks import (
+    create_new_es_index,
+    index_objects_to_es,
+    switch_es_index,
+)
 
 log = logging.getLogger(__name__)
 
@@ -19,8 +25,7 @@ class Command(BaseCommand):
     @staticmethod
     def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
         chunk_size = settings.ES_TASK_CHUNK_SIZE
-        qs_iterator = queryset.only('pk').iterator()
-        is_iterator_empty = False
+        qs_iterator = queryset.values_list('pk', flat=True).iterator()
 
         data = {
             'app_label': app_label,
@@ -28,97 +33,189 @@ class Command(BaseCommand):
             'document_class': document_class,
             'index_name': index_name,
         }
-
-        while not is_iterator_empty:
-            objects_id = []
-
-            try:
-                for _ in range(chunk_size):
-                    pk = next(qs_iterator).pk
-                    objects_id.append(pk)
-
-                    if pk % 5000 == 0:
-                        log.info('Total: %s', pk)
-
-            except StopIteration:
-                is_iterator_empty = True
-
+        current = 0
+        while True:
+            objects_id = list(itertools.islice(qs_iterator, chunk_size))
+            if not objects_id:
+                break
+            current += len(objects_id)
+            log.info('Total: %s', current)
             data['objects_id'] = objects_id
             yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
-        apply_async_kwargs = {'priority': 0}
-        if queue:
-            log.info('Adding indexing tasks to queue %s', queue)
-            apply_async_kwargs['queue'] = queue
-        else:
-            log.info('Adding indexing tasks to default queue')
+        apply_async_kwargs = {'queue': queue}
+        log.info('Adding indexing tasks to queue %s', queue)
 
-        index_time = timezone.now()
-        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
         for doc in registry.get_documents(models):
             queryset = doc().get_queryset()
-            # Get latest object from the queryset
 
             app_label = queryset.model._meta.app_label
             model_name = queryset.model.__name__
 
-            index_name = doc._doc_type.index
+            index_name = doc._index._name
             new_index_name = "{}_{}".format(index_name, timestamp)
-            # Set index temporarily for indexing,
-            # this will only get set during the running of this command
-            doc._doc_type.index = new_index_name
 
-            pre_index_task = create_new_es_index.si(app_label=app_label,
-                                                    model_name=model_name,
-                                                    index_name=index_name,
-                                                    new_index_name=new_index_name)
+            # Set and create a temporal index for indexing.
+            create_new_es_index(
+                app_label=app_label,
+                model_name=model_name,
+                index_name=index_name,
+                new_index_name=new_index_name,
+            )
+            doc._index._name = new_index_name
+            log.info('Temporal index created: %s', new_index_name)
 
-            indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
-                                                      queryset=queryset,
-                                                      index_name=new_index_name,
-                                                      document_class=str(doc))
+            indexing_tasks = self._get_indexing_tasks(
+                app_label=app_label,
+                model_name=model_name,
+                queryset=queryset,
+                index_name=new_index_name,
+                document_class=str(doc),
+            )
+            for task in indexing_tasks:
+                task.apply_async(**apply_async_kwargs)
 
-            post_index_task = switch_es_index.si(app_label=app_label, model_name=model_name,
-                                                 index_name=index_name,
-                                                 new_index_name=new_index_name)
+            log.info(
+                "Tasks issued successfully. model=%s.%s items=%s",
+                app_label, model_name, str(queryset.count())
+            )
+        return timestamp
 
-            # Task to run in order to add the objects
-            # that has been inserted into database while indexing_tasks was running
-            # We pass the creation time of latest object, so its possible to index later items
-            missed_index_task = index_missing_objects.si(app_label=app_label,
-                                                         model_name=model_name,
-                                                         document_class=str(doc),
-                                                         index_generation_time=index_time)
+    def _change_index(self, models, timestamp):
+        for doc in registry.get_documents(models):
+            queryset = doc().get_queryset()
+            app_label = queryset.model._meta.app_label
+            model_name = queryset.model.__name__
+            index_name = doc._index._name
+            new_index_name = "{}_{}".format(index_name, timestamp)
+            switch_es_index(
+                app_label=app_label,
+                model_name=model_name,
+                index_name=index_name,
+                new_index_name=new_index_name,
+            )
+            log.info(
+                "Index name changed. model=%s.%s from=%s to=%s",
+                app_label, model_name, new_index_name, index_name,
+            )
 
-            # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chords
-            chord_tasks = chord(header=indexing_tasks, body=post_index_task)
-            if queue:
-                pre_index_task.set(queue=queue)
-                chord_tasks.set(queue=queue)
-                missed_index_task.set(queue=queue)
-            # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chain
-            chain(pre_index_task, chord_tasks, missed_index_task).apply_async(**apply_async_kwargs)
+    def _reindex_from(self, days_ago, models, queue):
+        functions = {
+            apps.get_model('projects.HTMLFile'): self._reindex_files_from,
+            apps.get_model('projects.Project'): self._reindex_projects_from,
+        }
+        models = models or functions.keys()
+        for model in models:
+            if model not in functions:
+                log.warning("Re-index from not available for model %s", model.__name__)
+                continue
+            functions[model](days_ago=days_ago, queue=queue)
 
-            message = ("Successfully issued tasks for {}.{}, total {} items"
-                       .format(app_label, model_name, queryset.count()))
-            log.info(message)
+    def _reindex_projects_from(self, days_ago, queue):
+        """Reindex projects with recent changes."""
+        since = datetime.now() - timedelta(days=days_ago)
+        queryset = Project.objects.filter(modified_date__gte=since).distinct()
+        app_label = Project._meta.app_label
+        model_name = Project.__name__
+        apply_async_kwargs = {'queue': queue}
+
+        for doc in registry.get_documents(models=[Project]):
+            indexing_tasks = self._get_indexing_tasks(
+                app_label=app_label,
+                model_name=model_name,
+                queryset=queryset,
+                index_name=doc._index._name,
+                document_class=str(doc),
+            )
+            for task in indexing_tasks:
+                task.apply_async(**apply_async_kwargs)
+            log.info(
+                "Tasks issued successfully. model=%s.%s items=%s",
+                app_label, model_name, str(queryset.count())
+            )
+
+    def _reindex_files_from(self, days_ago, queue):
+        """Reindex HTML files from versions with recent builds."""
+        chunk_size = settings.ES_TASK_CHUNK_SIZE
+        since = datetime.now() - timedelta(days=days_ago)
+        queryset = Version.objects.filter(builds__date__gte=since).distinct()
+        app_label = HTMLFile._meta.app_label
+        model_name = HTMLFile.__name__
+        apply_async_kwargs = {
+            'queue': queue,
+            'kwargs': {
+                'app_label': app_label,
+                'model_name': model_name,
+            },
+        }
+
+        for doc in registry.get_documents(models=[HTMLFile]):
+            apply_async_kwargs['kwargs']['document_class'] = str(doc)
+            for version in queryset.iterator():
+                project = version.project
+                files_qs = (
+                    HTMLFile.objects
+                    .filter(version=version)
+                    .values_list('pk', flat=True)
+                    .iterator()
+                )
+                current = 0
+                while True:
+                    objects_id = list(itertools.islice(files_qs, chunk_size))
+                    if not objects_id:
+                        break
+                    current += len(objects_id)
+                    log.info(
+                        'Re-indexing files. version=%s:%s total=%s',
+                        project.slug, version.slug, current,
+                    )
+                    apply_async_kwargs['kwargs']['objects_id'] = objects_id
+                    index_objects_to_es.apply_async(**apply_async_kwargs)
+
+                log.info(
+                    "Tasks issued successfully. version=%s:%s items=%s",
+                    project.slug, version.slug, str(current),
+                )
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--queue',
             dest='queue',
             action='store',
+            required=True,
             help="Set the celery queue name for the task."
+        )
+        parser.add_argument(
+            '--change-index',
+            dest='change_index',
+            action='store',
+            help=(
+                "Change the index to the new one using the given timestamp and delete the old one. "
+                "**This should be run after a re-index is completed**."
+            ),
+        )
+        parser.add_argument(
+            '--update-from',
+            dest='update_from',
+            type=int,
+            action='store',
+            help=(
+                "Re-index the models from the given days. "
+                "This should be run after a re-index."
+            ),
         )
         parser.add_argument(
             '--models',
             dest='models',
             type=str,
             nargs='*',
-            help=("Specify the model to be updated in elasticsearch."
-                  "The format is <app_label>.<model_name>")
+            help=(
+                "Specify the model to be updated in elasticsearch. "
+                "The format is <app_label>.<model_name>"
+            ),
         )
 
     def handle(self, *args, **options):
@@ -127,14 +224,59 @@ class Command(BaseCommand):
 
         You can specify model to get indexed by passing
         `--model <app_label>.<model_name>` parameter.
-        Otherwise, it will reindex all the models
+        Otherwise, it will re-index all the models
         """
         models = None
         if options['models']:
             models = [apps.get_model(model_name) for model_name in options['models']]
 
-        queue = None
-        if options.get('queue'):
-            queue = options['queue']
+        queue = options['queue']
+        change_index = options['change_index']
+        update_from = options['update_from']
+        if change_index:
+            timestamp = change_index
+            print(
+                f'You are about to change change the index from {models} to `[model]_{timestamp}`',
+                '**The old index will be deleted!**'
+            )
+            if input('Continue? y/n: ') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
+            self._change_index(models=models, timestamp=timestamp)
+            print(textwrap.dedent(
+                """
+                Indexes had been changed.
 
-        self._run_reindex_tasks(models=models, queue=queue)
+                Remember to re-index changed projects and versions with the
+                `--update-from n` argument,
+                where `n` is the number of days since the re-index.
+                """
+            ))
+        elif update_from:
+            print(
+                'You are about to reindex all changed objects',
+                f'from the latest {update_from} days from {models}'
+            )
+            if input('Continue? y/n: ') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
+            self._reindex_from(days_ago=update_from, models=models, queue=queue)
+        else:
+            print(
+                f'You are about to reindex all objects from {models}',
+                f'into a new index in the {queue} queue.'
+            )
+            if input('Continue? y/n: ') != 'y':
+                print('Task cancelled')
+                sys.exit(1)
+            timestamp = self._run_reindex_tasks(models=models, queue=queue)
+            print(textwrap.dedent(
+                f"""
+                Re-indexing tasks have been created.
+                Timestamp: {timestamp}
+
+                Please monitor the tasks.
+                After they are completed run the same command with the
+                `--change-index {timestamp}` argument.
+                """
+            ))

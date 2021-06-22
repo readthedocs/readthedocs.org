@@ -18,6 +18,11 @@
         {% endblocktrans %}
       </p>
 
+      {# TODO: style this properly in the new templates #}
+      {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+      {% endif %}
+
       <div class="module-list-wrapper">
         {% if form.accounts %}
           <ul>

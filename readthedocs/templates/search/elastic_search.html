@@ -34,22 +34,6 @@
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
     <hr>
 
-    {% if facets.index %}
-      <h5>{% trans 'Index' %}</h5>
-      {% for name, count, selected in facets.index %}
-        <li class="{% if selected %}active{% endif %} index-list">
-          {% if index == name %}
-            <a href="?{% url_replace request 'index' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'index' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
-          </a>
-        </li>
-      {% endfor %}
-      <hr>
-    {% endif %}
-
     {% if facets.project and not project_obj %}
       <h5>{% trans 'Projects' %}</h5>
       {% for name, count, selected in facets.project %}
@@ -132,7 +116,6 @@
         <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
         {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
         {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
-        {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
         {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
         {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
         {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
@@ -162,67 +145,71 @@
         <div class="module-list-wrapper">
           <ul>
 
+            {% with "100" as MAX_SUBSTRING_LIMIT %}
             {% for result in results %}
 
               <li class="module-item search-result-item">
                 <p class="module-item-title">
-                  {% if 'project' in result.meta.index %}
-                    <a href="{{ result.url }}">
+                  {% if result.type == 'project' %}
+                    <a href="{{ result.link }}">
                       {{ result.name }} (<em>{{ result.slug }}</em>)
                     </a>
-                    {% for fragment in result.meta.highlight.description %}
+                    {% for fragment in result.highlights.description %}
                       <p class="fragment">
                         ...{{ fragment|safe }}...
                       </p>
                     {% empty %}
-                      <p><em>No description for project.</em></p>
+                      {% if result.description %}
+                        <p>{{ result.description|slice:MAX_SUBSTRING_LIMIT }}</p>
+                      {% else %}
+                        <p><em>No description for project.</em></p>
+                      {% endif %}
                     {% endfor %}
 
-                  {% elif 'page' in result.meta.index %}
-                    {% with "100" as MAX_SUBSTRING_LIMIT %}
-                      <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
-                        {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                  {% elif result.type == 'page' %}
+                      <a href="{{ result.domain }}{{ result.path}}?highlight={{ query }}">
+                        {{ result.project }} - {% if result.highlights.title %} {{ result.highlights.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
-                      {% for inner_hit in result.meta.inner_hits %}
-                        {% if inner_hit.type == 'domains' %}
+                      {% for block in result.blocks %}
+                        {% if block.type == 'domain' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.anchor }}">
-                              {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
-                                {% with domain_name=inner_hit.highlight|get_key_or_none:"domains.name" %}
-                                  [{{ inner_hit.source.role_name }}]: {{ domain_name.0|safe }}
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlights.name %}
+                                {% with domain_name=block.highlights.name %}
+                                  [{{ block.role }}]: {{ domain_name.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                [{{ inner_hit.source.role_name }}]: {{ inner_hit.source.name }}
+                                [{{ block.role }}]: {{ block.name }}
                               {% endif %}
                             </a>
                           </p>
                           <p class="fragment">
-                            {% if inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
-                              {% with domain_docstrings=inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
-                                {{ domain_docstrings.0|safe }}
+                            {% if block.highlights.content %}
+                              {% with domain_content=block.highlights.content %}
+                                {{ domain_content.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {% if inner_hit.source.docstrings %}
-                                {{ inner_hit.source.docstrings|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% if block.content %}
+                                {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                               {% endif %}
                             {% endif %}
                           </p>
 
-                        {% elif inner_hit.type == 'sections' %}
+                        {% elif block.type == 'section' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.id }}">
-                              {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
-                                {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlights.title %}
+                                {% with section_title=block.highlights.title %}
                                   {{ section_title.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                {{ inner_hit.source.title }}
+                                {{ block.title }}
                               {% endif %}
                             </a>
                           </p>
-                          {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
-                            {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
+                          {% if block.highlights.content %}
+                            {% with section_content=block.highlights.content %}
                               {% for content in section_content %}
                                 <p class="fragment">
                                   ... {{ content|safe }} ...
@@ -231,18 +218,18 @@
                             {% endwith %}
                           {% else %}
                             <p class="fragment">
-                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                             </p>
                           {% endif %}
                         {% endif %}
                       {% endfor %}
-                    {% endwith %}
                   {% endif %}
                 </p>
               </li>
             {% empty %}
               <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
             {% endfor %}
+            {% endwith %}
           </ul>
         </div>
       </div>

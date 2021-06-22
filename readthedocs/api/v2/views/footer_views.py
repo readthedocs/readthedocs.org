@@ -1,6 +1,8 @@
 """Endpoint to generate footer HTML."""
 
+import logging
 import re
+from functools import lru_cache
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -10,16 +12,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
+
+log = logging.getLogger(__name__)
 
 
 def get_version_compare_data(project, base_version=None):
@@ -29,7 +34,10 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if not project.show_version_warning:
+    if (
+        not project.show_version_warning or
+        (base_version and base_version.is_external)
+    ):
         return {'is_highest': False}
 
     versions_qs = (
@@ -75,10 +83,22 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class BaseFooterHTML(APIView):
+class BaseFooterHTML(CachedResponseMixin, APIView):
 
     """
     Render and return footer markup.
+
+    Query parameters:
+
+    - project
+    - version
+    - page: Sphinx's page name (name of the source file),
+      used to build the "edit on" links.
+    - theme: Used to decide how to integrate the flyout menu.
+    - docroot: Path where all the source documents are.
+      Used to build the ``edit_on`` URL.
+    - source_suffix: Suffix from the source document.
+      Used to build the ``edit_on`` URL.
 
     .. note::
 
@@ -89,37 +109,28 @@ class BaseFooterHTML(APIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
+    project_cache_tag = 'rtd-footer'
 
+    @lru_cache(maxsize=1)
     def _get_project(self):
-        cache_key = '_cached_project'
-        project = getattr(self, cache_key, None)
-
-        if not project:
-            project_slug = self.request.GET.get('project', None)
-            project = get_object_or_404(Project, slug=project_slug)
-            setattr(self, cache_key, project)
-
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
         return project
 
+    @lru_cache(maxsize=1)
     def _get_version(self):
-        cache_key = '_cached_version'
-        version = getattr(self, cache_key, None)
+        version_slug = self.request.GET.get('version', None)
 
-        if not version:
-            version_slug = self.request.GET.get('version', None)
+        # Hack in a fix for missing version slug deploy
+        # that went out a while back
+        if version_slug == '':
+            version_slug = LATEST
 
-            # Hack in a fix for missing version slug deploy
-            # that went out a while back
-            if version_slug == '':
-                version_slug = LATEST
-
-            project = self._get_project()
-            version = get_object_or_404(
-                project.versions.all(),
-                slug__iexact=version_slug,
-            )
-            setattr(self, cache_key, version)
-
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug__iexact=version_slug,
+        )
         return version
 
     def _get_active_versions_sorted(self):
@@ -127,6 +138,7 @@ class BaseFooterHTML(APIView):
         project = self._get_project()
         versions = project.ordered_active_versions(
             user=self.request.user,
+            include_hidden=False,
         )
         return versions
 
@@ -146,7 +158,7 @@ class BaseFooterHTML(APIView):
         page_slug = self.request.GET.get('page', '')
         path = ''
         if page_slug and page_slug != 'index':
-            if version.documentation_type == 'sphinx_htmldir':
+            if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
@@ -212,22 +224,18 @@ class BaseFooterHTML(APIView):
             request,
         )
 
+        show_version_warning = (
+            project.show_version_warning and
+            not version.is_external
+        )
+
         resp_data = {
             'html': html,
-            'show_version_warning': project.show_version_warning,
+            'show_version_warning': show_version_warning,
             'version_active': version.active,
             'version_compare': version_compare_data,
             'version_supported': version.supported,
         }
-
-        # Allow folks to hook onto the footer response for various information
-        # collection, or to modify the resp_data.
-        footer_response.send(
-            sender=None,
-            request=request,
-            context=context,
-            resp_data=resp_data,
-        )
 
         return Response(resp_data)
 

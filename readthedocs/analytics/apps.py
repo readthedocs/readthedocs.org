@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django app config for the analytics app."""
 
 from django.apps import AppConfig

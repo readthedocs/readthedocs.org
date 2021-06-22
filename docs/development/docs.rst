@@ -5,25 +5,61 @@ As one might expect,
 the documentation for Read the Docs is built using Sphinx and hosted on Read the Docs.
 The docs are kept in the ``docs/`` directory at the top of the source tree.
 
-You can build the docs by first ensuring this project is set up locally according to the :doc:`Installation Guide <install>`.
-Follow the instructions just up to the point of activating the virtual environment and then continue here.
+Contributing through the Github UI
+----------------------------------
 
-Next, install the documentation dependencies using ``pip`` (make sure you are inside of the virtual environment)::
+If you're making small changes to the documentation,
+you can verify those changes through the documentation generated when you open a PR and can be accessed using the Github UI.
 
-    pip install -r requirements/local-docs-build.txt
+#. click the checkmark next to your commit and it will expand to have multiple options
 
-This installs ``Sphinx``, amongst other things.
+#. right-click the "details" link next to the "docs/readthedocs.org:docs" item
 
-After that is done, build the documentation by running::
+   .. image:: /img/details_link.png
 
-	# in the docs directory
-	make html
+#. navigate to the section of the documentation you worked on to verify your changes
+
+Contributing from your local machine
+------------------------------------
+
+.. note::
+
+   You must use python 3.6 to generate the documentation.
+
+If you're making large changes to the documentation,
+you may want to verify those changes locally before pushing upstream.
+
+#. clone the `readthedocs.org` repository:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+
+#. install documentation requirements
+
+   .. prompt:: bash
+
+      cd readthedocs.org
+      pip install -r requirements/testing.txt
+      pip install -r requirements/docs.txt
+
+#. build the documents
+
+   .. prompt:: bash
+
+      cd docs
+      make livehtml
+
+#. the documents will be available at http://127.0.0.1:4444/ and will rebuild each time you edit and save a file.
+
+Guidelines
+----------
 
 Please follow these guidelines when updating our docs.
 Let us know if you have any questions or something isn't clear.
 
 The brand
----------
+^^^^^^^^^
 
 We are called **Read the Docs**.
 The *the* is not capitalized.
@@ -31,7 +67,7 @@ The *the* is not capitalized.
 We do however use the acronym **RTD**.
 
 Titles
-------
+^^^^^^
 
 For page titles, or Heading1 as they are sometimes called, we use title-case.
 
@@ -39,7 +75,7 @@ If the page includes multiple sub-headings (H2, H3),
 we usually use sentence-case unless the titles include terminology that is supposed to be capitalized.
 
 Content
--------
+^^^^^^^
 
 * Do not break the content across multiple lines at 80 characters,
   but rather break them on semantic meaning (e.g. periods or commas).

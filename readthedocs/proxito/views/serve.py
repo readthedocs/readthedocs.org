@@ -4,8 +4,7 @@ import itertools
 import logging
 from urllib.parse import urlparse
 
-from django.conf import settings
-from django.core.files.storage import get_storage_class
+from readthedocs.core.resolver import resolve_path
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -20,6 +19,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
 
 from .decorators import map_project_slug
 from .mixins import ServeDocsMixin, ServeRedirectMixin
@@ -77,10 +77,18 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.info(
+        log.debug(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
+
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        if hasattr(request, 'canonicalize'):
+            try:
+                return self.canonical_redirect(request, final_project, version_slug, filename)
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -136,10 +144,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_type=self.version_type,
         )
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
         # If ``filename`` is empty, serve from ``/``
-        path = storage.join(storage_path, filename.lstrip('/'))
+        path = build_media_storage.join(storage_path, filename.lstrip('/'))
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
@@ -148,7 +154,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path += 'index.html'
 
         # NOTE: calling ``.url`` will remove the trailing slash
-        storage_url = storage.url(path, http_method=request.method)
+        storage_url = build_media_storage.url(path, http_method=request.method)
 
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
@@ -208,11 +214,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             include_file=False,
             version_type=self.version_type,
         )
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = storage.join(
+            storage_filename_path = build_media_storage.join(
                 storage_root_path,
                 f'{filename}/{tryfile}'.lstrip('/'),
             )
@@ -222,7 +227,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 version_slug,
                 storage_filename_path,
             )
-            if storage.exists(storage_filename_path):
+            if build_media_storage.exists(storage_filename_path):
                 log.info(
                     'Redirecting to index file: project=%s version=%s, storage_path=%s',
                     final_project.slug,
@@ -235,7 +240,13 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
                     new_path = parts.path.rstrip('/') + '/'
-                new_parts = parts._replace(path=new_path)
+
+                # `proxito_path` doesn't include query params.`
+                query = urlparse(request.get_full_path()).query
+                new_parts = parts._replace(
+                    path=new_path,
+                    query=query,
+                )
                 redirect_url = new_parts.geturl()
 
                 # TODO: decide if we need to check for infinite redirect here
@@ -307,14 +318,14 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             if doc_type_404 == SPHINX_HTMLDIR:
                 tryfiles.append('404/index.html')
             for tryfile in tryfiles:
-                storage_filename_path = storage.join(storage_root_path, tryfile)
-                if storage.exists(storage_filename_path):
+                storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
+                if build_media_storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
                         final_project.slug,
                         version_slug_404,
                     )
-                    resp = HttpResponse(storage.open(storage_filename_path).read())
+                    resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
                     return resp
 
@@ -328,7 +339,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
+    @method_decorator(cache_page(60 * 60))  # 1 hour
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -354,18 +365,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             # ... we do return a 404
             raise Http404()
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
         storage_path = project.get_storage_path(
             type_='html',
             version_slug=version_slug,
             include_file=False,
             version_type=self.version_type,
         )
-        path = storage.join(storage_path, 'robots.txt')
+        path = build_media_storage.join(storage_path, 'robots.txt')
 
-        if storage.exists(path):
-            url = storage.url(path)
+        if build_media_storage.exists(path):
+            url = build_media_storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
             return self._serve_docs(
                 request,
@@ -377,10 +386,28 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             scheme='https',
             domain=project.subdomain(),
         )
-        return HttpResponse(
-            'User-agent: *\nAllow: /\nSitemap: {}\n'.format(sitemap_url),
+        context = {
+            'sitemap_url': sitemap_url,
+            'hidden_paths': self._get_hidden_paths(project),
+        }
+        return render(
+            request,
+            'robots.txt',
+            context,
             content_type='text/plain',
         )
+
+    def _get_hidden_paths(self, project):
+        """Get the absolute paths of the public hidden versions of `project`."""
+        hidden_versions = (
+            Version.internal.public(project=project)
+            .filter(hidden=True)
+        )
+        hidden_paths = [
+            resolve_path(project, version_slug=version.slug)
+            for version in hidden_versions
+        ]
+        return hidden_paths
 
 
 class ServeRobotsTXT(SettingsOverrideObject):

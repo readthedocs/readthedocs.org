@@ -4,17 +4,15 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, HTML, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -85,9 +83,9 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type')
+        fields = ('name', 'repo', 'repo_type', 'default_branch')
 
-    remote_repository = forms.CharField(
+    remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
         required=False,
     )
@@ -109,7 +107,7 @@ class ProjectBasicsForm(ProjectForm):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if remote_repo:
             if commit:
-                remote_repo.project = self.instance
+                remote_repo.projects.add(self.instance)
                 remote_repo.save()
             else:
                 instance.remote_repository = remote_repo
@@ -175,6 +173,7 @@ class ProjectExtraForm(ProjectForm):
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
+        max_length=150,
         widget=forms.Textarea,
     )
 
@@ -190,7 +189,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -199,10 +198,12 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         per_project_settings = (
             'default_version',
             'default_branch',
-            'privacy_level',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled',
+            'privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -223,21 +224,32 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Remove the nullable option from the form
+        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
+        self.fields['analytics_disabled'].empty_value = False
+
         self.helper = FormHelper()
         help_text = render_to_string(
             'projects/project_advanced_settings_helptext.html'
         )
-        self.helper.layout = Layout(
+
+        per_project_settings = list(self.Meta.per_project_settings)
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop('privacy_level')
+            per_project_settings.remove('privacy_level')
+
+        field_sets = [
             Fieldset(
                 _("Global settings"),
-                *self.Meta.per_project_settings,
+                *per_project_settings,
             ),
             Fieldset(
                 _("Default settings"),
                 HTML(help_text),
                 *self.Meta.per_version_settings,
             ),
-        )
+        ]
+        self.helper.layout = Layout(*field_sets)
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
@@ -366,17 +378,26 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         return self.project
 
     def clean_child(self):
-        child = self.cleaned_data['child']
+        """
+        Validate child is a valid subproject.
 
-        child.is_valid_as_subproject(
-            self.project, forms.ValidationError
-        )
+        Validation is done on creation only,
+        when editing users can't change the child.
+        """
+        child = self.cleaned_data['child']
+        if self.instance.pk is None:
+            child.is_valid_as_subproject(
+                self.project, forms.ValidationError
+            )
         return child
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
-        subproject = self.project.subprojects.filter(
-            alias=alias).exclude(id=self.instance.pk)
+        subproject = (
+            self.project.subprojects
+            .filter(alias=alias)
+            .exclude(id=self.instance.pk)
+        )
 
         if subproject.exists():
             raise forms.ValidationError(
@@ -467,14 +488,6 @@ class WebHookForm(forms.ModelForm):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
-    def clean_url(self):
-        url = self.cleaned_data.get('url')
-        if not url:
-            raise forms.ValidationError(
-                _('This field is required.')
-            )
-        return url
-
     class Meta:
         model = WebHook
         fields = ['url']
@@ -563,8 +576,7 @@ class TranslationBaseForm(forms.Form):
             # bulk update.
             self.translation.main_language_project = self.parent
             self.translation.save()
-            # Run symlinking and other sync logic to make sure we are in a good
-            # state.
+            # Run other sync logic to make sure we are in a good state.
             self.parent.save()
         return self.parent
 
@@ -606,7 +618,7 @@ class DomainBaseForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
+        fields = ['project', 'domain', 'canonical', 'https']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -621,19 +633,41 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
-        parsed = urlparse(self.cleaned_data['domain'])
-        if parsed.scheme or parsed.netloc:
-            domain_string = parsed.netloc
-        else:
-            domain_string = parsed.path
+        domain = self.cleaned_data['domain'].lower()
+        parsed = urlparse(domain)
+
+        # Force the scheme to have a valid netloc.
+        if not parsed.scheme:
+            parsed = urlparse(f'https://{domain}')
+
+        if not parsed.netloc:
+            raise forms.ValidationError(
+                f'{domain} is not a valid domain.'
+            )
+
+        domain_string = parsed.netloc
+
+        # Don't allow production or public domain to be set as custom domain
+        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+            if invalid_domain and domain_string.endswith(invalid_domain):
+                raise forms.ValidationError(
+                    f'{invalid_domain} is not a valid domain.'
+                )
+
         return domain_string
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
-        _id = self.initial.get('id')
-        if canonical and Domain.objects.filter(project=self.project, canonical=True).exclude(pk=_id).exists():  # yapf: disabled  # noqa
+        pk = self.instance.pk
+        has_canonical_domain = (
+            Domain.objects
+            .filter(project=self.project, canonical=True)
+            .exclude(pk=pk)
+            .exists()
+        )
+        if canonical and has_canonical_domain:
             raise forms.ValidationError(
-                _('Only 1 Domain can be canonical at a time.'),
+                _('Only one domain can be canonical at a time.'),
             )
         return canonical
 
@@ -700,7 +734,7 @@ class FeatureForm(forms.ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['projects', 'feature_id', 'default_true']
+        fields = ['projects', 'feature_id', 'default_true', 'future_default_true']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -719,11 +753,16 @@ class EnvironmentVariableForm(forms.ModelForm):
 
     class Meta:
         model = EnvironmentVariable
-        fields = ('name', 'value', 'project')
+        fields = ('name', 'value', 'public', 'project')
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields['public'].widget = forms.CheckboxInput()
+        self.fields['public'].empty_value = False
 
     def clean_project(self):
         return self.project
@@ -734,21 +773,21 @@ class EnvironmentVariableForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("Variable name can't start with __ (double underscore)"),
             )
-        elif name.startswith('READTHEDOCS'):
+        if name.startswith('READTHEDOCS'):
             raise forms.ValidationError(
                 _("Variable name can't start with READTHEDOCS"),
             )
-        elif self.project.environmentvariable_set.filter(name=name).exists():
+        if self.project.environmentvariable_set.filter(name=name).exists():
             raise forms.ValidationError(
                 _(
                     'There is already a variable with this name for this project',
                 ),
             )
-        elif ' ' in name:
+        if ' ' in name:
             raise forms.ValidationError(
                 _("Variable name can't contain spaces"),
             )
-        elif not fullmatch('[a-zA-Z0-9_]+', name):
+        if not fullmatch('[a-zA-Z0-9_]+', name):
             raise forms.ValidationError(
                 _('Only letters, numbers and underscore are allowed'),
             )

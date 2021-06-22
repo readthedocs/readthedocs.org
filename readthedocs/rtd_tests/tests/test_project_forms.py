@@ -1,4 +1,5 @@
 from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -6,15 +7,14 @@ from django.utils.translation import ugettext_lazy as _
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
-    PRIVACY_CHOICES,
-    PROTECTED,
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
+    SPHINX,
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
@@ -195,7 +195,7 @@ class TestProjectForms(TestCase):
 class TestProjectAdvancedForm(TestCase):
 
     def setUp(self):
-        self.project = get(Project)
+        self.project = get(Project, privacy_level=PUBLIC)
         get(
             Version,
             project=self.project,
@@ -219,7 +219,7 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             slug='public-3',
             active=False,
-            privacy_level=PROTECTED,
+            privacy_level=PUBLIC,
             identifier='public-3',
             verbose_name='public-3',
         )
@@ -241,15 +241,6 @@ class TestProjectAdvancedForm(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_active_versions_on_default_version(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -260,7 +251,7 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'private'},
         )
 
     def test_default_version_field_if_no_active_version(self):
@@ -274,27 +265,34 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
         self.assertEqual(form.fields['default_version'].initial, 'latest')
 
-    def test_hide_protected_privacy_level_new_objects(self):
-        """
-        Test PROTECTED is only allowed in old objects.
-
-        New projects are not allowed to set the privacy level as protected.
-        """
-        # New default object
-        project = get(Project)
-        form = ProjectAdvancedForm(instance=project)
-
-        privacy_choices = list(PRIVACY_CHOICES)
-        privacy_choices.remove((PROTECTED, _('Protected')))
-        self.assertEqual(form.fields['privacy_level'].choices, privacy_choices)
-
-        # "Old" object with privacy_level previously set as protected
-        project = get(
-            Project,
-            privacy_level=PROTECTED,
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cant_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
         )
-        form = ProjectAdvancedForm(instance=project)
-        self.assertEqual(form.fields['privacy_level'].choices, list(PRIVACY_CHOICES))
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_can_update_privacy_level(self):
+        form = ProjectAdvancedForm(
+            {
+                'default_version': LATEST,
+                'documentation_type': SPHINX,
+                'python_interpreter': 'python3',
+                'privacy_level': PRIVATE,
+            },
+            instance=self.project,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PRIVATE)
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
@@ -328,15 +326,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -350,7 +339,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'stable', 'public-1', 'protected', 'private',
+                None, 'stable', 'public-1', 'private',
             },
         )
         # Auto generated version `latest` should not be among the choices
@@ -691,6 +680,14 @@ class TestNotificationForm(TestCase):
         form.save()
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
 
+        data = {
+            'url': 'https://www.example.com/'
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
+
     def test_wrong_inputs_in_webhookform(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
@@ -812,8 +809,8 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 1)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
-        self.assertEqual(EnvironmentVariable.objects.first().value, "'string here'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'MYTOKEN')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, "'string here'")
 
         data = {
             'name': 'ESCAPED',
@@ -823,5 +820,5 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
-        self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'ESCAPED')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, r"'string escaped here: #$\1[]{}\|'")

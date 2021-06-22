@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for Builders."""
 
 import logging
 import os
 import shutil
 from functools import wraps
+
+from readthedocs.projects.models import Feature
 
 
 log = logging.getLogger(__name__)
@@ -36,8 +36,7 @@ class BaseBuilder:
     _force = False
 
     ignore_patterns = []
-
-    # old_artifact_path = ..
+    old_artifact_path = None
 
     def __init__(self, build_env, python_env, force=False):
         self.build_env = build_env
@@ -46,6 +45,7 @@ class BaseBuilder:
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self._force = force
+        self.project_path = self.project.checkout_path(self.version.slug)
         self.target = self.project.artifact_path(
             version=self.version.slug,
             type_=self.type,
@@ -59,6 +59,10 @@ class BaseBuilder:
         """An optional step to force a build even when nothing has changed."""
         log.info('Forcing a build')
         self._force = True
+
+    def append_conf(self):
+        """Set custom configurations for this builder."""
+        pass
 
     def build(self):
         """Do the actual building of the documentation."""
@@ -87,16 +91,15 @@ class BaseBuilder:
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        checkout_path = self.project.checkout_path(self.version.slug)
-        if not docs_dir:
-            for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
-                possible_path = os.path.join(checkout_path, doc_dir_name)
-                if os.path.exists(possible_path):
-                    docs_dir = possible_path
-                    break
-        if not docs_dir:
-            docs_dir = checkout_path
-        return docs_dir
+        if docs_dir:
+            return docs_dir
+
+        for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+            possible_path = os.path.join(self.project_path, doc_dir_name)
+            if os.path.exists(possible_path):
+                return possible_path
+
+        return self.project_path
 
     def create_index(self, extension='md', **__):
         """Create an index file if it needs it."""
@@ -114,8 +117,8 @@ class BaseBuilder:
             if os.path.exists(readme_filename):
                 return 'README'
 
-            index_file = open(index_filename, 'w+')
-            index_text = """
+            if not self.project.has_feature(Feature.DONT_CREATE_INDEX):
+                index_text = """
 
 Welcome to Read the Docs
 ------------------------
@@ -131,8 +134,9 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-            index_file.write(index_text.format(dir=docs_dir, ext=extension))
-            index_file.close()
+                with open(index_filename, 'w+') as index_file:
+                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+
         return 'index'
 
     def run(self, *args, **kwargs):

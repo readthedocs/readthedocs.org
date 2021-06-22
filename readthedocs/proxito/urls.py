@@ -38,6 +38,7 @@ from django.conf.urls import include, url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
+from readthedocs.core.views import HealthCheckView
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
     ServeDocs,
@@ -50,7 +51,14 @@ from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
-urlpatterns = [
+health_check_urls = [
+    url('^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
+        HealthCheckView.as_view(),
+        name='health_check',
+        ),
+]
+
+proxied_urls = [
     # Serve project downloads
     # /_/downloads/<lang>/<ver>/<type>/
     url(
@@ -82,13 +90,16 @@ urlpatterns = [
     ),
 
     # Serve proxied API
+    # /_/api/v2/
     url(
         r'^{DOC_PATH_PREFIX}api/v2/'.format(
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
         include('readthedocs.api.v2.proxied_urls'),
     ),
+]
 
+core_urls = [
     # Serve custom 404 pages
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',
@@ -97,6 +108,9 @@ urlpatterns = [
     ),
     url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
     url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+]
+
+docs_urls = [
 
     # # TODO: Support this?
     # (Sub)project `page` redirect
@@ -156,6 +170,8 @@ urlpatterns = [
         name='docs_detail_singleversion_subproject',
     ),
 ]
+
+urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
 
 # Use Django default error handlers to make things simpler
 handler404 = proxito_404_page_handler

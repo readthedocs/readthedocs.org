@@ -5,6 +5,8 @@ from .views import (
     EnvironmentVariablesViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
+    RemoteOrganizationViewSet,
+    RemoteRepositoryViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
     VersionsViewSet,
@@ -16,6 +18,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# pylint: disable=assignment-from-no-return
 projects = router.register(
     r'projects',
     ProjectsViewSet,
@@ -84,6 +87,20 @@ projects.register(
     EnvironmentVariablesViewSet,
     basename='projects-environmentvariables',
     parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/remote/repositories/
+router.register(
+    r'remote/repositories',
+    RemoteRepositoryViewSet,
+    basename='remoterepositories',
+)
+
+# allows /api/v3/remote/organizations/
+router.register(
+    r'remote/organizations',
+    RemoteOrganizationViewSet,
+    basename='remoteorganizations',
 )
 
 urlpatterns = []

@@ -6,36 +6,41 @@
 if (navigator.doNotTrack === '1') {
     console.log('Respecting DNT with respect to analytics...');
 } else {
-    // RTD Analytics Code
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    if (typeof READTHEDOCS_DATA !== 'undefined' && READTHEDOCS_DATA.global_analytics_code) {
+        (function () {
+            // New Google Site Tag (gtag.js) tagging/analytics framework
+            // https://developers.google.com/gtagjs
+            var script = document.createElement("script");
+            script.src = "https://www.googletagmanager.com/gtag/js?id=" + READTHEDOCS_DATA.global_analytics_code;
+            script.type = "text/javascript";
+            script.async = true;
+            document.getElementsByTagName("head")[0].appendChild(script);
+        }())
 
-    if (typeof READTHEDOCS_DATA !== 'undefined') {
-        if (READTHEDOCS_DATA.global_analytics_code) {
-            ga('create', READTHEDOCS_DATA.global_analytics_code, 'auto', 'rtfd', {
-              'cookieExpires': 30 * 24 * 60 * 60
-            });
-            ga('rtfd.set', 'dimension1', READTHEDOCS_DATA.project);
-            ga('rtfd.set', 'dimension2', READTHEDOCS_DATA.version);
-            ga('rtfd.set', 'dimension3', READTHEDOCS_DATA.language);
-            ga('rtfd.set', 'dimension4', READTHEDOCS_DATA.theme);
-            ga('rtfd.set', 'dimension5', READTHEDOCS_DATA.programming_language);
-            ga('rtfd.set', 'dimension6', READTHEDOCS_DATA.builder);
-            ga('rtfd.set', 'anonymizeIp', true);
-            ga('rtfd.send', 'pageview');
-        }
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-        // User Analytics Code
+        // Setup the RTD global analytics code and send a pageview
+        gtag('config', READTHEDOCS_DATA.global_analytics_code, {
+            'anonymize_ip': true,
+            'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+            'dimension1': READTHEDOCS_DATA.project,
+            'dimension2': READTHEDOCS_DATA.version,
+            'dimension3': READTHEDOCS_DATA.language,
+            'dimension4': READTHEDOCS_DATA.theme,
+            'dimension5': READTHEDOCS_DATA.programming_language,
+            'dimension6': READTHEDOCS_DATA.builder,
+            'groups': 'rtfd'
+        });
+
+        // Setup the project (user) analytics code and send a pageview
         if (READTHEDOCS_DATA.user_analytics_code) {
-            ga('create', READTHEDOCS_DATA.user_analytics_code, 'auto', 'user', {
-              'cookieExpires': 30 * 24 * 60 * 60
+            gtag('config', READTHEDOCS_DATA.user_analytics_code, {
+                'anonymize_ip': true,
+                'cookie_expires': 30 * 24 * 60 * 60  // 30 days
             });
-            ga('user.set', 'anonymizeIp', true);
-            ga('user.send', 'pageview');
         }
-        // End User Analytics Code
     }
     // end RTD Analytics Code
 }

@@ -11,13 +11,14 @@ class CommunityProxitoSettingsMixin:
 
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
+    SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
     @property
     def DATABASES(self):
         # This keeps connections to the DB alive,
         # which reduces latency with connecting to postgres
         dbs = getattr(super(), 'DATABASES', {})
-        for db in dbs.keys():
+        for db in dbs:
             dbs[db]['CONN_MAX_AGE'] = 86400
         return dbs
 
@@ -26,13 +27,9 @@ class CommunityProxitoSettingsMixin:
         # Use our new middleware instead of the old one
         classes = super().MIDDLEWARE
         classes = list(classes)
-        index = classes.index(
-            'readthedocs.core.middleware.SubdomainMiddleware'
-        )
-        classes[index] = 'readthedocs.proxito.middleware.ProxitoMiddleware'
+        classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
 
         middleware_to_remove = (
-            'readthedocs.core.middleware.SingleVersionMiddleware',
             'csp.middleware.CSPMiddleware',
         )
         for mw in middleware_to_remove:

@@ -1,14 +1,15 @@
--r pip.txt
--r local-docs-build.txt
+# Packages required for running tests
 
-django-dynamic-fixture==2.0.0
-pytest==5.2.2
+-r pip.txt
+
+django-dynamic-fixture==3.1.1
+pytest==6.2.4
 pytest-custom-exit-code==0.3.0
-pytest-django==3.6.0
-pytest-xdist==1.30.0
-pytest-cov==2.8.1
+pytest-django==4.4.0
+pytest-xdist==2.2.1
+pytest-cov==2.12.1
 apipkg==1.5
-execnet==1.7.1
+execnet==1.9.0
 
 # Mercurial 4.3 and newer require Python 2.7
 # Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
@@ -18,9 +19,11 @@ execnet==1.7.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==2.0.1
-pytest-mock==1.11.2
+yamale==2.2.0  # pyup: <3.0
+pytest-mock==3.6.1
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.13.2
+ipdb==0.13.9
+
+requests-mock==1.9.3

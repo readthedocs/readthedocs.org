@@ -18,15 +18,18 @@ class DockerBaseSettings(CommunityDevSettings):
     PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
+
     SLUMBER_API_HOST = 'http://web:8000'
+    SLUMBER_USERNAME = 'admin'
+    SLUMBER_PASSWORD = 'admin'
+
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
-    STATIC_URL = '/devstoreaccount1/static/'
+    STATIC_URL = '/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
@@ -38,15 +41,25 @@ class DockerBaseSettings(CommunityDevSettings):
     if ips and not HOSTIP:
         HOSTIP = ips[0][:-1] + "1"
 
+    # Turn this on to test ads
+    USE_PROMOS = False
     ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
-
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
-
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    # New templates
+    @property
+    def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
+        return os.environ.get('RTD_EXT_THEME_DEV_SERVER_ENABLED') is not None
+
+    @property
+    def RTD_EXT_THEME_DEV_SERVER(self):
+        if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
+            return "http://assets.community.dev.readthedocs.io:10001"
+
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
+    ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
 
     RTD_CLEAN_AFTER_BUILD = True
 
@@ -54,8 +67,21 @@ class DockerBaseSettings(CommunityDevSettings):
     def LOGGING(self):
         logging = super().LOGGING
         logging['loggers'].update({
-            # Disable azurite logging
-            'azure.storage.common': {
+            # Disable S3 logging
+            'boto3': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            'botocore': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            's3transfer': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            # Disable Docker API logging
+            'urllib3': {
                 'handlers': ['null'],
                 'propagate': False,
             },
@@ -80,8 +106,12 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    def show_debug_toolbar(request):
+        from django.conf import settings
+        return settings.DEBUG
+
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
     }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -101,38 +131,42 @@ class DockerBaseSettings(CommunityDevSettings):
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-    # Avoid syncing to the web servers
-    FILE_SYNCER = "readthedocs.builds.syncers.NullSyncer"
-
-    # https://github.com/Azure/Azurite/blob/master/README.md#default-storage-account
-    AZURE_ACCOUNT_NAME = 'devstoreaccount1'
-    AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
-    AZURE_CONTAINER = 'static'
-    AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-
-    # We want to replace files for the same version built
-    AZURE_OVERWRITE_FILES = True
-
-    # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
-    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = 'assets.community.dev.readthedocs.io:10000'
-
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.s3_storage.S3BuildMediaStorage'
     # Storage backend for build cached environments
-    RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildEnvironmentStorage'
-
+    RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.s3_storage.S3BuildEnvironmentStorage'
     # Storage for static files (those collected with `collectstatic`)
-    STATICFILES_STORAGE = 'readthedocs.storage.azure_storage.AzureStaticStorage'
+    STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
+
+    AWS_ACCESS_KEY_ID = 'admin'
+    AWS_SECRET_ACCESS_KEY = 'password'
+    S3_MEDIA_STORAGE_BUCKET = 'media'
+    S3_BUILD_COMMANDS_STORAGE_BUCKET = 'builds'
+    S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
+    S3_STATIC_STORAGE_BUCKET = 'static'
+    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
+
+    AWS_AUTO_CREATE_BUCKET = True
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_BUCKET_ACL = 'public-read'
+    AWS_S3_ENCRYPTION = False
+    AWS_S3_SECURE_URLS = False
+    AWS_S3_USE_SSL = False
+    AWS_S3_ENDPOINT_URL = 'http://storage:9000/'
+    AWS_QUERYSTRING_AUTH = False
+
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
+    RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildCommandsStorage'
+    BUILD_COLD_STORAGE_URL = 'http://storage:9000/builds'
 
     STATICFILES_DIRS = [
         os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
         os.path.join(CommunityDevSettings.SITE_ROOT, 'media'),
     ]
-    AZURE_BUILD_STORAGE_CONTAINER = 'builds'
-    BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
-    AZURE_EMULATED_MODE = True
-    AZURE_CUSTOM_DOMAIN = 'storage:10000'
-    AZURE_SSL = False
 
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+    # This allows us to have CORS work well in dev
+    CORS_ORIGIN_ALLOW_ALL = True

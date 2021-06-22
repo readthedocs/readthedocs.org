@@ -1,9 +1,14 @@
-from .mixins import APIEndpointMixin
+from unittest import mock
+
+import django_dynamic_fixture as fixture
 from django.urls import reverse
 
 from readthedocs.projects.models import Project
 
+from .mixins import APIEndpointMixin
 
+
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_list(self):
@@ -129,7 +134,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(project.repo, 'https://github.com/rtfd/template')
         self.assertEqual(project.language, 'en')
         self.assertEqual(project.programming_language, 'py')
-        self.assertEqual(project.privacy_level, 'public')
         self.assertEqual(project.project_url, 'http://template.readthedocs.io/')
         self.assertIn(self.me, project.users.all())
         self.assertEqual(project.builds.count(), 1)
@@ -142,6 +146,26 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response_json,
             self._get_response_dict('projects-list_POST'),
         )
+
+    def test_import_existing_project(self):
+        fixture.get(
+            Project,
+            slug='test-project',
+            name='Test Project',
+        )
+        data = {
+            'name': 'Test Project',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'homepage': 'http://template.readthedocs.io/',
+            'programming_language': 'py',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertContains(response, 'Project with slug \\"test-project\\" already exists.', status_code=400)
 
     def test_import_project_with_extra_fields(self):
         data = {
@@ -179,10 +203,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
             'homepage': 'https://updated-homepage.org',
             'default_version': 'stable',
             'default_branch': 'updated-default-branch',
-            'privacy_level': 'private',
             'analytics_code': 'UA-XXXXXX',
             'show_version_warning': False,
             'single_version': True,
+            "external_builds_enabled": True
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -207,10 +231,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.project_url, 'https://updated-homepage.org')
         self.assertEqual(self.project.default_version, 'stable')
         self.assertEqual(self.project.default_branch, 'updated-default-branch')
-        self.assertEqual(self.project.privacy_level, 'public')
         self.assertEqual(self.project.analytics_code, 'UA-XXXXXX')
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.single_version, True)
+        self.assertEqual(self.project.external_builds_enabled, True)
 
     def test_partial_update_project(self):
         data = {

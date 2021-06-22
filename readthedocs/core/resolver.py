@@ -62,6 +62,7 @@ class ResolverBase:
             subproject_slug=None,
             subdomain=None,
             cname=None,
+            urlconf=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
@@ -78,6 +79,31 @@ class ResolverBase:
             url += '{filename}'
         else:
             url += '{language}/{version_slug}/{filename}'
+
+        # Allow users to override their own URLConf
+        # This logic could be cleaned up with a standard set of variable replacements
+        if urlconf:
+            url = urlconf
+            url = url.replace(
+                '$version',
+                '{version_slug}',
+            )
+            url = url.replace(
+                '$language',
+                '{language}',
+            )
+            url = url.replace(
+                '$filename',
+                '{filename}',
+            )
+            url = url.replace(
+                '$subproject',
+                '{subproject_slug}',
+            )
+            if '$' in url:
+                log.warning(
+                    'Unconverted variable in a resolver URLConf: url=%s', url
+                )
 
         return url.format(
             project_slug=project_slug,
@@ -97,6 +123,7 @@ class ResolverBase:
             single_version=None,
             subdomain=None,
             cname=None,
+            urlconf=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -122,6 +149,7 @@ class ResolverBase:
             subproject_slug=subproject_slug,
             cname=cname,
             subdomain=subdomain,
+            urlconf=urlconf or project.urlconf,
         )
 
     def resolve_domain(self, project):
@@ -311,7 +339,7 @@ class ResolverBase:
         :param custom_domain: Domain instance or ``None``
         :type custom_domain: readthedocs.projects.models.Domain
         """
-        return True if custom_domain is not None else False
+        return custom_domain is not None
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""

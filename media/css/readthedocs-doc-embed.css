@@ -24,6 +24,10 @@
     margin: 0;
 }
 
+.rtd-current-item {
+    font-weight: bold;
+}
+
 
 /* Fix RTD theme bottom margin */
 .rst-content .line-block {
@@ -138,6 +142,9 @@ div.ethical-footer {
 /* Sidebar promotions */
 .ethical-sidebar {
     text-align: center;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Footer promotions */
@@ -213,7 +220,7 @@ div.ethical-footer {
 /* RTD Theme specific customizations */
 .wy-nav-side .ethical-rtd {
     /* RTD theme doesn't correctly set the sidebar width */
-    width: 300px;
+    max-width: 300px;
     padding: 0 1em;
 }
 .ethical-rtd .ethical-sidebar {
@@ -267,9 +274,10 @@ div.ethical-footer {
 /* Ad block nag */
 .keep-us-sustainable {
     padding: .5em;
-    margin: 1em 0;
+    margin: 1em auto;
     text-align: center;
     border: 1px dotted #8ECC4C;
+    max-width: 300px;
 }
 .keep-us-sustainable a,
 .keep-us-sustainable a:hover,
@@ -277,11 +285,11 @@ div.ethical-footer {
     text-decoration: none;
 }
 /* Read the Docs theme specific fixes */
-.wy-body-for-nav .keep-us-sustainable {
+.wy-nav-side .keep-us-sustainable {
     margin: 1em 2em 1em 1em;
     color: #b3b3b3;
 }
-.wy-body-for-nav .keep-us-sustainable a {
+.wy-nav-side .keep-us-sustainable a {
     color: #efefef;
     font-size: 14px;
     line-height: 20px;

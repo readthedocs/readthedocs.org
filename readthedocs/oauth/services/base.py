@@ -11,6 +11,11 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
+from readthedocs.oauth.models import (
+    RemoteOrganizationRelation,
+    RemoteRepositoryRelation,
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -33,6 +38,7 @@ class Service:
 
     adapter = None
     url_pattern = None
+    vcs_provider_slug = None
 
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -141,6 +147,7 @@ class Service:
         :param kwargs: optional parameters passed to .get() method
         :type kwargs: dict
         """
+        resp = None
         try:
             resp = self.get_session().get(url, data=kwargs)
 
@@ -173,7 +180,7 @@ class Service:
             # Response data should always be JSON, still try to log if not
             # though
             try:
-                debug_data = resp.json()
+                debug_data = resp.json() if resp else {}
             except ValueError:
                 debug_data = resp.content
             log.debug(
@@ -181,11 +188,46 @@ class Service:
                 url,
                 debug_data,
             )
-            return []
+
+        return []
 
     def sync(self):
-        """Sync repositories and organizations."""
-        raise NotImplementedError
+        """
+        Sync repositories (RemoteRepository) and organizations (RemoteOrganization).
+
+        - creates a new RemoteRepository/Organization per new repository
+        - updates fields for existing RemoteRepository/Organization
+        - deletes old RemoteRepository/Organization that are not present
+          for this user in the current provider
+        """
+        remote_repositories = self.sync_repositories()
+        remote_organizations, remote_repositories_organizations = self.sync_organizations()
+
+        # Delete RemoteRepository where the user doesn't have access anymore
+        # (skip RemoteRepository tied to a Project on this user)
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
+        (
+            self.user.remote_repository_relations
+            .exclude(
+                remote_repository__remote_id__in=repository_remote_ids,
+                remote_repository__vcs_provider=self.vcs_provider_slug
+            )
+            .filter(account=self.account)
+            .delete()
+        )
+
+        # Delete RemoteOrganization where the user doesn't have access anymore
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
+        (
+            self.user.remote_organization_relations
+            .exclude(
+                remote_organization__remote_id__in=organization_remote_ids,
+                remote_organization__vcs_provider=self.vcs_provider_slug
+            )
+            .filter(account=self.account)
+            .delete()
+        )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -265,7 +307,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create commit status for project.
 
@@ -275,6 +317,7 @@ class Service:
         :type commit: str
         :param state: build state failure, pending, or success.
         :type state: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """

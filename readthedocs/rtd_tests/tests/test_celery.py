@@ -2,13 +2,16 @@ import os
 import shutil
 from os.path import exists
 from tempfile import mkdtemp
+from unittest import mock
+from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from unittest.mock import MagicMock, patch
 
+from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_SUCCESS,
@@ -16,13 +19,16 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.config.config import BuildConfigV2
+from readthedocs.doc_builder.environments import (
+    BuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import VersionLockedError
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -32,7 +38,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-class TestCeleryBuilding(RTDTestCase):
+class TestCeleryBuilding(TestCase):
 
     """
     These tests run the build functions directly.
@@ -79,22 +85,6 @@ class TestCeleryBuilding(RTDTestCase):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
         result = tasks.remove_dirs.delay((directory,))
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-    def test_clear_artifacts(self):
-        version = self.project.versions.all()[0]
-        directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-        directory = version.project.rtd_build_path(version=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -164,7 +154,7 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
-        
+
         version = self.project.versions.first()
 
         build = get(
@@ -253,9 +243,8 @@ class TestCeleryBuilding(RTDTestCase):
             result = tasks.sync_repository_task.delay(version.pk)
         clean_build.assert_called_with(version.pk)
 
-    @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
+    def test_check_duplicate_reserved_version_latest(self, checkout_path):
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
 
@@ -275,7 +264,7 @@ class TestCeleryBuilding(RTDTestCase):
 
         delete_git_branch(self.repo, 'latest')
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -300,8 +289,7 @@ class TestCeleryBuilding(RTDTestCase):
         # TODO: Check that we can build properly after
         # deleting the tag.
 
-    @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_no_reserved_version(self, api_v2):
+    def test_check_duplicate_no_reserved_version(self):
         create_git_branch(self.repo, 'no-reserved')
         create_git_tag(self.repo, 'no-reserved')
 
@@ -309,8 +297,11 @@ class TestCeleryBuilding(RTDTestCase):
 
         sync_repository = self.get_update_docs_task(version)
 
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 0)
+
         sync_repository.sync_repo(sync_repository.build_env)
-        api_v2.project().sync_versions.post.assert_called()
+
+        self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 2)
 
     def test_public_task_exception(self):
         """
@@ -341,42 +332,48 @@ class TestCeleryBuilding(RTDTestCase):
         )
 
     @patch('readthedocs.builds.managers.log')
-    def test_sync_files_logging_when_wrong_version_pk(self, mock_logger):
-        self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.sync_files(project_pk=None, version_pk=345343, doctype='sphinx')
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
-
-    @patch('readthedocs.builds.managers.log')
-    def test_move_files_logging_when_wrong_version_pk(self, mock_logger):
-        self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.move_files(version_pk=345343, hostname=None, doctype='sphinx')
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
-
-    @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None, build=1)
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+        tasks.fileify(
+            version_pk=345343,
+            commit=None,
+            build=1,
+            search_ranking={},
+            search_ignore=[],
+        )
+        mock_logger.warning.assert_called_with(
+            'Version not found for given kwargs. %s',
+            {'pk': 345343},
+        )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
     def test_send_build_status_with_remote_repo_github(self, send_build_status):
         self.project.repo = 'https://github.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='github')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -391,7 +388,7 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -408,7 +405,7 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -420,20 +417,29 @@ class TestCeleryBuilding(RTDTestCase):
         self.project.repo = 'https://gitlab.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='gitlab')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            build=external_build,
+            commit=external_build.commit,
+            state=BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -448,7 +454,7 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -465,9 +471,73 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         send_build_status.assert_not_called()
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch.object(BuildEnvironment, 'run')
+    @patch('readthedocs.doc_builder.config.load_config')
+    def test_install_apt_packages(self, load_config, run):
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'apt_packages': [
+                        'clangd',
+                        'cmatrix',
+                    ],
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_config.return_value = config
+
+        version = self.project.versions.first()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo):
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+
+        self.assertEqual(run.call_count, 2)
+        apt_update = run.call_args_list[0]
+        apt_install = run.call_args_list[1]
+        self.assertEqual(
+            apt_update,
+            mock.call(
+                'apt-get',
+                'update',
+                '--assume-yes',
+                '--quiet',
+                user='root:root',
+            )
+        )
+        self.assertEqual(
+            apt_install,
+            mock.call(
+                'apt-get',
+                'install',
+                '--assume-yes',
+                '--quiet',
+                '--',
+                'clangd',
+                'cmatrix',
+                user='root:root',
+            )
+        )

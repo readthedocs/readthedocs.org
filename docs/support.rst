@@ -1,5 +1,5 @@
-Support
-=======
+Site Support
+============
 
 Usage Questions
 ---------------
@@ -14,57 +14,40 @@ Good questions for Stack Overflow would be:
 * "How do I structure translations inside of my project for easiest contribution from users?"
 * "How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?"
 
-Community Support
------------------
+You might also find the answers you are looking for in our :doc:`documentation guides </guides/index>`.
+These provide step-by-step solutions to common user requirements.
 
-Read the Docs is supported by community contributions and advertising.
-We hope to bring in enough money
-with our `Gold`_ and `Ethical Ads`_ programs to keep Read the Docs sustainable.
-
-**All people answering your questions are doing it with their own time,
-so please be kind and provide as much information as possible.**
-
-Bugs & Support Issues
-~~~~~~~~~~~~~~~~~~~~~
-
-You can file bug reports on our `GitHub issue tracker`_,
-and they will be addressed as soon as possible.
-**Support is a volunteer effort**,
-and there is no guaranteed response time.
-If you need answers quickly,
-you can buy commercial support below.
-
-Reporting Issues
-~~~~~~~~~~~~~~~~
-
-When reporting a bug,
-please include as much information as possible that will help us solve this issue.
-This includes:
-
-* Project name
-* URL
-* Action taken
-* Expected result
-* Actual result
-
-Specific Requests
-~~~~~~~~~~~~~~~~~
+User Support
+------------
 
 If you need a specific request for your project or account,
 like more resources, change of the project's slug or username.
-Send an email to support@readthedocs.org.
 
-Commercial Support
-------------------
+.. tabs::
 
-We offer commercial support with :doc:`Read the Docs for Business </commercial/index>`
+   .. tab:: |org_brand|
+
+        Please fill out the form at https://readthedocs.org/support/,
+        and we will reply as soon as possible.
+
+   .. tab:: |com_brand|
+
+        Please fill out the form at https://readthedocs.com/support/,
+        and we will reply within 1 business day for most plans.
+
+Bug Reports
+-----------
+
+If you have an issue with the actual functioning of the site,
+you can file bug reports on our `GitHub issue tracker`_.
+You can also :doc:`contribute </contribute>` to Read the Docs,
+as the code is open source.
+
+Priority Support
+----------------
+
+We offer priority support with :doc:`Read the Docs for Business </commercial/index>`
 and we have a dedicated team that responds to support requests during business hours.
 
-For consulting services around documentation systems,
-you can `contact us <mailto:hello@readthedocs.com?subject=Consulting%20Services%20Inquiry>`_
-or read more at https://readthedocs.com/services/#open-source-support.
-
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/read-the-docs
-.. _Github Issue Tracker: https://github.com/readthedocs/readthedocs.org/issues
-.. _Gold: https://readthedocs.org/accounts/gold/
-.. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html
+.. _Github issue tracker: https://github.com/readthedocs/readthedocs.org/issues

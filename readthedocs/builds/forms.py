@@ -3,7 +3,11 @@
 import re
 import textwrap
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Fieldset, Layout
 from django import forms
+from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.constants import (
@@ -13,16 +17,56 @@ from readthedocs.builds.constants import (
     TAG,
     TAG_TEXT,
 )
-from readthedocs.builds.models import RegexAutomationRule, Version
-from readthedocs.core.mixins import HideProtectedLevelMixin
+from readthedocs.builds.models import (
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
+from readthedocs.builds.signals import version_changed
 from readthedocs.core.utils import trigger_build
 
 
-class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
+class VersionForm(forms.ModelForm):
 
     class Meta:
         model = Version
-        fields = ['active', 'privacy_level']
+        states_fields = ['active', 'hidden']
+        privacy_fields = ['privacy_level']
+        fields = (
+            *states_fields,
+            *privacy_fields,
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        field_sets = [
+            Fieldset(
+                _('States'),
+                HTML(render_to_string('projects/project_version_states_help_text.html')),
+                *self.Meta.states_fields,
+            ),
+        ]
+
+        if settings.ALLOW_PRIVATE_REPOS:
+            field_sets.append(
+                Fieldset(
+                    _('Privacy'),
+                    *self.Meta.privacy_fields,
+                )
+            )
+        else:
+            self.fields.pop('privacy_level')
+
+        field_sets.append(
+            HTML(render_to_string(
+                'projects/project_version_submit.html',
+                context={'version': self.instance},
+            ))
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(*field_sets)
 
     def clean_active(self):
         active = self.cleaned_data['active']
@@ -44,6 +88,8 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
         obj = super().save(commit=commit)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
+        if self.has_changed():
+            version_changed.send(sender=self.__class__, version=obj)
         return obj
 
 
@@ -90,6 +136,19 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
         ]
+
+        # Remove privacy actions not available in community
+        if not settings.ALLOW_PRIVATE_REPOS:
+            invalid_actions = {
+                VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
+                VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
+            }
+            action_choices = self.fields['action'].choices
+            self.fields['action'].choices = [
+                action
+                for action in action_choices
+                if action[0] not in invalid_actions
+            ]
 
         if not self.instance.pk:
             self.initial['predefined_match_arg'] = ALL_VERSIONS

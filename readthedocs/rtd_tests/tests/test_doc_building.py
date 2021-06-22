@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Things to know:
 
@@ -8,17 +7,16 @@ Things to know:
 import hashlib
 import json
 import os
-import re
 import tempfile
 import uuid
-
 from unittest import mock
+from unittest.mock import Mock, PropertyMock, mock_open, patch
+
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
-from unittest.mock import Mock, PropertyMock, mock_open, patch
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
@@ -31,11 +29,10 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import EnvironmentVariable, Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
-
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = 'HérÉ îß sömê ünïçó∂é'
@@ -359,6 +356,7 @@ class TestLocalBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
@@ -702,8 +700,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -761,8 +761,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -807,8 +809,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
+            user='docs:docs',
             stderr=True,
             stdout=True,
         )
@@ -1010,6 +1014,7 @@ class TestDockerBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestBuildCommand(TestCase):
 
     """Test build command creation."""
@@ -1037,14 +1042,10 @@ class TestBuildCommand(TestCase):
         self.assertFalse(os.path.exists(path))
         cmd = BuildCommand(path)
         cmd.run()
-        missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegex(cmd.error, missing_re)
-
-    def test_input(self):
-        """Test input to command."""
-        cmd = BuildCommand('/bin/cat', input_data='FOOBAR')
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+        self.assertEqual(cmd.exit_code, -1)
+        # There is no stacktrace here.
+        self.assertIsNone(cmd.output)
+        self.assertIsNone(cmd.error)
 
     def test_output(self):
         """Test output command."""
@@ -1063,19 +1064,10 @@ class TestBuildCommand(TestCase):
 
     def test_error_output(self):
         """Test error output from command."""
-        # Test default combined output/error streams
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
         self.assertIsNone(cmd.error)
-        # Test non-combined streams
-        cmd = BuildCommand(
-            ['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'],
-            combine_output=False,
-        )
-        cmd.run()
-        self.assertEqual(cmd.output, '')
-        self.assertEqual(cmd.error, 'FOOBAR')
 
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
@@ -1103,6 +1095,7 @@ class TestBuildCommand(TestCase):
         )
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildCommand(TestCase):
 
     """Test docker build commands."""
@@ -1122,7 +1115,7 @@ class TestDockerBuildCommand(TestCase):
         )
         self.assertEqual(
             cmd.get_wrapped_command(),
-            "/bin/sh -c 'cd /tmp/foobar && pip install requests'",
+            "/bin/sh -c 'pip install requests'",
         )
         cmd = DockerBuildCommand(
             ['python', '/tmp/foo/pip', 'install', 'Django>1.7'],
@@ -1133,7 +1126,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             (
                 '/bin/sh -c '
-                "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
+                "'PATH=/tmp/foo:$PATH "
                 r"python /tmp/foo/pip install Django\>1.7'"
             ),
         )
@@ -1192,9 +1185,6 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments',
-            'setuptools',
-            'docutils',
             'mock',
             'pillow',
             'alabaster',
@@ -1214,12 +1204,12 @@ class TestPythonEnvironment(TestCase):
             mock.ANY,  # cache path
         ]
 
-    def assertArgsStartsWith(self, args, function_mock):
+    def assertArgsStartsWith(self, args, call):
         """
         Assert that each element of args of the mock start
         with each element of args.
         """
-        args_mock, _ = function_mock.call_args
+        args_mock, _ = call
         for arg, arg_mock in zip(args, args_mock):
             if arg is not mock.ANY:
                 self.assertTrue(arg_mock.startswith(arg))
@@ -1240,10 +1230,16 @@ class TestPythonEnvironment(TestCase):
             'sphinx-rtd-theme',
             'readthedocs-sphinx-ext',
         ]
+
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
+        calls = self.build_env_mock.run.call_args_list
+
+        core_args = self.pip_install_args + ['pip', 'setuptools']
+        self.assertArgsStartsWith(core_args, calls[0])
+
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.assertEqual(self.build_env_mock.run.call_count, 2)
-        self.assertArgsStartsWith(args, self.build_env_mock.run)
+        self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_core_requirements_mkdocs(self, checkout_path):
@@ -1259,10 +1255,16 @@ class TestPythonEnvironment(TestCase):
             'recommonmark',
             'mkdocs',
         ]
+
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
+        calls = self.build_env_mock.run.call_args_list
+
+        core_args = self.pip_install_args + ['pip', 'setuptools']
+        self.assertArgsStartsWith(core_args, calls[0])
+
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.assertEqual(self.build_env_mock.run.call_count, 2)
-        self.assertArgsStartsWith(args, self.build_env_mock.run)
+        self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_user_requirements(self, checkout_path):

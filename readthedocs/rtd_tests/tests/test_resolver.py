@@ -20,31 +20,30 @@ from readthedocs.rtd_tests.utils import create_user
 class ResolverBase(TestCase):
 
     def setUp(self):
-        with mock.patch('readthedocs.projects.models.broadcast'):
-            self.owner = create_user(username='owner', password='test')
-            self.tester = create_user(username='tester', password='test')
-            self.pip = fixture.get(
-                Project,
-                slug='pip',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.subproject = fixture.get(
-                Project,
-                slug='sub',
-                language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.translation = fixture.get(
-                Project,
-                slug='trans',
-                language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.pip.add_subproject(self.subproject)
-            self.pip.translations.add(self.translation)
+        self.owner = create_user(username='owner', password='test')
+        self.tester = create_user(username='tester', password='test')
+        self.pip = fixture.get(
+            Project,
+            slug='pip',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.subproject = fixture.get(
+            Project,
+            slug='sub',
+            language='ja',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.translation = fixture.get(
+            Project,
+            slug='trans',
+            language='ja',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.pip.add_subproject(self.subproject)
+        self.pip.translations.add(self.translation)
 
 
 class SmartResolverPathTests(ResolverBase):
@@ -176,6 +175,13 @@ class SmartResolverPathTests(ResolverBase):
             url = resolve_path(project=self.translation, filename='index.html')
             self.assertEqual(url, '/ja/latest/index.html')
 
+    def test_resolver_urlconf(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='$version/$filename')
+        self.assertEqual(url, 'latest/index.html')
+
+    def test_resolver_urlconf_extra(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='foo/bar/$version/$filename')
+        self.assertEqual(url, 'foo/bar/latest/index.html')
 
 class ResolverPathOverrideTests(ResolverBase):
 
@@ -709,37 +715,36 @@ class ResolverTests(ResolverBase):
 class ResolverAltSetUp:
 
     def setUp(self):
-        with mock.patch('readthedocs.projects.models.broadcast'):
-            self.owner = create_user(username='owner', password='test')
-            self.tester = create_user(username='tester', password='test')
-            self.pip = fixture.get(
-                Project,
-                slug='pip',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.seed = fixture.get(
-                Project,
-                slug='sub',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.subproject = fixture.get(
-                Project,
-                slug='subproject',
-                language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.translation = fixture.get(
-                Project,
-                slug='trans',
-                language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.pip.add_subproject(self.subproject, alias='sub')
-            self.pip.translations.add(self.translation)
+        self.owner = create_user(username='owner', password='test')
+        self.tester = create_user(username='tester', password='test')
+        self.pip = fixture.get(
+            Project,
+            slug='pip',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.seed = fixture.get(
+            Project,
+            slug='sub',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.subproject = fixture.get(
+            Project,
+            slug='subproject',
+            language='ja',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.translation = fixture.get(
+            Project,
+            slug='trans',
+            language='ja',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        self.pip.add_subproject(self.subproject, alias='sub')
+        self.pip.translations.add(self.translation)
 
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')

@@ -6,7 +6,6 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import (
     Http404,
@@ -33,24 +32,26 @@ from vanilla import (
     UpdateView,
 )
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
+    AutomationRuleMatch,
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
 )
 from readthedocs.core.mixins import (
     ListViewWithForm,
-    LoginRequiredMixin,
     PrivateViewMixin,
 )
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects import tasks
+from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
@@ -85,8 +86,6 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 
-from ..tasks import retry_domain_verification
-
 log = logging.getLogger(__name__)
 
 
@@ -96,6 +95,21 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     model = Project
     template_name = 'projects/project_dashboard.html'
+
+    # pylint: disable=arguments-differ
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Set the default search to search files instead of projects
+        context['type'] = 'file'
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
+            context['filter'] = filter
+            context['project_list'] = filter.qs
+            # Alternatively, dynamically override super()-derived `project_list` context_data
+            # context[self.get_context_object_name(filter.qs)] = filter.qs
+
+        return context
 
     def validate_primary_email(self, user):
         """
@@ -186,9 +200,7 @@ class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
-
-    template_name = 'projects/project_version_detail.html'
+class ProjectVersionEditMixin(ProjectVersionMixin):
 
     def get_queryset(self):
         return Version.internal.public(
@@ -207,11 +219,6 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
-                broadcast(
-                    type='app',
-                    task=tasks.remove_dirs,
-                    args=[version.get_artifact_paths()],
-                )
                 tasks.clean_project_resources(
                     version.project,
                     version,
@@ -219,6 +226,16 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ProjectVersionCreate(ProjectVersionEditMixin, CreateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+
+class ProjectVersionDetail(ProjectVersionEditMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
 
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
@@ -230,10 +247,10 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            broadcast(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[version.get_artifact_paths()],
+            log.info('Removing files for version %s', version.slug)
+            tasks.clean_project_resources(
+                version.project,
+                version,
             )
         else:
             return HttpResponseBadRequest(
@@ -247,13 +264,39 @@ class ImportWizardView(
         SessionWizardView,
 ):
 
-    """Project import wizard."""
+    """
+    Project import wizard.
+
+    The get and post methods are overridden in order to save the initial_dict data
+    per session (since it's per class).
+    """
 
     form_list = [
         ('basics', ProjectBasicsForm),
         ('extra', ProjectExtraForm),
     ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
+
+    initial_dict_key = 'initial-data'
+
+    def get(self, *args, **kwargs):
+        # The method from the parent should run first,
+        # as the storage is initialized there.
+        response = super().get(*args, **kwargs)
+        self._set_initial_dict()
+        return response
+
+    def _set_initial_dict(self):
+        """Set or restore the initial_dict from the session."""
+        if self.initial_dict:
+            self.storage.data[self.initial_dict_key] = self.initial_dict
+        else:
+            self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
+
+    def post(self, *args, **kwargs):
+        self._set_initial_dict()
+        # The storage is reset after everything is done.
+        return super().post(*args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
@@ -419,7 +462,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type', 'remote_repository']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository', 'default_branch']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
@@ -450,14 +493,6 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
         return super().get_form(data, files, **kwargs)
-
-    def form_valid(self, form):
-        broadcast(
-            type='app',
-            task=tasks.symlink_subproject,
-            args=[self.get_project().pk],
-        )
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])
@@ -531,7 +566,7 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ProjecNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
+class ProjectNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
     def get_success_url(self):
         return reverse(
@@ -540,7 +575,7 @@ class ProjecNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectNotications(ProjecNotificationsMixin, TemplateView):
+class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
 
     """Project notification view and form view."""
 
@@ -591,7 +626,7 @@ class ProjectNotications(ProjecNotificationsMixin, TemplateView):
         return context
 
 
-class ProjectNoticationsDelete(ProjecNotificationsMixin, GenericView):
+class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
 
     http_method_names = ['post']
 
@@ -721,11 +756,11 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN  # noqa
-
-        # Retry validation on all domains if applicable
-        for domain in ctx['domain_list']:
-            retry_domain_verification.delay(domain_pk=domain.pk)
+        ctx['default_domain'] = (
+            settings.PUBLIC_DOMAIN
+            if settings.USE_SUBDOMAIN
+            else settings.PRODUCTION_DOMAIN
+        )
 
         return ctx
 
@@ -922,11 +957,6 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
     pass
 
 
-class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
-
-    pass
-
-
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
 
     http_method_names = ['post']
@@ -945,7 +975,14 @@ class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class AutomationRuleList(AutomationRuleMixin, ListView):
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['matches'] = (
+            AutomationRuleMatch.objects
+            .filter(rule__project=self.get_project())
+        )
+        return context
 
 
 class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
@@ -983,16 +1020,7 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-@login_required
-def search_analytics_view(request, project_slug):
-    """View for search analytics."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-
-class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
     http_method_names = ['get']
@@ -1006,6 +1034,10 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
+        enabled = self._is_enabled(project)
+        context.update({'enabled': enabled})
+        if not enabled:
+            return context
 
         # data for plotting the line-chart
         query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
@@ -1019,7 +1051,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 qs.values('query')
                 .annotate(count=Count('id'))
                 .order_by('-count', 'query')
-                .values_list('query', 'count')
+                .values_list('query', 'count', 'total_results')
             )
 
             # only show top 100 queries
@@ -1039,15 +1071,17 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         now = timezone.now().date()
         last_3_month = now - timezone.timedelta(days=90)
 
-        data = (
-            SearchQuery.objects.filter(
-                project=project,
-                created__date__gte=last_3_month,
-                created__date__lte=now,
+        data = []
+        if self._is_enabled(project):
+            data = (
+                SearchQuery.objects.filter(
+                    project=project,
+                    created__date__gte=last_3_month,
+                    created__date__lte=now,
+                )
+                .order_by('-created')
+                .values_list('created', 'query', 'total_results')
             )
-            .order_by('-created')
-            .values_list('created', 'query')
-        )
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
             project_slug=project.slug,
@@ -1057,10 +1091,12 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         # remove any spaces in filename.
         file_name = '-'.join([text for text in file_name.split() if text])
 
-        csv_data = (
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
-            for time, query in data
-        )
+        csv_data = [
+            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
+            for time, query, total_results in data
+        ]
+        # Add headers to the CSV
+        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse(
@@ -1069,3 +1105,52 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
         response['Content-Disposition'] = f'attachment; filename="{file_name}"'
         return response
+
+    def _is_enabled(self, project):
+        """Should we show search analytics for this project?"""
+        return True
+
+
+class SearchAnalytics(SettingsOverrideObject):
+    _default_class = SearchAnalyticsBase
+
+
+class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+
+    template_name = 'projects/project_traffic_analytics.html'
+    http_method_names = ['get']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        enabled = self._is_enabled(project)
+        context.update({'enabled': enabled})
+        if not enabled:
+            return context
+
+        # Count of views for top pages over the month
+        top_pages = PageView.top_viewed_pages(project, limit=25)
+        top_viewed_pages = list(zip(
+            top_pages['pages'],
+            top_pages['view_counts']
+        ))
+
+        # Aggregate pageviews grouped by day
+        page_data = PageView.page_views_by_date(
+            project_slug=project.slug,
+        )
+
+        context.update({
+            'top_viewed_pages': top_viewed_pages,
+            'page_data': page_data,
+        })
+
+        return context
+
+    def _is_enabled(self, project):
+        """Should we show traffic analytics for this project?"""
+        return True
+
+
+class TrafficAnalyticsView(SettingsOverrideObject):
+    _default_class = TrafficAnalyticsViewBase

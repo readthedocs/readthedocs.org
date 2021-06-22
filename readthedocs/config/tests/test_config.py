@@ -2,9 +2,9 @@ import os
 import re
 import textwrap
 from collections import OrderedDict
+from unittest.mock import DEFAULT, patch
 
 import pytest
-from unittest.mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
@@ -26,6 +26,7 @@ from readthedocs.config.config import (
     CONFIG_REQUIRED,
     CONFIG_SYNTAX_INVALID,
     INVALID_KEY,
+    INVALID_NAME,
     PYTHON_INVALID,
     VERSION_INVALID,
 )
@@ -43,7 +44,6 @@ from readthedocs.config.validation import (
 )
 
 from .utils import apply_fs
-
 
 yaml_config_dir = {
     'readthedocs.yml': textwrap.dedent(
@@ -749,6 +749,7 @@ def test_as_dict(tmpdir):
         },
         'build': {
             'image': 'readthedocs/build:latest',
+            'apt_packages': [],
         },
         'conda': None,
         'sphinx': {
@@ -765,6 +766,10 @@ def test_as_dict(tmpdir):
             'include': ALL,
             'exclude': [],
             'recursive': True,
+        },
+        'search': {
+            'ranking': {},
+            'ignore': [],
         },
     }
     assert build.as_dict() == expected_dict
@@ -931,6 +936,62 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'build.image'
+
+    @pytest.mark.parametrize(
+        'value',
+        [
+            [],
+            ['cmatrix'],
+            ['Mysql', 'cmatrix', 'postgresql-dev'],
+        ],
+    )
+    def test_build_apt_packages_check_valid(self, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        build.validate()
+        assert build.build.apt_packages == value
+
+    @pytest.mark.parametrize(
+        'value',
+        [3, 'string', {}],
+    )
+    def test_build_apt_packages_invalid_type(self, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.apt_packages'
+
+    @pytest.mark.parametrize(
+        'error_index, value',
+        [
+            (0, ['/', 'cmatrix']),
+            (1, ['cmatrix', '-q']),
+            (1, ['cmatrix', ' -q']),
+            (1, ['cmatrix', '\\-q']),
+            (1, ['cmatrix', '--quiet']),
+            (1, ['cmatrix', ' --quiet']),
+            (2, ['cmatrix', 'quiet', './package.deb']),
+            (2, ['cmatrix', 'quiet', ' ./package.deb ']),
+            (2, ['cmatrix', 'quiet', '/home/user/package.deb']),
+            (2, ['cmatrix', 'quiet', ' /home/user/package.deb']),
+            (2, ['cmatrix', 'quiet', '../package.deb']),
+            (2, ['cmatrix', 'quiet', ' ../package.deb']),
+            (1, ['one', '$two']),
+            (1, ['one', 'non-ascíí']),
+            # We don't allow regex for now.
+            (1, ['mysql', 'cmatrix$']),
+            (0, ['^mysql-*', 'cmatrix$']),
+            # We don't allow specifying versions for now.
+            (0, ['postgresql=1.2.3']),
+            # We don't allow specifying distributions for now.
+            (0, ['cmatrix/bionic']),
+        ],
+    )
+    def test_build_apt_packages_invalid_value(self, error_index, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == f'build.apt_packages.{error_index}'
+        assert excinfo.value.code == INVALID_NAME
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
     def test_python_check_invalid_types(self, value):
@@ -1834,6 +1895,117 @@ class TestBuildConfigV2:
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
 
+    @pytest.mark.parametrize('value', ['invalid', True, 0, []])
+    def test_search_invalid_type(self, value):
+        build = self.get_build_config({
+            'search': value,
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'search'
+
+    @pytest.mark.parametrize(
+        'value',
+        [
+            'invalid',
+            True,
+            0,
+            [],
+            {'foo/bar': 11},
+            {'foo/bar': -11},
+            {'foo/bar': 2.5},
+            {'foo/bar': 'bar'},
+            {'/': 1},
+            {'/foo/..': 1},
+            {'..': 1},
+            {'/foo/bar/../../../': 1},
+            {10: 'bar'},
+            {10: 0},
+        ],
+    )
+    def test_search_ranking_invalid_type(self, value):
+        build = self.get_build_config({
+            'search': {'ranking': value},
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'search.ranking'
+
+    @pytest.mark.parametrize('value', list(range(-10, 10 + 1)))
+    def test_search_valid_ranking(self, value):
+        build = self.get_build_config({
+            'search': {
+                'ranking': {
+                    'foo/bar': value,
+                    'bar/foo': value,
+                },
+            },
+        })
+        build.validate()
+        assert build.search.ranking == {'foo/bar': value, 'bar/foo': value}
+
+    @pytest.mark.parametrize('path, expected', [
+        ('/foo/bar', 'foo/bar'),
+        ('///foo//bar', 'foo/bar'),
+        ('///foo//bar/', 'foo/bar'),
+        ('/foo/bar/../', 'foo'),
+        ('/foo*', 'foo*'),
+        ('/foo/bar/*', 'foo/bar/*'),
+        ('/foo/bar?/*', 'foo/bar?/*'),
+        ('foo/[bc]ar/*/', 'foo/[bc]ar/*'),
+        ('*', '*'),
+        ('index.html', 'index.html'),
+    ])
+    def test_search_ranking_normilize_path(self, path, expected):
+        build = self.get_build_config({
+            'search': {
+                'ranking': {
+                    path: 1,
+                },
+            },
+        })
+        build.validate()
+        assert build.search.ranking == {expected: 1}
+
+    @pytest.mark.parametrize(
+        'value',
+        [
+            'invalid',
+            True,
+            0,
+            [2, 3],
+            {'foo/bar': 11},
+        ],
+    )
+    def test_search_ignore_invalid_type(self, value):
+        build = self.get_build_config({
+            'search': {'ignore': value},
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'search.ignore'
+
+    @pytest.mark.parametrize('path, expected', [
+        ('/foo/bar', 'foo/bar'),
+        ('///foo//bar', 'foo/bar'),
+        ('///foo//bar/', 'foo/bar'),
+        ('/foo/bar/../', 'foo'),
+        ('/foo*', 'foo*'),
+        ('/foo/bar/*', 'foo/bar/*'),
+        ('/foo/bar?/*', 'foo/bar?/*'),
+        ('foo/[bc]ar/*/', 'foo/[bc]ar/*'),
+        ('*', '*'),
+        ('index.html', 'index.html'),
+    ])
+    def test_search_ignore_valid_type(self, path, expected):
+        build = self.get_build_config({
+            'search': {
+                'ignore': [path],
+            },
+        })
+        build.validate()
+        assert build.search.ignore == [expected]
+
     @pytest.mark.parametrize('value,key', [
         ({'typo': 'something'}, 'typo'),
         (
@@ -1958,6 +2130,7 @@ class TestBuildConfigV2:
             },
             'build': {
                 'image': 'readthedocs/build:latest',
+                'apt_packages': [],
             },
             'conda': None,
             'sphinx': {
@@ -1971,6 +2144,15 @@ class TestBuildConfigV2:
                 'include': [],
                 'exclude': ALL,
                 'recursive': False,
+            },
+            'search': {
+                'ranking': {},
+                'ignore': [
+                    'search.html',
+                    'search/index.html',
+                    '404.html',
+                    '404/index.html',
+                ],
             },
         }
         assert build.as_dict() == expected_dict

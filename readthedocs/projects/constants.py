@@ -17,7 +17,7 @@ SPHINX_SINGLEHTML = 'sphinx_singlehtml'
 MKDOCS_HTML = 'mkdocs_html'
 DOCUMENTATION_CHOICES = (
     (SPHINX, _('Sphinx Html')),
-    (MKDOCS, _('Mkdocs (Markdown)')),
+    (MKDOCS, _('Mkdocs')),
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
@@ -80,12 +80,10 @@ REPO_CHOICES = (
 )
 
 PUBLIC = 'public'
-PROTECTED = 'protected'
 PRIVATE = 'private'
 
 PRIVACY_CHOICES = (
     (PUBLIC, _('Public')),
-    (PROTECTED, _('Protected')),
     (PRIVATE, _('Private')),
 )
 
@@ -312,17 +310,23 @@ PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
     re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
     re.compile(r'github.com/(.+)/(.+)'),
     re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
     re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
     re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile(r'bitbucket.org/(.+)/(.+)/?'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'bitbucket.org/(.+)/(.+)/'),
+    re.compile(r'bitbucket.org/(.+)/(.+)'),
     re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
     re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/'),
     re.compile(r'gitlab.com/(.+)/(.+)'),
     re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]
@@ -374,3 +378,22 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 # Git provider names
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
+
+# Set 3 priorities, [low, medium, high] -- default is medium
+# Leave some space on each side of the set to expand if needed
+CELERY_LOW = 3
+CELERY_MEDIUM = 5
+CELERY_HIGH = 7
+
+
+# SSL statuses
+SSL_STATUS_VALID = 'valid'
+SSL_STATUS_INVALID = 'invalid'
+SSL_STATUS_PENDING = 'pending'
+SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_CHOICES = (
+    (SSL_STATUS_VALID, _('Valid and active')),
+    (SSL_STATUS_INVALID, _('Invalid')),
+    (SSL_STATUS_PENDING, _('Pending')),
+    (SSL_STATUS_UNKNOWN, _('Unknown')),
+)

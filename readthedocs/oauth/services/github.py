@@ -6,6 +6,7 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -18,9 +19,12 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.integrations.models import Integration
 
-from ..models import RemoteOrganization, RemoteRepository
+from ..constants import GITHUB
+from ..models import (
+    RemoteOrganization,
+    RemoteRepository,
+)
 from .base import Service, SyncServiceError
-
 
 log = logging.getLogger(__name__)
 
@@ -32,45 +36,58 @@ class GitHubService(Service):
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
-
-    def sync(self):
-        """Sync repositories and organizations."""
-        self.sync_repositories()
-        self.sync_organizations()
+    vcs_provider_slug = GITHUB
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+        remote_repositories = []
+
         try:
+            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
+        return remote_repositories
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
+        remote_organizations = []
+        remote_repositories = []
+
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
-                org_resp = self.get_session().get(org['url'])
-                org_obj = self.create_organization(org_resp.json())
+                org_details = self.get_session().get(org['url']).json()
+                remote_organization = self.create_organization(org_details)
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
+
+                remote_organizations.append(remote_organization)
+
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
                 'try reconnecting your account'
             )
+
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -84,52 +101,71 @@ class GitHubService(Service):
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
-                (privacy == 'private'),
-                (fields['private'] is False and privacy == 'public'),
+            (privacy == 'private'),
+            (fields['private'] is False and privacy == 'public'),
         ]):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['full_name'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['full_name'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
-            if repo.organization and repo.organization != organization:
+
+            repo, _ = RemoteRepository.objects.get_or_create(
+                remote_id=fields['id'],
+                vcs_provider=self.vcs_provider_slug
+            )
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
+            )
+
+            # It's possible that a user has access to a repository from within
+            # an organization without being member of that organization
+            # (external contributor). In this case, the repository will be
+            # listed under the ``/repos`` endpoint but not under ``/orgs``
+            # endpoint. Then, when calling this method (``create_repository``)
+            # we will have ``organization=None`` but we don't have to skip the
+            # creation of the ``RemoteRepositoryRelation``.
+            if repo.organization and organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
                     fields['name'],
                 )
                 return None
 
-            repo.organization = organization
+            if any([
+                # There is an organization associated with this repository:
+                # attach the organization to the repository
+                organization is not None,
+                # There is no organization and the repository belongs to a
+                # user: removes the organization linked to the repository
+                not organization and fields['owner']['type'] == 'User',
+            ]):
+                repo.organization = organization
+
             repo.name = fields['name']
+            repo.full_name = fields['full_name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
             repo.html_url = fields['html_url']
             repo.private = fields['private']
+            repo.vcs = 'git'
+            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            repo.default_branch = fields.get('default_branch')
+
             if repo.private:
                 repo.clone_url = fields['ssh_url']
             else:
                 repo.clone_url = fields['clone_url']
-            repo.admin = fields.get('permissions', {}).get('admin', False)
-            repo.vcs = 'git'
-            repo.account = self.account
-            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-            repo.json = json.dumps(fields)
+
             repo.save()
+
+            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation.save()
+
             return repo
-        else:
-            log.debug(
-                'Not importing %s because mismatched type',
-                fields['name'],
-            )
+
+        log.debug(
+            'Not importing %s because mismatched type',
+            fields['name'],
+        )
 
     def create_organization(self, fields):
         """
@@ -138,27 +174,26 @@ class GitHubService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        try:
-            organization = RemoteOrganization.objects.get(
-                slug=fields.get('login'),
-                users=self.user,
-                account=self.account,
-            )
-        except RemoteOrganization.DoesNotExist:
-            organization = RemoteOrganization.objects.create(
-                slug=fields.get('login'),
-                account=self.account,
-            )
-            organization.users.add(self.user)
+        organization, _ = RemoteOrganization.objects.get_or_create(
+            remote_id=fields['id'],
+            vcs_provider=self.vcs_provider_slug
+        )
+        organization.get_remote_organization_relation(
+            self.user, self.account
+        )
+
         organization.url = fields.get('html_url')
+        # fields['login'] contains GitHub Organization slug
+        organization.slug = fields.get('login')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
+
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
-        organization.json = json.dumps(fields)
-        organization.account = self.account
+
         organization.save()
+
         return organization
 
     def get_next_url_to_paginate(self, response):
@@ -407,7 +442,7 @@ class GitHubService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitHub commit status for project.
 
@@ -417,6 +452,7 @@ class GitHubService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -430,7 +466,7 @@ class GitHubService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
@@ -445,15 +481,16 @@ class GitHubService(Service):
         resp = None
 
         try:
+            statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
             resp = session.post(
-                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
             if resp.status_code == 201:
                 log.info(
                     "GitHub commit status created for project: %s, commit status: %s",
-                    project,
+                    project.slug,
                     github_build_state,
                 )
                 return True
@@ -461,15 +498,17 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s, user=%s',
-                    project,
-                    self.user,
+                    'permissions: project=%s, user=%s, status=%s, url=%s',
+                    project.slug,
+                    self.user.username,
+                    resp.status_code,
+                    statuses_url,
                 )
                 return False
 
             log.warning(
                 'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
-                project,
+                project.slug,
                 self.user,
                 resp.status_code
             )
@@ -479,7 +518,7 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.exception(
                 'GitHub commit status creation failed for project: %s',
-                project,
+                project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though

@@ -3,18 +3,25 @@
 
 import pytest
 import django_dynamic_fixture as fixture
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.storage import get_storage_class
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
+from readthedocs.proxito.views import serve
 
 
 @pytest.mark.proxito
 class BaseDocServing(TestCase):
 
     def setUp(self):
+        # Re-initialize storage
+        # Various tests override either this setting or various aspects of the storage engine
+        # By resetting it every test case, we avoid this caching (which is a huge benefit in prod)
+        serve.build_media_storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
         self.eric = fixture.get(User, username='eric')
         self.eric.set_password('eric')
         self.eric.save()
@@ -22,7 +29,6 @@ class BaseDocServing(TestCase):
             Project,
             slug='project',
             privacy_level=PUBLIC,
-            version_privacy_level=PUBLIC,
             users=[self.eric],
             main_language_project=None,
         )
@@ -66,3 +72,7 @@ class BaseDocServing(TestCase):
         )
         self.subproject_alias.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')
+
+        # These can be set to canonical as needed in specific tests
+        self.domain = fixture.get(Domain, project=self.project, domain='docs1.example.com', https=True)
+        self.domain2 = fixture.get(Domain, project=self.project, domain='docs2.example.com', https=True)

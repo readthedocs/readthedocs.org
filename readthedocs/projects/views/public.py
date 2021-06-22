@@ -13,7 +13,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
-from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -27,15 +26,18 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
+from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin
@@ -53,7 +55,11 @@ class ProjectTagIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        queryset = queryset.exclude(users__profile__banned=True)
+
+        # Filters out projects from banned users
+        # This is disabled for performance reasons
+        # https://github.com/readthedocs/readthedocs.org/pull/7671
+        # queryset = queryset.exclude(users__profile__banned=True)
 
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
@@ -81,12 +87,8 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailViewBase(
-        ProjectRelationListMixin,
-        BuildTriggerMixin,
-        ProjectOnboardMixin,
-        DetailView
-):
+class ProjectDetailViewBase(ProjectRelationListMixin, BuildTriggerMixin,
+                            ProjectOnboardMixin, DetailView):
 
     """Display project onboard steps."""
 
@@ -94,7 +96,7 @@ class ProjectDetailViewBase(
     slug_url_kwarg = 'project_slug'
 
     def get_queryset(self):
-        return Project.objects.protected(self.request.user)
+        return Project.objects.public(self.request.user)
 
     def get_project(self):
         return self.get_object()
@@ -102,8 +104,18 @@ class ProjectDetailViewBase(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        project = self.get_object()
-        context['versions'] = self._get_versions(project)
+        project = self.get_project()
+
+        # Get filtered and sorted versions
+        versions = self._get_versions(project)
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectVersionListFilterSet(
+                self.request.GET,
+                queryset=versions,
+            )
+            context['filter'] = filter
+            versions = filter.qs
+        context['versions'] = versions
 
         protocol = 'http'
         if self.request.is_secure():
@@ -119,6 +131,11 @@ class ProjectDetailViewBase(
         context['site_url'] = '{url}?badge={version}'.format(
             url=project.get_docs_url(version_slug),
             version=version_slug,
+        )
+
+        context['is_project_admin'] = AdminPermission.is_admin(
+            self.request.user,
+            project,
         )
 
         return context
@@ -167,10 +184,13 @@ class ProjectBadgeView(View):
             ).first()
 
         if version:
-            last_build = version.builds.filter(
-                type='html',
-                state='finished',
-            ).order_by('-date').first()
+            last_build = (
+                version.builds
+                .filter(type='html', state='finished')
+                .exclude(status=BUILD_STATUS_DUPLICATED)
+                .order_by('-date')
+                .first()
+            )
             if last_build:
                 if last_build.success:
                     status = self.STATUS_PASSING
@@ -228,11 +248,16 @@ class ProjectBadgeView(View):
         )
 
         # Append a token for private versions
-        version = Version.objects.filter(
-            project__slug=project_slug,
-            slug=version_slug,
-        ).first()
-        if version and version.privacy_level == PRIVATE:
+        privacy_level = (
+            Version.objects
+            .filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            )
+            .values_list('privacy_level', flat=True)
+            .first()
+        )
+        if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
             url += f'&token={token}'
 
@@ -259,7 +284,7 @@ project_badge = never_cache(ProjectBadgeView.as_view())
 def project_downloads(request, project_slug):
     """A detail view for a project with various downloads."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     versions = Version.internal.public(user=request.user, project=project)
@@ -350,7 +375,6 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             uip=get_client_ip(request),
         )
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
             type_=type_,
             version_slug=version_slug,
@@ -358,7 +382,7 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
         )
 
         # URL without scheme and domain to perform an NGINX internal redirect
-        url = storage.url(storage_path)
+        url = build_media_storage.url(storage_path)
         url = urlparse(url)._replace(scheme='', netloc='').geturl()
 
         return self._serve_docs(
@@ -383,7 +407,7 @@ def project_versions(request, project_slug):
     max_inactive_versions = 100
 
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
 
@@ -408,7 +432,7 @@ def project_versions(request, project_slug):
     # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
-    if wiped and wiped_version.count():
+    if wiped and wiped_version.exists():
         messages.success(request, 'Version wiped: ' + wiped)
 
     # Optimize project permission checks
@@ -421,6 +445,7 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'is_project_admin': AdminPermission.is_admin(request.user, project),
             'max_inactive_versions': max_inactive_versions,
             'total_inactive_versions_count': total_inactive_versions_count,
         },
@@ -430,7 +455,7 @@ def project_versions(request, project_slug):
 def project_analytics(request, project_slug):
     """Have a analytics API placeholder."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     analytics_cache = cache.get('analytics:%s' % project_slug)
@@ -491,7 +516,7 @@ def project_analytics(request, project_slug):
 def project_embed(request, project_slug):
     """Have a content API placeholder."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     version = project.versions.get(slug=LATEST)

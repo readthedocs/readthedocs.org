@@ -19,6 +19,14 @@ class CommunityTestSettings(CommunityDevSettings):
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
+    CELERY_ALWAYS_EAGER = True
+
+    # Skip automatic detection of Docker limits for testing
+    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    STRIPE_PUBLISHABLE = 'pk_test_'
+    STRIPE_SECRET = 'sk_test_'
+
     @property
     def ES_INDEXES(self):  # noqa - avoid pep8 N802
         es_indexes = super(CommunityTestSettings, self).ES_INDEXES

@@ -15,6 +15,7 @@
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
 
+  {% if GLOBAL_ANALYTICS_CODE %}
   <!-- Google Analytics -->
   <script>
     if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
@@ -22,29 +23,40 @@
     } else {
       // For more details on analytics at Read the Docs, please see:
       // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      (function () {
+        // New Google Site Tag (gtag.js) tagging/analytics framework
+        // https://developers.google.com/gtagjs
+        var script = document.createElement("script");
+        script.src = "https://www.googletagmanager.com/gtag/js?id={{ GLOBAL_ANALYTICS_CODE }}";
+        script.type = "text/javascript";
+        script.async = true;
+        document.getElementsByTagName("head")[0].appendChild(script);
+      }())
 
-      ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd', {
-        'cookieExpires': 30 * 24 * 60 * 60
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Setup the RTD global analytics code and send a pageview
+      gtag('config', '{{ GLOBAL_ANALYTICS_CODE }}', {
+        'anonymize_ip': true,
+        'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+        'groups': 'rtfd'
       });
-      ga('rtfd.set', 'anonymizeIp', true);
-      ga('rtfd.send', 'pageview');
 
       {% if DASHBOARD_ANALYTICS_CODE %}
         // Dashboard Analytics Code
-        ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user', {
-          'cookieExpires': 30 * 24 * 60 * 60
+        gtag('config', '{{ DASHBOARD_ANALYTICS_CODE }}', {
+          'anonymize_ip': true,
+          'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+          'groups': 'dashboard'
         });
-        ga('user.set', 'anonymizeIp', true);
-        ga('user.send', 'pageview');
         // End Dashboard Analytics Code
       {% endif %}
     }
   </script>
   <!-- End Google Analytics -->
+  {% endif %}
 
   <!-- css -->
   <link rel="stylesheet" href="{% static 'css/core.css' %}">
@@ -147,51 +159,52 @@
         </div>
 
         <div class="column-about">
-          <h4>{% trans 'Get Involved' %}</h4>
+          <h4>{% trans 'Resources' %}</h4>
 
           <ul>
             <li>
               <a href="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html">{% trans 'Getting Started Guide' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
-            </li>
-            <li>
-              <a href="https://docs.readthedocs.io/page/contribute.html">{% trans 'Contributing' %}</a>
-            </li>
-            <li>
               <a href="https://docs.readthedocs.io/page/team.html">{% trans 'Team' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io/page/open-source-philosophy.html">{% trans 'Open Source Philosophy' %}</a>
+              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/sustainability/">{% trans 'Going Ad-free' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/support/">{% trans 'Site Support' %}</a>
+            </li>
+            <li>
+              <a href='http://status.readthedocs.com/'>{% trans 'Site Status' %}</a>
             </li>
           </ul>
 
         </div>
 
         <div class="column-rtd">
-          <h4>{% trans 'Business Info' %}</h4>
+          <h4>{% trans 'Company' %}</h4>
 
           <ul>
             <li>
-              {% url "advertising" as advertising_url %}
-              <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">{% trans 'Advertise with Us' %}</a>
+              <a href="http://blog.readthedocs.com/jobs/">{% trans 'Jobs' %}</a>
+            </li>
+            <li>
+              <a href="https://www.ethicalads.io/advertisers/?ref=rtd">{% trans 'Advertise with Us' %}</a>
             </li>
             <li>
               <a href="https://readthedocs.com">{% trans 'Read the Docs for Business' %}</a>
             </li>
             <li>
-              {% url "donate" as donate_url %}
-              <a href='{{ donate_url }}'>{% trans 'Supporters' %}</a>
+              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding & Media Kit' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans 'Privacy Policy' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/terms-of-service.html">{% trans 'Terms of Service' %}</a>
-            </li>
-            <li>
-              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding' %}</a>
             </li>
           </ul>
         </div>
@@ -245,9 +258,9 @@
           <div class="clearfix"></div>
 
           <div class="sponsors">
-            <a class="sponsor" href="https://azure.microsoft.com" rel="noopener" target="_blank">
-              <img src="{% static 'images/sponsors/azure.png' %}" alt="Microsoft Azure" class="sponsor-image">
-              <div class="sponsor-name">Microsoft Azure</div>
+            <a class="sponsor" href="https://aws.amazon.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/aws.png' %}" alt="Amazon Web Services" class="sponsor-image">
+              <div class="sponsor-name">AWS</div>
               <div class="sponsor-description">Cloud Computing</div>
             </a>
             <a class="sponsor" href="https://cloudflare.com" rel="noopener" target="_blank">
@@ -283,9 +296,7 @@
     </div>
     <!-- END footer-->
 
-    <script>
-      {% block footerjs %}{% endblock %}
-    </script>
+    {% block footerjs %}{% endblock %}
 
 </body>
 

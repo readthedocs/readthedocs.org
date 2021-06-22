@@ -1,8 +1,9 @@
 import csv
+from unittest import mock
 from urllib.parse import urlsplit
 
-from unittest import mock
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -16,6 +17,7 @@ from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
 
 
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class Testmaker(TestCase):
 
     def setUp(self):
@@ -98,7 +100,7 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_version_detail(self):
-        response = self.client.get('/dashboard/pip/version/0.8.1/')
+        response = self.client.get('/dashboard/pip/version/0.8.1/edit/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):
@@ -224,6 +226,7 @@ class SubprojectViewTests(TestCase):
         )
 
 
+@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -262,6 +265,71 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_rebuild_specific_commit(self, mock):
+        builds_count = Build.objects.count()
+
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        build = get(
+            Build,
+            version=version,
+            project=self.pip,
+            commit='a1b2c3',
+        )
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(Build.objects.count(), builds_count + 2)
+
+        newbuild = Build.objects.first()
+        self.assertEqual(
+            r._headers['location'][1],
+            f'/projects/pip/builds/{newbuild.pk}/',
+        )
+        self.assertEqual(newbuild.commit, 'a1b2c3')
+
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_rebuild_invalid_specific_commit(self, mock):
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        for i in range(3):
+            get(
+                Build,
+                version=version,
+                project=self.pip,
+                commit=f'a1b2c3-{i}',
+            )
+
+        build = Build.objects.filter(
+            version=version,
+            project=self.pip,
+        ).last()
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        # It should return 302 and show a message to the user because we are
+        # re-triggering a build of a non-lastest build for that version
+        self.assertEqual(r.status_code, 302)
+
 
 class TestSearchAnalyticsView(TestCase):
 
@@ -285,15 +353,15 @@ class TestSearchAnalyticsView(TestCase):
             test_time.return_value = self.test_time
 
             expected_result = [
-                ('hello world', 5),
-                ('documentation', 4),
-                ('read the docs', 4),
-                ('advertising', 3),
-                ('elasticsearch', 2),
-                ('sphinx', 2),
-                ('github', 1),
-                ('hello', 1),
-                ('search', 1),
+                ('hello world', 5, 0),
+                ('documentation', 4, 0),
+                ('read the docs', 4, 0),
+                ('advertising', 3, 0),
+                ('elasticsearch', 2, 0),
+                ('sphinx', 2, 0),
+                ('github', 1, 0),
+                ('hello', 1, 0),
+                ('search', 1, 0),
             ]
 
             resp = self.client.get(self.analyics_page)
@@ -356,6 +424,26 @@ class TestSearchAnalyticsView(TestCase):
             csv_data = csv.reader(content)
             body = list(csv_data)
 
-            self.assertEqual(len(body), 23)
-            self.assertEqual(body[0][1], 'advertising')
+            self.assertEqual(len(body), 24)
+            self.assertEqual(body[0][0], 'Created Date')
+            self.assertEqual(body[1][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
+
+
+class TestHomepageCache(TestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_homepage_queries(self):
+        with self.assertNumQueries(1):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
+
+        # Cache
+        with self.assertNumQueries(0):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)

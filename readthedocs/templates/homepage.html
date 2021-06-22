@@ -55,21 +55,22 @@
 
   <section>
     <div class="feature">
-      <h3>Free docs hosting</h3>
+      <h3>Free docs hosting for open source</h3>
       <p>
         {% blocktrans trimmed %}
-        We will host your documentation for free forever.
-        There are no tricks. We help tens of thousands of open source projects
-        share their docs.
+        We will host your documentation for free, forever.
+        There are no tricks.
+        We help over 100,000 open source projects share their docs,
+        including a custom domain and theme.
         {% endblocktrans %}
       </p>
     </div>
     <div class="feature">
-      <h3>Webhooks</h3>
+      <h3>Always up to date</h3>
       <p>
         {% blocktrans trimmed %}
-        Whenever you push code to your favorite version control system,
-        whether that is Git, Mercurial, Bazaar, or Subversion, we will
+        Whenever you push code to your favorite version control service,
+        whether that is GitHub, BitBucket, or GitLab, we will
         automatically build your docs so your code and documentation are
         never out of sync.
         {% endblocktrans %}
@@ -80,10 +81,10 @@
 
   <section>
     <div class="feature">
-      <h3>Multiple formats</h3>
+      <h3>Downloadable formats</h3>
       <p>
         {% blocktrans trimmed %}
-        Of course we build and host your docs for the web, but they are
+        We build and host your docs for the web, but they are
         also vieweable as PDFs, as single page HTML, and for eReaders.
         No additional configuration is required.
         {% endblocktrans %}
@@ -114,9 +115,9 @@
     {% include "core/widesearchbar.html" %}
   </section>
 
-  {% if featured_list %}
   {% get_current_language as language %}
   {% cache 600 homepage_featured_list language %}
+  {% if featured_list %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -129,41 +130,60 @@
       </div>
     </section>
     <!-- END projects list -->
-  {% endcache %}
   {% endif %}
+  {% endcache %}
 
+  <section>
+    <h2>{% trans 'About Read the Docs' %}</h2>
+
+    <p>
+      {% blocktrans trimmed %}
+      Read the Docs has grown substantially
+      since its beginning as a weekend project and is closing in on being a top-1000 site on the internet.
+      Today, we:
+      {% endblocktrans %}
+    </p>
+
+    <!-- Updated: June 2018, pageviews June 2021 -->
+    {% blocktrans trimmed %}
+    <ul class="donate-about">
+      <li>Serve over <b>55 million pages</b> of documentation a month</li>
+      <li>Serve over <b>40 TB</b> of documentation a month</li>
+      <li>Host over <b>80,000 open source projects</b> and support over <b>100,000 users</b></li>
+      <li>Are supported by a <a href="https://docs.readthedocs.io/en/latest/team.html">very small team</a> of dedicated engineers</li>
+    </ul>
+    {% endblocktrans %}
+
+  </section>
   <!-- Funding and Contributing -->
   <section>
     <h2>{% trans "Read the Docs is funded by the community" %}</h2>
     <p>
 
-    {% url "advertising" as advertising_url %}
-    {% url "donate" as sponsors_url %}
-    {% url "gold_detail" as gold_detail %}
+    {% url "donate" as donate_url %}
 
-    {% blocktrans trimmed %}
-    Read the Docs is a huge resource that millions of developers rely on
-    for software documentation. It would not be possible without the
-    support of our
-    <a href="{{ sponsors_url }}">sponsors</a>,
-    <a href="{{ advertising_url }}">advertisers</a>,
-    and <a href="{{ gold_detail }}">readers like you</a>.
-    {% endblocktrans %}
+    <p>
+      {% blocktrans trimmed %}
+      We fund our operations through <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertising</a>,
+      corporate-hosted documentation with <a href="https://readthedocs.com">Read the Docs for Business</a>,
+     <a href="{{ donate_url }}">donations</a>,
+      and we are supported by a number of generous <a href="https://docs.readthedocs.io/page/sponsors.html">sponsors</a>.
+      {% endblocktrans %}
     </p>
 
     <p>
       {% blocktrans trimmed %}
-      Read the Docs is <strong>community supported</strong>.
+      Read the Docs is open source and community supported.
       It depends on users like you to contribute to development, support, and operations.
       You can learn more about how to <a href="https://docs.readthedocs.io/page/contribute.html">contribute</a> in our docs.
-      Thanks so much to our wonderful <a href="https://docs.readthedocs.io/page/team.html">community team</a> who helps us run the site.
+      Thanks so much to our wonderful <a href="https://docs.readthedocs.io/page/team.html">team</a> who helps us run the site.
       Read the Docs wouldn't be possible without them.
       {% endblocktrans %}
     </p>
 
     <p>
       {% blocktrans trimmed %}
-      Hosting for the project is graciously provided by <a href="https://azure.microsoft.com/">Microsoft Azure</a>.
+      Hosting for the project is graciously provided by <a href="https://aws.amazon.com/">AWS</a> and <a href="https://cloudflare.com/">Cloudflare</a>.
       {% endblocktrans %}
     </p>
   </section>
