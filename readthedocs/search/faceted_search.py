@@ -27,7 +27,9 @@ class RTDFacetedSearch(FacetedSearch):
 
     """Custom wrapper around FacetedSearch."""
 
-    operators = []
+    # Search for both 'and' and 'or' operators.
+    # The score of and should be higher as it satisfies both or and and.
+    operators = ['and', 'or']
 
     # Sources to be excluded from results.
     excludes = []
@@ -44,20 +46,27 @@ class RTDFacetedSearch(FacetedSearch):
             query=None,
             filters=None,
             projects=None,
+            aggregate_results=True,
             use_advanced_query=True,
             **kwargs,
     ):
         """
         Custom wrapper around FacetedSearch.
 
+        :param string query: Query to search for
+        :param dict filters: Filters to be used with the query.
         :param projects: A dictionary of project slugs mapped to a `VersionData` object.
          Or a list of project slugs.
          Results are filter with these values.
-
         :param use_advanced_query: If `True` forces to always use
          `SimpleQueryString` for the text query object.
+        :param bool aggregate_results: If results should be aggregated,
+         this is returning the number of results within other facets.
+        :param bool use_advanced_query: Always use SimpleQueryString.
+         Set this to `False` to use the experimental fuzzy search.
         """
         self.use_advanced_query = use_advanced_query
+        self.aggregate_results = aggregate_results
         self.projects = projects or {}
 
         # Hack a fix to our broken connection pooling
@@ -134,32 +143,33 @@ class RTDFacetedSearch(FacetedSearch):
         We need to search for both "and" and "or" operators.
         The score of "and" should be higher as it satisfies both "or" and "and".
 
-        We use the Wildcard query with the query surrounded by ``*`` to match substrings.
+        We use the Wildcard query with the query suffixed by ``*`` to match substrings.
         We use the raw fields (Wildcard fields) instead of the normal field for performance.
 
         For valid options, see:
 
         - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html  # noqa
+
+        .. note::
+
+           Doing a prefix **and** suffix search is slow on big indexes like ours.
         """
-        queries = []
-        for operator in self.operators:
-            query_string = self._get_fuzzy_query(
-                query=query,
-                fields=fields,
-                operator=operator,
-            )
-            queries.append(query_string)
+        query_string = self._get_fuzzy_query(
+            query=query,
+            fields=fields,
+        )
+        queries = [query_string]
         for field in fields:
             # Remove boosting from the field,
             # and query from the raw field.
             field = re.sub(r'\^.*$', '.raw', field)
             kwargs = {
-                field: {'value': f'*{query}*'},
+                field: {'value': f'{query}*'},
             }
             queries.append(Wildcard(**kwargs))
         return queries
 
-    def _get_fuzzy_query(self, *, query, fields, operator):
+    def _get_fuzzy_query(self, *, query, fields, operator='or'):
         """
         Returns a query object used for fuzzy results.
 
@@ -209,13 +219,17 @@ class RTDFacetedSearch(FacetedSearch):
         query_tokens = set(query)
         return not tokens.isdisjoint(query_tokens)
 
+    def aggregate(self, search):
+        """Overriden to decide if we should aggregate or not."""
+        if self.aggregate_results:
+            super().aggregate(search)
+
 
 class ProjectSearch(RTDFacetedSearch):
     facets = {'language': TermsFacet(field='language')}
     doc_types = [ProjectDocument]
     index = ProjectDocument._index._name
     fields = ('name^10', 'slug^5', 'description')
-    operators = ['and', 'or']
     excludes = ['users', 'language']
 
     def query(self, search, query):
@@ -274,11 +288,6 @@ class PageSearch(RTDFacetedSearch):
         'domains.docstrings',
     ]
     fields = _outer_fields
-
-    # need to search for both 'and' and 'or' operations
-    # the score of and should be higher as it satisfies both or and and
-    operators = ['and', 'or']
-
     excludes = ['rank', 'sections', 'domains', 'commit', 'build']
 
     def _get_projects_query(self):

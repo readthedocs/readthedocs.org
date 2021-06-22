@@ -316,6 +316,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         queryset = PageSearch(
             query=query,
             projects=projects,
+            aggregate_results=False,
             use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
