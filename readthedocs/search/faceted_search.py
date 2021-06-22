@@ -281,16 +281,6 @@ class PageSearch(RTDFacetedSearch):
 
     excludes = ['rank', 'sections', 'domains', 'commit', 'build']
 
-    def total_count(self):
-        """Returns the total count of results of the current query."""
-        s = self.build_search()
-
-        # setting size=0 so that no results are returned,
-        # we are only interested in the total count
-        s = s.extra(size=0)
-        s = s.execute()
-        return s.hits.total['value']
-
     def _get_projects_query(self):
         """
         Get filter by projects query.

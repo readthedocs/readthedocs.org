@@ -93,15 +93,15 @@ class SearchPagination(PageNumberPagination):
         start = (page_number - 1) * page_size
         end = page_number * page_size
 
+        result = []
+        total_count = 0
+        total_pages = 1
+
         if queryset:
             result = queryset[start:end].execute()
             total_count = result.hits.total['value']
             hits = max(1, total_count)
             total_pages = ceil(hits / page_size)
-        else:
-            result = queryset
-            total_count = 0
-            total_pages = 1
 
         if total_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.
@@ -114,7 +114,7 @@ class SearchPagination(PageNumberPagination):
             count=total_count,
         )
 
-        return list(result)
+        return result
 
 
 class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
