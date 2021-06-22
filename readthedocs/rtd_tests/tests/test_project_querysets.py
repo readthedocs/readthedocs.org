@@ -163,6 +163,41 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_for_user_and_viewer(self):
+        query = Project.objects.for_user_and_viewer(
+            user=self.user,
+            viewer=self.another_user,
+        )
+        projects = {
+            self.shared_project,
+            self.shared_project_private,
+            self.project,
+        }
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        # Now `self.user` is the viewer.
+        query = Project.objects.for_user_and_viewer(
+            user=self.another_user,
+            viewer=self.user,
+        )
+        projects = {
+            self.shared_project,
+            self.shared_project_private,
+            self.another_project,
+        }
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_for_user_and_viewer_same_user(self):
+        query = Project.objects.for_user_and_viewer(
+            user=self.user,
+            viewer=self.user
+        )
+        projects = self.user_projects
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
 
 class FeatureQuerySetTests(TestCase):
 
