@@ -1,12 +1,14 @@
 import re
 
 import pytest
+from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
-from django_dynamic_fixture import G
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Project
 from readthedocs.search.tests.utils import (
     DATA_TYPES_VALUES,
     get_search_query_from_project_file,
@@ -45,7 +47,7 @@ class TestProjectSearch:
     def test_search_project_have_correct_language_facets(self, client, project):
         """Test that searching project should have correct language facets in the results"""
         # Create a project in bn and add it as a translation
-        G(Project, language='bn', name=project.name)
+        get(Project, language='bn', name=project.name)
 
         results, facets = self._get_search_result(
             url=self.url,
@@ -64,7 +66,7 @@ class TestProjectSearch:
     def test_search_project_filter_language(self, client, project):
         """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
-        translate = G(Project, language='bn', name=project.name)
+        translate = get(Project, language='bn', name=project.name)
         search_params = { 'q': project.name, 'language': 'bn' }
 
         results, facets = self._get_search_result(
@@ -82,6 +84,49 @@ class TestProjectSearch:
         # There should be 2 languages because both `en` and `bn` should show there
         assert len(lang_facets) == 2
         assert sorted(lang_facets_str) == sorted(['en', 'bn'])
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_only_projects_owned_by_the_user(self, client, all_projects):
+        project = Project.objects.get(slug='docs')
+        user = get(User)
+        user.projects.add(project)
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={
+                # Search for all projects.
+                'q': ' '.join(project.slug for project in all_projects),
+                'type': 'project',
+            },
+        )
+        assert len(results) > 0
+
+        other_projects = [
+            project.slug
+            for project in all_projects
+            if project.slug != 'docs'
+        ]
+
+        for result in results:
+            assert result['name'] == 'docs'
+            assert result['name'] not in other_projects
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={
+                # Search for all projects.
+                'q': ' '.join(project.slug for project in all_projects),
+                'type': 'project',
+            },
+        )
+        assert len(results) == 0
 
 
 @pytest.mark.django_db
@@ -348,7 +393,7 @@ class TestPageSearch:
 
         project = all_projects[0]
         # Create some versions of the project
-        versions = [G(Version, project=project) for _ in range(3)]
+        versions = [get(Version, project=project) for _ in range(3)]
         query = get_search_query_from_project_file(project_slug=project.slug)
         results, facets = self._get_search_result(
             url=self.url,
@@ -391,5 +436,42 @@ class TestPageSearch:
             url=self.url,
             client=client,
             search_params=search_params,
+        )
+        assert len(results) == 0
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_only_projects_owned_by_the_user(self, client, all_projects):
+        project = Project.objects.get(slug='docs')
+        user = get(User)
+        user.projects.add(project)
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            # Search for the most common english word.
+            search_params={'q': 'the', 'type': 'file'},
+        )
+        assert len(results) > 0
+
+        other_projects = [
+            project.slug
+            for project in all_projects
+            if project.slug != 'docs'
+        ]
+
+        for result in results:
+            assert result['project'] == 'docs'
+            assert result['project'] not in other_projects
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            # Search for the most common english word.
+            search_params={'q': 'the', 'type': 'file'},
         )
         assert len(results) == 0

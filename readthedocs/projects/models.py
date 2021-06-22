@@ -423,6 +423,14 @@ class Project(models.Model):
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
+
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
 

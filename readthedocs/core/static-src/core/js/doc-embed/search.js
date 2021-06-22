@@ -70,11 +70,6 @@ function attach_elastic_search_query_sphinx(data) {
                         }
 
                         var link = result.path + "?highlight=" + $.urlencode(query);
-                        // If we aren't on the main domain of the subproject, link to it.
-                        // TODO: we should always redirect to the main domain instead.
-                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
-                            link = result.domain + link;
-                        }
 
                         var item = $('<a>', {'href': link});
 
@@ -295,11 +290,6 @@ function attach_elastic_search_query_mkdocs(data) {
                         var blocks = result.blocks;
 
                         var link = result.path;
-                        // If we aren't on the main domain of the subproject, link to it.
-                        // TODO: we should always redirect to the main domain instead.
-                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
-                            link = result.domain + link;
-                        }
 
                         var item = $('<article>');
                         item.append(

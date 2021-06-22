@@ -1713,12 +1713,12 @@ Remote Repository listing
 
         .. code-tab:: bash
 
-            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization
 
         .. code-tab:: python
 
             import requests
-            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=project,organization'
+            URL = 'https://readthedocs.org/api/v3/remote/repositories/?expand=projects,remote_organization'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.get(URL, headers=HEADERS)
@@ -1730,11 +1730,11 @@ Remote Repository listing
 
         {
             "count": 20,
-            "next": "api/v3/remote/repositories/?expand=project,organization&limit=10&offset=10",
+            "next": "api/v3/remote/repositories/?expand=projects,remote_organization&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
-                    "organization": {
+                    "remote_organization": {
                         "avatar_url": "https://avatars.githubusercontent.com/u/12345?v=4",
                         "created": "2019-04-29T10:00:00Z",
                         "modified": "2019-04-29T12:00:00Z",
@@ -1744,7 +1744,7 @@ Remote Repository listing
                         "url": "https://github.com/organization",
                         "vcs_provider": "github"
                     },
-                    "project": {
+                    "project": [{
                         "id": 12345,
                         "name": "project",
                         "slug": "project",
@@ -1787,7 +1787,7 @@ Remote Repository listing
                             "redirects": "/api/v3/projects/project/redirects/",
                             "translations": "/api/v3/projects/project/translations/"
                         }
-                    }
+                    }],
                     "avatar_url": "https://avatars3.githubusercontent.com/u/test-organization?v=4",
                     "clone_url": "https://github.com/organization/project.git",
                     "created": "2019-04-29T10:00:00Z",
@@ -1814,7 +1814,7 @@ Remote Repository listing
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: allows to add/expand some extra fields in the response.
-                          Allowed values are ``project`` and ``organization``.
+                          Allowed values are ``projects`` and ``remote_organization``.
                           Multiple fields can be passed separated by commas.
 
     :requestheader Authorization: token to authenticate.
