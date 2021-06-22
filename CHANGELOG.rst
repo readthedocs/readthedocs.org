@@ -1,3 +1,19 @@
+Version 5.20.0
+--------------
+
+:Date: June 22, 2021
+
+* `@humitos <https://github.com/humitos>`__: Migration: fix RemoteRepository - Project data migration (`#8271 <https://github.com/readthedocs/readthedocs.org/pull/8271>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.19.0 (`#8266 <https://github.com/readthedocs/readthedocs.org/pull/8266>`__)
+* `@humitos <https://github.com/humitos>`__: Sync RemoteRepository for external collaborators (`#8265 <https://github.com/readthedocs/readthedocs.org/pull/8265>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: don't expand envvars in Gitpython (`#8263 <https://github.com/readthedocs/readthedocs.org/pull/8263>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 24 (`#8262 <https://github.com/readthedocs/readthedocs.org/pull/8262>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: check for nonexistent object (`#8261 <https://github.com/readthedocs/readthedocs.org/pull/8261>`__)
+* `@humitos <https://github.com/humitos>`__: Make `Project -> ForeignKey -> RemoteRepository` (`#8259 <https://github.com/readthedocs/readthedocs.org/pull/8259>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add basic security policy (`#8254 <https://github.com/readthedocs/readthedocs.org/pull/8254>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove workaround for subprojects (`#8211 <https://github.com/readthedocs/readthedocs.org/pull/8211>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: allow to filter by project slugs (`#8149 <https://github.com/readthedocs/readthedocs.org/pull/8149>`__)
+
 Version 5.19.0
 --------------
 
