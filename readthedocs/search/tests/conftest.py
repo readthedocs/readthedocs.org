@@ -6,6 +6,8 @@ import pytest
 from django.core.management import call_command
 from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
@@ -35,6 +37,13 @@ def all_projects(es_index, mock_processed_json, db, settings):
             main_language_project=None,
             privacy_level=PUBLIC,
             versions=[],
+        )
+        get(
+            Version,
+            project=project,
+            slug=STABLE,
+            built=True,
+            active=True,
         )
         project.versions.update(
             privacy_level=PUBLIC,

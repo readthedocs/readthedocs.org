@@ -4,21 +4,18 @@ import pytest
 from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST, STABLE
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile
 from readthedocs.search import utils
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
 @pytest.mark.django_db
 @pytest.mark.search
+@pytest.mark.proxito
 class TestSearchUtils:
 
-    @classmethod
-    def setup_class(cls):
-        # This reverse needs to be inside the ``setup_class`` method because from
-        # the Corporate site we don't define this URL if ``-ext`` module is not
-        # installed
-        cls.url = reverse('doc_search')
+    def setup_method(self):
+        self.url = reverse('search_api')
 
     def has_results(self, api_client, project_slug, version_slug):
         query = get_search_query_from_project_file(
@@ -45,18 +42,16 @@ class TestSearchUtils:
             HTMLFile,
             project_slug=project,
         )
-
         # Deletion of indices from ES happens async,
         # so we need to wait a little before checking for results.
-        time.sleep(3)
+        time.sleep(1)
 
-        assert not self.has_results(api_client, project, LATEST)
-        assert not self.has_results(api_client, project, STABLE)
+        assert self.has_results(api_client, project, LATEST) is False
+        assert self.has_results(api_client, project, STABLE) is False
 
         for project in ['pipeline', 'docs']:
             for version in [LATEST, STABLE]:
-                assert self.has_results(api_client, project, version)
-
+                assert self.has_results(api_client, project, version) is True
 
     def test_remove_only_one_version_index(self, api_client, all_projects):
         project = 'kuma'
@@ -70,8 +65,12 @@ class TestSearchUtils:
             version_slug=LATEST,
         )
 
-        assert not self.has_results(api_client, project, LATEST)
-        assert self.has_results(api_client, project, STABLE)
+        # Deletion of indices from ES happens async,
+        # so we need to wait a little before checking for results.
+        time.sleep(1)
+
+        assert self.has_results(api_client, project, LATEST) is False
+        assert self.has_results(api_client, project, STABLE) is True
 
         for project in ['pipeline', 'docs']:
             for version in [LATEST, STABLE]:
