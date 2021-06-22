@@ -239,7 +239,7 @@ class Command(BaseCommand):
                 f'You are about to change change the index from {models} to `[model]_{timestamp}`',
                 '**The old index will be deleted!**'
             )
-            if input('Continue? y/n') != 'y':
+            if input('Continue? y/n: ') != 'y':
                 print('Task cancelled')
                 sys.exit(1)
             self._change_index(models=models, timestamp=timestamp)
@@ -257,7 +257,7 @@ class Command(BaseCommand):
                 'You are about to reindex all changed objects',
                 f'from the latest {update_from} days from {models}'
             )
-            if input('Continue? y/n') != 'y':
+            if input('Continue? y/n: ') != 'y':
                 print('Task cancelled')
                 sys.exit(1)
             self._reindex_from(days_ago=update_from, models=models, queue=queue)
@@ -266,7 +266,7 @@ class Command(BaseCommand):
                 f'You are about to reindex all objects from {models}',
                 f'into a new index in the {queue} queue.'
             )
-            if input('Continue? y/n') != 'y':
+            if input('Continue? y/n: ') != 'y':
                 print('Task cancelled')
                 sys.exit(1)
             timestamp = self._run_reindex_tasks(models=models, queue=queue)
