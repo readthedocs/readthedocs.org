@@ -1994,6 +1994,10 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+#: api/v2/templates/restapi/footer.html.html:18
+msgid "Languages"
+msgstr ""
+
 #: templates/core/project_bar_base.html:46
 msgid "Builds"
 msgstr ""
@@ -2005,6 +2009,22 @@ msgstr ""
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html.html:67
+msgid "On Read the Docs"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html.html:69
+msgid "Project Home"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html.html:84
+msgid "On GitHub"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html.html:123
+msgid "Search docs"
 msgstr ""
 
 #: templates/core/project_bar_base.html:58
