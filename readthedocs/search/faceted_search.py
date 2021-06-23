@@ -144,7 +144,6 @@ class RTDFacetedSearch(FacetedSearch):
         The score of "and" should be higher as it satisfies both "or" and "and".
 
         We use the Wildcard query with the query suffixed by ``*`` to match substrings.
-        We use the raw fields (Wildcard fields) instead of the normal field for performance.
 
         For valid options, see:
 
@@ -161,8 +160,7 @@ class RTDFacetedSearch(FacetedSearch):
         queries = [query_string]
         for field in fields:
             # Remove boosting from the field,
-            # and query from the raw field.
-            field = re.sub(r'\^.*$', '.raw', field)
+            field = re.sub(r'\^.*$', '', field)
             kwargs = {
                 field: {'value': f'{query}*'},
             }
@@ -365,13 +363,6 @@ class PageSearch(RTDFacetedSearch):
             re.sub(r'\^.*$', '', field)
             for field in fields
         ]
-
-        # Highlight from the raw fields too, if it is a single term.
-        if self._is_single_term(query):
-            raw_fields.extend([
-                re.sub(r'\^.*$', '.raw', field)
-                for field in fields
-            ])
 
         highlight = dict(
             self._highlight_options,
