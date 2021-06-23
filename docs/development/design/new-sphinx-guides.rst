@@ -1,6 +1,12 @@
 Proposed contents for new Sphinx guides
 =======================================
 
+.. note::
+
+   This work is in progress, see discussion on `this Sphinx
+   issue <https://github.com/sphinx-doc/sphinx/issues/9165>`_
+   and the pull requests linked at the end.
+
 The two main objectives are:
 
 - Contributing a good Sphinx tutorial for beginners.
