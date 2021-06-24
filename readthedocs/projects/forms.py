@@ -107,7 +107,7 @@ class ProjectBasicsForm(ProjectForm):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if remote_repo:
             if commit:
-                remote_repo.project = self.instance
+                remote_repo.projects.add(self.instance)
                 remote_repo.save()
             else:
                 instance.remote_repository = remote_repo

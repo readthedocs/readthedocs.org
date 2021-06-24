@@ -361,7 +361,10 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param status: build status failed, pending, or success to be sent.
     """
     # TODO: Send build status for BitBucket.
-    build = Build.objects.get(pk=build_pk)
+    build = Build.objects.filter(pk=build_pk).first()
+    if not build:
+        return
+
     provider_name = build.project.git_provider_name
 
     log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
@@ -371,7 +374,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
         service_class = build.project.git_service_class()
         users = build.project.users.all()
 
-        try:
+        if build.project.remote_repository:
             remote_repository = build.project.remote_repository
             remote_repository_relations = (
                 remote_repository.remote_repository_relations.filter(
@@ -406,8 +409,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                         relation.user.username,
                     )
                     return True
-
-        except RemoteRepository.DoesNotExist:
+        else:
             log.warning(
                 'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
