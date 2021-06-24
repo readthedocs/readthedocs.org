@@ -8,7 +8,7 @@ import readthedocs.projects.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0075_change_mkdocs_name'),
+        ('projects', '0077_remote_repository_data_migration'),
     ]
 
     operations = [

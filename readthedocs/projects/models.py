@@ -60,6 +60,7 @@ log = logging.getLogger(__name__)
 
 
 def default_privacy_level():
+    """Wrapper around the setting, so the level is dynamically included in the migration."""
     return settings.DEFAULT_PRIVACY_LEVEL
 
 
