@@ -5,6 +5,8 @@ By default, `Sphinx only supports reStructuredText source files for
 documentation <https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix>`_.
 Luckily, there are a few extensions to also allow Jupyter notebooks as source files.
 
+.. _ipynb-notebooks-sphinx:
+
 Including ``.ipynb`` notebooks in Sphinx documentation
 ------------------------------------------------------
 
@@ -204,4 +206,88 @@ thanks to the Sphinx-Gallery default style:
 Using notebooks in other formats
 --------------------------------
 
-TBC
+Jupyter notebooks in ``.ipynb`` format
+(as described in the `nbformat
+documentation <https://nbformat.readthedocs.io/en/latest/>`_)
+are by far the most widely used for historical reasons.
+
+However, to compensate some of the disadvantages of the ``.ipynb`` format
+(like cumbersome integration with version control systems),
+`jupytext`_ offers `other formats <https://jupytext.readthedocs.io/en/latest/formats.html>`_
+based on plain text rather than JSON.
+
+One of such formats is the `MyST Markdown
+format <https://jupytext.readthedocs.io/en/latest/formats.html#myst-markdown>`_,
+which is based on `MyST`_, an extensible flavor of Markdown
+that includes some features from reStructuredText.
+
+If you are interested in using alternative formats for Jupyter notebooks,
+nowadays there are two main ways to include them
+in your Sphinx documentation:
+
+- Parsing the notebooks with `jupytext`_ and rendering them with `nbsphinx`_.
+  It is especially convenient if you are already using nbsphinx,
+  or if you want to use a notebook format
+  different from both ``.ipynb`` and MyST Markdown.
+- Using `MyST-NB`_. This is the simplest option
+  if you don't need any of nbsphinx or jupytext functionalities.
+
+.. _jupytext: https://jupytext.readthedocs.io/
+.. _MyST: https://myst-parser.readthedocs.io/
+
+.. note::
+
+   In summary: both nbsphinx and MyST-NB
+   can parse ``.ipynb`` notebooks and include them in Sphinx documentation
+   (:ref:`see above <ipynb-notebooks-sphinx>`).
+   In addition, MyST-NB can read MyST Markdown notebooks,
+   and nbsphinx can read any alternative formats understood by jupytext.
+
+For example, this is how a simple notebook looks like in MyST Markdown format:
+
+.. code-block::
+   :caption: Example 3.md
+
+   ---
+   jupytext:
+   text_representation:
+      extension: .md
+      format_name: myst
+      format_version: 0.13
+      jupytext_version: 1.10.3
+   kernelspec:
+   display_name: Python 3
+   language: python
+   name: python3
+   ---
+
+   # Plain-text notebook formats
+
+   This is a example of a Jupyter notebook stored in MyST Markdown format.
+
+   ```{code-cell} ipython3
+   import sys
+   print(sys.version)
+   ```
+
+   ```{code-cell} ipython3
+   from IPython.display import Image
+   ```
+
+   ```{code-cell} ipython3
+   Image("http://sipi.usc.edu/database/preview/misc/4.2.03.png")
+   ```
+
+To render this notebook in Sphinx using nbsphinx and jupytext,
+you will need to add this to your ``conf.py``:
+
+.. code-block:: python
+   :caption: conf.py
+
+   nbsphinx_custom_formats = {
+      '.md': ['jupytext.reads', {'fmt': 'mystnb'}],
+   }
+
+Notice that the Markdown format does not store the outputs of the computation.
+nbsphinx will automatically execute notebooks without outputs,
+so in your HTML documentation they appear as complete.
