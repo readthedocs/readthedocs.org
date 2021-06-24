@@ -80,7 +80,66 @@ refer to the nbsphinx_ or MyST-NB_ documentation.
 Rendering interactive widgets
 -----------------------------
 
-TBC
+You can also embed interactive widgets from Jupyter notebooks created using ipywidgets_
+on HTML Sphinx documentation. This includes basic widgets from ipywidgets_ and also
+more complex ones,
+like `ipyleaflet`_ visualizations.
+
+.. _ipyleaflet: https://ipyleaflet.readthedocs.io/
+
+For this to work, it's necessary to *save the widget state*
+before generating the HTML documentation,
+otherwise the widget will appear as empty.
+Each editor has a different way of doing it:
+
+- The classical Jupyter Notebook interface
+  provides a "Save Notebook Widget State" action in the "Widgets" menu,
+  `as explained in the ipywidgets
+  documentation <https://ipywidgets.readthedocs.io/en/latest/embedding.html#embedding-widgets-in-html-web-pages>`_.
+  You need to click it before exporting your notebook to HTML.
+- JupyterLab provides a "Save Widget State Automatically" option in the "Settings" menu.
+  You need to leave it checked so that widget state is automatically saved.
+- In Visual Studio Code `it's not possible to save the widget
+  state <https://github.com/microsoft/vscode-jupyter/issues/4404>`_
+  at the time of writing.
+
+.. _ipywidgets: https://ipywidgets.readthedocs.io/
+
+.. figure:: /_static/images/guides/jupyterlab-save-widget-state.png
+   :width: 30%
+   :align: center
+   :alt: JupyterLab option to save the interactive widget state automatically
+
+   JupyterLab option to save the interactive widget state automatically
+
+For example, if you create a notebook with a simple
+`IntSlider <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html#IntSlider>`_
+widget from ipywidgets and save the widget state,
+the slider will render correctly in Sphinx.
+
+.. figure:: /_static/images/guides/widget-html.gif
+   :width: 80%
+   :align: center
+   :alt: Interactive widget rendered in HTML by Sphinx
+
+   Interactive widget rendered in HTML by Sphinx
+
+To see more elaborate examples:
+
+- `ipyleaflet`_ provides several widgets for interactive maps,
+  and renders live versions of them `in their
+  documentation <https://ipyleaflet.readthedocs.io/en/latest/api_reference/velocity.html>`_.
+- `PyVista <https://docs.pyvista.org/>`_ is used for scientific 3D visualization
+  with several interactive backends and `examples in their
+  documentation <https://docs.pyvista.org/index.html#maps-and-geoscience>`_ as well.
+
+.. warning::
+
+   Although widgets themselves can be embedded in HTML as shown above,
+   `events <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html>`_
+   require a backend (kernel) to execute.
+   Therefore, ``@interact``, ``.observe``, and related functionalities relying on them
+   will not work as expected.
 
 Creating galleries of examples using notebooks
 ----------------------------------------------
