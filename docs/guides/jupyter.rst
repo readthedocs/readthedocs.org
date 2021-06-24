@@ -144,7 +144,62 @@ To see more elaborate examples:
 Creating galleries of examples using notebooks
 ----------------------------------------------
 
-TBC
+If you want to create an HTML gallery of examples for your project,
+`Sphinx-Gallery <https://sphinx-gallery.github.io/>`_
+offers a very convenient way of doing so from Sphinx,
+including thumbnail generation.
+However, `it works with Python scripts rather than
+notebooks <https://github.com/sphinx-gallery/sphinx-gallery/issues/245>`_,
+which might not be what you want.
+
+`nbsphinx`_ has support for `creating thumbnail galleries from a list of Jupyter
+notebooks <https://nbsphinx.readthedocs.io/en/latest/subdir/gallery.html>`_,
+and it is compatible with Sphinx-Gallery styles.
+To use it, you will need to install both nbsphinx and Sphinx-Gallery,
+and modify your ``conf.py`` as follows:
+
+.. code-block:: python
+   :caption: conf.py
+
+   extensions = [
+      'nbsphinx',
+      'sphinx_gallery.load_style',
+   ]
+
+After doing that, there are two ways to create the gallery:
+
+- From a reStructuredText source file, using the ``.. nbgallery::`` directive,
+  `as showcased in the
+  documentation <https://nbsphinx.readthedocs.io/en/latest/a-normal-rst-file.html#thumbnail-galleries>`_.
+- From a Jupyter notebook, adding a ``"nbsphinx-gallery"`` tag to the metadata of a cell.
+  Each editor has a different way of modifying the cell metadata (see figure below).
+
+.. figure:: /_static/images/guides/jupyterlab-metadata.png
+   :width: 80%
+   :align: center
+   :alt: Panel to modify cell metadata in JupyterLab
+
+   Panel to modify cell metadata in JupyterLab
+
+For example, this reST markup would create a thumbnail gallery
+with generic images as thumbnails,
+thanks to the Sphinx-Gallery default style:
+
+.. code-block:: rest
+
+   Thumbnails gallery
+   ==================
+
+   .. nbgallery::
+      notebooks/Example 1
+      notebooks/Example 2
+
+.. figure:: /_static/images/guides/thumbnail-gallery.png
+   :width: 80%
+   :align: center
+   :alt: Simple thumbnail gallery created using nbsphinx
+
+   Simple thumbnail gallery created using nbsphinx
 
 Using notebooks in other formats
 --------------------------------
