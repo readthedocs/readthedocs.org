@@ -27,6 +27,23 @@ class VersionQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
+    def __init__(self, *args, internal_only=False, **kwargs):
+        """
+        Overridden to pass extra arguments from the manager.
+
+        Usage:
+
+          import functools
+
+          ManagerClass.from_queryset(
+              functools.partial(VersionQuerySet, internal_only=True)
+          )
+
+        :param bool internal_only: If this queryset is being used to query internal versions only.
+        """
+        self.internal_only = internal_only
+        super().__init__(*args, **kwargs)
+
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
         """
         Add related objects from projects where `user` is an `admin` or a `member`.
@@ -40,6 +57,19 @@ class VersionQuerySetBase(models.QuerySet):
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
+        return queryset
+
+    def _public_only(self):
+        if self.internal_only:
+            # Since internal versions are already filtered,
+            # don't do anything special.
+            queryset = self.filter(privacy_level=constants.PUBLIC)
+        else:
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+            queryset |= self.filter(
+                type=EXTERNAL,
+                project__external_builds_privacy_level=constants.PUBLIC,
+            )
         return queryset
 
     def public(
@@ -58,11 +88,7 @@ class VersionQuerySetBase(models.QuerySet):
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
         """
-        queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
-        queryset |= self.filter(
-            type=EXTERNAL,
-            project__external_builds_privacy_level=constants.PUBLIC,
-        )
+        queryset = self._public_only()
         if user:
             if user.is_superuser:
                 queryset = self.all()
