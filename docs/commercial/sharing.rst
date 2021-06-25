@@ -34,6 +34,10 @@ Enabling
    
    You can always revoke access in the same panel.
 
+.. note::
+   
+   You can terminate your session by :ref:`versions:Logging out`.
+
 Effects
 -------
 

@@ -114,6 +114,17 @@ If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 In addition, if you want other users to view the build page of your public versions,
 you'll neeed to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
 
+Logging out
+'''''''''''
+
+By default the session would stay active till close your browser.
+If you want to finish your session before,
+you can do so by clicking on the :guilabel:`Logout` button that is on the version selector
+(usually on the bottom left or right).
+
+.. figure:: /_static/images/logout-button.png
+   :align: center
+
 Tags and branches
 -----------------
 
