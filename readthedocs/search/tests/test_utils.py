@@ -48,7 +48,7 @@ class TestSearchUtils:
 
         assert self.has_results(api_client, project, LATEST) is False
         assert self.has_results(api_client, project, STABLE) is False
-
+        # Check that other projects weren't deleted
         for project in ['pipeline', 'docs']:
             for version in [LATEST, STABLE]:
                 assert self.has_results(api_client, project, version) is True
@@ -70,6 +70,7 @@ class TestSearchUtils:
         time.sleep(1)
 
         assert self.has_results(api_client, project, LATEST) is False
+        # Ony latest was deleted.
         assert self.has_results(api_client, project, STABLE) is True
 
         for project in ['pipeline', 'docs']:
