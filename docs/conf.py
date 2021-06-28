@@ -53,6 +53,10 @@ intersphinx_mapping = {
     'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'pip': ('https://pip.pypa.io/en/stable/', None),
+    'nbsphinx': ('https://nbsphinx.readthedocs.io/en/0.8.6/', None),
+    'myst-nb': ('https://myst-nb.readthedocs.io/en/v0.12.3/', None),
+    'ipywidgets': ('https://ipywidgets.readthedocs.io/en/7.6.3/', None),
+    'jupytext': ('https://jupytext.readthedocs.io/en/stable/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [

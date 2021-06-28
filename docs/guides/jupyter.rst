@@ -38,10 +38,9 @@ However, there are some differences between them:
   whereas MyST-NB does not have such functionality at the moment
   (see :ref:`below <notebook-galleries>` for more information about galleries).
 - MyST-NB allows embedding Python objects coming from the notebook in the documentation
-  (read `their "glue" documentation <https://myst-nb.readthedocs.io/en/latest/use/glue.html>`_
+  (read :ref:`their "glue" documentation <myst-nb:glue>`
   for more information)
-  and provides more sophisticated `error
-  reporting <https://myst-nb.readthedocs.io/en/latest/use/start.html#sphinx-error-reporting>`_
+  and provides more sophisticated :ref:`error reporting <myst-nb:start/error-reporting>`
   than the one nbsphinx has.
 - The visual appearance of code cells and their outputs is slightly different:
   nbsphinx renders the cell numbers by default,
@@ -145,8 +144,8 @@ Each editor has a different way of doing it:
 
 - The classical Jupyter Notebook interface
   provides a "Save Notebook Widget State" action in the "Widgets" menu,
-  `as explained in the ipywidgets
-  documentation <https://ipywidgets.readthedocs.io/en/latest/embedding.html#embedding-widgets-in-html-web-pages>`_.
+  :ref:`as explained in the ipywidgets
+  documentation <ipywidgets:/embedding.md#embedding-widgets-in-html-web-pages>`.
   You need to click it before exporting your notebook to HTML.
 - JupyterLab provides a "Save Widget State Automatically" option in the "Settings" menu.
   You need to leave it checked so that widget state is automatically saved.
@@ -162,7 +161,7 @@ Each editor has a different way of doing it:
    JupyterLab option to save the interactive widget state automatically
 
 For example, if you create a notebook with a simple
-`IntSlider <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html#IntSlider>`_
+:ref:`ipywidgets:/examples/widget list.ipynb#intslider`
 widget from ipywidgets and save the widget state,
 the slider will render correctly in Sphinx.
 
@@ -185,7 +184,7 @@ To see more elaborate examples:
 .. warning::
 
    Although widgets themselves can be embedded in HTML as shown above,
-   `events <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html>`_
+   :doc:`events <ipywidgets:examples/Widget Events>`
    require a backend (kernel) to execute.
    Therefore, ``@interact``, ``.observe``, and related functionalities relying on them
    will not work as expected.
@@ -195,8 +194,8 @@ To see more elaborate examples:
 Creating galleries of examples using notebooks
 ----------------------------------------------
 
-`nbsphinx`_ has support for `creating thumbnail galleries from a list of Jupyter
-notebooks <https://nbsphinx.readthedocs.io/en/latest/subdir/gallery.html>`_.
+`nbsphinx`_ has support for :doc:`creating thumbnail galleries from a list of Jupyter
+notebooks <nbsphinx:subdir/gallery>`.
 This functionality relies on `Sphinx-Gallery <https://sphinx-gallery.github.io/>`_
 and extends it to work with Jupyter notebooks rather than Python scripts.
 
@@ -214,8 +213,8 @@ and modify your ``conf.py`` as follows:
 After doing that, there are two ways to create the gallery:
 
 - From a reStructuredText source file, using the ``.. nbgallery::`` directive,
-  `as showcased in the
-  documentation <https://nbsphinx.readthedocs.io/en/latest/a-normal-rst-file.html#thumbnail-galleries>`_.
+  :ref:`as showcased in the
+  documentation <nbsphinx:/a-normal-rst-file.rst#thumbnail-galleries>`.
 - From a Jupyter notebook, adding a ``"nbsphinx-gallery"`` tag to the metadata of a cell.
   Each editor has a different way of modifying the cell metadata (see figure below).
 
@@ -261,12 +260,12 @@ Background on alternative notebook formats
 
 Jupyter notebooks in ``.ipynb`` format
 (as described in the `nbformat
-documentation <https://nbformat.readthedocs.io/en/latest/>`_)
+documentation <https://nbformat.readthedocs.io/>`_)
 are by far the most widely used for historical reasons.
 
 However, to compensate some of the disadvantages of the ``.ipynb`` format
 (like cumbersome integration with version control systems),
-`jupytext`_ offers `other formats <https://jupytext.readthedocs.io/en/latest/formats.html>`_
+`jupytext`_ offers :doc:`other formats <jupytext:formats>`
 based on plain text rather than JSON.
 
 As a result, there are three modes of operation:
@@ -286,8 +285,7 @@ As a result, there are three modes of operation:
     to improve the review process.
   - Use a different collaboration workflow that doesn't involve notebooks.
 
-- Replace ``.ipynb`` notebooks with `a text-based
-  format <https://jupytext.readthedocs.io/en/latest/formats.html>`_.
+- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats>`.
   These formats behave better under version control
   and they can also be edited with normal text editors
   that do not support cell-based JSON notebooks.
@@ -295,15 +293,14 @@ As a result, there are three modes of operation:
   and this might not be what you want.
 - Pairing ``.ipynb`` notebooks with a text-based format,
   and putting the text-based file in version control,
-  as suggested in the `jupytext
-  documentation <https://jupytext.readthedocs.io/en/latest/paired-notebooks.html>`_.
+  as suggested in the :doc:`jupytext documentation <jupytext:paired-notebooks>`.
   This solution has the best of both worlds.
   In some rare cases you might experience synchronization issues between both files.
 
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
-For the examples in this document, we will use the `MyST Markdown
-format <https://jupytext.readthedocs.io/en/latest/formats.html#myst-markdown>`_.
+For the examples in this document, we will use the :ref:`MyST Markdown
+format <jupytext:formats.md#myst-markdown>`.
 
 If you are using alternative formats for Jupyter notebooks,
 you can include them in your Sphinx documentation
