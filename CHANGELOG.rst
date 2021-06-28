@@ -1,3 +1,65 @@
+Version 5.20.0
+--------------
+
+:Date: June 22, 2021
+
+* `@humitos <https://github.com/humitos>`__: Migration: fix RemoteRepository - Project data migration (`#8271 <https://github.com/readthedocs/readthedocs.org/pull/8271>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.19.0 (`#8266 <https://github.com/readthedocs/readthedocs.org/pull/8266>`__)
+* `@humitos <https://github.com/humitos>`__: Sync RemoteRepository for external collaborators (`#8265 <https://github.com/readthedocs/readthedocs.org/pull/8265>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: don't expand envvars in Gitpython (`#8263 <https://github.com/readthedocs/readthedocs.org/pull/8263>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 24 (`#8262 <https://github.com/readthedocs/readthedocs.org/pull/8262>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: check for nonexistent object (`#8261 <https://github.com/readthedocs/readthedocs.org/pull/8261>`__)
+* `@humitos <https://github.com/humitos>`__: Make `Project -> ForeignKey -> RemoteRepository` (`#8259 <https://github.com/readthedocs/readthedocs.org/pull/8259>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add basic security policy (`#8254 <https://github.com/readthedocs/readthedocs.org/pull/8254>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove workaround for subprojects (`#8211 <https://github.com/readthedocs/readthedocs.org/pull/8211>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: allow to filter by project slugs (`#8149 <https://github.com/readthedocs/readthedocs.org/pull/8149>`__)
+
+Version 5.19.0
+--------------
+
+.. warning:: This release contains a security fix to our CSRF settings: https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-3v5m-qmm9-3c6c
+
+:Date: June 15, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Builds: check for nonexistent object (`#8261 <https://github.com/readthedocs/readthedocs.org/pull/8261>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove video from our Sphinx quickstart. (`#8246 <https://github.com/readthedocs/readthedocs.org/pull/8246>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove "Markdown" from Mkdocs title (`#8245 <https://github.com/readthedocs/readthedocs.org/pull/8245>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Make sustainability page more visible (`#8244 <https://github.com/readthedocs/readthedocs.org/pull/8244>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: move send_build_status to builds/tasks.py (`#8241 <https://github.com/readthedocs/readthedocs.org/pull/8241>`__)
+* `@humitos <https://github.com/humitos>`__: Add ability to rebuild a specific build (`#8227 <https://github.com/readthedocs/readthedocs.org/pull/8227>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't do any CORS checking on Embed API requests (`#8226 <https://github.com/readthedocs/readthedocs.org/pull/8226>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: return well formed html (`#8202 <https://github.com/readthedocs/readthedocs.org/pull/8202>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add project/build filters (`#8142 <https://github.com/readthedocs/readthedocs.org/pull/8142>`__)
+* `@humitos <https://github.com/humitos>`__: Sign Up: limit the providers allowed to sign up (`#8062 <https://github.com/readthedocs/readthedocs.org/pull/8062>`__)
+* `@stsewd <https://github.com/stsewd>`__:  Search: use multi-fields for Wildcard queries  (`#7613 <https://github.com/readthedocs/readthedocs.org/pull/7613>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
+
+Version 5.18.0
+--------------
+
+:Date: June 08, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#8240 <https://github.com/readthedocs/readthedocs.org/pull/8240>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Backport manual indexes (`#8235 <https://github.com/readthedocs/readthedocs.org/pull/8235>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up SSO docs (`#8233 <https://github.com/readthedocs/readthedocs.org/pull/8233>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cache get_project (`#8231 <https://github.com/readthedocs/readthedocs.org/pull/8231>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't do any CORS checking on Embed API requests (`#8226 <https://github.com/readthedocs/readthedocs.org/pull/8226>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Optimize Index time database query (`#8224 <https://github.com/readthedocs/readthedocs.org/pull/8224>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: check if attribute exists (`#8220 <https://github.com/readthedocs/readthedocs.org/pull/8220>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update gitter channel name (`#8217 <https://github.com/readthedocs/readthedocs.org/pull/8217>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove IRC from our docs (`#8216 <https://github.com/readthedocs/readthedocs.org/pull/8216>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: filter by admin/team (`#8214 <https://github.com/readthedocs/readthedocs.org/pull/8214>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: remove unused `detail` parameter (`#8213 <https://github.com/readthedocs/readthedocs.org/pull/8213>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 21 (`#8206 <https://github.com/readthedocs/readthedocs.org/pull/8206>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: refactor _add_user_repos (`#8182 <https://github.com/readthedocs/readthedocs.org/pull/8182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: simplify querysets/managers (`#8180 <https://github.com/readthedocs/readthedocs.org/pull/8180>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add section about deleting downloadable content (`#8162 <https://github.com/readthedocs/readthedocs.org/pull/8162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor views (`#8157 <https://github.com/readthedocs/readthedocs.org/pull/8157>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: little optimization when saving search queries (`#8132 <https://github.com/readthedocs/readthedocs.org/pull/8132>`__)
+* `@akien-mga <https://github.com/akien-mga>`__: Docs: Add some details to the User Defined Redirects (`#7894 <https://github.com/readthedocs/readthedocs.org/pull/7894>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add APIv3 version edit URL (`#7594 <https://github.com/readthedocs/readthedocs.org/pull/7594>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add List API Endpoint for `RemoteRepository` and `RemoteOrganization` (`#7510 <https://github.com/readthedocs/readthedocs.org/pull/7510>`__)
+
 Version 5.17.0
 --------------
 

@@ -950,11 +950,11 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         ]
         read_only_fields = fields
         expandable_fields = {
-            'organization': (
+            'remote_organization': (
                 RemoteOrganizationSerializer, {'source': 'organization'}
             ),
-            'project': (
-                ProjectSerializer, {'source': 'project'}
+            'projects': (
+                ProjectSerializer, {'source': 'projects', 'many': True}
             )
         }
 

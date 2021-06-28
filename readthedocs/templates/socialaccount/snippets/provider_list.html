@@ -19,6 +19,7 @@
     {% endfor %}
   {% endif %}
   {% if provider.id != 'bitbucket' %}
+  {% if allowed_providers and provider.id in allowed_providers or not allowed_providers %}
     <li>
       <a title="{{ provider.name }}"
          class="socialaccount-provider {{ provider.id }} button"
@@ -29,5 +30,6 @@
          {% endblocktrans %}
       </a>
     </li>
+  {% endif %}
   {% endif %}
 {% endfor %}

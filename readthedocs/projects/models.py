@@ -107,8 +107,8 @@ class Project(models.Model):
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -422,6 +422,14 @@ class Project(models.Model):
     tags = TaggableManager(blank=True)
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
+
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'

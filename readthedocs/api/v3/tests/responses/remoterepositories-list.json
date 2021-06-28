@@ -14,19 +14,9 @@
       "html_url": "https://github.com/rtd/project",
       "modified": "2019-04-29T12:00:00Z",
       "name": "project",
-      "organization": {
-        "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
-        "created": "2019-04-29T10:00:00Z",
-        "modified": "2019-04-29T12:00:00Z",
-        "name": "Read the Docs",
-        "pk": 1,
-        "slug": "readthedocs",
-        "url": "https://github.com/readthedocs",
-        "vcs_provider": "github"
-      },
       "pk": 1,
       "private": false,
-      "project": {
+      "projects": [{
         "_links": {
           "_self": "https://readthedocs.org/api/v3/projects/project/",
           "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
@@ -58,6 +48,16 @@
           "versions": "https://readthedocs.org/projects/project/versions/"
         },
         "users": [{ "username": "testuser" }]
+      }],
+      "remote_organization": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
+          "created": "2019-04-29T10:00:00Z",
+          "modified": "2019-04-29T12:00:00Z",
+          "name": "Read the Docs",
+          "pk": 1,
+          "slug": "readthedocs",
+          "url": "https://github.com/readthedocs",
+          "vcs_provider": "github"
       },
       "ssh_url": "git@github.com:rtd/project.git",
       "vcs": "git",

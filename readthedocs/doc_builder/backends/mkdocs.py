@@ -4,7 +4,6 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import json
 import logging
 import os
 
@@ -16,7 +15,6 @@ from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
-
 
 log = logging.getLogger(__name__)
 
@@ -235,6 +233,14 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        commit = (
+            self.version.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -248,7 +254,7 @@ class BaseMkdocs(BaseBuilder):
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'commit': commit,
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),
