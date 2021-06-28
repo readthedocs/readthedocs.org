@@ -37,6 +37,12 @@ However, there are some differences between them:
 - nbsphinx provides functionality to create thumbnail galleries,
   whereas MyST-NB does not have such functionality at the moment
   (see :ref:`below <notebook-galleries>` for more information about galleries).
+- MyST-NB allows embedding Python objects coming from the notebook in the documentation
+  (read `their "glue" documentation <https://myst-nb.readthedocs.io/en/latest/use/glue.html>`_
+  for more information)
+  and provides more sophisticated `error
+  reporting <https://myst-nb.readthedocs.io/en/latest/use/start.html#sphinx-error-reporting>`_
+  than the one nbsphinx has.
 - The visual appearance of code cells and their outputs is slightly different:
   nbsphinx renders the cell numbers by default,
   whereas MyST-NB doesn't.
@@ -53,6 +59,8 @@ Using which one to use depends on your use case. As general recommendations:
   nbsphinx is the right choice.
 - If you want to leverage a more optimized execution workflow
   and a more streamlined parsing mechanism,
+  as well as some of the unique MyST-NB functionalities
+  (``glue``, better error reporting)
   you should use MyST-NB.
 
 For the rest of this document we will focus on `nbsphinx`_,
