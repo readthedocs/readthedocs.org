@@ -34,9 +34,7 @@ Enabling
    
    You can always revoke access in the same panel.
 
-.. note::
-   
-   You can terminate your session by :ref:`versions:Logging out`.
+Users can log out by using the :ref:`Log Out <versions:Logging out>` button in the RTD flyout.
 
 Effects
 -------
