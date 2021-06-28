@@ -28,6 +28,11 @@ class OrganizationForm(forms.ModelForm):
     :type user: django.contrib.auth.models.User
     """
 
+    # We use the organization slug + project name
+    # to form the final project slug.
+    # A valid project slug is 63 chars long.
+    name = forms.CharField(max_length=32)
+
     class Meta:
         model = Organization
         fields = ['name', 'email', 'description', 'url']
@@ -57,7 +62,11 @@ class OrganizationForm(forms.ModelForm):
         name = self.cleaned_data['name']
         if self.instance and self.instance.name and name == self.instance.name:
             return name
-        if Organization.objects.filter(slug=slugify(name)).exists():
+
+        potential_slug = slugify(name)
+        if not potential_slug:
+            raise forms.ValidationError(_('Invalid organization name'))
+        if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
                 _('Organization %(name)s already exists'),
                 params={'name': name},
