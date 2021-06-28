@@ -191,17 +191,11 @@ To see more elaborate examples:
 Creating galleries of examples using notebooks
 ----------------------------------------------
 
-If you want to create an HTML gallery of examples for your project,
-`Sphinx-Gallery <https://sphinx-gallery.github.io/>`_
-offers a very convenient way of doing so from Sphinx,
-including thumbnail generation.
-However, `it works with Python scripts rather than
-notebooks <https://github.com/sphinx-gallery/sphinx-gallery/issues/245>`_,
-which might not be what you want.
-
 `nbsphinx`_ has support for `creating thumbnail galleries from a list of Jupyter
-notebooks <https://nbsphinx.readthedocs.io/en/latest/subdir/gallery.html>`_,
-and it is compatible with Sphinx-Gallery styles.
+notebooks <https://nbsphinx.readthedocs.io/en/latest/subdir/gallery.html>`_.
+This functionality relies on `Sphinx-Gallery <https://sphinx-gallery.github.io/>`_
+and extends it to work with Jupyter notebooks rather than Python scripts.
+
 To use it, you will need to install both nbsphinx and Sphinx-Gallery,
 and modify your ``conf.py`` as follows:
 
