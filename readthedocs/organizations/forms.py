@@ -65,7 +65,7 @@ class OrganizationForm(forms.ModelForm):
 
         potential_slug = slugify(name)
         if not potential_slug:
-            raise forms.ValidationError(_('Invalid organization name'))
+            raise forms.ValidationError(_('Invalid organization name: no slug generated'))
         if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
                 _('Organization %(name)s already exists'),

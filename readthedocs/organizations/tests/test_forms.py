@@ -127,7 +127,7 @@ class OrganizationSignupTest(OrganizationTestCase):
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertFalse(form.is_valid())
-        self.assertEqual('Invalid organization name', form.errors['name'][0])
+        self.assertEqual('Invalid organization name: no slug generated', form.errors['name'][0])
 
     def test_create_organization_with_big_name(self):
         data = {
