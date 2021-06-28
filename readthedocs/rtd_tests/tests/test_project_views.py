@@ -588,6 +588,32 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
 
+    def test_integration_webhooks_sync_no_remote_repository(self):
+        project = get(
+            Project,
+            slug='pip',
+            users=[self.user],
+            has_valid_webhook=True,
+        )
+        integration = get(
+            GitHubWebhook,
+            project=project,
+        )
+
+        response = self.client.post(
+            reverse(
+                'projects_integrations_webhooks_sync',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+        project.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(project.has_valid_webhook)
+
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
