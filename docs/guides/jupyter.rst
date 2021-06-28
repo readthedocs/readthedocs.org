@@ -1,6 +1,15 @@
 How to use Jupyter notebooks in Sphinx
 ======================================
 
+`Jupyter`_ notebooks are a popular tool to describe computational narratives
+that mix code, prose, images, interactive components, and more.
+Embedding them in your Sphinx project allows using these rich documents as documentation,
+which can provide a great experience for tutorials, examples, and other types of technical content.
+There are a few extensions that allow integrating Jupyter and Sphinx,
+and this document will explain how to achieve some of the most commonly requested features.
+
+.. _Jupyter: https://jupyter.org/
+
 By default, `Sphinx only supports reStructuredText source files for
 documentation <https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix>`_.
 Luckily, there are a few extensions to also allow Jupyter notebooks as source files.
