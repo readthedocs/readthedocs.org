@@ -14,18 +14,59 @@ By default, `Sphinx only supports reStructuredText source files for
 documentation <https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix>`_.
 Luckily, there are a few extensions to also allow Jupyter notebooks as source files.
 
-.. _ipynb-notebooks-sphinx:
+.. _nb-background:
 
-Including ``.ipynb`` notebooks in Sphinx documentation
-------------------------------------------------------
+Background on the existing relevant extensions
+----------------------------------------------
 
-There are two main extensions that add support for ``.ipynb`` as source files in Sphinx:
-nbsphinx_ and MyST-NB_. Even though they have some differences,
-their basic mode of operation is very similar. However, they are mutually exclusive,
-so you have to choose one of them.
+There are two main extensions that add support Jupyter notebooks as source files in Sphinx:
+nbsphinx_ and MyST-NB_. Although they have similar intent and basic functionality,
+there are some differences:
+
+- nsphinx uses `pandoc <https://pandoc.org/>`_ to convert the Markdown from Jupyter notebooks
+  to reStructuredText and then to docutils AST,
+  whereas MyST-NB uses `MyST-Parser`_ to directly convert the Markdown text to docutils AST.
+  Both Markdown flavors are mostly equal, but they have some differences.
+- Both nbsphinx and MyST-NB support canonical ``.ipynb`` notebooks.
+  nbsphinx can process any format supported by `jupytext`_,
+  whereas MyST-NB focuses on MyST Markdown Notebooks
+  (see :ref:`below <other-formats>` for more information about other notebook formats).
+- nbsphinx executes each notebook during the parsing phase,
+  whereas MyST-NB can execute all notebooks up front
+  and cache them with `jupyter-cache <https://jupyter-cache.readthedocs.io/>`_.
+  This can result in shorter build times when when notebooks are slightly modified
+  if using MyST-NB.
+- nbsphinx provides functionality to create thumbnail galleries,
+  whereas MyST-NB does not have such functionality at the moment
+  (see :ref:`below <notebook-galleries>` for more information about galleries).
+- The visual appearance of code cells and their outputs is slightly different:
+  nbsphinx renders the cell numbers by default,
+  whereas MyST-NB doesn't.
 
 .. _nbsphinx: https://nbsphinx.readthedocs.io/
 .. _MyST-NB: https://myst-nb.readthedocs.io/
+.. _MyST-Parser: https://myst-parser.readthedocs.io/
+.. _jupytext: https://jupytext.readthedocs.io/
+
+Using which one to use depends on your use case. As general recommendations:
+
+- If you want to use :ref:`other notebook formats <other-formats>`
+  or :ref:`generate a thumbnail gallery from your notebooks <notebook-galleries>`,
+  nbsphinx is the right choice.
+- If you will be focusing on MyST Markdown notebooks
+  or want to leverage a more optimized execution workflow
+  and a more streamlined parsing mechanism,
+  you should use MyST-NB.
+
+For the rest of this document we will focus on `nbsphinx`_
+because it is more flexible and offers some extra functionality,
+and we will point out the differences with `MyST-NB`_ where appropriate.
+Notice that they can't both be used at the same time.
+
+.. _ipynb-notebooks-sphinx:
+
+Including classic ``.ipynb`` notebooks in Sphinx documentation
+--------------------------------------------------------------
 
 First of all, create a Jupyter notebook using the editor of your liking (for example, JupyterLab_).
 For example, ``source/notebooks/Example 1.ipynb``:
@@ -80,13 +121,6 @@ after doing ``make html``.
 
 To further customize the rendering process among other things,
 refer to the nbsphinx_ or MyST-NB_ documentation.
-
-.. note::
-
-   The visual appearance of code cells and their outputs
-   is slightly different in nbsphinx and MyST-NB:
-   the former renders the cell numbers by default,
-   whereas the latter doesn't.
 
 Rendering interactive widgets
 -----------------------------
@@ -152,6 +186,8 @@ To see more elaborate examples:
    Therefore, ``@interact``, ``.observe``, and related functionalities relying on them
    will not work as expected.
 
+.. _notebook-galleries:
+
 Creating galleries of examples using notebooks
 ----------------------------------------------
 
@@ -212,6 +248,8 @@ thanks to the Sphinx-Gallery default style:
 
    Simple thumbnail gallery created using nbsphinx
 
+.. _other-formats:
+
 Using notebooks in other formats
 --------------------------------
 
@@ -241,16 +279,15 @@ in your Sphinx documentation:
 - Using `MyST-NB`_. This is the simplest option
   if you don't need any of nbsphinx or jupytext functionalities.
 
-.. _jupytext: https://jupytext.readthedocs.io/
 .. _MyST: https://myst-parser.readthedocs.io/
 
 .. note::
 
    In summary: both nbsphinx and MyST-NB
-   can parse ``.ipynb`` notebooks and include them in Sphinx documentation
-   (:ref:`see above <ipynb-notebooks-sphinx>`).
+   can parse ``.ipynb`` notebooks and include them in Sphinx documentation.
    In addition, MyST-NB can read MyST Markdown notebooks,
    and nbsphinx can read any alternative formats understood by jupytext.
+   You can :ref:`read more above <nb-background>`.
 
 For example, this is how a simple notebook looks like in MyST Markdown format:
 
