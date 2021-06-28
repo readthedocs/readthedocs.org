@@ -248,10 +248,8 @@ thanks to the Sphinx-Gallery default style:
 
    Simple thumbnail gallery created using nbsphinx
 
-.. _other-formats:
-
-Using notebooks in other formats
---------------------------------
+Background on alternative notebook formats
+------------------------------------------
 
 Jupyter notebooks in ``.ipynb`` format
 (as described in the `nbformat
@@ -263,13 +261,44 @@ However, to compensate some of the disadvantages of the ``.ipynb`` format
 `jupytext`_ offers `other formats <https://jupytext.readthedocs.io/en/latest/formats.html>`_
 based on plain text rather than JSON.
 
-One of such formats is the `MyST Markdown
-format <https://jupytext.readthedocs.io/en/latest/formats.html#myst-markdown>`_,
-which is based on `MyST`_, an extensible flavor of Markdown
-that includes some features from reStructuredText.
+As a result, there are three modes of operation:
 
-If you are interested in using alternative formats for Jupyter notebooks,
-nowadays there are two main ways to include them
+- Using classic ``.ipynb`` notebooks. It's the most straightforward option,
+  since all the tooling is prepared to work with them,
+  and does not require additional pieces of software.
+  It is therefore simpler to manage, since there are fewer moving parts.
+  However, it requires some care when working with Version Control Systems (like git),
+  by doing one of these things:
+
+  - Clear outputs before commit.
+    Minimizes conflicts, but might defeat the purpose of notebooks themselves,
+    since the computation results are not stored.
+  - Use tools like `nbdime <https://nbdime.readthedocs.io/>`_ (open source)
+    or `ReviewNB <https://www.reviewnb.com/>`_ (proprietary)
+    to improve the review process.
+  - Use a different collaboration workflow that doesn't involve notebooks.
+
+- Replace ``.ipynb`` notebooks with `a text-based
+  format <https://jupytext.readthedocs.io/en/latest/formats.html>`_.
+  These formats behave better under version control
+  and they can also be edited with normal text editors
+  that do not support cell-based JSON notebooks.
+  However, text-based formats do not store the outputs of the cells,
+  and this might not be what you want.
+- Pairing ``.ipynb`` notebooks with a text-based format,
+  and putting the text-based file in version control,
+  as suggested in the `jupytext
+  documentation <https://jupytext.readthedocs.io/en/latest/paired-notebooks.html>`_.
+  This solution has the best of both worlds.
+  In some rare cases you might experience synchronization issues between both files.
+
+These approaches are not mutually exclusive,
+nor you have to use a single format for all your notebooks.
+For the examples in this document, we will use the `MyST Markdown
+format <https://jupytext.readthedocs.io/en/latest/formats.html#myst-markdown>`_.
+
+If you are using alternative formats for Jupyter notebooks,
+there are two main ways to include them
 in your Sphinx documentation:
 
 - Parsing the notebooks with `jupytext`_ and rendering them with `nbsphinx`_.
@@ -288,6 +317,11 @@ in your Sphinx documentation:
    In addition, MyST-NB can read MyST Markdown notebooks,
    and nbsphinx can read any alternative formats understood by jupytext.
    You can :ref:`read more above <nb-background>`.
+
+.. _other-formats:
+
+Using notebooks in other formats
+--------------------------------
 
 For example, this is how a simple notebook looks like in MyST Markdown format:
 
