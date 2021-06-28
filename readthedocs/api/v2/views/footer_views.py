@@ -145,11 +145,9 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
     def _get_context(self):
         theme = self.request.GET.get('theme', False)
         docroot = self.request.GET.get('docroot', '')
-        subproject = self.request.GET.get('subproject', False)
         source_suffix = self.request.GET.get('source_suffix', '.rst')
 
         new_theme = (theme == 'sphinx_rtd_theme')
-        using_theme = (theme == 'default')
 
         project = self._get_project()
         main_project = project.main_language_project or project
@@ -173,10 +171,8 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
             'main_project': main_project,
             'translations': main_project.translations.all(),
             'current_language': project.language,
-            'using_theme': using_theme,
             'new_theme': new_theme,
             'settings': settings,
-            'subproject': subproject,
             'github_edit_url': version.get_github_url(
                 docroot,
                 page_slug,
@@ -206,7 +202,6 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
                 page_slug,
                 source_suffix,
             ),
-            'theme': theme,
         }
         return context
 
