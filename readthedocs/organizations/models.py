@@ -43,7 +43,13 @@ class Organization(models.Model):
 
     # Local
     name = models.CharField(_('Name'), max_length=100)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    slug = models.SlugField(
+        _('Slug'),
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+    )
     email = models.EmailField(
         _('E-mail'),
         help_text='How can we get in touch with you?',
