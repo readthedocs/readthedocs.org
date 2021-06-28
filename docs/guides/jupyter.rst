@@ -125,13 +125,15 @@ refer to the nbsphinx_ or MyST-NB_ documentation.
 Rendering interactive widgets
 -----------------------------
 
-You can also embed interactive widgets from Jupyter notebooks created using ipywidgets_
-on HTML Sphinx documentation. This includes basic widgets from ipywidgets_ and also
-more complex ones,
-like `ipyleaflet`_ visualizations.
+Widgets are eventful python objects that have a representation in the browser
+and that you can use to build interactive GUIs for your notebooks.
+Basic widgets using `ipywidgets`_ include controls like sliders, textboxes, and buttons,
+and more complex widgets include interactive maps, like the ones provided by `ipyleaflet`_.
 
+.. _ipywidgets: https://ipywidgets.readthedocs.io/
 .. _ipyleaflet: https://ipyleaflet.readthedocs.io/
 
+You can embed these interactive widgets on HTML Sphinx documentation.
 For this to work, it's necessary to *save the widget state*
 before generating the HTML documentation,
 otherwise the widget will appear as empty.
@@ -147,8 +149,6 @@ Each editor has a different way of doing it:
 - In Visual Studio Code `it's not possible to save the widget
   state <https://github.com/microsoft/vscode-jupyter/issues/4404>`_
   at the time of writing.
-
-.. _ipywidgets: https://ipywidgets.readthedocs.io/
 
 .. figure:: /_static/images/guides/jupyterlab-save-widget-state.png
    :width: 30%
