@@ -58,6 +58,14 @@ intersphinx_mapping = {
     'ipywidgets': ('https://ipywidgets.readthedocs.io/en/7.6.3/', None),
     'jupytext': ('https://jupytext.readthedocs.io/en/stable/', None),
 }
+hoverxref_intersphinx = [
+   "sphinx",
+   "pip",
+   "nbsphinx",
+   "myst-nb",
+   "ipywidgets",
+   "jupytext",
+]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
     ('index', 'ReadTheDocs.tex', 'Read the Docs Documentation',
