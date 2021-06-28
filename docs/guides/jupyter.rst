@@ -242,6 +242,16 @@ thanks to the Sphinx-Gallery default style:
 
    Simple thumbnail gallery created using nbsphinx
 
+To see some examples of notebook galleries in the wild:
+
+- `poliastro <https://docs.poliastro.space/>`_ offers tools for interactive Astrodynamics in Python,
+  and features `several examples and how-to guides using
+  notebooks <https://docs.poliastro.space/en/stable/gallery.html>`_
+  and displays them in an appealing thumbnail gallery.
+  In addition, `poliastro uses unpaired MyST
+  Notebooks <https://github.com/poliastro/poliastro/tree/0.15.x/docs/source/examples>`_
+  to reduce repository size and improve integration with git.
+
 Background on alternative notebook formats
 ------------------------------------------
 
