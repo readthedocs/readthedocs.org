@@ -20,17 +20,15 @@ Background on the existing relevant extensions
 ----------------------------------------------
 
 There are two main extensions that add support Jupyter notebooks as source files in Sphinx:
-nbsphinx_ and MyST-NB_. Although they have similar intent and basic functionality,
-there are some differences:
+nbsphinx_ and MyST-NB_. They have similar intent and basic functionality:
+both can read notebooks in ``.ipynb`` and additional formats supported by `jupytext`_,
+and are configured in a similar way.
+However, there are some differences between them:
 
 - nsphinx uses `pandoc <https://pandoc.org/>`_ to convert the Markdown from Jupyter notebooks
   to reStructuredText and then to docutils AST,
   whereas MyST-NB uses `MyST-Parser`_ to directly convert the Markdown text to docutils AST.
   Both Markdown flavors are mostly equal, but they have some differences.
-- Both nbsphinx and MyST-NB support canonical ``.ipynb`` notebooks.
-  nbsphinx can process any format supported by `jupytext`_,
-  whereas MyST-NB focuses on MyST Markdown Notebooks
-  (see :ref:`below <other-formats>` for more information about other notebook formats).
 - nbsphinx executes each notebook during the parsing phase,
   whereas MyST-NB can execute all notebooks up front
   and cache them with `jupyter-cache <https://jupyter-cache.readthedocs.io/>`_.
@@ -53,13 +51,11 @@ Using which one to use depends on your use case. As general recommendations:
 - If you want to use :ref:`other notebook formats <other-formats>`
   or :ref:`generate a thumbnail gallery from your notebooks <notebook-galleries>`,
   nbsphinx is the right choice.
-- If you will be focusing on MyST Markdown notebooks
-  or want to leverage a more optimized execution workflow
+- If you want to leverage a more optimized execution workflow
   and a more streamlined parsing mechanism,
   you should use MyST-NB.
 
-For the rest of this document we will focus on `nbsphinx`_
-because it is more flexible and offers some extra functionality,
+For the rest of this document we will focus on `nbsphinx`_,
 and we will point out the differences with `MyST-NB`_ where appropriate.
 Notice that they can't both be used at the same time.
 
@@ -302,25 +298,10 @@ For the examples in this document, we will use the `MyST Markdown
 format <https://jupytext.readthedocs.io/en/latest/formats.html#myst-markdown>`_.
 
 If you are using alternative formats for Jupyter notebooks,
-there are two main ways to include them
-in your Sphinx documentation:
-
-- Parsing the notebooks with `jupytext`_ and rendering them with `nbsphinx`_.
-  It is especially convenient if you are already using nbsphinx,
-  or if you want to use a notebook format
-  different from both ``.ipynb`` and MyST Markdown.
-- Using `MyST-NB`_. This is the simplest option
-  if you don't need any of nbsphinx or jupytext functionalities.
-
-.. _MyST: https://myst-parser.readthedocs.io/
-
-.. note::
-
-   In summary: both nbsphinx and MyST-NB
-   can parse ``.ipynb`` notebooks and include them in Sphinx documentation.
-   In addition, MyST-NB can read MyST Markdown notebooks,
-   and nbsphinx can read any alternative formats understood by jupytext.
-   You can :ref:`read more above <nb-background>`.
+you can include them in your Sphinx documentation
+using either `nbsphinx`_ or `MyST-NB`_
+(:ref:`see above <nb-background>`
+for more information about the differences between them).
 
 .. _other-formats:
 
