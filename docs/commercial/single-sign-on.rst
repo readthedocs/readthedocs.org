@@ -14,9 +14,8 @@ Currently, we support two different types of single sign-on:
 * Authentication *and* authorization are managed by the identity provider (e.g. GitHub, Bitbucket or GitLab)
 * Authentication (*only*) is managed by the identity provider (e.g. an active Google Workspace account with a verified email address)
 
-.. note::
-   
-   You can terminate your session by :ref:`versions:Logging out`.
+
+ Users can log out by using the  :ref:`Log Out <versions:Logging out>`. button in the RTD flyout.
 
 .. contents::
    :local:
