@@ -2,7 +2,7 @@
 
 -r pip.txt
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.1
 
 # Version 3.0.0 drops support for Django < 3.0
 # https://github.com/sebleier/django-redis-cache/#300
