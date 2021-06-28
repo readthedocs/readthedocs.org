@@ -41,7 +41,7 @@ celery==5.1.2
 # override ``account/base.html`` within your project.
 django-allauth==0.42.0  # pyup: ignore
 
-GitPython==3.1.17
+GitPython==3.1.18
 
 # Search
 elasticsearch==7.13.1  # pyup: <8.0.0
