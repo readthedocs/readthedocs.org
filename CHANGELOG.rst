@@ -1,3 +1,20 @@
+Version 5.20.1
+--------------
+
+:Date: June 28, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Organizations: validate that a correct slug is generated (`#8292 <https://github.com/readthedocs/readthedocs.org/pull/8292>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove unused context vars (`#8285 <https://github.com/readthedocs/readthedocs.org/pull/8285>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove additional fields (`#8284 <https://github.com/readthedocs/readthedocs.org/pull/8284>`__)
+* `@humitos <https://github.com/humitos>`__: oauth webhook: check the `Project` has a `RemoteRepository` (`#8282 <https://github.com/readthedocs/readthedocs.org/pull/8282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: small improvements (`#8276 <https://github.com/readthedocs/readthedocs.org/pull/8276>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: ask for confirmation when running reindex_elasticsearch (`#8275 <https://github.com/readthedocs/readthedocs.org/pull/8275>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Hit Elasticsearch only once for each search query through the APIv2 (`#8228 <https://github.com/readthedocs/readthedocs.org/pull/8228>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: Embed APIv3 (`#8222 <https://github.com/readthedocs/readthedocs.org/pull/8222>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: remove include_all (`#8212 <https://github.com/readthedocs/readthedocs.org/pull/8212>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add proposal for new Sphinx and RTD tutorials (`#8106 <https://github.com/readthedocs/readthedocs.org/pull/8106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add tests for remove index files (`#6381 <https://github.com/readthedocs/readthedocs.org/pull/6381>`__)
+
 Version 5.20.0
 --------------
 
