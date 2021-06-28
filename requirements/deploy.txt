@@ -1,7 +1,7 @@
 # Requirements for our production systems
 
 -r pip.txt
-psycopg2==2.8.6
+psycopg2==2.9.1
 gunicorn==20.1.0
 
 # Version 3.0.0 drops support for Django < 3.0
