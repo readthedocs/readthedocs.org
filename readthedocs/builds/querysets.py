@@ -68,7 +68,7 @@ class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
 
 
-class BuildQuerySetBase(models.QuerySet):
+class BuildQuerySet(models.QuerySet):
 
     """
     Build objects that are privacy aware.
@@ -168,10 +168,6 @@ class BuildQuerySetBase(models.QuerySet):
         if concurrent >= max_concurrent:
             limit_reached = True
         return (limit_reached, concurrent, max_concurrent)
-
-
-class BuildQuerySet(SettingsOverrideObject):
-    _default_class = BuildQuerySetBase
 
 
 class RelatedBuildQuerySet(models.QuerySet):

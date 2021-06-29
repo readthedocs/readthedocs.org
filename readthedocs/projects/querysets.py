@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models import OuterRef, Prefetch, Q, Subquery
 
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -217,23 +216,3 @@ class FeatureQuerySet(models.QuerySet):
             Q(default_true=True, add_date__gt=project.pub_date) |
             Q(future_default_true=True, add_date__lte=project.pub_date)
         ).distinct()
-
-
-class HTMLFileQuerySet(models.QuerySet):
-
-    def internal(self):
-        """
-        HTMLFileQuerySet method that only includes internal version html files.
-
-        It will exclude pull request/merge request Version html files from the queries
-        and only include BRANCH, TAG, UNKNOWN type Version html files.
-        """
-        return self.exclude(version__type=EXTERNAL)
-
-    def external(self):
-        """
-        HTMLFileQuerySet method that only includes external version html files.
-
-        It will only include pull request/merge request Version html files in the queries.
-        """
-        return self.filter(version__type=EXTERNAL)
