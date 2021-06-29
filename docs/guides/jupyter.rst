@@ -33,16 +33,25 @@ For example, ``source/notebooks/Example 1.ipynb``:
 
 Next, you will need to enable one of the extensions. For example, in the case of nbsphinx:
 
-.. code-block:: python
-   :caption: conf.py
+.. tabs::
 
-   # Add any Sphinx extension module names here, as strings. They can be
-   # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-   # ones.
-   extensions = [
-       "nbsphinx",
-       # "myst_nb",  # In case you want to use MyST-NB instead
-   ]
+   .. tab:: nbsphinx
+
+      .. code-block:: python
+         :caption: conf.py
+
+         extensions = [
+             "nbsphinx",
+         ]
+
+   .. tab:: MyST-NB
+
+      .. code-block:: python
+         :caption: conf.py
+
+         extensions = [
+             "myst_nb",
+         ]
 
 Both extensions will register themselves as processors for ``.ipynb`` notebooks,
 so you don't need to change the
@@ -180,12 +189,25 @@ For example, this is how a simple notebook looks like in MyST Markdown format:
 To render this notebook in Sphinx using nbsphinx and jupytext,
 you will need to add this to your ``conf.py``:
 
-.. code-block:: python
-   :caption: conf.py
+.. tabs::
 
-   nbsphinx_custom_formats = {
-      '.md': ['jupytext.reads', {'fmt': 'mystnb'}],
-   }
+   .. tab:: nbsphinx
+
+      .. code-block:: python
+         :caption: conf.py
+
+         nbsphinx_custom_formats = {
+             ".md": ["jupytext.reads", {"fmt": "mystnb"}],
+         }
+
+   .. tab:: MyST-NB
+
+      .. code-block:: python
+         :caption: conf.py
+
+         nb_custom_formats = {
+             ".md": ["jupytext.reads", {"fmt": "mystnb"}],
+         }
 
 Notice that the Markdown format does not store the outputs of the computation.
 nbsphinx will automatically execute notebooks without outputs,
