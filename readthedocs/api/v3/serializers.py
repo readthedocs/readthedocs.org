@@ -173,7 +173,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {
-            'config': (BuildConfigSerializer, {'source': 'config'})
+            'config': (BuildConfigSerializer,)
         }
 
     def get_finished(self, obj):
@@ -275,7 +275,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {
             'last_build': (
-                BuildSerializer, {'source': 'last_build'}
+                BuildSerializer,
             )
         }
 
@@ -569,12 +569,11 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {
+            # NOTE: this has to be a Model method, can't be a
+            # ``SerializerMethodField`` as far as I know
             'active_versions': (
                 VersionSerializer,
                 {
-                    # NOTE: this has to be a Model method, can't be a
-                    # ``SerializerMethodField`` as far as I know
-                    'source': 'active_versions',
                     'many': True,
                 }
             )
@@ -954,7 +953,7 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
                 RemoteOrganizationSerializer, {'source': 'organization'}
             ),
             'projects': (
-                ProjectSerializer, {'source': 'projects', 'many': True}
+                ProjectSerializer, {'many': True}
             )
         }
 
