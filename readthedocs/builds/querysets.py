@@ -10,6 +10,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
 )
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
@@ -27,16 +28,16 @@ class VersionQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
-        """
-        Add related objects from projects where `user` is an `admin` or a `member`.
-
-        .. note::
-
-           In .org all users are admin and member of a project.
-           This will change with organizations soon.
-        """
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+        """Add related objects from projects where `user` is an `admin` or a `member`."""
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=admin,
+                    member=member,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -78,16 +79,16 @@ class BuildQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
-        """
-        Add related objects from projects where `user` is an `admin` or a `member`.
-
-        .. note::
-
-           In .org all users are admin and member of a project.
-           This will change with organizations soon.
-        """
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+        """Add related objects from projects where `user` is an `admin` or a `member`."""
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=admin,
+                    member=member,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -187,8 +188,15 @@ class RelatedBuildQuerySet(models.QuerySet):
     use_for_related_fields = True
 
     def _add_from_user_projects(self, queryset, user):
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
