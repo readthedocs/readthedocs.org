@@ -32,7 +32,7 @@ However, there are some differences between them:
 - nbsphinx executes each notebook during the parsing phase,
   whereas MyST-NB can execute all notebooks up front
   and cache them with `jupyter-cache <https://jupyter-cache.readthedocs.io/>`_.
-  This can result in shorter build times when when notebooks are slightly modified
+  This can result in shorter build times when when notebooks are modified
   if using MyST-NB.
 - nbsphinx provides functionality to create thumbnail galleries,
   whereas MyST-NB does not have such functionality at the moment
@@ -151,7 +151,7 @@ Each editor has a different way of doing it:
   You need to leave it checked so that widget state is automatically saved.
 - In Visual Studio Code `it's not possible to save the widget
   state <https://github.com/microsoft/vscode-jupyter/issues/4404>`_
-  at the time of writing.
+  at the time of writing (June 2021).
 
 .. figure:: /_static/images/guides/jupyterlab-save-widget-state.png
    :width: 30%
