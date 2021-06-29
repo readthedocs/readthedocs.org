@@ -9,7 +9,7 @@ and how to write successful documentation.
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    tools
    platform
