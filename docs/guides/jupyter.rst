@@ -271,10 +271,13 @@ both can read notebooks in ``.ipynb`` and additional formats supported by `jupyt
 and are configured in a similar way.
 However, there are some differences between them:
 
-- nsphinx uses `pandoc <https://pandoc.org/>`_ to convert the Markdown from Jupyter notebooks
-  to reStructuredText and then to docutils AST,
-  whereas MyST-NB uses `MyST-Parser`_ to directly convert the Markdown text to docutils AST.
-  Both Markdown flavors are mostly equal, but they have some differences.
+- nsphinx uses `pandoc <https://pandoc.org/>`_
+  to convert the Markdown from Jupyter notebooks to reStructuredText
+  and then to `docutils AST <https://docutils.sourceforge.io/docs/ref/doctree.html>`_,
+  whereas MyST-NB uses `MyST-Parser`_
+  to directly convert the Markdown text to docutils AST.
+  Both Markdown flavors are mostly equal,
+  but they have some differences.
 - nbsphinx executes each notebook during the parsing phase,
   whereas MyST-NB can execute all notebooks up front
   and cache them with `jupyter-cache <https://jupyter-cache.readthedocs.io/>`_.
