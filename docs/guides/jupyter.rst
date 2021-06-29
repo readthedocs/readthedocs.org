@@ -276,6 +276,8 @@ However, there are some differences between them:
   and then to `docutils AST <https://docutils.sourceforge.io/docs/ref/doctree.html>`_,
   whereas MyST-NB uses `MyST-Parser`_
   to directly convert the Markdown text to docutils AST.
+  Therefore, nbsphinx assumes `pandoc flavored Markdown <https://pandoc.org/MANUAL.html#pandocs-markdown>`_,
+  whereas MyST-NB uses `MyST flavored Markdown <https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html>`_.
   Both Markdown flavors are mostly equal,
   but they have some differences.
 - nbsphinx executes each notebook during the parsing phase,
