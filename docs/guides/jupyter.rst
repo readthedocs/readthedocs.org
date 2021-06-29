@@ -146,6 +146,11 @@ To see more elaborate examples:
    Therefore, ``@interact``, ``.observe``, and related functionalities relying on them
    will not work as expected.
 
+.. note::
+
+   If your widgets need some additional JavaScript libraries,
+   you can add them using :py:meth:`~sphinx.application.Sphinx.add_js_file`.
+
 .. _other-formats:
 
 Using notebooks in other formats
