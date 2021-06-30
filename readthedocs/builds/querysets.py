@@ -27,7 +27,7 @@ class VersionQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def __init__(self, *args, internal_only=False, **kwargs):
+    def __init__(self, *args, internal_only=False, external_only=False, **kwargs):
         """
         Overridden to pass extra arguments from the manager.
 
@@ -40,8 +40,10 @@ class VersionQuerySetBase(models.QuerySet):
           )
 
         :param bool internal_only: If this queryset is being used to query internal versions only.
+        :param bool external_only: If this queryset is being used to query external versions only.
         """
         self.internal_only = internal_only
+        self.external_only = external_only
         super().__init__(*args, **kwargs)
 
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
@@ -64,6 +66,12 @@ class VersionQuerySetBase(models.QuerySet):
             # Since internal versions are already filtered,
             # don't do anything special.
             queryset = self.filter(privacy_level=constants.PUBLIC)
+        elif self.external_only:
+            # Since external versions are already filtered,
+            # don't filter them again.
+            queryset = self.filter(
+                project__external_builds_privacy_level=constants.PUBLIC,
+            )
         else:
             queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
             queryset |= self.filter(
