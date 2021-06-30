@@ -217,17 +217,16 @@ class Version(TimeStampedModel):
         For example, if a version originates from GitHub pull request #4, then
         ``version.explicit_name == "#4 (PR)"``.
 
-        On the other hand, Versions associated with regular ReadTheDocs builds
+        On the other hand, Versions associated with regular RTD builds
         (e.g. new tags or branches), simply return :obj:`~.verbose_name`.
         This means that a regular git tag named **v4** will correspond to
         ``version.explicit_name == "v4"``.
         """
-        external_origin = external_version_name(self)
-
-        if not external_origin:
+        if not self.is_external:
             return self.verbose_name
 
         template = '#{name} ({abbrev})'
+        external_origin = external_version_name(self)
         abbrev = ''.join(word[0].upper() for word in external_origin.split())
         return template.format(name=self.verbose_name, abbrev=abbrev)
 
