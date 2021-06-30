@@ -284,6 +284,10 @@ class CoreUtilTests(TestCase):
             'project-with-underscores-v10',
         )
         self.assertEqual(
+            slugify('__project_with_trailing-underscores---'),
+            'project-with-trailing-underscores',
+        )
+        self.assertEqual(
             slugify('project_with_underscores-v.1.0', dns_safe=False),
             'project_with_underscores-v10',
         )
