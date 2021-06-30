@@ -8,9 +8,9 @@
     "version": {
       "title": "Version",
       "description": "The version of the spec to use.",
-      "type": "string",
+      "type": "number",
       "enum": [
-        "2"
+        2
       ]
     },
     "formats": {
