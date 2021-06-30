@@ -196,7 +196,7 @@
         },
         "fail_on_warning": {
           "title": "Fail on Warning",
-          "description": "Add the --strict optio to mkdocs build.",
+          "description": "Add the --strict option to mkdocs build.",
           "type": "boolean",
           "default": false
         }
