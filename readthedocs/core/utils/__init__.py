@@ -13,12 +13,11 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
@@ -280,12 +279,14 @@ def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
 
-    :param dns_safe: Remove underscores from slug as well
+    :param bool dns_safe: Replace special chars like underscores with ``-``.
+     And remove trailing ``-``.
     """
     dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = mark_safe(re.sub('[-_]+', '-', value))
+        value = re.sub('[-_]+', '-', value)
+        value = mark_safe(value.strip('-'))
     return value
 
 
