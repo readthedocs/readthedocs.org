@@ -286,6 +286,7 @@ def slugify(value, *args, **kwargs):
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
         value = re.sub('[-_]+', '-', value)
+        # DNS doesn't allow - at the beginning or end of subdomains
         value = mark_safe(value.strip('-'))
     return value
 
