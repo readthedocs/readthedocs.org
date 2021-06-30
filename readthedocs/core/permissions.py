@@ -15,11 +15,12 @@ class AdminPermissionBase:
         Return all the projects the user has access to as ``admin`` or ``member``.
 
         If `RTD_ALLOW_ORGANIZATIONS` is enabled
-        this function takes SSO into consideration, it includes:
+        This function takes into consideration VCS SSO and Google SSO.
+        It includes:
 
-        - Projects where the user has access to via SSO.
+        - projects where the user has access to via VCS SSO.
         - Projects where the user has access via Team,
-          if SSO is not enabled for the organization of that team.
+          if VCS SSO is not enabled for the organization of that team.
 
         .. note::
 
