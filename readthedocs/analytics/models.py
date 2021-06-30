@@ -45,9 +45,9 @@ class PageView(models.Model):
         return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
 
     @classmethod
-    def top_viewed_pages(cls, project_slug, version_slug=None, top=10, since=None):
+    def top_viewed_pages(cls, project_slug, version_slug=None, since=None, limit=10):
         """
-        Returns top N pages according to view counts.
+        Returns top pages according to view counts.
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
@@ -74,7 +74,7 @@ class PageView(models.Model):
             queryset
             .annotate(total_views=Sum('view_count'))
             .values_list('path', 'total_views')
-            .order_by('-total_views')[:top]
+            .order_by('-total_views')[:limit]
         )
 
         pages = []

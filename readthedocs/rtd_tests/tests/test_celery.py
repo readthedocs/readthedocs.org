@@ -2,6 +2,7 @@ import os
 import shutil
 from os.path import exists
 from tempfile import mkdtemp
+from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
@@ -10,6 +11,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 from messages_extends.models import Message
 
+from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_SUCCESS,
@@ -17,12 +19,16 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.config.config import BuildConfigV2
+from readthedocs.doc_builder.environments import (
+    BuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import VersionLockedError
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -54,11 +60,6 @@ class TestCeleryBuilding(TestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
-        get(
-            Feature,
-            feature_id=Feature.SYNC_VERSIONS_USING_A_TASK,
-            projects=[self.project],
-        )
 
     def get_update_docs_task(self, version):
         build_env = LocalBuildEnvironment(
@@ -350,15 +351,21 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = 'https://github.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='github')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -381,7 +388,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -398,7 +405,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -410,15 +417,21 @@ class TestCeleryBuilding(TestCase):
         self.project.repo = 'https://gitlab.com/test/test/'
         self.project.save()
 
-        social_account = get(SocialAccount, provider='gitlab')
-        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
-        remote_repo.users.add(self.eric)
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.eric,
+            account=social_account
+        )
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -441,7 +454,7 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
@@ -458,9 +471,73 @@ class TestCeleryBuilding(TestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(
+        build_tasks.send_build_status(
             external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         send_build_status.assert_not_called()
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch.object(BuildEnvironment, 'run')
+    @patch('readthedocs.doc_builder.config.load_config')
+    def test_install_apt_packages(self, load_config, run):
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'apt_packages': [
+                        'clangd',
+                        'cmatrix',
+                    ],
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_config.return_value = config
+
+        version = self.project.versions.first()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo):
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+
+        self.assertEqual(run.call_count, 2)
+        apt_update = run.call_args_list[0]
+        apt_install = run.call_args_list[1]
+        self.assertEqual(
+            apt_update,
+            mock.call(
+                'apt-get',
+                'update',
+                '--assume-yes',
+                '--quiet',
+                user='root:root',
+            )
+        )
+        self.assertEqual(
+            apt_install,
+            mock.call(
+                'apt-get',
+                'install',
+                '--assume-yes',
+                '--quiet',
+                '--',
+                'clangd',
+                'cmatrix',
+                user='root:root',
+            )
+        )

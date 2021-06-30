@@ -4,7 +4,6 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import json
 import logging
 import os
 
@@ -16,7 +15,6 @@ from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
-
 
 log = logging.getLogger(__name__)
 
@@ -115,6 +113,7 @@ class BaseMkdocs(BaseBuilder):
             )
             return {
                 'site_name': self.version.project.name,
+                'docs_dir': self.docs_dir(),
             }
         except yaml.YAMLError as exc:
             note = ''
@@ -139,13 +138,11 @@ class BaseMkdocs(BaseBuilder):
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
-        user_docs_dir = user_config.get('docs_dir')
-        if not isinstance(user_docs_dir, (type(None), str)):
+        docs_dir = user_config.get('docs_dir', 'docs')
+        if not isinstance(docs_dir, (type(None), str)):
             raise MkDocsYAMLParseError(
                 MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
             )
-
-        docs_dir = self.docs_dir(docs_dir=user_docs_dir)
 
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
@@ -215,7 +212,7 @@ class BaseMkdocs(BaseBuilder):
                 user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
-        yaml.safe_dump(
+        yaml_dump_safely(
             user_config,
             open(self.yaml_file, 'w'),
         )
@@ -236,6 +233,14 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        commit = (
+            self.version.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -249,7 +254,7 @@ class BaseMkdocs(BaseBuilder):
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'commit': commit,
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),
@@ -327,27 +332,67 @@ class MkdocsHTML(BaseMkdocs):
     build_dir = '_build/html'
 
 
-class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+# TODO: find a better way to integrate with MkDocs.
+# See https://github.com/readthedocs/readthedocs.org/issues/7844
+
+
+class ProxyPythonName(yaml.YAMLObject):
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+
+class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
 
     """
-    YAML loader to ignore unknown tags.
+    Safe YAML loader.
+
+    This loader parses special ``!!python/name:`` tags without actually
+    importing or executing code. Every other special tag is ignored.
 
     Borrowed from https://stackoverflow.com/a/57121993
+    Issue https://github.com/readthedocs/readthedocs.org/issues/7461
     """
 
     def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
         return None
 
+    def construct_python_name(self, suffix, node):  # pylint: disable=no-self-use, unused-argument
+        return ProxyPythonName(suffix)
 
-SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)
+
+class SafeDumper(yaml.SafeDumper):
+
+    """
+    Safe YAML dumper.
+
+    This dumper allows to avoid losing values of special tags that
+    were parsed by our safe loader.
+    """
+
+    def represent_name(self, data):
+        return self.represent_scalar("tag:yaml.org,2002:python/name:" + data.value, "")
+
+
+SafeLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name)
+SafeLoader.add_constructor(None, SafeLoader.ignore_unknown)
+SafeDumper.add_representer(ProxyPythonName, SafeDumper.represent_name)
 
 
 def yaml_load_safely(content):
     """
-    Uses ``SafeLoaderIgnoreUnknown`` loader to skip unknown tags.
+    Uses ``SafeLoader`` loader to skip unknown tags.
 
-    When a YAML contains ``!!python/name:int`` it will complete ignore it an
-    return ``None`` for those fields instead of failing. We need this to avoid
-    executing random code, but still support these YAML files.
+    When a YAML contains ``!!python/name:int`` it will store the ``int``
+    suffix temporarily to be able to re-dump it later. We need this to avoid
+    executing random code, but still support these YAML files without
+    information loss.
     """
-    return yaml.load(content, Loader=SafeLoaderIgnoreUnknown)
+    return yaml.load(content, Loader=SafeLoader)
+
+
+def yaml_dump_safely(content, stream=None):
+    """Uses ``SafeDumper`` dumper to write YAML contents."""
+    return yaml.dump(content, stream=stream, Dumper=SafeDumper)

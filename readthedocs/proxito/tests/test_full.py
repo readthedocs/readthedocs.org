@@ -35,6 +35,20 @@ from .base import BaseDocServing
 class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
 
+    def test_health_check(self):
+        url = reverse('health_check')
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), {'status': 200})
+
+        # Test with IP address, which should still work
+        # since we're skipping middleware
+        host = '127.0.0.1'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), {'status': 200})
+
     def test_subproject_serving(self):
         url = '/projects/subproject/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'

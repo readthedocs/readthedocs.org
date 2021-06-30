@@ -17,14 +17,15 @@ class Config(AppConfig):
         app.tasks.register(ArchiveBuilds)
 
         try:
-            from readthedocsext.builds.tasks import ShutdownBuilder, StopBuilder
-            app.tasks.register(ShutdownBuilder)
-            app.tasks.register(StopBuilder)
+            from readthedocsext.monitoring.metrics.tasks import (
+                Metrics1mTask,
+                Metrics5mTask,
+                Metrics10mTask,
+                Metrics30mTask,
+            )
+            app.tasks.register(Metrics1mTask)
+            app.tasks.register(Metrics5mTask)
+            app.tasks.register(Metrics10mTask)
+            app.tasks.register(Metrics30mTask)
         except (ModuleNotFoundError, ImportError):
-            log.info('ShutdownBuilder/StopBuilder task could not be imported.')
-
-        try:
-            from readthedocsext.monitoring.scaling import AutoscaleBuildersTask
-            app.tasks.register(AutoscaleBuildersTask)
-        except (ModuleNotFoundError, ImportError):
-            log.info('AutoscaleBuildersTask task could not be imported.')
+            log.info('Metrics tasks could not be imported.')

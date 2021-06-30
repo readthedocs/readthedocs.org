@@ -6,11 +6,15 @@ from datetime import datetime
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
-from django.db.models import Q
 from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
+
+from readthedocs.oauth.models import (
+    RemoteOrganizationRelation,
+    RemoteRepositoryRelation,
+)
 
 
 log = logging.getLogger(__name__)
@@ -34,6 +38,7 @@ class Service:
 
     adapter = None
     url_pattern = None
+    vcs_provider_slug = None
 
     default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
     default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
@@ -142,6 +147,7 @@ class Service:
         :param kwargs: optional parameters passed to .get() method
         :type kwargs: dict
         """
+        resp = None
         try:
             resp = self.get_session().get(url, data=kwargs)
 
@@ -174,7 +180,7 @@ class Service:
             # Response data should always be JSON, still try to log if not
             # though
             try:
-                debug_data = resp.json()
+                debug_data = resp.json() if resp else {}
             except ValueError:
                 debug_data = resp.content
             log.debug(
@@ -200,21 +206,25 @@ class Service:
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
         all_remote_repositories = remote_repositories + remote_repositories_organizations
-        repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
+        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
         (
-            self.user.oauth_repositories
+            self.user.remote_repository_relations
             .exclude(
-                Q(full_name__in=repository_full_names) | Q(project__isnull=False)
+                remote_repository__remote_id__in=repository_remote_ids,
+                remote_repository__vcs_provider=self.vcs_provider_slug
             )
             .filter(account=self.account)
             .delete()
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_slugs = [o.slug for o in remote_organizations if o is not None]
+        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
         (
-            self.user.oauth_organizations
-            .exclude(slug__in=organization_slugs)
+            self.user.remote_organization_relations
+            .exclude(
+                remote_organization__remote_id__in=organization_remote_ids,
+                remote_organization__vcs_provider=self.vcs_provider_slug
+            )
             .filter(account=self.account)
             .delete()
         )

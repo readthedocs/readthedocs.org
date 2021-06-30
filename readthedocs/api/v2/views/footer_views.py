@@ -1,5 +1,6 @@
 """Endpoint to generate footer HTML."""
 
+import logging
 import re
 from functools import lru_cache
 
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
@@ -21,6 +23,8 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
+
+log = logging.getLogger(__name__)
 
 
 def get_version_compare_data(project, base_version=None):
@@ -79,7 +83,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class BaseFooterHTML(APIView):
+class BaseFooterHTML(CachedResponseMixin, APIView):
 
     """
     Render and return footer markup.
@@ -105,6 +109,7 @@ class BaseFooterHTML(APIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
+    project_cache_tag = 'rtd-footer'
 
     @lru_cache(maxsize=1)
     def _get_project(self):
@@ -140,11 +145,9 @@ class BaseFooterHTML(APIView):
     def _get_context(self):
         theme = self.request.GET.get('theme', False)
         docroot = self.request.GET.get('docroot', '')
-        subproject = self.request.GET.get('subproject', False)
         source_suffix = self.request.GET.get('source_suffix', '.rst')
 
         new_theme = (theme == 'sphinx_rtd_theme')
-        using_theme = (theme == 'default')
 
         project = self._get_project()
         main_project = project.main_language_project or project
@@ -168,10 +171,8 @@ class BaseFooterHTML(APIView):
             'main_project': main_project,
             'translations': main_project.translations.all(),
             'current_language': project.language,
-            'using_theme': using_theme,
             'new_theme': new_theme,
             'settings': settings,
-            'subproject': subproject,
             'github_edit_url': version.get_github_url(
                 docroot,
                 page_slug,
@@ -201,7 +202,6 @@ class BaseFooterHTML(APIView):
                 page_slug,
                 source_suffix,
             ),
-            'theme': theme,
         }
         return context
 

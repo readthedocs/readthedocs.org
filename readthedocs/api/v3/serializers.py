@@ -13,6 +13,7 @@ from rest_framework import serializers
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
@@ -172,7 +173,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {
-            'config': (BuildConfigSerializer, {'source': 'config'})
+            'config': (BuildConfigSerializer,)
         }
 
     def get_finished(self, obj):
@@ -226,9 +227,23 @@ class VersionLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class VersionURLsSerializer(serializers.Serializer):
+class VersionDashboardURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+    edit = serializers.SerializerMethodField()
+
+    def get_edit(self, obj):
+        path = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+                'version_slug': obj.slug,
+            })
+        return self._absolute_url(path)
+
+
+class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     documentation = serializers.SerializerMethodField()
     vcs = serializers.URLField(source='vcs_url')
+    dashboard = VersionDashboardURLsSerializer(source='*')
 
     def get_documentation(self, obj):
         return obj.project.get_docs_url(version_slug=obj.slug,)
@@ -260,7 +275,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {
             'last_build': (
-                BuildSerializer, {'source': 'last_build'}
+                BuildSerializer,
             )
         }
 
@@ -494,6 +509,7 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
             'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled',
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
@@ -553,12 +569,11 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {
+            # NOTE: this has to be a Model method, can't be a
+            # ``SerializerMethodField`` as far as I know
             'active_versions': (
                 VersionSerializer,
                 {
-                    # NOTE: this has to be a Model method, can't be a
-                    # ``SerializerMethodField`` as far as I know
-                    'source': 'active_versions',
                     'many': True,
                 }
             )
@@ -813,6 +828,7 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             'modified',
             'name',
             'value',
+            'public',
             'project',
             '_links',
         ]
@@ -890,3 +906,64 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
             'projects': (ProjectSerializer, {'many': True}),
             'teams': (TeamSerializer, {'many': True}),
         }
+
+
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'pk',
+            'slug',
+            'name',
+            'avatar_url',
+            'url',
+            'vcs_provider',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+
+
+class RemoteRepositorySerializer(FlexFieldsModelSerializer):
+    admin = serializers.SerializerMethodField('is_admin')
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'pk',
+            'name',
+            'full_name',
+            'description',
+            'admin',
+            'avatar_url',
+            'ssh_url',
+            'clone_url',
+            'html_url',
+            'vcs',
+            'vcs_provider',
+            'private',
+            'default_branch',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields
+        expandable_fields = {
+            'remote_organization': (
+                RemoteOrganizationSerializer, {'source': 'organization'}
+            ),
+            'projects': (
+                ProjectSerializer, {'many': True}
+            )
+        }
+
+    def is_admin(self, obj):
+        request = self.context['request']
+
+        # Use annotated value from RemoteRepositoryViewSet queryset
+        if hasattr(obj, '_admin'):
+            return obj._admin
+
+        return obj.remote_repository_relations.filter(
+            user=request.user, admin=True
+        ).exists()

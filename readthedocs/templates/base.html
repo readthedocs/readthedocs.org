@@ -159,32 +159,38 @@
         </div>
 
         <div class="column-about">
-          <h4>{% trans 'Get Involved' %}</h4>
+          <h4>{% trans 'Resources' %}</h4>
 
           <ul>
             <li>
               <a href="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html">{% trans 'Getting Started Guide' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
-            </li>
-            <li>
-              <a href="https://docs.readthedocs.io/page/contribute.html">{% trans 'Contributing' %}</a>
-            </li>
-            <li>
               <a href="https://docs.readthedocs.io/page/team.html">{% trans 'Team' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io/page/open-source-philosophy.html">{% trans 'Open Source Philosophy' %}</a>
+              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/sustainability/">{% trans 'Going Ad-free' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/support/">{% trans 'Site Support' %}</a>
+            </li>
+            <li>
+              <a href='http://status.readthedocs.com/'>{% trans 'Site Status' %}</a>
             </li>
           </ul>
 
         </div>
 
         <div class="column-rtd">
-          <h4>{% trans 'Business Info' %}</h4>
+          <h4>{% trans 'Company' %}</h4>
 
           <ul>
+            <li>
+              <a href="http://blog.readthedocs.com/jobs/">{% trans 'Jobs' %}</a>
+            </li>
             <li>
               <a href="https://www.ethicalads.io/advertisers/?ref=rtd">{% trans 'Advertise with Us' %}</a>
             </li>
@@ -192,17 +198,13 @@
               <a href="https://readthedocs.com">{% trans 'Read the Docs for Business' %}</a>
             </li>
             <li>
-              {% url "donate" as donate_url %}
-              <a href='{{ donate_url }}'>{% trans 'Supporters' %}</a>
+              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding & Media Kit' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans 'Privacy Policy' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/terms-of-service.html">{% trans 'Terms of Service' %}</a>
-            </li>
-            <li>
-              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding' %}</a>
             </li>
           </ul>
         </div>
@@ -256,9 +258,9 @@
           <div class="clearfix"></div>
 
           <div class="sponsors">
-            <a class="sponsor" href="https://azure.microsoft.com" rel="noopener" target="_blank">
-              <img src="{% static 'images/sponsors/azure.png' %}" alt="Microsoft Azure" class="sponsor-image">
-              <div class="sponsor-name">Microsoft Azure</div>
+            <a class="sponsor" href="https://aws.amazon.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/aws.png' %}" alt="Amazon Web Services" class="sponsor-image">
+              <div class="sponsor-name">AWS</div>
               <div class="sponsor-description">Cloud Computing</div>
             </a>
             <a class="sponsor" href="https://cloudflare.com" rel="noopener" target="_blank">
@@ -294,9 +296,7 @@
     </div>
     <!-- END footer-->
 
-    <script>
-      {% block footerjs %}{% endblock %}
-    </script>
+    {% block footerjs %}{% endblock %}
 
 </body>
 

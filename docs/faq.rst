@@ -33,7 +33,7 @@ My documentation requires additional dependencies
 -------------------------------------------------
 
 For most Python dependencies, you can can specify a requirements file
-which details your dependencies. See our guide on :doc:`/guides/specifying-dependencies`.
+which details your dependencies. See our guide on :ref:`guides/reproducible-builds:using a configuration file`.
 You can also set your project documentation to install your project itself
 as a dependency.
 
@@ -216,8 +216,7 @@ and as a result, it tends to look a bit better with the default theme.
 .. note::
 
    To use these extensions you need to specify the dependencies on your project
-   by following this :doc:`guide <guides/specifying-dependencies>`.
-
+   by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
 
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
@@ -237,12 +236,10 @@ following contents::
 
     src/python/
 
-Please note that the path must be relative to the file. So the example path
-above would work if the file is in the root of your repository. If you want to
-put the requirements in a file called ``requirements/requirements.txt``, the
-contents would look like::
-
-    ../python/
+Please note that the path must be relative to the working directory where ``pip`` is launched,
+rather than the directory where the requirements file is located.
+Therefore, even if you want to move the requirements file to a ``requirements/`` directory,
+the example path above would work.
 
 You can customize the path to your requirements file and any other installed dependency
 using a Read the Docs :doc:`config-file/index`.

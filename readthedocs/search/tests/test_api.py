@@ -278,10 +278,6 @@ class BaseTestDocumentSearch:
         """Return results from subprojects that match the version from the main project or fallback to its default version."""
         project = all_projects[0]
         version = project.versions.all()[0]
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
-        )
-        project.feature_set.add(feature)
 
         subproject = all_projects[1]
         subproject_version = subproject.versions.all()[0]
@@ -411,6 +407,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -428,6 +429,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -447,6 +453,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -464,6 +475,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -483,6 +499,11 @@ class BaseTestDocumentSearch:
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -500,6 +521,11 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
+
+        # Refresh index
+        version_files = HTMLFile.objects.all().filter(version=version)
+        for f in version_files:
+            PageDocument().update(f)
 
         search_params = {
             'project': project.slug,
@@ -580,7 +606,14 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) > 0
+
         assert 'Index' in results[0]['title']
+        highlights = results[0]['blocks'][0]['highlights']
+        assert '<span>index</span>' in highlights['content'][0]
+
+        assert 'Guides' in results[1]['title']
+        highlights = results[1]['blocks'][0]['highlights']
+        assert '<span>index</span>' in highlights['content'][0]
 
         # Query with a partial word, but we want to match that
         search_params = {
@@ -610,8 +643,14 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
 
-        page_index = HTMLFile.objects.get(path='index.html')
-        page_guides = HTMLFile.objects.get(path='guides/index.html')
+        page_index = HTMLFile.objects.get(
+            version=version,
+            path='index.html',
+        )
+        page_guides = HTMLFile.objects.get(
+            version=version,
+            path='guides/index.html',
+        )
 
         # Query with the default ranking
         assert page_index.rank == 0
@@ -934,8 +973,14 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
 
-        page_index = HTMLFile.objects.get(path='index.html')
-        page_guides = HTMLFile.objects.get(path='guides/index.html')
+        page_index = HTMLFile.objects.get(
+            version=version,
+            path='index.html',
+        )
+        page_guides = HTMLFile.objects.get(
+            version=version,
+            path='guides/index.html',
+        )
 
         search_params = {
             'project': project.slug,

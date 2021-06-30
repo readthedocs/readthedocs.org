@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest import mock
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
@@ -11,10 +12,10 @@ from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
@@ -139,7 +140,14 @@ class TestBasicsForm(WizardTestCase):
         self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository, users=[self.user])
+        remote_repo = get(RemoteRepository)
+        socialaccount = get(SocialAccount, user=self.user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.user,
+            account=socialaccount
+        )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertIsInstance(resp, HttpResponseRedirect)
@@ -150,9 +158,30 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
+    def test_remote_repository_invalid_type(self):
+        self.step_data['basics']['remote_repository'] = 'Invalid id'
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
+    def test_remote_repository_invalid_id(self):
+        self.step_data['basics']['remote_repository'] = 9
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)
-        remote_repo = get(RemoteRepository, users=[user])
+        remote_repo = get(RemoteRepository)
+        socialaccount = get(SocialAccount, user=user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=user,
+            account=socialaccount
+        )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'remote_repository')
@@ -248,7 +277,14 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertWizardFailure(resp, 'documentation_type')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository, users=[self.user])
+        remote_repo = get(RemoteRepository)
+        socialaccount = get(SocialAccount, user=self.user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.user,
+            account=socialaccount
+        )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
@@ -552,6 +588,32 @@ class TestPrivateViews(TestCase):
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
 
+    def test_integration_webhooks_sync_no_remote_repository(self):
+        project = get(
+            Project,
+            slug='pip',
+            users=[self.user],
+            has_valid_webhook=True,
+        )
+        integration = get(
+            GitHubWebhook,
+            project=project,
+        )
+
+        response = self.client.post(
+            reverse(
+                'projects_integrations_webhooks_sync',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+        project.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(project.has_valid_webhook)
+
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
@@ -607,6 +669,25 @@ class TestBadges(TestCase):
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertContains(res, 'passing')
+        self.assertEqual(res['Content-Type'], 'image/svg+xml')
+
+    def test_ignore_duplicated_build(self):
+        """Ignore builds marked as duplicate from the badge status."""
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+        )
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            status=BUILD_STATUS_DUPLICATED,
+        )
         res = self.client.get(self.badge_url, {'version': self.version.slug})
         self.assertContains(res, 'passing')
         self.assertEqual(res['Content-Type'], 'image/svg+xml')

@@ -165,7 +165,7 @@ class ProjectAdmin(admin.ModelAdmin):
         DomainInline,
     ]
     readonly_fields = ('pub_date', 'feature_flags',)
-    raw_id_fields = ('users', 'main_language_project')
+    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
@@ -221,12 +221,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
-        """
-        Remove HTML/etc artifacts from storage.
-
-        Prior to the query delete, broadcast tasks to delete HTML artifacts from
-        application instances.
-        """
+        """Remove HTML/etc artifacts from storage."""
         if request.POST.get('post'):
             for project in queryset:
                 clean_project_resources(project)
@@ -378,7 +373,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
-    list_display = ('name', 'value', 'project', 'created')
+    list_display = ('name', 'value', 'public', 'project', 'created')
     search_fields = ('name', 'project__slug')
 
 

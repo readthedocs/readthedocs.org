@@ -16,19 +16,6 @@ has many great features for writing technical documentation including:
 * Syntax highlighted code samples
 * A vibrant ecosystem of first and third-party :doc:`extensions <sphinx:usage/extensions/index>`
 
-Quick start video
------------------
-
-This screencast will help you get started or you can
-:ref:`read our guide below <intro/getting-started-with-sphinx:Quick start>`.
-
-.. raw:: html
-
-    <div style="text-align: center; margin-bottom: 2em;">
-    <iframe width="100%" height="350" src="https://www.youtube-nocookie.com/embed/oJsUvBQyHBs?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
-
-
 Quick start
 -----------
 
@@ -83,7 +70,7 @@ by :doc:`importing your docs </intro/import-guide>`.
 
 .. warning::
 
-   We strongly recommend to :ref:`pin the Sphinx version <guides/specifying-dependencies:Specifying Dependencies>`
+   We strongly recommend to :ref:`pin the Sphinx version <guides/reproducible-builds:pinning dependencies>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
 .. _this template: https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/#id1
@@ -91,24 +78,26 @@ by :doc:`importing your docs </intro/import-guide>`.
 Using Markdown with Sphinx
 --------------------------
 
-You can use Markdown and reStructuredText in the same Sphinx project.
+You can use `Markdown using MyST`_ and reStructuredText in the same Sphinx project.
 We support this natively on Read the Docs, and you can do it locally:
 
 .. prompt:: bash $
 
-    pip install recommonmark
+    pip install myst-parser
 
 Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['recommonmark']
+   extensions = ['myst_parser']
 
-.. warning:: Markdown doesn't support a lot of the features of Sphinx,
-          like inline markup and directives. However, it works for
-          basic prose content. reStructuredText is the preferred
-          format for technical documentation, please read `this blog post`_
-          for motivation.
+.. warning::
+
+   Markdown does work for basic prose content.
+   But reStructuredText is the preferred format for technical documentation,
+   please read `this blog post`_ for motivation.
+
+.. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
 
 .. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
