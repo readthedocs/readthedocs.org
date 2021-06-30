@@ -92,7 +92,10 @@
             "3.3",
             "3.4",
             "3.5",
-            "3.6"
+            "pypy3.5",
+            "3.6",
+            "3.7",
+            "3.8"
           ],
           "default": "3"
         },
@@ -165,7 +168,6 @@
           "description": "The builder type for the sphinx documentation.",
           "enum": [
             "html",
-            "htmldir",
             "dirhtml",
             "singlehtml"
           ],
