@@ -70,7 +70,7 @@ Repository status (``repo:status``)
 GitHub permission troubleshooting
 `````````````````````````````````
 
-**Repositories not in your list of repositories to import**.
+**Repositories not in your list to import**.
 
 Many organizations require approval for each OAuth application that is used,
 or you might have disabled it in the past for your personal account.
