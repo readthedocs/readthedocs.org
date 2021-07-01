@@ -10,10 +10,6 @@ and this document will explain how to achieve some of the most commonly requeste
 
 .. _Jupyter: https://jupyter.org/
 
-By default, `Sphinx only supports reStructuredText source files for
-documentation <https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix>`_.
-Luckily, there are a few extensions to also allow Jupyter notebooks as source files.
-
 .. _ipynb-notebooks-sphinx:
 
 Including classic ``.ipynb`` notebooks in Sphinx documentation
@@ -52,11 +48,6 @@ Next, you will need to enable one of the extensions. For example, in the case of
          extensions = [
              "myst_nb",
          ]
-
-Both extensions will register themselves as processors for ``.ipynb`` notebooks,
-so you don't need to change the
-`source_suffix <https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-source_suffix>`_
-configuration yourself.
 
 Finally, you can include the notebook in any *toctree*.
 For example, add this to your root document:
@@ -339,10 +330,6 @@ Deciding which one to use depends on your use case. As general recommendations:
   as well as some of the unique MyST-NB functionalities
   (``glue``, better error reporting)
   you should use MyST-NB.
-
-For the rest of this document we will focus on `nbsphinx`_,
-and we will point out the differences with `MyST-NB`_ where appropriate.
-Notice that they can't both be used at the same time.
 
 Alternative notebook formats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
