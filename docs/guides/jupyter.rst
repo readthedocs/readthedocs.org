@@ -310,7 +310,7 @@ However, there are some differences between them:
 - nbsphinx executes each notebook during the parsing phase,
   whereas MyST-NB can execute all notebooks up front
   and cache them with `jupyter-cache <https://jupyter-cache.readthedocs.io/>`_.
-  This can result in shorter build times when when notebooks are modified
+  This can result in shorter build times when notebooks are modified
   if using MyST-NB.
 - nbsphinx provides functionality to create thumbnail galleries,
   whereas MyST-NB does not have such functionality at the moment
@@ -329,7 +329,7 @@ However, there are some differences between them:
 .. _MyST-Parser: https://myst-parser.readthedocs.io/
 .. _jupytext: https://jupytext.readthedocs.io/
 
-Using which one to use depends on your use case. As general recommendations:
+Deciding which one to use depends on your use case. As general recommendations:
 
 - If you want to use :ref:`other notebook formats <other-formats>`
   or :ref:`generate a thumbnail gallery from your notebooks <notebook-galleries>`,
@@ -388,7 +388,7 @@ As a result, there are three modes of operation:
 
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
-For the examples in this document, we will use the :ref:`MyST Markdown
+For the examples in this document, we have used the :ref:`MyST Markdown
 format <jupytext:formats.md#myst-markdown>`.
 
 If you are using alternative formats for Jupyter notebooks,
