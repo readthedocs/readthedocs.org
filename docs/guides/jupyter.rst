@@ -15,6 +15,12 @@ and this document will explain how to achieve some of the most commonly requeste
 Including classic ``.ipynb`` notebooks in Sphinx documentation
 --------------------------------------------------------------
 
+There are two main extensions that add support Jupyter notebooks as source files in Sphinx:
+nbsphinx_ and MyST-NB_. They have similar intent and basic functionality:
+both can read notebooks in ``.ipynb`` and additional formats supported by `jupytext`_,
+and are configured in a similar way
+(see :ref:`nb-background` for more background on their differences).
+
 First of all, create a Jupyter notebook using the editor of your liking (for example, JupyterLab_).
 For example, ``source/notebooks/Example 1.ipynb``:
 
@@ -27,7 +33,7 @@ For example, ``source/notebooks/Example 1.ipynb``:
 
 .. _JupyterLab: https://jupyterlab.readthedocs.io/
 
-Next, you will need to enable one of the extensions. For example, in the case of nbsphinx:
+Next, you will need to enable one of the extensions, as follows:
 
 .. tabs::
 
@@ -182,7 +188,7 @@ For example, this is how a simple notebook looks like in MyST Markdown format:
    Image("http://sipi.usc.edu/database/preview/misc/4.2.03.png")
    ```
 
-To render this notebook in Sphinx using nbsphinx and jupytext,
+To render this notebook in Sphinx
 you will need to add this to your ``conf.py``:
 
 .. tabs::
@@ -206,7 +212,7 @@ you will need to add this to your ``conf.py``:
          }
 
 Notice that the Markdown format does not store the outputs of the computation.
-nbsphinx will automatically execute notebooks without outputs,
+Sphinx will automatically execute notebooks without outputs,
 so in your HTML documentation they appear as complete.
 
 .. _notebook-galleries:
@@ -283,10 +289,8 @@ Background
 Existing relevant extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two main extensions that add support Jupyter notebooks as source files in Sphinx:
-nbsphinx_ and MyST-NB_. They have similar intent and basic functionality:
-both can read notebooks in ``.ipynb`` and additional formats supported by `jupytext`_,
-and are configured in a similar way.
+In the first part of this document
+we have seen that `nbsphinx`_ and `MyST-NB`_ are similar.
 However, there are some differences between them:
 
 - nsphinx uses `pandoc <https://pandoc.org/>`_
