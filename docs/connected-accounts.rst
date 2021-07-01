@@ -13,7 +13,7 @@ Connecting your account allows for:
 If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab
 credentials, you're all done. Your account is connected.
 
-To connect a social account, go to your :guilabel:`Username dropdown > Settings > Connected Services`.
+To connect a social account, go to your :guilabel:`Username dropdown` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
@@ -67,7 +67,7 @@ Repository status (``repo:status``)
 
 .. _github-permission-troubleshooting:
 
-GitHub Permission Troubleshooting
+GitHub permission troubleshooting
 `````````````````````````````````
 
 A common issue with importing a GitHub project to Read the Docs is OAuth permissions.
