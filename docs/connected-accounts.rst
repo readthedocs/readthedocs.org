@@ -83,7 +83,7 @@ depending on where the project you are trying to access has permissions from.
        You need to make sure that you have granted access to the Read the Docs `OAuth App`_ to your **personal GitHub account**.
        If you do not see Read the Docs in the `OAuth App`_ settings, you might need to disconnect and reconnect the GitHub service.
 
-       GitHub has docs on `requesting access to your personal OAuth`_ for more information.
+       .. seealso:: GitHub docs on `requesting access to your personal OAuth`_ for step-by-step instructions.
 
        .. _OAuth App: https://github.com/settings/applications
        .. _requesting access to your personal OAuth: https://docs.github.com/en/organizations/restricting-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
@@ -93,7 +93,7 @@ depending on where the project you are trying to access has permissions from.
        You need to make sure that you have granted access to the Read the Docs OAuth App to your **organization GitHub account**.
        If you don't see |com_brand| listed, then you might need to connect GitHub in your social accounts as noted above.
 
-       GitHub has docs on `requesting access to your organization OAuth`_ for step-by-step instructions.
+       .. seealso:: GitHub doc on `requesting access to your organization OAuth`_ for step-by-step instructions.
 
        .. _requesting access to your organization OAuth: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
 
