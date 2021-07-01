@@ -70,7 +70,8 @@ Repository status (``repo:status``)
 GitHub permission troubleshooting
 `````````````````````````````````
 
-A common issue with importing a GitHub project to Read the Docs is OAuth permissions.
+**Repositories not in your list of repositories to import**.
+
 Many organizations require approval for each OAuth application that is used,
 or you might have disabled it in the past for your personal account.
 This can happen at the personal or organization level,
