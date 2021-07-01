@@ -22,21 +22,6 @@ function injectFooter(data) {
 }
 
 
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
-
 function init() {
     var rtd = rtddata.get();
 
@@ -45,7 +30,6 @@ function init() {
         version: rtd['version'],
         page: rtd['page'],
         theme: rtd.get_theme_name(),
-        format: "jsonp",
     };
 
     // Crappy heuristic, but people change the theme name on us.
@@ -65,20 +49,14 @@ function init() {
     // Get footer HTML from API and inject it into the page.
     $.ajax({
         url: rtd.proxied_api_host + "/api/v2/footer_html/",
-        crossDomain: true,
-        xhrFields: {
-            withCredentials: true,
-        },
-        dataType: "jsonp",
+        dataType: "json",
         data: get_data,
         cache: true,
-        jsonpCallback: "callback",
         success: function (data) {
             if (data.show_version_warning) {
                 versionCompare.init(data.version_compare);
             }
             injectFooter(data);
-            setupBookmarkCSRFToken();
         },
         error: function () {
             console.error('Error loading Read the Docs footer');

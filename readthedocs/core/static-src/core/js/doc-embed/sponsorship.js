@@ -88,8 +88,8 @@ function create_ad_placement() {
 }
 
 function detect_adblock() {
-    // Status codes are not correctly reported on JSONP requests
-    // So we resort to different ways to detect adblockers
+    // Status codes may not be correctly reported,
+    // so we resort to different ways to detect adblockers.
     var detected = false;
 
     // Check if our ad element is blocked
@@ -155,12 +155,12 @@ function init() {
     $.ajax({
         url: rtd.api_host + "/api/v2/sustainability/data/",
         crossDomain: true,
+        cache: false,
         xhrFields: {
             withCredentials: true,
         },
-        dataType: "jsonp",
+        dataType: "json",
         data: {
-            format: "jsonp",
             project: rtd.project,
         },
         success: function (data) {
