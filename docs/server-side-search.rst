@@ -73,7 +73,7 @@ API
 ---
 
 If you are using :doc:`/commercial/index` you will need to replace
-https://readthedocs.org/ by https://readthedocs.com/ in all the URLs used in the following examples.
+https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
 
 .. warning::
 
@@ -196,5 +196,5 @@ Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
 Cookie sessions can be used only from the same domain as the API,
-we proxy the API from the domain where your docs are being served so you can use it.
+we proxy the API on the domain where your docs are being served (``<you-docs-domain>/_/api/v2/search``) so you can use it.
 This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project, for example.
