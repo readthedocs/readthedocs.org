@@ -4,6 +4,7 @@ import datetime
 import logging
 import os.path
 import re
+from functools import partial
 from shutil import rmtree
 
 import regex
@@ -179,9 +180,9 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
+    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
     class Meta:
         unique_together = [('project', 'slug')]
