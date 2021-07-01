@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from django.db import IntegrityError
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -74,12 +75,26 @@ class BaseAnalyticsView(APIView):
             path=path,
             date=timezone.now().date(),
         )
+        if not self._update_view_count(**fields):
+            try:
+                PageView.objects.create(**fields, view_count=1)
+            except IntegrityError:
+                # An integrity error is raised if the page for this date
+                # was already created in another request.
+                # Try updating the count instead of failing.
+                self._update_view_count(**fields)
+
+    def _update_view_count(self, **fields):
+        """
+        Update the view_count for a page view.
+
+        :returns: `True` if the count was updated.
+        """
         page_view = PageView.objects.filter(**fields).first()
         if page_view:
             page_view.view_count = F('view_count') + 1
             page_view.save(update_fields=['view_count'])
-        else:
-            PageView.objects.create(**fields, view_count=1)
+        return page_view is not None
 
 
 class AnalyticsView(SettingsOverrideObject):
