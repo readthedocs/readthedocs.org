@@ -22,7 +22,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none
+from readthedocs.embed.utils import recurse_while_none, clean_links
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
@@ -34,51 +34,6 @@ def escape_selector(selector):
     regex = re.compile(r'(!|"|#|\$|%|\'|\(|\)|\*|\+|\,|\.|\/|\:|\;|\?|@)')
     ret = re.sub(regex, r'\\\1', selector)
     return ret
-
-
-def clean_links(obj, url):
-    """
-    Rewrite (internal) links to make them absolute.
-
-    1. external links are not changed
-    2. prepend URL to links that are just fragments (e.g. #section)
-    3. prepend URL (without filename) to internal relative links
-    """
-    if url is None:
-        return obj
-
-    for link in obj.find('a'):
-        base_url = urlparse(url)
-        # We need to make all internal links, to be absolute
-        href = link.attrib['href']
-        parsed_href = urlparse(href)
-        if parsed_href.scheme or parsed_href.path.startswith('/'):
-            # don't change external links
-            continue
-
-        if not parsed_href.path and parsed_href.fragment:
-            # href="#section-link"
-            new_href = base_url.geturl() + href
-            link.attrib['href'] = new_href
-            continue
-
-        if not base_url.path.endswith('/'):
-            # internal relative link
-            # href="../../another.html" and ``base_url`` is not HTMLDir
-            # (e.g. /en/latest/deep/internal/section/page.html)
-            # we want to remove the trailing filename (page.html) and use the rest as base URL
-            # The resulting absolute link should be
-            # https://slug.readthedocs.io/en/latest/deep/internal/section/../../another.html
-
-            # remove the filename (page.html) from the original document URL (base_url) and,
-            path, _ = base_url.path.rsplit('/', 1)
-            # append the value of href (../../another.html) to the base URL.
-            base_url = base_url._replace(path=path + '/')
-
-        new_href = base_url.geturl() + href
-        link.attrib['href'] = new_href
-
-    return obj
 
 
 class EmbedAPIBase(CachedResponseMixin, APIView):
