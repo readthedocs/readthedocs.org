@@ -129,8 +129,8 @@ the slider will render correctly in Sphinx.
 To see more elaborate examples:
 
 - `ipyleaflet`_ provides several widgets for interactive maps,
-  and renders live versions of them `in their
-  documentation <https://ipyleaflet.readthedocs.io/en/latest/api_reference/velocity.html>`_.
+  and renders live versions of them :doc:`in their
+  documentation <ipyleaflet:api_reference/velocity>`.
 - `PyVista <https://docs.pyvista.org/>`_ is used for scientific 3D visualization
   with several interactive backends and `examples in their
   documentation <https://docs.pyvista.org/index.html#maps-and-geoscience>`_ as well.
@@ -274,14 +274,13 @@ thanks to the Sphinx-Gallery default style:
 To see some examples of notebook galleries in the wild:
 
 - `poliastro <https://docs.poliastro.space/>`_ offers tools for interactive Astrodynamics in Python,
-  and features `several examples and how-to guides using
-  notebooks <https://docs.poliastro.space/en/stable/gallery.html>`_
+  and features :doc:`several examples and how-to guides using notebooks <poliastro:gallery>`
   and displays them in an appealing thumbnail gallery.
   In addition, `poliastro uses unpaired MyST
   Notebooks <https://github.com/poliastro/poliastro/tree/0.15.x/docs/source/examples>`_
   to reduce repository size and improve integration with git.
 - `Qiskit <https://qiskit.org/>`_ is a framework for quantum computing
-  that leverages ``nbgallery`` `for its tutorials <https://qiskit.org/documentation/tutorials.html>`_
+  that leverages ``nbgallery`` :doc:`for its tutorials <qiskit:tutorials>`
   and uses a highly customized style to match the branding of the website.
 
 Background
@@ -302,7 +301,7 @@ However, there are some differences between them:
   whereas MyST-NB uses `MyST-Parser`_
   to directly convert the Markdown text to docutils AST.
   Therefore, nbsphinx assumes `pandoc flavored Markdown <https://pandoc.org/MANUAL.html#pandocs-markdown>`_,
-  whereas MyST-NB uses `MyST flavored Markdown <https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html>`_.
+  whereas MyST-NB uses :doc:`MyST flavored Markdown <myst-parser:syntax/syntax>`.
   Both Markdown flavors are mostly equal,
   but they have some differences.
 - nbsphinx executes each notebook during the parsing phase,
