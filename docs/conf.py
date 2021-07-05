@@ -119,8 +119,6 @@ rst_epilog = """
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
 
-numfig = True
-
 # sphinx-notfound-page
 # https://github.com/readthedocs/sphinx-notfound-page
 notfound_context = {
