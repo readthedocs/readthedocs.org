@@ -363,7 +363,6 @@ class Backend(BaseVCS):
     @property
     def env(self):
         env = super().env
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
         # Don't prompt for username, this requires Git 2.3+
         env['GIT_TERMINAL_PROMPT'] = '0'
         return env
