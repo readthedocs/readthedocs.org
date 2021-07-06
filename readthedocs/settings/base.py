@@ -66,7 +66,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
     SUPPORT_EMAIL = None
-    SUPPORT_FROM_EMAIL = None
     SUPPORT_FORM_ENDPOINT = None
 
     # Sessions
@@ -611,6 +610,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
+    RTD_ALLOW_ORGANIZATIONS = False
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']
