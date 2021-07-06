@@ -107,7 +107,7 @@ class ProjectBasicsForm(ProjectForm):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if remote_repo:
             if commit:
-                remote_repo.project = self.instance
+                remote_repo.projects.add(self.instance)
                 remote_repo.save()
             else:
                 instance.remote_repository = remote_repo
@@ -198,12 +198,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         per_project_settings = (
             'default_version',
             'default_branch',
+            'privacy_level',
             'analytics_code',
             'analytics_disabled',
             'show_version_warning',
             'single_version',
             'external_builds_enabled',
-            'privacy_level',
+            'external_builds_privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -235,8 +236,9 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         per_project_settings = list(self.Meta.per_project_settings)
         if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop('privacy_level')
-            per_project_settings.remove('privacy_level')
+            for field in ['privacy_level', 'external_builds_privacy_level']:
+                self.fields.pop(field)
+                per_project_settings.remove(field)
 
         field_sets = [
             Fieldset(

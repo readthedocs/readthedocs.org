@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from django.urls import reverse
-from django_dynamic_fixture import G
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
@@ -156,7 +156,7 @@ class BaseTestDocumentSearch:
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(
+        dummy_version = get(
             Version,
             project=project,
             active=True,
@@ -605,7 +605,14 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) > 0
+
         assert 'Index' in results[0]['title']
+        highlights = results[0]['blocks'][0]['highlights']
+        assert '<span>index</span>' in highlights['content'][0]
+
+        assert 'Guides' in results[1]['title']
+        highlights = results[1]['blocks'][0]['highlights']
+        assert '<span>index</span>' in highlights['content'][0]
 
         # Query with a partial word, but we want to match that
         search_params = {
@@ -635,8 +642,14 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
 
-        page_index = HTMLFile.objects.get(path='index.html')
-        page_guides = HTMLFile.objects.get(path='guides/index.html')
+        page_index = HTMLFile.objects.get(
+            version=version,
+            path='index.html',
+        )
+        page_guides = HTMLFile.objects.get(
+            version=version,
+            path='guides/index.html',
+        )
 
         # Query with the default ranking
         assert page_index.rank == 0
@@ -740,8 +753,14 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
 
-        page_index = HTMLFile.objects.get(path='index.html')
-        page_guides = HTMLFile.objects.get(path='guides/index.html')
+        page_index = HTMLFile.objects.get(
+            version=version,
+            path='index.html',
+        )
+        page_guides = HTMLFile.objects.get(
+            version=version,
+            path='guides/index.html',
+        )
 
         search_params = {
             'project': project.slug,

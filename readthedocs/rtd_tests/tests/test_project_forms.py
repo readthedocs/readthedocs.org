@@ -288,6 +288,7 @@ class TestProjectAdvancedForm(TestCase):
                 'documentation_type': SPHINX,
                 'python_interpreter': 'python3',
                 'privacy_level': PRIVATE,
+                'external_builds_privacy_level': PRIVATE,
             },
             instance=self.project,
         )

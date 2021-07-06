@@ -451,8 +451,8 @@ class RemoteRepositoryViewSet(
     queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
     permit_list_expands = [
-        'organization',
-        'project'
+        'remote_organization',
+        'projects'
     ]
 
     def get_queryset(self):
@@ -466,13 +466,11 @@ class RemoteRepositoryViewSet(
             )
         )
 
-        if is_expanded(self.request, 'organization'):
+        if is_expanded(self.request, 'remote_organization'):
             queryset = queryset.select_related('organization')
 
-        if is_expanded(self.request, 'project'):
-            queryset = queryset.select_related('project').prefetch_related(
-                'project__users',
-            )
+        if is_expanded(self.request, 'projects'):
+            queryset = queryset.prefetch_related('projects__users')
 
         return queryset.order_by('organization__name', 'full_name').distinct()
 

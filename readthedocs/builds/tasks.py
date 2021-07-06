@@ -346,7 +346,11 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     return True
 
 
-@app.task(queue='web')
+@app.task(
+    max_retries=3,
+    default_retry_delay=60,
+    queue='web'
+)
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
@@ -361,17 +365,20 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param status: build status failed, pending, or success to be sent.
     """
     # TODO: Send build status for BitBucket.
-    build = Build.objects.get(pk=build_pk)
+    build = Build.objects.filter(pk=build_pk).first()
+    if not build:
+        return
+
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
+    log.info('Sending build status. build=%s project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
         users = build.project.users.all()
 
-        try:
+        if build.project.remote_repository:
             remote_repository = build.project.remote_repository
             remote_repository_relations = (
                 remote_repository.remote_repository_relations.filter(
@@ -406,8 +413,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                         relation.user.username,
                     )
                     return True
-
-        except RemoteRepository.DoesNotExist:
+        else:
             log.warning(
                 'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
@@ -443,7 +449,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
             notification.send()
 
         log.info(
-            'No social account or repository permission available for %s',
+            'No social account or repository permission available. project=%s',
             build.project.slug
         )
         return False

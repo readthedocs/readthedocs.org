@@ -59,6 +59,11 @@ from .constants import (
 log = logging.getLogger(__name__)
 
 
+def default_privacy_level():
+    """Wrapper around the setting, so the level is dynamically included in the migration."""
+    return settings.DEFAULT_PRIVACY_LEVEL
+
+
 class ProjectRelationship(models.Model):
 
     """
@@ -213,10 +218,22 @@ class Project(models.Model):
         ),
     )
 
+    # External versions
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+    )
+    external_builds_privacy_level = models.CharField(
+        _('Privacy level of Pull Requests'),
+        max_length=20,
+        # TODO: remove after migration
+        null=True,
+        choices=constants.PRIVACY_CHOICES,
+        default=default_privacy_level,
+        help_text=_(
+            'Should builds from pull requests be public?',
+        ),
     )
 
     # Project features
@@ -423,6 +440,14 @@ class Project(models.Model):
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
+
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
 
@@ -433,8 +458,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -1162,7 +1185,7 @@ class Project(models.Model):
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
-        subproject, __ = ProjectRelationship.objects.get_or_create(
+        subproject, _ = ProjectRelationship.objects.get_or_create(
             parent=self,
             child=child,
             alias=alias,

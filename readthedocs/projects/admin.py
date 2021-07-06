@@ -165,7 +165,7 @@ class ProjectAdmin(admin.ModelAdmin):
         DomainInline,
     ]
     readonly_fields = ('pub_date', 'feature_flags',)
-    raw_id_fields = ('users', 'main_language_project')
+    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
