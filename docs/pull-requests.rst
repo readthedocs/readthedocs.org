@@ -59,7 +59,7 @@ Troubleshooting
 #. **Pull Requests builds are not triggered**.
    We only support GitHub and GitLab currently.
    You need to make sure that your Read the Docs account is connected with that provider.
-   You can check this by going to your :guilabel:`Username dropdown > Settings > Connected Services`.
+   You can check this by going to your :guilabel:`Username dropdown` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 
 #. **Build status is not being reported to your VCS provider**.
    You need to make sure that you have granted access to the Read the Docs
