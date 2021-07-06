@@ -326,7 +326,7 @@ def parse_sphinx(content, section, url):
         return obj.outerHtml()
 
     ret = [
-        dump(clean_links(PQ(obj), url))
+        dump(clean_links(obj, url))
         for obj in query_result
     ]
     return ret, headers, section

@@ -1,5 +1,6 @@
 """Embed utils."""
-
+from urllib.parse import urlparse
+from pyquery import PyQuery as PQ  # noqa
 
 def recurse_while_none(element):
     """Recursively find the leaf node with the ``href`` attribute."""
@@ -12,7 +13,7 @@ def recurse_while_none(element):
     return {element.text: href}
 
 
-def clean_links(obj, url):
+def clean_links(obj, url, html_raw_response=False):
     """
     Rewrite (internal) links to make them absolute.
 
@@ -20,6 +21,10 @@ def clean_links(obj, url):
     2. prepend URL to links that are just fragments (e.g. #section)
     3. prepend URL (without filename) to internal relative links
     """
+
+    # TODO: do not depend on PyQuery
+    obj = PQ(obj)
+
     if url is None:
         return obj
 
@@ -53,5 +58,8 @@ def clean_links(obj, url):
 
         new_href = base_url.geturl() + href
         link.attrib['href'] = new_href
+
+    if html_raw_response:
+        return obj.outerHtml()
 
     return obj
