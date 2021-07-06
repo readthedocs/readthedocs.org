@@ -69,11 +69,11 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--organization',
-            help='Path to a file with the notification content in markdown.',
+            help='Organization slug to filter by.',
         )
         parser.add_argument(
             '--project',
-            help='Path to a file with the notification content in markdown.',
+            help='Project slug to filter by.',
         )
 
     def handle(self, *args, **options):
