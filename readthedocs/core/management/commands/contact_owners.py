@@ -77,7 +77,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """Build/index all versions or a single project's version."""
         if not options['email'] and not options['notification']:
             print("--email or --notification is required.")
             sys.exit(1)
