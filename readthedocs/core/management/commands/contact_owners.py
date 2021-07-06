@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     Email and send a sticky notification to all owners of the "readthedocs" organization::
 
-      django-admin contact_owners --email email.txt --notification notification.txt --organization readthedocs
+      django-admin contact_owners --email email.txt --notification notification.txt --organization readthedocs  # noqa
 
     Where email.txt is:
 
