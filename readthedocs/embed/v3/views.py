@@ -95,14 +95,97 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external):
+    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
         if external:
             url_without_fragment = urlparse(url)._replace(fragment='').geturl()
             page_content = self._download_page_content(url_without_fragment)
         else:
             page_content = self._get_page_content_from_storage()
-        node = HTMLParser(page_content).css_first(f'#{fragment}')
-        if node:
+
+        return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
+
+    def _find_main_node(self, html):
+        main_node = html.css_first('[role=main]')
+        if main_node:
+            return main_node
+
+        main_node = html.css_first('main')
+        if main_node:
+            return main_node
+
+        first_header = html.body.css_first('h1')
+        if first_header:
+            return first_header.parent
+
+    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+        node = None
+        if fragment:
+            selector = f'#{fragment}'
+            node = HTMLParser(page_content).css_first(selector)
+        else:
+            html = HTMLParser(page_content)
+            node = self._find_main_node(html)
+
+        if not node:
+            return
+
+        if not doctool:
+            return node.html
+
+        if doctool == 'sphinx':
+            # Handle ``dt`` special cases
+            if node.tag == 'dt':
+                if 'glossary' in node.parent.attributes.get('class'):
+                    # Sphinx HTML structure for term glossary puts the ``id`` in the
+                    # ``dt`` element with the title of the term. In this case, we
+                    # return the parent node which contains the definition list
+                    # and remove all ``dt/dd`` that are not the requested one
+
+                    # Structure:
+                    # <dl class="glossary docutils">
+                    # <dt id="term-definition">definition</dt>
+                    # <dd>Text definition for the term</dd>
+                    # ...
+                    # </dl>
+                    parent = node.parent
+                    for n in parent.traverse():
+                        if n not in (node, node.next):
+                            n.remove()
+                    node = node.parent
+
+                elif 'citation' in node.parent.attributes.get('class'):
+                    # Sphinx HTML structure for sphinxcontrib-bibtex puts the ``id`` in the
+                    # ``dt`` element with the title of the cite. In this case, we
+                    # return the parent node which contains the definition list
+                    # and remove all ``dt/dd`` that are not the requested one
+
+                    # Structure:
+                    # <dl class="citation">
+                    # <dt id="cite-id"><span><a>Title of the cite</a></span></dt>
+                    # <dd>Content of the cite</dd>
+                    # ...
+                    # </dl>
+                    parent = node.parent
+                    for n in parent.traverse():
+                        if n not in (node, node.next):
+                            n.remove()
+                    node = node.parent
+
+                else:
+                    # Sphinx HTML structure for definition list puts the ``id``
+                    # the ``dt`` element, instead of the ``dl``. This makes
+                    # the backend to return just the title of the definition. If we
+                    # detect this case, we return the parent with the whole ``dl`` tag
+
+                    # Structure:
+                    # <dl class="confval">
+                    # <dt id="confval-config">
+                    # <code class="descname">config</code>
+                    # <a class="headerlink" href="#confval-config">¶</a></dt>
+                    # <dd><p>Text with a description</p></dd>
+                    # </dl>
+                    node = node.parent
+
             return node.html
 
     def get(self, request):
@@ -172,7 +255,13 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 )
 
         fragment = parsed_url.fragment
-        content_requested = self._get_content_by_fragment(url, fragment, external)
+        content_requested = self._get_content_by_fragment(
+            url,
+            fragment,
+            external,
+            doctool,
+            doctoolversion,
+        )
         if not content_requested:
             return Response(
                 {
