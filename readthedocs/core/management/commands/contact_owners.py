@@ -1,25 +1,49 @@
 import logging
+import sys
 from pathlib import Path
 from pprint import pprint
-from textwrap import dedent
 
 import markdown
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.contact import contact_users
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
+
+User = get_user_model()  # noqa
 
 log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
 
-    help = dedent(
-        """
-        Send an email or sticky notification from a file (markdown)
-        to all organization owners.
-        """
-    ).strip()
+    """
+    Send an email or sticky notification from a file (markdown) to all owners.
+
+    Usage examples
+    --------------
+
+    Email all owners of the site::
+
+      django-admin contact_owners --email email.txt
+
+    Email and send a sticky notification to all owners of the "readthedocs" organization::
+
+      django-admin contact_owners --email email.txt --notification notification.txt --organization readthedocs
+
+    Where email.txt is:
+
+    .. code:: markdown
+
+       Read the Docs deprecated option, action required
+
+       Dear user...
+    """
+
+    help = 'Send an email or sticky notification from a file (markdown) to all owners.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -43,15 +67,45 @@ class Command(BaseCommand):
             '--notification',
             help='Path to a file with the notification content in markdown.',
         )
+        parser.add_argument(
+            '--organization',
+            help='Path to a file with the notification content in markdown.',
+        )
+        parser.add_argument(
+            '--project',
+            help='Path to a file with the notification content in markdown.',
+        )
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version."""
-        User = get_user_model()  # noqa
-        users = (
-            User.objects
-            .filter(organizationowner__organization__disabled=False)
-            .distinct()
-        )
+        if not options['email'] and not options['notification']:
+            print("--email or --notification is required.")
+            sys.exit(1)
+
+        project = options['project']
+        organization = options['organization']
+        if project and organization:
+            print("--project and --organization can\'t be used together.")
+            sys.exit(1)
+
+        if project:
+            project = Project.objects.get(slug=project)
+            users = AdminPermission.owners(project)
+        elif organization:
+            organization = Organization.objects.get(slug=organization)
+            users = AdminPermission.owners(project)
+        elif settings.RTD_ALLOW_ORGANIZATIONS:
+            users = (
+                User.objects
+                .filter(organizationowner__organization__disabled=False)
+                .distinct()
+            )
+        else:
+            users = (
+                User.objects
+                .filter(projects__skip=False)
+                .distinct()
+            )
 
         print(
             'len(owners)={} production={} email={} notification={}'.format(
@@ -61,8 +115,8 @@ class Command(BaseCommand):
                 options['notification'],
             )
         )
-        cont = input('Continue? y/n: ')
-        if cont != 'y':
+
+        if input('Continue? y/n: ') != 'y':
             print('Aborting run.')
             return
 
