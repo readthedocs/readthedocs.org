@@ -64,7 +64,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             log.debug('Cached response. url=%s', url)
             return cached_response
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=1)
         if response.ok:
             cache.set(url, response.text, timeout=60 * 5)
             return response.text
