@@ -1,13 +1,11 @@
 from unittest import mock
 
 import pytest
-from django.db import IntegrityError
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
 
-from readthedocs.analytics.proxied_api import BaseAnalyticsView
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
@@ -175,10 +173,3 @@ class AnalyticsPageViewsTests(TestCase):
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{self.absolute_uri}\' has 1 view tomorrow'
-
-    @mock.patch.object(BaseAnalyticsView, '_update_view_count', return_value=False)
-    def test_update_view_count_if_page_view_was_already_created(self, update_view_count):
-        with mock.patch('readthedocs.analytics.proxied_api.PageView.objects.create') as create:
-            create.side_effect = IntegrityError
-            self.client.get(self.url, HTTP_HOST=self.host)
-            assert update_view_count.call_count == 2
