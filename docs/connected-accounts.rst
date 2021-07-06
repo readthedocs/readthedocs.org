@@ -92,7 +92,7 @@ depending on where the project you are trying to access has permissions from.
    .. tab:: Organization Account
 
        You need to make sure that you have granted access to the Read the Docs OAuth App to your **organization GitHub account**.
-       If you don't see |com_brand| listed, then you might need to connect GitHub in your social accounts as noted above.
+       If you don't see "Read the Docs" listed, then you might need to connect GitHub to your social accounts as noted above.
 
        .. seealso:: GitHub doc on `requesting access to your organization OAuth`_ for step-by-step instructions.
 
