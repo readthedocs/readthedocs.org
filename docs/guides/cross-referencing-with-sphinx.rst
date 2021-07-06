@@ -221,7 +221,7 @@ For example, we can create a target for the next image:
       Link me!
 
 Finally, reference it using ``:numref:`target to image```,
-that will be rendered as :numref:`target to image`.
+that will be rendered as ``Fig. N``.
 Sphinx will enumerate the image automatically.
 
 Automatically label sections

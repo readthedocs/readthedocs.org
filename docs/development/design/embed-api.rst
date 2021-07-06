@@ -80,13 +80,13 @@ This is the list of endpoints to be implemented in APIv3:
    Returns the exact HTML content for a specific identifier (``id``).
    If no anchor identifier is specified the content of the first one returned.
 
-    **Example request**:
+   **Example request**:
 
-    .. tabs::
+   .. code:: bash
 
-       $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+      $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
 
-    **Example response**:
+   **Example response**:
 
    .. sourcecode:: json
 
@@ -117,13 +117,13 @@ This is the list of endpoints to be implemented in APIv3:
       --which is handy in the development process of a new tool that consumes the API.
       Because of this, we don't have too much traction to add it in the initial version.
 
-    **Example request**:
+   **Example request**:
 
-    .. tabs::
+   .. code:: bash
 
-       $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
+      $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
 
-    **Example response**:
+   **Example response**:
 
    .. sourcecode:: json
 

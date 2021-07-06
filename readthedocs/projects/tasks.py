@@ -61,6 +61,12 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject, Feature
+from readthedocs.projects.signals import (
+    after_build,
+    before_build,
+    before_vcs,
+    files_changed,
+)
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_environment_storage, build_media_storage
@@ -70,13 +76,6 @@ from readthedocs.worker import app
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import HTMLFile, ImportedFile, Project
-from .signals import (
-    after_build,
-    after_vcs,
-    before_build,
-    before_vcs,
-    files_changed,
-)
 
 log = logging.getLogger(__name__)
 
@@ -411,8 +410,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     },
                 },
             )
-        finally:
-            after_vcs.send(sender=self.version)
 
         # Always return False for any exceptions
         return False
@@ -671,30 +668,27 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Environment used for code checkout & initial configuration reading
         with environment:
+            before_vcs.send(sender=self.version, environment=environment)
+            if self.project.skip:
+                raise ProjectBuildsSkippedError
             try:
-                before_vcs.send(sender=self.version, environment=environment)
-                if self.project.skip:
-                    raise ProjectBuildsSkippedError
-                try:
-                    with self.project.repo_nonblockinglock(version=self.version):
-                        self.pull_cached_environment()
-                        self.setup_vcs(environment)
-                except vcs_support_utils.LockTimeout as e:
-                    self.task.retry(exc=e, throw=False)
-                    raise VersionLockedError
-                try:
-                    self.config = load_yaml_config(version=self.version)
-                except ConfigError as e:
-                    raise YAMLParseError(
-                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                            exception=str(e),
-                        ),
-                    )
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.pull_cached_environment()
+                    self.setup_vcs(environment)
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise VersionLockedError
+            try:
+                self.config = load_yaml_config(version=self.version)
+            except ConfigError as e:
+                raise YAMLParseError(
+                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                        exception=str(e),
+                    ),
+                )
 
-                self.save_build_config()
-                self.additional_vcs_operations(environment)
-            finally:
-                after_vcs.send(sender=self.version)
+            self.save_build_config()
+            self.additional_vcs_operations(environment)
 
         if environment.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
