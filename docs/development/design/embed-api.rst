@@ -82,7 +82,9 @@ This is the list of endpoints to be implemented in APIv3:
 
    **Example request**:
 
-   $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+   .. code:: bash
+
+      $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
 
    **Example response**:
 
@@ -117,7 +119,9 @@ This is the list of endpoints to be implemented in APIv3:
 
    **Example request**:
 
-   $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
+   .. code:: bash
+
+      $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
 
    **Example response**:
 
