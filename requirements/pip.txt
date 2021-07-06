@@ -64,7 +64,7 @@ pytz==2021.1
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.58.0
-regex==2021.4.4
+regex==2021.7.1
 markdown==3.3.4
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
@@ -84,11 +84,11 @@ textblob==0.15.3
 django-annoying==0.10.6
 django-messages-extends==0.6.2
 djangorestframework-jsonp==1.0.2
-django-taggit==1.4.0
+django-taggit==1.5.0
 dj-pagination==2.5.0
 
 # Version comparison stuff
-packaging==20.9
+packaging==21.0
 
 # django-cors-middleware==1.5.0 fails with
 # AttributeError: 'dict' object has no attribute 'has_header'
