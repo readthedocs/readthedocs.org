@@ -763,3 +763,9 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
+
+    RTD_EMBED_API_EXTERNAL_DOMAINS = [
+        r'docs\.python\.org',
+        r'docs\.scipy\.org',
+    ]
+    RTD_EMBED_API_DOMAIN_RATE_LIMIT = 50
