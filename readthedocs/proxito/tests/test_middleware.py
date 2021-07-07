@@ -385,3 +385,94 @@ class MiddlewareURLConfSubprojectTests(TestCase):
             resp['X-Accel-Redirect'],
             '/proxito/media/html/subproject/testing/foodex.html',
         )
+
+        # The main project still works.
+        resp = self.client.get('/subpath/latest/en/foo.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo.html',
+        )
+
+        resp = self.client.get('/subpath/latest/en/foo/bar/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo/bar/index.html',
+        )
+
+    def test_serve_subprojects_from_root(self):
+        self.pip.urlconf = '$subproject/$language/$version/$filename'
+        self.pip.save()
+        resp = self.client.get('/subproject/en/testing/foodex.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/subproject/testing/foodex.html',
+        )
+
+        # The main project still works.
+        resp = self.client.get('/en/latest/foo.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo.html',
+        )
+
+        resp = self.client.get('/en/latest/foo/bar/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo/bar/index.html',
+        )
+
+    def test_middleware_urlconf_subproject_main_project_single_version(self):
+        self.pip.single_version = True
+        self.pip.save()
+        resp = self.client.get('/subpath/subproject/testing/en/foodex.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/subproject/testing/foodex.html',
+        )
+
+        # The main project still works.
+        resp = self.client.get('/subpath/foo.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo.html',
+        )
+
+        resp = self.client.get('/subpath/foo/bar/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo/bar/index.html',
+        )
+
+    def test_serve_subprojects_from_root_main_project_single_version(self):
+        self.pip.urlconf = '$subproject/$language/$version/$filename'
+        self.pip.single_version = True
+        self.pip.save()
+        resp = self.client.get('/subproject/en/testing/foodex.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/subproject/testing/foodex.html',
+        )
+
+        # The main project still works.
+        resp = self.client.get('/foo.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo.html',
+        )
+
+        resp = self.client.get('/foo/bar/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/latest/foo/bar/index.html',
+        )

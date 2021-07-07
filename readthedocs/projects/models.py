@@ -606,12 +606,13 @@ class Project(models.Model):
         This needs to start with a slash at the root of the domain,
         and end without a slash
         """
+        url = '_'
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
             url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/_'
-        return '/_'
+            url = url_prefix.strip('/') + '/_'
+        return '/' + url.strip('/')
 
     @property
     def proxied_api_url(self):
@@ -628,33 +629,43 @@ class Project(models.Model):
         Convert User's URLConf into a proper django URLConf.
 
         This replaces the user-facing syntax with the regex syntax.
+
+        :returns: A tuple with the urlconf for the main project and subprojects.
         """
         to_convert = re.escape(self.urlconf)
 
+        subproject_urlconf = to_convert
+        main_urlconf = to_convert.replace('\\$subproject\\/', '')
+        if self.single_version:
+            main_urlconf = main_urlconf.replace('\\$version\\/', '')
+            main_urlconf = main_urlconf.replace('\\$language\\/', '')
+        return self._to_regex_urlconf(main_urlconf), self._to_regex_urlconf(subproject_urlconf)
+
+    def _to_regex_urlconf(self, urlconf):
         # We should standardize these names so we can loop over them easier
-        to_convert = to_convert.replace(
+        urlconf = urlconf.replace(
             '\\$version',
             '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
         )
-        to_convert = to_convert.replace(
+        urlconf = urlconf.replace(
             '\\$language',
             '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
         )
-        to_convert = to_convert.replace(
+        urlconf = urlconf.replace(
             '\\$filename',
             '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
         )
-        to_convert = to_convert.replace(
+        urlconf = urlconf.replace(
             '\\$subproject',
             '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
         )
 
-        if '\\$' in to_convert:
+        if '\\$' in urlconf:
             log.warning(
-                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
-                self, to_convert
+                'Unconverted variable in a project URLConf: project=%s urlconf=%s',
+                self, urlconf
             )
-        return to_convert
+        return urlconf
 
     @property
     def proxito_urlconf(self):
@@ -664,9 +675,9 @@ class Project(models.Model):
         It is used for doc serving on projects that have their own ``urlconf``.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.urls import core_urls
         from readthedocs.proxito.views.serve import ServeDocs
         from readthedocs.proxito.views.utils import proxito_404_page_handler
-        from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
 
@@ -691,12 +702,20 @@ class Project(models.Model):
                     name='user_proxied_downloads'
                 ),
             ]
+
+            main_urlconf, subproject_urlconf = self.regex_urlconf
             docs_urls = [
                 re_path(
-                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
+                    '^{regex_urlconf}$'.format(regex_urlconf=subproject_urlconf),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_subprojects'
+                ),
+                re_path(
+                    '^{regex_urlconf}$'.format(regex_urlconf=main_urlconf),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs'
                 ),
+
                 # paths for redirects at the root
                 re_path(
                     '^{proxied_api_url}$'.format(

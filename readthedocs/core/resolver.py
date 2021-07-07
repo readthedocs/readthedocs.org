@@ -96,10 +96,19 @@ class ResolverBase:
                 '$filename',
                 '{filename}',
             )
-            url = url.replace(
-                '$subproject',
-                '{subproject_slug}',
-            )
+            # Remove the subproject from the path if
+            # we are resolving the main project.
+            # /{subproject}/foo/bar -> /foo/bar.
+            if subproject_slug:
+                url = url.replace(
+                    '$subproject',
+                    '{subproject_slug}',
+                )
+            else:
+                url = url.replace(
+                    '$subproject/',
+                    '',
+                )
             if '$' in url:
                 log.warning(
                     'Unconverted variable in a resolver URLConf: url=%s', url
