@@ -146,9 +146,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         if not node:
             return
 
-        if not doctool:
-            return node.html
-
         if doctool == 'sphinx':
             # Handle ``dt`` special cases
             if node.tag == 'dt':
@@ -203,7 +200,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # </dl>
                     node = node.parent
 
-            return node.html
+        return node.html
 
     def get(self, request):
         url = request.GET.get('url')
