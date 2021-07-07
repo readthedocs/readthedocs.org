@@ -97,7 +97,7 @@ class Command(BaseCommand):
             users = AdminPermission.owners(project)
         elif organization:
             organization = Organization.objects.get(slug=organization)
-            users = AdminPermission.owners(project)
+            users = AdminPermission.owners(organization)
         elif settings.RTD_ALLOW_ORGANIZATIONS:
             users = (
                 User.objects
