@@ -295,7 +295,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         response = {
             'url': url,
-            'fragment': fragment,
+            'fragment': fragment if fragment else None,
             'content': clean_links(
                 content_requested,
                 url,
