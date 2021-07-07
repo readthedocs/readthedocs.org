@@ -28,19 +28,24 @@ class Command(BaseCommand):
 
     Email all owners of the site::
 
-      django-admin contact_owners --email email.txt
+      django-admin contact_owners --email email.md
 
     Email and send a sticky notification to all owners of the "readthedocs" organization::
 
-      django-admin contact_owners --email email.txt --notification notification.txt --organization readthedocs  # noqa
+      django-admin contact_owners --email email.md --notification notification.md --organization readthedocs  # noqa
 
-    Where email.txt is:
+    Where ``email.md`` is a markdown file with the first line as the subject, and the rest is the content.
 
     .. code:: markdown
 
        Read the Docs deprecated option, action required
 
        Dear user...
+
+    .. note::
+
+       By default the command won't send the email/notification (dry-run mode),
+       add the ``--production`` flag to actually send the email/notification.
     """
 
     help = 'Send an email or sticky notification from a file (markdown) to all owners.'
@@ -109,7 +114,7 @@ class Command(BaseCommand):
         print(
             'len(owners)={} production={} email={} notification={}'.format(
                 users.count(),
-                options['production'],
+                bool(options['production']),
                 options['email'],
                 options['notification'],
             )
