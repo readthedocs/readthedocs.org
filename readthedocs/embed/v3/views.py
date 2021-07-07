@@ -87,7 +87,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         version = get_object_or_404(
             project.versions,
             slug=self.unresolved_url.version_slug,
-            # Only allow PUBLIC versions when getting the content from our storage
+            # Only allow PUBLIC versions when getting the content from our
+            # storage for privacy/security reasons
             privacy_level=PUBLIC,
         )
         storage_path = project.get_storage_path(
@@ -120,14 +121,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     def _find_main_node(self, html):
         main_node = html.css_first('[role=main]')
         if main_node:
+            log.info('Main node found. selector=[role=main]')
             return main_node
 
         main_node = html.css_first('main')
         if main_node:
+            log.info('Main node found. selector=main')
             return main_node
 
         first_header = html.body.css_first('h1')
         if first_header:
+            log.info('Main node found. selector=h1')
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
@@ -227,8 +231,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Note that ``readthedocs.core.unresolver.unresolve`` returns ``None``
-        # when it can find the project in our database
+        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
+        # it can find the project in our database
         external = self.unresolved_url is None
 
         parsed_url = urlparse(url)
@@ -241,6 +245,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     break
 
             if not allowed_domain:
+                log.info('Domain not allowed. domain=%s url=%s', external_domain, url)
                 return Response(
                     {
                         'error': (
@@ -256,7 +261,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
-                log.info('Too many requests for this domain. domain=%s', external_domain)
+                log.warning('Too many requests for this domain. domain=%s', external_domain)
                 return Response(
                     {
                         'error': (
@@ -267,7 +272,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     status=status.HTTP_429_TOO_MANY_REQUESTS,
                 )
 
+        # NOTE: we could validate the fragment if we want. It must contain at
+        # least one character, cannot start with a number, and must not contain
+        # whitespaces (spaces, tabs, etc.).
         fragment = parsed_url.fragment
+
         content_requested = self._get_content_by_fragment(
             url,
             fragment,
@@ -276,6 +285,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             doctoolversion,
         )
         if not content_requested:
+            log.warning('Identifier not found. url=%s', url)
             return Response(
                 {
                     'error': (
