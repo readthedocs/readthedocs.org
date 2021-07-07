@@ -59,7 +59,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         return unresolve(url)
 
     def _download_page_content(self, url):
-        cached_response = cache.get(url)
+        cache_key = f'embed-api-{url}'
+        cached_response = cache.get(cache_key)
         if cached_response:
             log.debug('Cached response. url=%s', url)
             return cached_response
@@ -74,7 +75,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             return
 
         if response.ok:
-            cache.set(url, response.text, timeout=60 * 5)
+            cache.set(
+                cache_key,
+                response.text,
+                timeout=settings.RTD_EMBED_API_PAGE_CACHE_TIMEOUT,
+            )
             return response.text
 
     def _get_page_content_from_storage(self):
@@ -248,7 +253,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
             # Check rate-limit for this particular domain
             cache_key = f'embed-api-{external_domain}'
-            cache.get_or_set(cache_key, 0, timeout=60)
+            cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
                 log.info('Too many requests for this domain. domain=%s', external_domain)
