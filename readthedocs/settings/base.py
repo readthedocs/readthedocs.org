@@ -493,7 +493,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
                     3: 3.7,
