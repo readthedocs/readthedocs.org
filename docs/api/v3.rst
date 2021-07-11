@@ -2,7 +2,7 @@ API v3
 ======
 
 The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
-JSON is returned by all API responses including errors
+JSON is returned by all `API <https://www.armanism.com/blog/what-is-api>`_ responses including errors
 and HTTP response status codes are to designate success and failure.
 
 .. contents:: Table of contents
