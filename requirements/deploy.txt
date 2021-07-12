@@ -1,7 +1,11 @@
 # Requirements for our production systems
 
 -r pip.txt
-psycopg2==2.9.1
+
+# psycopg2 2.9 is not compatible with Django 2.2
+# https://github.com/readthedocs/readthedocs.org/issues/8334
+psycopg2==2.8.6  # pyup: ignore
+
 gunicorn==20.1.0
 
 # Version 3.0.0 drops support for Django < 3.0
