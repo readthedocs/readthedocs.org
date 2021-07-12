@@ -318,14 +318,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             'content': content,
             'external': external,
         }
-
-        if not external:
-            response.update({
-                'project': self.unresolved_url.project.slug,
-                'version': self.unresolved_url.version_slug,
-                'language': self.unresolved_url.language_slug,
-                'path': self.unresolved_url.filename,
-            })
         return Response(response)
 
 
