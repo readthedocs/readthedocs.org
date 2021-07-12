@@ -770,5 +770,6 @@ class CommunityBaseSettings(Settings):
         r'docs\.sympy\.org',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10
+    RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT = 1
     RTD_EMBED_API_DOMAIN_RATE_LIMIT = 50
     RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT = 60
