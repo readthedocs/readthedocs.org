@@ -303,14 +303,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        # Make links from the content to be absolute
+        content = clean_links(
+            content_requested,
+            url,
+            html_raw_response=True,
+        )
+
         response = {
             'url': url,
             'fragment': fragment if fragment else None,
-            'content': clean_links(
-                content_requested,
-                url,
-                html_raw_response=True,
-            ),
+            'content': content,
             'external': external,
         }
 
