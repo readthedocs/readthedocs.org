@@ -248,13 +248,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 )
 
         if external:
-            allowed_domain = False
             for domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
                 if re.match(domain, external_domain):
-                    allowed_domain = True
                     break
-
-            if not allowed_domain:
+            else:
                 log.info('Domain not allowed. domain=%s url=%s', external_domain, url)
                 return Response(
                     {
