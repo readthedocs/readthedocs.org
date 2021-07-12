@@ -59,6 +59,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         return unresolve(url)
 
     def _download_page_content(self, url):
+        # Sanitize the URL before requesting it
+        url = urlparse(url)._replace(fragment='', query='').geturl()
+
         cache_key = f'embed-api-{url}'
         cached_response = cache.get(cache_key)
         if cached_response:
@@ -111,8 +114,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
     def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
         if external:
-            url_without_fragment = urlparse(url)._replace(fragment='').geturl()
-            page_content = self._download_page_content(url_without_fragment)
+            page_content = self._download_page_content(url)
         else:
             page_content = self._get_page_content_from_storage()
 
