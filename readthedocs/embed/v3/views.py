@@ -68,10 +68,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         try:
             response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         except requests.exceptions.TooManyRedirects:
-            log.warning('Too many redirects. url=%s', url)
+            log.exception('Too many redirects. url=%s', url)
             return
         except Exception:  # noqa
-            log.warning('There was an error reading the URL requested. url=%s', url)
+            log.exception('There was an error reading the URL requested. url=%s', url)
             return
 
         if response.ok:
