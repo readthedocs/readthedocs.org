@@ -85,11 +85,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             )
             return response.text
 
-    def _get_page_content_from_storage(self):
-        project = self.unresolved_url.project
+    def _get_page_content_from_storage(self, project, version_slug, filename):
         version = get_object_or_404(
             project.versions,
-            slug=self.unresolved_url.version_slug,
+            slug=version_slug,
             # Only allow PUBLIC versions when getting the content from our
             # storage for privacy/security reasons
             privacy_level=PUBLIC,
@@ -102,7 +101,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         )
         file_path = build_media_storage.join(
             storage_path,
-            self.unresolved_url.filename,
+            filename,
         )
         try:
             with build_media_storage.open(file_path) as fd:
@@ -116,7 +115,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         if external:
             page_content = self._download_page_content(url)
         else:
-            page_content = self._get_page_content_from_storage()
+            project = self.unresolved_url.project
+            version_slug = self.unresolved_url.version_slug
+            filename = self.unresolved_url.filename
+            page_content = self._get_page_content_from_storage(project, version_slug, filename)
 
         return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
 
