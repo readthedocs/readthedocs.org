@@ -236,7 +236,18 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         parsed_url = urlparse(url)
         external_domain = parsed_url.netloc
-        if external and external_domain:
+        if not external_domain or not parsed_url.scheme:
+                return Response(
+                    {
+                        'error': (
+                            'The URL requested is malformed. '
+                            f'url={url}'
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if external:
             allowed_domain = False
             for domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
                 if re.match(domain, external_domain):
