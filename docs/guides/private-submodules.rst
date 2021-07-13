@@ -67,6 +67,6 @@ Others
 
 GitLab and Bitbucket allow you to reuse the same SSH key across different repositories.
 Since Read the Docs already added the public SSH key on your main repository,
-you only need to add it to each repository of your submodules.
+you only need to add it to each submodule repository.
 See :ref:`guides/importing-private-repositories:Add the public key to your project`
 for more information for these and other providers.

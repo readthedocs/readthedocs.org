@@ -34,7 +34,7 @@ Giving access to your project with an SSH key
 
 After importing your project the build will fail,
 because Read the Docs doesn't have access to clone your repository.
-To give access, you'll need to add the public SSH key to your VCS provider.
+To give access, you'll need to add your project's public SSH key to your VCS provider.
 
 Copy your project's public key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
