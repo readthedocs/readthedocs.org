@@ -79,7 +79,6 @@ For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.
 #. Put a descriptive title and paste the
    :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
 #. Click on :guilabel:`Add key`
-#. Repeat the previous steps for each submodule
 
 Bitbucket
 '''''''''
