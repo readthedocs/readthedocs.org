@@ -377,7 +377,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version=self.version,
                 record=False,
                 update_on_success=False,
-                environment=self.get_rtd_env_vars(),
+                environment=self.get_vcs_env_vars(),
             )
             log.info(
                 'Running sync_repository_task: project=%s version=%s',
@@ -664,7 +664,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             update_on_success=False,
-            environment=self.get_rtd_env_vars(),
+            environment=self.get_vcs_env_vars(),
         )
         self.build_start_time = environment.start_time
 
