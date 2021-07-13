@@ -311,6 +311,13 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_vcs_env_vars(self):
+        """Get environment variables to be included in the VCS setup step."""
+        env = self.get_rtd_env_vars()
+        # Don't prompt for username, this requires Git 2.3+
+        env['GIT_TERMINAL_PROMPT'] = '0'
+        return env
+
     def get_rtd_env_vars(self):
         """Get bash environment variables specific to Read the Docs."""
         env = {
@@ -370,7 +377,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version=self.version,
                 record=False,
                 update_on_success=False,
-                environment=self.get_rtd_env_vars(),
+                environment=self.get_vcs_env_vars(),
             )
             log.info(
                 'Running sync_repository_task: project=%s version=%s',
@@ -657,7 +664,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             update_on_success=False,
-            environment=self.get_rtd_env_vars(),
+            environment=self.get_vcs_env_vars(),
         )
         self.build_start_time = environment.start_time
 
