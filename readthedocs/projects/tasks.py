@@ -311,6 +311,13 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_vcs_env_vars(self):
+        """Get environment variables to be included in the VCS setup step."""
+        env = self.get_rtd_env_vars()
+        # Don't prompt for username, this requires Git 2.3+
+        env['GIT_TERMINAL_PROMPT'] = '0'
+        return env
+
     def get_rtd_env_vars(self):
         """Get bash environment variables specific to Read the Docs."""
         env = {

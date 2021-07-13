@@ -1024,7 +1024,7 @@ class TestBuildCommand(TestCase):
         env = {'FOOBAR': 'foobar', 'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
         for key in list(env.keys()):
-            self.assertEqual(cmd.environment[key], env[key])
+            self.assertEqual(cmd._environment[key], env[key])
 
     def test_result(self):
         """Test result of output using unix true/false commands."""
