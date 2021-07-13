@@ -117,9 +117,8 @@ you'll neeed to the set the :doc:`privacy level of your project </commercial/pri
 Logging out
 '''''''''''
 
-When you login to a documentation site, you will be logged in until close your browser.
-If you want to force a log out,
-you can do so by clicking on the :guilabel:`Logout` button that is on the flyout menu in the theme.
+When you log in to a documentation site, you will be logged in until close your browser.
+To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
 This is usually located in the bottom right or bottom left, depending on the theme design.
 This will log you out from the current domain only,
 you'll need to repeat this operation on every domain where you are logged in.
