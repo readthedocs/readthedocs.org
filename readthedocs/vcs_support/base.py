@@ -72,9 +72,6 @@ class BaseVCS:
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
         self.environment = environment or LocalBuildEnvironment(record=False)
 
-        # Update the env variables with the proper VCS env variables
-        self.environment.environment.update(self.env)
-
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
@@ -83,10 +80,6 @@ class BaseVCS:
         """Ensures that the working dir exists and is empty."""
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
-
-    @property
-    def env(self):
-        return {}
 
     def update(self):
         """
