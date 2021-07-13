@@ -741,7 +741,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
-        env_vars = self.get_env_vars()
+        env_vars = self.get_build_env_vars()
 
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
@@ -932,7 +932,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         if commit:
             self.build['commit'] = commit
 
-    def get_env_vars(self):
+    def get_build_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = self.get_rtd_env_vars()
 
