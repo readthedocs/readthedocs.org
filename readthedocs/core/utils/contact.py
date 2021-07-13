@@ -32,7 +32,7 @@ def contact_users(
 
     :returns: A dictionary with a list of sent/failed emails/notifications.
     """
-    from_email = from_email or settings.SUPPORT_EMAIL
+    from_email = from_email or settings.DEFAULT_FROM_EMAIL
     sent_emails = set()
     failed_emails = set()
     sent_notifications = set()
