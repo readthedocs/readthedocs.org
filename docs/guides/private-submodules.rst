@@ -11,14 +11,12 @@ In order to give Read the Docs access to clone your submodules you'll need to ad
 
 .. note::
 
-   You can manage which submodules Read the Docs should clone using a configuration file.
-   See :ref:`config-file/v2:submodules`.
+   - You can manage which submodules Read the Docs should clone using a configuration file.
+     See :ref:`config-file/v2:submodules`.
 
-.. note::
-
-   Make sure you are using ``SSH`` URLs for your submodules
-   (``git@github.com:readthedocs/readthedocs.org.git`` for example)
-   in your ``.gitmodules`` file, not ``http`` URLs.
+   - Make sure you are using ``SSH`` URLs for your submodules
+     (``git@github.com:readthedocs/readthedocs.org.git`` for example)
+     in your ``.gitmodules`` file, not ``http`` URLs.
 
 .. contents:: Table of contents
    :local:
@@ -58,9 +56,13 @@ to give read access to several repositories using only one SSH key.
 Azure DevOps
 ------------
 
-Azure DevOps doesn't have per-project keys.
-If you already :ref:`added the SSH key from the main project <guides/importing-private-repositories:azure devops>`,
-you don't need to do anything else.
+Azure DevOps has per-user keys,
+as long as the user has access to your main repository and all its submodules,
+Read the Docs can clone all the repositories with the same key.
+
+.. seealso::
+
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:azure devops>`.
 
 Others
 ------
@@ -68,5 +70,7 @@ Others
 GitLab and Bitbucket allow you to reuse the same SSH key across different repositories.
 Since Read the Docs already added the public SSH key on your main repository,
 you only need to add it to each submodule repository.
-See :ref:`guides/importing-private-repositories:Add the public key to your project`
-for more information for these and other providers.
+
+.. seealso::
+
+   :ref:`guides/importing-private-repositories:Giving access to your project with an SSH key`
