@@ -610,6 +610,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
+    RTD_ALLOW_ORGANIZATIONS = False
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']
