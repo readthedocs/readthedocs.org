@@ -102,6 +102,11 @@
             <ul class="notifications">
               {% for message in messages %}
                 <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
+                  {% if message.pk %}
+                  <a class="notification-action" href="{% url 'message_mark_read' message.pk %}">
+                    <span class="icon close" aria-label="Close notification"></span>
+                  </a>
+                  {% endif %}
                   {{ message }}
                 </li>
               {% endfor %}
