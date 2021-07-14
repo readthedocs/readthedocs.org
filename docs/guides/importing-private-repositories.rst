@@ -3,9 +3,9 @@ Manually Importing Private Repositories
 
 .. warning::
 
-   This guide is for user of :doc:`/commercial/index`.
+   This guide is for users of :doc:`/commercial/index`.
    **If you are using GitHub, GitLab, or Bitbucket**,
-   we recommend :doc:`connecting your account </connected-accounts>` and importing the project from
+   we recommend :doc:`connecting your account </connected-accounts>` and importing your project from
    https://readthedocs.com/dashboard/import instead of importing it manually.
 
 If you are using an unsupported integration, or don't want to connect your account,

@@ -56,8 +56,8 @@ to give read access to several repositories using only one SSH key.
 Azure DevOps
 ------------
 
-Azure DevOps has per-user keys,
-as long as the user has access to your main repository and all its submodules,
+Azure DevOps does not have per-repository SSH keys, but keys can be added to a user instead.
+As long as this user has access to your main repository and all its submodules,
 Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
