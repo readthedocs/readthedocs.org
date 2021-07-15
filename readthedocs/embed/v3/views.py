@@ -233,7 +233,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             )
 
         # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can find the project in our database
+        # it can't find the project in our database
         external = self.unresolved_url is None
 
         parsed_url = urlparse(url)
