@@ -62,6 +62,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         # Sanitize the URL before requesting it
         url = urlparse(url)._replace(fragment='', query='').geturl()
 
+        # TODO: sanitize the cache key just in case, maybe by hashing it
         cache_key = f'embed-api-{url}'
         cached_response = cache.get(cache_key)
         if cached_response:
