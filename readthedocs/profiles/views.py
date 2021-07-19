@@ -78,8 +78,9 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         return self.request.user
 
     def form_valid(self, form):
-        self.request.user.delete()
+        user = self.get_object()
         logout(self.request)
+        user.delete()
         return super().form_valid(form)
 
     def get_form(self, data=None, files=None, **kwargs):
