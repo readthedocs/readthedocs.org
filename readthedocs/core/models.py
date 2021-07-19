@@ -40,4 +40,5 @@ class UserProfile(models.Model):
             kwargs={'username': self.user.username},
         )
 
+
 register(User, app=__package__)
