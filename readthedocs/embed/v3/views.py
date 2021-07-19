@@ -228,13 +228,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can't find the project in our database
-        external = self.unresolved_url is None
-
         parsed_url = urlparse(url)
-        external_domain = parsed_url.netloc
-        if not external_domain or not parsed_url.scheme:
+        domain = parsed_url.netloc
+        if not domain or not parsed_url.scheme:
                 return Response(
                     {
                         'error': (
@@ -245,33 +241,36 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
+        # it can't find the project in our database
+        external = self.unresolved_url is None
         if external:
-            for domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
-                if re.match(domain, external_domain):
+            for allowed_domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
+                if re.match(allowed_domain, domain):
                     break
             else:
-                log.info('Domain not allowed. domain=%s url=%s', external_domain, url)
+                log.info('Domain not allowed. domain=%s url=%s', domain, url)
                 return Response(
                     {
                         'error': (
                             'External domain not allowed. '
-                            f'domain={external_domain}'
+                            f'domain={domain}'
                         )
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             # Check rate-limit for this particular domain
-            cache_key = f'embed-api-{external_domain}'
+            cache_key = f'embed-api-{domain}'
             cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
-                log.warning('Too many requests for this domain. domain=%s', external_domain)
+                log.warning('Too many requests for this domain. domain=%s', domain)
                 return Response(
                     {
                         'error': (
                             'Too many requests for this domain. '
-                            f'domain={external_domain}'
+                            f'domain={domain}'
                         )
                     },
                     status=status.HTTP_429_TOO_MANY_REQUESTS,
