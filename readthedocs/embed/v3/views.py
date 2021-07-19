@@ -161,10 +161,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # <dd>Text definition for the term</dd>
                     # ...
                     # </dl>
-                    parent = node.parent
-                    for n in parent.traverse():
-                        if n not in (node, node.next):
-                            n.remove()
+
+                    # TODO: figure it out if it's needed to remove the siblings here
+                    # parent = node.parent
+                    # for n in parent.traverse():
+                    #     if n not in (node, node.next):
+                    #         n.remove()
                     node = node.parent
 
                 elif 'citation' in node.parent.attributes.get('class'):
@@ -179,10 +181,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # <dd>Content of the cite</dd>
                     # ...
                     # </dl>
-                    parent = node.parent
-                    for n in parent.traverse():
-                        if n not in (node, node.next):
-                            n.remove()
+
+                    # TODO: figure it out if it's needed to remove the siblings here
+                    # parent = node.parent
+                    # for n in parent.traverse():
+                    #     if n not in (node, node.next):
+                    #         n.remove()
                     node = node.parent
 
                 else:
