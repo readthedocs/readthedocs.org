@@ -68,15 +68,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             log.debug('Cached response. url=%s', url)
             return cached_response
 
-        try:
-            response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
-        except requests.exceptions.TooManyRedirects:
-            log.exception('Too many redirects. url=%s', url)
-            return
-        except Exception:  # noqa
-            log.exception('There was an error reading the URL requested. url=%s', url)
-            return
-
+        response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         if response.ok:
             cache.set(
                 cache_key,
@@ -286,13 +278,41 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         # whitespaces (spaces, tabs, etc.).
         fragment = parsed_url.fragment
 
-        content_requested = self._get_content_by_fragment(
-            url,
-            fragment,
-            external,
-            doctool,
-            doctoolversion,
-        )
+        try:
+            content_requested = self._get_content_by_fragment(
+                url,
+                fragment,
+                external,
+                doctool,
+                doctoolversion,
+            )
+        except requests.exceptions.TooManyRedirects:
+            log.exception('Too many redirects. url=%s', url)
+            return Response(
+                {
+                    'error': (
+                        'The URL requested generates too many redirects. '
+                        f'url={url}'
+                    )
+                },
+                # TODO: review these status codes to find out which on is better here
+                # 400 Bad Request
+                # 502 Bad Gateway
+                # 503 Service Unavailable
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:  # noqa
+            log.exception('There was an error reading the URL requested. url=%s', url)
+            return Response(
+                {
+                    'error': (
+                        'There was an error reading the URL requested. '
+                        f'url={url}'
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if not content_requested:
             log.warning('Identifier not found. url=%s', url)
             return Response(
