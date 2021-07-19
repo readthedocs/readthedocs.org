@@ -1,3 +1,16 @@
+Version 5.20.3
+--------------
+
+:Date: July 19, 2021
+
+* `@Nkarnaud <https://github.com/Nkarnaud>`__: change vieweable to viewable on  home page: issue#8346 (`#8351 <https://github.com/readthedocs/readthedocs.org/pull/8351>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: don't record git rev-parse command (`#8348 <https://github.com/readthedocs/readthedocs.org/pull/8348>`__)
+* `@stsewd <https://github.com/stsewd>`__: UI: allow to close notifications (`#8345 <https://github.com/readthedocs/readthedocs.org/pull/8345>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use email from DEFAULT_FROM_EMAIL to contact users (`#8344 <https://github.com/readthedocs/readthedocs.org/pull/8344>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade taggit (`#8342 <https://github.com/readthedocs/readthedocs.org/pull/8342>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dont mutate env vars outside the BuildEnv classes (`#8340 <https://github.com/readthedocs/readthedocs.org/pull/8340>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guides: how to import a private project using an ssh key (`#8336 <https://github.com/readthedocs/readthedocs.org/pull/8336>`__)
+
 Version 5.20.2
 --------------
 

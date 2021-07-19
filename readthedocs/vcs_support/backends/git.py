@@ -289,7 +289,7 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
             return stdout.strip()
         return None
 
