@@ -325,10 +325,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        # Sanitize the URL before requesting it
+        sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()
         # Make links from the content to be absolute
         content = clean_links(
             content_requested,
-            url,
+            sanitized_url,
             html_raw_response=True,
         )
 
