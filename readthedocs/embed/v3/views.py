@@ -132,6 +132,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+        if not page_content:
+            return
+
         node = None
         if fragment:
             selector = f'#{fragment}'
