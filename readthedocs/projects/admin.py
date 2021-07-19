@@ -1,5 +1,6 @@
 """Django administration interface for `projects.models`."""
 
+from simple_history.admin import SimpleHistoryAdmin
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.forms import BaseInlineFormSet
@@ -141,7 +142,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(SimpleHistoryAdmin):
 
     """Project model admin view."""
 

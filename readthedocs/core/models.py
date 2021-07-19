@@ -1,5 +1,4 @@
 """Models for the core app."""
-import logging
 
 from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
@@ -7,8 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-
-log = logging.getLogger(__name__)
+from simple_history import register
 
 
 class UserProfile(models.Model):
@@ -41,3 +39,5 @@ class UserProfile(models.Model):
             'profiles_profile_detail',
             kwargs={'username': self.user.username},
         )
+
+register(User, app=__package__)

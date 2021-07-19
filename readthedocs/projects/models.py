@@ -1,5 +1,4 @@
 """Project models."""
-
 import fnmatch
 import logging
 import os
@@ -20,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
 from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
+from simple_history.models import HistoricalRecords
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
@@ -437,8 +437,8 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
+    history = HistoricalRecords()
     objects = ProjectQuerySet.as_manager()
-    all_objects = models.Manager()
 
     remote_repository = models.ForeignKey(
         'oauth.RemoteRepository',
