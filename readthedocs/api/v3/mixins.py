@@ -1,10 +1,44 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
+from simple_history.utils import update_change_reason
 
 from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+
+
+class UpdateChangeReasonMixin:
+
+    """
+    Set the change_reason on the model changed through this API view.
+
+    The view should inherit one of:
+
+    - CreateModelMixin
+    - UpdateModelMixin
+    - DestroyModelMixin
+
+    Unlike the original methods,
+    these return the instance that was created/updated,
+    so they are easy to override without having to save the object twice.
+    """
+
+    change_reason = 'Changed from: API'
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        update_change_reason(obj, self.change_reason)
+        return obj
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        update_change_reason(obj, self.change_reason)
+        return obj
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        update_change_reason(instance, self.change_reason)
 
 
 class NestedParentObjectMixin:

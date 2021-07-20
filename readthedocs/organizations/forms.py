@@ -7,6 +7,7 @@ from django.core.validators import EmailValidator
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.mixins import UpdateChangeReasonForm
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
@@ -19,7 +20,7 @@ from readthedocs.organizations.models import (
 )
 
 
-class OrganizationForm(forms.ModelForm):
+class OrganizationForm(UpdateChangeReasonForm, forms.ModelForm):
 
     """
     Base organization form.
@@ -153,7 +154,7 @@ class OrganizationOwnerForm(forms.ModelForm):
         return owner
 
 
-class OrganizationTeamBasicFormBase(forms.ModelForm):
+class OrganizationTeamBasicFormBase(UpdateChangeReasonForm, forms.ModelForm):
 
     """Form to manage teams."""
 

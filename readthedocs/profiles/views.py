@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
+from simple_history.utils import update_change_reason
 from vanilla import (
     CreateView,
     DeleteView,
@@ -75,12 +76,13 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
     success_message = _('You have successfully deleted your account')
 
     def get_object(self):
-        return self.request.user
+        return User.objects.get(pk=self.request.user.pk)
 
     def form_valid(self, form):
         user = self.get_object()
         logout(self.request)
         user.delete()
+        update_change_reason(user, 'Changed from: form')
         return super().form_valid(form)
 
     def get_form(self, data=None, files=None, **kwargs):

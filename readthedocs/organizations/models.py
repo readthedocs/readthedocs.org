@@ -218,10 +218,7 @@ class Team(models.Model):
         )
 
     def __str__(self):
-        return '{organization}/{team}'.format(
-            organization=self.organization.name,
-            team=self.name,
-        )
+        return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:

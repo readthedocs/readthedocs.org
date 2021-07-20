@@ -1,12 +1,13 @@
 """Django administration interface for `projects.models`."""
 
-from simple_history.admin import SimpleHistoryAdmin
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
 from readthedocs.builds.models import Version
+from readthedocs.core.mixins import UpdateChangeReasonAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
@@ -142,7 +143,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(SimpleHistoryAdmin):
+class ProjectAdmin(UpdateChangeReasonAdmin, SimpleHistoryAdmin):
 
     """Project model admin view."""
 

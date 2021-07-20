@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Forms for core app."""
 
 import logging
@@ -8,9 +6,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
+from simple_history.utils import update_change_reason
 
 from .models import UserProfile
-
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +39,7 @@ class UserProfileForm(forms.ModelForm):
             user.first_name = first_name
             user.last_name = last_name
             user.save()
+            update_change_reason(user, 'Changed from: form')
         return profile
 
 

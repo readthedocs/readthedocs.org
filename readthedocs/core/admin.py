@@ -12,6 +12,7 @@ from messages_extends.models import Message
 from rest_framework.authtoken.admin import TokenAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
+from readthedocs.core.mixins import UpdateChangeReasonAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
 
@@ -62,7 +63,7 @@ class UserProjectFilter(admin.SimpleListFilter):
             return queryset.filter(projects__builds__date__gt=recent_date)
 
 
-class UserAdminExtra(SimpleHistoryAdmin, UserAdmin):
+class UserAdminExtra(UpdateChangeReasonAdmin, SimpleHistoryAdmin, UserAdmin):
 
     """Admin configuration for User."""
 
