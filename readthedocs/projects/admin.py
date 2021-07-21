@@ -18,6 +18,7 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
+    HTTPHeader,
     HTMLFile,
     ImportedFile,
     Project,
@@ -358,6 +359,24 @@ class DomainAdmin(admin.ModelAdmin):
     model = Domain
 
 
+class HTTPHeaderAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'value',
+        'domain_name',
+        'project_slug',
+    )
+    raw_id_fields = ('domain',)
+    search_fields = ('name', 'domain__name', 'project__slug')
+    model = HTTPHeader
+
+    def domain_name(self, http_header):
+        return http_header.domain.domain
+
+    def project_slug(self, http_header):
+        return http_header.domain.project.slug
+
+
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
@@ -380,6 +399,7 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(HTTPHeader, HTTPHeaderAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)

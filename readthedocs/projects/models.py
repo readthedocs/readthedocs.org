@@ -1570,6 +1570,30 @@ class Domain(TimeStampedModel, models.Model):
         super().save(*args, **kwargs)
 
 
+class HTTPHeader(TimeStampedModel, models.Model):
+    """
+    Define a HTTP header for a user Domain.
+
+    All the HTTPHeader(s) associated with the domain are added in the response
+    from El Proxito.
+
+    NOTE: the available headers are hardcoded in the NGINX configuration for
+    now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
+    expose them all without hardcoding them.
+    """
+
+    domain = models.ForeignKey(
+        Domain,
+        related_name='http_headers',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=128)
+    value = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+
 class Feature(models.Model):
 
     """
