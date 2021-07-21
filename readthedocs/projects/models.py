@@ -19,12 +19,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
 from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
-from simple_history.models import HistoricalRecords
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
@@ -437,7 +437,7 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
-    history = HistoricalRecords()
+    history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
 
     remote_repository = models.ForeignKey(

@@ -6,8 +6,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
-from simple_history.models import HistoricalRecords
 
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 
@@ -91,7 +91,7 @@ class Organization(models.Model):
 
     # Managers
     objects = OrganizationQuerySet.as_manager()
-    history = HistoricalRecords()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'
@@ -202,7 +202,7 @@ class Team(models.Model):
 
     # Managers
     objects = TeamManager()
-    history = HistoricalRecords()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'

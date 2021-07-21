@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.mixins import UpdateChangeReasonForm
+from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -32,7 +32,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
 
-class ProjectForm(UpdateChangeReasonForm, forms.ModelForm):
+class ProjectForm(SimpleHistoryModelForm):
 
     """
     Project form.

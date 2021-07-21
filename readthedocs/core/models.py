@@ -8,6 +8,8 @@ from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from simple_history import register
 
+from readthedocs.core.history import ExtraHistoricalRecords
+
 
 class UserProfile(models.Model):
 
@@ -41,4 +43,4 @@ class UserProfile(models.Model):
         )
 
 
-register(User, app=__package__)
+register(User, records_class=ExtraHistoricalRecords, app=__package__)
