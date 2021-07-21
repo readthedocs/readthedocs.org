@@ -490,6 +490,10 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
+                # TODO: migrate these float numbers to be strings and avoid
+                # issues with ``3.10`` and ``3.1`` see
+                # https://github.com/readthedocs/readthedocs.org/pull/8328#discussion_r666366384
+                # for more details
                 'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
