@@ -184,8 +184,18 @@ class ProxitoMiddleware(MiddlewareMixin):
         with the ``Domain`` object.
         """
         if hasattr(request, 'domain'):
-            domain = request.domain
-            for http_header in domain.http_headers.all():
+            for http_header in request.domain.http_headers.all():
+                if http_header.name in response.headers:
+                    log.exception(
+                        'Overriding an existing response HTTP header. header=%s domain=%s',
+                        http_header.name,
+                        request.domain.domain,
+                    )
+                log.info(
+                    'Adding custtom response HTTP header. header=%s domain=%s',
+                    http_header.name,
+                    request.domain.domain,
+                )
                 response[http_header.name] = http_header.value
 
     def add_hsts_headers(self, request, response):
