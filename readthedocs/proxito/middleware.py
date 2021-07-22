@@ -207,6 +207,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         * For custom domains, check the HSTS values on the Domain object.
           The domain object should be saved already in request.domain.
         """
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
         host = request.get_host().lower().split(':')[0]
         public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
         hsts_header_values = []
