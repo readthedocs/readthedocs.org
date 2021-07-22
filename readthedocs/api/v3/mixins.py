@@ -25,7 +25,7 @@ class UpdateChangeReasonMixin:
     """
 
     change_reason = None
-    
+
     def get_change_reason(self):
         if self.change_reason:
             return self.change_reason
