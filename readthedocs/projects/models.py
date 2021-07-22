@@ -1603,7 +1603,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     value = models.CharField(max_length=256)
 
     def __str__(self):
-        return self.name
+        return f"HttpHeader: {self.name} on {self.domain.domain}"
 
 
 class Feature(models.Model):
