@@ -41,8 +41,12 @@ class UserProfileForm(forms.ModelForm):
             user.save()
             # SimpleHistoryModelForm isn't used here
             # because the model of this form is `UserProfile`, not `User`.
-            update_change_reason(user, 'Changed from: form')
+            update_change_reason(user, self.get_change_reason())
         return profile
+
+    def get_change_reason(self):
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
 
 class UserDeleteForm(forms.ModelForm):
