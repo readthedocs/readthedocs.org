@@ -1571,6 +1571,7 @@ class Domain(TimeStampedModel, models.Model):
 
 
 class HTTPHeader(TimeStampedModel, models.Model):
+
     """
     Define a HTTP header for a user Domain.
 
