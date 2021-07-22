@@ -39,6 +39,8 @@ class UserProfileForm(forms.ModelForm):
             user.first_name = first_name
             user.last_name = last_name
             user.save()
+            # SimpleHistoryModelForm isn't used here
+            # because the model of this form is `UserProfile`, not `User`.
             update_change_reason(user, 'Changed from: form')
         return profile
 
