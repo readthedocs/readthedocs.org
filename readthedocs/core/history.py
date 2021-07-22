@@ -43,11 +43,17 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
 
     """Set the change_reason on the model changed through this admin view."""
 
-    change_reason = 'Changed from: admin'
+    change_reason = None
+
+    def get_change_reason(self):
+        if self.change_reason:
+            return self.change_reason
+        klass = self.__class__.__name__
+        return f'origin=admin class={klass}'
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        update_change_reason(obj, self.change_reason)
+        update_change_reason(obj, self.get_change_reason())
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
@@ -58,11 +64,17 @@ class SimpleHistoryModelForm(forms.ModelForm):
 
     """Set the change_reason on the model changed through this form."""
 
-    change_reason = 'Changed from: form'
+    change_reason = None
+
+    def get_change_reason(self):
+        if self.change_reason:
+            return self.change_reason
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
-        update_change_reason(obj, self.change_reason)
+        update_change_reason(obj, self.get_change_reason())
         return obj
 
 
@@ -74,10 +86,16 @@ class UpdateChangeReasonPostView:
     Use this class for views that don't use a form, like ``DeleteView``.
     """
 
-    change_reason = 'Changed from: form'
+    change_reason = None
+
+    def get_change_reason(self):
+        if self.change_reason:
+            return self.change_reason
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
     def post(self, request, *args, **kwargs):
         obj = self.get_object()
         response = super().post(request, *args, **kwargs)
-        update_change_reason(obj, self.change_reason)
+        update_change_reason(obj, self.get_change_reason())
         return response

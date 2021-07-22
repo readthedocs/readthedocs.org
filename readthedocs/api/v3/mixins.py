@@ -24,21 +24,27 @@ class UpdateChangeReasonMixin:
     so they are easy to override without having to save the object twice.
     """
 
-    change_reason = 'Changed from: API'
+    change_reason = None
+    
+    def get_change_reason(self):
+        if self.change_reason:
+            return self.change_reason
+        klass = self.__class__.__name__
+        return f'origin=api-v3 class={klass}'
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        update_change_reason(obj, self.change_reason)
+        update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_update(self, serializer):
         obj = serializer.save()
-        update_change_reason(obj, self.change_reason)
+        update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
-        update_change_reason(instance, self.change_reason)
+        update_change_reason(instance, self.get_change_reason())
 
 
 class NestedParentObjectMixin:
