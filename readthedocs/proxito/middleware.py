@@ -187,7 +187,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             response_headers = [header.lower() for header in response]
             for http_header in request.domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
-                    log.exception(
+                    log.error(
                         'Overriding an existing response HTTP header. header=%s domain=%s',
                         http_header.name,
                         request.domain.domain,
