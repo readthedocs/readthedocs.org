@@ -1582,12 +1582,24 @@ class HTTPHeader(TimeStampedModel, models.Model):
     expose them all without hardcoding them.
     """
 
+    HEADERS_CHOICES = (
+        ('referrer_policy', 'Referrer-Policy'),
+        ('permissions_policy', 'Permissions-Policy'),
+        ('feature_policy', 'Feature-Policy'),
+        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
+        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
+        ('x_frame_options', 'X-Frame-Options'),
+    )
+
     domain = models.ForeignKey(
         Domain,
         related_name='http_headers',
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=128)
+    name = models.CharField(
+        max_length=128,
+        choices=HEADERS_CHOICES,
+    )
     value = models.CharField(max_length=256)
 
     def __str__(self):
