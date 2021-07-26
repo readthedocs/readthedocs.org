@@ -102,14 +102,29 @@ class ProxitoHeaderTests(BaseDocServing):
             domain=hostname,
         )
         http_header = 'X-My-Header'
+        http_header_secure = 'X-My-Secure-Header'
         http_header_value = 'Header Value; Another Value;'
         fixture.get(
             HTTPHeader,
             domain=self.domain,
             name=http_header,
             value=http_header_value,
+            only_if_secure_request=False,
+        )
+        fixture.get(
+            HTTPHeader,
+            domain=self.domain,
+            name=http_header_secure,
+            value=http_header_value,
+            only_if_secure_request=True,
         )
 
         r = self.client.get("/en/latest/", HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r[http_header], http_header_value)
+        self.assertFalse(r.has_header(http_header_secure))
+
+        r = self.client.get("/en/latest/", HTTP_HOST=hostname, secure=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[http_header], http_header_value)
+        self.assertEqual(r[http_header_secure], http_header_value)

@@ -1602,6 +1602,9 @@ class HTTPHeader(TimeStampedModel, models.Model):
         choices=HEADERS_CHOICES,
     )
     value = models.CharField(max_length=256)
+    only_if_secure_request = models.BooleanField(
+        help_text='Only set this header if the request is secure (HTTPS)',
+    )
 
     def __str__(self):
         return f"HttpHeader: {self.name} on {self.domain.domain}"

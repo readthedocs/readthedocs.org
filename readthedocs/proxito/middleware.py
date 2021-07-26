@@ -197,6 +197,10 @@ class ProxitoMiddleware(MiddlewareMixin):
                     http_header.name,
                     request.domain.domain,
                 )
+
+                if http_header.only_if_secure_request and not request.is_secure():
+                    continue
+
                 # HTTP headers here are limited to
                 # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
                 # headers is potentially dangerous
