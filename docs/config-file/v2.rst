@@ -31,7 +31,7 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Optionally set the version of Python and requirements required to build your docs
          python:
-            version: 3.7
+            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -51,7 +51,7 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Optionally set the version of Python and requirements required to build your docs
          python:
-            version: 3.7
+            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -138,7 +138,7 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - method: pip
@@ -154,13 +154,19 @@ python.version
 
 The Python version (this depends on :ref:`config-file/v2:build.image`).
 
-:Type: ``number``
+:Type: ``string``
 :Default: ``3``
+
+.. note::
+
+   Make sure to use quotes (``"``) around the value,
+   or YAML will take your value as a number
+   (``3.10`` will be transformed to ``3.1``).
 
 .. warning::
 
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
-  the build, this setting will not have any effect, as the Python version is managed by Conda.
+   If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+   the build, this setting will not have any effect, as the Python version is managed by Conda.
 
 python.install
 ``````````````
@@ -189,7 +195,7 @@ Example:
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
@@ -237,7 +243,7 @@ Example:
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - method: pip
          path: .
@@ -308,7 +314,7 @@ Configuration for the documentation build process.
        - cmake
 
    python:
-     version: 3.7
+     version: "3.7"
 
 
 build.image
