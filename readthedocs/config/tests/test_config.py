@@ -341,18 +341,18 @@ class TestValidatePythonVersion:
     def test_it_defaults_to_a_valid_version(self):
         build = get_build_config({'python': {}})
         build.validate()
-        assert build.python.version == 2
+        assert build.python.version == '2'
         assert build.python_interpreter == 'python2.7'
-        assert build.python_full_version == 2.7
+        assert build.python_full_version == '2.7'
 
     def test_it_supports_other_versions(self):
         build = get_build_config(
             {'python': {'version': 3.7}},
         )
         build.validate()
-        assert build.python.version == 3.7
+        assert build.python.version == '3.7'
         assert build.python_interpreter == 'python3.7'
-        assert build.python_full_version == 3.7
+        assert build.python_full_version == '3.7'
 
     def test_it_supports_string_versions(self):
         build = get_build_config(
@@ -383,9 +383,9 @@ class TestValidatePythonVersion:
 
     def test_it_validates_env_supported_versions(self):
         build = get_build_config(
-            {'python': {'version': 3.6}},
+            {'python': {'version': '3.6'}},
             env_config={
-                'python': {'supported_versions': [3.5]},
+                'python': {'supported_versions': ['3.5']},
                 'build': {'image': 'custom'},
             },
         )
@@ -395,18 +395,18 @@ class TestValidatePythonVersion:
         assert excinfo.value.code == INVALID_CHOICE
 
         build = get_build_config(
-            {'python': {'version': 3.6}},
+            {'python': {'version': '3.6'}},
             env_config={
-                'python': {'supported_versions': [3.5, 3.6]},
+                'python': {'supported_versions': ['3.5', '3.6']},
                 'build': {'image': 'custom'},
             },
         )
         build.validate()
-        assert build.python.version == 3.6
+        assert build.python.version == '3.6'
         assert build.python_interpreter == 'python3.6'
-        assert build.python_full_version == 3.6
+        assert build.python_full_version == '3.6'
 
-    @pytest.mark.parametrize('value', [2, 3])
+    @pytest.mark.parametrize('value', ['2', '3'])
     def test_it_respects_default_value(self, value):
         defaults = {
             'python_version': value,
@@ -724,7 +724,7 @@ def test_as_dict(tmpdir):
         'version': '1',
         'formats': ['pdf'],
         'python': {
-            'version': 3.7,
+            'version': '3.7',
             'install': [{
                 'requirements': 'requirements.txt',
             }],
@@ -986,8 +986,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']),
-            ('stable', [2, 2.7, 3, 3.5, 3.6, 3.7]),
+            ('latest', ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5']),
+            ('stable', ['2', '2.7', '3', '3.5', '3.6', '3.7']),
         ],
     )
     def test_python_version(self, image, versions):
@@ -1015,13 +1015,25 @@ class TestBuildConfigV2:
         build.validate()
         assert build.python.version == '3.6'
 
-    def test_python_version_310(self):
+    def test_python_version_accepts_number(self):
+        build = self.get_build_config({
+            'build': {
+                'image': 'latest',
+            },
+            'python': {
+                'version': 3.6,
+            },
+        })
+        build.validate()
+        assert build.python.version == '3.6'
+
+    def test_python_version_310_as_number(self):
         build = self.get_build_config({
             'build': {
                 'image': 'testing',
             },
             'python': {
-                'version': '3.10',
+                'version': 3.10,
             },
         })
         build.validate()
@@ -1051,27 +1063,27 @@ class TestBuildConfigV2:
     def test_python_version_default(self):
         build = self.get_build_config({})
         build.validate()
-        assert build.python.version == 3
+        assert build.python.version == '3'
 
     @pytest.mark.parametrize(
-        'image,default_version',
+        'image, default_version, full_version',
         [
-            ('2.0', 3.5),
-            ('4.0', 3.7),
-            ('5.0', 3.7),
-            ('latest', 3.7),
-            ('stable', 3.7),
+            ('2.0', '3', '3.5'),
+            ('4.0', '3', '3.7'),
+            ('5.0', '3', '3.7'),
+            ('latest', '3', '3.7'),
+            ('stable', '3', '3.7'),
         ],
     )
-    def test_python_version_default_from_image(self, image, default_version):
+    def test_python_version_default_from_image(self, image, default_version, full_version):
         build = self.get_build_config({
             'build': {
                 'image': image,
             },
         })
         build.validate()
-        assert build.python.version == int(default_version)  # 2 or 3
-        assert build.python_full_version == default_version
+        assert build.python.version == default_version
+        assert build.python_full_version == full_version
 
     @pytest.mark.parametrize('value', [2, 3])
     def test_python_version_overrides_default(self, value):
@@ -1080,13 +1092,13 @@ class TestBuildConfigV2:
             {'defaults': {'python_version': value}},
         )
         build.validate()
-        assert build.python.version == 3
+        assert build.python.version == '3'
 
-    @pytest.mark.parametrize('value', [2, 3, 3.6])
+    @pytest.mark.parametrize('value', ['2', '3', '3.6'])
     def test_python_version_priority_over_default(self, value):
         build = self.get_build_config(
             {'python': {'version': value}},
-            {'defaults': {'python_version': 3}},
+            {'defaults': {'python_version': '3'}},
         )
         build.validate()
         assert build.python.version == value
@@ -2104,7 +2116,7 @@ class TestBuildConfigV2:
                 'version': 2,
                 'formats': ['pdf'],
                 'python': {
-                    'version': 3.6,
+                    'version': '3.6',
                     'install': [{
                         'requirements': 'requirements.txt',
                     }],
@@ -2117,7 +2129,7 @@ class TestBuildConfigV2:
             'version': '2',
             'formats': ['pdf'],
             'python': {
-                'version': 3.6,
+                'version': '3.6',
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
