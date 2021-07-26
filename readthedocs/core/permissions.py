@@ -5,6 +5,7 @@ from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
+from readthedocs.sso.models import SSOIntegration
 
 
 class AdminPermissionBase:
@@ -46,12 +47,12 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls._has_sso_enabled(team.organization):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             # Org Admin
             for org in user.owner_organizations.all():
-                if not cls._has_sso_enabled(org):
+                if not cls.has_sso_enabled(org, SSOIntegration.PROVIDER_ALLAUTH):
                     # Do not grant admin access on projects for owners if the
                     # organization has SSO enabled with Authorization on the provider.
                     projects |= org.projects.all()
@@ -62,7 +63,7 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls._has_sso_enabled(team.organization):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
@@ -70,7 +71,7 @@ class AdminPermissionBase:
         return projects
 
     @classmethod
-    def _has_sso_enabled(cls, organization):
+    def has_sso_enabled(cls, obj, provider=None):
         return False
 
     @classmethod
