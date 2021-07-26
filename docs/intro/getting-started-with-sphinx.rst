@@ -91,8 +91,8 @@ Then in your ``conf.py``:
 
    extensions = ['myst_parser']
 
-You can now continue writing your docs in `.md` files and it will work with Sphinx.
-Read the `Getting started with MyST in Sphinx`_ for additional instruction.
+You can now continue writing your docs in ``.md`` files and it will work with Sphinx.
+Read the `Getting started with MyST in Sphinx`_ docs for additional instructions.
 
 .. _Getting started with MyST in Sphinx: https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
