@@ -381,23 +381,6 @@ class TestValidatePythonVersion:
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def test_it_validates_wrong_type_right_value(self):
-        build = get_build_config(
-            {'python': {'version': '3.6'}},
-        )
-        build.validate()
-        assert build.python.version == 3.6
-        assert build.python_interpreter == 'python3.6'
-        assert build.python_full_version == 3.6
-
-        build = get_build_config(
-            {'python': {'version': '3'}},
-        )
-        build.validate()
-        assert build.python.version == 3
-        assert build.python_interpreter == 'python3.7'
-        assert build.python_full_version == 3.7
-
     def test_it_validates_env_supported_versions(self):
         build = get_build_config(
             {'python': {'version': 3.6}},
@@ -1030,7 +1013,19 @@ class TestBuildConfigV2:
             },
         })
         build.validate()
-        assert build.python.version == 3.6
+        assert build.python.version == '3.6'
+
+    def test_python_version_310(self):
+        build = self.get_build_config({
+            'build': {
+                'image': 'testing',
+            },
+            'python': {
+                'version': '3.10',
+            },
+        })
+        build.validate()
+        assert build.python.version == '3.10'
 
     @pytest.mark.parametrize(
         'image,versions',
