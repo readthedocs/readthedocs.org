@@ -1,0 +1,13 @@
+contact_links:
+- name: User support
+  url: https://readthedocs.org/support/
+  about: |
+    If you need a specific request for your project or account,
+    like more resources, a specific feature flag,
+    change of the project slug or username, etc
+- name: Security issue
+  url: https://docs.readthedocs.io/en/stable/security.html#reporting-a-security-issue
+  about: |
+    If you believe you’ve discovered a security issue at Read the Docs,
+    please contact us at security@readthedocs.org, optionally using our
+    PGP key (see link for detailed instructions)
