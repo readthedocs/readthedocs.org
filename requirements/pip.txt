@@ -12,7 +12,7 @@ django-simple-history==3.0.0
 djangorestframework==3.12.4
 
 # For intersphinx during builds
-Sphinx==4.0.2
+Sphinx==4.1.2
 
 # Filtering for the REST API
 django-filter==2.4.0
