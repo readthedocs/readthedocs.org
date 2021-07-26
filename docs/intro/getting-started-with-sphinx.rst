@@ -91,16 +91,11 @@ Then in your ``conf.py``:
 
    extensions = ['myst_parser']
 
-.. warning::
+You can now continue writing your docs in `.md` files and it will work with Sphinx.
+Read the `Getting started with MyST in Sphinx`_ for additional instruction.
 
-   Markdown does work for basic prose content.
-   But reStructuredText is the preferred format for technical documentation,
-   please read `this blog post`_ for motivation.
-
+.. _Getting started with MyST in Sphinx: https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
-
-.. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
-
 
 External resources
 ------------------
