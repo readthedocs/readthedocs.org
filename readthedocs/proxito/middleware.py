@@ -197,6 +197,9 @@ class ProxitoMiddleware(MiddlewareMixin):
                     http_header.name,
                     request.domain.domain,
                 )
+                # HTTP headers here are limited to
+                # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
+                # headers is potentially dangerous
                 response[http_header.name] = http_header.value
 
     def add_hsts_headers(self, request, response):
