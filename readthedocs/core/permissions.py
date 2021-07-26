@@ -78,6 +78,25 @@ class AdminPermissionBase:
         from readthedocs.projects.models import Project
         return Project.objects.none()
 
+    def owners(cls, obj):
+        """
+        Return the owners of `obj`.
+
+        If organizations are enabled,
+        we return the owners of the project organization instead.
+        """
+        from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
+
+        if isinstance(obj, Project):
+            if settings.RTD_ALLOW_ORGANIZATIONS:
+                obj = obj.organizations.first()
+            else:
+                return obj.users.all()
+
+        if isinstance(obj, Organization):
+            return obj.owners.all()
+
     @classmethod
     def admins(cls, obj):
         from readthedocs.organizations.models import Organization

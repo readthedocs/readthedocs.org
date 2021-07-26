@@ -20,6 +20,7 @@ class TestBuildManagerBase(TestCase):
         self.project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user],
             main_language_project=None,
             versions=[],
@@ -78,6 +79,7 @@ class TestBuildManagerBase(TestCase):
         self.another_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.another_user],
             main_language_project=None,
             versions=[],
@@ -136,6 +138,7 @@ class TestBuildManagerBase(TestCase):
         self.shared_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user, self.another_user],
             main_language_project=None,
             versions=[],
@@ -280,22 +283,28 @@ class TestExternalBuildManager(TestBuildManagerBase):
         self.assertEqual(set(query), external_builds)
 
     def test_public(self):
+        self.shared_project.external_builds_privacy_level = PRIVATE
+        self.shared_project.save()
         query = Build.external.public()
         public_external_builds = {
             self.build_public_external,
+            self.build_private_external,
             self.another_build_public_external,
-            self.shared_build_public_external,
+            self.another_build_private_external,
         }
         self.assertEqual(query.count(), len(public_external_builds))
         self.assertEqual(set(query), public_external_builds)
 
     def test_public_user(self):
+        self.project.external_builds_privacy_level = PRIVATE
+        self.project.save()
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Build.external.public(user=self.user)
         builds = {
             self.build_private_external,
             self.shared_build_private_external,
             self.build_public_external,
-            self.another_build_public_external,
             self.shared_build_public_external,
         }
         self.assertEqual(query.count(), len(builds))
@@ -311,12 +320,13 @@ class TestExternalBuildManager(TestBuildManagerBase):
         self.assertEqual(set(query), builds)
 
     def test_api(self):
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Build.external.api(user=self.user)
         builds = {
             self.build_private_external,
             self.shared_build_private_external,
             self.build_public_external,
-            self.another_build_public_external,
             self.shared_build_public_external,
         }
         self.assertEqual(query.count(), len(builds))
