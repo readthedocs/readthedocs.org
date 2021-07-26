@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
-from simple_history.utils import update_change_reason
 
 from readthedocs.builds.models import Version
+from readthedocs.core.history import safe_update_change_reason
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -34,17 +34,17 @@ class UpdateChangeReasonMixin:
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        update_change_reason(obj, self.get_change_reason())
+        safe_update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_update(self, serializer):
         obj = serializer.save()
-        update_change_reason(obj, self.get_change_reason())
+        safe_update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
-        update_change_reason(instance, self.get_change_reason())
+        safe_update_change_reason(instance, self.get_change_reason())
 
 
 class NestedParentObjectMixin:

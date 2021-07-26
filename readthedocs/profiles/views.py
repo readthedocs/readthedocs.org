@@ -10,7 +10,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
-from simple_history.utils import update_change_reason
 from vanilla import (
     CreateView,
     DeleteView,
@@ -25,6 +24,7 @@ from readthedocs.core.forms import (
     UserDeleteForm,
     UserProfileForm,
 )
+from readthedocs.core.history import safe_update_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -82,7 +82,7 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         user = self.get_object()
         logout(self.request)
         user.delete()
-        update_change_reason(user, 'Changed from: form')
+        safe_update_change_reason(user, 'Changed from: form')
         return super().form_valid(form)
 
     def get_form(self, data=None, files=None, **kwargs):

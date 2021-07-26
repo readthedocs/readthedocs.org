@@ -1,3 +1,4 @@
+import logging
 from functools import partial
 
 from django import forms
@@ -6,6 +7,19 @@ from django.utils.translation import ugettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
+
+log = logging.getLogger(__name__)
+
+
+def safe_update_change_reason(instance, reason):
+    """Wrapper around update_change_reason to catch exceptions."""
+    try:
+        update_change_reason(instance=instance, reason=reason)
+    except Exception:
+        log.exception(
+            'An error occurred while updating the change reason of the instance: obj=%s',
+            instance,
+        )
 
 
 class ExtraFieldsHistoricalModel(models.Model):
@@ -53,11 +67,11 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        update_change_reason(obj, self.get_change_reason())
+        safe_update_change_reason(obj, self.get_change_reason())
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
-        update_change_reason(obj, self.change_reason)
+        safe_update_change_reason(obj, self.change_reason)
 
 
 class SimpleHistoryModelForm(forms.ModelForm):
@@ -74,7 +88,7 @@ class SimpleHistoryModelForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
-        update_change_reason(obj, self.get_change_reason())
+        safe_update_change_reason(obj, self.get_change_reason())
         return obj
 
 
@@ -97,5 +111,5 @@ class UpdateChangeReasonPostView:
     def post(self, request, *args, **kwargs):
         obj = self.get_object()
         response = super().post(request, *args, **kwargs)
-        update_change_reason(obj, self.get_change_reason())
+        safe_update_change_reason(obj, self.get_change_reason())
         return response
