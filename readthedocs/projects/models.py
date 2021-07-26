@@ -1570,6 +1570,46 @@ class Domain(TimeStampedModel, models.Model):
         super().save(*args, **kwargs)
 
 
+class HTTPHeader(TimeStampedModel, models.Model):
+
+    """
+    Define a HTTP header for a user Domain.
+
+    All the HTTPHeader(s) associated with the domain are added in the response
+    from El Proxito.
+
+    NOTE: the available headers are hardcoded in the NGINX configuration for
+    now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
+    expose them all without hardcoding them.
+    """
+
+    HEADERS_CHOICES = (
+        ('referrer_policy', 'Referrer-Policy'),
+        ('permissions_policy', 'Permissions-Policy'),
+        ('feature_policy', 'Feature-Policy'),
+        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
+        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
+        ('x_frame_options', 'X-Frame-Options'),
+    )
+
+    domain = models.ForeignKey(
+        Domain,
+        related_name='http_headers',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=128,
+        choices=HEADERS_CHOICES,
+    )
+    value = models.CharField(max_length=256)
+    only_if_secure_request = models.BooleanField(
+        help_text='Only set this header if the request is secure (HTTPS)',
+    )
+
+    def __str__(self):
+        return f"HttpHeader: {self.name} on {self.domain.domain}"
+
+
 class Feature(models.Model):
 
     """

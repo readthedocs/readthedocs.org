@@ -1,7 +1,6 @@
 """Git-related utilities."""
 
 import logging
-import os
 import re
 
 import git
@@ -290,7 +289,7 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
             return stdout.strip()
         return None
 
@@ -359,11 +358,3 @@ class Backend(BaseVCS):
         except (BadName, ValueError):
             return False
         return False
-
-    @property
-    def env(self):
-        env = super().env
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env
