@@ -10,12 +10,11 @@ from django.db.models import Count
 from django.http import (
     Http404,
     HttpResponseBadRequest,
-    HttpResponseNotAllowed,
     HttpResponseRedirect,
     StreamingHttpResponse,
 )
 from django.middleware.csrf import get_token
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -40,10 +39,8 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import (
-    ListViewWithForm,
-    PrivateViewMixin,
-)
+from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -72,7 +69,6 @@ from readthedocs.projects.models import (
     Domain,
     EmailHook,
     EnvironmentVariable,
-    Feature,
     Project,
     ProjectRelationship,
     WebHook,
@@ -169,7 +165,7 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectDelete(ProjectMixin, DeleteView):
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     success_message = _('Project deleted')
     template_name = 'projects/project_delete.html'

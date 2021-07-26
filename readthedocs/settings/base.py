@@ -166,6 +166,7 @@ class CommunityBaseSettings(Settings):
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
+            'simple_history',
 
             # our apps
             'readthedocs.projects',
@@ -236,6 +237,7 @@ class CommunityBaseSettings(Settings):
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
         'django_permissions_policy.PermissionsPolicyMiddleware',
+        'simple_history.middleware.HistoryRequestMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (

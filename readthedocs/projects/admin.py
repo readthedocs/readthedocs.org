@@ -6,6 +6,7 @@ from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
@@ -142,7 +143,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
 

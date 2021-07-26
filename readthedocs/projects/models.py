@@ -1,5 +1,4 @@
 """Project models."""
-
 import fnmatch
 import logging
 import os
@@ -25,6 +24,7 @@ from taggit.managers import TaggableManager
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
@@ -437,8 +437,8 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
+    history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
-    all_objects = models.Manager()
 
     remote_repository = models.ForeignKey(
         'oauth.RemoteRepository',
