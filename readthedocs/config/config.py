@@ -255,7 +255,7 @@ class BuildConfigBase:
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        if not ver or isinstance(ver, (int, float)):
+        if not ver or isinstance(ver, (int, float)) or ver == '3.10':
             return 'python{}'.format(ver)
 
         # Allow to specify ``pypy3.5`` as Python interpreter
@@ -264,11 +264,11 @@ class BuildConfigBase:
     @property
     def python_full_version(self):
         ver = self.python.version
-        if ver in [2, 3]:
+        if ver in [2, 3, '2', '3']:
             # use default Python version if user only set '2', or '3'
             return self.get_default_python_version_for_image(
                 self.build.image,
-                ver,
+                int(ver),
             )
         return ver
 
@@ -513,19 +513,8 @@ class BuildConfigV1(BuildConfigBase):
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
-                    # Try to convert strings to an int first, to catch '2', then
-                    # a float, to catch '2.7'
-                    version = raw_python['version']
-                    if isinstance(version, str):
-                        try:
-                            version = int(version)
-                        except ValueError:
-                            try:
-                                version = float(version)
-                            except ValueError:
-                                pass
                     python['version'] = validate_choice(
-                        version,
+                        raw_python['version'],
                         self.get_valid_python_versions(),
                     )
 
@@ -840,14 +829,6 @@ class BuildConfigV2(BuildConfigBase):
         python = {}
         with self.catch_validation_error('python.version'):
             version = self.pop_config('python.version', 3)
-            if isinstance(version, str):
-                try:
-                    version = int(version)
-                except ValueError:
-                    try:
-                        version = float(version)
-                    except ValueError:
-                        pass
             python['version'] = validate_choice(
                 version,
                 self.get_valid_python_versions(),

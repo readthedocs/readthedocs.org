@@ -124,7 +124,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5],
+            [2, 2.7, 3, 3.5, '2', '2.7', '3', '3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -135,7 +135,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+            [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5', '2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -165,6 +165,16 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.version, 3.5)
         self.assertEqual(config.python_interpreter, 'python3.5')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_python_set_python_310_version_in_config(self, load_config):
+        load_config.side_effect = create_load({
+            'build': {'image': 'testing'},
+            'python': {'version': '3.10'},
+        })
+        config = load_yaml_config(self.version)
+        self.assertEqual(config.python.version, '3.10')
+        self.assertEqual(config.python_interpreter, 'python3.10')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_invalid_version_in_config(self, load_config):

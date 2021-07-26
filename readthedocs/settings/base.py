@@ -490,11 +490,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                # TODO: migrate these float numbers to be strings and avoid
-                # issues with ``3.10`` and ``3.1`` see
-                # https://github.com/readthedocs/readthedocs.org/pull/8328#discussion_r666366384
-                # for more details
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 'pypy3.5'],
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, '3.10', 'pypy3.5'],
                 'default_version': {
                     2: 2.7,
                     3: 3.7,
@@ -502,6 +498,14 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
+
+    # Convert all `python.supported_versions` to string for backward compatiblity
+    # see https://github.com/readthedocs/readthedocs.org/pull/8328#discussion_r666366384
+    for k in DOCKER_IMAGE_SETTINGS:
+        for version in DOCKER_IMAGE_SETTINGS[k]['python']['supported_versions']:
+            if isinstance(version, (int, float)):
+                DOCKER_IMAGE_SETTINGS[k]['python']['supported_versions'].append(str(version))
+
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
