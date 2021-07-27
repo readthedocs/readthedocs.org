@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 
@@ -88,8 +89,9 @@ class Organization(models.Model):
         null=True,
     )
 
-    # Manager
+    # Managers
     objects = OrganizationQuerySet.as_manager()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'
@@ -198,8 +200,9 @@ class Team(models.Model):
         help_text="Auto join users with an organization's email address to this team.",
     )
 
-    # Manager
+    # Managers
     objects = TeamManager()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'
@@ -215,10 +218,7 @@ class Team(models.Model):
         )
 
     def __str__(self):
-        return '{organization}/{team}'.format(
-            organization=self.organization.name,
-            team=self.name,
-        )
+        return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:

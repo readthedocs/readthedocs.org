@@ -1,3 +1,8 @@
+---
+name: Bug report
+about: Report some incorrect or unexpected behavior
+---
+
 ## Details
 
 * Read the Docs project URL:
