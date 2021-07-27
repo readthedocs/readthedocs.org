@@ -5,7 +5,6 @@ from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
-from readthedocs.sso.models import SSOIntegration
 
 
 class AdminPermissionBase:
@@ -34,6 +33,8 @@ class AdminPermissionBase:
         :param bool member: include projects where the user has read access to the project
         """
         from readthedocs.projects.models import Project
+        from readthedocs.sso.models import SSOIntegration
+
         projects = Project.objects.none()
         if not user or not user.is_authenticated:
             return projects
