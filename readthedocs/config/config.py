@@ -512,8 +512,9 @@ class BuildConfigV1(BuildConfigBase):
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
+                    version = str(raw_python['version'])
                     python['version'] = validate_choice(
-                        str(raw_python['version']),
+                        version,
                         self.get_valid_python_versions(),
                     )
 
@@ -833,8 +834,9 @@ class BuildConfigV2(BuildConfigBase):
                 # yaml will transform this to the numeric value of `3.1`.
                 # Save some frustration to users.
                 version = '3.10'
+            version = str(version)
             python['version'] = validate_choice(
-                str(version),
+                version,
                 self.get_valid_python_versions(),
             )
 
