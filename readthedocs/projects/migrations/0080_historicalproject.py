@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('oauth', '0014_remove_remoterepository_project'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('projects', '0078_add_external_builds_privacy_level_field'),
+        ('projects', '0079_httpheader'),
     ]
 
     operations = [
