@@ -1,3 +1,18 @@
+Version 5.21.0
+--------------
+
+:Date: July 27, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix migrations (`#8373 <https://github.com/readthedocs/readthedocs.org/pull/8373>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Build out the MyST section of the getting started (`#8371 <https://github.com/readthedocs/readthedocs.org/pull/8371>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tasks (`#8370 <https://github.com/readthedocs/readthedocs.org/pull/8370>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update common (`#8368 <https://github.com/readthedocs/readthedocs.org/pull/8368>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Redirect users to appropriate support channels using template chooser (`#8366 <https://github.com/readthedocs/readthedocs.org/pull/8366>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: return user-defined HTTP headers on custom domains (`#8360 <https://github.com/readthedocs/readthedocs.org/pull/8360>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.20.3 (`#8356 <https://github.com/readthedocs/readthedocs.org/pull/8356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Track model changes with django-simple-history (`#8355 <https://github.com/readthedocs/readthedocs.org/pull/8355>`__)
+* `@stsewd <https://github.com/stsewd>`__: SSO: move models (`#8330 <https://github.com/readthedocs/readthedocs.org/pull/8330>`__)
+
 Version 5.20.3
 --------------
 
