@@ -80,6 +80,7 @@ class AdminPermissionBase:
         from readthedocs.projects.models import Project
         return Project.objects.none()
 
+    @classmethod
     def owners(cls, obj):
         """
         Return the owners of `obj`.
