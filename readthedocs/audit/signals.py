@@ -1,11 +1,13 @@
 """Audit signals."""
 
+from django.contrib.auth.models import User
 from django.contrib.auth.signals import (
     user_logged_in,
     user_logged_out,
     user_login_failed,
 )
 from django.dispatch import receiver
+from django.db.models import Q
 
 from readthedocs.audit.models import AuditLog
 
@@ -36,7 +38,14 @@ def log_logged_out(sender, request, user, **kwargs):
 def log_login_failed(sender, credentials, request, **kwargs):
     """Log when a user has failed to logged in."""
     # pylint: disable=unused-argument
+    username = credentials.get('username')
+    user = (
+        User.objects.filter(Q(username=username) | Q(email=username))
+        .first()
+    )
     AuditLog.objects.new(
         action=AuditLog.AUTHN_FAILURE,
+        user=user,
+        log_username=username,
         request=request,
     )
