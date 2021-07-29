@@ -54,18 +54,7 @@ class ServeDocsMixin:
         or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
-        track_file = any(
-            path.endswith(ext)
-            for ext in ['.html', '.pdf', '.epub', '.zip']
-        )
-
-        if track_file and self._is_audit_enabled(final_project):
-            AuditLog.objects.new(
-                action=AuditLog.PAGEVIEW,
-                user=request.user,
-                request=request,
-                project=final_project,
-            )
+        self._trak_pageview(final_project, path, request)
 
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
@@ -81,6 +70,23 @@ class ServeDocsMixin:
             path=path,
             download=download,
         )
+
+    def _trak_pageview(self, project, path, request):
+        """Create an audit log of the page view if audit is enabled."""
+        # Remove any query args (like the token access from AWS).
+        path_only = urlparse(path).path
+        track_file = any(
+            path_only.endswith(ext)
+            for ext in ['.html', '.pdf', '.epub', '.zip']
+        )
+
+        if track_file and self._is_audit_enabled(project):
+            AuditLog.objects.new(
+                action=AuditLog.PAGEVIEW,
+                user=request.user,
+                request=request,
+                project=project,
+            )
 
     def _is_audit_enabled(self, project):
         """

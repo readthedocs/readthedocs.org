@@ -27,6 +27,9 @@ def log_logged_in(sender, request, user, **kwargs):
 def log_logged_out(sender, request, user, **kwargs):
     """Log when a user has logged out."""
     # pylint: disable=unused-argument
+    # Only log if there is an user.
+    if not user:
+        return
     AuditLog.objects.new(
         action=AuditLog.LOGOUT,
         user=user,
@@ -46,6 +49,6 @@ def log_login_failed(sender, credentials, request, **kwargs):
     AuditLog.objects.new(
         action=AuditLog.AUTHN_FAILURE,
         user=user,
-        log_username=username,
+        log_user_username=username,
         request=request,
     )

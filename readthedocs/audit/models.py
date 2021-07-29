@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from readthedocs.acl.utils import get_auth_backend
+
 
 class AuditLogManager(models.Manager):
 
@@ -24,18 +26,15 @@ class AuditLogManager(models.Manager):
         if action == AuditLog.PAGEVIEW and 'project' not in kwargs:
             raise TypeError(f'A project is required for the {action} action.')
 
-        if user:
-            kwargs.setdefault('auth_backend', getattr(user, 'backend', None))
-            if user.is_authenticated:
-                kwargs['log_user_id'] = user.id
-                kwargs['log_username'] = user.username
-            else:
-                user = None
+        # Don't save anonymous users.
+        if user and user.is_anonymous:
+            user = None
 
         if request:
             kwargs['ip'] = request.META.get('REMOTE_ADDR')
             kwargs['browser'] = request.headers.get('User-Agent')
             kwargs.setdefault('resource', request.path_info)
+            kwargs.setdefault('auth_backend', get_auth_backend(request))
 
         return self.create(
             user=user,
@@ -50,10 +49,8 @@ class AuditLog(TimeStampedModel):
     Track user actions for audit purposes.
 
     A log can be attached to a user and/or project.
-    Logs attached to a project will be deleted when the project is deleted.
-
-    If the user is deleted the log will be preserved,
-    and the deleted user can be accessed via ``log_user_id`` and ``log_username``.
+    If the user or project are deleted the log will be preserved,
+    and the deleted user/project can be accessed via the ``log_*`` attributes.
     """
 
     PAGEVIEW = 'pageview'
@@ -82,9 +79,31 @@ class AuditLog(TimeStampedModel):
         null=True,
         db_index=True,
     )
-    log_username = models.CharField(
+    log_user_username = models.CharField(
         _('Username'),
         max_length=150,
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+
+    project = models.ForeignKey(
+        'projects.Project',
+        verbose_name=_('Project'),
+        null=True,
+        db_index=True,
+        on_delete=models.SET_NULL,
+    )
+    # Extra information in case the project is deleted.
+    log_project_id = models.IntegerField(
+        _('Project ID'),
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+    log_project_slug = models.CharField(
+        _('Project slug'),
+        max_length=63,
         blank=True,
         null=True,
         db_index=True,
@@ -94,13 +113,6 @@ class AuditLog(TimeStampedModel):
         _('Action'),
         max_length=150,
         choices=CHOICES,
-    )
-    project = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Project'),
-        null=True,
-        db_index=True,
-        on_delete=models.CASCADE,
     )
     auth_backend = models.CharField(
         _('Auth backend'),
@@ -129,3 +141,12 @@ class AuditLog(TimeStampedModel):
     )
 
     objects = AuditLogManager()
+
+    def save(self, **kwargs):
+        if self.user:
+            self.log_user_id = self.user.id
+            self.log_user_username = self.user.username
+        if self.project:
+            self.log_project_id = self.project.id
+            self.log_project_slug = self.project.slug
+        super().save(**kwargs)

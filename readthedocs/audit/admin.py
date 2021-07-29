@@ -8,12 +8,13 @@ from readthedocs.audit.models import AuditLog
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
 
-    search_fields = ('log_username', 'browser', 'project__slug')
-    list_filter = ('log_username', 'ip', 'project', 'action')
+    raw_id_fields = ('user', 'project')
+    search_fields = ('log_user_username', 'browser', 'log_project_slug')
+    list_filter = ('log_user_username', 'ip', 'log_project_slug', 'action')
     list_display = (
         'action',
-        'log_username',
-        'project',
+        'log_user_username',
+        'log_project_slug',
         'ip',
         'browser',
         'resource',
