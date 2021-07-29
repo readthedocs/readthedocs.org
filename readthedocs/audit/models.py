@@ -1,3 +1,5 @@
+"""Audit models."""
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -5,6 +7,8 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class AuditLogManager(models.Manager):
+
+    """AuditLog manager."""
 
     def new(self, action, user=None, request=None, **kwargs):
         """
@@ -17,7 +21,7 @@ class AuditLogManager(models.Manager):
         actions_requiring_user = (AuditLog.PAGEVIEW, AuditLog.AUTHN, AuditLog.LOGOUT)
         if action in actions_requiring_user and (not user or not request):
             raise TypeError(f'A user and a request is required for the {action} action.')
-        if action == AuditLog.PAGEVIEW and not 'project' in kwargs:
+        if action == AuditLog.PAGEVIEW and 'project' not in kwargs:
             raise TypeError(f'A project is required for the {action} action.')
 
         if user:
@@ -41,6 +45,7 @@ class AuditLogManager(models.Manager):
 
 
 class AuditLog(TimeStampedModel):
+
     """
     Track user actions for audit purposes.
 

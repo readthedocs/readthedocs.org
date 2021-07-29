@@ -1,3 +1,5 @@
+"""Audit admin."""
+
 from django.contrib import admin
 
 from readthedocs.audit.models import AuditLog
