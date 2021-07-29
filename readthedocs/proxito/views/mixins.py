@@ -54,7 +54,12 @@ class ServeDocsMixin:
         or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
-        if self._is_audit_enabled(final_project):
+        track_file = any(
+            path.endswith(ext)
+            for ext in ['.html', '.pdf', '.epub', '.zip']
+        )
+
+        if track_file and self._is_audit_enabled(final_project):
             AuditLog.objects.new(
                 action=AuditLog.PAGEVIEW,
                 user=request.user,
