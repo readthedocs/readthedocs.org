@@ -159,11 +159,9 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 
 .. note::
 
-   Make sure to use quotes (``"``) around the value,
-   or YAML will take your value as a number
-   (``3.10`` will be transformed to ``3.1``).
-   Using numbers is valid, but not recomended.
-
+   Make sure to use quotes (``"``) to make it a string.
+   We previously supported using numbers here,
+   but that approach is deprecated.
 .. warning::
 
    If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
