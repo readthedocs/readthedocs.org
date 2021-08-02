@@ -457,50 +457,51 @@ class CommunityBaseSettings(Settings):
         # We must have documented it at some point.
         'readthedocs/build:2.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5],
+                'supported_versions': ['2', '2.7', '3', '3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.5,
+                    '2': '2.7',
+                    '3': '3.5',
                 },
             },
         },
         'readthedocs/build:4.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
     }
+
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
