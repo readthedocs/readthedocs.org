@@ -254,23 +254,22 @@ class BuildConfigBase:
 
     @property
     def python_interpreter(self):
-        ver = self.python_full_version
-        if not ver or isinstance(ver, (int, float)) or ver == '3.10':
-            return 'python{}'.format(ver)
-
-        # Allow to specify ``pypy3.5`` as Python interpreter
-        return ver
+        version = self.python_full_version
+        if version.startswith('pypy'):
+            # Allow to specify ``pypy3.5`` as Python interpreter
+            return version
+        return f'python{version}'
 
     @property
     def python_full_version(self):
-        ver = self.python.version
-        if ver in [2, 3, '2', '3']:
+        version = self.python.version
+        if version in ['2', '3']:
             # use default Python version if user only set '2', or '3'
             return self.get_default_python_version_for_image(
                 self.build.image,
-                int(ver),
+                version,
             )
-        return ver
+        return version
 
     @property
     def valid_build_images(self):
@@ -454,7 +453,7 @@ class BuildConfigV1(BuildConfigBase):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
         use_system_packages = self.defaults.get('use_system_packages', False)
-        version = self.defaults.get('python_version', 2)
+        version = self.defaults.get('python_version', '2')
         python = {
             'use_system_site_packages': use_system_packages,
             'install_with_pip': False,
@@ -513,8 +512,9 @@ class BuildConfigV1(BuildConfigBase):
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
+                    version = str(raw_python['version'])
                     python['version'] = validate_choice(
-                        raw_python['version'],
+                        version,
                         self.get_valid_python_versions(),
                     )
 
@@ -828,7 +828,13 @@ class BuildConfigV2(BuildConfigBase):
 
         python = {}
         with self.catch_validation_error('python.version'):
-            version = self.pop_config('python.version', 3)
+            version = self.pop_config('python.version', '3')
+            if version == 3.1:
+                # Special case for ``python.version: 3.10``,
+                # yaml will transform this to the numeric value of `3.1`.
+                # Save some frustration to users.
+                version = '3.10'
+            version = str(version)
             python['version'] = validate_choice(
                 version,
                 self.get_valid_python_versions(),
