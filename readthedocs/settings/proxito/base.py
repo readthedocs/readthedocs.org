@@ -13,6 +13,10 @@ class CommunityProxitoSettingsMixin:
     USE_SUBDOMAIN = True
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
+    # Always set to Lax for proxito cookies.
+    # Even if the donate app is present.
+    SESSION_COOKIE_SAMESITE = 'Lax'
+
     @property
     def DATABASES(self):
         # This keeps connections to the DB alive,
