@@ -71,7 +71,9 @@
 
 {% block project_edit_content %}
   <p class="help_text">
-    {% trans "Add redirects for your project. This allows you to fix links to old pages that are 404ing." %}
+    {% blocktrans trimmed with docs_url='https://docs.readthedocs.io/page/user-defined-redirects.html' %}
+        Add redirects for your project. This allows you to fix links to old pages that are 404ing. <a href="{{ docs_url }}">Learn more</a>.
+    {% endblocktrans %}
   </p>
 
   {% if redirects|length > 0 %}

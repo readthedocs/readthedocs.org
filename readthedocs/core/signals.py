@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
+from simple_history.signals import pre_create_historical_record
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
@@ -116,6 +117,15 @@ def delete_projects(sender, instance, *args, **kwargs):
     )
 
     projects.delete()
+
+
+@receiver(pre_create_historical_record)
+def add_extra_historical_fields(sender, **kwargs):
+    history_instance = kwargs['history_instance']
+    history_user = kwargs['history_user']
+    if history_instance and history_user:
+        history_instance.extra_history_user_id = history_user.id
+        history_instance.extra_history_user_username = history_user.username
 
 
 signals.check_request_enabled.connect(decide_if_cors)

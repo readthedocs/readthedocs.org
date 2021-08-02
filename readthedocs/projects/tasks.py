@@ -61,6 +61,12 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject, Feature
+from readthedocs.projects.signals import (
+    after_build,
+    before_build,
+    before_vcs,
+    files_changed,
+)
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_environment_storage, build_media_storage
@@ -70,13 +76,6 @@ from readthedocs.worker import app
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import HTMLFile, ImportedFile, Project
-from .signals import (
-    after_build,
-    after_vcs,
-    before_build,
-    before_vcs,
-    files_changed,
-)
 
 log = logging.getLogger(__name__)
 
@@ -312,6 +311,13 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_vcs_env_vars(self):
+        """Get environment variables to be included in the VCS setup step."""
+        env = self.get_rtd_env_vars()
+        # Don't prompt for username, this requires Git 2.3+
+        env['GIT_TERMINAL_PROMPT'] = '0'
+        return env
+
     def get_rtd_env_vars(self):
         """Get bash environment variables specific to Read the Docs."""
         env = {
@@ -371,7 +377,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version=self.version,
                 record=False,
                 update_on_success=False,
-                environment=self.get_rtd_env_vars(),
+                environment=self.get_vcs_env_vars(),
             )
             log.info(
                 'Running sync_repository_task: project=%s version=%s',
@@ -411,8 +417,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     },
                 },
             )
-        finally:
-            after_vcs.send(sender=self.version)
 
         # Always return False for any exceptions
         return False
@@ -660,7 +664,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             update_on_success=False,
-            environment=self.get_rtd_env_vars(),
+            environment=self.get_vcs_env_vars(),
         )
         self.build_start_time = environment.start_time
 
@@ -671,30 +675,27 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Environment used for code checkout & initial configuration reading
         with environment:
+            before_vcs.send(sender=self.version, environment=environment)
+            if self.project.skip:
+                raise ProjectBuildsSkippedError
             try:
-                before_vcs.send(sender=self.version, environment=environment)
-                if self.project.skip:
-                    raise ProjectBuildsSkippedError
-                try:
-                    with self.project.repo_nonblockinglock(version=self.version):
-                        self.pull_cached_environment()
-                        self.setup_vcs(environment)
-                except vcs_support_utils.LockTimeout as e:
-                    self.task.retry(exc=e, throw=False)
-                    raise VersionLockedError
-                try:
-                    self.config = load_yaml_config(version=self.version)
-                except ConfigError as e:
-                    raise YAMLParseError(
-                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                            exception=str(e),
-                        ),
-                    )
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.pull_cached_environment()
+                    self.setup_vcs(environment)
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise VersionLockedError
+            try:
+                self.config = load_yaml_config(version=self.version)
+            except ConfigError as e:
+                raise YAMLParseError(
+                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                        exception=str(e),
+                    ),
+                )
 
-                self.save_build_config()
-                self.additional_vcs_operations(environment)
-            finally:
-                after_vcs.send(sender=self.version)
+            self.save_build_config()
+            self.additional_vcs_operations(environment)
 
         if environment.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
@@ -740,7 +741,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
-        env_vars = self.get_env_vars()
+        env_vars = self.get_build_env_vars()
 
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
@@ -931,7 +932,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         if commit:
             self.build['commit'] = commit
 
-    def get_env_vars(self):
+    def get_build_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = self.get_rtd_env_vars()
 

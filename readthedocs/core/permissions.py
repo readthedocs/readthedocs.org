@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Objects for User permission checks."""
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -10,9 +9,29 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 class AdminPermissionBase:
 
     @classmethod
-    def admins(cls, obj):
-        from readthedocs.projects.models import Project
+    def owners(cls, obj):
+        """
+        Return the owners of `obj`.
+
+        If organizations are enabled,
+        we return the owners of the project organization instead.
+        """
         from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
+
+        if isinstance(obj, Project):
+            if settings.RTD_ALLOW_ORGANIZATIONS:
+                obj = obj.organizations.first()
+            else:
+                return obj.users.all()
+
+        if isinstance(obj, Organization):
+            return obj.owners.all()
+
+    @classmethod
+    def admins(cls, obj):
+        from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):
             return obj.users.all()
@@ -22,8 +41,8 @@ class AdminPermissionBase:
 
     @classmethod
     def members(cls, obj):
-        from readthedocs.projects.models import Project
         from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
 
         if isinstance(obj, Project):
             return obj.users.all()

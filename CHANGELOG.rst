@@ -1,3 +1,61 @@
+Version 5.21.0
+--------------
+
+:Date: July 27, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix migrations (`#8373 <https://github.com/readthedocs/readthedocs.org/pull/8373>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Build out the MyST section of the getting started (`#8371 <https://github.com/readthedocs/readthedocs.org/pull/8371>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tasks (`#8370 <https://github.com/readthedocs/readthedocs.org/pull/8370>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update common (`#8368 <https://github.com/readthedocs/readthedocs.org/pull/8368>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Redirect users to appropriate support channels using template chooser (`#8366 <https://github.com/readthedocs/readthedocs.org/pull/8366>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: return user-defined HTTP headers on custom domains (`#8360 <https://github.com/readthedocs/readthedocs.org/pull/8360>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.20.3 (`#8356 <https://github.com/readthedocs/readthedocs.org/pull/8356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Track model changes with django-simple-history (`#8355 <https://github.com/readthedocs/readthedocs.org/pull/8355>`__)
+* `@stsewd <https://github.com/stsewd>`__: SSO: move models (`#8330 <https://github.com/readthedocs/readthedocs.org/pull/8330>`__)
+
+Version 5.20.3
+--------------
+
+:Date: July 19, 2021
+
+* `@Nkarnaud <https://github.com/Nkarnaud>`__: change vieweable to viewable on  home page: issue#8346 (`#8351 <https://github.com/readthedocs/readthedocs.org/pull/8351>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: don't record git rev-parse command (`#8348 <https://github.com/readthedocs/readthedocs.org/pull/8348>`__)
+* `@stsewd <https://github.com/stsewd>`__: UI: allow to close notifications (`#8345 <https://github.com/readthedocs/readthedocs.org/pull/8345>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use email from DEFAULT_FROM_EMAIL to contact users (`#8344 <https://github.com/readthedocs/readthedocs.org/pull/8344>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade taggit (`#8342 <https://github.com/readthedocs/readthedocs.org/pull/8342>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dont mutate env vars outside the BuildEnv classes (`#8340 <https://github.com/readthedocs/readthedocs.org/pull/8340>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guides: how to import a private project using an ssh key (`#8336 <https://github.com/readthedocs/readthedocs.org/pull/8336>`__)
+
+Version 5.20.2
+--------------
+
+:Date: July 13, 2021
+
+* `@humitos <https://github.com/humitos>`__: psycopg2: pin to a compatible version with Django 2.2 (`#8335 <https://github.com/readthedocs/readthedocs.org/pull/8335>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact owners: use correct organization to filter (`#8325 <https://github.com/readthedocs/readthedocs.org/pull/8325>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: fix render api endpoints (`#8320 <https://github.com/readthedocs/readthedocs.org/pull/8320>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 27 (`#8317 <https://github.com/readthedocs/readthedocs.org/pull/8317>`__)
+* `@mongolsteppe <https://github.com/mongolsteppe>`__: Fixing minor error (`#8313 <https://github.com/readthedocs/readthedocs.org/pull/8313>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: remove after_vcs signal (`#8311 <https://github.com/readthedocs/readthedocs.org/pull/8311>`__)
+* `@The-Compiler <https://github.com/The-Compiler>`__: Add link to redirect docs (`#8308 <https://github.com/readthedocs/readthedocs.org/pull/8308>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add docs about setting up permissions for GH apps & orgs (`#8305 <https://github.com/readthedocs/readthedocs.org/pull/8305>`__)
+* `@stsewd <https://github.com/stsewd>`__: Schema: fix version type (`#8303 <https://github.com/readthedocs/readthedocs.org/pull/8303>`__)
+* `@stsewd <https://github.com/stsewd>`__: Slugify: don't generate slugs with trailing `-` (`#8302 <https://github.com/readthedocs/readthedocs.org/pull/8302>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Increase guide depth (`#8300 <https://github.com/readthedocs/readthedocs.org/pull/8300>`__)
+* `@humitos <https://github.com/humitos>`__: autoscaling: remove app autoscaling tasks (`#8297 <https://github.com/readthedocs/readthedocs.org/pull/8297>`__)
+* `@humitos <https://github.com/humitos>`__: PR build status: re-try up to 3 times if it fails for some reason (`#8296 <https://github.com/readthedocs/readthedocs.org/pull/8296>`__)
+* `@SethFalco <https://github.com/SethFalco>`__: feat: add json schema (`#8294 <https://github.com/readthedocs/readthedocs.org/pull/8294>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 26 (`#8293 <https://github.com/readthedocs/readthedocs.org/pull/8293>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: validate that a correct slug is generated (`#8292 <https://github.com/readthedocs/readthedocs.org/pull/8292>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove unused context vars (`#8285 <https://github.com/readthedocs/readthedocs.org/pull/8285>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add new guide about Jupyter in Sphinx (`#8283 <https://github.com/readthedocs/readthedocs.org/pull/8283>`__)
+* `@humitos <https://github.com/humitos>`__: oauth webhook: check the `Project` has a `RemoteRepository` (`#8282 <https://github.com/readthedocs/readthedocs.org/pull/8282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to email users from a management command (`#8243 <https://github.com/readthedocs/readthedocs.org/pull/8243>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: Embed APIv3 (`#8222 <https://github.com/readthedocs/readthedocs.org/pull/8222>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add proposal for new Sphinx and RTD tutorials (`#8106 <https://github.com/readthedocs/readthedocs.org/pull/8106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to change the privacy level of external versions (`#7825 <https://github.com/readthedocs/readthedocs.org/pull/7825>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add tests for remove index files (`#6381 <https://github.com/readthedocs/readthedocs.org/pull/6381>`__)
+
 Version 5.20.1
 --------------
 

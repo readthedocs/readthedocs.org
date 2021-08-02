@@ -35,6 +35,7 @@ class CommunityProxitoSettingsMixin:
 
         middleware_to_remove = (
             'csp.middleware.CSPMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
         )
         for mw in middleware_to_remove:
             if mw in classes:
