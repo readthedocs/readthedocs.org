@@ -24,7 +24,7 @@ def load_yaml_config(version):
     # can be rejected at validation
 
     img_name = project.container_image or DOCKER_IMAGE
-    python_version = 3 if project.python_interpreter == 'python3' else 2
+    python_version = '3' if project.python_interpreter == 'python3' else '2'
     try:
         sphinx_configuration = path.join(
             version.get_conf_py_path(),
