@@ -18,7 +18,7 @@ Sphinx==4.1.2
 django-filter==2.4.0
 
 drf-flex-fields==0.9.1
-drf-extensions==0.7.0
+drf-extensions==0.7.1
 
 django-vanilla-views==3.0.0
 jsonfield==3.1.0
