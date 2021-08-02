@@ -150,3 +150,6 @@ class AuditLog(TimeStampedModel):
             self.log_project_id = self.project.id
             self.log_project_slug = self.project.slug
         super().save(**kwargs)
+
+    def __str__(self):
+        return self.action
