@@ -342,6 +342,8 @@ class ImportedFileAdmin(admin.ModelAdmin):
     list_select_related = ('project', 'version', 'version__project')
     search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
+class HTTPHeaderInline(admin.TabularInline):
+    model = HTTPHeader
 
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
@@ -354,6 +356,7 @@ class DomainAdmin(admin.ModelAdmin):
         'created',
         'modified',
     )
+    inlines = (HTTPHeaderInline,)
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
     list_filter = ('canonical', 'https', 'ssl_status')
