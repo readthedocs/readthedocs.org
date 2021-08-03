@@ -342,8 +342,10 @@ class ImportedFileAdmin(admin.ModelAdmin):
     list_select_related = ('project', 'version', 'version__project')
     search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
+
 class HTTPHeaderInline(admin.TabularInline):
     model = HTTPHeader
+
 
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
