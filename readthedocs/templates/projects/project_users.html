@@ -31,9 +31,7 @@
             {% csrf_token %}
           <select id="id_user" name="username">
           {% for user in users %}
-            {% if not is_last_user or user != request.user %}
             <option value="{{ user.username }}">{{ user }}</option>
-            {% endif %}
           {% endfor %}
           </select>
           <input type="submit" value="{% trans "Remove" %}">
