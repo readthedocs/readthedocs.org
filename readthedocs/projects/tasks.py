@@ -6,7 +6,6 @@ rebuilding documentation.
 """
 
 import datetime
-import hashlib
 import json
 import logging
 import os
@@ -29,48 +28,45 @@ from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
 from readthedocs.api.v2.client import api as api_v2
+from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
-    BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
-    LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
-from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
 )
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
-    BuildEnvironmentWarning,
     BuildMaxConcurrencyError,
     BuildTimeoutError,
     DuplicatedBuildError,
-    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
+from readthedocs.projects.signals import (
+    after_build,
+    before_build,
+    before_vcs,
+    files_changed,
+)
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_environment_storage, build_media_storage
@@ -79,14 +75,7 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, HTMLFile, ImportedFile, Project
-from .signals import (
-    after_build,
-    after_vcs,
-    before_build,
-    before_vcs,
-    files_changed,
-)
+from .models import HTMLFile, ImportedFile, Project
 
 log = logging.getLogger(__name__)
 
@@ -295,7 +284,6 @@ class SyncRepositoryMixin:
             branches_data=branches_data,
         )
 
-        from readthedocs.builds import tasks as build_tasks
         build_tasks.sync_versions_task.delay(
             project_pk=self.project.pk,
             tags_data=tags_data,
@@ -322,6 +310,13 @@ class SyncRepositoryMixin:
                 raise RepositoryError(
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
+
+    def get_vcs_env_vars(self):
+        """Get environment variables to be included in the VCS setup step."""
+        env = self.get_rtd_env_vars()
+        # Don't prompt for username, this requires Git 2.3+
+        env['GIT_TERMINAL_PROMPT'] = '0'
+        return env
 
     def get_rtd_env_vars(self):
         """Get bash environment variables specific to Read the Docs."""
@@ -382,7 +377,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version=self.version,
                 record=False,
                 update_on_success=False,
-                environment=self.get_rtd_env_vars(),
+                environment=self.get_vcs_env_vars(),
             )
             log.info(
                 'Running sync_repository_task: project=%s version=%s',
@@ -422,8 +417,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     },
                 },
             )
-        finally:
-            after_vcs.send(sender=self.version)
 
         # Always return False for any exceptions
         return False
@@ -671,7 +664,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             update_on_success=False,
-            environment=self.get_rtd_env_vars(),
+            environment=self.get_vcs_env_vars(),
         )
         self.build_start_time = environment.start_time
 
@@ -682,30 +675,27 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Environment used for code checkout & initial configuration reading
         with environment:
+            before_vcs.send(sender=self.version, environment=environment)
+            if self.project.skip:
+                raise ProjectBuildsSkippedError
             try:
-                before_vcs.send(sender=self.version, environment=environment)
-                if self.project.skip:
-                    raise ProjectBuildsSkippedError
-                try:
-                    with self.project.repo_nonblockinglock(version=self.version):
-                        self.pull_cached_environment()
-                        self.setup_vcs(environment)
-                except vcs_support_utils.LockTimeout as e:
-                    self.task.retry(exc=e, throw=False)
-                    raise VersionLockedError
-                try:
-                    self.config = load_yaml_config(version=self.version)
-                except ConfigError as e:
-                    raise YAMLParseError(
-                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                            exception=str(e),
-                        ),
-                    )
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.pull_cached_environment()
+                    self.setup_vcs(environment)
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise VersionLockedError
+            try:
+                self.config = load_yaml_config(version=self.version)
+            except ConfigError as e:
+                raise YAMLParseError(
+                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                        exception=str(e),
+                    ),
+                )
 
-                self.save_build_config()
-                self.additional_vcs_operations(environment)
-            finally:
-                after_vcs.send(sender=self.version)
+            self.save_build_config()
+            self.additional_vcs_operations(environment)
 
         if environment.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
@@ -751,7 +741,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
-        env_vars = self.get_env_vars()
+        env_vars = self.get_build_env_vars()
 
         if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
@@ -938,11 +928,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.get_vcs_repo(environment).commit
         if commit:
             self.build['commit'] = commit
 
-    def get_env_vars(self):
+    def get_build_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = self.get_rtd_env_vars()
 
@@ -1875,110 +1865,6 @@ def finish_inactive_builds():
     )
 
 
-# TODO: Move this to builds/tasks
-@app.task(queue='web')
-def send_build_status(build_pk, commit, status, link_to_build=False):
-    """
-    Send Build Status to Git Status API for project external versions.
-
-    It tries using these services' account in order:
-
-    1. user's account that imported the project
-    2. each user's account from the project's maintainers
-
-    :param build_pk: Build primary key
-    :param commit: commit sha of the pull/merge request
-    :param status: build status failed, pending, or success to be sent.
-    """
-    # TODO: Send build status for BitBucket.
-    build = Build.objects.get(pk=build_pk)
-    provider_name = build.project.git_provider_name
-
-    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
-
-    if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
-        # get the service class for the project e.g: GitHubService.
-        service_class = build.project.git_service_class()
-        users = build.project.users.all()
-
-        try:
-            remote_repository = build.project.remote_repository
-            remote_repository_relations = (
-                remote_repository.remote_repository_relations.filter(
-                    account__isnull=False,
-                    # Use ``user_in=`` instead of ``user__projects=`` here
-                    # because User's are not related to Project's directly in
-                    # Read the Docs for Business
-                    user__in=AdminPermission.members(build.project),
-                ).select_related('account', 'user').only('user', 'account')
-            )
-
-            # Try using any of the users' maintainer accounts
-            # Try to loop through all remote repository relations for the projects users
-            for relation in remote_repository_relations:
-                service = service_class(relation.user, relation.account)
-                # Send status report using the API.
-                success = service.send_build_status(
-                    build=build,
-                    commit=commit,
-                    state=status,
-                    link_to_build=link_to_build,
-                )
-
-                if success:
-                    log.info(
-                        'Build status report sent correctly. '
-                        'project=%s build=%s status=%s commit=%s user=%s',
-                        build.project.slug,
-                        build.pk,
-                        status,
-                        commit,
-                        relation.user.username,
-                    )
-                    return True
-
-        except RemoteRepository.DoesNotExist:
-            log.warning(
-                'Project does not have a RemoteRepository. project=%s',
-                build.project.slug,
-            )
-            # Try to send build status for projects with no RemoteRepository
-            for user in users:
-                services = service_class.for_user(user)
-                # Try to loop through services for users all social accounts
-                # to send successful build status
-                for service in services:
-                    success = service.send_build_status(build, commit, status)
-                    if success:
-                        log.info(
-                            'Build status report sent correctly using an user account. '
-                            'project=%s build=%s status=%s commit=%s user=%s',
-                            build.project.slug,
-                            build.pk,
-                            status,
-                            commit,
-                            user.username,
-                        )
-                        return True
-
-        for user in users:
-            # Send Site notification about Build status reporting failure
-            # to all the users of the project.
-            notification = GitBuildStatusFailureNotification(
-                context_object=build.project,
-                extra_context={'provider_name': provider_name},
-                user=user,
-                success=False,
-            )
-            notification.send()
-
-        log.info(
-            'No social account or repository permission available for %s',
-            build.project.slug
-        )
-        return False
-
-
 def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
@@ -1992,4 +1878,4 @@ def send_external_build_status(version_type, build_pk, commit, status):
     # Send status reports for only External (pull/merge request) Versions.
     if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build_pk, commit, status)
+        build_tasks.send_build_status.delay(build_pk, commit, status)

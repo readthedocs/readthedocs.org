@@ -1,10 +1,12 @@
-from django.db.models import Exists, OuterRef
-
 import django_filters.rest_framework as filters
+from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import (
+    SessionAuthentication,
+    TokenAuthentication,
+)
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -18,17 +20,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
+from rest_framework.viewsets import (
+    GenericViewSet,
+    ModelViewSet,
+    ReadOnlyModelViewSet,
+)
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import (
     EnvironmentVariable,
@@ -37,7 +43,6 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
-
 
 from .filters import (
     BuildFilter,
@@ -50,28 +55,26 @@ from .mixins import (
     OrganizationQuerySetMixin,
     ProjectQuerySetMixin,
     RemoteQuerySetMixin,
+    UpdateChangeReasonMixin,
     UpdateMixin,
 )
-from .permissions import (
-    CommonPermissions,
-    IsProjectAdmin,
-)
+from .permissions import CommonPermissions, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
     OrganizationSerializer,
-    ProjectSerializer,
     ProjectCreateSerializer,
+    ProjectSerializer,
     ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
     RemoteOrganizationSerializer,
     RemoteRepositorySerializer,
     SubprojectCreateSerializer,
-    SubprojectSerializer,
     SubprojectDestroySerializer,
+    SubprojectSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -104,8 +107,8 @@ class APIv3Settings:
 
 
 class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                          FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
-                          UpdateMixin, UpdateModelMixin,
+                          FlexFieldsMixin, ProjectImportMixin, UpdateChangeReasonMixin,
+                          CreateModelMixin, UpdateMixin, UpdateModelMixin,
                           ReadOnlyModelViewSet):
 
     model = Project
@@ -182,7 +185,7 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         Trigger our internal mechanism to import a project after it's saved in
         the database.
         """
-        project = serializer.save()
+        project = super().perform_create(serializer)
         self.finish_import_project(self.request, project)
 
     @action(detail=True, methods=['get'])
@@ -451,8 +454,8 @@ class RemoteRepositoryViewSet(
     queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
     permit_list_expands = [
-        'organization',
-        'project'
+        'remote_organization',
+        'projects'
     ]
 
     def get_queryset(self):
@@ -466,13 +469,11 @@ class RemoteRepositoryViewSet(
             )
         )
 
-        if is_expanded(self.request, 'organization'):
+        if is_expanded(self.request, 'remote_organization'):
             queryset = queryset.select_related('organization')
 
-        if is_expanded(self.request, 'project'):
-            queryset = queryset.select_related('project').prefetch_related(
-                'project__users',
-            )
+        if is_expanded(self.request, 'projects'):
+            queryset = queryset.prefetch_related('projects__users')
 
         return queryset.order_by('organization__name', 'full_name').distinct()
 

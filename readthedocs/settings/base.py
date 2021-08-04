@@ -166,6 +166,7 @@ class CommunityBaseSettings(Settings):
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
+            'simple_history',
 
             # our apps
             'readthedocs.projects',
@@ -174,6 +175,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.doc_builder',
             'readthedocs.oauth',
             'readthedocs.redirects',
+            'readthedocs.sso',
             'readthedocs.rtd_tests',
             'readthedocs.api.v2',
             'readthedocs.api.v3',
@@ -235,6 +237,7 @@ class CommunityBaseSettings(Settings):
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
         'django_permissions_policy.PermissionsPolicyMiddleware',
+        'simple_history.middleware.HistoryRequestMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -454,50 +457,51 @@ class CommunityBaseSettings(Settings):
         # We must have documented it at some point.
         'readthedocs/build:2.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5],
+                'supported_versions': ['2', '2.7', '3', '3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.5,
+                    '2': '2.7',
+                    '3': '3.5',
                 },
             },
         },
         'readthedocs/build:4.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
     }
+
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
@@ -586,11 +590,7 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    CORS_ORIGIN_REGEX_WHITELIST = (
-        r'^http://(.+)\.readthedocs\.io$',
-        r'^https://(.+)\.readthedocs\.io$',
-    )
-    # So people can post to their accounts
+    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
@@ -600,6 +600,12 @@ class CommunityBaseSettings(Settings):
         'authorization',
         'x-csrftoken'
     )
+    # Additional protecion to allow only idempotent methods.
+    CORS_ALLOW_METHODS = [
+        'GET',
+        'OPTIONS',
+        'HEAD',
+    ]
 
     # RTD Settings
     REPO_LOCK_SECONDS = 30
@@ -608,6 +614,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
+    RTD_ALLOW_ORGANIZATIONS = False
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']

@@ -1,7 +1,6 @@
 """Git-related utilities."""
 
 import logging
-import os
 import re
 
 import git
@@ -72,10 +71,15 @@ class Backend(BaseVCS):
 
     def repo_exists(self):
         try:
-            git.Repo(self.working_dir)
+            self._repo
         except (InvalidGitRepositoryError, NoSuchPathError):
             return False
         return True
+
+    @property
+    def _repo(self):
+        """Get a `git.Repo` instance from the current `self.working_dir`."""
+        return git.Repo(self.working_dir, expand_vars=False)
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -232,7 +236,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         versions = []
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
 
         # Build a cache of tag -> commit
         # GitPython is not very optimized for reading large numbers of tags
@@ -265,7 +269,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
         versions = []
         branches = []
 
@@ -285,14 +289,13 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
             return stdout.strip()
         return None
 
     @property
     def submodules(self):
-        repo = git.Repo(self.working_dir)
-        return list(repo.submodules)
+        return list(self._repo.submodules)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -350,17 +353,8 @@ class Backend(BaseVCS):
 
     def ref_exists(self, ref):
         try:
-            r = git.Repo(self.working_dir)
-            if r.commit(ref):
+            if self._repo.commit(ref):
                 return True
         except (BadName, ValueError):
             return False
         return False
-
-    @property
-    def env(self):
-        env = super().env
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env

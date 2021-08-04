@@ -30,10 +30,18 @@ class ProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def for_user_and_viewer(self, user, viewer):
-        """Show projects that a user owns, that another user can see."""
-        queryset = self.filter(privacy_level=constants.PUBLIC)
-        queryset = self._add_user_projects(queryset, viewer)
-        queryset = queryset.filter(users__in=[user])
+        """
+        Show projects that a user owns, that another user can see.
+
+        This includes:
+
+        - Projects where both are member
+        - Public projects from `user`
+        """
+        viewer_projects = self._add_user_projects(self.none(), viewer, admin=True, member=True)
+        owner_projects = self._add_user_projects(self.none(), user, admin=True, member=True)
+        owner_public_projects = owner_projects.filter(privacy_level=constants.PUBLIC)
+        queryset = (viewer_projects & owner_projects) | owner_public_projects
         return queryset.distinct()
 
     def for_admin_user(self, user):
@@ -46,7 +54,12 @@ class ProjectQuerySetBase(models.QuerySet):
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_user_projects(queryset, user)
+                queryset = self._add_user_projects(
+                    queryset=queryset,
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
         return queryset.distinct()
 
     def for_user(self, user):

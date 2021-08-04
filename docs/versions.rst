@@ -112,7 +112,7 @@ They will not display on any list view, and will 404 when you link them to other
 If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
 In addition, if you want other users to view the build page of your public versions,
-you'll neeed to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
 
 Tags and branches
 -----------------

@@ -4,24 +4,22 @@ import logging
 import textwrap
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponseForbidden,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
+from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -48,20 +46,58 @@ class BuildTriggerMixin:
 
     @method_decorator(login_required)
     def post(self, request, project_slug):
+        commit_to_retrigger = None
         project = get_object_or_404(Project, slug=project_slug)
 
         if not AdminPermission.is_admin(request.user, project):
             return HttpResponseForbidden()
 
         version_slug = request.POST.get('version_slug')
-        version = get_object_or_404(
-            self._get_versions(project),
-            slug=version_slug,
-        )
+        build_pk = request.POST.get('build_pk')
+
+        if build_pk:
+            # Filter over external versions only when re-triggering a specific build
+            version = get_object_or_404(
+                Version.external.public(self.request.user),
+                slug=version_slug,
+                project=project,
+            )
+
+            build_to_retrigger = get_object_or_404(
+                Build.objects.all(),
+                pk=build_pk,
+                version=version,
+            )
+            if build_to_retrigger != Build.objects.filter(version=version).first():
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "This build can't be re-triggered because it's "
+                    "not the latest build for this version.",
+                )
+                return HttpResponseRedirect(request.path)
+
+            # Set either the build to re-trigger it or None
+            if build_to_retrigger:
+                commit_to_retrigger = build_to_retrigger.commit
+                log.info(
+                    'Re-triggering build. project=%s version=%s commit=%s build=%s',
+                    project.slug,
+                    version.slug,
+                    build_to_retrigger.commit,
+                    build_to_retrigger.pk
+                )
+        else:
+            # Use generic query when triggering a normal build
+            version = get_object_or_404(
+                self._get_versions(project),
+                slug=version_slug,
+            )
 
         update_docs_task, build = trigger_build(
             project=project,
             version=version,
+            commit=commit_to_retrigger,
         )
         if (update_docs_task, build) == (None, None):
             # Build was skipped
@@ -97,7 +133,13 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
         context['project'] = self.project
         context['active_builds'] = active_builds
         context['versions'] = self._get_versions(self.project)
-        context['build_qs'] = self.get_queryset()
+
+        builds = self.get_queryset()
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = BuildListFilter(self.request.GET, queryset=builds)
+            context['filter'] = filter
+            builds = filter.qs
+        context['build_qs'] = builds
 
         return context
 
@@ -111,6 +153,13 @@ class BuildDetail(BuildBase, DetailView):
         context['project'] = self.project
 
         build = self.get_object()
+        context['is_latest_build'] = (
+            build == Build.objects.filter(
+                project=build.project,
+                version=build.version,
+            ).first()
+        )
+
         if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
