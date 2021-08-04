@@ -142,3 +142,15 @@ If you switch between *HTMLDir* and *HTML*, your URL's will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
 The built in redirects for this will handle redirecting users appropriately.
+
+Redirects via an Extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Redirects are also possible via Sphinx extensions. One example of this is the 
+`sphinxext-rediraffe <https://github.com/wpilibsuite/sphinxext-rediraffe>`__
+extension. This extension enables a "graph" style redirect system that is 
+useful for making pages "permanent" (dead links will always redirect). The 
+extension can be enabled by adding ``sphinxext-rediraffe`` to your
+``requirements.txt`` file at the root of your directory and `enabling
+<https://www.sphinx-doc.org/en/master/usage/extensions/index.html>`__ 
+in the ``conf.py`` file.
