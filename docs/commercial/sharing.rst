@@ -22,7 +22,7 @@ Enabling
 * Click on :guilabel:`New Share`
 * Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* so you remember who you're sharing it with.
-* Check ``Allow all versions?`` if you want to grant access to all versions,
+* Check ``Allow access to all versions?`` if you want to grant access to all versions,
   or uncheck that option and select the specific versions you want grant access to.
 * Click :guilabel:`Save`.
 * Get the info needed to share your documentation with other users:
