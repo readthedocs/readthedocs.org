@@ -524,7 +524,7 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
-class ProjectSerializer(FlexFieldsModelSerializer):
+class ProjectSerializerBase(FlexFieldsModelSerializer):
 
     """Project serializer.
 
@@ -625,6 +625,13 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+# FIXME: this override isn't needed, but tests will fail if removed.
+# We may have been relying on a weird behavior of using this class
+# as a base class of another.
+class ProjectSerializer(SettingsOverrideObject):
+    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
