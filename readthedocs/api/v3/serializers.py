@@ -526,7 +526,8 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
 
 class ProjectSerializerBase(FlexFieldsModelSerializer):
 
-    """Project serializer.
+    """
+    Project serializer.
 
     .. note::
 
@@ -610,7 +611,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
                     },
                 ),
             })
-
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
