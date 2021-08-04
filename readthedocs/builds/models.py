@@ -154,7 +154,7 @@ class Version(TimeStampedModel):
         max_length=20,
         choices=PRIVACY_CHOICES,
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
-        help_text=_('Level of privacy for this Version.'),
+        help_text=_('Allow public access to the docs from this version?'),
     )
     hidden = models.BooleanField(
         _('Hidden'),

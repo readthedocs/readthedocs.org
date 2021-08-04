@@ -222,7 +222,7 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_('More information in <a href="https://docs.readthedocs.io/page/pull-requests.html">our docs</a>.')  # noqa
     )
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
@@ -232,7 +232,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=default_privacy_level,
         help_text=_(
-            'Should builds from pull requests be public?',
+            'Allow public access to builds from pull requests?',
         ),
     )
 
@@ -377,12 +377,13 @@ class Project(models.Model):
         default=False,
     )
     privacy_level = models.CharField(
-        _('Privacy Level'),
+        _('Dashboard Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Should the project dashboard be public?',
+            'Allow public access to your project dashboard, build pages, and versions list? '
+            'More information in <a href="https://docs.readthedocs.io/page/commercial/privacy-level.html">our docs</a>.'
         ),
     )
 
