@@ -10,7 +10,7 @@ You can share your project with users outside of your company:
 * by sending them a *secret link*,
 * by giving them a *password*.
 
-These methods will allow them to view specific projects and versions inside your company.
+These methods will allow them to view specific projects or versions of a project inside your organization.
 
 Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
@@ -18,7 +18,7 @@ This is useful to have access from a script.
 Enabling
 --------
 
-* Go into your *Project Admin* page and click on :guilabel:`Sharing`.
+* Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
 * Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* so you remember who you're sharing it with.
