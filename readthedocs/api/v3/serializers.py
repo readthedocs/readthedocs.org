@@ -5,23 +5,27 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
     REPO_CHOICES,
 )
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
-from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
+from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.models import Redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -520,7 +524,15 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
-class ProjectSerializerBase(FlexFieldsModelSerializer):
+class ProjectSerializer(FlexFieldsModelSerializer):
+
+    """Project serializer.
+
+    .. note::
+
+       When using organizations, projects don't have the concept of users.
+       But we have organization.users.
+    """
 
     homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
@@ -531,7 +543,9 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-    users = UserSerializer(many=True)
+
+    if not settings.RTD_ALLOW_ORGANIZATIONS:
+        users = UserSerializer(many=True)
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -556,7 +570,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             'default_branch',
             'subproject_of',
             'translation_of',
-            'users',
             'urls',
             'tags',
 
@@ -567,6 +580,8 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
 
             '_links',
         ]
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            fields.append('users')
 
         expandable_fields = {
             # NOTE: this has to be a Model method, can't be a
@@ -578,6 +593,24 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
                 }
             )
         }
+
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            expandable_fields.update({
+                'organization': (
+                    'readthedocs.api.v3.serializers.OrganizationSerializer',
+                    # NOTE: we cannot have a Project with multiple organizations.
+                    {'source': 'organizations.first'},
+                ),
+                'teams': (
+                    serializers.SlugRelatedField,
+                    {
+                        'slug_field': 'slug',
+                        'many': True,
+                        'read_only': True,
+                    },
+                ),
+            })
+
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
@@ -592,10 +625,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
-
-
-class ProjectSerializer(SettingsOverrideObject):
-    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
