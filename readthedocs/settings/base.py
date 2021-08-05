@@ -184,6 +184,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.oauth',
             'readthedocs.redirects',
             'readthedocs.sso',
+            'readthedocs.audit',
             'readthedocs.rtd_tests',
             'readthedocs.api.v2',
             'readthedocs.api.v3',
