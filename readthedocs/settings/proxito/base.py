@@ -15,6 +15,8 @@ class CommunityProxitoSettingsMixin:
 
     # Always set to Lax for proxito cookies.
     # Even if the donate app is present.
+    # Since we don't want to allow cookies from cross origin requests.
+    # This is django's default.
     SESSION_COOKIE_SAMESITE = 'Lax'
 
     @property
