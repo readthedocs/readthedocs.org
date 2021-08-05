@@ -74,6 +74,7 @@ API
 
 If you are using :doc:`/commercial/index` you will need to replace
 https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
+Check :ref:`server-side-search:authentication and authorization` if you are using private versions.
 
 .. warning::
 
@@ -195,6 +196,7 @@ users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
-Cookie sessions can be used only from the same domain as the API,
-we proxy the API on the domain where your docs are being served (``<you-docs-domain>/_/api/v2/search``) so you can use it.
-This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project, for example.
+To be able to use the user's current session you need to use the API from the domain where your docs are being served
+(``<you-docs-domain>/_/api/v2/search/``).
+This is ``https://docs.readthedocs-hosted.com/_/api/v2/search/``
+for the ``https://docs.readthedocs-hosted.com/`` project, for example.
