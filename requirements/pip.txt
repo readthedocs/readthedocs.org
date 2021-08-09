@@ -118,4 +118,4 @@ django-debug-toolbar==3.2.1
 # For enabling content-security-policy
 django-csp==3.7
 # For setting the permissions-policy security header
-django-permissions-policy==4.0.1
+django-permissions-policy==4.2.0
