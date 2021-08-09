@@ -17,7 +17,7 @@ Sphinx==4.1.2
 # Filtering for the REST API
 django-filter==2.4.0
 
-drf-flex-fields==0.9.1
+drf-flex-fields==0.9.2
 drf-extensions==0.7.1
 
 django-vanilla-views==3.0.0
