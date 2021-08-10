@@ -73,8 +73,16 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
-    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
-    SESSION_COOKIE_SAMESITE = None
+
+    @property
+    def SESSION_COOKIE_SAMESITE(self):
+        """
+        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
+        """ 
+        if self.USE_PROMOS:
+            return None
+        # This is django's default.
+        return 'Lax'
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
