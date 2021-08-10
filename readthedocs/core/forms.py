@@ -3,8 +3,10 @@
 import logging
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.history import safe_update_change_reason
@@ -94,3 +96,49 @@ class FacetField(forms.MultipleChoiceField):
         if ':' not in value:
             return False
         return True
+
+
+class SupportForm(forms.Form):
+
+    message = forms.CharField(
+        label=_('Explanation of the problem'),
+        help_text=_('Please provide as much detail as possible.'),
+        max_length=2500,
+        widget=forms.Textarea,
+    )
+    url = forms.URLField(
+        label=_('URL'),
+        help_text=_('Is there a specific page where this happened?'),
+        max_length=2500,
+        required=False,
+    )
+    attachment = forms.FileField(
+        label=_('Screenshot or additional file'),
+        required=False,
+        help_text=_('Anything else that would help us solve this problem. Max size 2.5MB.'),
+    )
+    severity = forms.ChoiceField(
+        label=_('Severity level'),
+        help_text=_('Please rate the severity of this event.'),
+        choices=(
+            ('low', _('Low')),
+            ('medium', _('Medium')),
+            ('critical', _('Critical')),
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        if not self._show_severity():
+            gold_url = reverse('gold_detail')
+            self.fields['severity'].disabled = True
+            self.fields['severity'].required = False
+            self.fields['severity'].help_text = _(
+                f'This option is only enabled for <a href="{gold_url}">Gold</a> users.'
+            )
+
+    def _show_severity(self):
+        if settings.RTD_SUPPORT_FORM_SHOW_SEVERITY:
+            return True
+        return self.user.gold.exists() or self.user.goldonce.exists()

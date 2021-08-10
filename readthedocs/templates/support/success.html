@@ -6,13 +6,15 @@
 
 {% block content %}
 <div id="support_page">
-    <h2>Support Form Success</h2>
-    <p>
-        <b>You have successfully submitted a support request.</b>
-    </p>
-    <p>
-        While you are waiting for a response,
-        you might want to browse our <a href="https://docs.readthedocs.io/en/latest/index.html#step-by-step-guides">guides</a> which provide step-by-step solutions to common user requirements.
-    </p>
+  <h2>{% trans 'Support Form Success' %}</h2>
+  <p>
+    <b>{% trans 'You have successfully submitted a support request.' %}</b>
+  </p>
+  <p>
+  {% blocktrans trimmed with url='https://docs.readthedocs.io/page/index.html#step-by-step-guides' %}
+    While you are waiting for a response,
+    you might want to browse our <a href="{{ url }}">guides</a> which provide step-by-step solutions to common user requirements.
+  {% endblocktrans %}
+  </p>
 </div>
 {% endblock %}

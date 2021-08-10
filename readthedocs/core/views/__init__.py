@@ -7,14 +7,15 @@ and server errors.
 
 import logging
 
-from django.conf import settings
 from django.http import Http404, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import View, TemplateView
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.generic import FormView, TemplateView, View
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.forms import SupportForm
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
@@ -40,15 +41,18 @@ class HomepageView(TemplateView):
         return context
 
 
-class SupportView(PrivateViewMixin, TemplateView):
+class SupportView(PrivateViewMixin, FormView):
 
+    form_class = SupportForm
     template_name = 'support/index.html'
 
-    def get_context_data(self, **kwargs):
-        """Pass along endpoint for support form."""
-        context = super().get_context_data(**kwargs)
-        context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('support_success')
 
 
 def wipe_version(request, project_slug, version_slug):

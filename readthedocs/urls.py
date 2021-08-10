@@ -27,13 +27,11 @@ basic_urls = [
         .as_view(template_name='security.txt', content_type='text/plain'),
     ),
     url(r'^support/$', SupportView.as_view(), name='support'),
-    # These are redirected to from the support form
-    url(r'^support/success/$',
+    url(
+        r'^support/success/$',
         TemplateView.as_view(template_name='support/success.html'),
-        name='support_success'),
-    url(r'^support/error/$',
-        TemplateView.as_view(template_name='support/error.html'),
-        name='support_error'),
+        name='support_success'
+    ),
 ]
 
 rtd_urls = [
