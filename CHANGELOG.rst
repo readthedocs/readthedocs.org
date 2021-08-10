@@ -1,3 +1,15 @@
+Version 5.23.0
+--------------
+
+:Date: August 09, 2021
+
+* `@ericholscher <https://github.com/ericholscher>`__: Only call analytics tracking of flyout when analytics are enabled (`#8398 <https://github.com/readthedocs/readthedocs.org/pull/8398>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 31 (`#8385 <https://github.com/readthedocs/readthedocs.org/pull/8385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: track user events (`#8379 <https://github.com/readthedocs/readthedocs.org/pull/8379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cookies: set samesite: `Lax` by default (`#8304 <https://github.com/readthedocs/readthedocs.org/pull/8304>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sharing (`#8239 <https://github.com/readthedocs/readthedocs.org/pull/8239>`__)
+* `@DetectedStorm <https://github.com/DetectedStorm>`__: Update LICENSE (`#5125 <https://github.com/readthedocs/readthedocs.org/pull/5125>`__)
+
 Version 5.22.0
 --------------
 
