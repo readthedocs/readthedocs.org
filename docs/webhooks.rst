@@ -93,10 +93,13 @@ GitLab
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
-.. _webhook-integration-gitea:
-
 Gitea
 ~~~~~
+
+.. warning::
+
+   This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
+   because Gitea uses the same payload as GitHub. The generic webhook is not compatibile with Gitea.
 
 * Manually create a "GitHub webook" integration on Read the Docs
   (this will show a warning about the webhook not being correctly set up,
@@ -116,8 +119,7 @@ Gitea
 * Test the webhook with :guilabel:`Delivery test`
 * On Read the Docs, check that the warnings have disappeared and the delivery test triggered a build
 
-Please note that this applies to any Gitea instance and that the "GitHub webhook" works because Gitea uses the same payload as GitHub.
-The generic webhook is not compatibile with Gitea.
+These instructions apply to any Gitea instance.
 
 .. _webhook-integration-generic:
 
