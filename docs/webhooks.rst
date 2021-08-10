@@ -101,7 +101,7 @@ Gitea
    This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
    because Gitea uses the same payload as GitHub. The generic webhook is not compatibile with Gitea.
 
-* Manually create a "GitHub webook" integration on Read the Docs
+* Manually create a "GitHub webhook" integration on Read the Docs
   (this will show a warning about the webhook not being correctly set up,
   that will go away when the webhook is configured in Gitea)
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
