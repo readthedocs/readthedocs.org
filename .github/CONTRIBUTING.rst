@@ -1,1 +1,1 @@
-Please review our contributing documentation located at http://docs.readthedocs.org/en/latest/contribute.html
+Please review our contributing documentation located at https://docs.readthedocs.io/en/latest/contribute.html

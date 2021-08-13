@@ -1,15 +1,1 @@
-inherits: prospector
-
-strictness: medium
-
-pylint:
-  options:
-    docstring-min-length: 20
-    dummy-variables-rgx: '_$|__$|dummy'
-    max-line-length: 100
-  disable:
-    - logging-format-interpolation
-    - too-many-arguments
-
-pep257:
-  run: true
+common/prospector-more.yml

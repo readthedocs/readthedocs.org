@@ -1,10 +1,16 @@
+:orphan: 
+
 Guides
 ======
 
-These guides will help walk you through the usage of Read the Docs.
+These guides will help walk you through specific use cases
+related to Read the Docs itself, documentation tools like Sphinx and MkDocs
+and how to write successful documentation.
 
 
 .. toctree::
-   :glob:
+   :maxdepth: 2
 
-   *
+   tools
+   platform
+   commercial

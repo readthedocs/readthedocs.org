@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 # henrikbjorn <henrik@bjrnskov.dk>, 2014
@@ -8,140 +8,220 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-03 09:00+0000\n"
-"Last-Translator: henrikbjorn <henrik@bjrnskov.dk>\n"
-"Language-Team: Danish (http://www.transifex.com/projects/p/readthedocs-docs/language/da/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Danish (http://www.transifex.com/readthedocs/readthedocs-docs/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# 94680832b91f4929bf53532994faf20f
 #: ../../getting_started.rst:2
 msgid "Getting Started"
 msgstr "Introduktion"
 
-# b5087c8cfa1a46e6973fb1b5f2468531
 #: ../../getting_started.rst:4
 msgid ""
-"This document will show you how to get up and running with Read the Docs."
-msgstr "Dette dokument vil vise dig, hvordan man kommer igang med at bruge Read the Docs."
+"This document will show you how to get up and running with Read the Docs. "
+"You will have your docs imported on Read the Docs in 5 minutes, displayed "
+"beautifully for the world."
+msgstr ""
 
-# c736e6dfba4f4bb5ba95bdde2612f4b9
-#: ../../getting_started.rst:6
+#: ../../getting_started.rst:8
 msgid ""
-"If you are already using Sphinx_ for your docs, skip ahead to :ref:`import-"
-"docs`."
-msgstr "Hvis du allerede bruge Sphinx_ til din dokumentation, kan du hoppe videre til :ref:`import-docs`."
+"If you are already using Sphinx or Markdown for your docs, skip ahead to "
+":ref:`getting_started:Import Your Docs`."
+msgstr ""
 
-# 20869ea4ee9544bb889f53f260a381b5
-#: ../../getting_started.rst:9
-msgid "There is `a screencast`_ that will help you get started if you prefer."
-msgstr "Hvis du hellere vil se `en screencast`_ findes der også sådan en."
-
-# e4bbcc8b5b7e419a805d8b4da78c6aa1
 #: ../../getting_started.rst:12
 msgid "Write Your Docs"
 msgstr "Skriv din dokumentation"
 
-# b90f238da5684b6889e1a7360d8a08d5
 #: ../../getting_started.rst:14
-msgid ""
-"Install Sphinx_, and create a directory inside your project to hold your "
-"docs::"
-msgstr "Installer Sphinx_, og opret en mappe i dit projekt der skal indeholde selve dokumentationen::"
+msgid "You have two options for formatting your documentation:"
+msgstr ""
 
-# 7890b8eebc8c4d12ad4fa8f24a186171
-#: ../../getting_started.rst:19
+#: ../../getting_started.rst:16
+msgid "`In reStructuredText`_"
+msgstr ""
+
+#: ../../getting_started.rst:17
+msgid "`In Markdown`_"
+msgstr ""
+
+#: ../../getting_started.rst:20
+msgid "In reStructuredText"
+msgstr ""
+
+#: ../../getting_started.rst:22
+msgid "There is `a screencast`_ that will help you get started if you prefer."
+msgstr "Hvis du hellere vil se `en screencast`_ findes der også sådan en."
+
+#: ../../getting_started.rst:24
+msgid ""
+"Sphinx_ is a tool that makes it easy to create beautiful documentation. "
+"Assuming you have Python_ already, `install Sphinx`_::"
+msgstr ""
+
+#: ../../getting_started.rst:29
+msgid "Create a directory inside your project to hold your docs::"
+msgstr ""
+
+#: ../../getting_started.rst:34
 msgid "Run ``sphinx-quickstart`` in there::"
 msgstr "Kør ``sphinx-quickstart`` i den mappe::"
 
-# 323c1c64fa134111bfff71af91fe3354
-#: ../../getting_started.rst:24
+#: ../../getting_started.rst:39
 msgid ""
-"This will walk you through creating the basic configuration; in most cases, "
-"you can just accept the defaults. When it's done, you'll have an "
-"``index.rst``, a ``conf.py`` and some other files. Add these to revision "
+"This quick start will walk you through creating the basic configuration; in "
+"most cases, you can just accept the defaults. When it's done, you'll have an"
+" ``index.rst``, a ``conf.py`` and some other files. Add these to revision "
 "control."
-msgstr "Den vil tage dig igennem en basal konfiguration. I de fleste tilfælde vil du bare acceptere den standarder. Når det er færdigt, vil du kunne finde ``index.rst``, ``conf.py`` samt nogle andre filer. Du bør tilføje disse til versions styring."
+msgstr ""
 
-# 93b667b94bee4cd998979e17c5e23e4e
-#: ../../getting_started.rst:28
+#: ../../getting_started.rst:43
 msgid ""
 "Now, edit your ``index.rst`` and add some information about your project. "
 "Include as much detail as you like (refer to the reStructuredText_ syntax or"
 " `this template`_ if you need help). Build them to see how they look::"
 msgstr "Register ``index.rst`` og tilføj noget information om dit projekt, skriv så mange detaljer som du ønsker (brug reStructuredText_ syntax eller `dette dokument`_ hvis du har brug for hjælp)."
 
-# b6ecd74d973f4945af1d7ac50f220d77
-#: ../../getting_started.rst:34
+#: ../../getting_started.rst:49
+msgid ""
+"You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-"
+"autobuild . _build/html`` instead."
+msgstr ""
+
+#: ../../getting_started.rst:51
 msgid ""
 "Edit your files and rebuild until you like what you see, then commit your "
 "changes and push to your public repository. Once you have Sphinx "
 "documentation in a public repository, you can start using Read the Docs."
 msgstr "Rediger dine filer og byg din dokumentation indtil du er tilfreds. Commit dine ændringer og push dem til dit offentlige repository. Når du har dokumentation fra Sphinx i dit repository kan du begynde at bruge Read the Docs."
 
-# 621a032741654fbe94eeb8ced1fc4df9
-#: ../../getting_started.rst:40
+#: ../../getting_started.rst:55
+msgid "In Markdown"
+msgstr ""
+
+#: ../../getting_started.rst:57
+msgid ""
+"You can use Markdown and reStructuredText in the same Sphinx project. We "
+"support this natively on Read the Docs, and you can do it locally::"
+msgstr ""
+
+#: ../../getting_started.rst:62
+msgid "Then in your ``conf.py``:"
+msgstr ""
+
+#: ../../getting_started.rst:74
+msgid ""
+"Markdown doesn't support a lot of the features of Sphinx, like inline markup"
+" and directives. However, it works for basic prose content. reStructuredText"
+" is the preferred format for technical documentation, please read `this blog"
+" post`_ for motivation."
+msgstr ""
+
+#: ../../getting_started.rst:83
+msgid "Sign Up and Connect an External Account"
+msgstr ""
+
+#: ../../getting_started.rst:85
+msgid ""
+"If you are going to import a repository from GitHub, Bitbucket or GitLab, "
+"you should connect your account to your provider first. Connecting your "
+"account allows for easier importing and enables Read the Docs to configure "
+"your repository webhooks automatically."
+msgstr ""
+
+#: ../../getting_started.rst:90
+msgid ""
+"To connect your account, go to your *Settings* dashboard and select "
+"*Connected Services*. From here, you'll be able to connect to your GitHub, "
+"Bitbucket or GitLab account. This process will ask you to authorize a "
+"connection to Read the Docs, that allows us to read information about and "
+"clone your repositories."
+msgstr ""
+
+#: ../../getting_started.rst:96
 msgid "Import Your Docs"
 msgstr ""
 
-# 88b6a472072944fba715415ccfb21baa
-#: ../../getting_started.rst:42
+#: ../../getting_started.rst:98
+msgid "To import a repository, visit your dashboard_ and click Import_."
+msgstr ""
+
+#: ../../getting_started.rst:100
 msgid ""
-"`Sign up`_ for an account on RTD, then `log in`_. Visit your dashboard_ and "
-"click Import_ to add your project to the site. Fill in the name and "
-"description, then specify where your repository is located. This is normally"
-" the URL or path name you'd use to checkout, clone, or branch your code. "
+"If you have a connected account, you will see a list of your repositories "
+"that we are able to import. To import one of these projects, just click the "
+"import icon next to the repository you'd like to import. This will bring up "
+"a form that is already filled with your project's information. Feel free to "
+"edit any of these properties, and the click **Next** to build your "
+"documentation."
+msgstr ""
+
+#: ../../getting_started.rst:107
+msgid "Manually Import Your Docs"
+msgstr ""
+
+#: ../../getting_started.rst:109
+msgid ""
+"If you do not have a connected account, you will need select **Import "
+"Manually** and enter the information for your repository yourself. You will "
+"also need to manually configure the webhook for your repository as well. "
+"When importing your project, you will be asked for the repository URL, along"
+" with some other information for you new project. The URL is normally the "
+"URL or path name you'd use to checkout, clone, or branch your repository. "
 "Some examples:"
 msgstr ""
 
-# 0eaf2d9626dd463d836655dc4ba299b0
-#: ../../getting_started.rst:47
+#: ../../getting_started.rst:116
 msgid "Git: ``http://github.com/ericholscher/django-kong.git``"
 msgstr ""
 
-# 24a01bc5b09549b8bfbe0cfd1f4993e4
-#: ../../getting_started.rst:48
-msgid "Subversion: ``http://varnish-cache.org/svn/trunk``"
-msgstr ""
-
-# 665b40223dd64b77bec199e8951e1d59
-#: ../../getting_started.rst:49
+#: ../../getting_started.rst:117
 msgid "Mercurial: ``https://bitbucket.org/ianb/pip``"
 msgstr ""
 
-# a8d5721c75a84481b684f80d1cd11271
-#: ../../getting_started.rst:50
+#: ../../getting_started.rst:118
+msgid "Subversion: ``http://varnish-cache.org/svn/trunk``"
+msgstr ""
+
+#: ../../getting_started.rst:119
 msgid "Bazaar: ``lp:pasta``"
 msgstr ""
 
-# c7c217cabab34ccab46cb0dd90c8e007
-#: ../../getting_started.rst:52
-msgid "Add an optional homepage URL and some tags, then click \"Create\"."
+#: ../../getting_started.rst:121
+msgid "Add an optional homepage URL and some tags, and then click **Next**."
 msgstr ""
 
-# ecf599bf3bbb4eb9bb31f25c3561e35c
-#: ../../getting_started.rst:54
+#: ../../getting_started.rst:123
 msgid ""
-"Within a few minutes your code will automatically be fetched from your "
+"Once your project is created, you'll need to manually configure the "
+"repository webhook if you would like to have new changesets to trigger "
+"builds for your project on Read the Docs. Go to your project's "
+"**Integrations** page to configure a new webhook, or see :ref:`our steps for"
+" webhook creation <webhooks:Webhook Creation>` for more information on this "
+"process."
+msgstr ""
+
+#: ../../getting_started.rst:129
+msgid ""
+"Within a few seconds your code will automatically be fetched from your "
 "public repository, and the documentation will be built. Check out our "
 ":doc:`builds` page to learn more about how we build your docs, and to "
 "troubleshoot any issues that arise."
 msgstr ""
 
-# 35c76658de93497ba8061846dd24b261
-#: ../../getting_started.rst:57
+#: ../../getting_started.rst:134
 msgid ""
-"If you want to keep your code updated as you commit, configure your code "
-"repository to hit our `Post Commit Hooks`_. This will rebuild your docs "
-"every time you push your code."
+"Read the Docs will host multiple versions of your code. You can read more "
+"about how to use this well on our :doc:`versions` page."
 msgstr ""
 
-# 4b77085452fb4a839b693dd522ed6a3f
-#: ../../getting_started.rst:59
+#: ../../getting_started.rst:137
 msgid ""
 "If you have any more trouble, don't hesitate to reach out to us. The "
 ":doc:`support` page has more information on getting in touch."

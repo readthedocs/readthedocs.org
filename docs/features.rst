@@ -1,69 +1,91 @@
 Read the Docs features
 ======================
 
-This will serve as a list of all of the features that Read the Docs currently has. Some features are important enough to have their own page in the docs, others will simply be listed here.
+Read the Docs offers a number of platform features that are possible because we both build and host documentation for you.
 
-GitHub and Bitbucket Integration
---------------------------------
 
-We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation.
+Automatic Documentation Deployment
+----------------------------------
 
-More information can be found in the :doc:`vcs` page.
+We integrate with GitHub, BitBucket, and GitLab.
+We automatically create webhooks in your repository,
+which tell us whenever you push a commit.
+We will then build and deploy your docs every time you push a commit.
+This enables a workflow that we call *Continuous Documentation*:
 
-Auto-updating
--------------
+**Once you set up your Read the Docs project,
+your users will always have up-to-date documentation.**
 
-The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
+Learn more about :doc:`/webhooks`.
 
-Internationalization
---------------------
-
-Read the Docs itself is localized, and we support documentation translated into multiple languages. Read more on the :doc:`localization` and :doc:`i18n` pages.
-
-Canonical URLs
---------------
-
-Canonical URLs give your docs better search performance, by pointing all URLs to one version. This also helps to solve the issues around users landing on outdated versions of documentation.
-
-More information can be found in the :doc:`canonical` page.
-
-Versions
---------
-
-We can build multiple versions of your documentation. Look on the "Versions" page
-of your project's admin (using the nav on the left) to find a list of available versions
-that we've inferred from the tags and branches in your source control system (according to
-the support matrix below). On the Versions page you can tell us which versions you'd like us
-to build docs for, whether each should be public, protected, or private, and what the default
-version should be (we'll redirect there when someone hits your main project page, e.g.,
-http://my-project.rtfd.org/).
-
-Version Control Support Matrix
+Custom Domains & White Labeling
 -------------------------------
 
-+------------+------------+-----------+------------+-----------+
-|            |    Git     |    hg     |   bzr      |     svn   |
-+============+============+===========+============+===========+
-| Tags       |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Branches   |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Default    |    master  |   default |            |    trunk  |
-+------------+------------+-----------+------------+-----------+
+When you import a project to Read the Docs,
+we assign you a URL based on your project name.
+You are welcome to use this URL,
+but we also fully support custom domains for all our documentation projects.
 
+Learn more about :doc:`/custom_domains`.
 
-PDF Generation
---------------
+Versioned Documentation
+-----------------------
 
-When you build your project on RTD, we automatically build a PDF of your project's documentation. We also build them for every version that you upload, so we can host the PDFs of your latest documentation, as well as your latest stable releases as well.
+We support multiple versions of your documentation,
+so that users can find the exact docs for the version they are using.
+We build this on top of the version control system that you're already using.
+Each version on Read the Docs is just a tag or branch in your repository.
 
-Search
-------
+You don't need to change how you version your code,
+we work with whatever process you are already using.
+If you don't have a process,
+we can recommend one.
 
-We provide full-text search across all of the pages of documentation hosted on our site. This uses the excellent Haystack project and Solr as the search backend. We hope to be integrating this into the site more fully in the future.
+Learn more about :doc:`/versions`.
 
-Alternate Domains
------------------
+Downloadable Documentation
+--------------------------
 
-We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
+Read the Docs supports building multiple formats for Sphinx-based projects:
 
+* PDF
+* ePub
+* Zipped HTML
+
+This means that every commit that you push will automatically update your PDFs as well as your HTML.
+
+This feature is great for users who are about to get on a plane and want offline docs,
+as well as being able to ship your entire set of documentation as one file.
+
+Learn more about :doc:`/downloadable-documentation`.
+
+Full-Text Search
+----------------
+
+We provide search across all the projects that we host.
+This actually comes in two different search experiences:
+dashboard search on the Read the Docs dashboard and in-doc search on documentation sites, using your own theme and our search results.
+
+We offer a number of search features:
+
+* Search across :doc:`subprojects </subprojects>`
+* Search results land on the exact content you were looking for
+* Search across projects you have access to (available on |com_brand|)
+* A full range of :doc:`search operators </guides/searching-with-readthedocs>` including exact matching and excluding phrases.
+
+Learn more about :doc:`/server-side-search`.
+
+Open Source and Customer Focused
+--------------------------------
+
+Read the Docs cares deeply about our customers and our community.
+As part of that commitment,
+all of the source code for Read the Docs is open source.
+This means there's no vendor lock-in,
+and you are welcome to :doc:`contribute </contribute>` the features you want or run your own instance.
+
+Our bootstrapped company is owned and controlled by the founders,
+and fully funded by our customers and advertisers.
+That allows us to focus 100% of our attention on building the best possible product for you.
+
+Learn more :doc:`/about`.

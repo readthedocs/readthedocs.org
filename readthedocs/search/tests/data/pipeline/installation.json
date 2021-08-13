@@ -1,0 +1,37 @@
+{
+    "path": "installation",
+    "title": "Installation",
+    "sections": [
+        {
+            "id": "installation",
+            "title": "Installation",
+            "content": "pip install django-pipeline. Add ‘pipeline’ to your INSTALLED_APPS. INSTALLED_APPS = ( 'pipeline', ). Use a pipeline storage for STATICFILES_STORAGE. STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'. Add the PipelineFinder to STATICFILES_FINDERS. STATICFILES_FINDERS = ( 'django.contrib.staticfiles.finders.FileSystemFinder', 'django.contrib.staticfiles.finders.AppDirectoriesFinder', 'pipeline.finders.PipelineFinder', )You need to use Django>=1.7 to be able to use this version of pipeline."
+        },
+        {
+            "id": "upgrading-from-1-3",
+            "title": "Upgrading from 1.3",
+            "content": "To upgrade from pipeline 1.3, you will need to follow these steps:. Update templates to use the new syntax. {# pipeline<1.4 #} {% load compressed %} {% compressed_js 'group' %} {% compressed_css 'group' %}. {# pipeline>=1.4 #} {% load pipeline %} {% javascript 'group' %} {% stylesheet 'group' %}. Add the PipelineFinder to STATICFILES_FINDERS. STATICFILES_FINDERS = ( 'django.contrib.staticfiles.finders.FileSystemFinder', 'django.contrib.staticfiles.finders.AppDirectoriesFinder', 'pipeline.finders.PipelineFinder', )"
+        },
+        {
+            "id": "upgrading-from-1-5",
+            "title": "Upgrading from 1.5",
+            "content": "To upgrade from pipeline 1.5, you will need update all your PIPELINE_* settings and move them under the new PIPELINE setting. See Configuration. This is a test line containing 'Query' word"
+        },
+        {
+            "id": "recommendations",
+            "title": "Recommendations",
+            "content": "Pipeline’s default CSS and JS compressor is Yuglify. Yuglify wraps UglifyJS and cssmin, applying the default YUI configurations to them. It can be downloaded from: https://github.com/yui/yuglify/.. If you do not install yuglify, make sure to disable the compressor in your settings."
+        }
+    ],
+    "domains": [
+        {
+            "role_name": "py:method",
+            "anchor": "sphinx.domains.Domain.process_field_xref",
+            "type_display": "method",
+            "name": "sphinx.domains.Domain.process_field_xref"
+        }
+    ],
+    "domain_data": {
+        "sphinx.domains.Domain.process_field_xref": "Process a pending xref."
+    }
+}

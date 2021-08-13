@@ -1,28 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 11:17+0100\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Persian (http://www.transifex.com/projects/p/readthedocs-docs/language/fa/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Persian (http://www.transifex.com/readthedocs/readthedocs-docs/language/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fa\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# 7471f5b92948499eaeaf2179191cf620
 #: ../../single_version.rst:2
 msgid "Single Version Documentation"
 msgstr ""
 
-# 680a3c530247481d86610aa54259505e
 #: ../../single_version.rst:4
 msgid ""
 "Single Version Documentation lets you serve your docs at a root domain. By "
@@ -31,49 +29,42 @@ msgid ""
 " for a project, its documentation will instead be served at ``/``."
 msgstr ""
 
-# 0346b209e2274cbca59cda4deb8d670c
 #: ../../single_version.rst:8
 msgid ""
 "This means you can't have translations or multiple versions for your "
 "documentation."
 msgstr ""
 
-# 7a117de262e843f5bd6156c97b1b7268
 #: ../../single_version.rst:10
 msgid ""
 "You can see a live example of this at http://www.contribution-guide.org"
 msgstr ""
 
-# 982ce304d4c04860960c7c7f2aad5ba1
 #: ../../single_version.rst:13
 msgid "Enabling"
 msgstr ""
 
-# 114d8749f2b340339c8c26f39d5e2388
 #: ../../single_version.rst:15
 msgid ""
 "You can toggle the \"Single Version\" option on or off for your project in "
 "the Project Admin page. Check your `dashboard`_ for a list of your projects."
 msgstr ""
 
-# 9c93db1eea4a4a2a9bf96a4bc53dbb0e
 #: ../../single_version.rst:18
 msgid "Effects"
 msgstr ""
 
-# 0a57c8c5a30a45a18f83ca9fde8956af
 #: ../../single_version.rst:20
 msgid ""
 "Links generated on Read the Docs will now point to the proper URL. For "
 "example, if pip was set as a \"Single Version\" project, then links to its "
-"documentation would point to ``http://pip.readthedocs.org/`` rather than the"
-" default ``http://pip.readthedocs.org/en/latest/``."
+"documentation would point to ``http://pip.readthedocs.io/`` rather than the "
+"default ``http://pip.readthedocs.io/en/latest/``."
 msgstr ""
 
-# eade68934d5e4318b18659af79f63861
 #: ../../single_version.rst:22
 msgid ""
 "Documentation at ``/<language>/<default_version>/`` will still be served for"
-" backwards compatability reasons. However, our usage of :doc:`canonical` "
+" backwards compatibility reasons. However, our usage of :doc:`canonical` "
 "should stop these from being indexed by Google."
 msgstr ""

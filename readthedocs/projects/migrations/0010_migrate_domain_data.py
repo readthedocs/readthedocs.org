@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from urllib.parse import urlparse
 
-from django.db import models, migrations
-import readthedocs.core.validators
+from django.db import migrations, models
 
-import sys
-
-if sys.version_info > (3,):
-    import urllib.parse as urlparse
-else:
-    import urlparse
+import readthedocs.projects.validators
 
 
 def migrate_url(apps, schema_editor):
-    Domain = apps.get_model("projects", "Domain")
+    Domain = apps.get_model('projects', 'Domain')
     Domain.objects.filter(count=0).delete()
     for domain in Domain.objects.all():
         if domain.project.superprojects.count() or domain.project.main_language_project:
-            print("{project} is a subproject or translation. Deleting domain.".format(
-                project=domain.project.slug))
+            print('{project} is a subproject or translation. Deleting domain.'.format(
+                project=domain.project.slug,
+            ))
             domain.delete()
             continue
         parsed = urlparse(domain.url)
@@ -29,10 +24,10 @@ def migrate_url(apps, schema_editor):
         try:
             domain.domain = domain_string
             domain.save()
-            print(u"Added {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print('Added {domain} from {url}'.format(url=domain.url, domain=domain_string))
         except Exception as e:
             print(e)
-            print(u"Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print('Failed {domain} from {url}'.format(url=domain.url, domain=domain_string))
 
         dms = Domain.objects.filter(domain=domain_string).order_by('-count')
         if dms.count() > 1:
@@ -51,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='domain',
             name='domain',
-            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.core.validators.DomainNameValidator()]),
+            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.projects.validators.DomainNameValidator()]),
 
         ),
     ]

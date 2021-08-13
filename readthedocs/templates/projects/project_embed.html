@@ -1,7 +1,7 @@
 {% extends "projects/base_project.html" %}
 {% load i18n %}
 {% load privacy_tags %}
-{% load core_tags highlight  %}
+{% load core_tags %}
 {% load static %}
 
 {% block title %}
@@ -22,7 +22,7 @@ Tools
 var project_tools = require('projects/tools');
 $(document).ready(function () {
     project_tools.init_embed({
-        api_host: '{{ settings.GROK_API_HOST }}',
+        api_host: '{{ settings.PUBLIC_API_URL }}',
         uri: '{{ settings.URI }}',
         project: '{{ project.slug }}'
     });

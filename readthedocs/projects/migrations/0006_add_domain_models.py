@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -20,7 +18,7 @@ class Migration(migrations.Migration):
                 ('cname', models.BooleanField(default=False, help_text='This URL is a CNAME for the project')),
                 ('canonical', models.BooleanField(default=False, help_text='This URL is the primary one where the documentation is served from.')),
                 ('count', models.IntegerField(default=0, help_text='Number of times this domain has been hit.')),
-                ('project', models.ForeignKey(related_name='domains', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='domains', to='projects.Project', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-canonical', '-machine', 'url'),

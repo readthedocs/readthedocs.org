@@ -1,28 +1,34 @@
-"""Integration models for external services"""
+# -*- coding: utf-8 -*-
+
+"""Integration models for external services."""
 
 import json
-import uuid
 import re
+import uuid
 
-from django.db import models, transaction
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (
+    GenericForeignKey,
+    GenericRelation,
+)
 from django.contrib.contenttypes.models import ContentType
+from django.db import models, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import status
 from jsonfield import JSONField
 from pygments import highlight
-from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import JsonLexer
+from rest_framework import status
 
 from readthedocs.core.fields import default_token
 from readthedocs.projects.models import Project
-from .utils import normalize_request_payload
+
+from .utils import get_secret, normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
 
-    """HTTP exchange manager methods"""
+    """HTTP exchange manager methods."""
 
     # Filter rules for request headers to remove from the output
     REQ_FILTER_RULES = [
@@ -32,7 +38,8 @@ class HttpExchangeManager(models.Manager):
 
     @transaction.atomic
     def from_exchange(self, req, resp, related_object, payload=None):
-        """Create object from Django request and response objects
+        """
+        Create object from Django request and response objects.
 
         If an explicit Request ``payload`` is not specified, the payload will be
         determined directly from the Request object. This makes a good effort to
@@ -57,15 +64,16 @@ class HttpExchangeManager(models.Manager):
         # headers. HTTP headers are prefixed with `HTTP_`, which we remove,
         # and because the keys are all uppercase, we'll normalize them to
         # title case-y hyphen separated values.
-        request_headers = dict(
-            (key[5:].title().replace('_', '-'), str(val))
-            for (key, val) in req.META.items()
+        request_headers = {
+            key[5:].title().replace('_', '-'): str(val)
+            for (key, val) in list(req.META.items())
             if key.startswith('HTTP_')
-        )
+        }  # yapf: disable
+
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
         for filter_rule in self.REQ_FILTER_RULES:
-            for key in request_headers.keys():
+            for key in list(request_headers.keys()):
                 if filter_rule.match(key):
                     del request_headers[key]
 
@@ -74,7 +82,7 @@ class HttpExchangeManager(models.Manager):
             response_body = json.dumps(response_payload, sort_keys=True)
         except TypeError:
             response_body = str(response_payload)
-        response_headers = dict(resp.items())
+        response_headers = dict(list(resp.items()))
 
         fields = {
             'status_code': resp.status_code,
@@ -97,7 +105,7 @@ class HttpExchangeManager(models.Manager):
                     app_label=related_object._meta.app_label,  # pylint: disable=protected-access
                     model=related_object._meta.model_name,  # pylint: disable=protected-access
                 ),
-                object_id=related_object.pk
+                object_id=related_object.pk,
             )
         for exchange in queryset[limit:]:
             exchange.delete()
@@ -105,7 +113,7 @@ class HttpExchangeManager(models.Manager):
 
 class HttpExchange(models.Model):
 
-    """HTTP request/response exchange"""
+    """HTTP request/response exchange."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -122,7 +130,8 @@ class HttpExchange(models.Model):
     response_body = models.TextField(_('Response body'))
 
     status_code = models.IntegerField(
-        _('Status code'), default=status.HTTP_200_OK
+        _('Status code'),
+        default=status.HTTP_200_OK,
     )
 
     objects = HttpExchangeManager()
@@ -130,16 +139,16 @@ class HttpExchange(models.Model):
     class Meta:
         ordering = ['-date']
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
     @property
     def failed(self):
         # Assume anything that isn't 2xx level status code is an error
-        return int(self.status_code / 100) != 2
+        return not (200 <= self.status_code < 300)
 
     def formatted_json(self, field):
-        """Try to return pretty printed and Pygment highlighted code"""
+        """Try to return pretty printed and Pygment highlighted code."""
         value = getattr(self, field) or ''
         try:
             if not isinstance(value, dict):
@@ -162,23 +171,26 @@ class HttpExchange(models.Model):
 
 class IntegrationQuerySet(models.QuerySet):
 
-    """Return a subclass of Integration, based on the integration type
+    """
+    Return a subclass of Integration, based on the integration type.
 
     .. note::
+
         This doesn't affect queries currently, only fetching of an object
     """
 
     def _get_subclass(self, integration_type):
         # Build a mapping of integration_type -> class dynamically
-        class_map = dict(
-            (cls.integration_type_id, cls)
+        class_map = {
+            cls.integration_type_id: cls
             for cls in self.model.__subclasses__()
             if hasattr(cls, 'integration_type_id')
-        )
+        }  # yapf: disable
         return class_map.get(integration_type)
 
     def _get_subclass_replacement(self, original):
-        """Replace model instance on Integration subclasses
+        """
+        Replace model instance on Integration subclasses.
 
         This is based on the ``integration_type`` field, and is used to provide
         specific functionality to and integration via a proxy subclass of the
@@ -188,19 +200,20 @@ class IntegrationQuerySet(models.QuerySet):
         if cls_replace is None:
             return original
         new = cls_replace()
-        for k, v in original.__dict__.items():
+        for k, v in list(original.__dict__.items()):
             new.__dict__[k] = v
         return new
 
     def get(self, *args, **kwargs):
-        original = super(IntegrationQuerySet, self).get(*args, **kwargs)
+        original = super().get(*args, **kwargs)
         return self._get_subclass_replacement(original)
 
     def subclass(self, instance):
         return self._get_subclass_replacement(instance)
 
-    def create(self, *args, **kwargs):  # pylint: disable=unused-argument
-        """Override of create method to use subclass instance instead
+    def create(self, **kwargs):
+        """
+        Override of create method to use subclass instance instead.
 
         Instead of using the underlying Integration model to create this
         instance, we get the correct subclass to use instead. This allows for
@@ -217,7 +230,7 @@ class IntegrationQuerySet(models.QuerySet):
 
 class Integration(models.Model):
 
-    """Inbound webhook integration for projects"""
+    """Inbound webhook integration for projects."""
 
     GITHUB_WEBHOOK = 'github_webhook'
     BITBUCKET_WEBHOOK = 'bitbucket_webhook'
@@ -233,16 +246,27 @@ class Integration(models.Model):
 
     INTEGRATIONS = WEBHOOK_INTEGRATIONS
 
-    project = models.ForeignKey(Project, related_name='integrations')
+    project = models.ForeignKey(
+        Project,
+        related_name='integrations',
+        on_delete=models.CASCADE,
+    )
     integration_type = models.CharField(
         _('Integration type'),
         max_length=32,
-        choices=INTEGRATIONS
+        choices=INTEGRATIONS,
     )
-    provider_data = JSONField(_('Provider data'))
+    provider_data = JSONField(_('Provider data'), default=dict)
     exchanges = GenericRelation(
         'HttpExchange',
-        related_query_name='integrations'
+        related_query_name='integrations',
+    )
+    secret = models.CharField(
+        help_text=_('Secret used to validate the payload of the webhook'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default=get_secret,
     )
 
     objects = IntegrationQuerySet.as_manager()
@@ -250,9 +274,19 @@ class Integration(models.Model):
     # Integration attributes
     has_sync = False
 
-    def __unicode__(self):
-        return (_('{0} for {1}')
-                .format(self.get_integration_type_display(), self.project.name))
+    def recreate_secret(self):
+        self.secret = get_secret()
+        self.save(update_fields=['secret'])
+
+    def remove_secret(self):
+        self.secret = None
+        self.save(update_fields=['secret'])
+
+    def __str__(self):
+        return (
+            _('{0} for {1}')
+            .format(self.get_integration_type_display(), self.project.name)
+        )
 
 
 class GitHubWebhook(Integration):
@@ -287,6 +321,22 @@ class BitbucketWebhook(Integration):
             return False
 
 
+class GitLabWebhook(Integration):
+
+    integration_type_id = Integration.GITLAB_WEBHOOK
+    has_sync = True
+
+    class Meta:
+        proxy = True
+
+    @property
+    def can_sync(self):
+        try:
+            return all((k in self.provider_data) for k in ['id', 'url'])
+        except (ValueError, TypeError):
+            return False
+
+
 class GenericAPIWebhook(Integration):
 
     integration_type_id = Integration.API_WEBHOOK
@@ -295,8 +345,8 @@ class GenericAPIWebhook(Integration):
     class Meta:
         proxy = True
 
-    def save(self, *args, **kwargs):
-        """Ensure model has token data before saving"""
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Ensure model has token data before saving."""
         try:
             token = self.provider_data.get('token')
         except (AttributeError, TypeError):
@@ -305,9 +355,9 @@ class GenericAPIWebhook(Integration):
             if token is None:
                 token = default_token()
                 self.provider_data = {'token': token}
-        super(GenericAPIWebhook, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def token(self):
-        """Get or generate a secret token for authentication"""
+        """Get or generate a secret token for authentication."""
         return self.provider_data.get('token')

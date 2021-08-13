@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -21,8 +19,8 @@ class Migration(migrations.Migration):
                 ('path', models.CharField(max_length=255, verbose_name='Path')),
                 ('md5', models.CharField(max_length=255, verbose_name='MD5 checksum')),
                 ('commit', models.CharField(max_length=255, verbose_name='Commit')),
-                ('project', models.ForeignKey(related_name='imported_files', verbose_name='Project', to='projects.Project')),
-                ('version', models.ForeignKey(related_name='imported_files', verbose_name='Version', to='builds.Version', null=True)),
+                ('project', models.ForeignKey(related_name='imported_files', verbose_name='Project', to='projects.Project', on_delete=models.CASCADE)),
+                ('version', models.ForeignKey(related_name='imported_files', verbose_name='Version', to='builds.Version', null=True, on_delete=models.CASCADE)),
             ],
         ),
     ]

@@ -1,0 +1,231 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Danish (https://www.transifex.com/readthedocs/teams/2534/da/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: da\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../user-defined-redirects.rst:2
+msgid "User-defined Redirects"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:4
+msgid ""
+"You can set up redirects for a project in your project dashboard's Redirects"
+" page."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:7
+msgid "Quick Summary"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:9
+msgid "Log into your readthedocs.org account."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:10
+msgid ""
+"From your dashboard, select the project on which you wish to add redirects."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:11
+msgid "From the project's top navigation bar, select the Admin tab."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:12
+msgid "From the left navigation menu, select Redirects."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:13
+msgid ""
+"In the form box \"Redirect Type\" select the type of redirect you want. See "
+"below for detail."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:14
+msgid ""
+"Depending on the redirect type you select, enter FROM and/or TO URL as "
+"needed."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:15
+msgid "When finished, click the SUBMIT Button."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:17
+msgid "Your redirects will be effective immediately."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:20
+msgid "Redirect Types"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:23
+msgid "Prefix Redirects"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:25
+msgid ""
+"The most useful and requested feature of redirects was when migrating to "
+"Read the Docs from an old host. You would have your docs served at a "
+"previous URL, but that URL would break once you moved them. Read the Docs "
+"includes a language and version slug in your documentation, but not all "
+"documentation is hosted this way."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:31
+msgid ""
+"Say that you previously had your docs hosted at "
+"``http://docs.example.com/dev/``, you move ``docs.example.com`` to point at "
+"Read the Docs. So users will have a bookmark saved to a page at "
+"``http://docs.example.com/dev/install.html``."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:35
+msgid ""
+"You can now set a *Prefix Redirect* that will redirect all 404's with a "
+"prefix to a new place. The example configuration would be::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:41 ../../user-defined-redirects.rst:97
+msgid "Your users query would now redirect in the following manner::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:46
+msgid ""
+"Where ``en`` and ``latest`` are the default language and version values for "
+"your project."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:51
+msgid ""
+"In other words, a *Prefix Redirect* removes a prefix from the original URL. "
+"This prefix is removed from the rest of the URL's ``path`` after "
+"``/$lang/$version``. For example, if the URL is "
+"``/es/1.0/guides/tutorial/install.html`` the \"From URL's prefix\" will be "
+"removed from ``/guides/tutorial/install.html`` part."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:57
+msgid "Page Redirects"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:59
+msgid ""
+"A more specific case is when you move a page around in your docs. The old "
+"page will start 404'ing, and your users will be confused. *Page Redirects* "
+"let you redirect a specific page."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:64
+msgid ""
+"Say you move the ``example.html`` page into a subdirectory of examples: "
+"``examples/intro.html``. You would set the following configuration::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:71
+msgid ""
+"Note that the ``/`` at the start doesn't count the ``/en/latest``, but just "
+"the user-controlled section of the URL."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:76
+msgid ""
+"*Page Redirects* can redirect URLs **outside** Read the Docs platform just "
+"by defining the \"To URL\" as the absolute URL you want to redirect to."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:81
+msgid "Exact Redirects"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:83
+msgid ""
+"If you're redirecting from an old host AND you aren't maintaining old paths "
+"for your documents, a Prefix Redirect won't suffice and you'll need to "
+"create *Exact Redirects* to redirect from a specific URL, to a specific "
+"page."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:87
+msgid ""
+"Say you're moving ``docs.example.com`` to Read the Docs and want to redirect"
+" traffic from an old page at ``http://docs.example.com/dev/install.html`` to"
+" a new URL of ``http://docs.example.com/en/latest/installing-your-"
+"site.html``."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:91
+msgid "The example configuration would be::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:102
+msgid ""
+"Note that you should insert the desired language for \"en\" and version for "
+"\"latest\" to achieve the desired redirect."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:105
+msgid ""
+"*Exact Redirects* could be also useful to redirect a whole sub-path to a "
+"different one by using a special ``$rest`` keyword in the \"From URL\". "
+"Let's say that you want to redirect your readers of your version ``2.0`` of "
+"your documentation under ``/en/2.0/`` because it's deprecated, to the newest"
+" ``3.0`` version of it at ``/en/3.0/``."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:109
+msgid "This example would be::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:115
+msgid "The readers of your documentation will now be redirected as::"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:123
+msgid ""
+"*Exact Redirects* can redirect URLs **outside** Read the Docs platform just "
+"by defining the \"To URL\" as the absolute URL you want to redirect to."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:128
+msgid "Sphinx Redirects"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:130
+msgid ""
+"We also support redirects for changing the type of documentation Sphinx is "
+"building. If you switch between *HTMLDir* and *HTML*, your URL's will "
+"change. A page at ``/en/latest/install.html`` will be served at "
+"``/en/latest/install/``, or vice versa. The built in redirects for this will"
+" handle redirecting users appropriately."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:137
+msgid "Implementation"
+msgstr ""
+
+#: ../../user-defined-redirects.rst:139
+msgid ""
+"Since we serve documentation in a highly available way, we do not run any "
+"logic when we're serving documentation. This means that redirects will only "
+"happen in the case of a *404 File Not Found*."
+msgstr ""
+
+#: ../../user-defined-redirects.rst:143
+msgid ""
+"In the future we might implement redirect logic in Javascript, but this "
+"first version is only implemented in the 404 handlers."
+msgstr ""

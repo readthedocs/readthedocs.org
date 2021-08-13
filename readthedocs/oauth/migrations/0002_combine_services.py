@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
-from django.conf import settings
 import django.core.validators
+from django.conf import settings
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -50,7 +48,7 @@ class Migration(migrations.Migration):
                 ('vcs', models.CharField(blank=True, max_length=200, verbose_name='vcs', choices=[(b'git', 'Git'), (b'svn', 'Subversion'), (b'hg', 'Mercurial'), (b'bzr', 'Bazaar')])),
                 ('source', models.CharField(max_length=16, verbose_name='Repository source', choices=[(b'github', 'GitHub'), (b'bitbucket', 'Bitbucket')])),
                 ('json', models.TextField(verbose_name='Serialized API response')),
-                ('organization', models.ForeignKey(related_name='repositories', verbose_name='Organization', blank=True, to='oauth.RemoteOrganization', null=True)),
+                ('organization', models.ForeignKey(related_name='repositories', verbose_name='Organization', blank=True, to='oauth.RemoteOrganization', null=True, on_delete=models.CASCADE)),
                 ('users', models.ManyToManyField(related_name='oauth_repositories', verbose_name='Users', to=settings.AUTH_USER_MODEL)),
             ],
             options={

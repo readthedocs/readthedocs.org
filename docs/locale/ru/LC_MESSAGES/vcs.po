@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs-docs/language/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../../vcs.rst:2
+msgid "Version Control System Integration"
+msgstr ""
+
+#: ../../vcs.rst:6
+msgid ""
+"We :doc:`plan to implement a new approach <design/theme-context>` regarding "
+"the Theme Context as a whole, although the VCS documentation page will still"
+" be valid, we prefer the users to move in that direction."
+msgstr ""
+
+#: ../../vcs.rst:10
+msgid ""
+"If you want to integrate editing into your own theme, you will have to "
+"declare few variables inside your configuration file ``conf.py`` in the "
+"``'html_context'`` setting, for the template to use them."
+msgstr ""
+
+#: ../../vcs.rst:14
+msgid "More information can be found on `Sphinx documentation`_."
+msgstr ""
+
+#: ../../vcs.rst:19
+msgid "GitHub"
+msgstr ""
+
+#: ../../vcs.rst:21
+msgid ""
+"If you want to integrate GitHub, you can put the following snippet into your"
+" ``conf.py``::"
+msgstr ""
+
+#: ../../vcs.rst:32 ../../vcs.rst:54 ../../vcs.rst:76
+msgid "It can be used like this::"
+msgstr ""
+
+#: ../../vcs.rst:41
+msgid "Bitbucket"
+msgstr ""
+
+#: ../../vcs.rst:43
+msgid ""
+"If you want to integrate Bitbucket, you can put the following snippet into "
+"your ``conf.py``::"
+msgstr ""
+
+#: ../../vcs.rst:63
+msgid "Gitlab"
+msgstr ""
+
+#: ../../vcs.rst:65
+msgid ""
+"If you want to integrate Gitlab, you can put the following snippet into your"
+" ``conf.py``::"
+msgstr ""
+
+#: ../../vcs.rst:86
+msgid "Additional variables"
+msgstr ""
+
+#: ../../vcs.rst:88
+msgid ""
+"``'pagename'`` - Sphinx variable representing the name of the page you're "
+"on."
+msgstr ""

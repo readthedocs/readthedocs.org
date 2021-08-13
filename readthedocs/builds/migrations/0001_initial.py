@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
-import readthedocs.builds.version_slug
 import taggit.managers
+from django.db import migrations, models
+
+import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
@@ -30,7 +29,7 @@ class Migration(migrations.Migration):
                 ('commit', models.CharField(max_length=255, null=True, verbose_name='Commit', blank=True)),
                 ('length', models.IntegerField(null=True, verbose_name='Build Length', blank=True)),
                 ('builder', models.CharField(max_length=255, null=True, verbose_name='Builder', blank=True)),
-                ('project', models.ForeignKey(related_name='builds', verbose_name='Project', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='builds', verbose_name='Project', to='projects.Project', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['-date'],
@@ -51,12 +50,11 @@ class Migration(migrations.Migration):
                 ('uploaded', models.BooleanField(default=False, verbose_name='Uploaded')),
                 ('privacy_level', models.CharField(default=b'public', help_text='Level of privacy for this Version.', max_length=20, verbose_name='Privacy Level', choices=[(b'public', 'Public'), (b'protected', 'Protected'), (b'private', 'Private')])),
                 ('machine', models.BooleanField(default=False, verbose_name='Machine Created')),
-                ('project', models.ForeignKey(related_name='versions', verbose_name='Project', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='versions', verbose_name='Project', to='projects.Project', on_delete=models.CASCADE)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={
                 'ordering': ['-verbose_name'],
-                'permissions': (('view_version', 'View Version'),),
             },
         ),
         migrations.CreateModel(
@@ -66,20 +64,20 @@ class Migration(migrations.Migration):
                 ('from_slug', models.CharField(default=b'', max_length=255, verbose_name='From slug')),
                 ('to_slug', models.CharField(default=b'', max_length=255, verbose_name='To slug', blank=True)),
                 ('largest', models.BooleanField(default=False, verbose_name='Largest')),
-                ('project', models.ForeignKey(related_name='aliases', verbose_name='Project', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='aliases', verbose_name='Project', to='projects.Project', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='build',
             name='version',
-            field=models.ForeignKey(related_name='builds', verbose_name='Version', to='builds.Version', null=True),
+            field=models.ForeignKey(related_name='builds', verbose_name='Version', to='builds.Version', null=True, on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='version',
-            unique_together=set([('project', 'slug')]),
+            unique_together={('project', 'slug')},
         ),
         migrations.AlterIndexTogether(
             name='build',
-            index_together=set([('version', 'state', 'type')]),
+            index_together={('version', 'state', 'type')},
         ),
     ]

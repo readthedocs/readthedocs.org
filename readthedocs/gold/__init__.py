@@ -1,6 +1,8 @@
-"""A Django app for Gold Membership.
+# -*- coding: utf-8 -*-
 
-Gold Membership is Read the Docs' program for recurring, monthly donations.
+"""
+A Django app for Gold membership.
 
+Gold membership is Read the Docs' program for recurring, monthly donations.
 """
 default_app_config = 'readthedocs.gold.apps.GoldAppConfig'

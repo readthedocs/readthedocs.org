@@ -6,8 +6,9 @@ from readthedocs.profiles import views
 
 
 urlpatterns = [
-    url(r'^(?P<username>[\w@.-]+)/$',
-        views.profile_detail,
-        {'template_name': 'profiles/public/profile_detail.html'},
-        name='profiles_profile_detail'),
+    url(
+        r'^(?P<username>[+\w@.-]+)/$',
+        views.ProfileDetail.as_view(),
+        name='profiles_profile_detail',
+    ),
 ]

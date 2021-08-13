@@ -1,14 +1,13 @@
 {% load i18n %}
-{% load privacy_tags %}
 
 <!-- BEGIN onboard first build -->
 
-{% if request.user|is_admin:project %}
+{% if is_project_admin %}
   <div class="onboard onboard-detail">
     {% if not onboard.build %}
       <h2>{% trans "Start building your documentation" %}</h2>
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           This project has not been built yet.
           Try building the latest version now,
           or if you would like to build a specific version,
@@ -16,7 +15,8 @@
         {% endblocktrans %}
       </p>
 
-      <form method="post" action="{% url "generic_build" project.pk %}">
+      <form method="post" action="{% url "projects_detail" project.slug %}">
+        {% csrf_token %}
         <input type="hidden" name="version_slug" value="latest" />
         <input type="submit" value="{% trans "Build latest version" %}" />
       </form>
@@ -29,15 +29,15 @@
 
           <form method="get" action="{{ project.get_docs_url }}">
             <p>
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               Your documentation has been built.
               Ensure your documentation is kept up to date with every commit to
               your repository, by
-              <a href="http://docs.readthedocs.io/en/latest/webhooks.html">setting up a webhook</a>.
+              <a href="http://docs.readthedocs.io/page/webhooks.html">setting up a webhook</a>.
             {% endblocktrans %}
             </p>
 
-            <input type="submit" value="View your documentation" />
+            <input type="submit" value="{% trans "View your documentation" %}"/>
           </form>
         {% else %}
           {% comment %}Last build failed{% endcomment %}
@@ -45,23 +45,25 @@
 
           <form method="get" action="{% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk %}">
             <p>
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               There was a problem building your documentation,
               you can see what went wrong in the build output.
               If you need more help, check out some of the
-              <a href="http://docs.readthedocs.io/en/latest/faq.html">problems frequently encountered</a>
+              <a href="http://docs.readthedocs.io/page/faq.html">problems frequently encountered</a>
               during builds.
             {% endblocktrans %}
             </p>
 
-            <input type="submit" value="View build output" />
+            <input type="submit" value="{% trans "View build output" %}"/>
           </form>
         {% endif %}
       {% else %}
-        <h2>{% trans "Your documentation is building" %}</h2>
+
+        {% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk as latest_build_url %}
+        <a href="{{ latest_build_url }}"><h2>{% trans "Your documentation is building" %}</h2></a>
 
         <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           You'll be able to view your documentation in a minute or two,
           once your project is done building.
         {% endblocktrans %}

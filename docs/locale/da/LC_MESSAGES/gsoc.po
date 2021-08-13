@@ -1,169 +1,406 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 12:20+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Danish (http://www.transifex.com/projects/p/readthedocs-docs/language/da/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Danish (http://www.transifex.com/readthedocs/readthedocs-docs/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# 255065df5bca4ebb9c16b53b76092ccb
 #: ../../gsoc.rst:2
 msgid "Google Summer of Code"
 msgstr ""
 
-# fe3bc8a13fe14b16a93e2fc39ccb6288
 #: ../../gsoc.rst:4
 msgid ""
-"Read the Docs is hoping to participate in the Google Summer of Code in 2014."
-" This page will contain all the information for students and anyone else "
+"Thanks for your interest in Read the Docs! We are working hard to update the"
+" ideas list now that we are accepted in GSOC. Please give us a little while "
+"to work on things, and check back on this page for updates."
+msgstr ""
+
+#: ../../gsoc.rst:9
+msgid ""
+"Read the Docs is participating in the Google Summer of Code in 2018. This "
+"page will contain all the information for students and anyone else "
 "interested in helping."
 msgstr ""
 
-# 4732214d1cba4ba69b6852a4134d638c
-#: ../../gsoc.rst:8
-msgid "Required Skills"
+#: ../../gsoc.rst:13
+msgid "Skills"
 msgstr ""
 
-# 7f5c26e97cf04bb4984331657cc56038
-#: ../../gsoc.rst:10
+#: ../../gsoc.rst:15
 msgid "Incoming students will need the following skills:"
 msgstr ""
 
-# 4080221e9e3a4966aa23268b1cfef07a
-#: ../../gsoc.rst:12
-msgid "Intermediate python programming"
+#: ../../gsoc.rst:17
+msgid "Intermediate Python & Django programming"
 msgstr ""
 
-# e3f88fb4d62945559d47ccb87012f50d
-#: ../../gsoc.rst:13
+#: ../../gsoc.rst:18
 msgid ""
 "Familiarity with Markdown, reStructuredText, or some other plain text markup"
 " language"
 msgstr ""
 
-# 592dc68be26f4f5e9efb0d4e9cc171b2
-#: ../../gsoc.rst:14
+#: ../../gsoc.rst:19
 msgid "Familiarity with git, or some other source control"
 msgstr ""
 
-# 787c39c78a674c93a730892d29a895d0
-#: ../../gsoc.rst:15
+#: ../../gsoc.rst:20
 msgid "Ability to set up your own development environment for Read the Docs"
 msgstr ""
 
-# ba795aaeea50484a8de54516cbd81a87
-#: ../../gsoc.rst:16
-msgid ""
-"An interest in documentation and improving open source documentation tools "
-"would be great too!"
+#: ../../gsoc.rst:21
+msgid "Basic understanding of web technologies (HTML/CSS/JS)"
 msgstr ""
 
-# 007815e895e346228a00569418f63fe6
-#: ../../gsoc.rst:18
+#: ../../gsoc.rst:22
+msgid ""
+"An interest in documentation and improving open source documentation tools!"
+msgstr ""
+
+#: ../../gsoc.rst:24
 msgid ""
 "We're happy to help you get up to speed, but the more you are able to "
 "demonstrate ability in advance, the more likely we are to choose your "
 "application!"
 msgstr ""
 
-# 4dd790b769c047719177a2217205c53a
-#: ../../gsoc.rst:21
-msgid "Getting Started"
-msgstr "Introduktion"
-
-# b51dbe1c16834d04ae0ec44a6d1cf95e
-#: ../../gsoc.rst:23
-msgid ""
-"The :doc:`install` doc is probably the best place to get going. It will walk"
-" you through getting a basic environment for Read the Docs setup."
+#: ../../gsoc.rst:29
+msgid "Mentors"
 msgstr ""
 
-# 0d3fdd496a5e4f1c8f2b85a8a81c1f0b
-#: ../../gsoc.rst:26
-msgid ""
-"Then you can look through our :doc:`contribute` doc for information on how "
-"to get started contributing to RTD. If you try and submit a patch, or at "
-"least comment on a bug before applying, you will be much more likely to be "
-"accepted."
+#: ../../gsoc.rst:31
+msgid "Currently we have a few folks signed up:"
 msgstr ""
 
-# ce6c0db7981d40f188ab125c88ef42e3
 #: ../../gsoc.rst:33
-msgid "Want to get involved?"
-msgstr ""
-
-# 305fc2bf5b9443b195ae867996498837
-#: ../../gsoc.rst:35
-msgid ""
-"If you're interested in participating in GSoC 2014 as a student, mentor, or "
-"interested community member, you should join the `mailing list`_ and post "
-"any questions, comments, etc. you may have"
-msgstr ""
-
-# 884ccea0bb1e4502bedd53c729d660b4
-#: ../../gsoc.rst:37
-msgid ""
-"In addition you may be able to find us on IRC at ``#readthedocs`` on "
-"``irc.freenode.org``.  If no one is available to answer your question, "
-"please be patient and post it to the mailing list as well."
-msgstr ""
-
-# 418df1960ab54b76b01a7f9ff07aab79
-#: ../../gsoc.rst:42
-msgid "Project Ideas"
-msgstr ""
-
-# 2cdb345643e0457683fe59f933c737cb
-#: ../../gsoc.rst:44
-msgid ""
-"We have some medium sized projects sketched out in our issue tracker with "
-"the tag *Feature Overview*. Looking through `these issues`_ is a good place "
-"to start."
-msgstr ""
-
-# 3dcc1b747bd44985b2f00329e25d0a66
-#: ../../gsoc.rst:50
-msgid "Possible Mentors"
-msgstr ""
-
-# 7374dcbf36cc446e95f2ef3202a24b1e
-#: ../../gsoc.rst:52
 msgid "Eric Holscher"
 msgstr ""
 
-# 1fe0f197fca0482cb558c80de51918c6
+#: ../../gsoc.rst:34
+msgid "Manuel Kaufmann"
+msgstr ""
+
+#: ../../gsoc.rst:35
+msgid "Anthony Johnson"
+msgstr ""
+
+#: ../../gsoc.rst:37
+msgid ""
+"Please do not reach out directly to anyone about the Summer of Code. It will"
+" **not** increase your chances of being accepted!"
+msgstr ""
+
+#: ../../gsoc.rst:41
+msgid "Getting Started"
+msgstr "Introduktion"
+
+#: ../../gsoc.rst:43
+msgid ""
+"The :doc:`/install` doc is probably the best place to get going. It will "
+"walk you through getting a basic environment for Read the Docs setup."
+msgstr ""
+
+#: ../../gsoc.rst:46
+msgid ""
+"Then you can look through our :doc:`/contribute` doc for information on how "
+"to get started contributing to RTD."
+msgstr ""
+
+#: ../../gsoc.rst:48
+msgid ""
+"People who have a history of submitting pull requests will be prioritized in"
+" our Summer of Code selection process."
+msgstr ""
+
+#: ../../gsoc.rst:51
+msgid "Want to get involved?"
+msgstr ""
+
 #: ../../gsoc.rst:53
-msgid "Wraithan McDonald"
+msgid ""
+"If you're interested in participating in GSoC as a student, you can apply "
+"during the normal process provided by Google. We are currently overwhelmed "
+"with interest, so we are not able to respond individually to each person who"
+" is interested."
 msgstr ""
 
-# bea912ff883d4a178b6689aceab9e150
-#: ../../gsoc.rst:54
-msgid "Justin Abrahams"
+#: ../../gsoc.rst:56
+msgid "Project Ideas"
 msgstr ""
 
-# 488759a14e7d449f87a6924b9dfde9f2
-#: ../../gsoc.rst:55
-msgid "Jannis Leidel"
-msgstr ""
-
-# 8d7b8c43d4fc4a18b5e2a60ada3be2fc
 #: ../../gsoc.rst:58
+msgid ""
+"We have written our some loose ideas for projects to work on here. We are "
+"also open to any other ideas that students might have."
+msgstr ""
+
+#: ../../gsoc.rst:61
+msgid ""
+"**These projects are sorted by priority.** We will consider the priority on "
+"our roadmap as a factor, along with the skill of the student, in our "
+"selection process."
+msgstr ""
+
+#: ../../gsoc.rst:67
+msgid "Refactor & improve our search code"
+msgstr ""
+
+#: ../../gsoc.rst:69
+msgid ""
+"Currently we're using a homegrown library for Elastic Search. There is a new"
+" `elasticsearch-dsl <http://elasticsearch-dsl.readthedocs.io/en/latest/>`_ "
+"library that we should be using. This project will include:"
+msgstr ""
+
+#: ../../gsoc.rst:73
+msgid "Improving our search indexing"
+msgstr ""
+
+#: ../../gsoc.rst:74
+msgid ""
+"Refactoring how we \"model\" our search data to use elasticsearch-dsl Models"
+msgstr ""
+
+#: ../../gsoc.rst:75
+msgid ""
+"Add additional search data into our indexes, like the programming languages,"
+" type of document (tutorial, api, etc.) and other data for users to filter "
+"by"
+msgstr ""
+
+#: ../../gsoc.rst:76
+msgid "(Optional) Improve the UX of the search for users in various ways"
+msgstr ""
+
+#: ../../gsoc.rst:79
+msgid "Finish YAML config"
+msgstr ""
+
+#: ../../gsoc.rst:81
+msgid ""
+"Currently we have a basic :doc:`/yaml-config` for Read the Docs. It's still "
+"considered beta, and there are a number of features that it doesn't support."
+" We need to support everying users can currently do from our website "
+"dashboard inside the YAML file, and then plan a smooth transition path from "
+"the database UI to the YAML file."
+msgstr ""
+
+#: ../../gsoc.rst:87
+msgid ""
+"This is a *large* project and will likely require a good deal of "
+"understanding of both Python as well as web technologies. We have a "
+"`starting list of issues "
+"<https://github.com/rtfd/readthedocs.org/milestone/28>`_ put together, but "
+"there will be much more work."
+msgstr ""
+
+#: ../../gsoc.rst:92
+msgid "API V3"
+msgstr ""
+
+#: ../../gsoc.rst:94
+msgid ""
+"We currently have a \"v2\" API that isn't well documented and doesn't allow "
+"users to write to it. We want to continue using Django REST Framework for "
+"this, but rethink how we're presenting our information to our users."
+msgstr ""
+
+#: ../../gsoc.rst:98
+msgid ""
+"Currently we're showing everything as simple \"models\", and we want to "
+"start exposing \"methods\" on our data, similar to GitHub."
+msgstr ""
+
+#: ../../gsoc.rst:102
+msgid ""
+"This is a large project and should only be done by someone who has done some"
+" basic API design previously."
+msgstr ""
+
+#: ../../gsoc.rst:105
+msgid "Improve Translation Workflow"
+msgstr ""
+
+#: ../../gsoc.rst:107
+msgid ""
+"Currently we have our documentation & website translated on Transifex, but "
+"we don't have a management process for it. This means that translations will"
+" often sit for months before making it back into the site and being "
+"available to users."
+msgstr ""
+
+#: ../../gsoc.rst:111
+msgid ""
+"This project would include puting together a workflow for translations:"
+msgstr ""
+
+#: ../../gsoc.rst:113
+msgid "Communicate with existing translators and see what needs they have"
+msgstr ""
+
+#: ../../gsoc.rst:114
+msgid ""
+"Help formalize the process that we have around Transifex to make it easier "
+"to contribute to"
+msgstr ""
+
+#: ../../gsoc.rst:115
+msgid "Improve our tooling so that integrating new translations is easier"
+msgstr ""
+
+#: ../../gsoc.rst:118
+msgid "Support for additional build steps for linting & testing"
+msgstr ""
+
+#: ../../gsoc.rst:120
+msgid ""
+"Currently we only build documentation on Read the Docs, but we'd also like "
+"to add additional build steps that lets users perform more actions. This "
+"would likely take the form of wraping some of the existing `Sphinx builders "
+"<http://www.sphinx-doc.org/en/stable/builders.html>`_, and giving folks a "
+"nice way to use them inside Read the Docs."
+msgstr ""
+
+#: ../../gsoc.rst:125
+msgid "It would be great to have wrappers for the following as a start:"
+msgstr ""
+
+#: ../../gsoc.rst:127
+msgid ""
+"Link Check (http://www.sphinx-"
+"doc.org/en/stable/builders.html#sphinx.builders.linkcheck.CheckExternalLinksBuilder)"
+msgstr ""
+
+#: ../../gsoc.rst:128
+msgid "Spell Check (https://pypi.python.org/pypi/sphinxcontrib-spelling/)"
+msgstr ""
+
+#: ../../gsoc.rst:129
+msgid ""
+"Doctest (http://www.sphinx-doc.org/en/stable/ext/doctest.html#module-"
+"sphinx.ext.doctest)"
+msgstr ""
+
+#: ../../gsoc.rst:130
+msgid ""
+"Coverage (http://www.sphinx-doc.org/en/stable/ext/coverage.html#module-"
+"sphinx.ext.coverage)"
+msgstr ""
+
+#: ../../gsoc.rst:132
+msgid ""
+"The goal would also be to make it quite easy for users to contribute third "
+"party build steps for Read the Docs, so that other useful parts of the "
+"Sphinx ecosystem could be tightly integrated with Read the Docs."
+msgstr ""
+
+#: ../../gsoc.rst:136
+msgid "Collections of Projects"
+msgstr ""
+
+#: ../../gsoc.rst:138
+msgid ""
+"This project involves building a user interface for groups of projects in "
+"Read the Docs (`Collections`). Users would be allowed to create, publish, "
+"and search a `Collection` of projects that they care about. We would also "
+"allow for automatic creation of `Collections` based on a project's "
+"``setup.py`` or ``requirements.txt``."
+msgstr ""
+
+#: ../../gsoc.rst:142
+msgid ""
+"Once a user has a `Collection`, we would allow them to do a few sets of "
+"actions on them:"
+msgstr ""
+
+#: ../../gsoc.rst:145
+msgid ""
+"Search across all the projects in the `Collection` with one search dialog"
+msgstr ""
+
+#: ../../gsoc.rst:146
+msgid ""
+"Download all the project's documentation (PDF, HTMLZip, Epub) for offline "
+"viewing"
+msgstr ""
+
+#: ../../gsoc.rst:147
+msgid ""
+"Build a landing page for the collection that lists out all the projects, and"
+" could even have a user-editable description, similar to our project listing"
+" page."
+msgstr ""
+
+#: ../../gsoc.rst:149
+msgid ""
+"There is likely other ideas that could be done with `Collections` over time."
+msgstr ""
+
+#: ../../gsoc.rst:152
+msgid "Integrated Redirects"
+msgstr ""
+
+#: ../../gsoc.rst:154
+msgid ""
+"Right now it's hard for users to rename files. We support redirects, but "
+"don't create them automatically on file rename, and our redirect code is "
+"brittle."
+msgstr ""
+
+#: ../../gsoc.rst:159
+msgid "We should rebuild how we handle redirects across a number of cases:"
+msgstr ""
+
+#: ../../gsoc.rst:161
+msgid ""
+"Detecting a file change in git/hg/svn and automatically creating a redirect"
+msgstr ""
+
+#: ../../gsoc.rst:162
+msgid "Support redirecting an entire domain to another place"
+msgstr ""
+
+#: ../../gsoc.rst:163
+msgid "Support redirecting versions"
+msgstr ""
+
+#: ../../gsoc.rst:165
+msgid ""
+"There will also be a good number of things that spawn from this, including "
+"version aliases and other related concepts, if this task doesn't take the "
+"whole summer."
+msgstr ""
+
+#: ../../gsoc.rst:169
+msgid "Additional Ideas"
+msgstr ""
+
+#: ../../gsoc.rst:171
+msgid ""
+"We have some medium sized projects sketched out in our issue tracker with "
+"the tag *Feature Overview*. Looking through `these issues`_ is a good place "
+"to start. You might also look through our `milestones`_ on GitHub, which "
+"provide outlines on the larger tasks that we're hoping to accomplish."
+msgstr ""
+
+#: ../../gsoc.rst:180
 msgid "Thanks"
 msgstr ""
 
-# f4e1659ba7634ce3aa60063c41af7f51
-#: ../../gsoc.rst:60
+#: ../../gsoc.rst:182
 msgid ""
 "This page was heavily inspired by Mailman's similar `GSOC page`_. Thanks for"
 " the inspiration."

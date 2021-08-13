@@ -1,109 +1,22 @@
-from django.http import Http404
-from django.core.cache import cache
-from django.test import TestCase
-from django.test.client import RequestFactory
-from django.test.utils import override_settings
-
-from django_dynamic_fixture import get, new
+from unittest import mock
 
 from corsheaders.middleware import CorsMiddleware
-from mock import patch
+from django.conf import settings
+from django.http import HttpResponse
+from django.test import TestCase, override_settings
+from django.test.client import RequestFactory
+from django_dynamic_fixture import get
 
-from readthedocs.core.middleware import SubdomainMiddleware
-from readthedocs.projects.models import Project, Domain
-
+from readthedocs.builds.constants import LATEST
+from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
 
-@override_settings(USE_SUBDOMAIN=True)
-class MiddlewareTests(TestCase):
-
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = SubdomainMiddleware()
-        self.url = '/'
-        self.owner = create_user(username='owner', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
-
-    def test_failey_cname(self):
-        request = self.factory.get(self.url, HTTP_HOST='my.host.com')
-        with self.assertRaises(Http404):
-            self.middleware.process_request(request)
-        self.assertEqual(request.cname, True)
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_proper_subdomain(self):
-        request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.slug, 'pip')
-
-    @override_settings(PRODUCTION_DOMAIN='prod.readthedocs.org')
-    def test_subdomain_different_length(self):
-        request = self.factory.get(self.url, HTTP_HOST='pip.prod.readthedocs.org')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.slug, 'pip')
-
-    def test_domain_object(self):
-        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
-
-        request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.domain_object, True)
-        self.assertEqual(request.slug, 'pip')
-
-    def test_domain_object_missing(self):
-        self.domain = get(Domain, domain='docs.foobar2.com', project=self.pip)
-        request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
-        with self.assertRaises(Http404):
-            self.middleware.process_request(request)
-
-    def test_proper_cname(self):
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='my.valid.homename')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.cname, True)
-        self.assertEqual(request.slug, 'my_slug')
-
-    def test_request_header(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.cname, True)
-        self.assertEqual(request.rtdheader, True)
-        self.assertEqual(request.slug, 'pip')
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_proper_cname_uppercase(self):
-        cache.get = lambda x: x.split('.')[0]
-        request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.cname, True)
-        self.assertEqual(request.slug, 'pip')
-
-    def test_request_header_uppercase(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
-        self.assertEqual(request.cname, True)
-        self.assertEqual(request.rtdheader, True)
-        self.assertEqual(request.slug, 'pip')
-
-    @override_settings(USE_SUBDOMAIN=True)
-    # no need to do a real dns query so patch cname_to_slug
-    @patch('readthedocs.core.middleware.cname_to_slug', new=lambda x: 'doesnt')
-    def test_use_subdomain_on(self):
-        request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
-        ret_val = self.middleware.process_request(request)
-        self.assertIsNone(ret_val, None)
-
-
+@override_settings(
+    PUBLIC_DOMAIN='readthedocs.io',
+)
 class TestCORSMiddleware(TestCase):
 
     def setUp(self):
@@ -111,35 +24,238 @@ class TestCORSMiddleware(TestCase):
         self.middleware = CorsMiddleware()
         self.url = '/api/v2/search'
         self.owner = create_user(username='owner', password='test')
-        self.pip = get(
+        self.project = get(
             Project, slug='pip',
-            users=[self.owner], privacy_level='public',
+            users=[self.owner],
+            privacy_level=PUBLIC,
+            main_language_project=None,
         )
-        self.domain = get(Domain, domain='my.valid.domain', project=self.pip)
+        self.project.versions.update(privacy_level=PUBLIC)
+        self.version = self.project.versions.get(slug=LATEST)
+        self.subproject = get(
+            Project,
+            users=[self.owner],
+            privacy_level=PUBLIC,
+            main_language_project=None,
+        )
+        self.subproject.versions.update(privacy_level=PUBLIC)
+        self.version_subproject = self.subproject.versions.get(slug=LATEST)
+        self.relationship = get(
+            ProjectRelationship,
+            parent=self.project,
+            child=self.subproject,
+        )
+        self.domain = get(
+            Domain,
+            domain='my.valid.domain',
+            project=self.project,
+        )
+        self.another_project = get(
+            Project,
+            privacy_level=PUBLIC,
+            slug='another',
+        )
+        self.another_project.versions.update(privacy_level=PUBLIC)
+        self.another_version = self.another_project.versions.get(slug=LATEST)
+        self.another_domain = get(
+            Domain,
+            domain='another.valid.domain',
+            project=self.another_project,
+        )
 
-    def test_proper_domain(self):
+    def test_allow_linked_domain_from_public_version(self):
         request = self.factory.get(
             self.url,
-            {'project': self.pip.slug},
+            {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
 
-    def test_invalid_domain(self):
+    def test_dont_allow_linked_domain_from_private_version(self):
+        self.version.privacy_level = PRIVATE
+        self.version.save()
         request = self.factory.get(
             self.url,
-            {'project': self.pip.slug},
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    def test_allowed_api_public_version_from_another_domain(self):
+        request = self.factory.get(
+            self.url,
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://docs.another.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            self.url,
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://another.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_not_allowed_api_private_version_from_another_domain(self):
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        request = self.factory.get(
+            self.url,
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://docs.another.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            self.url,
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://another.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    def test_valid_subproject(self):
+        self.assertTrue(
+            Project.objects.filter(
+                pk=self.project.pk,
+                subprojects__child=self.subproject,
+            ).exists(),
+        )
+        request = self.factory.get(
+            self.url,
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_embed_api_private_version_linked_domain(self):
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        request = self.factory.get(
+            '/api/v2/embed/',
+            {'project': self.project.slug, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    @mock.patch('readthedocs.core.signals._has_donate_app')
+    def test_sustainability_endpoint_allways_allowed(self, has_donate_app):
+        has_donate_app.return_value = True
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    @mock.patch('readthedocs.core.signals._has_donate_app')
+    def test_sustainability_endpoint_no_ext(self, has_donate_app):
+        has_donate_app.return_value = False
+        request = self.factory.get(
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://invalid.domain',
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
 
-    def test_invalid_project(self):
         request = self.factory.get(
-            self.url,
-            {'project': 'foo'},
+            '/api/v2/sustainability/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    def test_apiv2_endpoint_not_allowed(self):
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        # This also doesn't work on registered domains.
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        # Or from our public domain.
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://docs.readthedocs.io/',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        # POST is not allowed
+        request = self.factory.post(
+            '/api/v2/version/',
+            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+
+class TestSessionMiddleware(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = ReadTheDocsSessionMiddleware()
+
+        self.user = create_user(username='owner', password='test')
+
+    @override_settings(SESSION_COOKIE_SAMESITE=None)
+    def test_fallback_cookie(self):
+        request = self.factory.get('/')
+        response = HttpResponse()
+        self.middleware.process_request(request)
+        request.session['test'] = 'value'
+        response = self.middleware.process_response(request, response)
+
+        self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
+        self.assertTrue(self.middleware.cookie_name_fallback in response.cookies)
+
+    @override_settings(SESSION_COOKIE_SAMESITE=None)
+    def test_main_cookie_samesite_none(self):
+        request = self.factory.get('/')
+        response = HttpResponse()
+        self.middleware.process_request(request)
+        request.session['test'] = 'value'
+        response = self.middleware.process_response(request, response)
+
+        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'None')
+        self.assertEqual(response.cookies[self.middleware.cookie_name_fallback]['samesite'], '')
+
+    def test_main_cookie_samesite_lax(self):
+        request = self.factory.get('/')
+        response = HttpResponse()
+        self.middleware.process_request(request)
+        request.session['test'] = 'value'
+        response = self.middleware.process_response(request, response)
+
+        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'Lax')
+        self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)

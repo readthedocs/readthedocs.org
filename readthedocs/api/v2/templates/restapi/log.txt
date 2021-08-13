@@ -1,0 +1,14 @@
+Read the Docs build information
+Build id: {{ build.id }}
+Project: {{ build.project_slug }}
+Version: {{ build.version_slug }}
+Commit: {{ build.commit }}
+Date: {{ build.date }}
+State: {{ build.state }}
+Success: {% if build.state == 'finished' %}{{ build.success }}{% else %}Unknown{% endif %}
+
+{% for command in build.commands %}
+[rtd-command-info] start-time: {{ command.start_time }}, end-time: {{ command.end_time }}, duration: {{ command.run_time }}, exit-code: {{ command.exit_code }}
+{{ command.command|safe }}
+{{ command.output|safe }}
+{% endfor %}

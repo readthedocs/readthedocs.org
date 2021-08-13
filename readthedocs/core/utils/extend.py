@@ -1,4 +1,6 @@
-"""Patterns for extending Read the Docs"""
+# -*- coding: utf-8 -*-
+
+"""Patterns for extending Read the Docs."""
 
 import inspect
 
@@ -7,20 +9,21 @@ from django.utils.module_loading import import_string
 
 
 def get_override_class(proxy_class, default_class=None):
-    """Determine which class to use in an override class
+    """
+    Determine which class to use in an override class.
 
     The `proxy_class` is the main class that is used, and `default_class` is the
     default class that this proxy class will instantiate.  If `default_class` is
     not defined, this will be inferred from the `proxy_class`, as is defined in
-    :py:cls:`SettingsOverrideObject`.
+    :py:class:`SettingsOverrideObject`.
     """
     if default_class is None:
         default_class = getattr(proxy_class, '_default_class')
     class_id = '.'.join([
         inspect.getmodule(proxy_class).__name__,
-        proxy_class.__name__
+        proxy_class.__name__,
     ])
-    class_path = getattr(settings, 'CLASS_OVERRIDES', {}).get(class_id)
+    class_path = settings.CLASS_OVERRIDES.get(class_id)
     # pylint: disable=protected-access
     if class_path is None and proxy_class._override_setting is not None:
         class_path = getattr(settings, proxy_class._override_setting, None)
@@ -31,16 +34,21 @@ def get_override_class(proxy_class, default_class=None):
 
 class SettingsOverrideMeta(type):
 
-    """Meta class for passing along classmethod class to the underlying class"""
+    """
+    Meta class to manage our Setting configurations.
+
+    Meta class for passing along classmethod class to the underlying class.
+    """
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = get_override_class(cls, getattr(cls, '_default_class'))
         return getattr(proxy_class, attr)
 
 
-class SettingsOverrideObject(object):
+class SettingsOverrideObject(metaclass=SettingsOverrideMeta):
 
-    """Base class for creating class that can be overridden
+    """
+    Base class for creating class that can be overridden.
 
     This is used for extension points in the code, where we want to extend a
     class without monkey patching it. This class will proxy classmethod calls
@@ -62,13 +70,12 @@ class SettingsOverrideObject(object):
     matches the pattern we've been using previously.
     """
 
-    __metaclass__ = SettingsOverrideMeta
-
     _default_class = None
     _override_setting = None
 
     def __new__(cls, *args, **kwargs):
-        """Set up wrapped object
+        """
+        Set up wrapped object.
 
         Create an instance of the underlying target class and return instead of
         this class.

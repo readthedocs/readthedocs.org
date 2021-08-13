@@ -1,0 +1,34 @@
+{
+    "path": "testdocumentation",
+    "title": "TestDocumentation",
+    "sections": [
+        {
+            "id": "TestDocumentation",
+            "title": "TestDocumentation",
+            "content": "This TestDocumentation is generated whenever the master branch is updated.GitHub can render our .rst documents as ReStructuredText, which is close enough to Sphinx for most code reviews, without features like links between documents.It is occasionally necessary to generate the TestDocumentation locally. It is easiest to do this with a virtualenv on the host system, using Docker only to regenerate the MDN Sphinx template. If you are not comfortable with that style of development, it can be done entirely in Docker using docker-compose."
+        },
+        {
+            "id": "generating-TestDocumentation",
+            "title": "Generating TestDocumentation",
+            "content": "Sphinx uses a Makefile in the subfolder to build TestDocumentation in several formats. MDN only uses the HTML format. To generate the TestDocumentation in a virtualenv on the host machine, first install the requirements:. pip install -r requirements/test.txt. Then switch to the test folder to use the Makefile:. cd test make html python -m webbrowser file://${PWD}/_build/html/index.html. To generate the TestDocumentation with Docker:. docker-compose run --rm --user $(id -u) web sh -c \"\\ virtualenv /tmp/.venvs/test && \\ . /tmp/.venvs/test/bin/activate && \\ pip install -r /app/requirements/test.txt && \\ cd /app/test && \\ make html\" python -m webbrowser file://${PWD}/test/_build/html/index.html. A virtualenv is required, to avoid a pip bug when changing the version of a system-installed package."
+        }
+    ],
+    "domains": [
+        {
+            "role_name": "py:method",
+            "anchor": "celery.worker.components.Hub.include_if",
+            "type_display": "method",
+            "name": "celery.worker.components.Hub.include_if"
+        },
+        {
+            "role_name": "py:function",
+            "anchor": "celery.utils.text.fill_paragraphs",
+            "type_display": "function",
+            "name": "celery.utils.text.fill_paragraphs"
+        }
+    ],
+    "domain_data": {
+        "celery.worker.components.Hub.include_if": "Return true if bootstep should be included. You can define this as an optional predicate that decides whether this step should be created",
+        "celery.utils.text.fill_paragraphs": "Fill paragraphs with newlines (or custom separator)"
+    }
+}

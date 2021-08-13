@@ -1,0 +1,110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Turkish (http://www.transifex.com/readthedocs/readthedocs-docs/language/tr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: tr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ../../sponsors.rst:2
+msgid "Sponsors of Read the Docs"
+msgstr ""
+
+#: ../../sponsors.rst:4
+msgid ""
+"Running Read the Docs isn't free, and the site wouldn't be where it is today"
+" without generous support of our sponsors. Below is a list of all the folks "
+"who have helped the site financially, in order of the date they first "
+"started supporting us."
+msgstr ""
+
+#: ../../sponsors.rst:10
+msgid "Current sponsors"
+msgstr ""
+
+#: ../../sponsors.rst:12
+msgid ""
+"`Microsoft Azure`_ - They cover all of our hosting expenses every month.  "
+"This is a pretty large sum of money, averaging around $3,000/mo, and we are "
+"really grateful to have them as a sponsor."
+msgstr ""
+
+#: ../../sponsors.rst:13
+msgid ""
+"`Cloudflare`_ - Cloudflare is providing us with an enterprise plan of their "
+"SSL for SaaS Providers product that enables us to provide SSL certificates "
+"for custom domains."
+msgstr ""
+
+#: ../../sponsors.rst:14
+msgid "You? (Email us at rev@readthedocs.org for more info)"
+msgstr ""
+
+#: ../../sponsors.rst:17
+msgid "Past sponsors"
+msgstr ""
+
+#: ../../sponsors.rst:19
+msgid "`Python Software Foundation`_"
+msgstr ""
+
+#: ../../sponsors.rst:20
+msgid "`Revsys`_"
+msgstr ""
+
+#: ../../sponsors.rst:21
+msgid "`Mozilla Web Dev`_"
+msgstr ""
+
+#: ../../sponsors.rst:22
+msgid "`Django Software Foundation`_"
+msgstr ""
+
+#: ../../sponsors.rst:23
+msgid "`Lab305`_"
+msgstr ""
+
+#: ../../sponsors.rst:24
+msgid "`Twilio`_"
+msgstr ""
+
+#: ../../sponsors.rst:25
+msgid "`Rackspace`_"
+msgstr ""
+
+#: ../../sponsors.rst:26
+msgid "`Mozilla`_"
+msgstr ""
+
+#: ../../sponsors.rst:42
+msgid "Sponsorship Information"
+msgstr ""
+
+#: ../../sponsors.rst:44
+msgid ""
+"As part of increasing sustainability, Read the Docs is testing out promoting"
+" sponsors on documentation pages. We have more information about this in our"
+" `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about "
+"this effort."
+msgstr ""
+
+#: ../../sponsors.rst:49
+msgid "Sponsor Us"
+msgstr ""
+
+#: ../../sponsors.rst:51
+msgid ""
+"Contact us at rev@readthedocs.org for more information on sponsoring Read "
+"the Docs."
+msgstr ""

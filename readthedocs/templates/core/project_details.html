@@ -1,6 +1,4 @@
 {% load i18n %}
-{% load core_tags %}
-{% load privacy_tags %}
 {% load gravatar %}
 {% load projects_tags %}
 
@@ -28,17 +26,17 @@
         {% if version.uploaded or version.built %}
           {# Link to the docs #}
           <a class="module-item-title" href="{{ version.get_absolute_url }}">
-            {% blocktrans with version.slug as slug %} {{ slug }} {% endblocktrans %}
+            {{ version.slug }}
           {% if request.user in project.users.all %}
             <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
           {% endif %}
           </a>
         {% else %}
-          <a class="module-item-title" href="{{ version.project.get_builds_url }}">
-            {% blocktrans with version.slug as slug %} {{ slug }}{% endblocktrans %}
+          <a class="module-item-title" href="{{ project.get_builds_url }}">
+            {{ version.slug }}
           </a>
         {% endif %}
-          {% if request.user|is_admin:project %}
+          {% if is_project_admin %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>
@@ -46,43 +44,43 @@
         </li>
 
       {% empty %}
-      <p>
-      {% trans "No active versions." %}
-      </p>
+        <li class="module-item">
+          <p class="quiet">
+            {% trans "No active versions." %}
+          </p>
+        </li>
       {% endfor %}
       </ul>
     </div>
   </div>
 
 {% block build_versions %}
-{% if versions %}
+{% if versions and is_project_admin %}
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
     <div class="version_right">
-      <form method="post" action="{% url "generic_build" project.pk %}">
+      <form method="post" action="{% url "projects_detail" project.slug %}">
+        {% csrf_token %}
         <select id="id_version" name="version_slug">
         {% for version in versions|sort_version_aware %}
           <option value="{{ version.slug }}">{{ version.slug }}</option>
         {% endfor %}
         </select>
-        <input type="submit" value="{% trans "Build" %}">
+        <input type="submit" value="{% trans "Build version" context "Build is a verb" %}">
       </form>
     </div>
   </div>
 {% endif %}
 {% endblock %}
 
-<div id="project_description">
 {% if project.description %}
+<div id="project_description">
   <h3>{% trans "Description" %}</h3>
-  <div id="project_description">
   <p>
-    {{ project.description|restructuredtext }}
+    {{ project.description }}
   </p>
-  </div>
-{% endif %}
 </div>
-
+{% endif %}
 
 </div>{# END .module #}
 

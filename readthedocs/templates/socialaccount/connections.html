@@ -13,10 +13,15 @@
   <div class="module connected-services">
     <div class="module-wrapper">
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           The following services are currently connected to your account:
         {% endblocktrans %}
       </p>
+
+      {# TODO: style this properly in the new templates #}
+      {% if form.non_field_errors %}
+      {{ form.non_field_errors }}
+      {% endif %}
 
       <div class="module-list-wrapper">
         {% if form.accounts %}
@@ -47,7 +52,7 @@
 
                   {% if base_account.provider == 'bitbucket' %}
                     <p class="help error">
-                      {% blocktrans %}
+                      {% blocktrans trimmed %}
                         The API version this connection uses is no longer
                         supported, please reconnect your Bitbucket account.
                       {% endblocktrans %}
@@ -73,7 +78,7 @@
   </div>
 
   <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+    {% include "socialaccount/snippets/provider_list.html" with process="connect" next="" %}
   </ul>
 
   {% include "socialaccount/snippets/login_extra.html" %}

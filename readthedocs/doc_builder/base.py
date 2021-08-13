@@ -1,9 +1,12 @@
 """Base classes for Builders."""
 
-from functools import wraps
-import os
 import logging
+import os
 import shutil
+from functools import wraps
+
+from readthedocs.projects.models import Feature
+
 
 log = logging.getLogger(__name__)
 
@@ -17,38 +20,51 @@ def restoring_chdir(fn):
             return fn(*args, **kw)
         finally:
             os.chdir(path)
+
     return decorator
 
 
-class BaseBuilder(object):
+class BaseBuilder:
 
     """
     The Base for all Builders. Defines the API for subclasses.
 
-    Expects subclasses to define ``old_artifact_path``,
-    which points at the directory where artifacts should be copied from.
+    Expects subclasses to define ``old_artifact_path``, which points at the
+    directory where artifacts should be copied from.
     """
 
     _force = False
-    # old_artifact_path = ..
+
+    ignore_patterns = []
+    old_artifact_path = None
 
     def __init__(self, build_env, python_env, force=False):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
+        self.config = python_env.config if python_env else None
         self._force = force
+        self.project_path = self.project.checkout_path(self.version.slug)
         self.target = self.project.artifact_path(
             version=self.version.slug,
-            type_=self.type
+            type_=self.type,
         )
+
+    def get_final_doctype(self):
+        """Some builders may have a different doctype at build time."""
+        return self.config.doctype
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
-        log.info("Forcing a build")
+        log.info('Forcing a build')
         self._force = True
 
-    def build(self, id=None, **__):  # pylint: disable=redefined-builtin
+    def append_conf(self):
+        """Set custom configurations for this builder."""
+        pass
+
+    def build(self):
         """Do the actual building of the documentation."""
         raise NotImplementedError
 
@@ -57,41 +73,51 @@ class BaseBuilder(object):
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info("Copying %s on the local filesystem", self.type)
-            shutil.copytree(self.old_artifact_path, self.target)
+            log.info('Copying %s on the local filesystem', self.type)
+            log.debug('Ignoring patterns %s', self.ignore_patterns)
+            shutil.copytree(
+                self.old_artifact_path,
+                self.target,
+                ignore=shutil.ignore_patterns(*self.ignore_patterns),
+            )
         else:
-            log.warning("Not moving docs, because the build dir is unknown.")
+            log.warning('Not moving docs, because the build dir is unknown.')
 
     def clean(self, **__):
-        """Clean the path where documentation will be built"""
+        """Clean the path where documentation will be built."""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info("Removing old artifact path: %s", self.old_artifact_path)
+            log.info('Removing old artifact path: %s', self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        checkout_path = self.project.checkout_path(self.version.slug)
-        if not docs_dir:
-            for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
-                possible_path = os.path.join(checkout_path, doc_dir_name)
-                if os.path.exists(possible_path):
-                    docs_dir = possible_path
-                    break
-        if not docs_dir:
-            docs_dir = checkout_path
-        return docs_dir
+        if docs_dir:
+            return docs_dir
+
+        for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+            possible_path = os.path.join(self.project_path, doc_dir_name)
+            if os.path.exists(possible_path):
+                return possible_path
+
+        return self.project_path
 
     def create_index(self, extension='md', **__):
         """Create an index file if it needs it."""
         docs_dir = self.docs_dir()
 
-        index_filename = os.path.join(docs_dir, 'index.{ext}'.format(ext=extension))
+        index_filename = os.path.join(
+            docs_dir,
+            'index.{ext}'.format(ext=extension),
+        )
         if not os.path.exists(index_filename):
-            readme_filename = os.path.join(docs_dir, 'README.{ext}'.format(ext=extension))
+            readme_filename = os.path.join(
+                docs_dir,
+                'README.{ext}'.format(ext=extension),
+            )
             if os.path.exists(readme_filename):
                 return 'README'
-            else:
-                index_file = open(index_filename, 'w+')
+
+            if not self.project.has_feature(Feature.DONT_CREATE_INDEX):
                 index_text = """
 
 Welcome to Read the Docs
@@ -99,15 +125,20 @@ Welcome to Read the Docs
 
 This is an autogenerated index file.
 
-Please create a ``{dir}/index.{ext}`` or ``{dir}/README.{ext}`` file with your own content.
+Please create an ``index.{ext}`` or ``README.{ext}`` file with your own content
+under the root (or ``/docs``) directory in your repository.
 
 If you want to use another markup, choose a different builder in your settings.
+Check out our `Getting Started Guide
+<https://docs.readthedocs.io/en/latest/getting_started.html>`_ to become more
+familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+                with open(index_filename, 'w+') as index_file:
+                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+
         return 'index'
 
     def run(self, *args, **kwargs):
-        """Proxy run to build environment"""
+        """Proxy run to build environment."""
         return self.build_env.run(*args, **kwargs)

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """HTML forms for sending notifications."""
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -5,7 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class SendNotificationForm(forms.Form):
 
-    """Send notification form
+    """
+    Send notification form.
 
     Used for sending a notification to a list of users from admin pages
 
@@ -27,12 +30,14 @@ class SendNotificationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.notification_classes = kwargs.pop('notification_classes', [])
-        super(SendNotificationForm, self).__init__(*args, **kwargs)
-        self.fields['source'].choices = [(cls.name, cls.name) for cls
-                                         in self.notification_classes]
+        super().__init__(*args, **kwargs)
+        self.fields['source'].choices = [
+            (cls.name, cls.name)
+            for cls in self.notification_classes
+        ]
 
     def clean_source(self):
-        """Get the source class from the class name"""
+        """Get the source class from the class name."""
         source = self.cleaned_data['source']
-        classes = dict((cls.name, cls) for cls in self.notification_classes)
+        classes = {cls.name: cls for cls in self.notification_classes}
         return classes.get(source, None)

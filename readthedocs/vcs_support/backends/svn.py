@@ -1,14 +1,12 @@
+# -*- coding: utf-8 -*-
+
 """Subversion-related utilities."""
+
 import csv
-import sys
+from io import StringIO
 
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-if sys.version_info > (3,):
-    from io import StringIO
-else:
-    from StringIO import StringIO
 
 
 class Backend(BaseVCS):
@@ -18,8 +16,8 @@ class Backend(BaseVCS):
     supports_tags = False
     fallback_branch = '/trunk/'
 
-    def __init__(self, project, version, **kwargs):
-        super(Backend, self).__init__(project, version)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if self.repo_url[-1] != '/':
             self.base_url = self.repo_url
             self.repo_url += '/'
@@ -30,50 +28,52 @@ class Backend(BaseVCS):
             self.base_url = self.repo_url
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
+        if self.repo_exists():
+            return self.up()
+        return self.co()
+
+    def repo_exists(self):
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info')[0]
-        if retcode == 0:
-            self.up()
-        else:
-            self.co()
+        retcode, *_ = self.run('svn', 'info', record=False)
+        return retcode == 0
 
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (svn revert): %s"
-                 % (self.repo_url, retcode))
-            )
+            raise RepositoryError
         retcode, out, err = self.run(
-            'svn', 'up', '--accept', 'theirs-full',
-            '--trust-server-cert', '--non-interactive')
+            'svn',
+            'up',
+            '--accept',
+            'theirs-full',
+            '--trust-server-cert',
+            '--non-interactive',
+        )
         if retcode != 0:
-            raise ProjectImportError(
-                "Failed to get code from '%s' (svn up): %s" % (self.repo_url,
-                                                               retcode)
-            )
+            raise RepositoryError
         return retcode, out, err
 
     def co(self, identifier=None):
         self.make_clean_working_dir()
         if identifier:
-            url = self.base_url + identifier
+            url = self.get_url(self.base_url, identifier)
         else:
             url = self.repo_url
-        retcode, out, err = self.run('svn', 'checkout', '--quiet', url, '.')
+        retcode, out, err = self.run('svn', 'checkout', url, '.')
         if retcode != 0:
-            raise ProjectImportError(
-                "Failed to get code from '%s' (svn checkout): %s" % (url,
-                                                                     retcode)
-            )
+            raise RepositoryError
         return retcode, out, err
 
     @property
     def tags(self):
-        retcode, stdout = self.run('svn', 'list', '%s/tags/'
-                                   % self.base_url)[:2]
+        retcode, stdout = self.run(
+            'svn',
+            'list',
+            '%s/tags/' % self.base_url,
+            record_as_success=True,
+        )[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -81,17 +81,21 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of svn list, eg:
+        Parses output of svn list.
 
-            release-1.1/
-            release-1.2/
-            release-1.3/
-            release-1.4/
-            release-1.4.1/
-            release-1.5/
+        Example:
+
+        release-1.1/
+        release-1.2/
+        release-1.3/
+        release-1.4/
+        release-1.4.1/
+        release-1.5/
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_tags = csv.reader(StringIO(data), delimiter='/')
         vcs_tags = []
         for name, _ in raw_tags:
@@ -104,11 +108,11 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
-        retcode = self.run('svn', 'info')[0]
-        if retcode == 0:
-            result = self.up()
-        else:
-            result = self.co(identifier)
-        # result is (return_code, stdout, stderr)
-        return result
+        super().checkout()
+        return self.co(identifier)
+
+    def get_url(self, base_url, identifier):
+        base = base_url.rstrip('/')
+        tag = identifier.lstrip('/')
+        url = '{}/{}'.format(base, tag)
+        return url

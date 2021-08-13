@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs-docs/language/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../../support.rst:2
+msgid "Support"
+msgstr ""
+
+#: ../../support.rst:5
+msgid "Usage Questions"
+msgstr ""
+
+#: ../../support.rst:7
+msgid ""
+"If you have questions about how to use Read the Docs, or have an issue that "
+"isn't related to a bug, `Stack Overflow`_ is the best place to ask.  Tag "
+"questions with ``read-the-docs`` so other folks can find them easily."
+msgstr ""
+
+#: ../../support.rst:11
+msgid "Good questions for Stack Overflow would be:"
+msgstr ""
+
+#: ../../support.rst:13
+msgid ""
+"\"What is the best way to structure the table of contents across a "
+"project?\""
+msgstr ""
+
+#: ../../support.rst:14
+msgid ""
+"\"How do I structure translations inside of my project for easiest "
+"contribution from users?\""
+msgstr ""
+
+#: ../../support.rst:15
+msgid ""
+"\"How do I use Sphinx to use SVG images in HTML output but PNG in PDF "
+"output?\""
+msgstr ""
+
+#: ../../support.rst:18
+msgid "Community Support"
+msgstr ""
+
+#: ../../support.rst:20
+msgid ""
+"Read the Docs is supported by community contributions and advertising. We "
+"hope to bring in enough money with our `Gold`_ and `Ethical Ads`_ programs "
+"to keep Read the Docs sustainable."
+msgstr ""
+
+#: ../../support.rst:24
+msgid ""
+"**All people answering your questions are doing it with their own time, so "
+"please be kind and provide as much information as possible.**"
+msgstr ""
+
+#: ../../support.rst:28
+msgid "Bugs & Support Issues"
+msgstr ""
+
+#: ../../support.rst:30
+msgid ""
+"You can file bug reports on our `GitHub issue tracker`_, and they will be "
+"addressed as soon as possible. **Support is a volunteer effort**, and there "
+"is no guaranteed response time. If you need answers quickly, you can buy "
+"commercial support below."
+msgstr ""
+
+#: ../../support.rst:38
+msgid "Reporting Issues"
+msgstr ""
+
+#: ../../support.rst:40
+msgid ""
+"When reporting a bug, please include as much information as possible that "
+"will help us solve this issue. This includes:"
+msgstr ""
+
+#: ../../support.rst:44
+msgid "Project name"
+msgstr ""
+
+#: ../../support.rst:45
+msgid "URL"
+msgstr ""
+
+#: ../../support.rst:46
+msgid "Action taken"
+msgstr ""
+
+#: ../../support.rst:47
+msgid "Expected result"
+msgstr ""
+
+#: ../../support.rst:48
+msgid "Actual result"
+msgstr ""
+
+#: ../../support.rst:51
+msgid "Commercial Support"
+msgstr ""
+
+#: ../../support.rst:53
+msgid ""
+"We offer commercial support for Read the Docs, commercial hosting, as well "
+"as consulting around all documentation systems. You can contact us at "
+"hello@readthedocs.com to learn more, or read more at "
+"https://readthedocs.com/services/#open-source-support."
+msgstr ""

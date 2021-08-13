@@ -1,4 +1,5 @@
 """Local development settings, including local_settings, if present."""
+from __future__ import absolute_import
 import os
 
 from .base import CommunityBaseSettings
@@ -22,27 +23,22 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     DONT_HIT_DB = False
 
+    ACCOUNT_EMAIL_VERIFICATION = 'none'
     SESSION_COOKIE_DOMAIN = None
     CACHE_BACKEND = 'dummy://'
 
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
-    SLUMBER_API_HOST = 'http://localhost:8000'
+    SLUMBER_API_HOST = 'http://127.0.0.1:8000'
+    PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
-
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
+    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    FILE_SYNCER = 'readthedocs.privacy.backends.syncers.LocalSyncer'
-
-    NGINX_X_ACCEL_REDIRECT = True
 
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test
@@ -51,11 +47,32 @@ class CommunityDevSettings(CommunityBaseSettings):
         'test:8000',
     )
 
+    # Disable auto syncing elasticsearch documents in development
+    ELASTICSEARCH_DSL_AUTOSYNC = False
+
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
-        logging = super(CommunityDevSettings, self).LOGGING
+        logging = super().LOGGING
+        logging['handlers']['console']['level'] = 'DEBUG'
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        # Allow Sphinx and other tools to create loggers
+        logging['disable_existing_loggers'] = False
         return logging
+
+    @property
+    def INSTALLED_APPS(self):
+        apps = super().INSTALLED_APPS
+        apps.append('debug_toolbar')
+        return apps
+
+    @property
+    def MIDDLEWARE(self):
+        middlewares = list(super().MIDDLEWARE)
+        middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
 
 
 CommunityDevSettings.load_settings(__name__)
@@ -66,3 +83,14 @@ if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
         from .local_settings import *  # noqa
     except ImportError:
         pass
+
+# Allow for local settings override to trigger images name change
+try:
+    if DOCKER_USE_DEV_IMAGES:
+        DOCKER_IMAGE_SETTINGS = {
+            key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
+            for (key, settings)
+            in DOCKER_IMAGE_SETTINGS.items()
+        }
+except NameError:
+    pass

@@ -1,0 +1,225 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Spanish (https://www.transifex.com/readthedocs/teams/2534/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../team.rst:2
+msgid "Read the Docs Team"
+msgstr ""
+
+#: ../../team.rst:4
+msgid ""
+"readthedocs.org is the largest open source documentation hosting service. "
+"It's provided as a free service to the open source community, and is worked "
+"on by a community of volunteers that we're hoping to expand! We currently "
+"serve over 20,000,000 pageviews a month, and we hope to maintain a reliable "
+"and stable hosting platform for years to come."
+msgstr ""
+
+#: ../../team.rst:10
+msgid "There are three major parts of this work:"
+msgstr ""
+
+#: ../../team.rst:16
+msgid ""
+"You may notice that a number of names appear on multiple teams. This is "
+"because we are lacking contributors. So please be bold and contact us, and "
+"we'll get you sorted into the right team."
+msgstr ""
+
+#: ../../team.rst:22
+msgid "Support Team"
+msgstr ""
+
+#: ../../team.rst:24
+msgid ""
+"Read the Docs has thousands of users who depend on it everyday. Every day at"
+" least one of them has an issue that needs to be addressed by a site admin. "
+"This might include tasks like:"
+msgstr ""
+
+#: ../../team.rst:28
+msgid "Resetting a password"
+msgstr ""
+
+#: ../../team.rst:29
+msgid "Asking for a project name to be released"
+msgstr ""
+
+#: ../../team.rst:30
+msgid "Troubleshooting build errors"
+msgstr ""
+
+#: ../../team.rst:33 ../../team.rst:63 ../../team.rst:107
+msgid "Members"
+msgstr ""
+
+#: ../../team.rst:35
+msgid "`Eric Holscher <https://github.com/ericholscher>`__ (Pacific Time)"
+msgstr ""
+
+#: ../../team.rst:36
+msgid "`Anthony Johnson <https://github.com/agjohnson>`__ (Mountain Time)"
+msgstr ""
+
+#: ../../team.rst:37
+msgid "`Manuel Kaufmann <https://github.com/humitos>`__ (Central Time)"
+msgstr ""
+
+#: ../../team.rst:38 ../../team.rst:68
+msgid "Your Name Here"
+msgstr ""
+
+#: ../../team.rst:40 ../../team.rst:70 ../../team.rst:115
+msgid "Feel free to ask any of us if you have questions or want to join!"
+msgstr ""
+
+#: ../../team.rst:43 ../../team.rst:73 ../../team.rst:118
+msgid "Joining"
+msgstr ""
+
+#: ../../team.rst:45
+msgid ""
+"The best place to start would be to start addressing some of the issues in "
+"our issue tracker. We have our support policies quite well documented in our"
+" :doc:`/contribute`. **Be bold**. Start trying to reproduce issues that "
+"people have, or talk to them to get more information. After you get the hang"
+" of things, we'll happily give you the ability to tag and close issues by "
+"joining our Support Team."
+msgstr ""
+
+#: ../../team.rst:55
+msgid "Operations Team"
+msgstr ""
+
+#: ../../team.rst:57
+msgid ""
+"readthedocs.org is a service that millions of people depend on each month. "
+"As part of operating the site, we maintain a 24/7 on-call rotation. This "
+"means that folks have to be available and have their phone in service."
+msgstr ""
+
+#: ../../team.rst:65
+msgid "`Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)"
+msgstr ""
+
+#: ../../team.rst:66
+msgid "`Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)"
+msgstr ""
+
+#: ../../team.rst:67
+msgid "`Matt Robenolt <https://github.com/mattrobenolt>`_ (Pacific Time)"
+msgstr ""
+
+#: ../../team.rst:75
+msgid ""
+"We are always looking for more people to share the on-call responsibility. "
+"If you are on-call for your job already, we'd love to piggy back on that "
+"duty as well."
+msgstr ""
+
+#: ../../team.rst:79
+msgid ""
+"You can email us at dev@readthedocs.org if you want to join our operations "
+"team. Because of the sensitive nature (API tokens, secret keys, SSL certs, "
+"etc.) of the work, we keep a private GitHub repository with the operations "
+"code & documentation."
+msgstr ""
+
+#: ../../team.rst:83
+msgid "The tools that we use are:"
+msgstr ""
+
+#: ../../team.rst:85
+msgid "Salt"
+msgstr ""
+
+#: ../../team.rst:86
+msgid "Nagios"
+msgstr ""
+
+#: ../../team.rst:87
+msgid "Graphite/Grafana"
+msgstr ""
+
+#: ../../team.rst:88
+msgid "Nginx"
+msgstr ""
+
+#: ../../team.rst:89
+msgid "Postgres"
+msgstr ""
+
+#: ../../team.rst:90
+msgid "Django"
+msgstr ""
+
+#: ../../team.rst:91
+msgid "Celery"
+msgstr ""
+
+#: ../../team.rst:93
+msgid ""
+"It's fine if you aren't familiar with all of these things, but are willing "
+"to help with part of it!"
+msgstr ""
+
+#: ../../team.rst:96
+msgid ""
+"**Please reach out if you want to share the on-call responsibility**. It "
+"really is an important job, and we'd love to have it be more geographically "
+"distributed."
+msgstr ""
+
+#: ../../team.rst:101
+msgid "Development Team"
+msgstr ""
+
+#: ../../team.rst:103
+msgid ""
+"Also known as the \"Core Team\" in other projects. These folks have the "
+"ability to commit code to the project."
+msgstr ""
+
+#: ../../team.rst:109
+msgid "`Eric Holscher <https://github.com/ericholscher>`_"
+msgstr ""
+
+#: ../../team.rst:110
+msgid "`Anthony Johnson <https://github.com/agjohnson>`_"
+msgstr ""
+
+#: ../../team.rst:111
+msgid "`Manuel Kaufmann <https://github.com/humitos>`_"
+msgstr ""
+
+#: ../../team.rst:112
+msgid "`David Fischer <https://github.com/davidfischer>`_"
+msgstr ""
+
+#: ../../team.rst:113
+msgid "Your name here"
+msgstr ""
+
+#: ../../team.rst:120
+msgid ""
+"We try to be pretty flexible with who we allow on the development team. The "
+"best path is to send a few pull requests, and follow up to make sure they "
+"get merged successfully. You can check out our :doc:`contribute` to get more"
+" information, and find issues that need to be addressed. After that, feel "
+"free to ask for a commit bit."
+msgstr ""

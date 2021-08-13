@@ -1,0 +1,37 @@
+{
+  "title": "I Need Secrets (or Environment Variables) in my Build",
+  "path": "guides/environment-variables",
+  "sections": [
+    {
+      "id": "",
+      "title": "I Need Secrets (or Environment Variables) in my Build",
+      "content": "Content at the beginning."
+    },
+    {
+      "id": "i-need-secrets-or-environment-variables-in-my-build",
+      "title": "I Need Secrets (or Environment Variables) in my Build",
+      "content": "It may happen that your documentation depends on an authenticated service to be built properly."
+    },
+    {
+      "content": "This is another H1 title.",
+      "id": "title-one",
+      "title": "Title One"
+    },
+    {
+      "content": "Sub title",
+      "id": "sub-title-one",
+      "title": "Sub-title one"
+    },
+    {
+      "id": "adding-a-new-scenario-to-the-repository",
+      "title": "Adding a new scenario to the repository",
+      "content": "Sphinx configuration file used to build this docs: # -*- coding: utf-8 -*- # Default settings project = 'Test Builds' extensions = [ 'sphinx_autorun', ] latex_engine = 'xelatex' # allow us to build Unicode chars # Include all your settings here html_theme = 'sphinx_rtd_theme' >>> # Build at >>> import datetime >>> datetime.datetime.utcnow() # UTC datetime.datetime(2020, 5, 3, 16, 38, 11, 137311)"
+    },
+    {
+      "content": "This is a H3 title. Fig. 4 I'm a figure!",
+      "id": "subsub-title",
+      "title": "Subsub title"
+    }
+  ],
+  "domain_data": {}
+}

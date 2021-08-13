@@ -36,7 +36,7 @@
             {% endif %}
           {% endfor %}
           </select>
-          <input type="submit" value="Remove">
+          <input type="submit" value="{% trans "Remove" %}">
         </form>
     </p>
   {% endif %}
@@ -48,7 +48,7 @@
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
-      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+      <input style="display: inline;" type="submit" value="{% trans "Add" %}">
     </p>
   </form>
 {% endblock %}

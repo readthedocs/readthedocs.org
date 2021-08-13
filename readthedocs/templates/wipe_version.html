@@ -1,16 +1,37 @@
 {% extends "base.html" %}
+{% load i18n %}
+
+{% block project_editing %}
+  {% with versions_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
+
 
 {% block title %}Wipe the build directories for a version {% endblock %}
 
 {% block content %}
 
+<h3>
+{% blocktrans trimmed with slug=version.slug %}
+    Remove build environment for <em>{{ slug }}</em> version.
+{% endblocktrans %}
+</h3>
+
 {% if deleted %}
-Your project environment has been wiped.<br><br>
+    <p>
+    {% blocktrans trimmed %}
+        Your project environment has been wiped.
+    {% endblocktrans %}
+    </p>
 {% else %}
-Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
+    {% blocktrans trimmed %}
+        Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
+    {% endblocktrans %}
 
 <form method="post" action="#">
-  <input type="submit" value="Wipe version">
+  {% csrf_token %}
+  <input type="submit" value="{% trans 'Wipe' %} {{ version.slug }}">
 </form>
 {% endif %}
 

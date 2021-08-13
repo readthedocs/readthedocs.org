@@ -1,6 +1,6 @@
-from django.core.urlresolvers import reverse
-from django.core.urlresolvers import NoReverseMatch
+# -*- coding: utf-8 -*-
 from django.test import TestCase
+from django.urls import NoReverseMatch, reverse
 
 
 class WipeUrlTests(TestCase):
@@ -42,11 +42,23 @@ class WipeUrlTests(TestCase):
             pass
 
 
-class TestVersionURLs(TestCase):
+class TestProfileDetailURLs(TestCase):
 
-    def test_version_url_with_caps(self):
+    def test_profile_detail_url(self):
         url = reverse(
-            'project_download_media',
-            kwargs={'type_': 'pdf', 'version_slug': u'1.4.X', 'project_slug': u'django'}
+            'profiles_profile_detail',
+            kwargs={'username': 'foo+bar'},
         )
-        self.assertTrue(url)
+        self.assertEqual(url, '/profiles/foo+bar/')
+
+        url = reverse(
+            'profiles_profile_detail',
+            kwargs={'username': 'abc+def@ghi.jkl'},
+        )
+        self.assertEqual(url, '/profiles/abc+def@ghi.jkl/')
+
+        url = reverse(
+            'profiles_profile_detail',
+            kwargs={'username': 'abc-def+ghi'},
+        )
+        self.assertEqual(url, '/profiles/abc-def+ghi/')

@@ -1,0 +1,72 @@
+# docker-compose.override.yml file to launch a full instance of Read the Docs.
+#
+# Read the Docs' Core team is using docker-compose internally.
+# We do not offer support on this file and configuration at this point.
+# DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
+
+# We create this network here to be able to use a static IP for NGINX.
+# This is needed because hitting `community.dev.readthedocs.io` from
+# any service will fail since it will resolve to 127.0.0.1, but
+# instead we need to hit NGINX's IP (this is used on Embed API from
+# -ext for example) Setting a static IP for NGINX, allow us to
+# override /etc/hosts with this IP.
+version: '3'
+
+networks:
+  readthedocs:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.10.0.0/16
+
+services:
+
+  server:
+    build:
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+
+  cache:
+    image: redis:6.0.5
+
+  nginx:
+    networks:
+      readthedocs:
+        ipv4_address: 10.10.0.100
+
+  proxito:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito_docker.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito_docker
+
+  web:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web_docker.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.web_docker
+      - HOSTIP=${HOSTIP:-}
+    extra_hosts:
+      - "community.dev.readthedocs.io:10.10.0.100"
+
+  celery:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery_docker.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery_docker
+      - CELERY_APP_NAME=readthedocs
+
+  build:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build_docker.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.build_docker
+      - CELERY_APP_NAME=readthedocs

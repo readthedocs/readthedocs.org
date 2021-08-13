@@ -26,25 +26,13 @@
 
     <div class="options">
 
-    {% if not project.has_valid_webhook and request.user|is_admin:project %}
-      <p class="build-failure">
-        {% url "projects_integrations" project.slug as integrations_url %}
-        {% blocktrans %}
-          This repository doesn't have a valid webhook set up,
-          commits won't trigger new builds for this project.
-          <br>
-          See <a href='{{ integrations_url }}'>your project integrations</a> for more information.
-        {% endblocktrans %}
-      </p>
-    {% endif %}
-
     {% if project.skip %}
       <p class="build-failure">
-            {% blocktrans %}
+          {% blocktrans trimmed %}
             Your project is currently disabled for abuse of the system.
             Please make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.
-            Please <a href="https://github.com/rtfd/readthedocs.org/issues">file a ticket</a> to get your project re-enabled.
-            {% endblocktrans %}
+            Please <a href="mailto:{{ SUPPORT_EMAIL }}">contact support</a> to get your project re-enabled.
+          {% endblocktrans %}
       </p>
       <br>
     {% endif %}
@@ -66,7 +54,6 @@
         {% endcomment %}
 
         {% if request.user|is_admin:project %}
-          <!-- <li class="{{ comments_active }}"><a href="{% url "projects_comments_moderation" project.slug %}">{% trans "Comments" %}</a></li> -->
           <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
         {% endif %}
       </ul>

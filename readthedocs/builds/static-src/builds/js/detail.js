@@ -1,16 +1,16 @@
 // Build detail view
 
-var ko = require('knockout'),
-    $ = require('jquery');
+var ko = require('knockout');
+var $ = require('jquery');
 
 
-function BuildCommand (data) {
+function BuildCommand(data) {
     var self = this;
     self.id = ko.observable(data.id);
     self.command = ko.observable(data.command);
     self.output = ko.observable(data.output);
     self.exit_code = ko.observable(data.exit_code || 0);
-    self.successful = ko.observable(self.exit_code() == 0);
+    self.successful = ko.observable(self.exit_code() === 0);
     self.run_time = ko.observable(data.run_time);
     self.is_showing = ko.observable(!self.successful());
 
@@ -25,15 +25,15 @@ function BuildCommand (data) {
     });
 }
 
-function BuildDetailView (instance) {
-    var self = this,
-        instance = instance || {};
+function BuildDetailView(instance) {
+    var self = this;
+    var instance = instance || {};
 
     /* Instance variables */
     self.state = ko.observable(instance.state);
     self.state_display = ko.observable(instance.state_display);
     self.finished = ko.computed(function () {
-        return self.state() == 'finished';
+        return self.state() === 'finished';
     });
     self.date = ko.observable(instance.date);
     self.success = ko.observable(instance.success);
@@ -41,15 +41,18 @@ function BuildDetailView (instance) {
     self.length = ko.observable(instance.length);
     self.commands = ko.observableArray(instance.commands);
     self.display_commands = ko.computed(function () {
-        var commands_display = [],
-            commands_raw = self.commands();
+        var commands_display = [];
+        var commands_raw = self.commands();
+        var n;
         for (n in commands_raw) {
             var command = new BuildCommand(commands_raw[n]);
-            commands_display.push(command)
+            commands_display.push(command);
         }
         return commands_display;
     });
     self.commit = ko.observable(instance.commit);
+    self.docs_url = ko.observable(instance.docs_url);
+    self.commit_url = ko.observable(instance.commit_url);
 
     /* Others */
     self.legacy_output = ko.observable(false);
@@ -57,7 +60,7 @@ function BuildDetailView (instance) {
         self.legacy_output(true);
     };
 
-    function poll_api () {
+    function poll_api() {
         if (self.finished()) {
             return;
         }
@@ -69,12 +72,15 @@ function BuildDetailView (instance) {
             self.error(data.error);
             self.length(data.length);
             self.commit(data.commit);
+            self.docs_url(data.docs_url);
+            self.commit_url(data.commit_url);
+            var n;
             for (n in data.commands) {
                 var command = data.commands[n];
                 var match = ko.utils.arrayFirst(
                     self.commands(),
-                    function(command_cmp) {
-                        return (command_cmp.id == command.id);
+                    function (command_cmp) {
+                        return (command_cmp.id === command.id);
                     }
                 );
                 if (!match) {
@@ -90,8 +96,8 @@ function BuildDetailView (instance) {
 }
 
 BuildDetailView.init = function (instance, domobj) {
-    var view = new BuildDetailView(instance),
-        domobj = domobj || $('#build-detail')[0];
+    var view = new BuildDetailView(instance);
+    var domobj = domobj || $('#build-detail')[0];
     ko.applyBindings(view, domobj);
     return view;
 };

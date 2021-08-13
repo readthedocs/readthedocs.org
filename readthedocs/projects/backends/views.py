@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 """
-Project views loaded by configuration settings
+Project views loaded by configuration settings.
 
 Use these views instead of calling the views directly, in order to allow for
 settings override of the view class.

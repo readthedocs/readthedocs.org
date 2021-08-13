@@ -1,0 +1,85 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Japanese (https://www.transifex.com/readthedocs/teams/2534/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../docs.rst:2
+msgid "Building and Contributing to Documentation"
+msgstr ""
+
+#: ../../docs.rst:4
+msgid ""
+"As one might expect, the documentation for Read the Docs is built using "
+"Sphinx and hosted on Read the Docs. The docs are kept in the ``docs/`` "
+"directory at the top of the source tree."
+msgstr ""
+
+#: ../../docs.rst:8
+msgid "You can build the docs by installing ``Sphinx`` and running::"
+msgstr ""
+
+#: ../../docs.rst:13
+msgid ""
+"Please follow these guidelines when updating our docs. Let us know if you "
+"have any questions or something isn't clear."
+msgstr ""
+
+#: ../../docs.rst:17
+msgid "The brand"
+msgstr ""
+
+#: ../../docs.rst:19
+msgid "We are called **Read the Docs**. The *the* is not capitalized."
+msgstr ""
+
+#: ../../docs.rst:22
+msgid "We do however use the acronym **RTD**."
+msgstr ""
+
+#: ../../docs.rst:25
+msgid "Titles"
+msgstr ""
+
+#: ../../docs.rst:27
+msgid ""
+"For page titles, or Heading1 as they are sometimes called, we use title-"
+"case."
+msgstr ""
+
+#: ../../docs.rst:29
+msgid ""
+"If the page includes multiple sub-headings (H2, H3), we usually use "
+"sentence-case unless the titles include terminology that is supposed to be "
+"capitalized."
+msgstr ""
+
+#: ../../docs.rst:33
+msgid "Content"
+msgstr ""
+
+#: ../../docs.rst:35
+msgid ""
+"Do not break the content across multiple lines at 80 characters, but rather "
+"break them on semantic meaning (e.g. periods or commas). Read more about "
+"this `here <http://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_."
+msgstr ""
+
+#: ../../docs.rst:38
+msgid ""
+"If you are cross-referencing to a different page within our website, use the"
+" ``doc`` directive and not a hyperlink."
+msgstr ""

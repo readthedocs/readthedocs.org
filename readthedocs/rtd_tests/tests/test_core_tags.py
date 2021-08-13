@@ -1,181 +1,102 @@
-import mock
-
+from unittest import mock
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.templatetags import core_tags
+from readthedocs.projects.models import Project
 
 
-@override_settings(USE_SUBDOMAIN=False, PUBLIC_DOMAIN='readthedocs.org')
+@override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        with mock.patch('readthedocs.projects.models.update_static_metadata'):
-            self.client.login(username='eric', password='test')
-            self.pip = Project.objects.get(slug='pip')
-            self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
+        url_base = 'http://{domain}/docs/pip{{version}}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+        )
+
+        self.pip_latest_url = url_base.format(version='/en/latest/')
+        self.pip_latest_url_index = url_base.format(version='/en/latest/index.html')
+        self.pip_latest_fr_url = url_base.format(version='/fr/latest/')
+        self.pip_abc_url = url_base.format(version='/en/abc/')
+        self.pip_abc_url_index = url_base.format(version='/en/abc/index.html')
+        self.pip_abc_fr_url = url_base.format(version='/fr/abc/')
+        self.pip_abc_fr_url_index = url_base.format(version='/fr/abc/index.html')
+        self.pip_abc_xyz_page_url = url_base.format(version='/en/abc/xyz')
+        self.pip_abc_xyz_fr_page_url = url_base.format(version='/fr/abc/xyz')
+        self.pip_latest_document_url = url_base.format(version='/en/latest/document')
+        self.pip_latest_document_page_url = url_base.format(version='/en/latest/document.html')
+
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        self.pip_fr = Project.objects.create(name='PIP-FR', slug='pip-fr', language='fr', main_language_project=self.pip)
 
     def test_project_only(self):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        self.assertEqual(url, self.pip_latest_url)
         url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-
-    def test_project_only_htmldir(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-        url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-
-    def test_project_only_singlehtml(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-        url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        self.assertEqual(url, self.pip_latest_url)
 
     def test_translation_project_only(self):
         proj = Project.objects.get(slug='pip-fr')
         url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
+        self.assertEqual(url, self.pip_latest_fr_url)
         url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
-
-    def test_translation_project_only_htmldir(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
-        url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
-
-    def test_translation_project_only_singlehtml(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj)
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
-        url = core_tags.make_document_url(proj, '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/latest/')
+        self.assertEqual(url, self.pip_latest_fr_url)
 
     def test_project_and_version(self):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
+        self.assertEqual(url, self.pip_abc_url)
         url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-
-    def test_project_and_version_htmldir(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-        url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-
-    def test_project_and_version_singlehtml(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-        url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
+        self.assertEqual(url, self.pip_abc_url)
 
     def test_translation_project_and_version(self):
         proj = Project.objects.get(slug='pip-fr')
         url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
+        self.assertEqual(url, self.pip_abc_fr_url)
         url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-
-    def test_translation_project_and_version_htmldir(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-        url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-
-    def test_translation_project_and_version_singlehtml(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj, 'abc')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-        url = core_tags.make_document_url(proj, 'abc', '')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
+        self.assertEqual(url, self.pip_abc_fr_url)
 
     def test_project_and_version_and_page(self):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/xyz.html')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-
-    def test_project_and_version_and_page_htmldir(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/xyz/')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
-
-    def test_project_and_version_and_page_signlehtml(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/index.html#document-xyz')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/abc/')
+        self.assertEqual(url, self.pip_abc_xyz_page_url)
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
+        self.assertEqual(url, self.pip_abc_url_index)
 
     def test_translation_project_and_version_and_page(self):
         proj = Project.objects.get(slug='pip-fr')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/xyz.html')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-
-    def test_translation_project_and_version_and_page_htmldir(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/xyz/')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
-
-    def test_translation_project_and_version_and_page_singlehtml(self):
-        proj = Project.objects.get(slug='pip-fr')
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj, 'abc', 'xyz')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/index.html#document-xyz')
-        url = core_tags.make_document_url(proj, 'abc', 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/fr/abc/')
+        self.assertEqual(url, self.pip_abc_xyz_fr_page_url)
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
+        self.assertEqual(url, self.pip_abc_fr_url_index)
 
     def test_mkdocs(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'document')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/document/')
+        self.assertEqual(url, self.pip_latest_document_url)
 
     def test_mkdocs_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'document.html')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/document.html')
-
-    def test_mkdocs_index(self):
-        proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'index')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        url = core_tags.make_document_url(proj, LATEST, 'document', 'document.html')
+        self.assertEqual(url, self.pip_latest_document_page_url)
 
     def test_mkdocs_index_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'index.html')
-        self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        url = core_tags.make_document_url(proj, LATEST, 'index', 'index.html')
+        self.assertEqual(url, self.pip_latest_url_index)
+
+    def test_escapejson(self):
+        tests = (
+            ({}, '{}'),
+            ({'a': 'b'}, '{"a": "b"}'),
+            ({"'; //": '""'}, '{"\'; //": "\\"\\""}'),
+            ({"<script>alert('hi')</script>": ''}, '{"\\u003Cscript\\u003Ealert(\'hi\')\\u003C/script\\u003E": ""}'),
+        )
+
+        for in_value, out_value in tests:
+            self.assertEqual(core_tags.escapejson(in_value), out_value)

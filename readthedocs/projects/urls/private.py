@@ -1,166 +1,343 @@
-"""Project URLs for authenticated users"""
+"""Project URLs for authenticated users."""
 
+from django.conf import settings
 from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
+from readthedocs.projects.backends.views import ImportDemoView, ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
-    ProjectDashboard, ImportView,
-    ProjectUpdate, ProjectAdvancedUpdate,
-    DomainList, DomainCreate, DomainDelete, DomainUpdate,
-    IntegrationList, IntegrationCreate, IntegrationDetail, IntegrationDelete,
-    IntegrationExchangeDetail, IntegrationWebhookSync, ProjectAdvertisingUpdate)
-from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
-
+    AutomationRuleDelete,
+    AutomationRuleList,
+    AutomationRuleMove,
+    DomainCreate,
+    DomainDelete,
+    DomainList,
+    DomainUpdate,
+    EnvironmentVariableCreate,
+    EnvironmentVariableDelete,
+    EnvironmentVariableList,
+    ImportView,
+    IntegrationCreate,
+    IntegrationDelete,
+    IntegrationDetail,
+    IntegrationExchangeDetail,
+    IntegrationList,
+    IntegrationWebhookSync,
+    ProjectAdvancedUpdate,
+    ProjectAdvertisingUpdate,
+    ProjectDashboard,
+    ProjectDelete,
+    ProjectNotifications,
+    ProjectNotificationsDelete,
+    ProjectRedirects,
+    ProjectRedirectsDelete,
+    ProjectTranslationsDelete,
+    ProjectTranslationsListAndCreate,
+    ProjectUpdate,
+    ProjectUsersCreateList,
+    ProjectUsersDelete,
+    ProjectVersionDeleteHTML,
+    ProjectVersionCreate,
+    ProjectVersionDetail,
+    RegexAutomationRuleCreate,
+    RegexAutomationRuleUpdate,
+    SearchAnalytics,
+    TrafficAnalyticsView,
+)
 
 urlpatterns = [
-    url(r'^$',
-        ProjectDashboard.as_view(),
-        name='projects_dashboard'),
-
-    url(r'^import/$',
-        ImportView.as_view(wizard_class=ImportWizardView),
-        {'wizard': ImportWizardView},
-        name='projects_import'),
-
-    url(r'^import/manual/$',
-        ImportWizardView.as_view(),
-        name='projects_import_manual'),
-
-    url(r'^import/manual/demo/$',
-        ImportDemoView.as_view(),
-        name='projects_import_demo'),
-
-    url(r'^(?P<project_slug>[-\w]+)/$',
-        private.project_manage,
-        name='projects_manage'),
-
-    url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
-        private.project_comments_moderation,
-        name='projects_comments_moderation'),
-
-    url(r'^(?P<project_slug>[-\w]+)/edit/$',
-        ProjectUpdate.as_view(),
-        name='projects_edit'),
-
-    url(r'^(?P<project_slug>[-\w]+)/advanced/$',
-        ProjectAdvancedUpdate.as_view(),
-        name='projects_advanced'),
-
-    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
-        private.project_version_delete_html,
-        name='project_version_delete_html'),
-
-    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
-        private.project_version_detail,
-        name='project_version_detail'),
-
-    url(r'^(?P<project_slug>[-\w]+)/versions/$',
-        private.project_versions,
-        name='projects_versions'),
-
-    url(r'^(?P<project_slug>[-\w]+)/delete/$',
-        private.project_delete,
-        name='projects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_subprojects_delete,
-        name='projects_subprojects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/$',
-        private.project_subprojects,
-        name='projects_subprojects'),
-
-    url(r'^(?P<project_slug>[-\w]+)/users/$',
-        private.project_users,
-        name='projects_users'),
-
-    url(r'^(?P<project_slug>[-\w]+)/users/delete/$',
-        private.project_users_delete,
-        name='projects_users_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/notifications/$',
-        private.project_notifications,
-        name='projects_notifications'),
-
-    url(r'^(?P<project_slug>[-\w]+)/comments/$',
-        private.project_comments_settings,
-        name='projects_comments'),
-
-    url(r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
-        private.project_notifications_delete,
-        name='projects_notification_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/translations/$',
-        private.project_translations,
-        name='projects_translations'),
-
-    url(r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_translations_delete,
-        name='projects_translations_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/redirects/$',
-        private.project_redirects,
-        name='projects_redirects'),
-
-    url(r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
-        private.project_redirects_delete,
-        name='projects_redirects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/advertising/$',
-        ProjectAdvertisingUpdate.as_view(),
-        name='projects_advertising'),
+    url(r'^$', ProjectDashboard.as_view(), name='projects_dashboard'),
+    url(
+        r'^import/$', ImportView.as_view(wizard_class=ImportWizardView),
+        {'wizard': ImportWizardView}, name='projects_import',
+    ),
+    url(
+        r'^import/manual/$', ImportWizardView.as_view(),
+        name='projects_import_manual',
+    ),
+    url(
+        r'^import/manual/demo/$', ImportDemoView.as_view(),
+        name='projects_import_demo',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/$',
+        login_required(
+            RedirectView.as_view(pattern_name='projects_detail', permanent=True),
+        ),
+        name='projects_manage',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/edit/$', ProjectUpdate.as_view(),
+        name='projects_edit',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/advanced/$',
+        ProjectAdvancedUpdate.as_view(), name='projects_advanced',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
+        ProjectVersionDeleteHTML.as_view(),
+        name='project_version_delete_html',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$',
+        ProjectVersionDetail.as_view(),
+        name='project_version_detail',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/delete/$',
+        ProjectDelete.as_view(),
+        name='projects_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/users/$',
+        ProjectUsersCreateList.as_view(),
+        name='projects_users',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/users/delete/$',
+        ProjectUsersDelete.as_view(),
+        name='projects_users_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/notifications/$',
+        ProjectNotifications.as_view(),
+        name='projects_notifications',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
+        ProjectNotificationsDelete.as_view(),
+        name='projects_notification_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/translations/$',
+        ProjectTranslationsListAndCreate.as_view(),
+        name='projects_translations',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
+        ProjectTranslationsDelete.as_view(),
+        name='projects_translations_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/redirects/$',
+        ProjectRedirects.as_view(),
+        name='projects_redirects',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
+        ProjectRedirectsDelete.as_view(),
+        name='projects_redirects_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/advertising/$',
+        ProjectAdvertisingUpdate.as_view(), name='projects_advertising',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/search-analytics/$',
+        SearchAnalytics.as_view(),
+        name='projects_search_analytics',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/traffic-analytics/$',
+        TrafficAnalyticsView.as_view(), name='projects_traffic_analytics',
+    ),
 ]
 
+# TODO move this up to the list above when it's not a conditional URL.
+# Currently, this is only used by the new theme, we don't allow for "create" in
+# our current templates.
+if settings.RTD_EXT_THEME_ENABLED:
+    urlpatterns.append(
+        url(
+            r'^(?P<project_slug>[-\w]+)/version/create/$',
+            ProjectVersionCreate.as_view(),
+            name='project_version_create',
+        ),
+    )
+
 domain_urls = [
-    url(r'^(?P<project_slug>[-\w]+)/domains/$',
+    url(
+        r'^(?P<project_slug>[-\w]+)/domains/$',
         DomainList.as_view(),
-        name='projects_domains'),
-    url(r'^(?P<project_slug>[-\w]+)/domains/create/$',
+        name='projects_domains',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/domains/create/$',
         DomainCreate.as_view(),
-        name='projects_domains_create'),
-    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
+        name='projects_domains_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
         DomainUpdate.as_view(),
-        name='projects_domains_edit'),
-    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
+        name='projects_domains_edit',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
         DomainDelete.as_view(),
-        name='projects_domains_delete'),
+        name='projects_domains_delete',
+    ),
 ]
 
 urlpatterns += domain_urls
 
 integration_urls = [
-    url(r'^(?P<project_slug>{project_slug})/integrations/$'.format(**pattern_opts),
+    url(
+        r'^(?P<project_slug>{project_slug})/integrations/$'.format(
+            **pattern_opts
+        ),
         IntegrationList.as_view(),
-        name='projects_integrations'),
-    url(r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(**pattern_opts),
+        name='projects_integrations',
+    ),
+    url(
+        r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(
+            **pattern_opts
+        ),
         IntegrationWebhookSync.as_view(),
-        name='projects_integrations_webhooks_sync'),
-    url((r'^(?P<project_slug>{project_slug})/integrations/create/$'
-         .format(**pattern_opts)),
+        name='projects_integrations_webhooks_sync',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/integrations/create/$'.format(
+                **pattern_opts
+            )
+        ),
         IntegrationCreate.as_view(),
-        name='projects_integrations_create'),
-    url((r'^(?P<project_slug>{project_slug})/'
-         r'integrations/(?P<integration_pk>{integer_pk})/$'
-         .format(**pattern_opts)),
+        name='projects_integrations_create',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'integrations/(?P<integration_pk>{integer_pk})/$'.format(
+                **pattern_opts
+            )
+        ),
         IntegrationDetail.as_view(),
-        name='projects_integrations_detail'),
-    url((r'^(?P<project_slug>{project_slug})/'
-         r'integrations/(?P<integration_pk>{integer_pk})/'
-         r'exchange/(?P<exchange_pk>[-\w]+)/$'
-         .format(**pattern_opts)),
+        name='projects_integrations_detail',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'integrations/(?P<integration_pk>{integer_pk})/'
+            r'exchange/(?P<exchange_pk>[-\w]+)/$'.format(**pattern_opts)
+        ),
         IntegrationExchangeDetail.as_view(),
-        name='projects_integrations_exchanges_detail'),
-    url((r'^(?P<project_slug>{project_slug})/'
-         r'integrations/(?P<integration_pk>{integer_pk})/sync/$'
-         .format(**pattern_opts)),
+        name='projects_integrations_exchanges_detail',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'integrations/(?P<integration_pk>{integer_pk})/sync/$'.format(
+                **pattern_opts
+            )
+        ),
         IntegrationWebhookSync.as_view(),
-        name='projects_integrations_webhooks_sync'),
-    url((r'^(?P<project_slug>{project_slug})/'
-         r'integrations/(?P<integration_pk>{integer_pk})/delete/$'
-         .format(**pattern_opts)),
+        name='projects_integrations_webhooks_sync',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'integrations/(?P<integration_pk>{integer_pk})/delete/$'.format(
+                **pattern_opts
+            )
+        ),
         IntegrationDelete.as_view(),
-        name='projects_integrations_delete'),
+        name='projects_integrations_delete',
+    ),
 ]
 
 urlpatterns += integration_urls
+
+subproject_urls = [
+    url(
+        r'^(?P<project_slug>{project_slug})/subprojects/$'.format(
+            **pattern_opts
+        ),
+        private.ProjectRelationshipList.as_view(),
+        name='projects_subprojects',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/subprojects/create/$'.format(
+                **pattern_opts
+            )
+        ),
+        private.ProjectRelationshipCreate.as_view(),
+        name='projects_subprojects_create',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'subprojects/(?P<subproject_slug>{project_slug})/edit/$'.format(
+                **pattern_opts
+            )
+        ),
+        private.ProjectRelationshipUpdate.as_view(),
+        name='projects_subprojects_update',
+    ),
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/'
+            r'subprojects/(?P<subproject_slug>{project_slug})/delete/$'.format(
+                **pattern_opts
+            )
+        ),
+        private.ProjectRelationshipDelete.as_view(),
+        name='projects_subprojects_delete',
+    ),
+]
+
+urlpatterns += subproject_urls
+
+environmentvariable_urls = [
+    url(
+        r'^(?P<project_slug>[-\w]+)/environmentvariables/$',
+        EnvironmentVariableList.as_view(),
+        name='projects_environmentvariables',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/environmentvariables/create/$',
+        EnvironmentVariableCreate.as_view(),
+        name='projects_environmentvariables_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',  # noqa
+        EnvironmentVariableDelete.as_view(),
+        name='projects_environmentvariables_delete',
+    ),
+]
+
+urlpatterns += environmentvariable_urls
+
+automation_rule_urls = [
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/$',
+        AutomationRuleList.as_view(),
+        name='projects_automation_rule_list',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)/$',
+        AutomationRuleMove.as_view(),
+        name='projects_automation_rule_move',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/delete/$',
+        AutomationRuleDelete.as_view(),
+        name='projects_automation_rule_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/regex/create/$',
+        RegexAutomationRuleCreate.as_view(),
+        name='projects_automation_rule_regex_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/regex/(?P<automation_rule_pk>[-\w]+)/$',
+        RegexAutomationRuleUpdate.as_view(),
+        name='projects_automation_rule_regex_edit',
+    ),
+]
+
+urlpatterns += automation_rule_urls

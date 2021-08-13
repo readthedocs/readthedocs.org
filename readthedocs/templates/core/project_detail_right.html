@@ -7,8 +7,22 @@
 {% block repo %}
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p class="detail-long">{{ project.repo|urlize }}</p>
+    <p class="detail-long">
+      {% if project.repo|slice:':4' == 'http' %}
+        {{ project.repo|urlize }}
+      {% else %}
+        {{ project.repo }}
+      {% endif %}
+    </p>
   {% endif %}
+{% endblock %}
+
+{% block slug %}
+  {% trans "Used in URL's and in code to represent the project name" as title %}
+  <h3 title="{{ title }}">{% trans "Project Slug" %}</h3>
+  <p title="{{ title }}" class="detail-long">
+      {{ project.slug }}
+  </p>
 {% endblock %}
 
 {% block last-built %}
@@ -24,17 +38,17 @@
               <span class="build-state build-state-failing">{% trans "failed" %}</span>
             {% endif %}
           {% else %}
-            Currently Building
+            {% trans "Currently Building" %}
           {% endif %}
       {% else %}
-        No builds yet
+        {% trans "No builds yet" %}
       {% endif %}
     {% endwith %}
   </p>
 {% endblock %}
 
 {% block owners %}
-    <h3>{% trans "Owners" %}</h3>
+    <h3>{% trans "Maintainers" %}</h3>
     <p>
       {% for user in project.users.all %}
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 %}</a>
@@ -53,33 +67,33 @@
 
 {% block badge %}
     <h3>{% trans "Badge" %}</h3>
+      <img src="{{ badge_url }}" />
       <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
-        <img src="{{ badge_url }}" />
+        <span class="badge-info" title="Get this badge"></span>
       </a>
       {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
 {% endblock %}
 
 
 {% block tags %}
-  {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
     <p>
-      {% for tag in project.tags.all %}
-        <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
-      {% empty %}
-        <span class="quiet">{% trans "No tags" %}</span>
-      {% endfor %}
-    </p>
-  {% endif %}
-{% endblock %}
 
-{% block privacy-level %}
-  <h3>{% trans "Project Privacy Level" %}</h3>
-  <div id="privacy_level">
-    <p>
-      {{ project.get_privacy_level_display }}
+    {% if project.tags.exists %}
+        {% for tag in project.tags.all %}
+          <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+        {% endfor %}
+    {% else %}
+      {% trans "Project has no tags." %}
+      {% if is_project_admin %}
+        {% url 'projects_edit' project.slug as edit_url %}
+          {% blocktrans trimmed %}
+          Add some in your <a href="{{ edit_url }}">project settings</a>.
+          {% endblocktrans %}
+      {% endif %}
+    {% endif %}
+
     </p>
-  </div>
 {% endblock %}
 
 {% block short-urls %}
@@ -104,11 +118,11 @@
 {% endblock %}
 
 {% block subprojects %}
-  {% if project.subprojects.exists %}
+  {% if subprojects_and_urls %}
     <h3>{% trans "Sub Projects" %}</h3>
       <ul>
-      {% for rel in project.subprojects.all %}
-          <li><a href="{{ rel.get_absolute_url }}">{{ rel.child }}</a></li>
+      {% for subproject, absolute_url in subprojects_and_urls %}
+          <li><a href="{{ absolute_url }}">{{ subproject.child }}</a></li>
       {% endfor %}
       </ul>
   {% endif %}

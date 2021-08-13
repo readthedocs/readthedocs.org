@@ -10,6 +10,11 @@
   {% include "error_header.html" %}
 {% endblock %}
 
+{% block notify %}{% endblock %}
+
+{# Hide the language select form so we don't set a CSRF cookie #}
+{% block language-select-form %}{% endblock %}
+
 {% block content %}
 <h3>Permission Denied</h3>
 <p>

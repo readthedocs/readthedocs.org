@@ -1,0 +1,41 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Subprojects" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-proj %}class="active"{% endblock %}
+
+{% block project-subprojects-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Subprojects" %}{% endblock %}
+
+{% block project_edit_content %}
+  {% if object %}
+    <form
+        method="post"
+        class="form-wide"
+        action="{% url 'projects_subprojects_update' project_slug=project.slug subproject_slug=object.child.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Update subproject" %}">
+    </form>
+
+    <form
+        method="post"
+        action="{% url 'projects_subprojects_delete' project_slug=project.slug subproject_slug=object.child.slug %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Delete subproject" %}">
+    </form>
+  {% else %}
+    <form
+        method="post"
+        class="form-wide"
+        action="{% url 'projects_subprojects_create' project_slug=project.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Add subproject" %}">
+    </form>
+  {% endif %}
+{% endblock %}

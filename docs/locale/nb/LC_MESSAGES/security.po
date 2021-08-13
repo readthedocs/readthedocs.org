@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Norwegian Bokmål (https://www.transifex.com/readthedocs/teams/2534/nb/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nb\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../security.rst:2
+msgid "Security"
+msgstr ""
+
+#: ../../security.rst:4
+msgid ""
+"Security is very important to us at Read the Docs. We are committed to "
+"responsible reporting and disclosure of security issues."
+msgstr ""
+
+#: ../../security.rst:7
+msgid "Reporting a security issue"
+msgstr ""
+
+#: ../../security.rst:9
+msgid ""
+"If you believe you've discovered a security issue at Read the Docs, please "
+"contact us at **security@readthedocs.org** (optionally using our "
+":ref:`security:PGP key`). We request that you please not publicly disclose "
+"the issue until it has been addressed by us."
+msgstr ""
+
+#: ../../security.rst:13
+msgid "You can expect:"
+msgstr ""
+
+#: ../../security.rst:15
+msgid ""
+"We will respond acknowledging your email typically within one business day."
+msgstr ""
+
+#: ../../security.rst:16
+msgid ""
+"We will follow up if and when we have confirmed the issue with a timetable "
+"for the fix."
+msgstr ""
+
+#: ../../security.rst:17
+msgid "We will notify you when the issue is fixed."
+msgstr ""
+
+#: ../../security.rst:18
+msgid ""
+"We will add the issue to our :ref:`security issue archive <security:Security"
+" issue archive>`."
+msgstr ""
+
+#: ../../security.rst:21
+msgid "PGP key"
+msgstr ""
+
+#: ../../security.rst:23
+msgid ""
+"You may use this `PGP key`__ to securely communicate with us and to verify "
+"signed messages you receive from us."
+msgstr ""
+
+#: ../../security.rst:85
+msgid "Security issue archive"
+msgstr ""
+
+#: ../../security.rst:88
+msgid "Release 2.3.0"
+msgstr ""
+
+#: ../../security.rst:90
+msgid ""
+":ref:`version-2.3.0` resolves a security issue with translations on our "
+"community hosting site that allowed users to modify the hosted path of a "
+"target project by adding it as a translation project of their own project. A"
+" check was added to ensure project ownership before adding the project as a "
+"translation."
+msgstr ""
+
+#: ../../security.rst:95
+msgid ""
+"In order to add a project as a translation now, users must now first be "
+"granted ownership in the translation project."
+msgstr ""

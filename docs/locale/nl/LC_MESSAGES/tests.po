@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:12+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs-docs/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../tests.rst:2
+msgid "Testing"
+msgstr ""
+
+#: ../../tests.rst:4
+msgid ""
+"Before contributing to Read the Docs, make sure your patch passes our test "
+"suite and your code style passes our code linting suite."
+msgstr ""
+
+#: ../../tests.rst:7
+msgid ""
+"Read the Docs uses `Tox`_ to execute testing and linting procedures. Tox is "
+"the only dependency you need to run linting or our test suite, the remainder"
+" of our requirements will be installed by Tox into environment specific "
+"virtualenv paths. Before testing, make sure you have Tox installed::"
+msgstr ""
+
+#: ../../tests.rst:14
+msgid ""
+"To run the full test and lint suite against your changes, simply run Tox. "
+"Tox should return without any errors. You can run Tox against all of our "
+"environments by running::"
+msgstr ""
+
+#: ../../tests.rst:20
+msgid ""
+"In order to run all test including the search tests, include "
+"`\"'--including-search'\"` argument::"
+msgstr ""
+
+#: ../../tests.rst:25
+msgid "To target a specific environment::"
+msgstr ""
+
+#: ../../tests.rst:29
+msgid ""
+"The ``tox`` configuration has the following environments configured. You can"
+" target a single environment to limit the test suite::"
+msgstr ""
+
+#: ../../tests.rst:49
+msgid "Continuous Integration"
+msgstr ""
+
+#: ../../tests.rst:51
+msgid ""
+"The RTD test suite is exercised by Travis CI on every push to our repo at "
+"GitHub. You can check out the current build status: https://travis-"
+"ci.org/rtfd/readthedocs.org"
+msgstr ""

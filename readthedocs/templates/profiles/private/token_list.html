@@ -1,0 +1,57 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "API Tokens" %}{% endblock %}
+
+{% block profile-admin-tokens %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "API Tokens" %} {% endblock %}
+
+{% block edit_content %}
+  <p>Personal Access Token are tokens that allow you to use the Read the Docs APIv3 being authenticated as yourself. See <a href="https://docs.readthedocs.org/page/api/v3.html">APIv3 documentation</a> for more information.</p>
+
+  {% if not object_list %}
+    <div class="button-bar">
+      <ul>
+        <li>
+          <form method="post" action="{% url "profiles_tokens_create" %}">
+            {% csrf_token %}
+            <input type="submit" value="{% trans "Generate API Token" %}">
+          </form>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+
+    <div class="module">
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% for token in object_list %}
+              <li class="module-item">
+                  <div>Created: {{ token.created }}</div>
+                  <div>Token: {{ token.key }}</div>
+
+                  <ul class="module-item-menu">
+                    <li>
+                      <form method="post" action="{% url "profiles_tokens_delete" %}">
+                        {% csrf_token %}
+                        <input type="submit" value="{% trans "Revoke" %}">
+                      </form>
+                    </li>
+                  </ul>
+
+              </li>
+            {% empty %}
+              <li class="module-item">
+                <p class="quiet">
+                  {% trans 'No API Tokens currently configured.' %}
+                </p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+{% endblock %}

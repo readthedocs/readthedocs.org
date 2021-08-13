@@ -1,80 +1,82 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Spanish (http://www.transifex.com/readthedocs/readthedocs-docs/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# e7d08bebf8254f379c2abbf2dea31bfa
 #: ../../localization.rst:2
 msgid "Localization of Documentation"
 msgstr ""
 
-# 69fdf006370f4c99b1d51de39f478d3a
 #: ../../localization.rst:4
+msgid ""
+"This feature only applies to Sphinx documentation. We are working to bring "
+"it to our other documentation backends."
+msgstr ""
+
+#: ../../localization.rst:6
 msgid ""
 "Read the Docs supports hosting your docs in multiple languages. There are "
 "two different things that we support:"
 msgstr ""
 
-# 822a873c5f8d4286ad23e89f38267e86
-#: ../../localization.rst:7
+#: ../../localization.rst:9
 msgid "A single project written in another language"
 msgstr ""
 
-# 092d786ec3c841fdb1bb3ae8a4018004
-#: ../../localization.rst:8
+#: ../../localization.rst:10
 msgid "A project with translations into multiple languages"
 msgstr ""
 
-# 517ebf91f4054f9ca9be586555d0bf70
-#: ../../localization.rst:11
+#: ../../localization.rst:14
 msgid "Single project in another language"
 msgstr ""
 
-# e6c82a6ccd0c41db9eb54173990c73c7
-#: ../../localization.rst:13
+#: ../../localization.rst:16
 msgid ""
 "It is easy to set the *Language* of your project. On the project *Admin* "
-"page (or Import page), simply select your desired *Language* from the "
+"page (or *Import* page), simply select your desired *Language* from the "
 "dropdown. This will tell Read the Docs that your project is in the language."
-" The language will be represented in the URL for you project."
+" The language will be represented in the URL for your project."
 msgstr ""
 
-# cf51b8cd1e73498a89b279d09c66fe10
-#: ../../localization.rst:19
+#: ../../localization.rst:22
 msgid ""
-"For example, a project that is in spanish will have a default URL of "
+"For example, a project that is in Spanish will have a default URL of "
 "``/es/latest/`` instead of ``/en/latest/``."
 msgstr ""
 
-# ea5e40bbfac2443aa0cce2ebb76a45b7
-#: ../../localization.rst:23
+#: ../../localization.rst:25
+msgid ""
+"You must commit the ``.po`` files for Read the Docs to translate your "
+"documentation."
+msgstr ""
+
+#: ../../localization.rst:28
 msgid "Project with multiple translations"
 msgstr ""
 
-# 37e51a8c09d44c04a7d8d021adcab608
-#: ../../localization.rst:25
+#: ../../localization.rst:30
 msgid ""
 "This situation is a bit more complicated. To support this, you will have one"
 " parent project and a number of projects marked as translations of that "
 "parent. Let's use ``phpmyadmin`` as an example."
 msgstr ""
 
-# 3c8c8dd882c443ea9845109d8dd49999
-#: ../../localization.rst:30
+#: ../../localization.rst:35
 msgid ""
 "The main ``phpmyadmin`` project is the parent for all translations. Then you"
 " must create a project for each translation, for example ``phpmyadmin-"
@@ -83,23 +85,40 @@ msgid ""
 "``phpmyadmin-spanish`` is a translation for your project."
 msgstr ""
 
-# 9ad74fa3d00946a9b373d0275449e846
-#: ../../localization.rst:37
+#: ../../localization.rst:42
 msgid "This has the results of serving:"
 msgstr ""
 
-# fb3d649db2234c228b7b58a8a0b0a3c2
-#: ../../localization.rst:39
-msgid "``phpmyadmin`` at ``http://phpmyadmin.readthedocs.org/en/latest/``"
+#: ../../localization.rst:44
+msgid "``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``"
 msgstr ""
 
-# 36a76f14892c40ceb6d35f0387eaa75a
-#: ../../localization.rst:40
+#: ../../localization.rst:45
 msgid ""
-"``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.org/es/latest/``"
+"``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``"
 msgstr ""
 
-# 175581c389594465b29a7e35993e57a6
-#: ../../localization.rst:42
+#: ../../localization.rst:47
 msgid "It also gets included in the Read the Docs flyout:"
+msgstr ""
+
+#: ../../localization.rst:52
+msgid ""
+"The default language of a custom domain is determined by the language of the"
+" parent project that the domain was configured on. See "
+":doc:`alternate_domains` for more information."
+msgstr ""
+
+#: ../../localization.rst:56
+msgid ""
+"You can include multiple translations in the same repository, with same "
+"``conf.py`` and ``.rst`` files, but each project must specify the language "
+"to build for those docs."
+msgstr ""
+
+#: ../../localization.rst:60
+msgid ""
+"You can read :doc:`guides/manage-translations` to understand the whole "
+"process for a documentation with multiples languages in the same repository "
+"and how to keep the translations updated on time."
 msgstr ""

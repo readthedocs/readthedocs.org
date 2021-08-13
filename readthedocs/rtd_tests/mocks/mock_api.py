@@ -1,14 +1,16 @@
 """Mock versions of many API-related classes."""
-from contextlib import contextmanager
 import json
-import mock
+from contextlib import contextmanager
+
+from unittest import mock
+
 
 # Mock tastypi API.
 
 
-class ProjectData(object):
+class ProjectData:
     def get(self):
-        return dict()
+        return {}
 
     def put(self, x=None):
         return x
@@ -16,7 +18,7 @@ class ProjectData(object):
 
 def mock_version(repo):
     """Construct and return a class implementing the Version interface."""
-    class MockVersion(object):
+    class MockVersion:
         def __init__(self, x=None):
             pass
 
@@ -42,11 +44,9 @@ def mock_version(repo):
                 {
                     "absolute_url": "/projects/docs/",
                     "analytics_code": "",
-                    "copyright": "",
                     "default_branch": "",
                     "default_version": "latest",
                     "description": "Make docs.readthedocs.org work :D",
-                    "django_packages_url": "",
                     "documentation_type": "sphinx",
                     "id": "2599",
                     "modified_date": "2012-03-12T19:59:09.130773",
@@ -58,24 +58,20 @@ def mock_version(repo):
                     "requirements_file": "",
                     "resource_uri": "/api/v1/project/2599/",
                     "slug": "docs",
-                    "suffix": ".rst",
-                    "theme": "default",
                     "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
-                    ],
-                    "version": ""
+                    ]
                 }""")
             version['project'] = project
             project['repo'] = repo
             if 'slug' in kwargs:
                 return {'objects': [version], 'project': project}
-            else:
-                return version
+            return version
     return MockVersion
 
 
-class MockApi(object):
+class MockApi:
     def __init__(self, repo):
         self.version = mock_version(repo)
 
@@ -92,10 +88,7 @@ class MockApi(object):
 @contextmanager
 def mock_api(repo):
     api_mock = MockApi(repo)
-    with mock.patch('readthedocs.restapi.client.api', api_mock), \
-            mock.patch('readthedocs.api.client.api', api_mock), \
+    with mock.patch('readthedocs.api.v2.client.api', api_mock), \
             mock.patch('readthedocs.projects.tasks.api_v2', api_mock), \
-            mock.patch('readthedocs.projects.tasks.api_v1', api_mock), \
-            mock.patch('readthedocs.doc_builder.environments.api_v1', api_mock), \
             mock.patch('readthedocs.doc_builder.environments.api_v2', api_mock):
         yield api_mock

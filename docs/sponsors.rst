@@ -9,37 +9,43 @@ supporting us.
 Current sponsors
 ----------------
 
-* `Rackspace`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, averaging around $3,000/mo, and we are really grateful to have them as a sponsor.
-* `Mozilla`_ - Mozilla has given us a `MOSS grant`_ for building specific features, and have funded Eric Holscher to work on Read the Docs at $1,000/mo for 2016.
-* You? (Email us at rev@readthedocs.org for more info)
+* `AWS`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, averaging around $5,000/mo.
+* `Cloudflare`_ - Cloudflare is providing us with an enterprise plan of their SSL for SaaS Providers product that enables us to provide SSL certificates for custom domains.
+* `Chan Zuckerberg Initiative`_ - Through their "Essential Open Source Software for Science" programme, they fund our ongoing efforts to improve scientific documentation
+  and make Read the Docs a better service for scientific projects.
+* You? (Email us at hello@readthedocs.org for more info)
 
 Past sponsors
 -------------
 
+* `Microsoft Azure`_
 * `Python Software Foundation`_
 * `Revsys`_
 * `Mozilla Web Dev`_
 * `Django Software Foundation`_
-* `Lab305`_
+* Lab305
 * `Twilio`_
+* `Rackspace`_
+* `Mozilla`_
 
-.. _MOSS grant: https://blog.readthedocs.com/rtd-awarded-mozilla-open-source-support-grant/
-.. _Revsys: http://www.revsys.com/
-.. _Python Software Foundation: http://python.org/psf/
-.. _Mozilla Web Dev: http://blog.mozilla.com/webdev/
+.. _Revsys: https://www.revsys.com/
+.. _Python Software Foundation: https://www.python.org/psf/
+.. _Mozilla Web Dev: https://blog.mozilla.org/webdev/
 .. _Django Software Foundation: https://www.djangoproject.com/foundation/
-.. _Lab305: http://www.lab305.com/
-.. _Rackspace: http://www.rackspace.com/
+.. _Rackspace: https://www.rackspace.com/
 .. _Mozilla: https://www.mozilla.org/en-US/
-.. _Twilio: http://twilio.com/
-.. _Signal: http://signal.twilio.com/
+.. _Twilio: https://www.twilio.com/
+.. _Cloudflare: https://www.cloudflare.com/
+.. _Microsoft Azure: https://azure.microsoft.com/
+.. _AWS: https://aws.amazon.com/
+.. _Chan Zuckerberg Initiative: https://chanzuckerberg.com/
 
 
 Sponsorship Information
 -----------------------
 
-As part of increasing sustainability, 
-Read the Docs is testing out promoting sponsors on documentation pages. 
+As part of increasing sustainability,
+Read the Docs is testing out promoting sponsors on documentation pages.
 We have more information about this in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
 
 Sponsor Us

@@ -1,4 +1,7 @@
-"""Extensions to Django messages to support notifications to users.
+# -*- coding: utf-8 -*-
+
+"""
+Extensions to Django messages to support notifications to users.
 
 Notifications are important communications to users that need to be as visible
 as possible. We support different backends to make notifications visible in
@@ -10,15 +13,14 @@ on the site.
 
 .. _`django-messages-extends`: https://github.com
                                /AliLozano/django-messages-extends/
-
 """
-from .notification import Notification
+from .notification import Notification, SiteNotification
 from .backends import send_notification
 
 __all__ = (
     'Notification',
-    'send_notification'
+    'SiteNotification',
+    'send_notification',
 )
-
 
 default_app_config = 'readthedocs.notifications.apps.NotificationsAppConfig'

@@ -1,4 +1,5 @@
-"""Project constants
+"""
+Project constants.
 
 Default values and other various configuration for projects, including available
 theme names and repository types.
@@ -8,35 +9,32 @@ import re
 
 from django.utils.translation import ugettext_lazy as _
 
-THEME_DEFAULT = 'default'
-THEME_SPHINX = 'sphinxdoc'
-THEME_SCROLLS = 'scrolls'
-THEME_AGOGO = 'agogo'
-THEME_TRADITIONAL = 'traditional'
-THEME_NATURE = 'nature'
-THEME_HAIKU = 'haiku'
-
+SPHINX = 'sphinx'
+MKDOCS = 'mkdocs'
+SPHINX_HTMLDIR = 'sphinx_htmldir'
+SPHINX_SINGLEHTML = 'sphinx_singlehtml'
+# This type is defined by the users in their mkdocs.yml file.
+MKDOCS_HTML = 'mkdocs_html'
 DOCUMENTATION_CHOICES = (
-    ('auto', _('Automatically Choose')),
-    ('sphinx', _('Sphinx Html')),
-    ('mkdocs', _('Mkdocs (Markdown)')),
-    ('sphinx_htmldir', _('Sphinx HtmlDir')),
-    ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
+    (SPHINX, _('Sphinx Html')),
+    (MKDOCS, _('Mkdocs')),
+    (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
+    (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + ((MKDOCS_HTML, _('Mkdocs Html Pages')),)
 
-DEFAULT_THEME_CHOICES = (
-    # Translators: This is a name of a Sphinx theme.
-    (THEME_DEFAULT, _('Default')),
-    # Translators: This is a name of a Sphinx theme.
-    (THEME_SPHINX, _('Sphinx Docs')),
-    # (THEME_SCROLLS, 'Scrolls'),
-    # (THEME_AGOGO, 'Agogo'),
-    # Translators: This is a name of a Sphinx theme.
-    (THEME_TRADITIONAL, _('Traditional')),
-    # Translators: This is a name of a Sphinx theme.
-    (THEME_NATURE, _('Nature')),
-    # Translators: This is a name of a Sphinx theme.
-    (THEME_HAIKU, _('Haiku')),
+
+MEDIA_TYPE_HTML = 'html'
+MEDIA_TYPE_PDF = 'pdf'
+MEDIA_TYPE_EPUB = 'epub'
+MEDIA_TYPE_HTMLZIP = 'htmlzip'
+MEDIA_TYPE_JSON = 'json'
+MEDIA_TYPES = (
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_JSON,
 )
 
 SAMPLE_FILES = (
@@ -82,17 +80,15 @@ REPO_CHOICES = (
 )
 
 PUBLIC = 'public'
-PROTECTED = 'protected'
 PRIVATE = 'private'
 
 PRIVACY_CHOICES = (
     (PUBLIC, _('Public')),
-    (PROTECTED, _('Protected')),
     (PRIVATE, _('Private')),
 )
 
 IMPORTANT_VERSION_FILTERS = {
-    'slug': 'important'
+    'slug': 'important',
 }
 
 # in the future this constant can be replaced with a implementation that
@@ -107,188 +103,297 @@ PYTHON_CHOICES = (
 # Languages supported for the lang_slug in the URL
 # Translations for builtin Sphinx messages only available for a subset of these
 LANGUAGES = (
-    ("aa", "Afar"),
-    ("ab", "Abkhaz"),
-    ("af", "Afrikaans"),
-    ("am", "Amharic"),
-    ("ar", "Arabic"),
-    ("as", "Assamese"),
-    ("ay", "Aymara"),
-    ("az", "Azerbaijani"),
-    ("ba", "Bashkir"),
-    ("be", "Belarusian"),
-    ("bg", "Bulgarian"),
-    ("bh", "Bihari"),
-    ("bi", "Bislama"),
-    ("bn", "Bengali"),
-    ("bo", "Tibetan"),
-    ("br", "Breton"),
-    ("ca", "Catalan"),
-    ("co", "Corsican"),
-    ("cs", "Czech"),
-    ("cy", "Welsh"),
-    ("da", "Danish"),
-    ("de", "German"),
-    ("dz", "Dzongkha"),
-    ("el", "Greek"),
-    ("en", "English"),
-    ("eo", "Esperanto"),
-    ("es", "Spanish"),
-    ("et", "Estonian"),
-    ("eu", "Basque"),
-    ("fa", "Iranian"),
-    ("fi", "Finnish"),
-    ("fj", "Fijian"),
-    ("fo", "Faroese"),
-    ("fr", "French"),
-    ("fy", "Western Frisian"),
-    ("ga", "Irish"),
-    ("gd", "Scottish Gaelic"),
-    ("gl", "Galician"),
-    ("gn", "Guarani"),
-    ("gu", "Gujarati"),
-    ("ha", "Hausa"),
-    ("hi", "Hindi"),
-    ("he", "Hebrew"),
-    ("hr", "Croatian"),
-    ("hu", "Hungarian"),
-    ("hy", "Armenian"),
-    ("ia", "Interlingua"),
-    ("id", "Indonesian"),
-    ("ie", "Interlingue"),
-    ("ik", "Inupiaq"),
-    ("is", "Icelandic"),
-    ("it", "Italian"),
-    ("iu", "Inuktitut"),
-    ("ja", "Japanese"),
-    ("jv", "Javanese"),
-    ("ka", "Georgian"),
-    ("kk", "Kazakh"),
-    ("kl", "Kalaallisut"),
-    ("km", "Khmer"),
-    ("kn", "Kannada"),
-    ("ko", "Korean"),
-    ("ks", "Kashmiri"),
-    ("ku", "Kurdish"),
-    ("ky", "Kyrgyz"),
-    ("la", "Latin"),
-    ("ln", "Lingala"),
-    ("lo", "Lao"),
-    ("lt", "Lithuanian"),
-    ("lv", "Latvian"),
-    ("mg", "Malagasy"),
-    ("mi", "Maori"),
-    ("mk", "Macedonian"),
-    ("ml", "Malayalam"),
-    ("mn", "Mongolian"),
-    ("mr", "Marathi"),
-    ("ms", "Malay"),
-    ("mt", "Maltese"),
-    ("my", "Burmese"),
-    ("na", "Nauru"),
-    ("ne", "Nepali"),
-    ("nl", "Dutch"),
-    ("no", "Norwegian"),
-    ("oc", "Occitan"),
-    ("om", "Oromo"),
-    ("or", "Oriya"),
-    ("pa", "Panjabi"),
-    ("pl", "Polish"),
-    ("ps", "Pashto"),
-    ("pt", "Portuguese"),
-    ("qu", "Quechua"),
-    ("rm", "Romansh"),
-    ("rn", "Kirundi"),
-    ("ro", "Romanian"),
-    ("ru", "Russian"),
-    ("rw", "Kinyarwanda"),
-    ("sa", "Sanskrit"),
-    ("sd", "Sindhi"),
-    ("sg", "Sango"),
-    ("si", "Sinhala"),
-    ("sk", "Slovak"),
-    ("sl", "Slovenian"),
-    ("sm", "Samoan"),
-    ("sn", "Shona"),
-    ("so", "Somali"),
-    ("sq", "Albanian"),
-    ("sr", "Serbian"),
-    ("ss", "Swati"),
-    ("st", "Southern Sotho"),
-    ("su", "Sudanese"),
-    ("sv", "Swedish"),
-    ("sw", "Swahili"),
-    ("ta", "Tamil"),
-    ("te", "Telugu"),
-    ("tg", "Tajik"),
-    ("th", "Thai"),
-    ("ti", "Tigrinya"),
-    ("tk", "Turkmen"),
-    ("tl", "Tagalog"),
-    ("tn", "Tswana"),
-    ("to", "Tonga"),
-    ("tr", "Turkish"),
-    ("ts", "Tsonga"),
-    ("tt", "Tatar"),
-    ("tw", "Twi"),
-    ("ug", "Uyghur"),
-    ("uk", "Ukrainian"),
-    ("ur", "Urdu"),
-    ("uz", "Uzbek"),
-    ("vi", "Vietnamese"),
-    ("vo", "Volapuk"),
-    ("wo", "Wolof"),
-    ("xh", "Xhosa"),
-    ("yi", "Yiddish"),
-    ("yo", "Yoruba"),
-    ("za", "Zhuang"),
-    ("zh", "Chinese"),
-    ("zu", "Zulu"),
+    ('aa', 'Afar'),
+    ('ab', 'Abkhaz'),
+    ('acr', 'Achi'),
+    ('af', 'Afrikaans'),
+    ('agu', 'Awakateko'),
+    ('am', 'Amharic'),
+    ('ar', 'Arabic'),
+    ('as', 'Assamese'),
+    ('ay', 'Aymara'),
+    ('az', 'Azerbaijani'),
+    ('ba', 'Bashkir'),
+    ('be', 'Belarusian'),
+    ('bg', 'Bulgarian'),
+    ('bh', 'Bihari'),
+    ('bi', 'Bislama'),
+    ('bn', 'Bengali'),
+    ('bo', 'Tibetan'),
+    ('br', 'Breton'),
+    ('ca', 'Catalan'),
+    ('caa', 'Ch\'orti\''),
+    ('cac', 'Chuj'),
+    ('cab', 'Garífuna'),
+    ('cak', 'Kaqchikel'),
+    ('co', 'Corsican'),
+    ('cs', 'Czech'),
+    ('cy', 'Welsh'),
+    ('da', 'Danish'),
+    ('de', 'German'),
+    ('dz', 'Dzongkha'),
+    ('el', 'Greek'),
+    ('en', 'English'),
+    ('eo', 'Esperanto'),
+    ('es', 'Spanish'),
+    ('et', 'Estonian'),
+    ('eu', 'Basque'),
+    ('fa', 'Iranian'),
+    ('fi', 'Finnish'),
+    ('fj', 'Fijian'),
+    ('fo', 'Faroese'),
+    ('fr', 'French'),
+    ('fy', 'Western Frisian'),
+    ('ga', 'Irish'),
+    ('gd', 'Scottish Gaelic'),
+    ('gl', 'Galician'),
+    ('gn', 'Guarani'),
+    ('gu', 'Gujarati'),
+    ('ha', 'Hausa'),
+    ('hi', 'Hindi'),
+    ('he', 'Hebrew'),
+    ('hr', 'Croatian'),
+    ('hu', 'Hungarian'),
+    ('hy', 'Armenian'),
+    ('ia', 'Interlingua'),
+    ('id', 'Indonesian'),
+    ('ie', 'Interlingue'),
+    ('ik', 'Inupiaq'),
+    ('is', 'Icelandic'),
+    ('it', 'Italian'),
+    ('itz', 'Itza\''),
+    ('iu', 'Inuktitut'),
+    ('ixl', 'Ixil'),
+    ('ja', 'Japanese'),
+    ('jac', 'Popti\''),
+    ('jv', 'Javanese'),
+    ('ka', 'Georgian'),
+    ('kjb', 'Q\'anjob\'al'),
+    ('kek', 'Q\'eqchi\''),
+    ('kk', 'Kazakh'),
+    ('kl', 'Kalaallisut'),
+    ('km', 'Khmer'),
+    ('kn', 'Kannada'),
+    ('knj', 'Akateko'),
+    ('ko', 'Korean'),
+    ('ks', 'Kashmiri'),
+    ('ku', 'Kurdish'),
+    ('ky', 'Kyrgyz'),
+    ('la', 'Latin'),
+    ('ln', 'Lingala'),
+    ('lo', 'Lao'),
+    ('lt', 'Lithuanian'),
+    ('lv', 'Latvian'),
+    ('mam', 'Mam'),
+    ('mg', 'Malagasy'),
+    ('mi', 'Maori'),
+    ('mk', 'Macedonian'),
+    ('ml', 'Malayalam'),
+    ('mn', 'Mongolian'),
+    ('mop', 'Mopan'),
+    ('mr', 'Marathi'),
+    ('ms', 'Malay'),
+    ('mt', 'Maltese'),
+    ('my', 'Burmese'),
+    ('na', 'Nauru'),
+    ('ne', 'Nepali'),
+    ('nl', 'Dutch'),
+    ('no', 'Norwegian'),
+    ('oc', 'Occitan'),
+    ('om', 'Oromo'),
+    ('or', 'Oriya'),
+    ('pa', 'Panjabi'),
+    ('pl', 'Polish'),
+    ('pnb', 'Western Punjabi'),
+    ('poc', 'Poqomam'),
+    ('poh', 'Poqomchi'),
+    ('ps', 'Pashto'),
+    ('pt', 'Portuguese'),
+    ('qu', 'Quechua'),
+    ('quc', 'K\'iche\''),
+    ('qum', 'Sipakapense'),
+    ('quv', 'Sakapulteko'),
+    ('rm', 'Romansh'),
+    ('rn', 'Kirundi'),
+    ('ro', 'Romanian'),
+    ('ru', 'Russian'),
+    ('rw', 'Kinyarwanda'),
+    ('sa', 'Sanskrit'),
+    ('sd', 'Sindhi'),
+    ('sg', 'Sango'),
+    ('si', 'Sinhala'),
+    ('sk', 'Slovak'),
+    ('skr', 'Saraiki'),
+    ('sl', 'Slovenian'),
+    ('sm', 'Samoan'),
+    ('sn', 'Shona'),
+    ('so', 'Somali'),
+    ('sq', 'Albanian'),
+    ('sr', 'Serbian'),
+    ('ss', 'Swati'),
+    ('st', 'Southern Sotho'),
+    ('su', 'Sudanese'),
+    ('sv', 'Swedish'),
+    ('sw', 'Swahili'),
+    ('ta', 'Tamil'),
+    ('te', 'Telugu'),
+    ('tg', 'Tajik'),
+    ('th', 'Thai'),
+    ('ti', 'Tigrinya'),
+    ('tk', 'Turkmen'),
+    ('tl', 'Tagalog'),
+    ('tn', 'Tswana'),
+    ('to', 'Tonga'),
+    ('tr', 'Turkish'),
+    ('ts', 'Tsonga'),
+    ('tt', 'Tatar'),
+    ('ttc', 'Tektiteko'),
+    ('tzj', 'Tz\'utujil'),
+    ('tw', 'Twi'),
+    ('ug', 'Uyghur'),
+    ('uk', 'Ukrainian'),
+    ('ur', 'Urdu'),
+    ('usp', 'Uspanteko'),
+    ('uz', 'Uzbek'),
+    ('vi', 'Vietnamese'),
+    ('vo', 'Volapuk'),
+    ('wo', 'Wolof'),
+    ('xh', 'Xhosa'),
+    ('xin', 'Xinka'),
+    ('yi', 'Yiddish'),
+    ('yo', 'Yoruba'),
+    ('za', 'Zhuang'),
+    ('zh', 'Chinese'),
+    ('zu', 'Zulu'),
     # Try these to test our non-2 letter language support
-    ("nb_NO", "Norwegian Bokmal"),
-    ("pt_BR", "Brazilian Portuguese"),
-    ("uk_UA", "Ukrainian"),
-    ("zh_CN", "Simplified Chinese"),
-    ("zh_TW", "Traditional Chinese"),
+    ('nb_NO', 'Norwegian Bokmal'),
+    ('pt_BR', 'Brazilian Portuguese'),
+    ('es_MX', 'Mexican Spanish'),
+    ('uk_UA', 'Ukrainian'),
+    ('zh_CN', 'Simplified Chinese'),
+    ('zh_TW', 'Traditional Chinese'),
 )
 
-LANGUAGES_REGEX = "|".join(
-    [re.escape(code[0]) for code in LANGUAGES]
-)
+LANGUAGES_REGEX = '|'.join([re.escape(code[0]) for code in LANGUAGES])
 
 PROGRAMMING_LANGUAGES = (
-    ("words", "Only Words"),
-    ("py", "Python"),
-    ("js", "JavaScript"),
-    ("php", "PHP"),
-    ("ruby", "Ruby"),
-    ("perl", "Perl"),
-    ("java", "Java"),
-    ("go", "Go"),
-    ("julia", "Julia"),
-    ("c", "C"),
-    ("csharp", "C#"),
-    ("cpp", "C++"),
-    ("objc", "Objective-C"),
-    ("other", "Other"),
+    ('words', 'Only Words'),
+    ('py', 'Python'),
+    ('js', 'JavaScript'),
+    ('php', 'PHP'),
+    ('ruby', 'Ruby'),
+    ('perl', 'Perl'),
+    ('java', 'Java'),
+    ('go', 'Go'),
+    ('julia', 'Julia'),
+    ('c', 'C'),
+    ('csharp', 'C#'),
+    ('cpp', 'C++'),
+    ('objc', 'Objective-C'),
+    ('css', 'CSS'),
+    ('ts', 'TypeScript'),
+    ('swift', 'Swift'),
+    ('vb', 'Visual Basic'),
+    ('r', 'R'),
+    ('scala', 'Scala'),
+    ('groovy', 'Groovy'),
+    ('coffee', 'CoffeeScript'),
+    ('lua', 'Lua'),
+    ('haskell', 'Haskell'),
+    ('other', 'Other'),
 )
 
-LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
+LOG_TEMPLATE = '(Build) [%(project)s:%(version)s] %(msg)s'
 
-PROJECT_PK_REGEX = '(?:[-\w]+)'
-PROJECT_SLUG_REGEX = '(?:[-\w]+)'
+PROJECT_PK_REGEX = r'(?:[-\w]+)'
+PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
-    re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+).git'),
+    re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
+    re.compile(r'github.com/(.+)/(.+)'),
+    re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
-    re.compile('bitbucket.org/(.+)/(.+).git'),
-    re.compile('bitbucket.org/(.+)/(.+)/'),
-    re.compile('bitbucket.org/(.+)/(.+)'),
+    re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
+    re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'bitbucket.org/(.+)/(.+)/'),
+    re.compile(r'bitbucket.org/(.+)/(.+)'),
+    re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
-GITHUB_URL = (u'https://github.com/{user}/{repo}/'
-              '{action}/{version}{docroot}{path}{source_suffix}')
-BITBUCKET_URL = (u'https://bitbucket.org/{user}/{repo}/'
-                 'src/{version}{docroot}{path}{source_suffix}')
+GITLAB_REGEXS = [
+    re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/'),
+    re.compile(r'gitlab.com/(.+)/(.+)'),
+    re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
+]
+GITHUB_URL = (
+    'https://github.com/{user}/{repo}/'
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)
+GITHUB_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITHUB_PULL_REQUEST_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}'
+)
+GITHUB_PULL_REQUEST_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}/commits/{commit}'
+)
+BITBUCKET_URL = (
+    'https://bitbucket.org/{user}/{repo}/'
+    'src/{version}{docroot}{path}{source_suffix}'
+)
+BITBUCKET_COMMIT_URL = (
+    'https://bitbucket.org/{user}/{repo}/'
+    'commits/{commit}'
+)
+GITLAB_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)
+GITLAB_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITLAB_MERGE_REQUEST_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}?merge_request_iid={number}'
+)
+GITLAB_MERGE_REQUEST_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'merge_requests/{number}'
+)
+
+# Patterns to pull merge/pull request from providers
+GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
+GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
+
+# Git provider names
+GITHUB_BRAND = 'GitHub'
+GITLAB_BRAND = 'GitLab'
+
+# Set 3 priorities, [low, medium, high] -- default is medium
+# Leave some space on each side of the set to expand if needed
+CELERY_LOW = 3
+CELERY_MEDIUM = 5
+CELERY_HIGH = 7
+
+
+# SSL statuses
+SSL_STATUS_VALID = 'valid'
+SSL_STATUS_INVALID = 'invalid'
+SSL_STATUS_PENDING = 'pending'
+SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_CHOICES = (
+    (SSL_STATUS_VALID, _('Valid and active')),
+    (SSL_STATUS_INVALID, _('Invalid')),
+    (SSL_STATUS_PENDING, _('Pending')),
+    (SSL_STATUS_UNKNOWN, _('Unknown')),
+)

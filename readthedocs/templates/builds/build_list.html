@@ -1,8 +1,10 @@
 {% extends "projects/base_project.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% load pagination_tags %}
+{% load privacy_tags %}
 {% load projects_tags %}
 
 {% block title %}Builds{% endblock %}
@@ -16,18 +18,6 @@
 {% block content %}
 
 
-<!-- BEGIN queue depth warning -->
-{% if queue_length > 10 %}
-<div>
-  <p>
-  {% blocktrans with queue_length as queue_length %}
-    Whoa! The build queue is {{ queue_length }} tasks long, new builds may take a while.
-  {% endblocktrans %}
-  </p>
-</div>
-{% endif %}
-
-
 <div id="build_list">
 
         {% autopaginate build_qs 15 %}
@@ -37,10 +27,11 @@
           <div class="module-wrapper">
 
             {% block build_versions %}
-            {% if versions %}
+            {% if versions and request.user|is_admin:project %}
             <div class="module-header">
               <div style="float:right;">
-                <form method="post" action="{% url "generic_build" project.pk %}">
+                <form method="post" action="{% url "builds_project_list" project.slug %}">
+                  {% csrf_token %}
                   <ul class="build_a_version">
                     <li style="display: inline-block">
                       <input style="display: inline-block" type="submit" value="{% trans "Build Version:" %}">
@@ -84,7 +75,7 @@
 
 {% block extra_scripts %}
 {{ block.super }}
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
+  <script type="text/javascript" src="{% static 'javascript/build_updater.js' %}"></script>
 
   <script type="text/javascript">
     $(function() {

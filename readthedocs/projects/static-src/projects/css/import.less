@@ -60,15 +60,25 @@ div.project-import-remote {
         }
     }
 
-    form.import-connect {
+    ul.socialaccount_providers {
         overflow: auto;
-        display: inline;
+        display: block;
+        list-style: none;
 
-        button {
-            display: inline;
-            margin-bottom: .5em;
-            font-size: 1em;
-            font-weight: normal;
+        li {
+            margin-top: 0.5em;
+            display: block;
+            overflow: auto;
+            text-align: center;
+
+            a.socialaccount-provider {
+                float: none;
+                display: inline-block;
+                margin-bottom: 0.5em;
+                margin-top: 0.5em;
+                font-size: 1em;
+                font-weight: normal;
+            }
         }
     }
 }
@@ -78,23 +88,28 @@ div.project-import-sidebar {
         font-size: 1.1em;
     }
 
-    li.remote-org {
+    li.remote-org,
+    li.remote-filter {
         margin: .5em 0em;
         padding-left: 3em;
         cursor: pointer;
 
-        &.remote-org-hidden {
-            span.remote-org-name {
+        &.remote-org-hidden,
+        &.remote-filter-hidden {
+            span.remote-org-name,
+            span.remote-filter-name {
                 color: #ccc;
             }
 
-            img.remote-org-avatar {
+            img.remote-org-avatar,
+            img.remote-filter-avatar {
                 opacity: .3;
                 filter: alpha(opacity=30);
             }
         }
 
-        img.remote-org-avatar {
+        img.remote-org-avatar,
+        img.remote-filter-avatar {
             float: left;
             margin-left: -2.25em;
             margin-right: .5em;
@@ -109,7 +124,8 @@ div.project-import-sidebar {
             vertical-align: baseline;
         }
 
-        a.remote-org-name {
+        a.remote-org-name,
+        a.remote-filter-name {
             font-size: .9em;
             text-decoration: none;
             line-height: 1.5em;

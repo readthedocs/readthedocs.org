@@ -1,0 +1,136 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Japanese (https://www.transifex.com/readthedocs/teams/2534/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../badges.rst:2
+msgid "Badges"
+msgstr ""
+
+#: ../../badges.rst:4
+msgid ""
+"Badges let you show the state of your documentation to your users. They are "
+"great for embedding in your README, or putting inside your actual doc pages."
+msgstr ""
+
+#: ../../badges.rst:9
+msgid "Status Badges"
+msgstr ""
+
+#: ../../badges.rst:11
+msgid ""
+"They will display in green for passing, red for failing, and yellow for "
+"unknown states."
+msgstr ""
+
+#: ../../badges.rst:15
+msgid "Here are a few examples:"
+msgstr ""
+
+#: ../../badges.rst:17
+msgid "|green| |nbsp| |red| |nbsp| |yellow|"
+msgstr ""
+
+#: ../../badges.rst:19
+msgid ""
+"You can see it in action in the `Read the Docs README`_. They will link back"
+" to your project's documentation page on Read the Docs."
+msgstr ""
+
+#: ../../badges.rst:23
+msgid "Style"
+msgstr ""
+
+#: ../../badges.rst:25
+msgid ""
+"Now you can pass the ``style`` GET argument, to get custom styled badges "
+"same as you would for shields.io. If no argument is passed, ``flat`` is used"
+" as default."
+msgstr ""
+
+#: ../../badges.rst:30
+msgid "STYLE"
+msgstr ""
+
+#: ../../badges.rst:30
+msgid "BADGE"
+msgstr ""
+
+#: ../../badges.rst:32
+msgid "flat"
+msgstr ""
+
+#: ../../badges.rst:32
+msgid "|Flat Badge|"
+msgstr ""
+
+#: ../../badges.rst:34
+msgid "flat-square"
+msgstr ""
+
+#: ../../badges.rst:34
+msgid "|Flat-Square Badge|"
+msgstr ""
+
+#: ../../badges.rst:36
+msgid "for-the-badge"
+msgstr ""
+
+#: ../../badges.rst:36
+msgid "|Badge|"
+msgstr ""
+
+#: ../../badges.rst:38
+msgid "plastic"
+msgstr ""
+
+#: ../../badges.rst:38
+msgid "|Plastic Badge|"
+msgstr ""
+
+#: ../../badges.rst:40
+msgid "social"
+msgstr ""
+
+#: ../../badges.rst:40
+msgid "|Social Badge|"
+msgstr ""
+
+#: ../../badges.rst:51
+msgid "Project Pages"
+msgstr ""
+
+#: ../../badges.rst:53
+msgid ""
+"You will now see badges embedded in your `project page`_. The default badge "
+"will be pointed at the *default version* you have specified for your "
+"project. The badge URLs look like this::"
+msgstr ""
+
+#: ../../badges.rst:59
+msgid ""
+"You can replace the version argument with any version that you want to show "
+"a badge for. If you click on the badge icon, you will be given snippets for "
+"RST, Markdown, and HTML; to make embedding it easier."
+msgstr ""
+
+#: ../../badges.rst:64
+msgid ""
+"If you leave the version argument off, it will default to your latest "
+"version. This is probably best to include in your README, since it will stay"
+" up to date with your Read the Docs project::"
+msgstr ""

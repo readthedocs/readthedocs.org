@@ -1,13 +1,10 @@
-import mock
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-from django.test import TestCase
+from unittest import mock
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_delete
-
-from readthedocs.projects.models import Project
+from django.test import TestCase
 
 from ..models import GoldUser
-from ..signals import delete_customer
 
 
 class GoldSignalTests(TestCase):
@@ -24,6 +21,14 @@ class GoldSignalTests(TestCase):
             self.mocks[patch] = self.patches[patch].start()
 
         self.mocks['request'] = self.mocks['requestor'].return_value
+
+    def tearDown(self):
+        # TODO: refactor to use request_mocks for these. The current mock
+        # pattern breaks tests ran after these if tearDown is not called with
+        # the `.stop` for all the patches. It took me a lot of time to realized
+        # about this problem.
+        for _, patch in self.patches.items():
+            patch.stop()
 
     def mock_request(self, resp=None):
         if resp is None:

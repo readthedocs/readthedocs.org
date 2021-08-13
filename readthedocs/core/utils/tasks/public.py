@@ -1,39 +1,39 @@
-"""Celery tasks with publicly viewable status"""
+# -*- coding: utf-8 -*-
+
+"""Celery tasks with publicly viewable status."""
 
 from celery import Task, states
 from django.conf import settings
 
-from .retrieve import TaskNotFound
-from .retrieve import get_task_data
+from .retrieve import TaskNotFound, get_task_data
 
 
 __all__ = (
-    'PublicTask', 'TaskNoPermission', 'permission_check',
-    'get_public_task_data')
+    'PublicTask',
+    'TaskNoPermission',
+    'get_public_task_data',
+)
 
-
-STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
+STATUS_UPDATES_ENABLED = not settings.CELERY_ALWAYS_EAGER
 
 
 class PublicTask(Task):
 
     """
+    Encapsulates common behaviour to expose a task publicly.
+
+    Tasks should use this class as ``base``. And define a ``check_permission``
+    property or use the ``permission_check`` decorator.
+
+    The check_permission should be a function like:
+    function(request, state, context), and needs to return a boolean value.
+
     See oauth.tasks for usage example.
-
-    Subclasses need to define a ``run_public`` method.
     """
-
-    public_name = 'unknown'
-
-    @classmethod
-    def check_permission(cls, request, state, context):
-        """Override this method to define who can monitor this task."""
-        # pylint: disable=unused-argument
-        return False
 
     def get_task_data(self):
         """Return tuple with state to be set next and results task."""
-        state = 'STARTED'
+        state = states.STARTED
         info = {
             'task_name': self.name,
             'context': self.request.get('permission_context', {}),
@@ -48,7 +48,7 @@ class PublicTask(Task):
 
     def set_permission_context(self, context):
         """
-        Set data that can be used by ``check_permission`` to authorize a
+        Set data that can be used by ``check_permission`` to authorize a.
 
         request for the this task. By default it will be the ``kwargs`` passed
         into the task.
@@ -65,50 +65,67 @@ class PublicTask(Task):
         self.request.update(public_data=data)
         self.update_progress_data()
 
-    def run(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
+        # We override __call__ to let tasks use the run method.
+        error = False
+        exception_raised = None
         self.set_permission_context(kwargs)
-        result = self.run_public(*args, **kwargs)
-        if result is not None:
-            self.set_public_data(result)
+        try:
+            result = self.run(*args, **kwargs)
+        except Exception as e:
+            # With Celery 4 we lost the ability to keep our data dictionary into
+            # ``AsyncResult.info`` when an exception was raised inside the
+            # Task. In this case, ``info`` will contain the exception raised
+            # instead of our data. So, I'm keeping the task as ``SUCCESS`` but
+            # the adding the exception message into an ``error`` key to be used
+            # from outside
+            exception_raised = e
+            error = True
+
         _, info = self.get_task_data()
+        if error and exception_raised:
+            info['error'] = str(exception_raised)
+        elif result is not None:
+            self.set_public_data(result)
+
         return info
 
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        """Add the error to the task data"""
-        _, info = self.get_task_data()
-        if status == states.FAILURE:
-            info['error'] = retval
-        if STATUS_UPDATES_ENABLED:
-            self.update_state(state=status, meta=info)
+    @staticmethod
+    def permission_check(check):
+        """
+        Decorator for tasks that have PublicTask as base.
 
+        .. note::
 
-def permission_check(check):
-    """
-    Class decorator for subclasses of PublicTask to sprinkle in re-usable
+           The decorator should be on top of the task decorator.
 
-    permission checks::
+        permission checks::
 
-        @permission_check(user_id_matches)
-        class MyTask(PublicTask):
-            def run_public(self, user_id):
+            @PublicTask.permission_check(user_id_matches)
+            @celery.task(base=PublicTask)
+            def my_public_task(user_id):
                 pass
-    """
-    def decorator(cls):
-        cls.check_permission = staticmethod(check)
-        return cls
-    return decorator
+        """
+
+        def decorator(func):
+            func.check_permission = check
+            return func
+
+        return decorator
 
 
 class TaskNoPermission(Exception):
+
     def __init__(self, task_id, *args, **kwargs):
         message = 'No permission to access task with id {id}'.format(
-            id=task_id)
-        super(TaskNoPermission, self).__init__(message, *args, **kwargs)
+            id=task_id,
+        )
+        super().__init__(message, *args, **kwargs)
 
 
 def get_public_task_data(request, task_id):
     """
-    Return task details as tuple
+    Return task details as tuple.
 
     Will raise `TaskNoPermission` if `request` has no permission to access info
     of the task with id `task_id`. This is also the case of no task with the
@@ -130,5 +147,9 @@ def get_public_task_data(request, task_id):
     context = info.get('context', {})
     if not task.check_permission(request, state, context):
         raise TaskNoPermission(task_id)
-    public_name = task.public_name
-    return public_name, state, info.get('public_data', {}), info.get('error', None)
+    return (
+        task.name,
+        state,
+        info.get('public_data', {}),
+        info.get('error', None),
+    )

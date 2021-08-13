@@ -1,0 +1,193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:15+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs-docs/language/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../../install.rst:2
+msgid "Installation"
+msgstr ""
+
+#: ../../install.rst:4
+msgid ""
+"Here is a step by step plan on how to install Read the Docs. It will get you"
+" to a point of having a local running instance."
+msgstr ""
+
+#: ../../install.rst:8
+msgid ""
+"First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them."
+" Using a virtual environment will make the installation easier, and will "
+"help to avoid clutter in your system-wide libraries. You will also need Git_"
+" in order to clone the repository. If you plan to import Python 2.7 project "
+"to your RTD then you'll need to install Python 2.7 with virtualenv in your "
+"system as well."
+msgstr ""
+
+#: ../../install.rst:25
+msgid "Requires Git version >=2"
+msgstr ""
+
+#: ../../install.rst:29
+msgid ""
+"If you are having trouble on OS X Mavericks (or possibly other versions of "
+"OS X) with building ``lxml``, you probably might need to use Homebrew_ to "
+"``brew install libxml2``, and invoke the install with::"
+msgstr ""
+
+#: ../../install.rst:39
+msgid ""
+"Linux users may find they need to install a few additional packages in order"
+" to successfully execute ``pip install -r requirements.txt``. For example, a"
+" clean install of Ubuntu 14.04 LTS will require the following packages::"
+msgstr ""
+
+#: ../../install.rst:48
+msgid "CentOS/RHEL 7 will require::"
+msgstr ""
+
+#: ../../install.rst:52
+msgid ""
+"Users of other Linux distributions may need to install the equivalent "
+"packages, depending on their system configuration."
+msgstr ""
+
+#: ../../install.rst:57
+msgid ""
+"If you want full support for searching inside your Read the Docs site you "
+"will need to install Elasticsearch_."
+msgstr ""
+
+#: ../../install.rst:60
+msgid ""
+"Ubuntu users could install this package by following "
+":doc:`/custom_installs/elasticsearch`."
+msgstr ""
+
+#: ../../install.rst:64
+msgid "Besides the Python specific dependencies, you will also need Redis_."
+msgstr ""
+
+#: ../../install.rst:66
+msgid "Ubuntu users could install this package as following::"
+msgstr ""
+
+#: ../../install.rst:71
+msgid ""
+"You will need to verify that your pip version is higher than 1.5 you can do "
+"this as such::"
+msgstr ""
+
+#: ../../install.rst:75
+msgid ""
+"If this is not the case please update your pip version before continuing::"
+msgstr ""
+
+#: ../../install.rst:79
+msgid ""
+"Once you have these, create a virtual environment somewhere on your disk, "
+"then activate it::"
+msgstr ""
+
+#: ../../install.rst:86
+msgid "Create a folder in here, and clone the repository::"
+msgstr ""
+
+#: ../../install.rst:92
+msgid ""
+"Next, install the dependencies using ``pip`` (included inside of "
+"virtualenv_)::"
+msgstr ""
+
+#: ../../install.rst:97
+msgid ""
+"This may take a while, so go grab a beverage. When it's done, build your "
+"database::"
+msgstr ""
+
+#: ../../install.rst:102
+msgid "Then please create a superuser account for Django::"
+msgstr ""
+
+#: ../../install.rst:106
+msgid "Now let's properly generate the static assets::"
+msgstr ""
+
+#: ../../install.rst:110
+msgid ""
+"By now, it is the right time to load in a couple users and a test project::"
+msgstr ""
+
+#: ../../install.rst:116
+msgid ""
+"If you do not opt to install test data, you'll need to create an account for"
+" API use and set ``SLUMBER_USERNAME`` and ``SLUMBER_PASSWORD`` in order for "
+"everything to work properly. This can be done by using ``createsuperuser``, "
+"then attempting a manual login to create an ``EmailAddress`` entry for the "
+"user, then you can use ``shell_plus`` to update the object with "
+"``primary=True``, ``verified=True``."
+msgstr ""
+
+#: ../../install.rst:123
+msgid "Finally, you're ready to start the webserver::"
+msgstr ""
+
+#: ../../install.rst:127
+msgid ""
+"Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can "
+"use the admin interface via http://127.0.0.1:8000/admin (logging in with the"
+" superuser account you just created)."
+msgstr ""
+
+#: ../../install.rst:131
+msgid ""
+"For builds to properly kick off as expected, it is necessary the port you're"
+" serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined in "
+"``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this."
+" (By default, it's ``localhost:8000``)"
+msgstr ""
+
+#: ../../install.rst:136
+msgid ""
+"While the webserver is running, you can build documentation for the latest "
+"version of a project called 'pip' with the ``update_repos`` command.  You "
+"can replace 'pip' with the name of any added project::"
+msgstr ""
+
+#: ../../install.rst:143
+msgid "What's available"
+msgstr ""
+
+#: ../../install.rst:145
+msgid ""
+"After registering with the site (or creating yourself a superuser account), "
+"you will be able to log in and view the `dashboard "
+"<http://localhost:8000/dashboard/>`_."
+msgstr ""
+
+#: ../../install.rst:149
+msgid "Importing your docs"
+msgstr ""
+
+#: ../../install.rst:151
+msgid ""
+"One of the goals of readthedocs.org is to make it easy for any open source "
+"developer to get high quality hosted docs with great visibility! Simply "
+"provide us with the clone URL to your repo, we'll pull your code, extract "
+"your docs, and build them! We make available a post-commit webhook that can "
+"be configured to update the docs whenever you commit to your repo. See our "
+":doc:`getting_started` page to learn more."
+msgstr ""

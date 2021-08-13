@@ -1,0 +1,9 @@
+# ProBot TODO bot
+# https://probot.github.io/apps/todo/
+
+todo:
+  autoAssign: false
+  blobLines: 7
+  caseSensitive: true
+  keyword: "TODO"
+

@@ -9,6 +9,6 @@ You can find out more about this failure here:
 {{ build_url }}
 
 If you have questions, a good place to start is the FAQ:
-https://docs.readthedocs.org/en/latest/faq.html
+https://docs.readthedocs.io/page/faq.html
 
 {% endblock %}

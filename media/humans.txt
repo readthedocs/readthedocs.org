@@ -31,4 +31,4 @@ Awesome Contributors
 * Dag Odenhall
 * Jacob Burch
 
-For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
+For a list of all the contributions: https://github.com/readthedocs/readthedocs.org/contributors

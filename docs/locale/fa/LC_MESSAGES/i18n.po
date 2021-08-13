@@ -1,38 +1,35 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 11:17+0100\n"
-"PO-Revision-Date: 2014-03-01 09:58+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Persian (http://www.transifex.com/projects/p/readthedocs-docs/language/fa/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:15+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Persian (http://www.transifex.com/readthedocs/readthedocs-docs/language/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fa\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# c9e43f99eca0449a9e1d5e7263e9e8c5
-#: ../../i18n.rst:4
+#: ../../i18n.rst:2
 msgid "Internationalization"
 msgstr ""
 
-# 9149885c7ec74081911f32fb866dfd07
-#: ../../i18n.rst:6
+#: ../../i18n.rst:5
 msgid ""
 "This document covers the details regarding internationalization and "
 "localization that are applied in Read the Docs. The guidelines described are"
 " mostly based on `Kitsune's localization documentation "
-"<http://kitsune.readthedocs.org/en/latest/localization.html>`_."
+"<http://kitsune.readthedocs.io/en/latest/localization.html>`_."
 msgstr ""
 
-# 6a28612fba2f4f9e91fa8e65ce67e7e3
-#: ../../i18n.rst:11
+#: ../../i18n.rst:10
 msgid ""
 "As with most of the Django applications out there, Read the Docs' i18n/l10n "
 "framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_."
@@ -40,33 +37,28 @@ msgid ""
 "<https://www.transifex.com/projects/p/readthedocs/>`_."
 msgstr ""
 
-# 9bcd64ce020e459f83f94d3c2c691ab5
-#: ../../i18n.rst:16
+#: ../../i18n.rst:15
 msgid ""
 "For more information about the general ideas, look at this document: "
 "http://www.gnu.org/software/gettext/manual/html_node/Concepts.html"
 msgstr ""
 
-# d93dc17ab58b43888851721885e2c449
-#: ../../i18n.rst:21
+#: ../../i18n.rst:20
 msgid "Making Strings Localizable"
 msgstr ""
 
-# 14939001fe104c75a31910d3a99c28ea
-#: ../../i18n.rst:23
+#: ../../i18n.rst:22
 msgid ""
 "Making strings in templates localizable is exceptionally easy. Making "
 "strings in Python localizable is a little more complicated. The short "
 "answer, though, is to just wrap the string in ``_()``."
 msgstr ""
 
-# 4483bdeca8d046fdbbc7c64e9d651370
-#: ../../i18n.rst:29
+#: ../../i18n.rst:28
 msgid "Interpolation"
 msgstr ""
 
-# 49fd2e63ba7f493fb0b720ccf22862f4
-#: ../../i18n.rst:31
+#: ../../i18n.rst:30
 msgid ""
 "A string is often a combination of a fixed string and something changing, "
 "for example, ``Welcome, James`` is a combination of the fixed part "
@@ -74,32 +66,27 @@ msgid ""
 "localize the first part and then follow it with the name::"
 msgstr ""
 
-# ff851feea93e4df6a4d524fd8992aa00
-#: ../../i18n.rst:38
+#: ../../i18n.rst:37
 msgid "This is **wrong!**"
 msgstr ""
 
-# 7cd05e8d838649b2b4b1df84eb075f68
-#: ../../i18n.rst:40
+#: ../../i18n.rst:39
 msgid ""
 "In some locales, the word order may be different. Use Python string "
 "formatting to interpolate the changing part into the string::"
 msgstr ""
 
-# bb963519ef6449da8cd038f985d79194
-#: ../../i18n.rst:45
+#: ../../i18n.rst:44
 msgid ""
 "Python gives you a lot of ways to interpolate strings. The best way is to "
 "use Py3k formatting and kwargs. That's the clearest for localizers."
 msgstr ""
 
-# 2876da01b68e4be7a07d73dc4ad573a7
-#: ../../i18n.rst:50
+#: ../../i18n.rst:49
 msgid "Localization Comments"
 msgstr ""
 
-# 79cb67a249d14f219aee1194fa5d07fc
-#: ../../i18n.rst:52
+#: ../../i18n.rst:51
 msgid ""
 "Sometimes, it can help localizers to describe where a string comes from, "
 "particularly if it can be difficult to find in the interface, or is not very"
@@ -108,27 +95,22 @@ msgid ""
 " added to the PO file, and visible to localizers."
 msgstr ""
 
-# f03625ad63704b48b3dcfc4511298654
-# baa45a545c4241b7a1eb19878aebe138
-#: ../../i18n.rst:58 ../../i18n.rst:92
+#: ../../i18n.rst:57 ../../i18n.rst:91
 msgid "Example::"
 msgstr ""
 
-# 953557557956454fa4638699ee23c068
-#: ../../i18n.rst:75
+#: ../../i18n.rst:74
 msgid "Adding Context with msgctxt"
 msgstr ""
 
-# 541af8ebe3ce47ad918625b3d75ceb40
-#: ../../i18n.rst:77
+#: ../../i18n.rst:76
 msgid ""
 "Strings may be the same in English, but different in other languages. "
 "English, for example, has no grammatical gender, and sometimes the noun and "
 "verb forms of a word are identical."
 msgstr ""
 
-# 009d0f2659154fe5a7e7ab8dbc3c479c
-#: ../../i18n.rst:81
+#: ../../i18n.rst:80
 msgid ""
 "To make it possible to localize these correctly, we can add \"context\" "
 "(known in gettext as *msgctxt*) to differentiate two otherwise identical "
@@ -136,41 +118,35 @@ msgid ""
 "function for this."
 msgstr ""
 
-# c17765da35484f85965668b3729afb2a
-#: ../../i18n.rst:85
+#: ../../i18n.rst:84
 msgid ""
 "For example, the string *Search* may be a noun or a verb in English. In a "
 "heading, it may be considered a noun, but on a button, it may be a verb. "
 "It's appropriate to add a context (like *button*) to one of them."
 msgstr ""
 
-# bf4b958ffbcd4837bbcc75502d40b99e
-#: ../../i18n.rst:89
+#: ../../i18n.rst:88
 msgid ""
 "Generally, we should only add context if we are sure the strings aren't used"
 " in the same way, or if localizers ask us to."
 msgstr ""
 
-# 724e38728d39465d87b8caf647fd8666
-#: ../../i18n.rst:100
+#: ../../i18n.rst:99
 msgid "Plurals"
 msgstr ""
 
-# dd5e3399f3a04d3c8ce3b09f660b54b9
-#: ../../i18n.rst:102
+#: ../../i18n.rst:101
 msgid ""
 "*You have 1 new messages* grates on discerning ears. Fortunately, gettext "
 "gives us a way to fix that in English *and* other locales, the "
 ":func:`~django.utils.translation.ngettext()` function::"
 msgstr ""
 
-# 387e45b9e2094940a2ae67d8e5863f22
-#: ../../i18n.rst:108
+#: ../../i18n.rst:107
 msgid "A more realistic example might be::"
 msgstr ""
 
-# 30d88f6c367b4a8cbde58c6108da250c
-#: ../../i18n.rst:114
+#: ../../i18n.rst:113
 msgid ""
 "This method takes three arguments because English only needs three, i.e., "
 "zero is considered \"plural\" for English. Other languages may have "
@@ -180,46 +156,39 @@ msgid ""
 " gettext makes it possible."
 msgstr ""
 
-# c4fceab3f74c457abd79cdfa5c2e6db6
-#: ../../i18n.rst:122
+#: ../../i18n.rst:121
 msgid "Strings in Templates"
 msgstr ""
 
-# 316b4d6a58664999926ce27bd333fdcd
-#: ../../i18n.rst:124
+#: ../../i18n.rst:123
 msgid ""
 "When putting new text into a template, all you need to do is wrap it in a "
 "``{% trans %}`` template tag::"
 msgstr ""
 
-# fbf95cb4e8084ec18f0d18d6e24eae59
-#: ../../i18n.rst:129
+#: ../../i18n.rst:128
 msgid "Context can be added, too::"
 msgstr ""
 
-# 8e92c1a904af42c9ba8204d2a8fff50f
-#: ../../i18n.rst:133
+#: ../../i18n.rst:132
 msgid ""
 "Comments for translators need to precede the internationalized text and must"
 " start with the ``Translators:`` keyword.::"
 msgstr ""
 
-# b120b3a52ea842768ea9b9c5262e46e4
-#: ../../i18n.rst:139
+#: ../../i18n.rst:138
 msgid ""
 "To interpolate, you need to use the alternative and more verbose ``{% "
 "blocktrans %}`` template tag — it's actually a block::"
 msgstr ""
 
-# 4ef0772c82e04868b8502eba3fd901eb
-#: ../../i18n.rst:144
+#: ../../i18n.rst:143
 msgid ""
 "Note that the ``{{ name }}`` variable needs to exist in the template "
 "context."
 msgstr ""
 
-# fa1b042156d0442486c68097e0a496c3
-#: ../../i18n.rst:146
+#: ../../i18n.rst:145
 msgid ""
 "In some situations, it's desirable to evaluate template expressions such as "
 "filters or accessing object attributes. You can't do that within the ``{% "
@@ -227,82 +196,76 @@ msgid ""
 "variable first::"
 msgstr ""
 
-# b186878d5f4b49f28c8ae3e50971eede
-#: ../../i18n.rst:157
+#: ../../i18n.rst:156
 msgid ""
 "``{% blocktrans %}`` also provides pluralization. For that you need to bind "
 "a counter with the name ``count`` and provide a plural translation after the"
 " ``{% plural %}`` tag::"
 msgstr ""
 
-# 15bc6e4bdfc449cd942eb9a23c67c144
 #: ../../i18n.rst:169
+msgid ""
+"The previous multi-lines examples also use the ``trimmed`` option. This "
+"removes newline characters and replaces any whitespace at the beginning and "
+"end of a line, helping translators when translating these strings."
+msgstr ""
+
+#: ../../i18n.rst:175
 msgid "Strings in Python"
 msgstr ""
 
-# a969f7db25a1486c8243082a69f91cd6
-#: ../../i18n.rst:173
+#: ../../i18n.rst:179
 msgid ""
 "Whenever you are adding a string in Python, ask yourself if it really needs "
 "to be there, or if it should be in the template. Keep logic and presentation"
 " separate!"
 msgstr ""
 
-# 28aa9ed76fb54438afe50865711477b6
-#: ../../i18n.rst:177
+#: ../../i18n.rst:183
 msgid "Strings in Python are more complex for two reasons:"
 msgstr ""
 
-# 74d0e17c3aaa4332ae461685cfb2ddad
-#: ../../i18n.rst:179
+#: ../../i18n.rst:185
 msgid ""
 "We need to make sure we're always using Unicode strings and the Unicode-"
 "friendly versions of the functions."
 msgstr ""
 
-# 39ee8e360c6d4ce3b4545a44e31a64da
-#: ../../i18n.rst:182
+#: ../../i18n.rst:188
 msgid ""
 "If you use the :func:`~django.utils.translation.ugettext` function in the "
 "wrong place, the string may end up in the wrong locale!"
 msgstr ""
 
-# ac1a9e475fb848fa91a7a6422d9b4910
-#: ../../i18n.rst:185
+#: ../../i18n.rst:191
 msgid "Here's how you might localize a string in a view::"
 msgstr ""
 
-# 730c6c212aab4353bb7267210e7166fe
-#: ../../i18n.rst:195
+#: ../../i18n.rst:201
 msgid "Interpolation is done through normal Python string formatting::"
 msgstr ""
 
-# 0d86e29535114f388596b72a64a62733
-#: ../../i18n.rst:199
+#: ../../i18n.rst:205
 msgid ""
 "Context information can be supplied by using the "
 ":func:`~django.utils.translation.pgettext` function::"
 msgstr ""
 
-# dd3c2fb2936249afa662a8155b99c571
-#: ../../i18n.rst:204
+#: ../../i18n.rst:210
 msgid "Translator comments are normal one-line Python comments::"
 msgstr ""
 
-# 11340a1777864321bdcf23e495976df5
-#: ../../i18n.rst:209
+#: ../../i18n.rst:215
 msgid ""
 "If you need to use plurals, import the "
 ":func:`~django.utils.translation.ungettext` function::"
 msgstr ""
 
-# 28589a2eee9e4ab0ac6b256293cc9ee3
-#: ../../i18n.rst:219
+#: ../../i18n.rst:225
 msgid "Lazily Translated Strings"
 msgstr ""
 
-# 1feeb4b88c95474a9fd2c9132cce67f5
-#: ../../i18n.rst:221
+#: ../../i18n.rst:227
 msgid ""
 "You can use :func:`~django.utils.translation.ugettext` or "
 ":func:`~django.utils.translation.ungettext` only in views or functions "
@@ -311,8 +274,7 @@ msgid ""
 "request!"
 msgstr ""
 
-# 7bffebf5f269432c8dc76e2301c820ae
-#: ../../i18n.rst:226
+#: ../../i18n.rst:232
 msgid ""
 "Examples include strings in module-level code, arguments to functions in "
 "class definitions, strings in functions called from outside the context of a"
@@ -324,47 +286,40 @@ msgid ""
 " passed to ``unicode()``::"
 msgstr ""
 
-# 839f81f005af444fa8744c6ae294bd5e
-#: ../../i18n.rst:240
+#: ../../i18n.rst:246
 msgid ""
 "In case you want to provide context to a lazily-evaluated gettext string, "
 "you will need to use :func:`~django.utils.translation.pgettext_lazy`."
 msgstr ""
 
-# 2b9fb631d32d4d17b78c09e846870c37
-#: ../../i18n.rst:245
+#: ../../i18n.rst:251
 msgid "Administrative Tasks"
 msgstr ""
 
-# f6c71f03488d48a2b861f18d23f5dfe3
-#: ../../i18n.rst:248
+#: ../../i18n.rst:255
 msgid "Updating Localization Files"
 msgstr ""
 
-# b9a1daec64164446ad7a38b86991016c
-#: ../../i18n.rst:250
+#: ../../i18n.rst:257
 msgid ""
 "To update the translation source files (eg if you changed or added "
 "translatable strings in the templates or Python code) you should run "
-"``python manage.py makemessages -l <language>`` in the ``readthedocs/`` "
+"``python manage.py makemessages -l <language>`` in the project's root "
 "directory (substitute ``<language>`` with a valid language code)."
 msgstr ""
 
-# a19ae2dea0b54c2183651f5586d2feb6
-#: ../../i18n.rst:255
+#: ../../i18n.rst:262
 msgid ""
 "The updated files can now be localized in a `PO editor "
 "<https://en.wikipedia.org/wiki/Category:Software-localization_tools>`_ or "
 "crowd-sourced online translation tool."
 msgstr ""
 
-# 2491f3818f9c48788384d7b13580df44
-#: ../../i18n.rst:263
+#: ../../i18n.rst:267
 msgid "Compiling to MO"
 msgstr ""
 
-# 9462cc9d03004ea4a56fba665a121d65
-#: ../../i18n.rst:265
+#: ../../i18n.rst:269
 msgid ""
 "Gettext doesn't parse any text files, it reads a binary format for faster "
 "performance. To compile the latest PO files in the repository, Django "
@@ -372,15 +327,13 @@ msgid ""
 " all the available localizations, just run::"
 msgstr ""
 
-# e05f45db25ea470988d01c03e4f8c45a
-#: ../../i18n.rst:272
+#: ../../i18n.rst:276
 msgid ""
 "You will need to do this every time you want to push updated translations to"
 " the live site."
 msgstr ""
 
-# b9fcd9ed05384621b45f38f10ca716ab
-#: ../../i18n.rst:275
+#: ../../i18n.rst:279
 msgid ""
 "Also, note that it's not a good idea to track MO files in version control, "
 "since they would need to be updated at the same pace PO files are updated, "
@@ -388,29 +341,39 @@ msgid ""
 "please make sure you don't forcibly add them to the repository."
 msgstr ""
 
-# 1ae64e01b8bf4954a7ee917bc24e9ac8
-#: ../../i18n.rst:282
+#: ../../i18n.rst:286
 msgid "Transifex Integration"
 msgstr ""
 
-# eb7d364130d242dabc8220901c85b789
-#: ../../i18n.rst:284
+#: ../../i18n.rst:288
 msgid ""
 "To push updated translation source files to Transifex, run ``tx push -s`` "
 "(for English) or ``tx push -t <language>`` (for non-English)."
 msgstr ""
 
-# a6a5608e88c94f1a828807348aeb71dd
-#: ../../i18n.rst:287
+#: ../../i18n.rst:291
 msgid ""
 "To pull changes from Transifex, run ``tx pull -a``. Note that Transifex does"
 " not compile the translation files, so you have to do this after the pull "
-"(see the :ref:`i18n-compiling` section)."
+"(see the `Compiling to MO`_ section)."
 msgstr ""
 
-# 043ff2cbd78047ee993c599025e10de8
-#: ../../i18n.rst:291
+#: ../../i18n.rst:295
 msgid ""
 "For more information about the ``tx`` command, read the `Transifex client's "
 "help pages <http://help.transifex.com/features/client/>`_."
+msgstr ""
+
+#: ../../i18n.rst:301
+msgid ""
+"For the Read the Docs community site, we use a `fabric script`_ to follow "
+"this process:"
+msgstr ""
+
+#: ../../i18n.rst:305
+msgid "Update files and push sources (English) to Transifex:"
+msgstr ""
+
+#: ../../i18n.rst:311
+msgid "Pull changes (new translations) from Transifex:"
 msgstr ""

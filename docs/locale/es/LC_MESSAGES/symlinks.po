@@ -1,69 +1,61 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Spanish (http://www.transifex.com/readthedocs/readthedocs-docs/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# a1528080076049dba1f52a7e4b2b2840
 #: ../../symlinks.rst:2
 msgid "How we use symlinks"
 msgstr ""
 
-# 08d88b6f960a46a78a78e0423566fa3a
 #: ../../symlinks.rst:4
 msgid ""
 "Read the Docs stays highly available by serving all documentation pages out "
 "of nginx. This means that they never hit our Python layer, meaning that they"
-" never hit out database. This reduces the total number of servers to serve a"
+" never hit our database. This reduces the total number of servers to serve a"
 " request to 1, each of which is redundant."
 msgstr ""
 
-# 13e4a1066ae2457996141b45133e26fd
 #: ../../symlinks.rst:11
 msgid "Nginx"
 msgstr ""
 
-# 4aeef4ba9f564ddeaf8ac89a9ebf9bd0
 #: ../../symlinks.rst:13
 msgid "We handle a couple of different types of requests in nginx:"
 msgstr ""
 
-# a4e82c298ec549fb9f9dddeadd13e55d
 #: ../../symlinks.rst:15
-msgid "Requests to a readthedocs.org subdomain"
+msgid "Requests to a ``readthedocs.io`` subdomain"
 msgstr ""
 
-# 1def8e0d0b3244838c94aa8edfb30952
 #: ../../symlinks.rst:16
-msgid "Requests to a CNAME"
+msgid "Requests to a custom domain"
 msgstr ""
 
-# a16ddc04b97e4a5e92eb635ba65fc4a7
 #: ../../symlinks.rst:19
 msgid "Subdomains"
 msgstr ""
 
-# e76c5474528040c0abfa04c4f4c7d785
 #: ../../symlinks.rst:21
 msgid ""
-"For subdomains this is a simple lookup. This doesn't require symlinks, but "
-"it shows the basic logic that we need to replicate."
+"For subdomains, this is a simple lookup of the project slug, using the "
+"subdomain portion of the request's hostname. This doesn't require symlinks, "
+"but it shows the basic logic that we need to replicate."
 msgstr ""
 
-# b0bfc497dae54fbba30b20cebdab44d0
 #: ../../symlinks.rst:25
 msgid ""
 "When a user navigates to ``http://pip.readthedocs.org/en/latest/``, we know "
@@ -71,7 +63,6 @@ msgid ""
 "documentation:"
 msgstr ""
 
-# 67c1f4b67cde4035bc509a8188a31f8b
 #: ../../symlinks.rst:45
 msgid ""
 "The ``@fallback`` directive is hit when we don't find the proper file. This "
@@ -79,21 +70,18 @@ msgid ""
 "taken."
 msgstr ""
 
-# ba8b50e758694f37b6e426395032c0fc
 #: ../../symlinks.rst:50
-msgid "CNAMEs"
+msgid "Custom domains"
 msgstr ""
 
-# 98d8a7c5a52d47028760f2526a647a53
 #: ../../symlinks.rst:52
 msgid ""
-"CNAMEs add a bit of difficulty, because at the nginx layer we don't know "
-"what documentation to serve. When someone requests "
+"Custom domains add a bit of difficulty, because at the nginx layer we don't "
+"know what documentation to serve. When someone requests "
 "``http://docs.fabfile.org/en/latest/``, we can't look at the URL to know to "
 "serve the ``fabric`` docs."
 msgstr ""
 
-# fbdabdf409c34a08a68533303df7caaf
 #: ../../symlinks.rst:57
 msgid ""
 "This is where symlinks come in. When someone requests "
@@ -103,7 +91,6 @@ msgid ""
 "domains that have pointed at ``fabric`` before."
 msgstr ""
 
-# e8878f62ce9f4c12890a153c068eb825
 #: ../../symlinks.rst:64
 msgid ""
 "So, when we get a request for ``docs.fabfile.org`` in the future, we will be"
@@ -111,10 +98,9 @@ msgid ""
 "``docs.fabfile.org``:"
 msgstr ""
 
-# 7b9c200e9342469497a8cc86a4b28e71
 #: ../../symlinks.rst:78
 msgid ""
-"Notice that nowhere in the above path is the projects slug mentioned. It is "
-"simply there in the symlink in the cnames directory, and the docs are served"
-" from there."
+"Notice that nowhere in the above path is the project's slug mentioned. It is"
+" simply there in the symlink in the cnames directory, and the docs are "
+"served from there."
 msgstr ""

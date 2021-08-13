@@ -13,24 +13,26 @@
   <script type="text/javascript" src="{% static "vendor/knockout.js" %}"></script>
   <script type="text/javascript" src="{% static "projects/js/import.js" %}"></script>
   <script type="text/javascript">
-var import_views = require('projects/import');
-$(document).ready(function() {
-    var instance = {},
-        config = {
-            'csrf_token': '{{ view_csrf_token }}',
-            'urls': {
-                'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
-                'remoteorganization-list': '{% url 'remoteorganization-list' %}',
-                'remoterepository-list': '{% url 'remoterepository-list' %}',
-                'projects_import': '{% url 'projects_import' %}'
-            }
-        },
-        view = import_views.ProjectImportView.init(
-            $('body').get(0),
-            instance,
-            config
-        );
-});
+   var import_views = require('projects/import');
+   $(document).ready(function() {
+     var instance = {},
+         config = {
+           {% block project-import-view-extra-config %}{% endblock %}
+           'csrf_token': '{{ view_csrf_token }}',
+           'urls': {
+             'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
+             'remoteorganization-list': '{% url 'remoteorganization-list' %}',
+             'remoterepository-list': '{% url 'remoterepository-list' %}',
+             'remoteaccount-list': '{% url 'remoteaccount-list' %}',
+             'projects_import': '{% url 'projects_import' %}'
+           }
+         },
+         view = import_views.ProjectImportView.init(
+           $('body').get(0),
+           instance,
+           config
+         );
+   });
   </script>
 {% endblock %}
 
@@ -70,6 +72,18 @@ $(document).ready(function() {
 
       <h1>{% trans "Import a Repository" %}</h1>
 
+      {% if has_connected_accounts %}
+        {% block private-repo-tip %}
+          <div class="import-repo">
+            <p>
+            {% blocktrans trimmed %}
+                We're only showing public repositories. For private projects and other features,
+                please use <a href="https://readthedocs.com/">Read the Docs for Business</a>.
+            {% endblocktrans %}
+            </p>
+          </div>
+        {% endblock %}
+      {% endif %}
       <div class="module repository-list">
         <div class="module-wrapper">
           <div class="module-list">
@@ -79,12 +93,12 @@ $(document).ready(function() {
                   class="remote-repos-empty">
                 <li class="module-item">
                   {% if has_connected_accounts %}
-                    {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
-                      <p>
+                    <p>
+                      {% blocktrans trimmed with binding='data-bind="click: sync_projects"' %}
                         No remote repositories found,
                         try <a href="#" {{ binding }}>refreshing your accounts</a>.
-                      </p>
-                    {% endblocktrans %}
+                      {% endblocktrans %}
+                    </p>
                   {% else %}
                     <p>
                       {% blocktrans trimmed %}
@@ -93,30 +107,12 @@ $(document).ready(function() {
                       {% endblocktrans %}
                     </p>
 
+
                     <div class="project-import-providers">
-                      <form
-                          method="get"
-                          action="{% provider_login_url "github" %}"
-                          class="import-connect import-connect-github">
-                        <button>
-                          {% trans "Connect to GitHub" %}
-                        </button>
-                        <input type="hidden" name="process" value="connect">
-                        <input type="hidden" name="next" value="/dashboard/import/">
-                      </form>
-
-                      <form
-                          method="get"
-                          action="{% provider_login_url "bitbucket_oauth2" %}"
-                          class="import-connect import-connect-bitbucket">
-                        <button>
-                          {% trans "Connect to Bitbucket" %}
-                        </button>
-                        <input type="hidden" name="process" value="connect">
-                        <input type="hidden" name="next" value="/dashboard/import/">
-                      </form>
+                      <ul class="socialaccount_providers">
+                        {% include "socialaccount/snippets/provider_list.html" with process="connect" next="/dashboard/import/" %}
+                      </ul>
                     </div>
-
                   {% endif %}
                 </li>
               </ul>
@@ -163,7 +159,7 @@ $(document).ready(function() {
                           data-bind="attr: {href: url}"
                           class="remote-repo-view"
                           title="{% trans "This repository has already been imported" %}">
-                        <span>{% trans "View" %}</span>
+                        <span>{% blocktrans context "verb, action to see in detail" %}"View"{% endblocktrans %}</span>
                       </a>
                     </li>
                     <li data-bind="visible: !match() && !is_locked()" style="display: none;">
@@ -227,16 +223,16 @@ $(document).ready(function() {
         </div>
       {% endblock %}
 
-      {% block organizations %}
-        <div data-bind="visible: organizations().length > 0">
-          <h3>{% trans "Filter by Organization" %}</h3>
+      {% block filter-repositories %}
+        <div data-bind="visible: filters().length > 0">
+          <h3>{% trans "Filter repositories" %}</h3>
 
-          <ul data-bind="foreach: organizations" class="remote-orgs">
+          <ul data-bind="foreach: filters" class="remote-filters">
             <li
-                class="remote-org"
-                data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_org(id()); }">
-              <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
-              <span data-bind="text: display_name" class="remote-org-name"></span>
+                class="remote-filter"
+                data-bind="css: {'remote-filter-hidden': filtered()}, click: function () { $root.set_filter_by(filter_id(), filter_type); }">
+              <img data-bind="attr: {src: avatar_url}" class="remote-filter-avatar" />
+              <span data-bind="text: display_name" class="remote-filter-name"></span>
             </li>
           </ul>
         </div>

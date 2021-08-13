@@ -1,22 +1,19 @@
-"""Common mixin classes for views"""
+"""Common mixin classes for views."""
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from vanilla import ListView
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 
 class ListViewWithForm(ListView):
 
-    """List view that also exposes a create form"""
+    """List view that also exposes a create form."""
 
     def get_context_data(self, **kwargs):
-        context = super(ListViewWithForm, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['form'] = self.get_form(data=None, files=None)
         return context
 
 
-class LoginRequiredMixin(object):
+class PrivateViewMixin(LoginRequiredMixin):
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+    pass

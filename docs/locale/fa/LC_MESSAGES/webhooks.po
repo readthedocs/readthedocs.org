@@ -1,130 +1,268 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
-#
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 11:17+0100\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Persian (http://www.transifex.com/projects/p/readthedocs-docs/language/fa/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Persian (http://www.transifex.com/readthedocs/readthedocs-docs/language/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fa\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# f5f04368be164dafada908c78ccf40ce
 #: ../../webhooks.rst:2
 msgid "Webhooks"
 msgstr ""
 
-# 186037a7a9d94435a4dd412bb91fd109
 #: ../../webhooks.rst:4
 msgid ""
-"Web hooks are pretty amazing, and help to turn the web into a push instead "
-"of pull platform. We have support for hitting a URL whenever you commit to "
-"your project and we will try and rebuild your docs. This only rebuilds them "
-"if something has changed, so it is cheap on the server side. As anyone who "
-"has worked with push knows, pushing a doc update to your repo and watching "
-"it get updated within seconds is an awesome feeling."
+"The primary method that Read the Docs uses to detect changes to your "
+"documentation is through the use of *webhooks*. Webhooks are configured with"
+" your repository provider, such as GitHub, Bitbucket or GitLab, and with "
+"each commit, merge, or other change to your repository, Read the Docs is "
+"notified. When we receive a webhook notification, we determine if the change"
+" is related to an active version for your project, and if it is, a build is "
+"triggered for that version."
 msgstr ""
 
-# 76588fbd093344f8ac67707e26a3afc5
-#: ../../webhooks.rst:12
+#: ../../webhooks.rst:13
+msgid "Webhook Integrations"
+msgstr ""
+
+#: ../../webhooks.rst:15
+msgid ""
+"You'll find a list of configured webhook integrations on your project's "
+"admin dashboard, under **Integrations**. You can select any of these "
+"integrations to see the *integration detail page*. This page has additional "
+"configuration details and a list of HTTP exchanges that have taken place for"
+" the integration."
+msgstr ""
+
+#: ../../webhooks.rst:20
+msgid ""
+"You need this information for the URL, webhook, or Payload URL needed by the"
+" repository provider such as GitHub, GitLab, or Bitbucket."
+msgstr ""
+
+#: ../../webhooks.rst:24
+msgid "Webhook Creation"
+msgstr ""
+
+#: ../../webhooks.rst:26
+msgid ""
+"If you import a project using a :ref:`connected account "
+"<getting_started:Sign Up and Connect an External Account>`, a webhook will "
+"be set up automatically for your repository. However, if your project was "
+"not imported through a connected account, you may need to manually configure"
+" a webhook for your project."
+msgstr ""
+
+#: ../../webhooks.rst:31
+msgid ""
+"To manually set up a webhook, click **Add integration** on your project's "
+"**Integrations** Admin dashboard page and select the integration type you'd "
+"like to add. After you have added the integration, you'll see a link to "
+"information about the integration."
+msgstr ""
+
+#: ../../webhooks.rst:35
+msgid ""
+"As an example, the URL pattern looks like this: "
+"*readthedocs.org/api/v2/webhook/<project-name>/<id>/*."
+msgstr ""
+
+#: ../../webhooks.rst:37
+msgid ""
+"Use this URL when setting up a new webhook with your provider -- these steps"
+" vary depending on the provider:"
+msgstr ""
+
+#: ../../webhooks.rst:40
 msgid "GitHub"
 msgstr ""
 
-# 704443454ea64b34982c4750f503d0ee
-#: ../../webhooks.rst:14
+#: ../../webhooks.rst:42 ../../webhooks.rst:59 ../../webhooks.rst:69
+msgid "Go to the **Settings** page for your project"
+msgstr ""
+
+#: ../../webhooks.rst:43 ../../webhooks.rst:60
+msgid "Click **Webhooks** and then **Add webhook**"
+msgstr ""
+
+#: ../../webhooks.rst:44
 msgid ""
-"If your project is hosted on GitHub, you can easily add a hook that will "
-"rebuild your docs whenever you push updates:"
+"For **Payload URL**, use the URL of the integration on Read the Docs, found "
+"on the the project's **Integrations** Admin dashboard page"
 msgstr ""
 
-# 5e5c4a2628e4497d9754423176bc95a1
-#: ../../webhooks.rst:17
-msgid "Go to the \"Settings\" page for your project"
+#: ../../webhooks.rst:46
+msgid ""
+"For **Content type**, both *application/json* and *application/x-www-form-"
+"urlencoded* work"
 msgstr ""
 
-# 2f2dd0aa868d4927b38749c2d461f9b7
-#: ../../webhooks.rst:18
-msgid "Click \"Webhooks & Services\""
+#: ../../webhooks.rst:48
+msgid "Select **Just the push event**"
 msgstr ""
 
-# f47f82a1eddb408bb8456120a452ed0f
-#: ../../webhooks.rst:19
-msgid "Click \"Configure services\" on the third-party services dialog"
+#: ../../webhooks.rst:49
+msgid "Finish by clicking **Add webhook**"
 msgstr ""
 
-# c7924826c17c411fac6cc4651ac0857e
-#: ../../webhooks.rst:20
-msgid "In the available service hooks, click \"ReadTheDocs\""
+#: ../../webhooks.rst:51
+msgid ""
+"You can verify if the webhook is working at the bottom of the GitHub page "
+"under **Recent Deliveries**. If you see a Response 200, then the webhook is "
+"correctly configured. For a 403 error, it's likely that the Payload URL is "
+"incorrect."
 msgstr ""
 
-# 79f9f3c7cfbf4a9aae40528e7ac8028b
-#: ../../webhooks.rst:21
-msgid "Check \"Active\""
+#: ../../webhooks.rst:54
+msgid ""
+"The webhook token, intended for the GitHub **Secret** field, is not yet "
+"implemented."
 msgstr ""
 
-# 2f2dd0aa868d4927b38749c2d461f9b7
-#: ../../webhooks.rst:22
-msgid "Click \"Update Settings\""
-msgstr ""
-
-# de581dedbc5c41509baf6e9c77dd9cc6
-#: ../../webhooks.rst:25
+#: ../../webhooks.rst:57
 msgid "Bitbucket"
 msgstr ""
 
-# 033464ce78c14a95988a65bce473c70c
-#: ../../webhooks.rst:27
+#: ../../webhooks.rst:61 ../../webhooks.rst:71
 msgid ""
-"If your project is hosted on Bitbucket, you can easily add a hook that will "
-"rebuild your docs whenever you push updates:"
+"For **URL**, use the URL of the integration on Read the Docs, found on the "
+"**Dashboard** > **Admin** > **Integrations** page"
 msgstr ""
 
-# 5e5c4a2628e4497d9754423176bc95a1
-#: ../../webhooks.rst:30
-msgid "Go to the \"admin\" page for your project"
+#: ../../webhooks.rst:63
+msgid "Under **Triggers**, **Repository push** should be selected"
 msgstr ""
 
-# 1fb57188cc564830a3571dc513502004
-#: ../../webhooks.rst:31
-msgid "Click \"Hooks\""
+#: ../../webhooks.rst:64
+msgid "Finish by clicking **Save**"
 msgstr ""
 
-# 4b6043a134ab4230b49b73af168951f9
-#: ../../webhooks.rst:32
-msgid "In the available service hooks, select \"Read the Docs\""
+#: ../../webhooks.rst:67
+msgid "GitLab"
 msgstr ""
 
-# 7ce75905cd5548fa9c0229934eeb6c68
-#: ../../webhooks.rst:33
-msgid "Click \"Add hook\""
+#: ../../webhooks.rst:70
+msgid "Click **Integrations**"
 msgstr ""
 
-# 36cd2086f91f4184975ccc1d897e01f9
-#: ../../webhooks.rst:36
-msgid "Others"
-msgstr ""
-
-# 1ba3942e97ef4225bc12ba77ee260d93
-#: ../../webhooks.rst:38
+#: ../../webhooks.rst:73
 msgid ""
-"Your ReadTheDocs project detail page has your post-commit hook on it; it "
-"will look something along the lines of "
-"``http://readthedocs.org/build/<pk>``. Regardless of which revision control "
-"system you use, you can just hit this URL to kick off a rebuild."
+"Leave the default **Push events** selected and mark **Tag push events** also"
 msgstr ""
 
-# c1816db9e2164bbfb9134260d484a9f4
-#: ../../webhooks.rst:43
+#: ../../webhooks.rst:74
+msgid "Finish by clicking **Add Webhook**"
+msgstr ""
+
+#: ../../webhooks.rst:77
+msgid "Using the generic API integration"
+msgstr ""
+
+#: ../../webhooks.rst:79
 msgid ""
-"You could make this part of a hook using Git_, Subversion_, Mercurial_, or "
-"Bazaar_, perhaps through a simple script that accesses the build URL using "
-"``wget`` or ``curl``."
+"For repositories that are not hosted with a supported provider, we also "
+"offer a generic API endpoint for triggering project builds. Similar to "
+"webhook integrations, this integration has a specific URL, found on the "
+"project's **Integrations** Admin dashboard page on readthedocs.org."
+msgstr ""
+
+#: ../../webhooks.rst:84
+msgid ""
+"Token authentication is required to use the generic endpoint, you will find "
+"this token on the integration details page. The token should be passed in as"
+" a request parameter, either as form data or as part of JSON data input."
+msgstr ""
+
+#: ../../webhooks.rst:89
+msgid "Parameters"
+msgstr ""
+
+#: ../../webhooks.rst:91
+msgid "This endpoint accepts the following arguments during an HTTP POST:"
+msgstr ""
+
+#: ../../webhooks.rst:97
+msgid "branches"
+msgstr ""
+
+#: ../../webhooks.rst:94
+msgid ""
+"The names of the branches to trigger builds for. This can either be an array"
+" of branch name strings, or just a single branch name string."
+msgstr ""
+
+#: ../../webhooks.rst:97
+msgid "Default: **latest**"
+msgstr ""
+
+#: ../../webhooks.rst:101
+msgid "token"
+msgstr ""
+
+#: ../../webhooks.rst:100
+msgid ""
+"The integration token. You'll find this value on the project's "
+"**Integrations** Admin dashboard page."
+msgstr ""
+
+#: ../../webhooks.rst:103
+msgid ""
+"For example, the cURL command to build the ``dev`` branch, using the token "
+"``1234``, would be::"
+msgstr ""
+
+#: ../../webhooks.rst:108
+msgid ""
+"A command like the one above could be called from a cron job or from a hook "
+"inside Git_, Subversion_, Mercurial_, or Bazaar_."
+msgstr ""
+
+#: ../../webhooks.rst:117
+msgid "Authentication"
+msgstr ""
+
+#: ../../webhooks.rst:119
+msgid ""
+"This endpoint requires authentication. If authenticating with an integration"
+" token, a check will determine if the token is valid and matches the given "
+"project. If instead an authenticated user is used to make this request, a "
+"check will be performed to ensure the authenticated user is an owner of the "
+"project."
+msgstr ""
+
+#: ../../webhooks.rst:125
+msgid "Debugging webhooks"
+msgstr ""
+
+#: ../../webhooks.rst:127
+msgid ""
+"If you are experiencing problems with an existing webhook, you may be able "
+"to use the integration detail page to help debug the issue. Each project "
+"integration, such as a webhook or the generic API endpoint, stores the HTTP "
+"exchange that takes place between Read the Docs and the external source. "
+"You'll find a list of these exchanges in any of the integration detail "
+"pages."
+msgstr ""
+
+#: ../../webhooks.rst:134
+msgid "Resyncing webhooks"
+msgstr ""
+
+#: ../../webhooks.rst:136
+msgid ""
+"It might be necessary to re-establish a webhook if you are noticing "
+"problems. To resync a webhook from Read the Docs, visit the integration "
+"detail page and follow the directions for re-syncing your repository "
+"webhook."
 msgstr ""

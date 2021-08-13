@@ -1,7 +1,7 @@
-Welcome to Read The Docs
+Welcome to Read the Docs
 ========================
 
-|build-status| |docs|
+|build-status| |docs| |coverage|
 
 Purpose
 -------
@@ -12,9 +12,9 @@ Bazaar_, Git_, and Mercurial_ repositories.
 Then we build documentation and host it for you.
 Think of it as *Continuous Documentation*.
 
-.. _Read the docs: http://readthedocs.org/
-.. _Sphinx: http://sphinx.pocoo.org/
-.. _reStructuredText: http://sphinx.pocoo.org/rest.html
+.. _Read the docs: https://readthedocs.org/
+.. _Sphinx: http://www.sphinx-doc.org/
+.. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
@@ -28,10 +28,15 @@ the Docs site`_.
 
 .. _the Read the Docs site: https://docs.readthedocs.io/
 
+Get in touch
+------------
+
+You can find information about getting in touch with Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
+
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html#contributing-to-development>`_
+You can find information about contributing to Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
@@ -42,30 +47,36 @@ when you push to GitHub.
 #. Create an account on `Read the Docs`_.  You will get an email verifying your
    email address which you should accept within 7 days.
 
-#. Log in and click on "Import".
+#. Log in and click on "Import a Project".
 
-#. Give your project a name, add the HTTPS link for your GitHub project, and
-   select Git as your repository type.
+#. Click "Connect to GitHub" in order to connect your account's repositories to GitHub.
 
-#. Fill in the rest of the form as needed and click "Create".
+#. When prompted on GitHub, give access to your account.
 
-#. On GitHub, navigate to your repository and click on "Settings".
+#. Click "Import a Repository" and select any desired repository.
 
-#. In the sidebar, click on "Web Hooks & Services", then find and click on the
-   "ReadTheDocs" service.
-
-#. Check the "Active" setting and click "Update Settings".
+#. Change any information if desired and click "Next".
 
 #. All done.  Commit away and your project will auto-update.
 
 
-.. |build-status| image:: https://img.shields.io/travis/rtfd/readthedocs.org.svg?style=flat
+.. |build-status| image:: https://circleci.com/gh/readthedocs/readthedocs.org.svg?style=svg
     :alt: build status
-    :scale: 100%
-    :target: https://travis-ci.org/rtfd/readthedocs.org
+    :target: https://circleci.com/gh/readthedocs/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
+.. |coverage| image:: https://codecov.io/gh/readthedocs/readthedocs.org/branch/master/graph/badge.svg
+    :alt: Test coverage
+    :scale: 100%
+    :target: https://codecov.io/gh/readthedocs/readthedocs.org
+
+License
+-------
+
+`MIT`_ © 2010-2021 Read the Docs, Inc. & contributors
+
+.. _MIT: LICENSE

@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase, override_settings
 
-from readthedocs.core.utils.extend import (SettingsOverrideObject,
-                                           get_override_class)
+from readthedocs.core.utils.extend import (
+    SettingsOverrideObject,
+    get_override_class,
+)
 
 
 # Top level to ensure module name is correct
-class FooBase(object):
+class FooBase:
     def bar(self):
         return 1
 
@@ -32,7 +35,7 @@ class ExtendTests(TestCase):
 
     @override_settings(FOO_OVERRIDE_CLASS=None)
     def test_no_override(self):
-        """Test class without override"""
+        """Test class without override."""
         class Foo(SettingsOverrideObject):
             _default_class = FooBase
             _override_setting = 'FOO_OVERRIDE_CLASS'
@@ -47,7 +50,7 @@ class ExtendTests(TestCase):
 
     @override_settings(FOO_OVERRIDE_CLASS=EXTEND_OVERRIDE_PATH)
     def test_with_basic_override(self):
-        """Test class override setting defined"""
+        """Test class override setting defined."""
         class Foo(SettingsOverrideObject):
             _default_class = FooBase
             _override_setting = 'FOO_OVERRIDE_CLASS'
@@ -60,10 +63,12 @@ class ExtendTests(TestCase):
         override_class = get_override_class(Foo, Foo._default_class)
         self.assertEqual(override_class, NewFoo)
 
-    @override_settings(FOO_OVERRIDE_CLASS=None,
-                       CLASS_OVERRIDES={
-                           EXTEND_PATH: EXTEND_OVERRIDE_PATH,
-                       })
+    @override_settings(
+        FOO_OVERRIDE_CLASS=None,
+        CLASS_OVERRIDES={
+            EXTEND_PATH: EXTEND_OVERRIDE_PATH,
+        },
+    )
     def test_with_advanced_override(self):
         """Test class with override using `CLASS_OVERRIDES`"""
         class Foo(SettingsOverrideObject):
@@ -78,10 +83,12 @@ class ExtendTests(TestCase):
         override_class = get_override_class(Foo, Foo._default_class)
         self.assertEqual(override_class, NewFoo)
 
-    @override_settings(FOO_OVERRIDE_CLASS=None,
-                       CLASS_OVERRIDES={
-                           EXTEND_PATH: EXTEND_OVERRIDE_PATH,
-                       })
+    @override_settings(
+        FOO_OVERRIDE_CLASS=None,
+        CLASS_OVERRIDES={
+            EXTEND_PATH: EXTEND_OVERRIDE_PATH,
+        },
+    )
     def test_with_advanced_override_only(self):
         """Test class with no `override_setting`"""
         class Foo(SettingsOverrideObject):

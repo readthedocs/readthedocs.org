@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load copyrighttags %}
+{% load core_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -8,41 +8,76 @@
 
   <!-- meta -->
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
+  {% block extra_metas %}{% endblock extra_metas %}
+
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 
   <!-- title -->
-  <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}{% trans "Read the Docs" %} {% endblock %}</title>
+  <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
+
+  {% if GLOBAL_ANALYTICS_CODE %}
+  <!-- Google Analytics -->
+  <script>
+    if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
+      console.log('Respecting DNT with respect to analytics...');
+    } else {
+      // For more details on analytics at Read the Docs, please see:
+      // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+      (function () {
+        // New Google Site Tag (gtag.js) tagging/analytics framework
+        // https://developers.google.com/gtagjs
+        var script = document.createElement("script");
+        script.src = "https://www.googletagmanager.com/gtag/js?id={{ GLOBAL_ANALYTICS_CODE }}";
+        script.type = "text/javascript";
+        script.async = true;
+        document.getElementsByTagName("head")[0].appendChild(script);
+      }())
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Setup the RTD global analytics code and send a pageview
+      gtag('config', '{{ GLOBAL_ANALYTICS_CODE }}', {
+        'anonymize_ip': true,
+        'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+        'groups': 'rtfd'
+      });
+
+      {% if DASHBOARD_ANALYTICS_CODE %}
+        // Dashboard Analytics Code
+        gtag('config', '{{ DASHBOARD_ANALYTICS_CODE }}', {
+          'anonymize_ip': true,
+          'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+          'groups': 'dashboard'
+        });
+        // End Dashboard Analytics Code
+      {% endif %}
+    }
+  </script>
+  <!-- End Google Analytics -->
+  {% endif %}
 
   <!-- css -->
-  <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
+  <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
 
   <!-- jquery -->
-  <script type="text/javascript" src="{% static 'vendor/jquery.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-migrate.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-ui.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{% static 'vendor/jquery.js' %}"></script>
+  <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
+  <script src="{% static 'vendor/jquery-ui.js' %}"></script>
+  <script >
     require('jquery');
   </script>
 
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/base.js"></script>
-  <script type="text/javascript" src="{% static 'core/js/site.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{% static 'javascript/base.js' %}"></script>
+  <script src="{% static 'core/js/site.js' %}"></script>
+  <script>
     var site = require('core/site');
     site.handle_notification_dismiss();
   </script>
 
   {% block extra_scripts %}{% endblock %}
-
-  <!-- typekit -->
-  <!-- Old typekit
-  <script type="text/javascript" src="//use.typekit.com/xgl8ypn.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  -->
-
-  <script type="text/javascript" src="//use.typekit.net/haq4xtp.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
 </head>
 
@@ -61,15 +96,24 @@
     <div id="content">
       <div class="wrapper">
 
-        {% if messages %}
-          <ul class="notifications">
-            {% for message in messages %}
-              <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
-                {{ message }}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+        <!-- BEGIN notify -->
+        {% block notify %}
+          {% if messages %}
+            <ul class="notifications">
+              {% for message in messages %}
+                <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
+                  {% if message.pk %}
+                  <a class="notification-action" href="{% url 'message_mark_read' message.pk %}">
+                    <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
+                  </a>
+                  {% endif %}
+                  {{ message }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endblock %}
+        <!-- END notify -->
 
         {% block content-header %}
         {% endblock %}
@@ -89,57 +133,176 @@
 
 
         {% block footer-content %}
-        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
 
-        {% url "gold_detail" as gold_detail %}
-        {% blocktrans %}
-        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
-        {% endblocktrans %}
-        </p>
-        {% endblock %}
+        <div class="column-logo">
+          <div id="email-signup">
+            <form action="https://readthedocs.us3.list-manage.com/subscribe/post?u=a6a22369cc2b356379cf789ca&amp;id=a85a83a5a5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+              <div>
+                <h4>{% trans 'Stay Updated' %}</h4>
 
-        {% get_current_language as current_lang %}
-        <form action="/i18n/setlang/" method="post">{% csrf_token %}
-          <input name="next" type="hidden" value="/" />
-            {% csrf_token %}
-            <select style="float: left; height: 33px;" name="language">
-              {% for lang in LANGUAGES %}
-                {% if lang.0 == current_lang %}
-                <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% else %}
-                <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% endif %}
-                }
-              {% endfor %}
-            </select>
-            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit" id="change-language-input">
-        </form>
+                <ul>
+                  <li>
+                    <a href="https://blog.readthedocs.com/">{% trans 'Blog' %}</a>
+                  </li>
+                </ul>
 
-        <br>
-        <br>
+                <p>{% trans 'Sign up for our newsletter to get our latest blog updates delivered to your inbox weekly.' %}</p>
+                <div>
+                  <label for="mce-EMAIL">{% trans 'Email' %}</label>
+                  <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="you@example.com">
+                </div>
+                <div id="mce-responses" class="clear">
+                  <div class="response" id="mce-error-response" style="display:none"></div>
+                  <div class="response" id="mce-success-response" style="display:none"></div>
+                </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_a6a22369cc2b356379cf789ca_a85a83a5a5" tabindex="-1" value=""></div>
+                <div class="clear"><input type="submit" value="{% trans 'Subscribe' %}" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <div class="column-about">
+          <h4>{% trans 'Resources' %}</h4>
+
+          <ul>
+            <li>
+              <a href="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html">{% trans 'Getting Started Guide' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/page/team.html">{% trans 'Team' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/sustainability/">{% trans 'Going Ad-free' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/support/">{% trans 'Site Support' %}</a>
+            </li>
+            <li>
+              <a href='http://status.readthedocs.com/'>{% trans 'Site Status' %}</a>
+            </li>
+          </ul>
+
+        </div>
+
+        <div class="column-rtd">
+          <h4>{% trans 'Company' %}</h4>
+
+          <ul>
+            <li>
+              <a href="http://blog.readthedocs.com/jobs/">{% trans 'Jobs' %}</a>
+            </li>
+            <li>
+              <a href="https://www.ethicalads.io/advertisers/?ref=rtd">{% trans 'Advertise with Us' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.com">{% trans 'Read the Docs for Business' %}</a>
+            </li>
+            <li>
+              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding & Media Kit' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans 'Privacy Policy' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/page/terms-of-service.html">{% trans 'Terms of Service' %}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="social-column">
+          <ul class="social">
+            <li><a href="https://github.com/rtfd/readthedocs.org" rel="noopener noreferrer"><span class="icon github"></span></a></li>
+            <li><a href="https://twitter.com/readthedocs" rel="noopener noreferrer"><span class="icon twitter"></span></a></li>
+          </ul>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="footer-bottom">
+          <hr>
+
+          <div class="column-copyright">
+            <p>
+              <small>&copy; Copyright {% now "Y" %}, {% trans 'Read the Docs, Inc & contributors' %}</small>
+            </p>
+
+            <p>
+              <small>{% trans 'Version' %} <a href="http://docs.readthedocs.io/page/changelog.html">{% readthedocs_version %}</a></small>
+            </p>
+          </div>
+
+          {% block language-select-form %}
+            <div class="column-setlang">
+              {% get_current_language as current_lang %}
+              <form action="/i18n/setlang/" method="post" style="float: right">
+                <input name="next" type="hidden" value="/" />
+                {% csrf_token %}
+                <select name="language">
+                  {% for lang in LANGUAGES %}
+                    {% if lang.0 == current_lang %}
+                    <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                    {% else %}
+                    <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+                <input type="submit" value="{% trans 'Change Language' %}" name="submit">
+              </form>
+            </div>
+          {% endblock language-select-form %}
+
+        </div>
+
+          <div class="clearfix"></div>
+
+          <div class="sponsors">
+            <a class="sponsor" href="https://aws.amazon.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/aws.png' %}" alt="Amazon Web Services" class="sponsor-image">
+              <div class="sponsor-name">AWS</div>
+              <div class="sponsor-description">Cloud Computing</div>
+            </a>
+            <a class="sponsor" href="https://cloudflare.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/cloudflare.png' %}" alt="CloudFlare" class="sponsor-image">
+              <div class="sponsor-name">Cloudflare</div>
+              <div class="sponsor-description">DNS &amp; SSL</div>
+            </a>
+            <a class="sponsor" href="https://sentry.io/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/sentry.png' %}" alt="Sentry" class="sponsor-image">
+              <div class="sponsor-name">Sentry</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+            <a class="sponsor" href="https://www.elastic.co/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/elastic.png' %}" alt="Elastic" class="sponsor-image">
+              <div class="sponsor-name">Elastic</div>
+              <div class="sponsor-description">Search</div>
+            </a>
+            <a class="sponsor" href="https://newrelic.com/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/newrelic.png' %}" alt="New Relic" class="sponsor-image">
+              <div class="sponsor-name">New Relic</div>
+              <div class="sponsor-description">Performance</div>
+            </a>
+            <a class="sponsor" href="https://www.pagerduty.com/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/pagerduty.png' %}" alt="PagerDuty" class="sponsor-image">
+              <div class="sponsor-name">PagerDuty</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+          </div>
+
+        {% endblock footer-content %}
 
       </div>
     </div>
     <!-- END footer-->
 
+    {% block footerjs %}{% endblock %}
+
 </body>
-
-<!-- BEGIN google analytics -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '{{ GLOBAL_ANALYTICS_CODE }}']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-  {% block footerjs %}{% endblock %}
-
-</script>
-<!-- END google analytics -->
 
 </html>

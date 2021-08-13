@@ -4,32 +4,45 @@
  * module for cleaner usage.
  */
 
+var constants = require('./constants');
 
 var configMethods = {
-    is_rtd_theme: function () {
-        return this.get_theme_name() === 'sphinx_rtd_theme';
+    is_rtd_like_theme: function () {
+        // Returns true for the Read the Docs theme on both sphinx and mkdocs
+        if ($('div.rst-other-versions').length === 1) {
+            // Crappy heuristic, but people change the theme name
+            // So we have to do some duck typing.
+            return true;
+        }
+        return this.theme === constants.THEME_RTD || this.theme === constants.THEME_MKDOCS_RTD;
+    },
+
+    is_alabaster_like_theme: function () {
+        // Returns true for Alabaster-like themes (eg. flask, celery)
+        return constants.ALABASTER_LIKE_THEMES.indexOf(this.get_theme_name()) > -1;
     },
 
     is_sphinx_builder: function () {
-        return (!('builder' in this) || this.builder != 'mkdocs');
+        return (!('builder' in this) || this.builder !== 'mkdocs');
+    },
+
+    is_mkdocs_builder: function () {
+        return ('builder' in this && this.builder === 'mkdocs');
     },
 
     get_theme_name: function () {
-        // Crappy heuristic, but people change the theme name on us.  So we have to
-        // do some duck typing.
-        if (this.theme !== 'sphinx_rtd_theme') {
-            if ($('div.rst-other-versions').length === 1) {
-                return 'sphinx_rtd_theme';
-            }
-        }
         return this.theme;
     },
 
     show_promo: function () {
         return (
-            this.api_host !== 'https://readthedocs.com' &&
-            this.is_sphinx_builder() &&
-            this.is_rtd_theme());
+            (
+              this.api_host === 'https://readthedocs.org' ||
+              this.api_host === 'http://community.dev.readthedocs.io' ||
+              this.api_host === 'http://127.0.0.1:8000'
+            )
+            && this.ad_free !== true
+        );
     }
 };
 
@@ -43,10 +56,16 @@ function get() {
     var config = Object.create(configMethods);
 
     var defaults = {
-        api_host: 'https://readthedocs.org'
+        api_host: 'https://readthedocs.org',
+        ad_free: false,
     };
 
     $.extend(config, defaults, window.READTHEDOCS_DATA);
+
+    if (!("proxied_api_host" in config)) {
+        // Use direct proxied API host
+        config.proxied_api_host = '/_';
+    }
 
     return config;
 }

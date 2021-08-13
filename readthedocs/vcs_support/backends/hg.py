@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 """Mercurial-related utilities."""
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
@@ -12,54 +14,63 @@ class Backend(BaseVCS):
     fallback_branch = 'default'
 
     def update(self):
-        super(Backend, self).update()
-        retcode = self.run('hg', 'status')[0]
-        if retcode == 0:
+        super().update()
+        if self.repo_exists():
             return self.pull()
-        else:
-            return self.clone()
+        return self.clone()
+
+    def repo_exists(self):
+        retcode = self.run('hg', 'status', record=False)[0]
+        return retcode == 0
 
     def pull(self):
-        pull_output = self.run('hg', 'pull')
-        if pull_output[0] != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (hg pull): %s"
-                 % (self.repo_url, pull_output[0]))
-            )
-        update_output = self.run('hg', 'update', '-C')[0]
-        if update_output[0] != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (hg update): %s"
-                 % (self.repo_url, pull_output[0]))
-            )
-        return update_output
+        (pull_retcode, _, _) = self.run('hg', 'pull')
+        if pull_retcode != 0:
+            raise RepositoryError
+        (update_retcode, stdout, stderr) = self.run('hg', 'update', '--clean')
+        if update_retcode != 0:
+            raise RepositoryError
+        return (update_retcode, stdout, stderr)
 
     def clone(self):
         self.make_clean_working_dir()
         output = self.run('hg', 'clone', self.repo_url, '.')
         if output[0] != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (hg clone): %s"
-                 % (self.repo_url, output[0]))
-            )
+            raise RepositoryError
         return output
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', '-q')[:2]
+        retcode, stdout = self.run(
+            'hg',
+            'branches',
+            '--quiet',
+            record_as_success=True,
+        )[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
-        """Stable / default"""
+        """
+        Parses output of `hg branches --quiet`.
+
+        Example:
+
+            default
+            0.2
+            0.1
+
+        Into VCSVersion objects with branch name as verbose_name and
+        identifier.
+        """
         names = [name.lstrip() for name in data.splitlines()]
         return [VCSVersion(self, name, name) for name in names if name]
 
     @property
     def tags(self):
-        retcode, stdout = self.run('hg', 'tags')[:2]
+        retcode, stdout = self.run('hg', 'tags', record_as_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -67,7 +78,9 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of `hg tags`, eg:
+        Parses output of `hg tags`.
+
+        Example:
 
             tip                              278:c4b2d21db51a
             0.2.2                            152:6b0364d98837
@@ -95,17 +108,21 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('hg', 'id', '-i')[:2]
+        _, stdout = self.run('hg', 'identify', '--id')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status')[0]
-        if retcode == 0:
-            self.run('hg', 'pull')
-            return self.run('hg', 'update', '-C', identifier)
-        else:
-            self.clone()
-            return self.run('hg', 'update', '-C', identifier)
+        exit_code, stdout, stderr = self.run(
+            'hg',
+            'update',
+            '--clean',
+            identifier,
+        )
+        if exit_code != 0:
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
+            )
+        return exit_code, stdout, stderr

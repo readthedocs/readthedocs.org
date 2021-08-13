@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs-docs/language/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../../single_version.rst:2
+msgid "Single Version Documentation"
+msgstr ""
+
+#: ../../single_version.rst:4
+msgid ""
+"Single Version Documentation lets you serve your docs at a root domain. By "
+"default, all documentation served by Read the Docs has a root of "
+"``/<language>/<version>/``. But, if you enable the \"Single Version\" option"
+" for a project, its documentation will instead be served at ``/``."
+msgstr ""
+
+#: ../../single_version.rst:8
+msgid ""
+"This means you can't have translations or multiple versions for your "
+"documentation."
+msgstr ""
+
+#: ../../single_version.rst:10
+msgid ""
+"You can see a live example of this at http://www.contribution-guide.org"
+msgstr ""
+
+#: ../../single_version.rst:13
+msgid "Enabling"
+msgstr ""
+
+#: ../../single_version.rst:15
+msgid ""
+"You can toggle the \"Single Version\" option on or off for your project in "
+"the Project Admin page. Check your `dashboard`_ for a list of your projects."
+msgstr ""
+
+#: ../../single_version.rst:18
+msgid "Effects"
+msgstr ""
+
+#: ../../single_version.rst:20
+msgid ""
+"Links generated on Read the Docs will now point to the proper URL. For "
+"example, if pip was set as a \"Single Version\" project, then links to its "
+"documentation would point to ``http://pip.readthedocs.io/`` rather than the "
+"default ``http://pip.readthedocs.io/en/latest/``."
+msgstr ""
+
+#: ../../single_version.rst:22
+msgid ""
+"Documentation at ``/<language>/<default_version>/`` will still be served for"
+" backwards compatibility reasons. However, our usage of :doc:`canonical` "
+"should stop these from being indexed by Google."
+msgstr ""

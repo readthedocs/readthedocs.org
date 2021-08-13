@@ -1,4 +1,7 @@
-"""Contains logic for handling version slugs.
+# -*- coding: utf-8 -*-
+
+"""
+Contains logic for handling version slugs.
 
 Handling slugs for versions is not too straightforward. We need to allow some
 characters which are uncommon in usual slugs. They are dots and underscores.
@@ -20,8 +23,24 @@ import math
 import re
 import string
 from operator import truediv
+
 from django.db import models
 from django.utils.encoding import force_text
+from slugify import slugify as unicode_slugify
+
+
+def get_fields_with_model(cls):
+    """
+    Replace deprecated function of the same name in Model._meta.
+
+    This replaces deprecated function (as of Django 1.10) in Model._meta as
+    prescrived in the Django docs.
+    https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
+    """
+    return [(f, f.model if f.model != cls else None)
+            for f in cls._meta.get_fields()
+            if not f.is_relation or f.one_to_one or
+            (f.many_to_one and f.related_model)]
 
 
 # Regex breakdown:
@@ -35,13 +54,15 @@ VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
 
 class VersionSlugField(models.CharField):
 
-    """Inspired by ``django_extensions.db.fields.AutoSlugField``."""
+    """
+    Inspired by ``django_extensions.db.fields.AutoSlugField``.
 
-    invalid_chars_re = re.compile('[^-._a-z0-9]')
-    leading_punctuation_re = re.compile('^[-._]+')
-    placeholder = '-'
-    fallback_slug = 'unknown'
+    Uses ``unicode-slugify`` to generate the slug.
+    """
+
+    ok_chars = '-._'  # dash, dot, underscore
     test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
+    fallback_slug = 'unknown'
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -49,24 +70,53 @@ class VersionSlugField(models.CharField):
         populate_from = kwargs.pop('populate_from', None)
         if populate_from is None:
             raise ValueError("missing 'populate_from' argument")
-        else:
-            self._populate_from = populate_from
-        super(VersionSlugField, self).__init__(*args, **kwargs)
+
+        self._populate_from = populate_from
+        super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
         # pylint: disable=protected-access
-        for field, model in model_cls._meta.get_fields_with_model():
+        for field, model in get_fields_with_model(model_cls):
             if model and field == slug_field:
                 return model._default_manager.all()
         return model_cls._default_manager.all()
 
+    def _normalize(self, content):
+        """
+        Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
+
+        .. note::
+
+            We replace these characters to a dash to keep compatibility with the
+            old behavior and also because it makes this more readable.
+
+        For example, ``release/1.0`` will become ``release-1.0``.
+        """
+        return re.sub('[/%!?]', '-', content)
+
     def slugify(self, content):
+        """
+        Make ``content`` a valid slug.
+
+        It uses ``unicode-slugify`` behind the scenes which works properly with
+        Unicode characters.
+        """
         if not content:
             return ''
 
-        slugified = content.lower()
-        slugified = self.invalid_chars_re.sub(self.placeholder, slugified)
-        slugified = self.leading_punctuation_re.sub('', slugified)
+        normalized = self._normalize(content)
+        slugified = unicode_slugify(
+            normalized,
+            only_ascii=True,
+            spaces=False,
+            lower=True,
+            ok=self.ok_chars,
+            space_replacement='-',
+        )
+
+        # Remove first character wile it's an invalid character for the
+        # beginning of the slug
+        slugified = slugified.lstrip(self.ok_chars)
 
         if not slugified:
             return self.fallback_slug
@@ -89,7 +139,7 @@ class VersionSlugField(models.CharField):
             uniquifying_suffix(26) == '_ba'
             uniquifying_suffix(52) == '_ca'
         """
-        alphabet = string.lowercase
+        alphabet = string.ascii_lowercase
         length = len(alphabet)
         if iteration == 0:
             power = 0
@@ -97,7 +147,7 @@ class VersionSlugField(models.CharField):
             power = int(math.log(iteration, length))
         current = iteration
         suffix = ''
-        for exp in reversed(range(0, power + 1)):
+        for exp in reversed(list(range(0, power + 1))):
             digit = int(truediv(current, length ** exp))
             suffix += alphabet[digit]
             current = current % length ** exp
@@ -136,7 +186,7 @@ class VersionSlugField(models.CharField):
 
         # increases the number while searching for the next valid slug
         # depending on the given slug, clean-up
-        while not slug or queryset.filter(**kwargs):
+        while not slug or queryset.filter(**kwargs).exists():
             slug = original_slug
             end = self.uniquifying_suffix(count)
             end_len = len(end)
@@ -146,8 +196,9 @@ class VersionSlugField(models.CharField):
             kwargs[self.attname] = slug
             count += 1
 
-        assert self.test_pattern.match(slug), (
-            'Invalid generated slug: {slug}'.format(slug=slug))
+        is_slug_valid = self.test_pattern.match(slug)
+        if not is_slug_valid:
+            raise Exception('Invalid generated slug: {slug}'.format(slug=slug))
         return slug
 
     def pre_save(self, model_instance, add):
@@ -159,6 +210,6 @@ class VersionSlugField(models.CharField):
         return value
 
     def deconstruct(self):
-        name, path, args, kwargs = super(VersionSlugField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['populate_from'] = self._populate_from
         return name, path, args, kwargs

@@ -1,1 +1,1 @@
-../static/vendor/underscore-standalone.js
+../../readthedocs/static/vendor/underscore-standalone.js

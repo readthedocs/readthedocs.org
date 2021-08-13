@@ -1,0 +1,206 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Persian (https://www.transifex.com/readthedocs/teams/2534/fa/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fa\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ../../abandoned-projects.rst:2
+msgid "Policy for Abandoned Projects"
+msgstr ""
+
+#: ../../abandoned-projects.rst:4
+msgid ""
+"This policy describes the process by which a Read the Docs project name may "
+"be changed."
+msgstr ""
+
+#: ../../abandoned-projects.rst:7
+msgid "Rationale"
+msgstr ""
+
+#: ../../abandoned-projects.rst:9
+msgid ""
+"Conflict between the current use of the name and a different suggested use "
+"of the same name occasionally arise.  This document aims to provide general "
+"guidelines for solving the most typical cases of such conflicts."
+msgstr ""
+
+#: ../../abandoned-projects.rst:14
+msgid "Specification"
+msgstr ""
+
+#: ../../abandoned-projects.rst:16
+msgid ""
+"The main idea behind this policy is that Read the Docs serves the community."
+"  Every user is invited to upload content under the Terms of Use, "
+"understanding that it is at the sole risk of the user."
+msgstr ""
+
+#: ../../abandoned-projects.rst:20
+msgid ""
+"While Read the Docs is not a backup service, the core team of Read the Docs "
+"does their best to keep that content accessible indefinitely in its "
+"published form. However, in certain edge cases the greater community's needs"
+" might outweigh the individual's expectation of ownership of a project name."
+msgstr ""
+
+#: ../../abandoned-projects.rst:25
+msgid "The use cases covered by this policy are:"
+msgstr ""
+
+#: ../../abandoned-projects.rst:29 ../../abandoned-projects.rst:53
+msgid "Abandoned projects"
+msgstr ""
+
+#: ../../abandoned-projects.rst:28
+msgid ""
+"Renaming a project so that the original project name can be used by a "
+"different project"
+msgstr ""
+
+#: ../../abandoned-projects.rst:32
+msgid "Active projects"
+msgstr ""
+
+#: ../../abandoned-projects.rst:32
+msgid "Resolving disputes over a name"
+msgstr ""
+
+#: ../../abandoned-projects.rst:35
+msgid "Implementation"
+msgstr ""
+
+#: ../../abandoned-projects.rst:38
+msgid "Reachability"
+msgstr ""
+
+#: ../../abandoned-projects.rst:40
+msgid ""
+"The user of Read the Docs is solely responsible for being reachable by the "
+"core team for matters concerning projects that the user owns. In every case "
+"where contacting the user is necessary, the core team will try to do so at "
+"least three times, using the following means of contact:"
+msgstr ""
+
+#: ../../abandoned-projects.rst:45
+msgid "E-mail address on file in the user's profile"
+msgstr ""
+
+#: ../../abandoned-projects.rst:46
+msgid "E-mail addresses found in the given project's documentation"
+msgstr ""
+
+#: ../../abandoned-projects.rst:47
+msgid "E-mail address on the project's home page"
+msgstr ""
+
+#: ../../abandoned-projects.rst:49
+msgid ""
+"The core team will stop trying to reach the user after six weeks and the "
+"user will be considered *unreachable*."
+msgstr ""
+
+#: ../../abandoned-projects.rst:55
+msgid "A project is considered *abandoned* when ALL of the following are met:"
+msgstr ""
+
+#: ../../abandoned-projects.rst:57
+msgid "Owner is unreachable (see `Reachability`_)"
+msgstr ""
+
+#: ../../abandoned-projects.rst:58
+msgid ""
+"The project has no proper documentation being served (no successful builds) "
+"or does not have any releases within the past twelve months"
+msgstr ""
+
+#: ../../abandoned-projects.rst:60
+msgid ""
+"No activity from the owner on the project's home page (or no home page "
+"found)."
+msgstr ""
+
+#: ../../abandoned-projects.rst:63
+msgid "All other projects are considered *active*."
+msgstr ""
+
+#: ../../abandoned-projects.rst:66
+msgid "Renaming of an abandoned project"
+msgstr ""
+
+#: ../../abandoned-projects.rst:68
+msgid "Projects are never renamed solely on the basis of abandonment."
+msgstr ""
+
+#: ../../abandoned-projects.rst:70
+msgid ""
+"An *abandoned* project can be renamed (by appending ``-abandoned`` and a "
+"uniquifying integer if needed) for purposes of reusing the name when ALL of "
+"the following are met:"
+msgstr ""
+
+#: ../../abandoned-projects.rst:74
+msgid ""
+"The project has been determined *abandoned* by the rules described above"
+msgstr ""
+
+#: ../../abandoned-projects.rst:75
+msgid ""
+"The candidate is able to demonstrate their own failed attempts to contact "
+"the existing owner"
+msgstr ""
+
+#: ../../abandoned-projects.rst:77
+msgid ""
+"The candidate is able to demonstrate that the project suggested to reuse the"
+" name already exists and meets notability requirements"
+msgstr ""
+
+#: ../../abandoned-projects.rst:79
+msgid ""
+"The candidate is able to demonstrate why a fork under a different name is "
+"not an acceptable workaround"
+msgstr ""
+
+#: ../../abandoned-projects.rst:81
+msgid "The project has fewer than 100 monthly pageviews"
+msgstr ""
+
+#: ../../abandoned-projects.rst:82
+msgid "The core team does not have any additional reservations."
+msgstr ""
+
+#: ../../abandoned-projects.rst:85
+msgid "Name conflict resolution for active projects"
+msgstr ""
+
+#: ../../abandoned-projects.rst:87
+msgid ""
+"The core team of Read the Docs are not arbiters in disputes around *active* "
+"projects. The core team recommends users to get in touch with each other and"
+" solve the issue by respectful communication."
+msgstr ""
+
+#: ../../abandoned-projects.rst:92
+msgid "Prior art"
+msgstr ""
+
+#: ../../abandoned-projects.rst:94
+msgid ""
+"The Python Package Index (PyPI) policy for claiming abandoned packages "
+"(`PEP-0541 <https://www.python.org/dev/peps/pep-0541>`_) heavily influenced "
+"this policy."
+msgstr ""

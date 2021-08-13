@@ -1,6 +1,8 @@
 {% extends "projects/base_project.html" %}
 
+{% load crispy_forms_tags %}
 {% load i18n %}
+{% load privacy_tags %}
 
 {% block title %}{{ version.slug }} - {{ version.project.name }}{% endblock %}
 
@@ -15,9 +17,22 @@
 
 {% block content %}
     <h2> Editing {{ version.slug }} </h2>
-    <form method="post" action=".">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Save">
-    </form>
+
+    {% if request.user|is_admin:project %}
+      {% if not version.active and version.built %}
+        <form name="version_delete_html" method="post" action="{% url "project_version_delete_html" project.slug version.slug %}">
+          {% csrf_token %}
+        </form>
+        <p class="empty">
+          {# We are submitting the form using javascript because it breaks the UI design if we use buttons #}
+          {% blocktrans trimmed %}
+            This version is inactive but its documentation is still available online.
+            You can <a href="#" onclick="document.forms['version_delete_html'].submit();">delete this version's documentation</a> if you want to remove it completely.
+          {% endblocktrans %}
+        </p>
+      {% endif %}
+    {% endif %}
+
+    {% crispy form %}
+
 {% endblock %}

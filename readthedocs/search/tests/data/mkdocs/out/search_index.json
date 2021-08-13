@@ -1,0 +1,48 @@
+[
+  {
+    "title": "Read the Docs MkDocs Test Project",
+    "path": "index.html",
+    "sections": [
+      {
+        "id": "",
+        "title": "Read the Docs MkDocs Test Project",
+        "content": "Read the Docs MkDocs Test Project This is a test of MkDocs as it appears on Read the Docs."
+      },
+      {
+        "id": "read-the-docs-mkdocs-test-project",
+        "title": "Read the Docs MkDocs Test Project",
+        "content": "Read the Docs MkDocs Test Project This is a test of MkDocs as it appears on Read the Docs."
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "title": "Versions & Themes",
+    "path": "versions/index.html",
+    "sections": [
+      {
+        "id": "",
+        "title": "Versions & Themes",
+        "content": "Versions & Themes There are a number of versions and themes for mkdocs."
+      },
+      {
+        "id": "versions-themes",
+        "title": "Versions & Themes",
+        "content": "Versions & Themes There are a number of versions and themes for mkdocs."
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "title": "no-title",
+    "path": "no-title/index.html",
+    "sections": [
+      {
+        "id": "",
+        "title": "no-title",
+        "content": "No title"
+      }
+    ],
+    "domain_data": {}
+  }
+]

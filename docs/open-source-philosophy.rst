@@ -2,7 +2,7 @@ Read the Docs Open Source Philosophy
 -------------------------------------
 
 Read the Docs is Open Source software.
-We have `licensed <https://github.com/rtfd/readthedocs.org/blob/master/LICENSE.mit>`_ the code base as MIT,
+We have `licensed <https://github.com/readthedocs/readthedocs.org/blob/master/LICENSE>`_ the code base as MIT,
 which provides almost no restrictions on the use of the code.
 
 However,
@@ -10,8 +10,8 @@ as a project there are things that we care about more than others.
 We built Read the Docs to support documentation in the Open Source community.
 The code is open for people to contribute to,
 so that they may build features into https://readthedocs.org that they want.
-We also believe having the code be open is a valuable learning tool,
-for people to see how a real large website is created.
+We also believe sharing the code openly is a valuable learning tool,
+especially for demonstrating how to collaborate and maintain an enormous website.
 
 
 Official Support

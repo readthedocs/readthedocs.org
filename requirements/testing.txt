@@ -1,6 +1,29 @@
+# Packages required for running tests
+
 -r pip.txt
 
-pytest-django==2.8.0
-pytest-xdist==1.16.0
-apipkg==1.4
-execnet==1.4.1
+django-dynamic-fixture==3.1.1
+pytest==6.2.4
+pytest-custom-exit-code==0.3.0
+pytest-django==4.4.0
+pytest-xdist==2.3.0
+pytest-cov==2.12.1
+apipkg==1.5
+execnet==1.9.0
+
+# Mercurial 4.3 and newer require Python 2.7
+# Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
+# some commands work on Python 3. However, Python 3 is not yet a
+# supported platform.
+# mercurial-scm.org/wiki/SupportedPythonVersions
+# (Pinned to 4.4.2 since what we need for testing is still useful)
+Mercurial==4.4.2  # pyup: ignore
+
+yamale==2.2.0  # pyup: <3.0
+pytest-mock==3.6.1
+
+# local debugging tools
+datadiff==2.0.0
+ipdb==0.13.9
+
+requests-mock==1.9.3
