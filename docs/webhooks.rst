@@ -96,14 +96,22 @@ GitLab
 Gitea
 ~~~~~
 
+These instructions apply to any Gitea instance.
+
 .. warning::
 
    This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
    because Gitea uses the same payload as GitHub. The generic webhook is not compatibile with Gitea.
+   See `issue #8364`_ for more details. Official support may be implemented in the future.
 
-* Manually create a "GitHub webhook" integration on Read the Docs
+On Read the Docs:
+
+* Manually create a "GitHub webhook" integration
   (this will show a warning about the webhook not being correctly set up,
   that will go away when the webhook is configured in Gitea)
+
+On your Gitea instance:
+
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
 * Create a new webhook of type "Gitea" 
 * For **URL**, use the URL of the integration on Read the Docs,
@@ -117,9 +125,11 @@ Gitea
 * Ensure **Active** is enabled; it is by default
 * Finish by clicking **Add Webhook**
 * Test the webhook with :guilabel:`Delivery test`
-* On Read the Docs, check that the warnings have disappeared and the delivery test triggered a build
 
-These instructions apply to any Gitea instance.
+Finally, on Read the Docs, check that the warnings have disappeared
+and the delivery test triggered a build.
+
+.. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
 
 .. _webhook-integration-generic:
 
