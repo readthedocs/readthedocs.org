@@ -74,7 +74,7 @@ For example:
       ranking:
          api/v1.html: -1
 
-This wont hide results from that page, but it will give priority to results from other pages.
+This won't hide results from that page, but it will give priority to results from other pages.
 
 .. TODO: mention search.ignore when it's implemented.
 

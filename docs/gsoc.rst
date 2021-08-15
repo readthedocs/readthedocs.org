@@ -103,7 +103,7 @@ Build a new Sphinx theme
 
 Sphinx v2 will introduce a new format for themes,
 supporting HTML5 and new markup.
-We are hoping to buid a new Sphinx theme that supports this new structure.
+We are hoping to build a new Sphinx theme that supports this new structure.
 
 This project would include:
 
