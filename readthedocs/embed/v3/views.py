@@ -41,6 +41,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     * url (with fragment) (required)
     * doctool
     * doctoolversion
+    * doctoolwriter
 
     ### Example
 
@@ -104,7 +105,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
+    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion, doctoolwriter):
         if external:
             page_content = self._download_page_content(url)
         else:
@@ -210,6 +211,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         url = request.GET.get('url')
         doctool = request.GET.get('doctool')
         doctoolversion = request.GET.get('doctoolversion')
+        doctoolwriter = request.GET.get('doctoolwriter')
         if not url:
             return Response(
                 {
@@ -221,12 +223,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if not all([doctool, doctoolversion]) and any([doctool, doctoolversion]):
+        if not all([doctool, doctoolversion, doctoolwriter]) and any([doctool, doctoolversion, doctoolwriter]):
             return Response(
                 {
                     'error': (
                         'Invalid arguments. '
-                        'Please provide "doctool" and "doctoolversion" or none of them.'
+                        'Please provide "doctool", "doctoolversion" and "doctoolwriter" or none of them.'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -292,6 +294,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 external,
                 doctool,
                 doctoolversion,
+                doctoolwriter,
             )
         except requests.exceptions.TooManyRedirects:
             log.exception('Too many redirects. url=%s', url)
