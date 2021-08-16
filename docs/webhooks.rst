@@ -93,6 +93,44 @@ GitLab
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
+Gitea
+~~~~~
+
+These instructions apply to any Gitea instance.
+
+.. warning::
+
+   This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
+   because Gitea uses the same payload as GitHub. The generic webhook is not compatibile with Gitea.
+   See `issue #8364`_ for more details. Official support may be implemented in the future.
+
+On Read the Docs:
+
+* Manually create a "GitHub webhook" integration
+  (this will show a warning about the webhook not being correctly set up,
+  that will go away when the webhook is configured in Gitea)
+
+On your Gitea instance:
+
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
+* Create a new webhook of type "Gitea" 
+* For **URL**, use the URL of the integration on Read the Docs,
+  found on the :guilabel:`Admin` > :guilabel:`Integrations` page
+* Leave the default **HTTP Method** as POST
+* For **Content type**, both *application/json* and
+  *application/x-www-form-urlencoded* work
+* Leave the **Secret** field blank
+* Select **Choose events**,
+  and mark **Branch or tag creation**, **Branch or tag deletion** and **Push** events
+* Ensure **Active** is enabled; it is by default
+* Finish by clicking **Add Webhook**
+* Test the webhook with :guilabel:`Delivery test`
+
+Finally, on Read the Docs, check that the warnings have disappeared
+and the delivery test triggered a build.
+
+.. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
+
 .. _webhook-integration-generic:
 
 Using the generic API integration
