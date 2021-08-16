@@ -14,6 +14,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.proxito.constants import (
@@ -53,6 +54,8 @@ class ServeDocsMixin:
         or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
+        self._track_pageview(final_project, path, request)
+
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
                 request,
@@ -67,6 +70,28 @@ class ServeDocsMixin:
             path=path,
             download=download,
         )
+
+    def _track_pageview(self, project, path, request):
+        """Create an audit log of the page view if audit is enabled."""
+        # Remove any query args (like the token access from AWS).
+        path_only = urlparse(path).path
+        track_file = path_only.endswith(('.html', '.pdf', '.epub', '.zip'))
+        if track_file and self._is_audit_enabled(project):
+            AuditLog.objects.new(
+                action=AuditLog.PAGEVIEW,
+                user=request.user,
+                request=request,
+                project=project,
+            )
+
+    def _is_audit_enabled(self, project):
+        """
+        Check if the project has the audit feature enabled to track individual page views.
+
+        This feature is different from page views analytics,
+        as it records every page view individually with more metadata like the user, IP, etc.
+        """
+        return False
 
     def _serve_docs_python(self, request, final_project, path):
         """
