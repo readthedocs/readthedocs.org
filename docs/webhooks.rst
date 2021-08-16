@@ -261,7 +261,7 @@ In addition to :ref:`no longer supporting GitHub Services <webhook-github-servic
 we have decided to no longer support several other legacy incoming webhook
 endpoints that were used before we introduced project webhook integrations. When
 we introduced our webhook integrations, we added several features and improved
-security for incoming webhooks and these features were not added to our leagcy
+security for incoming webhooks and these features were not added to our legacy
 incoming webhooks. New projects have not been able to use our legacy incoming
 webhooks since, however if you have a project that has been established for a
 while, you may still be using these endpoints.

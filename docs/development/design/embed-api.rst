@@ -66,7 +66,7 @@ and replace all the relative links from its content making them absolute.
    Any other case outside this contract will be considered *special* and will be implemented
    only under ``?doctool=``, ``?version=`` and ``?writer=`` arguments.
 
-If no ``id`` selector is sent to the request, the content of the first meaningfull HTML tag
+If no ``id`` selector is sent to the request, the content of the first meaningful HTML tag
 (``<main>``, ``<div role="main">`` or other well-defined standard tags) identifier found is returned.
 
 
@@ -221,7 +221,7 @@ The whole logic should be the same, the only difference would be where the sourc
 
 .. warning::
 
-   We should be carefull with the URL received from the user because those may be internal URLs and we could be leaking some data.
+   We should be careful with the URL received from the user because those may be internal URLs and we could be leaking some data.
    Example: ``?url=http://localhost/some-weird-endpoint`` or ``?url=http://169.254.169.254/latest/meta-data/``
    (see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html).
 

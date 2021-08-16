@@ -47,7 +47,7 @@ Once the person you send the link to clicks the link,
 they will have access to the documentation while their browser window is open.
 
 If you want to link to a specific page,
-you can do this by passing the ``next`` query paramater in the URL.
+you can do this by passing the ``next`` query parameter in the URL.
 For example ``https://mydocs.readthedocs-hosted.com/_/sharing/xxxxxxxxx?next=/en/latest/page.html``.
 
 .. tip::
