@@ -1,6 +1,9 @@
-from contextlib import contextmanager
-from unittest import mock
+import docutils
 import pytest
+
+from contextlib import contextmanager
+from packaging.version import Version
+from unittest import mock
 
 import django_dynamic_fixture as fixture
 
@@ -9,7 +12,6 @@ from django.core.cache import cache
 from django.urls import reverse
 
 from readthedocs.projects.models import Project
-from readthedocs.builds.models import Version
 
 from .utils import srcdir
 
@@ -60,9 +62,16 @@ class TestEmbedAPIv3InternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        # Note the difference between `<section>` and `<div class="section">`
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://project.readthedocs.io/en/latest/#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
+        else:
+            content = '<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://project.readthedocs.io/en/latest/#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
+
         assert response.json() == {
             'url': 'https://project.readthedocs.io/en/latest/',
             'fragment': None,
-            'content': '<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://project.readthedocs.io/en/latest/#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://project.readthedocs.io/en/latest/#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>',
+            'content': content,
             'external': False,
         }

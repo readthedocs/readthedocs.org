@@ -1,6 +1,9 @@
+import docutils
 import os
 
 import pytest
+
+from packaging.version import Version
 
 from django.conf import settings
 from django.core.cache import cache
@@ -37,10 +40,16 @@ class TestEmbedAPIv3ExternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
+        else:
+            content = '<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
+
         assert response.json() == {
             'url': 'https://docs.project.com',
             'fragment': None,
-            'content': '<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>',
+            'content': content,
             'external': True,
         }
 
@@ -57,10 +66,16 @@ class TestEmbedAPIv3ExternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>'
+        else:
+            content = '<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>'
+
         assert response.json() == {
             'url': 'https://docs.project.com#sub-title',
             'fragment': 'sub-title',
-            'content': '<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>',
+            'content': content,
             'external': True,
         }
 
@@ -77,10 +92,16 @@ class TestEmbedAPIv3ExternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+        else:
+            content = '<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+
         assert response.json() == {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
             'fragment': 'confval-config1',
-            'content': '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>',
+            'content': content,
             'external': True,
         }
 
@@ -98,10 +119,16 @@ class TestEmbedAPIv3ExternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+        else:
+            content = '<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+
         assert response.json() == {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
             'fragment': 'confval-config1',
-            'content': '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>',
+            'content': content,
             'external': True,
         }
 
@@ -114,10 +141,16 @@ class TestEmbedAPIv3ExternalPages:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
+
+        if Version(docutils.__version__) >= Version('0.17'):
+            content = '<dl class="std confval">\n<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+        else:
+            content = '<dl class="std confval">\n<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>'
+
         assert response.json() == {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
             'fragment': 'confval-config1',
-            'content': '<dl class="std confval">\n<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>\n<dd><p>Description: This the description for config1</p>\n<p>Default: <code class="docutils literal notranslate"><span class="pre">\'Default</span> <span class="pre">value</span> <span class="pre">for</span> <span class="pre">config\'</span></code></p>\n<p>Type: bool</p>\n</dd></dl>',
+            'content': content,
             'external': True,
         }
 
