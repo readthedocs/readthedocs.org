@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import logging
 
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -16,12 +17,38 @@ from rest_framework.status import (
 from rest_framework.views import APIView
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.support.front import FrontClient
 
 log = logging.getLogger(__name__)
 
 
-class FrontWebhookBase(APIView):
+class FrontAppClient:
+
+    """Wrapper around Front's API."""
+
+    BASE_URL = 'https://api2.frontapp.com'
+
+    def __init__(self, token):
+        self.token = token
+
+    @property
+    def _headers(self):
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+        }
+        return headers
+
+    def _get_url(self, path):
+        return f'{self.BASE_URL}{path}'
+
+    def get(self, path, **kwargs):
+        kwargs.setdefault('headers', {}).update(self._headers)
+        return requests.get(self._get_url(path), **kwargs)
+
+    def patch(self, path, **kwargs):
+        kwargs.setdefault('headers', {}).update(self._headers)
+        return requests.patch(self._get_url(path), **kwargs)
+
+class FrontAppWebhookBase(APIView):
 
     """
     Front's webhook handler.
@@ -51,9 +78,11 @@ class FrontWebhookBase(APIView):
         Update contact information using Front's API.
 
         The webhook event give us the conversation_id,
-        we use that to
+        we use that to retrieve the email from the user that originated
+        the conversation, and finally we use the email to update
+        the contact information (three API requests!).
         """
-        client = FrontClient(token=settings.FRONT_TOKEN)
+        client = FrontAppClient(token=settings.FRONTAPP_TOKEN)
 
         # Retrieve the user from the email from the conversation.
         conversation_id = data.get('conversation', {}).get('id')
@@ -71,7 +100,9 @@ class FrontWebhookBase(APIView):
             .first()
         )
         if not user:
-            return Response({'detail': f'User with email {email} not found in our database'})
+            msg = f'User with email {email} not found in our database'
+            log.info(msg)
+            return Response({'detail': msg})
 
         # Get current custom fields, and update them.
         try:
@@ -131,7 +162,7 @@ class FrontWebhookBase(APIView):
 
     def _get_digest(self):
         """Get a HMAC digest of the request using Front's API secret."""
-        secret = settings.FRONT_API_SECRET
+        secret = settings.FRONTAPP_API_SECRET
         digest = hmac.new(
             secret.encode(),
             msg=self.request.body,
@@ -140,5 +171,5 @@ class FrontWebhookBase(APIView):
         return base64.b64encode(digest.digest())
 
 
-class FrontWebhook(SettingsOverrideObject):
-    _default_class = FrontWebhookBase
+class FrontAppWebhook(SettingsOverrideObject):
+    _default_class = FrontAppWebhookBase

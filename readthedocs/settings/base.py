@@ -67,8 +67,8 @@ class CommunityBaseSettings(Settings):
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
     SUPPORT_EMAIL = None
     SUPPORT_FORM_ENDPOINT = None
-    FRONT_TOKEN = None
-    FRONT_API_SECRET = None
+    FRONTAPP_TOKEN = None
+    FRONTAPP_API_SECRET = None
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -80,7 +80,7 @@ class CommunityBaseSettings(Settings):
     def SESSION_COOKIE_SAMESITE(self):
         """
         Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
-        """ 
+        """
         if self.USE_PROMOS:
             return None
         # This is django's default.

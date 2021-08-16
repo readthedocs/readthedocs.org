@@ -6,19 +6,19 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.support.views import FrontWebhookBase
+from readthedocs.support.views import FrontAppWebhookBase
 
 
 @override_settings(
     ADMIN_URL='https://readthedocs.org/admin',
-    FRONT_API_SECRET='1234',
-    FRONT_TOKEN='1234',
+    FRONTAPP_API_SECRET='1234',
+    FRONTAPP_TOKEN='1234',
 )
-class TestFrontWebhook(TestCase):
+class TestFrontAppWebhook(TestCase):
 
     def setUp(self):
         self.user = get(User, email='test@example.com', username='test')
-        self.url = reverse('front_webhook')
+        self.url = reverse('frontapp_webhook')
 
     def test_invalid_payload(self):
         resp = self.client.post(
@@ -29,7 +29,7 @@ class TestFrontWebhook(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.data['detail'], 'Invalid payload')
 
-    @mock.patch.object(FrontWebhookBase, '_is_payload_valid')
+    @mock.patch.object(FrontAppWebhookBase, '_is_payload_valid')
     def test_invalid_event(self, is_payload_valid):
         is_payload_valid.return_value = True
         resp = self.client.post(
@@ -41,7 +41,7 @@ class TestFrontWebhook(TestCase):
         self.assertEqual(resp.data['detail'], 'Skipping outbound event')
 
     @requests_mock.Mocker(kw='mock_request')
-    @mock.patch.object(FrontWebhookBase, '_is_payload_valid')
+    @mock.patch.object(FrontAppWebhookBase, '_is_payload_valid')
     def test_inbound_event(self, is_payload_valid, mock_request):
         is_payload_valid.return_value = True
         self._mock_request(mock_request)
@@ -63,7 +63,7 @@ class TestFrontWebhook(TestCase):
             self.assertEqual(custom_fields[field], 'Do not change this')
 
     @requests_mock.Mocker(kw='mock_request')
-    @mock.patch.object(FrontWebhookBase, '_is_payload_valid')
+    @mock.patch.object(FrontAppWebhookBase, '_is_payload_valid')
     def test_inbound_event_unknow_email(self, is_payload_valid, mock_request):
         self.user.email = 'unknown@example.com'
         self.user.save()
