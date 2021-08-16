@@ -634,7 +634,7 @@ class TestPrivateViews(TestCase):
             reverse('projects_users_delete', args=(self.project.slug,)),
             data={'username': 'eric'}
         )
-        self.assertTrue(r.status_code, 404)
+        self.assertTrue(r.status_code, 400)
         self.assertEqual(self.project.users.count(), 1)
         self.assertEqual(self.project.users.last().username, 'eric')
 
