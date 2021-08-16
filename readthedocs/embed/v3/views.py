@@ -28,10 +28,10 @@ from readthedocs.storage import build_media_storage
 log = logging.getLogger(__name__)
 
 
-
 class EmbedAPIBase(CachedResponseMixin, APIView):
 
     # pylint: disable=line-too-long
+    # pylint: disable=no-self-use
 
     """
     Embed a section of content from any Read the Docs page.
@@ -97,7 +97,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             filename,
         )
         try:
-            with build_media_storage.open(file_path) as fd:
+            with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
                 return fd.read()
         except Exception:  # noqa
             log.warning('Unable to read file. file_path=%s', file_path)
@@ -206,10 +206,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         return node.html
 
-    def get(self, request):
+    def get(self, request):  # noqa
         url = request.GET.get('url')
         doctool = request.GET.get('doctool')
         doctoolversion = request.GET.get('doctoolversion')
+
         if not url:
             return Response(
                 {
@@ -235,15 +236,15 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
-                return Response(
-                    {
-                        'error': (
-                            'The URL requested is malformed. '
-                            f'url={url}'
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            return Response(
+                {
+                    'error': (
+                        'The URL requested is malformed. '
+                        f'url={url}'
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
         # it can't find the project in our database

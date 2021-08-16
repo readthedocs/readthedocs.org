@@ -4,7 +4,6 @@ import functools
 import json
 import logging
 import re
-from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify

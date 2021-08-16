@@ -1,6 +1,8 @@
 """Embed utils."""
+
 from urllib.parse import urlparse
 from pyquery import PyQuery as PQ  # noqa
+
 
 def recurse_while_none(element):
     """Recursively find the leaf node with the ``href`` attribute."""
