@@ -113,7 +113,7 @@ class TestEmbedAPIv3ExternalPages:
         content = open(path).read()
         requests_mock.get('https://docs.project.com/configuration.html', text=content)
 
-        # Calling the API without doctool/doctoolversion/doctoolwriter
+        # Calling the API without doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
         }
@@ -132,12 +132,11 @@ class TestEmbedAPIv3ExternalPages:
             'external': True,
         }
 
-        # Calling the API with doctool/doctoolversion/doctoolwriter
+        # Calling the API with doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
             'doctool': 'sphinx',
             'doctoolversion': '4.1.0',
-            'doctoolwriter': 'html4',
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
@@ -163,7 +162,7 @@ class TestEmbedAPIv3ExternalPages:
         content = open(path).read()
         requests_mock.get('https://docs.project.com/bibtex-cite.html', text=content)
 
-        # Calling the API without doctool/doctoolversion/doctoolwriter
+        # Calling the API without doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/bibtex-cite.html#id4',
         }
@@ -176,12 +175,11 @@ class TestEmbedAPIv3ExternalPages:
             'external': True,
         }
 
-        # Calling the API with doctool/doctoolversion/doctoolwriter
+        # Calling the API with doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/bibtex-cite.html#id4',
             'doctool': 'sphinx',
             'doctoolversion': '4.1.0',
-            'doctoolwriter': 'html5',
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
@@ -200,7 +198,7 @@ class TestEmbedAPIv3ExternalPages:
         content = open(path).read()
         requests_mock.get('https://docs.project.com/glossary.html', text=content)
 
-        # Calling the API without doctool/doctoolversion/doctoolwriter
+        # Calling the API without doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/glossary.html#term-Read-the-Docs',
         }
@@ -213,12 +211,11 @@ class TestEmbedAPIv3ExternalPages:
             'external': True,
         }
 
-        # Calling the API with doctool/doctoolversion/doctoolwriter
+        # Calling the API with doctool/doctoolversion
         params = {
             'url': 'https://docs.project.com/glossary.html#term-Read-the-Docs',
             'doctool': 'sphinx',
             'doctoolversion': '4.1.0',
-            'doctoolwriter': 'html4',
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 200
