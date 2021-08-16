@@ -131,7 +131,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             log.info('Main node found. selector=h1')
             return first_header.parent
 
-    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):  # pylint: disable=unused-argument
         if not page_content:
             return
 
