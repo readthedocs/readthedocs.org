@@ -7,6 +7,7 @@ from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.acl.utils import get_auth_backend
 from readthedocs.analytics.utils import get_client_ip
+from readthedocs.projects.models import Project
 
 
 class AuditLogManager(models.Manager):
@@ -36,6 +37,12 @@ class AuditLogManager(models.Manager):
             kwargs['browser'] = request.headers.get('User-Agent')
             kwargs.setdefault('resource', request.path_info)
             kwargs.setdefault('auth_backend', get_auth_backend(request))
+
+            # Fill the project from the request if available.
+            # This is frequently on actions generated from a subdomain.
+            project_slug = getattr(request, 'slug', None)
+            if 'project' not in kwargs and project_slug:
+                kwargs['project'] = Project.objects.filter(slug=project_slug).first()
 
         return self.create(
             user=user,
