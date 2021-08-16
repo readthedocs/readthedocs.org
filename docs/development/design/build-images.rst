@@ -64,7 +64,7 @@ Non goals
 ---------
 
 * allow creation/usage of custom Docker images
-* allow to execute arbitraty commands via hooks (eg. ``pre_build``)
+* allow to execute arbitrary commands via hooks (eg. ``pre_build``)
 
 
 New build image structure

@@ -158,7 +158,7 @@ Projects list
                     "home": "https://pip.pypa.io/"
                 },
                 "tags": [
-                    "disutils",
+                    "distutils",
                     "easy_install",
                     "egg",
                     "setuptools",
@@ -259,7 +259,7 @@ Project details
                 "home": "https://pip.pypa.io/"
             },
             "tags": [
-                "disutils",
+                "distutils",
                 "easy_install",
                 "egg",
                 "setuptools",
@@ -917,7 +917,7 @@ Subproject create
     :>json string alias: optional slug alias to be used in the URL (e.g ``/projects/<alias>/en/latest/``).
                          If not provided, child project's slug is used as alias.
 
-    :statuscode 201: Subproject created sucessfully
+    :statuscode 201: Subproject created successfully
 
 
 Subproject delete
@@ -1015,7 +1015,7 @@ Translations listing
                     "home": "https://pip.pypa.io/"
                 },
                 "tags": [
-                    "disutils",
+                    "distutils",
                     "easy_install",
                     "egg",
                     "setuptools",

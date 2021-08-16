@@ -10,7 +10,7 @@ You can share your project with users outside of your company:
 * by sending them a *secret link*,
 * by giving them a *password*.
 
-These methods will allow them to view a specific project inside your company.
+These methods will allow them to view specific projects or versions of a project inside your organization.
 
 Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
@@ -18,10 +18,13 @@ This is useful to have access from a script.
 Enabling
 --------
 
-* Go into your *Project Admin* page and to the *Sharing* menu.
-* Under the *Share with someone new* heading, select the way you prefer (secret link, password, or HTTP header token),
+* Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
+* Click on :guilabel:`New Share`
+* Select access type (secret link, password, or HTTP header token),
   add an expiration date and a *Description* so you remember who you're sharing it with.
-* Click *Share!* to create.
+* Check ``Allow access to all versions?`` if you want to grant access to all versions,
+  or uncheck that option and select the specific versions you want grant access to.
+* Click :guilabel:`Save`.
 * Get the info needed to share your documentation with other users:
 
   * If you have selected secret link, copy the link that is generated
@@ -44,7 +47,7 @@ Once the person you send the link to clicks the link,
 they will have access to the documentation while their browser window is open.
 
 If you want to link to a specific page,
-you can do this by passing the ``next`` query paramater in the URL.
+you can do this by passing the ``next`` query parameter in the URL.
 For example ``https://mydocs.readthedocs-hosted.com/_/sharing/xxxxxxxxx?next=/en/latest/page.html``.
 
 .. tip::

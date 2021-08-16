@@ -1,3 +1,26 @@
+Version 5.23.0
+--------------
+
+:Date: August 09, 2021
+
+* `@ericholscher <https://github.com/ericholscher>`__: Only call analytics tracking of flyout when analytics are enabled (`#8398 <https://github.com/readthedocs/readthedocs.org/pull/8398>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 31 (`#8385 <https://github.com/readthedocs/readthedocs.org/pull/8385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: track user events (`#8379 <https://github.com/readthedocs/readthedocs.org/pull/8379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cookies: set samesite: `Lax` by default (`#8304 <https://github.com/readthedocs/readthedocs.org/pull/8304>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sharing (`#8239 <https://github.com/readthedocs/readthedocs.org/pull/8239>`__)
+* `@DetectedStorm <https://github.com/DetectedStorm>`__: Update LICENSE (`#5125 <https://github.com/readthedocs/readthedocs.org/pull/5125>`__)
+
+Version 5.22.0
+--------------
+
+:Date: August 02, 2021
+
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: fix typo in versions.rst: neeed -> need (`#8383 <https://github.com/readthedocs/readthedocs.org/pull/8383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove clickjacking middleware for proxito (`#8378 <https://github.com/readthedocs/readthedocs.org/pull/8378>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: use string for python.version (`#8372 <https://github.com/readthedocs/readthedocs.org/pull/8372>`__)
+* `@humitos <https://github.com/humitos>`__: Add support for Python3.10 on `testing` Docker image (`#8328 <https://github.com/readthedocs/readthedocs.org/pull/8328>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: don't fail if the page was created in another request (`#8310 <https://github.com/readthedocs/readthedocs.org/pull/8310>`__)
+
 Version 5.21.0
 --------------
 

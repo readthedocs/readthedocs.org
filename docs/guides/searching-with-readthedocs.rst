@@ -80,7 +80,7 @@ Example queries:
 
 - https://docs.readthedocs.io/?rtd_search=reedthedcs~2
 - https://docs.readthedocs.io/?rtd_search=authentation~3
-- https://docs.readthedocs.io/?rtd_search=configurtion~1
+- https://docs.readthedocs.io/?rtd_search=configuration~1
 
 
 Build complex queries
