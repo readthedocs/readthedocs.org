@@ -35,7 +35,7 @@ class TestEmbedAPIv3Basics:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 400
-        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool" and "doctoolversion" or none of them.'}
+        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool", "doctoolversion" and "doctoolwriter" or none of them.'}
 
     def test_not_doctool_and_doctoolversion_query_argument(self, client):
         params = {
@@ -44,7 +44,7 @@ class TestEmbedAPIv3Basics:
         }
         response = client.get(self.api_url, params)
         assert response.status_code == 400
-        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool" and "doctoolversion" or none of them.'}
+        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool", "doctoolversion" and "doctoolwriter" or none of them.'}
 
     def test_not_allowed_domain(self, client):
         params = {
