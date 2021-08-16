@@ -1,3 +1,41 @@
+Version 5.23.0
+--------------
+
+:Date: August 09, 2021
+
+* `@ericholscher <https://github.com/ericholscher>`__: Only call analytics tracking of flyout when analytics are enabled (`#8398 <https://github.com/readthedocs/readthedocs.org/pull/8398>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 31 (`#8385 <https://github.com/readthedocs/readthedocs.org/pull/8385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: track user events (`#8379 <https://github.com/readthedocs/readthedocs.org/pull/8379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cookies: set samesite: `Lax` by default (`#8304 <https://github.com/readthedocs/readthedocs.org/pull/8304>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sharing (`#8239 <https://github.com/readthedocs/readthedocs.org/pull/8239>`__)
+* `@DetectedStorm <https://github.com/DetectedStorm>`__: Update LICENSE (`#5125 <https://github.com/readthedocs/readthedocs.org/pull/5125>`__)
+
+Version 5.22.0
+--------------
+
+:Date: August 02, 2021
+
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: fix typo in versions.rst: neeed -> need (`#8383 <https://github.com/readthedocs/readthedocs.org/pull/8383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove clickjacking middleware for proxito (`#8378 <https://github.com/readthedocs/readthedocs.org/pull/8378>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: use string for python.version (`#8372 <https://github.com/readthedocs/readthedocs.org/pull/8372>`__)
+* `@humitos <https://github.com/humitos>`__: Add support for Python3.10 on `testing` Docker image (`#8328 <https://github.com/readthedocs/readthedocs.org/pull/8328>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: don't fail if the page was created in another request (`#8310 <https://github.com/readthedocs/readthedocs.org/pull/8310>`__)
+
+Version 5.21.0
+--------------
+
+:Date: July 27, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Fix migrations (`#8373 <https://github.com/readthedocs/readthedocs.org/pull/8373>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Build out the MyST section of the getting started (`#8371 <https://github.com/readthedocs/readthedocs.org/pull/8371>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tasks (`#8370 <https://github.com/readthedocs/readthedocs.org/pull/8370>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update common (`#8368 <https://github.com/readthedocs/readthedocs.org/pull/8368>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Redirect users to appropriate support channels using template chooser (`#8366 <https://github.com/readthedocs/readthedocs.org/pull/8366>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: return user-defined HTTP headers on custom domains (`#8360 <https://github.com/readthedocs/readthedocs.org/pull/8360>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.20.3 (`#8356 <https://github.com/readthedocs/readthedocs.org/pull/8356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Track model changes with django-simple-history (`#8355 <https://github.com/readthedocs/readthedocs.org/pull/8355>`__)
+* `@stsewd <https://github.com/stsewd>`__: SSO: move models (`#8330 <https://github.com/readthedocs/readthedocs.org/pull/8330>`__)
+
 Version 5.20.3
 --------------
 

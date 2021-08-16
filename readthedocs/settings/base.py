@@ -73,8 +73,16 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
-    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
-    SESSION_COOKIE_SAMESITE = None
+
+    @property
+    def SESSION_COOKIE_SAMESITE(self):
+        """
+        Cookie used in cross-origin API requests from *.rtd.io to rtd.org/api/v2/sustainability/.
+        """ 
+        if self.USE_PROMOS:
+            return None
+        # This is django's default.
+        return 'Lax'
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -176,6 +184,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.oauth',
             'readthedocs.redirects',
             'readthedocs.sso',
+            'readthedocs.audit',
             'readthedocs.rtd_tests',
             'readthedocs.api.v2',
             'readthedocs.api.v3',
@@ -457,50 +466,51 @@ class CommunityBaseSettings(Settings):
         # We must have documented it at some point.
         'readthedocs/build:2.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5],
+                'supported_versions': ['2', '2.7', '3', '3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.5,
+                    '2': '2.7',
+                    '3': '3.5',
                 },
             },
         },
         'readthedocs/build:4.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
                 'default_version': {
-                    2: 2.7,
-                    3: 3.7,
+                    '2': '2.7',
+                    '3': '3.7',
                 },
             },
         },
     }
+
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
