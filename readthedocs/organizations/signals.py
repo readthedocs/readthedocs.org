@@ -7,7 +7,9 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.models import Build, Version
+from readthedocs.builds.signals import build_complete
 from readthedocs.organizations.models import (
     Organization,
     Team,
@@ -74,3 +76,12 @@ def remove_organization_completely(sender, instance, using, **kwargs):
         version.delete()
 
     projects.delete()
+
+
+@receiver(build_complete, sender=Build)
+def mark_organization_assets_not_cleaned(sender, build, **kwargs):
+    """Mark the organization assets as not cleaned if there is a new build."""
+    organization = build.project.organizations.first()
+    if build.state == BUILD_STATE_FINISHED and build.success and organization:
+        organization.artifacts_cleaned = False
+        organization.save()
