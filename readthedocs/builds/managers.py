@@ -184,7 +184,7 @@ class ExternalBuildManager(SettingsOverrideObject):
 class VersionAutomationRuleManager(PolymorphicManager):
 
     """
-    Mananger for VersionAutomationRule.
+    Manager for VersionAutomationRule.
 
     .. note::
 
