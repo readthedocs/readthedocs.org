@@ -38,7 +38,7 @@ Goals
 Non-Goals
 ---------
 
-* Filter by arbitrary and non-useful fields
+* Filter by arbitrary and useless fields
 
   * "Builds with ``exit_code=1``"
   * "Builds containing ``ERROR`` on their output"

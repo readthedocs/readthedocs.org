@@ -1,3 +1,16 @@
+Version 5.23.1
+--------------
+
+:Date: August 16, 2021
+
+* `@cclauss <https://github.com/cclauss>`__: Fix typos discovered by codespell in /docs (`#8409 <https://github.com/readthedocs/readthedocs.org/pull/8409>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: use analytics' get_client_ip (`#8404 <https://github.com/readthedocs/readthedocs.org/pull/8404>`__)
+* `@steko <https://github.com/steko>`__: Add documentation about webhooks for Gitea (`#8402 <https://github.com/readthedocs/readthedocs.org/pull/8402>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CSP header to the domain options (`#8388 <https://github.com/readthedocs/readthedocs.org/pull/8388>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cookies: set samesite: `Lax` by default (`#8304 <https://github.com/readthedocs/readthedocs.org/pull/8304>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: document how to terminate a session (`#8286 <https://github.com/readthedocs/readthedocs.org/pull/8286>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sharing (`#8239 <https://github.com/readthedocs/readthedocs.org/pull/8239>`__)
+
 Version 5.23.0
 --------------
 
