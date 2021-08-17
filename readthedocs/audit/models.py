@@ -40,7 +40,7 @@ class AuditLogManager(models.Manager):
 
             # Fill the project from the request if available.
             # This is frequently on actions generated from a subdomain.
-            project_slug = getattr(request, 'slug', None)
+            project_slug = getattr(request, 'host_project_slug', None)
             if 'project' not in kwargs and project_slug:
                 kwargs['project'] = Project.objects.filter(slug=project_slug).first()
 
