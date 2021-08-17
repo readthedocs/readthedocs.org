@@ -1648,7 +1648,7 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
 
-    # Dependecies related features
+    # Dependencies related features
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
@@ -1740,7 +1740,7 @@ class Feature(models.Model):
             _('Skip sync versions task'),
         ),
 
-        # Dependecies related features
+        # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
         (

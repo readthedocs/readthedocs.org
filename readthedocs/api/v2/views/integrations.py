@@ -756,7 +756,7 @@ class WebhookView(APIView):
     be.
 
     .. warning::
-        We're turning off Authenication for this view.
+        We're turning off Authentication for this view.
         This fixes a bug where we were double-authenticating these views,
         because of the way we're passing the request along to the subviews.
 

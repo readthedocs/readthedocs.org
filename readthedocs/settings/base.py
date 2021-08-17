@@ -545,7 +545,7 @@ class CommunityBaseSettings(Settings):
         process per server, which will be allowed to consume all available
         memory.
 
-        We substract 750MiB for overhead of processes and base system, and set
+        We subtract 750MiB for overhead of processes and base system, and set
         the build time as proportional to the memory limit.
         """
         # Our normal default
@@ -609,7 +609,7 @@ class CommunityBaseSettings(Settings):
         'authorization',
         'x-csrftoken'
     )
-    # Additional protecion to allow only idempotent methods.
+    # Additional protection to allow only idempotent methods.
     CORS_ALLOW_METHODS = [
         'GET',
         'OPTIONS',
