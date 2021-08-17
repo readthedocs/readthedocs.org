@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('priority', models.IntegerField(help_text='A lower number (0) means a higher priority', verbose_name='Rule priority')),
                 ('match_arg', models.CharField(help_text='Value used for the rule to match the version', max_length=255, verbose_name='Match argument')),
                 ('action', models.CharField(choices=[('activate-version', 'Activate version on match'), ('set-default-version', 'Set as default version on match')], max_length=32, verbose_name='Action')),
-                ('action_arg', models.CharField(blank=True, help_text='Value used for the action to perform an operation', max_length=255, null=True, verbose_name='Action argument')),
+                ('action_arg', models.CharField(blank=True, help_text='Value used for the action to perfom an operation', max_length=255, null=True, verbose_name='Action argument')),
                 ('version_type', models.CharField(choices=[('branch', 'Branch'), ('tag', 'Tag'), ('unknown', 'Unknown')], max_length=32, verbose_name='Version type')),
                 ('polymorphic_ctype', models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='polymorphic_builds.versionautomationrule_set+', to='contenttypes.ContentType')),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='automation_rules', to='projects.Project')),
