@@ -87,7 +87,8 @@ and some of the core features of Read the Docs.
 * **Read the Docs build process**:
   :doc:`Configuration reference </config-file/index>` |
   :doc:`Build process </builds>` |
-  :doc:`/badges` |
+  :doc:`/environment-variables` |
+  :doc:`/badges`
 
 * **Troubleshooting**:
   :doc:`/support` |
@@ -111,6 +112,7 @@ and some of the core features of Read the Docs.
    /connected-accounts
 
    /builds
+   /environment-variables
    /badges
 
    /support
