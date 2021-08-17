@@ -1070,7 +1070,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     action_arg = models.CharField(
         _('Action argument'),
-        help_text=_('Value used for the action to perform an operation'),
+        help_text=_('Value used for the action to perfom an operation'),
         max_length=255,
         null=True,
         blank=True,
