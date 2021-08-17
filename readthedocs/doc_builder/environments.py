@@ -483,7 +483,7 @@ class BuildEnvironment(BaseEnvironment):
     :param version: Project version that is being built
     :param build: Build instance
     :param environment: shell environment variables
-    :param record: whether or not record a build commands in the databse via
+    :param record: whether or not record a build commands in the database via
     the API. The only case where we want this to be `False` is when
     instantiating this class from `sync_repository_task` because it's a
     background task that does not expose commands to the user.

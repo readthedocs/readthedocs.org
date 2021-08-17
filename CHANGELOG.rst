@@ -135,7 +135,7 @@ Version 7.1.0
 Version 7.0.0
 -------------
 
-This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**. 
+This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**.
 
 :Date: January 17, 2022
 
@@ -225,7 +225,7 @@ Version 6.3.1
 * `@stsewd <https://github.com/stsewd>`__: Custom Domain: make cname_target configurable (`#8728 <https://github.com/readthedocs/readthedocs.org/pull/8728>`__)
 * `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
 * `@astrojuanlu <https://github.com/astrojuanlu>`__: Add guide to migrate from reST to MyST (`#8714 <https://github.com/readthedocs/readthedocs.org/pull/8714>`__)
-* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invocations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
 * `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
 * `@humitos <https://github.com/humitos>`__: EmbedAPI: log success requests (`#8689 <https://github.com/readthedocs/readthedocs.org/pull/8689>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
@@ -238,7 +238,7 @@ Version 6.3.0
 * `@humitos <https://github.com/humitos>`__: Tests: run tests with Python3.8 in CircleCI (`#8718 <https://github.com/readthedocs/readthedocs.org/pull/8718>`__)
 * `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
 * `@humitos <https://github.com/humitos>`__: requirements: add requests-oauthlib (`#8712 <https://github.com/readthedocs/readthedocs.org/pull/8712>`__)
-* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invocations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
 * `@humitos <https://github.com/humitos>`__: spam: fix admin filter (`#8707 <https://github.com/readthedocs/readthedocs.org/pull/8707>`__)
 * `@humitos <https://github.com/humitos>`__: oauth: sync remote repositories fix (`#8706 <https://github.com/readthedocs/readthedocs.org/pull/8706>`__)
 * `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
@@ -343,7 +343,7 @@ Version 6.0.0
 
 This release includes the upgrade of some base dependencies:
 
-- Python version from 3.6 to 3.8 
+- Python version from 3.6 to 3.8
 - Ubuntu version from 18.04 LTS to 20.04 LTS
 
 Starting from this release, all the Read the Docs code will be tested and QAed on these versions.
@@ -422,7 +422,7 @@ Version 5.23.5
 
 * `@humitos <https://github.com/humitos>`__: Organization: only mark artifacts cleaned as False if they are True (`#8481 <https://github.com/readthedocs/readthedocs.org/pull/8481>`__)
 * `@astrojuanlu <https://github.com/astrojuanlu>`__: Fix link to version states documentation (`#8475 <https://github.com/readthedocs/readthedocs.org/pull/8475>`__)
-* `@stsewd <https://github.com/stsewd>`__: OAuth models: increase avatar_url lenght (`#8472 <https://github.com/readthedocs/readthedocs.org/pull/8472>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth models: increase avatar_url length (`#8472 <https://github.com/readthedocs/readthedocs.org/pull/8472>`__)
 * `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: update the links to the dependency management content of setuptools docs (`#8470 <https://github.com/readthedocs/readthedocs.org/pull/8470>`__)
 * `@stsewd <https://github.com/stsewd>`__: Permissions: avoid using project.users, use proper permissions instead (`#8458 <https://github.com/readthedocs/readthedocs.org/pull/8458>`__)
 * `@humitos <https://github.com/humitos>`__: Docker build images: update design doc (`#8447 <https://github.com/readthedocs/readthedocs.org/pull/8447>`__)
@@ -448,7 +448,7 @@ Version 5.23.4
 * `@stsewd <https://github.com/stsewd>`__: Contact users: pass user and domain in the context (`#8430 <https://github.com/readthedocs/readthedocs.org/pull/8430>`__)
 * `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
 * `@stsewd <https://github.com/stsewd>`__: Footer: remove auth block (`#8397 <https://github.com/readthedocs/readthedocs.org/pull/8397>`__)
-* `@stsewd <https://github.com/stsewd>`__: API: fix subprojects creation when organizaions are enabled (`#8393 <https://github.com/readthedocs/readthedocs.org/pull/8393>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: fix subprojects creation when organizations are enabled (`#8393 <https://github.com/readthedocs/readthedocs.org/pull/8393>`__)
 * `@stsewd <https://github.com/stsewd>`__: QuerySets: remove unused overrides (`#8299 <https://github.com/readthedocs/readthedocs.org/pull/8299>`__)
 * `@stsewd <https://github.com/stsewd>`__: QuerySets: filter permissions by organizations (`#8298 <https://github.com/readthedocs/readthedocs.org/pull/8298>`__)
 

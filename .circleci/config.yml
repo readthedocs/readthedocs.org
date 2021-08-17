@@ -46,6 +46,7 @@ jobs:
             source $BASH_ENV
       - run: tox -e migrations
       - run: tox -e pre-commit
+      - run: tox -e codespell
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs

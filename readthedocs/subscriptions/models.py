@@ -160,7 +160,7 @@ class Subscription(models.Model):
     .. note::
 
         ``status``, ``trial_end_date`` and maybe other fields are updated by
-        Stripe by hitting a webhook in our service hanlded by
+        Stripe by hitting a webhook in our service handled by
         ``StripeEventView``.
     """
 

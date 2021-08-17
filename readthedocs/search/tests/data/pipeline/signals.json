@@ -34,6 +34,6 @@
     ],
     "domain_data": {
         "celery.worker.control.Panel": "Global registry of remote control commands",
-        "celery.platforms.Pidfile.remove_if_stale": "Remove the lock if the process isn’t running. I.e. process does not respons to signal"
+        "celery.platforms.Pidfile.remove_if_stale": "Remove the lock if the process isn’t running. I.e. process does not respond to signal"
     }
 }

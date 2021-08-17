@@ -278,7 +278,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # TODO: assert the verb and the path for each API call as well
 
-        # Update build state: clonning
+        # Update build state: cloning
         assert self.requests_mock.request_history[3].json() == {
             'id': 1,
             'state': 'cloning',
