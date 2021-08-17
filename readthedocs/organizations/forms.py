@@ -105,7 +105,7 @@ class OrganizationSignupFormBase(OrganizationForm):
     def save(self, commit=True):
         org = super().save(commit)
 
-        # If not commiting, we can't save M2M fields
+        # If not committing, we can't save M2M fields
         if not commit:
             return org
 

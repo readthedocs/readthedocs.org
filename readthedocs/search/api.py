@@ -267,7 +267,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         Check if `user` is authorized to access `version`.
 
         The queryset from `_get_subproject_version` already filters public
-        projects. This is mainly to be overriden in .com to make use of
+        projects. This is mainly to be overridden in .com to make use of
         the auth backends in the proxied API.
         """
         return True
