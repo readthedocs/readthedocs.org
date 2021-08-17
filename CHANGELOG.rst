@@ -28,7 +28,7 @@ Version 5.22.0
 
 :Date: August 02, 2021
 
-* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: fix typo in versions.rst: neeed -> need (`#8383 <https://github.com/readthedocs/readthedocs.org/pull/8383>`__)
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: fix typo in versions.rst: -> need (`#8383 <https://github.com/readthedocs/readthedocs.org/pull/8383>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Remove clickjacking middleware for proxito (`#8378 <https://github.com/readthedocs/readthedocs.org/pull/8378>`__)
 * `@stsewd <https://github.com/stsewd>`__: Config file: use string for python.version (`#8372 <https://github.com/readthedocs/readthedocs.org/pull/8372>`__)
 * `@humitos <https://github.com/humitos>`__: Add support for Python3.10 on `testing` Docker image (`#8328 <https://github.com/readthedocs/readthedocs.org/pull/8328>`__)
@@ -312,7 +312,7 @@ Version 5.12.2
 * `@ericholscher <https://github.com/ericholscher>`__: Make pageviews analytics show top 25 pages (`#8027 <https://github.com/readthedocs/readthedocs.org/pull/8027>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Add CSV header data for search analytics  (`#8026 <https://github.com/readthedocs/readthedocs.org/pull/8026>`__)
 * `@stsewd <https://github.com/stsewd>`__: HTMLFile: make md5 field nullable (`#8025 <https://github.com/readthedocs/readthedocs.org/pull/8025>`__)
-* `@humitos <https://github.com/humitos>`__: Use `RemoteRepository` releation to match already imported projects (`#8024 <https://github.com/readthedocs/readthedocs.org/pull/8024>`__)
+* `@humitos <https://github.com/humitos>`__: Use `RemoteRepository` relation to match already imported projects (`#8024 <https://github.com/readthedocs/readthedocs.org/pull/8024>`__)
 * `@stsewd <https://github.com/stsewd>`__: Badge: exclude duplicated builds (`#8023 <https://github.com/readthedocs/readthedocs.org/pull/8023>`__)
 * `@stsewd <https://github.com/stsewd>`__: Intersphinx: declare user agent (`#8022 <https://github.com/readthedocs/readthedocs.org/pull/8022>`__)
 * `@stsewd <https://github.com/stsewd>`__: Builds: restart build commands before a new build (`#7999 <https://github.com/readthedocs/readthedocs.org/pull/7999>`__)
@@ -510,7 +510,7 @@ Version 5.8.3
 * `@humitos <https://github.com/humitos>`__: Change query on `send_build_status` task for compatibility with .com (`#7797 <https://github.com/readthedocs/readthedocs.org/pull/7797>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Update build concurrency numbers for Business (`#7794 <https://github.com/readthedocs/readthedocs.org/pull/7794>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 01 (`#7793 <https://github.com/readthedocs/readthedocs.org/pull/7793>`__)
-* `@timgates42 <https://github.com/timgates42>`__: docs: fix simple typo, tanslations -> translations (`#7781 <https://github.com/readthedocs/readthedocs.org/pull/7781>`__)
+* `@timgates42 <https://github.com/timgates42>`__: docs: fix simple typo, -> translations (`#7781 <https://github.com/readthedocs/readthedocs.org/pull/7781>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 5.8.2 (`#7776 <https://github.com/readthedocs/readthedocs.org/pull/7776>`__)
 * `@humitos <https://github.com/humitos>`__: Use Python3.7 on conda base environment when using mamba (`#7773 <https://github.com/readthedocs/readthedocs.org/pull/7773>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remove domain verify signal and task (`#7763 <https://github.com/readthedocs/readthedocs.org/pull/7763>`__)
@@ -747,7 +747,7 @@ Version 5.4.2
 * `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#7465 <https://github.com/readthedocs/readthedocs.org/pull/7465>`__)
 * `@AvdN <https://github.com/AvdN>`__: correct invalid YAML (`#7458 <https://github.com/readthedocs/readthedocs.org/pull/7458>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remote repository: filter by account before deleting (`#7454 <https://github.com/readthedocs/readthedocs.org/pull/7454>`__)
-* `@humitos <https://github.com/humitos>`__: Truncate the beggining of the commands' output (`#7449 <https://github.com/readthedocs/readthedocs.org/pull/7449>`__)
+* `@humitos <https://github.com/humitos>`__: Truncate the beginning of the commands' output (`#7449 <https://github.com/readthedocs/readthedocs.org/pull/7449>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Update links to advertising (`#7443 <https://github.com/readthedocs/readthedocs.org/pull/7443>`__)
 * `@stsewd <https://github.com/stsewd>`__: Revert "Don't retry on POST" (`#7442 <https://github.com/readthedocs/readthedocs.org/pull/7442>`__)
 * `@stsewd <https://github.com/stsewd>`__: Organizations: move signals (`#7441 <https://github.com/readthedocs/readthedocs.org/pull/7441>`__)
@@ -841,7 +841,7 @@ Version 5.2.2
 * `@humitos <https://github.com/humitos>`__: Make "homepage" optional when updating a project (`#7286 <https://github.com/readthedocs/readthedocs.org/pull/7286>`__)
 * `@humitos <https://github.com/humitos>`__: Allow users to set hidden on versions via APIv3 (`#7285 <https://github.com/readthedocs/readthedocs.org/pull/7285>`__)
 * `@humitos <https://github.com/humitos>`__: DONT_INSTALL_DOCUTILS feature flag (`#7276 <https://github.com/readthedocs/readthedocs.org/pull/7276>`__)
-* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Single Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
 
 Version 5.2.1
 -------------
@@ -860,7 +860,7 @@ Version 5.2.1
 * `@stsewd <https://github.com/stsewd>`__: Docs: set ranking for some pages (`#7257 <https://github.com/readthedocs/readthedocs.org/pull/7257>`__)
 * `@stsewd <https://github.com/stsewd>`__: Sphinx: add --keep-going when fail_on_warning is true (`#7251 <https://github.com/readthedocs/readthedocs.org/pull/7251>`__)
 * `@saadmk11 <https://github.com/saadmk11>`__: Don't allow Domain name matching production domain to be created (`#7244 <https://github.com/readthedocs/readthedocs.org/pull/7244>`__)
-* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Single Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
 
 Version 5.2.0
 -------------
@@ -1088,7 +1088,7 @@ and we're starting a larger refactor of our docs to help users understand the pl
 * `@davidfischer <https://github.com/davidfischer>`__: Add details to our changelog for 4.1.7 (`#6978 <https://github.com/readthedocs/readthedocs.org/pull/6978>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.7 (`#6976 <https://github.com/readthedocs/readthedocs.org/pull/6976>`__)
 * `@humitos <https://github.com/humitos>`__: Remove DOCKER_LIMITS (`#6975 <https://github.com/readthedocs/readthedocs.org/pull/6975>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Catch inifinite canonical redirects (`#6973 <https://github.com/readthedocs/readthedocs.org/pull/6973>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Catch infinite canonical redirects (`#6973 <https://github.com/readthedocs/readthedocs.org/pull/6973>`__)
 * `@eric-wieser <https://github.com/eric-wieser>`__: Ensure invoked Sphinx matches importable one (`#6965 <https://github.com/readthedocs/readthedocs.org/pull/6965>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Add an unresolver similar to our resolver (`#6944 <https://github.com/readthedocs/readthedocs.org/pull/6944>`__)
 * `@stsewd <https://github.com/stsewd>`__: Add support for Mkdocs search (`#6937 <https://github.com/readthedocs/readthedocs.org/pull/6937>`__)
@@ -1141,7 +1141,7 @@ and custom user redirects will now send query parameters.
 * `@ericholscher <https://github.com/ericholscher>`__: Add basic support for lower priority PR builds (`#6921 <https://github.com/readthedocs/readthedocs.org/pull/6921>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Change the dashboard search to default to searching files (`#6920 <https://github.com/readthedocs/readthedocs.org/pull/6920>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Canonicalize domains and redirect in proxito (`#6905 <https://github.com/readthedocs/readthedocs.org/pull/6905>`__)
-* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvements and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
 
 Version 4.1.6
 -------------
@@ -1166,7 +1166,7 @@ Version 4.1.6
 * `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
 * `@humitos <https://github.com/humitos>`__: Load YAML files safely (`#6897 <https://github.com/readthedocs/readthedocs.org/pull/6897>`__)
 * `@humitos <https://github.com/humitos>`__: Use a custom Task Router to route tasks dynamically (`#6849 <https://github.com/readthedocs/readthedocs.org/pull/6849>`__)
-* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvements and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
 * `@humitos <https://github.com/humitos>`__: Add CORS headers to Azurite (`#6784 <https://github.com/readthedocs/readthedocs.org/pull/6784>`__)
 * `@stsewd <https://github.com/stsewd>`__: Force to use proxied API for footer and search (`#6768 <https://github.com/readthedocs/readthedocs.org/pull/6768>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Only output debug logging from RTD app (`#6717 <https://github.com/readthedocs/readthedocs.org/pull/6717>`__)
@@ -1343,7 +1343,7 @@ Version 4.0.1
 * `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.0 (`#6704 <https://github.com/readthedocs/readthedocs.org/pull/6704>`__)
 * `@humitos <https://github.com/humitos>`__: Rename docker settings to fix local environment (`#6703 <https://github.com/readthedocs/readthedocs.org/pull/6703>`__)
 * `@sduthil <https://github.com/sduthil>`__: API v3 doc: fix typos in URL for PATCH /versions/slug/ (`#6698 <https://github.com/readthedocs/readthedocs.org/pull/6698>`__)
-* `@humitos <https://github.com/humitos>`__: Sort vesions in-place to help performance (`#6696 <https://github.com/readthedocs/readthedocs.org/pull/6696>`__)
+* `@humitos <https://github.com/humitos>`__: Sort versions in-place to help performance (`#6696 <https://github.com/readthedocs/readthedocs.org/pull/6696>`__)
 * `@humitos <https://github.com/humitos>`__: Use .iterator when sorting versions (`#6694 <https://github.com/readthedocs/readthedocs.org/pull/6694>`__)
 * `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just completely skip sync and symlink operations (`#6689 <https://github.com/readthedocs/readthedocs.org/pull/6689>`__)
 * `@humitos <https://github.com/humitos>`__: Disable more loggings in development environment (`#6683 <https://github.com/readthedocs/readthedocs.org/pull/6683>`__)
@@ -1405,7 +1405,7 @@ Version 3.11.6
 * `@ericholscher <https://github.com/ericholscher>`__: Raise exception when we get an InfiniteRedirect (`#6609 <https://github.com/readthedocs/readthedocs.org/pull/6609>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 3.11.5 (`#6608 <https://github.com/readthedocs/readthedocs.org/pull/6608>`__)
 * `@humitos <https://github.com/humitos>`__: Avoid infinite redirect on El Proxito on 404 (`#6606 <https://github.com/readthedocs/readthedocs.org/pull/6606>`__)
-* `@stsewd <https://github.com/stsewd>`__: Don't error when killing/removing non-existent cotainer (`#6605 <https://github.com/readthedocs/readthedocs.org/pull/6605>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't error when killing/removing non-existent container (`#6605 <https://github.com/readthedocs/readthedocs.org/pull/6605>`__)
 * `@humitos <https://github.com/humitos>`__: Use proper path to download/install readthedocs-ext (`#6603 <https://github.com/readthedocs/readthedocs.org/pull/6603>`__)
 * `@humitos <https://github.com/humitos>`__: Use timeout on internal API calls (`#6602 <https://github.com/readthedocs/readthedocs.org/pull/6602>`__)
 * `@stsewd <https://github.com/stsewd>`__: Don't assume build isn't None in a docker build env (`#6599 <https://github.com/readthedocs/readthedocs.org/pull/6599>`__)
@@ -1568,7 +1568,7 @@ Version 3.10.0
 * `@humitos <https://github.com/humitos>`__: Include creditcard.png image (`#6379 <https://github.com/readthedocs/readthedocs.org/pull/6379>`__)
 * `@stsewd <https://github.com/stsewd>`__: Silent curl (`#6377 <https://github.com/readthedocs/readthedocs.org/pull/6377>`__)
 * `@stsewd <https://github.com/stsewd>`__: Use github actions to trigger tests in corporate (`#6376 <https://github.com/readthedocs/readthedocs.org/pull/6376>`__)
-* `@saadmk11 <https://github.com/saadmk11>`__: Show only users projects in the APIv3 browseable form (`#6374 <https://github.com/readthedocs/readthedocs.org/pull/6374>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Show only users projects in the APIv3 browsable form (`#6374 <https://github.com/readthedocs/readthedocs.org/pull/6374>`__)
 * `@humitos <https://github.com/humitos>`__: Release 3.9.0 (`#6371 <https://github.com/readthedocs/readthedocs.org/pull/6371>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Pin the node dependencies with a package-lock (`#6370 <https://github.com/readthedocs/readthedocs.org/pull/6370>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Small optimization to not compute the highest version when it isn't displayed (`#6360 <https://github.com/readthedocs/readthedocs.org/pull/6360>`__)
@@ -1610,7 +1610,7 @@ Version 3.9.0
 * `@stsewd <https://github.com/stsewd>`__: Fix tests (`#6269 <https://github.com/readthedocs/readthedocs.org/pull/6269>`__)
 * `@stsewd <https://github.com/stsewd>`__: Refactor profile's views (`#6267 <https://github.com/readthedocs/readthedocs.org/pull/6267>`__)
 * `@humitos <https://github.com/humitos>`__: Default to None when using the Serializer as Form for Browsable… (`#6266 <https://github.com/readthedocs/readthedocs.org/pull/6266>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Fix inactive version list not showing when no resuts returned (`#6264 <https://github.com/readthedocs/readthedocs.org/pull/6264>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix inactive version list not showing when no results returned (`#6264 <https://github.com/readthedocs/readthedocs.org/pull/6264>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Downgrade django-storges. (`#6263 <https://github.com/readthedocs/readthedocs.org/pull/6263>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 3.8.0 (`#6262 <https://github.com/readthedocs/readthedocs.org/pull/6262>`__)
 * `@stsewd <https://github.com/stsewd>`__: Update doccs version detail (api v3) (`#6259 <https://github.com/readthedocs/readthedocs.org/pull/6259>`__)
@@ -2056,7 +2056,7 @@ Version 3.5.0
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: hotfix: correct way of getting environment variables (`#5622 <https://github.com/readthedocs/readthedocs.org/pull/5622>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#5619 <https://github.com/readthedocs/readthedocs.org/pull/5619>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 3.4.2 (`#5613 <https://github.com/readthedocs/readthedocs.org/pull/5613>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Add explicit egg versoin to unicode-slugify (`#5612 <https://github.com/readthedocs/readthedocs.org/pull/5612>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add explicit egg version to unicode-slugify (`#5612 <https://github.com/readthedocs/readthedocs.org/pull/5612>`__)
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Remove ProxyMiddleware (`#5607 <https://github.com/readthedocs/readthedocs.org/pull/5607>`__)
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Remove 'Versions' tab from Admin Dashboard. (`#5600 <https://github.com/readthedocs/readthedocs.org/pull/5600>`__)
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Notify the user when deleting a superproject (`#5596 <https://github.com/readthedocs/readthedocs.org/pull/5596>`__)
@@ -2086,7 +2086,7 @@ Version 3.4.2
 
 :Date: April 22, 2019
 
-* `@ericholscher <https://github.com/ericholscher>`__: Add explicit egg versoin to unicode-slugify (`#5612 <https://github.com/readthedocs/readthedocs.org/pull/5612>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add explicit egg version to unicode-slugify (`#5612 <https://github.com/readthedocs/readthedocs.org/pull/5612>`__)
 * `@saadmk11 <https://github.com/saadmk11>`__: Update Environmental Variable character limit (`#5597 <https://github.com/readthedocs/readthedocs.org/pull/5597>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Add meta descriptions to top documentation (`#5593 <https://github.com/readthedocs/readthedocs.org/pull/5593>`__)
 * `@stsewd <https://github.com/stsewd>`__: Ignore pytest-xdist from pyupdate (`#5590 <https://github.com/readthedocs/readthedocs.org/pull/5590>`__)
@@ -2354,7 +2354,7 @@ Version 3.2.0
 * `@ericholscher <https://github.com/ericholscher>`__: Update our GSOC page for 2019 (`#5210 <https://github.com/readthedocs/readthedocs.org/pull/5210>`__)
 * `@humitos <https://github.com/humitos>`__: Do not allow to merge 'Status: blocked' PRs (`#5205 <https://github.com/readthedocs/readthedocs.org/pull/5205>`__)
 * `@stsewd <https://github.com/stsewd>`__: Inject user to middleware tests (`#5203 <https://github.com/readthedocs/readthedocs.org/pull/5203>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Remove approvals requirement from mergable (`#5200 <https://github.com/readthedocs/readthedocs.org/pull/5200>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove approvals requirement from mergeable (`#5200 <https://github.com/readthedocs/readthedocs.org/pull/5200>`__)
 * `@agjohnson <https://github.com/agjohnson>`__: Update project notification copy to past tense (`#5199 <https://github.com/readthedocs/readthedocs.org/pull/5199>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remove feature flag for v2 (`#5198 <https://github.com/readthedocs/readthedocs.org/pull/5198>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Refactor search code (`#5197 <https://github.com/readthedocs/readthedocs.org/pull/5197>`__)
@@ -2441,7 +2441,7 @@ builds continue to work across all supported Python versions.
 * `@stsewd <https://github.com/stsewd>`__: Remove usage of project.documentation_type in tasks (`#4896 <https://github.com/readthedocs/readthedocs.org/pull/4896>`__)
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Fix the failing domain deletion task (`#4891 <https://github.com/readthedocs/readthedocs.org/pull/4891>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remove unused validations from v1 config (`#4883 <https://github.com/readthedocs/readthedocs.org/pull/4883>`__)
-* `@humitos <https://github.com/humitos>`__: Appropiate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/readthedocs/readthedocs.org/pull/4804>`__)
+* `@humitos <https://github.com/humitos>`__: Appropriate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/readthedocs/readthedocs.org/pull/4804>`__)
 * `@stsewd <https://github.com/stsewd>`__: Implement extended install option (`#4740 <https://github.com/readthedocs/readthedocs.org/pull/4740>`__)
 * `@bansalnitish <https://github.com/bansalnitish>`__: Added a link to open new issue with prefilled details (`#3683 <https://github.com/readthedocs/readthedocs.org/pull/3683>`__)
 
@@ -2578,7 +2578,7 @@ Version 2.8.2
 * `@dojutsu-user <https://github.com/dojutsu-user>`__: Change 'VerisionLockedTimeout' to 'VersionLockedError' in comment. (`#4859 <https://github.com/readthedocs/readthedocs.org/pull/4859>`__)
 * `@stsewd <https://github.com/stsewd>`__: Hide "edit on" when the version is a tag (`#4851 <https://github.com/readthedocs/readthedocs.org/pull/4851>`__)
 * `@stsewd <https://github.com/stsewd>`__: Delete untracked tags on fetch (`#4811 <https://github.com/readthedocs/readthedocs.org/pull/4811>`__)
-* `@humitos <https://github.com/humitos>`__: Appropiate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/readthedocs/readthedocs.org/pull/4804>`__)
+* `@humitos <https://github.com/humitos>`__: Appropriate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/readthedocs/readthedocs.org/pull/4804>`__)
 * `@stsewd <https://github.com/stsewd>`__: Remove support for multiple configurations in one file (`#4800 <https://github.com/readthedocs/readthedocs.org/pull/4800>`__)
 * `@stsewd <https://github.com/stsewd>`__: Pipfile support (schema) (`#4782 <https://github.com/readthedocs/readthedocs.org/pull/4782>`__)
 * `@stsewd <https://github.com/stsewd>`__: Save config on build model (`#4749 <https://github.com/readthedocs/readthedocs.org/pull/4749>`__)
@@ -2772,7 +2772,7 @@ Version 2.6.6
 * `@humitos <https://github.com/humitos>`__: Sanitize command output when running under DockerBuildEnvironment (`#4591 <https://github.com/readthedocs/readthedocs.org/pull/4591>`__)
 * `@humitos <https://github.com/humitos>`__: Force resolver to use PUBLIC_DOMAIN over HTTPS if not Domain.https (`#4579 <https://github.com/readthedocs/readthedocs.org/pull/4579>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Updates and simplification for mkdocs (`#4556 <https://github.com/readthedocs/readthedocs.org/pull/4556>`__)
-* `@humitos <https://github.com/humitos>`__: Docs for hidding "On ..." section from versions menu (`#4547 <https://github.com/readthedocs/readthedocs.org/pull/4547>`__)
+* `@humitos <https://github.com/humitos>`__: Docs for hiding "On ..." section from versions menu (`#4547 <https://github.com/readthedocs/readthedocs.org/pull/4547>`__)
 * `@stsewd <https://github.com/stsewd>`__: Implement sphinx key from v2 config (`#4482 <https://github.com/readthedocs/readthedocs.org/pull/4482>`__)
 * `@safwanrahman <https://github.com/safwanrahman>`__: [Fix #4268] Adding Documentation for upgraded Search (`#4467 <https://github.com/readthedocs/readthedocs.org/pull/4467>`__)
 * `@humitos <https://github.com/humitos>`__: Upgrade all packages using pur (`#4318 <https://github.com/readthedocs/readthedocs.org/pull/4318>`__)
@@ -3241,7 +3241,7 @@ Version 2.3.3
 * `@ericholscher <https://github.com/ericholscher>`__: Reorder GSOC projects, and note priority order (`#3823 <https://github.com/readthedocs/readthedocs.org/pull/3823>`__)
 * `@agjohnson <https://github.com/agjohnson>`__: Add temporary method for skipping submodule checkout (`#3821 <https://github.com/readthedocs/readthedocs.org/pull/3821>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Remove pinned CSS Select version (`#3813 <https://github.com/readthedocs/readthedocs.org/pull/3813>`__)
-* `@humitos <https://github.com/humitos>`__: Use readthedocs-common to share linting files accross different repos (`#3808 <https://github.com/readthedocs/readthedocs.org/pull/3808>`__)
+* `@humitos <https://github.com/humitos>`__: Use readthedocs-common to share linting files across different repos (`#3808 <https://github.com/readthedocs/readthedocs.org/pull/3808>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Use JSONP for sustainability API (`#3789 <https://github.com/readthedocs/readthedocs.org/pull/3789>`__)
 * `@humitos <https://github.com/humitos>`__: Define useful celery beat task for development (`#3762 <https://github.com/readthedocs/readthedocs.org/pull/3762>`__)
 * `@humitos <https://github.com/humitos>`__: Auto-generate conf.py compatible with Py2 and Py3 (`#3745 <https://github.com/readthedocs/readthedocs.org/pull/3745>`__)
@@ -3423,7 +3423,7 @@ Version 2.1.4
  * `@humitos <https://github.com/humitos>`__: Better style (`#3494 <https://github.com/readthedocs/readthedocs.org/pull/3494>`__)
  * `@humitos <https://github.com/humitos>`__: Update README.rst (`#3492 <https://github.com/readthedocs/readthedocs.org/pull/3492>`__)
  * `@davidfischer <https://github.com/davidfischer>`__: Small formatting change to the Alabaster footer (`#3491 <https://github.com/readthedocs/readthedocs.org/pull/3491>`__)
- * `@matsen <https://github.com/matsen>`__: Fixing "reseting" misspelling. (`#3487 <https://github.com/readthedocs/readthedocs.org/pull/3487>`__)
+ * `@matsen <https://github.com/matsen>`__: Fixing "resetting" misspelling. (`#3487 <https://github.com/readthedocs/readthedocs.org/pull/3487>`__)
  * `@ericholscher <https://github.com/ericholscher>`__: Add David to dev team listing (`#3485 <https://github.com/readthedocs/readthedocs.org/pull/3485>`__)
  * `@ericholscher <https://github.com/ericholscher>`__: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/readthedocs/readthedocs.org/pull/3480>`__)
  * `@ericholscher <https://github.com/ericholscher>`__: Use semvar for readthedocs-build to make bumping easier (`#3475 <https://github.com/readthedocs/readthedocs.org/pull/3475>`__)
