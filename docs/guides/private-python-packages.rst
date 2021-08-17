@@ -42,7 +42,7 @@ See :doc:`using environment variables in Read the Docs </guides/environment-vari
    and including a dollar sign and curly brackets around the name (``${API_TOKEN}``)
    for :ref:`pip to be able to recognize them <pip:using environment variables>`.
 
-Bellow you can find how to get a personal access token from our supported providers.
+Below you can find how to get a personal access token from our supported providers.
 We will be using environment variables for the token.
 
 GitHub

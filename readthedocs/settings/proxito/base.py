@@ -42,5 +42,7 @@ class CommunityProxitoSettingsMixin:
         for mw in middleware_to_remove:
             if mw in classes:
                 classes.remove(mw)
+            else:
+                log.warning('Failed to remove middleware: %s', mw)
 
         return classes

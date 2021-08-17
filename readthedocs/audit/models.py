@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.acl.utils import get_auth_backend
+from readthedocs.analytics.utils import get_client_ip
 
 
 class AuditLogManager(models.Manager):
@@ -31,7 +32,7 @@ class AuditLogManager(models.Manager):
             user = None
 
         if request:
-            kwargs['ip'] = request.META.get('REMOTE_ADDR')
+            kwargs['ip'] = get_client_ip(request)
             kwargs['browser'] = request.headers.get('User-Agent')
             kwargs.setdefault('resource', request.path_info)
             kwargs.setdefault('auth_backend', get_auth_backend(request))
