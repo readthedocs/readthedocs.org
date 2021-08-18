@@ -203,7 +203,7 @@ class TestEmbedAPIv3ExternalPages:
         requests_mock.get('https://docs.project.com/glossary.html', text=content)
 
         # Note there are differences on the case of the fragment
-        if sphinx.version_info >= (3, 5, 0):
+        if sphinx.version_info >= (3, 0, 0):
             fragment = 'term-Read-the-Docs'
         else:
             fragment = 'term-read-the-docs'
