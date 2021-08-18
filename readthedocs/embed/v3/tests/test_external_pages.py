@@ -94,10 +94,13 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        if sphinx.version_info >= (3, 5, 0):
-            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
-        else:
+
+        if sphinx.version_info < (3, 5, 0):
             content = '<dt id="confval-config1">\n<code class="sig-name descname">config1</code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+        elif sphinx.version_info[:2] == (3, 5):
+            content = '<dt id="confval-config1">\n<code class="sig-name descname"><span class="pre">config1</span></code><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
+        else:
+            content = '<dt class="sig sig-object std" id="confval-config1">\n<span class="sig-name descname"><span class="pre">config1</span></span><a class="headerlink" href="https://docs.project.com/configuration.html#confval-config1" title="Permalink to this definition">¶</a></dt>'
 
         assert response.json() == {
             'url': 'https://docs.project.com/configuration.html#confval-config1',
