@@ -154,7 +154,6 @@ class TestEmbedAPIv3ExternalPages:
         }
 
     @pytest.mark.sphinx('html', srcdir=srcdir, freshenv=True)
-    @pytest.mark.skipif(os.environ.get('TOX_ENV_NAME') != 'embed-api', reason='sphinxcontrib-bibtex is not installed')
     def test_citation_identifier_doctool_sphinx(self, app, client, requests_mock):
         app.build()
         path = app.outdir / 'bibtex-cite.html'
