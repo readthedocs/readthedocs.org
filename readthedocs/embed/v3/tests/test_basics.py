@@ -28,24 +28,6 @@ class TestEmbedAPIv3Basics:
         assert response.status_code == 400
         assert response.json() == {'error': 'Invalid arguments. Please provide "url".'}
 
-    def test_doctool_and_not_doctoolversion_query_argument(self, client):
-        params = {
-            'url': 'https://docs.project.com#title',
-            'doctool': 'sphinx',
-        }
-        response = client.get(self.api_url, params)
-        assert response.status_code == 400
-        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool" and "doctoolversion" or none of them.'}
-
-    def test_not_doctool_and_doctoolversion_query_argument(self, client):
-        params = {
-            'url': 'https://docs.project.com#title',
-            'doctoolversion': '4.1.0',
-        }
-        response = client.get(self.api_url, params)
-        assert response.status_code == 400
-        assert response.json() == {'error': 'Invalid arguments. Please provide "doctool" and "doctoolversion" or none of them.'}
-
     def test_not_allowed_domain(self, client):
         params = {
             'url': 'https://docs.notalloweddomain.com#title',

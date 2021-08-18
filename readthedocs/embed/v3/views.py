@@ -222,17 +222,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if not all([doctool, doctoolversion]) and any([doctool, doctoolversion]):
-            return Response(
-                {
-                    'error': (
-                        'Invalid arguments. '
-                        'Please provide "doctool" and "doctoolversion" or none of them.'
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
