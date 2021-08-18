@@ -1,4 +1,1 @@
 *       @readthedocs/backend
-*.js    @readthedocs/frontend
-*.css   @readthedocs/frontend
-*.less  @readthedocs/frontend
