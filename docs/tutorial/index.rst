@@ -114,3 +114,157 @@ Welcome!
    Our commercial site offers some extra features,
    like support for private projects.
    You can learn more about :doc:`our two different sites </choosing-a-site>`.
+
+First steps
+-----------
+
+Importing the project to Read the Docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To import your GitHub project to Read the Docs,
+first click on the "Import a Project" button on your dashboard
+(or browse to `the import page <https://readthedocs.org/dashboard/import/>`_ directly).
+You should see your GitHub account under the "Filter repositories" list on the right.
+If the list of repositories is empty, click the "refreshing your accounts" link,
+and after that all your repositories will appear on the center.
+
+.. figure:: /_static/images/tutorial/rtd-import-projects.png
+   :width: 80%
+   :align: center
+   :alt: Import projects view
+
+   Import projects view
+
+Locate your ``rtd-tutorial`` project
+(possibly clicking "next ››" at the bottom if you have several pages of projects),
+and then click on the "+" button to the right of the name.
+The next page will ask you to fill some details about your Read the Docs project:
+
+Name
+  The name of the project. It has to be unique across all the service,
+  so it is better if you prepend your username,
+  for example ``astrojuanlu-rtd-tutorial``.
+
+Repository URL
+  The URL that contains the sources. Leave the automatically filled value.
+
+Repository type
+  Version control system used, leave it to "Git" (which should be the default).
+
+Default branch
+  Name of the default branch of the project, leave it to ``main``.
+
+Edit advanced project options
+  Leave it unchecked, we will make some changes later.
+
+After hitting the "Next" button, you will be redirected to the project home.
+You just created your first project on Read the Docs!
+
+.. figure:: /_static/images/tutorial/rtd-project-home.png
+   :width: 80%
+   :align: center
+   :alt: Project home
+
+   Project home
+
+Checking the first build
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs will try to build the documentation of your project
+right after you create it.
+To see the build logs,
+click on the "Your documentation is building" link on the dashboard,
+or alternatively navigate to the "Builds" page,
+then open the one on top (the most recent one).
+
+If the build has not finished yet by the time you open it,
+you will see a spinner next to a "Installing" or "Building" indicator,
+meaning that it is still in progress.
+
+.. figure:: /_static/images/tutorial/rtd-first-successful-build.png
+   :width: 80%
+   :align: center
+   :alt: First successful documentation build
+
+   First successful documentation build
+
+When the build finishes, you will see a green "Build completed" indicator,
+the completion date, the elapsed time,
+and a link to see the corresponding documentation.
+If you now click on "View docs", you will see your documentation live!
+
+.. figure:: /_static/images/tutorial/rtd-first-light.png
+   :width: 80%
+   :align: center
+   :alt: HTML documentation live on Read the Docs
+
+   HTML documentation live on Read the Docs
+
+Basic configuration changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can now proceed to make some basic configuration adjustments.
+For that, click on the "⚙ Admin" button, which will open the Settings page.
+
+First of all, add the following text in the description:
+
+    Lumache (/lu'make/) is a Python library for cooks and food lovers
+    that creates recipes mixing random ingredients.
+
+Then set the project homepage to ``https://world.openfoodfacts.org/``,
+and write ``food, python`` in the list of tags.
+All this information will be shown on your project home.
+
+After that, configure your email so you get a notification if the build fails.
+To do so, click on the "Notifications" link on the left,
+type the email where you would like to get the notification,
+and click the "Add" button.
+After that, your email will be shown under "Existing Notifications".
+
+Trigger a build from a pull request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs allows you to :doc:`trigger builds from GitHub pull requests </pull-requests>`
+and gives you a preview of how the documentation would look like with those changes.
+
+To enable that functionality, first click on the "Advanced Settings" link on the left
+under the "⚙ Admin" menu, check the "Build pull requests for this project" checkbox,
+and click the "Save" button at the bottom of the page.
+
+Next, navigate to your GitHub repository, locate the file ``docs/source/index.rst``,
+and click on the pencil icon on the top-right with the tooltip "Edit this file"
+to open a web editor (more information `on their documentation`__).
+
+__  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
+
+.. figure:: /_static/images/tutorial/gh-edit.png
+   :width: 80%
+   :align: center
+   :alt: File view on GitHub before launching the editor
+
+   File view on GitHub before launching the editor
+
+In the editor, add the following sentence to the file:
+
+    Lumache has its documentation hosted on Read the Docs.
+
+Write an appropriate commit message,
+and choose the "Create a **new branch** for this commit and start a pull request" option,
+typing a sensible name for the new branch.
+When you are done, click the green "Propose changes" button,
+which will take you to the new pull request page,
+and there click the "Create pull request" button below the description.
+
+.. figure:: /_static/images/tutorial/gh-pr-build.png
+   :width: 80%
+   :align: center
+   :alt: Read the Docs building the pull request from GitHub
+
+   Read the Docs building the pull request from GitHub
+
+After opening the pull request, a Read the Docs check will appear
+indicating that it is building the documentation for that pull request.
+If you click on the "Details" link while it is building,
+you will access the build logs,
+otherwise it will take you directly to the documentation.
+When you are satisfied, you can merge the pull request!
