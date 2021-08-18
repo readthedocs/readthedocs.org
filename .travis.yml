@@ -1,0 +1,18 @@
+dist: bionic
+language: python
+cache: pip
+python: '3.6'
+branches:
+  only:
+  - master
+install:
+  - pip3 install -r requirements/docs.txt -r requirements/pip.txt transifex-client
+script:
+  - cd docs
+  - sphinx-build -b gettext . _build/locale
+  - echo $'[https://www.transifex.com]\napi_hostname = https://api.transifex.com\nhostname = https://www.transifex.com\npassword = '"$TRANSIFEX_API_TOKEN"$'\nusername = api\n' > ~/.transifexrc
+  - rm .tx/config
+  - sphinx-intl create-txconfig
+  - sphinx-intl update-txconfig-resources --transifex-project-name=readthedocs-docs --locale-dir locale --pot-dir _build/locale
+after_success:
+  - tx push -s
