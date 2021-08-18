@@ -34,7 +34,6 @@ basic_urls = [
     url(r'^support/error/$',
         TemplateView.as_view(template_name='support/error.html'),
         name='support_error'),
-    url(r'^support/', include('readthedocs.support.urls')),
 ]
 
 rtd_urls = [
