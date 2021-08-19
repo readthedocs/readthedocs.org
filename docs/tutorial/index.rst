@@ -158,7 +158,7 @@ Edit advanced project options
   Leave it unchecked, we will make some changes later.
 
 After hitting the "Next" button, you will be redirected to the project home.
-You just created your first project on Read the Docs!
+You just created your first project on Read the Docs! |:tada:|
 
 .. figure:: /_static/images/tutorial/rtd-project-home.png
    :width: 80%
