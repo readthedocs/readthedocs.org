@@ -173,7 +173,7 @@ Checking the first build
 Read the Docs will try to build the documentation of your project
 right after you create it.
 To see the build logs,
-click on the "Your documentation is building" link on the dashboard,
+click on the "Your documentation is building" link on the project home,
 or alternatively navigate to the "Builds" page,
 then open the one on top (the most recent one).
 
