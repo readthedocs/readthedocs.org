@@ -128,12 +128,12 @@ You should see your GitHub account under the "Filter repositories" list on the r
 If the list of repositories is empty, click the |:arrows_counterclockwise:| button,
 and after that all your repositories will appear on the center.
 
-.. figure:: /_static/images/tutorial/rtd-import-projects.png
+.. figure:: /_static/images/tutorial/rtd-import-projects.gif
    :width: 80%
    :align: center
-   :alt: Import projects view
+   :alt: Import projects workflow
 
-   Import projects view
+   Import projects workflow
 
 Locate your ``rtd-tutorial`` project
 (possibly clicking :guilabel:`next ››` at the bottom if you have several pages of projects),
