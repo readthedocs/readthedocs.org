@@ -20,13 +20,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
     raw_id_fields = ('organization',)
     list_select_related = ('organization',)
     list_filter = ('vcs_provider', 'vcs', 'private',)
-    search_fields = (
-        'name',
-        'full_name',
-        'html_url',
-        'description',
-        'remote_id',
-    )
+    search_fields = ('name', 'full_name', 'remote_id',)
     list_display = (
         'id',
         'full_name',
