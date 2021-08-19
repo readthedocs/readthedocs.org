@@ -200,6 +200,18 @@ If you now click on "View docs", you will see your documentation live!
 
    HTML documentation live on Read the Docs
 
+.. note::
+
+   If you don't see the ad, you might be using an ad blocker.
+   Our Ethical Ads network respects your privacy, doesn't target you,
+   and tries to be as unobstrusive as possible,
+   so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
+
+   Advertisement is one of our main sources of revenue.
+   If you want to learn more about how do we fund our operations
+   and explore options to go ad-free,
+   check out our `Sustainability page <https://readthedocs.org/sustainability/>`_.
+
 Basic configuration changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
