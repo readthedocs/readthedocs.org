@@ -47,7 +47,7 @@ to help you create fantastic documentation for your project.
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
   :doc:`Feature Overview </features>` |
-  :doc:`/choosing-a-site`
+  :doc:`/choosing-a-site` | :doc:`/glossary`
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
@@ -65,6 +65,7 @@ to help you create fantastic documentation for your project.
    /intro/import-guide
    /features
    /choosing-a-site
+   /glossary
 
 
 Getting started with Read the Docs

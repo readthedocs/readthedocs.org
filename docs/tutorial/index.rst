@@ -87,7 +87,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 After that, you will be redirected to Read the Docs,
 where you will need to confirm your e-mail and username.
 Clicking the :guilabel:`Sign Up »` button will create your account
-and redirect you to your *dashboard*.
+and redirect you to your :term:`dashboard`.
 
 By now, you should have two email notifications:
 
@@ -157,7 +157,7 @@ Default branch
 Edit advanced project options
   Leave it unchecked, we will make some changes later.
 
-After hitting the :guilabel:`Next` button, you will be redirected to the project home.
+After hitting the :guilabel:`Next` button, you will be redirected to the :term:`project home`.
 You just created your first project on Read the Docs! |:tada:|
 
 .. figure:: /_static/images/tutorial/rtd-project-home.png
@@ -216,7 +216,7 @@ Basic configuration changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can now proceed to make some basic configuration adjustments.
-Navigate back to the *project page*
+Navigate back to the :term:`project page`
 and click on the "⚙ Admin" button, which will open the Settings page.
 
 First of all, add the following text in the description:
