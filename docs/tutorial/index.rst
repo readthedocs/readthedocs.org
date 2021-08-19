@@ -39,7 +39,7 @@ Click it to open a new page that will ask you for some details:
 
    GitHub template for the tutorial
 
-After that, click on the green "Create repository from template" button,
+After that, click on the green :guilabel:`Create repository from template` button,
 which will generate a new repository on your personal account
 (or the one of your choosing).
 This is the repository you will import on Read the Docs,
@@ -66,8 +66,8 @@ Sign up for Read the Docs
 
 To sign up for a Read the Docs account,
 navigate to the `Sign Up page <https://readthedocs.org/accounts/signup/>`_
-and choose the option "Sign up with GitHub".
-On the authorization page, click the green "Authorize readthedocs" button.
+and choose the option :guilabel:`Sign up with GitHub`.
+On the authorization page, click the green :guilabel:`Authorize readthedocs` button.
 
 .. figure:: /_static/images/tutorial/github-authorization.png
    :width: 60%
@@ -122,7 +122,7 @@ Importing the project to Read the Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To import your GitHub project to Read the Docs,
-first click on the "Import a Project" button on your dashboard
+first click on the :guilabel:`Import a Project` button on your dashboard
 (or browse to `the import page <https://readthedocs.org/dashboard/import/>`_ directly).
 You should see your GitHub account under the "Filter repositories" list on the right.
 If the list of repositories is empty, click the |:arrows_counterclockwise:| button,
@@ -136,8 +136,8 @@ and after that all your repositories will appear on the center.
    Import projects view
 
 Locate your ``rtd-tutorial`` project
-(possibly clicking "next ››" at the bottom if you have several pages of projects),
-and then click on the "+" button to the right of the name.
+(possibly clicking :guilabel:`next ››` at the bottom if you have several pages of projects),
+and then click on the |:heavy_plus_sign:| button to the right of the name.
 The next page will ask you to fill some details about your Read the Docs project:
 
 Name
@@ -157,7 +157,7 @@ Default branch
 Edit advanced project options
   Leave it unchecked, we will make some changes later.
 
-After hitting the "Next" button, you will be redirected to the project home.
+After hitting the :guilabel:`Next` button, you will be redirected to the project home.
 You just created your first project on Read the Docs! |:tada:|
 
 .. figure:: /_static/images/tutorial/rtd-project-home.png
@@ -229,10 +229,10 @@ and gives you a preview of how the documentation would look like with those chan
 
 To enable that functionality, first click on the "Advanced Settings" link on the left
 under the "⚙ Admin" menu, check the "Build pull requests for this project" checkbox,
-and click the "Save" button at the bottom of the page.
+and click the :guilabel:`Save` button at the bottom of the page.
 
 Next, navigate to your GitHub repository, locate the file ``docs/source/index.rst``,
-and click on the pencil icon on the top-right with the tooltip "Edit this file"
+and click on the |:pencil2:| icon on the top-right with the tooltip "Edit this file"
 to open a web editor (more information `on their documentation`__).
 
 __  https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/editing-files-in-your-repository
@@ -251,9 +251,9 @@ In the editor, add the following sentence to the file:
 Write an appropriate commit message,
 and choose the "Create a **new branch** for this commit and start a pull request" option,
 typing a name for the new branch.
-When you are done, click the green "Propose changes" button,
+When you are done, click the green :guilabel:`Propose changes` button,
 which will take you to the new pull request page,
-and there click the "Create pull request" button below the description.
+and there click the :guilabel:`Create pull request` button below the description.
 
 .. figure:: /_static/images/tutorial/gh-pr-build.png
    :width: 80%
