@@ -16,7 +16,42 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteRepository model."""
 
+    readonly_fields = ('created', 'modified',)
     raw_id_fields = ('organization',)
+    list_select_related = ('organization',)
+    list_filter = ('vcs_provider', 'vcs', 'private',)
+    search_fields = (
+        'name',
+        'full_name',
+        'html_url',
+        'description',
+        'remote_id',
+    )
+    list_display = (
+        'id',
+        'full_name',
+        'html_url',
+        'private',
+        'organization',
+        'get_vcs_provider_display',
+        'get_vcs_display',
+    )
+
+
+class RemoteOrganizationAdmin(admin.ModelAdmin):
+
+    """Admin configuration for the RemoteOrganization model."""
+
+    readonly_fields = ('created', 'modified',)
+    search_fields = ('name', 'slug', 'email', 'url', 'remote_id',)
+    list_filter = ('vcs_provider',)
+    list_display = (
+        'id',
+        'name',
+        'slug',
+        'email',
+        'get_vcs_provider_display',
+    )
 
 
 class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
@@ -37,5 +72,5 @@ class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
 
 admin.site.register(RemoteRepository, RemoteRepositoryAdmin)
 admin.site.register(RemoteRepositoryRelation, RemoteRepositoryRelationAdmin)
-admin.site.register(RemoteOrganization)
+admin.site.register(RemoteOrganization, RemoteOrganizationAdmin)
 admin.site.register(RemoteOrganizationRelation, RemoteOrganizationRelationAdmin)
