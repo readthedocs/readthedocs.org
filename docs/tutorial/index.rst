@@ -204,7 +204,8 @@ Basic configuration changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can now proceed to make some basic configuration adjustments.
-For that, click on the "⚙ Admin" button, which will open the Settings page.
+Navigate back to the *project page*
+and click on the "⚙ Admin" button, which will open the Settings page.
 
 First of all, add the following text in the description:
 
