@@ -25,10 +25,10 @@ Preparing your project on GitHub
 
 To start, `sign in to GitHub <https://github.com/login>`_
 and navigate to `the tutorial GitHub template <https://github.com/astrojuanlu/tutorial-template/>`_,
-where you will see a green "Use this template" button.
+where you will see a green :guilabel:`Use this template` button.
 Click it to open a new page that will ask you for some details:
 
-* Leave the default "Owner", or optionally change it if you desire.
+* Leave the default "Owner", or change it to something better for a tutorial project.
 * Introduce an appropriate "Repository name", for example ``rtd-tutorial``.
 * Make sure the project is "Public", rather than "Private".
 
@@ -86,7 +86,7 @@ On the authorization page, click the green "Authorize readthedocs" button.
 
 After that, you will be redirected to Read the Docs,
 where you will need to confirm your e-mail and username.
-Clicking the "Sign Up »" button will create your account
+Clicking the :guilabel:`Sign Up »` button will create your account
 and redirect you to your *dashboard*.
 
 By now, you should have two email notifications:
@@ -125,7 +125,7 @@ To import your GitHub project to Read the Docs,
 first click on the "Import a Project" button on your dashboard
 (or browse to `the import page <https://readthedocs.org/dashboard/import/>`_ directly).
 You should see your GitHub account under the "Filter repositories" list on the right.
-If the list of repositories is empty, click the "refreshing your accounts" link,
+If the list of repositories is empty, click the |:arrows_counterclockwise:| button,
 and after that all your repositories will appear on the center.
 
 .. figure:: /_static/images/tutorial/rtd-import-projects.png
@@ -149,10 +149,10 @@ Repository URL
   The URL that contains the sources. Leave the automatically filled value.
 
 Repository type
-  Version control system used, leave it to "Git" (which should be the default).
+  Version control system used, leave it as "Git".
 
 Default branch
-  Name of the default branch of the project, leave it to ``main``.
+  Name of the default branch of the project, leave it as ``main``.
 
 Edit advanced project options
   Leave it unchecked, we will make some changes later.
@@ -250,7 +250,7 @@ In the editor, add the following sentence to the file:
 
 Write an appropriate commit message,
 and choose the "Create a **new branch** for this commit and start a pull request" option,
-typing a sensible name for the new branch.
+typing a name for the new branch.
 When you are done, click the green "Propose changes" button,
 which will take you to the new pull request page,
 and there click the "Create pull request" button below the description.
@@ -268,3 +268,6 @@ If you click on the "Details" link while it is building,
 you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
+
+That's the end of the tutorial for now,
+but you can learn more about the platform starting with our :doc:`/features` page.
