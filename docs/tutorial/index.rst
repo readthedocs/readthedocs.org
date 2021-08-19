@@ -32,13 +32,6 @@ Click it to open a new page that will ask you for some details:
 * Introduce an appropriate "Repository name", for example ``rtd-tutorial``.
 * Make sure the project is "Public", rather than "Private".
 
-.. figure:: /_static/images/tutorial/github-template.png
-   :width: 80%
-   :align: center
-   :alt: GitHub template for the tutorial
-
-   GitHub template for the tutorial
-
 After that, click on the green :guilabel:`Create repository from template` button,
 which will generate a new repository on your personal account
 (or the one of your choosing).
@@ -60,6 +53,13 @@ and it contains the following files:
   including some required dependencies in ``docs/requirements.txt``,
   the Sphinx configuration ``docs/source/conf.py``,
   and the root document ``docs/source/index.rst`` written in reStructuredText.
+
+.. figure:: /_static/images/tutorial/github-template.png
+   :width: 80%
+   :align: center
+   :alt: GitHub template for the tutorial
+
+   GitHub template for the tutorial
 
 Sign up for Read the Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~
