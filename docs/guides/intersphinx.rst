@@ -128,7 +128,7 @@ Now we can add the link to the private project with the token like:
 
 You can use your tokens with environment variables,
 so you don't have to hard code them in your ``conf.py`` file.
-See :doc:`/guides/environment-variables` to use environment variables inside Read the Docs.
+See :doc:`/environment-variables` to use environment variables inside Read the Docs.
 
 For example,
 if you create an environment variable named ``RTD_TOKEN_DOCS`` with the token from the "docs" project.

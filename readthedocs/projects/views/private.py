@@ -528,6 +528,9 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_success_url(self):
         return reverse('projects_users', args=[self.get_project().slug])
 
+    def _is_last_user(self):
+        return self.get_queryset().count() <= 1
+
 
 class ProjectUsersCreateList(ProjectUsersMixin, FormView):
 
@@ -540,6 +543,7 @@ class ProjectUsersCreateList(ProjectUsersMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['users'] = self.get_queryset()
+        context['is_last_user'] = self._is_last_user()
         return context
 
 
@@ -553,11 +557,14 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             self.get_queryset(),
             username=username,
         )
-        if user == request.user:
-            raise Http404
+        if self._is_last_user():
+            return HttpResponseBadRequest(_(f'{username} is the last owner, can\'t be removed'))
 
         project = self.get_project()
         project.users.remove(user)
+
+        if user == request.user:
+            return HttpResponseRedirect(reverse('projects_dashboard'))
 
         return HttpResponseRedirect(self.get_success_url())
 

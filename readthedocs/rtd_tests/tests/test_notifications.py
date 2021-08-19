@@ -163,7 +163,7 @@ class NotificationBackendTests(TestCase):
         self.assertEqual(PersistentMessage.objects.count(), 0)
 
         # We should never be adding persistent messages for anonymous users.
-        # Make sure message_extends sitll throws an exception here
+        # Make sure message_extends still throws an exception here
         with self.assertRaises(NotImplementedError):
             backend.send(notify)
 

@@ -96,7 +96,7 @@ class SortVersionsTest(TestCase):
 
     def test_sort_git_master_and_latest(self):
         """
-        The branch named master should havea a higher priority
+        The branch named master should have a higher priority
         than latest, ideally users should only have one of the two activated.
         """
         identifiers = ['latest', 'master', '1.0', '2.0', '1.1', '1.9', '1.10']

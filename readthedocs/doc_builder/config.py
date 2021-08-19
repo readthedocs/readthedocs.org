@@ -58,7 +58,7 @@ def load_yaml_config(version):
             env_config=env_config,
         )
     except ConfigFileNotFound:
-        # Dafault to use v1 with some defaults from the web interface
+        # Default to use v1 with some defaults from the web interface
         # if we don't find a configuration file.
         config = BuildConfigV1(
             env_config=env_config,
