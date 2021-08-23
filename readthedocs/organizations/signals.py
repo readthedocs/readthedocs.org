@@ -18,6 +18,8 @@ from readthedocs.organizations.models import (
 )
 from readthedocs.projects.models import Project
 
+from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
+
 log = logging.getLogger(__name__)
 
 
@@ -80,8 +82,14 @@ def remove_organization_completely(sender, instance, using, **kwargs):
 
 @receiver(build_complete, sender=Build)
 def mark_organization_assets_not_cleaned(sender, build, **kwargs):
-    """Mark the organization assets as not cleaned if there is a new build."""
+    """
+    Mark the organization assets as not cleaned if there is a new build.
+
+    This signal triggers a Celery task because the `build_complete` signal is
+    fired by the builder and it does not have access to the database. So, we
+    trigger a Celery task that will be executed in the web and mark the
+    organization assets as not cleaned.
+    """
     organization = build.project.organizations.first()
     if build.state == BUILD_STATE_FINISHED and build.success and organization:
-        organization.artifacts_cleaned = False
-        organization.save()
+        mark_organization_assets_not_cleaned_task.delay(build)
