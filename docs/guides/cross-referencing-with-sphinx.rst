@@ -14,16 +14,22 @@ This works, but it has some disadvantages:
 - There is no easy way to link to specific sections like paragraphs, figures, or code blocks.
 - URL links only work for the html version of your documentation.
 
-reStructuredText has a built-in way to linking to elements,
-and Sphinx extends this to make it even more powerful!
-Some advantages of using reStructuredText's references:
+Instead, Sphinx offers a powerful way to linking to the different elements of the document,
+called *cross-references*.
+Some advantages of using them:
 
 - Use a human-readable name of your choice, instead of a URL.
 - Portable between formats: html, PDF, ePub.
 - Sphinx will warn you of invalid references.
 - You can cross reference more than just pages and section headers.
 
-This page describes some best-practices for cross-referencing with Sphinx.
+This page describes some best-practices for cross-referencing with Sphinx
+with two markup options: reStructuredText and MyST (Markdown).
+
+- If you are not familiar with reStructuredText,
+  check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
+- If you want to learn more about the MyST Markdown dialect,
+  check out :doc:`myst-parser:syntax/syntax`.
 
 .. contents:: Table of contents
    :local:
@@ -37,11 +43,6 @@ Getting started
 
 Explicit targets
 ~~~~~~~~~~~~~~~~
-
-.. note::
-
-   If you are not familiar with reStructuredText,
-   check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
 
 Cross referencing in Sphinx uses two components, **references** and **targets**.
 
