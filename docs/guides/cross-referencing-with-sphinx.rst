@@ -94,19 +94,15 @@ that will be rendered as: `in-line targets`_.
 Implicit targets
 ~~~~~~~~~~~~~~~~
 
-You may also reference sections by name without explicitly giving them one by
-using *implicit targets*.
+You may also reference some objects by name
+without explicitly giving them one
+by using *implicit targets*.
 
-When we create a section,
-reStructuredText will create a target with the title as the name.
-For example, to reference the previous section we can use ```Explicit targets`_``,
-that will be rendered as: `Explicit targets`_.
+When you create a section, a footnote, or a citation,
+Sphinx will create a target with the title as the name:
 
 .. note::
 
-   `Footnotes <https://docutils.sourceforge.io/docs/user/rst/quickref.html#footnotes>`_ and
-   `citations <https://docutils.sourceforge.io/docs/user/rst/quickref.html#citations>`_
-   also create implicit targets.
 
 Cross-referencing using roles
 -----------------------------
