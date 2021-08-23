@@ -90,6 +90,5 @@ def mark_organization_assets_not_cleaned(sender, build, **kwargs):
     trigger a Celery task that will be executed in the web and mark the
     organization assets as not cleaned.
     """
-    organization = build.project.organizations.first()
-    if build.state == BUILD_STATE_FINISHED and build.success and organization:
-        mark_organization_assets_not_cleaned_task.delay(build)
+    if build['state'] == BUILD_STATE_FINISHED:
+        mark_organization_assets_not_cleaned_task.delay(build['id'])
