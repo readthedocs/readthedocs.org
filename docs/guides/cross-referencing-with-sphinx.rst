@@ -66,7 +66,7 @@ that will be rendered as `My target`_.
 
 You can also add explicit targets before paragraphs (or any other part of a page).
 
-Another example, here we add a target to a paragraph:
+Another example, add a target to a paragraph:
 
 .. code-block:: rst
 
@@ -111,8 +111,8 @@ that will be rendered as: `Explicit targets`_.
 Cross-referencing using roles
 -----------------------------
 
-All targets that we have seen so far can be referenced only from the same page.
-Sphinx provides some roles that allows us to reference any explicit target from any page.
+All targets seen so far can be referenced only from the same page.
+Sphinx provides some roles that allow you to reference any explicit target from any page.
 
 .. note::
 
@@ -120,7 +120,7 @@ Sphinx provides some roles that allows us to reference any explicit target from 
    all targets must be unique.
 
 You can see the complete list of cross-referencing roles at :ref:`sphinx:xref-syntax`.
-Next, we will explore the most common ones.
+Next, you will explore the most common ones.
 
 The ref role
 ~~~~~~~~~~~~
@@ -165,7 +165,7 @@ The ``doc`` role allows us to link to a page instead of just a section.
 The target name can be relative to the page where the role exists, or relative
 to your documentation's root folder (in both cases, you should omit the extension).
 
-For example, to link to a page in the same directory as this one we can use:
+For example, to link to a page in the same directory as this one you can use:
 
 .. code-block:: rst
 
@@ -182,7 +182,7 @@ That will be rendered as:
 .. tip::
 
    Using paths relative to your documentation root is recommended,
-   so we avoid changing the target name if the page is moved.
+   so you avoid changing the target name if the page is moved.
 
 The numref role
 ~~~~~~~~~~~~~~~
@@ -199,7 +199,7 @@ To activate numbered references, add this to your ``conf.py`` file:
 
 Next, ensure that an object you would like to reference has an explicit target.
 
-For example, we can create a target for the next image:
+For example, you can create a target for the next image:
 
 .. _target to image:
 
@@ -249,7 +249,7 @@ To activate the ``autosectionlabel`` extension, add this to your ``conf.py`` fil
 Sphinx will create explicit targets for all your sections,
 the name of target has the form ``{path/to/page}:{title-of-section}``.
 
-For example, we can reference the previous section using:
+For example, you can reference the previous section using:
 
 .. code-block:: rst
 
@@ -264,7 +264,7 @@ That will be rendered as:
 Invalid targets
 ---------------
 
-If we reference an invalid or undefined target Sphinx will warn us.
+If you reference an invalid or undefined target Sphinx will warn you.
 You can use the :option:`-W <sphinx:sphinx-build.-W>` option when building your docs
 to fail the build if there are any invalid references.
 On Read the Docs you can use the :ref:`config-file/v2:sphinx.fail_on_warning` option.
