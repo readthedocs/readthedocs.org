@@ -78,10 +78,9 @@ This won't hide results from that page, but it will give priority to results fro
 
 .. TODO: mention search.ignore when it's implemented.
 
-
 .. tip::
 
-   If you are using Sphinx with reStructuredText,
+   If you are using Sphinx,
    you can make use of some :doc:`directives <sphinx:usage/restructuredtext/directives>`
    like ``warning``, ``deprecated``, ``versionchanged`` to warn your users about deprecated content.
 

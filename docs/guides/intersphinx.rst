@@ -79,7 +79,8 @@ Result:
 .. note::
 
    You can get the targets used in Intersphinx by inspecting the source file of the project or
-   using `this utility <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#showing-all-links-of-an-intersphinx-mapping-file>`__ provided by Intersphinx:
+   using `this utility <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#showing-all-links-of-an-intersphinx-mapping-file>`__
+   provided by Intersphinx:
 
    .. prompt:: bash $
       
