@@ -173,7 +173,7 @@ Checking the first build
 Read the Docs will try to build the documentation of your project
 right after you create it.
 To see the build logs,
-click on the "Your documentation is building" link on the project home,
+click on the "Your documentation is building" link on the :term:`project home`,
 or alternatively navigate to the "Builds" page,
 then open the one on top (the most recent one).
 
@@ -202,15 +202,15 @@ If you now click on "View docs", you will see your documentation live!
 
 .. note::
 
-   If you don't see the ad, you might be using an ad blocker.
-   Our Ethical Ads network respects your privacy, doesn't target you,
-   and tries to be as unobstrusive as possible,
-   so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
-
    Advertisement is one of our main sources of revenue.
    If you want to learn more about how do we fund our operations
    and explore options to go ad-free,
    check out our `Sustainability page <https://readthedocs.org/sustainability/>`_.
+
+   If you don't see the ad, you might be using an ad blocker.
+   Our Ethical Ads network respects your privacy, doesn't target you,
+   and tries to be as unobstrusive as possible,
+   so we would like to kindly ask you to :doc:`not block us </advertising/ad-blocking>` |:heart:|
 
 Basic configuration changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
