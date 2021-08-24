@@ -80,8 +80,8 @@ This won't hide results from that page, but it will give priority to results fro
 
 .. tip::
 
-   If you are using Sphinx,
-   you can make use of some :doc:`directives <sphinx:usage/restructuredtext/directives>`
+   You can make use of Sphinx :doc:`directives <sphinx:usage/restructuredtext/directives>`
+   or MkDocs `admonitions <https://python-markdown.github.io/extensions/admonition/>`_
    like ``warning``, ``deprecated``, ``versionchanged`` to warn your users about deprecated content.
 
 Moving and deleting pages
