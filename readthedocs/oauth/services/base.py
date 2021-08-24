@@ -11,11 +11,6 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-from readthedocs.oauth.models import (
-    RemoteOrganizationRelation,
-    RemoteRepositoryRelation,
-)
-
 
 log = logging.getLogger(__name__)
 
@@ -190,6 +185,10 @@ class Service:
             )
 
         return []
+
+    def get_oauth_scopes(self):
+        """Get a list of the current oauth2 scopes."""
+        raise NotImplementedError
 
     def sync(self):
         """

@@ -1,0 +1,18 @@
+{% load core_tags %}
+{% load i18n %}
+
+{% get_social_accounts_to_upgrade request.user as social_accounts %}
+
+{% for account, provider in social_accounts %}
+  <li>
+    {% url 'projects_import' as next %}
+    <a title="{{ provider.name }}"
+        class="socialaccount-provider {{ provider.id }} button"
+        href="{% provider_extra_permissions_url provider next=next %}"
+        >
+        {% blocktrans trimmed with provider_name=provider.name verbiage=verbiage|default:'Approve write permissions for ' %}
+          {{ verbiage }} {{ provider_name }}
+        {% endblocktrans %}
+    </a>
+  </li>
+{% endfor %}

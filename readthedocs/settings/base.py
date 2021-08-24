@@ -202,7 +202,7 @@ class CommunityBaseSettings(Settings):
             'allauth',
             'allauth.account',
             'allauth.socialaccount',
-            'allauth.socialaccount.providers.github',
+            'readthedocs.oauth.providers.github',
             'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
@@ -584,6 +584,9 @@ class CommunityBaseSettings(Settings):
         'github': {
             'SCOPE': [
                 'user:email',
+            ],
+            # Custom: permissions that can be asked later.
+            'ADDITIONAL_SCOPE': [
                 'read:org',
                 'admin:repo_hook',
                 'repo:status',

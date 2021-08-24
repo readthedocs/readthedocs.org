@@ -202,7 +202,15 @@
         </a>
       </div>
 
+      <br/>
+      <div>
+        <p>Testing</p>
+        <ul>
+          {% include "socialaccount/snippets/list_accounts_need_upgrade.html" with next="/dashboard/import/" %}
+        </ul>
+      </div>
     </div>
+
   {% endblock main_content %}
 
   {% block sidebar_content %}

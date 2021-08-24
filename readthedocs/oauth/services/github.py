@@ -38,6 +38,20 @@ class GitHubService(Service):
     url_pattern = re.compile(r'github\.com')
     vcs_provider_slug = GITHUB
 
+    def get_oauth_scopes(self):
+        """
+        Get a list of the current oauth2 scopes.
+
+        See https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps.
+        """
+        session = self.get_session()
+        resp = session.get('https://api.github.com/user/')
+        scopes = resp.headers.get('X-OAuth-Scopes') or []
+        return [
+            scope.strip()
+            for scope in scopes.split(',')
+        ]
+
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
         remote_repositories = []

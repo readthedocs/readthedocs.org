@@ -5,15 +5,12 @@ import json
 from urllib.parse import urlencode
 
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
-
 
 register = template.Library()
 
@@ -123,3 +120,25 @@ def escapejson(data, indent=None):
             cls=DjangoJSONEncoder,
             indent=indent,
         ).translate(_json_script_escapes))
+
+
+@register.simple_tag
+def provider_extra_permissions_url(provider, **kwargs):
+    return provider.get_extra_permissions_url(**kwargs)
+
+
+@register.simple_tag
+def get_social_accounts_to_upgrade(user):
+    accounts = []
+    for account in user.socialaccount_set.all():
+        provider = account.get_provider()
+        if not getattr(provider, 'supports_permissions_upgrade', False):
+            continue
+
+        service = provider.get_oauth_service(account)
+        scopes = set(service.get_oauth_scopes())
+        extra_scopes = set(provider.get_extra_scopes())
+
+        if not scopes.issuperset(extra_scopes):
+            accounts.append((account, provider))
+    return accounts
