@@ -1,7 +1,8 @@
 Link to Other Projects' Documentation With Intersphinx
 ======================================================
 
-You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to link to any location of your docs.
+You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to
+:doc:`link to any location of your docs </guides/cross-referencing-with-sphinx>`.
 It helps you to keep all links within your docs up to date and warns you if a reference target moves or changes
 so you can ensure that your docs don't have broken cross-references.
 
