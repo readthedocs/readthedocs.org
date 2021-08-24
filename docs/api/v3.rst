@@ -1277,7 +1277,7 @@ Environment Variables are variables that you can define for your project.
 These variables are used in the build process when building your documentation.
 They are for example useful to define secrets in a safe way that can be used by your documentation to build properly.
 Environment variables can also be made public, allowing for them to be used in PR builds.
-See :doc:`/guides/environment-variables`
+See :doc:`/environment-variables`.
 
 
 Environment Variable details

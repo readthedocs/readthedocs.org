@@ -450,7 +450,7 @@ def update_docs_task(self, version_pk, *args, **kwargs):
     def sigterm_received(*args, **kwargs):
         log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
 
-    # Do not send the SIGTERM signal to childs (pip is automatically killed when
+    # Do not send the SIGTERM signal to children (pip is automatically killed when
     # receives SIGTERM and make the build to fail one command and stop build)
     signal.signal(signal.SIGTERM, sigterm_received)
 

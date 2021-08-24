@@ -45,7 +45,7 @@ class BaseVCS:
     supports_branches = False  # Whether this VCS supports branches or not.
     supports_submodules = False
 
-    # Whether this VCS supports listing remotes (branches, tags) without clonning
+    # Whether this VCS supports listing remotes (branches, tags) without cloning
     supports_lsremote = False
 
     # =========================================================================
@@ -67,7 +67,7 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        # TODO: always pass an explict environment
+        # TODO: always pass an explicit environment
         # This is only used in tests #6546
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
         self.environment = environment or LocalBuildEnvironment(record=False)

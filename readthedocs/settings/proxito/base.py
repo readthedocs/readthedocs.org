@@ -5,6 +5,9 @@ Some of these settings will eventually be backported into the main settings file
 but currently we have them to be able to run the site with the old middleware for
 a staged rollout of the proxito code.
 """
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class CommunityProxitoSettingsMixin:
