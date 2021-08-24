@@ -47,14 +47,27 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
    }
 
 
-Now we can use the ``sphinx`` name with a cross-reference role:
+Now you can use the ``sphinx`` name with a cross-reference role:
 
-.. code:: rst
+.. tabs::
 
-   - :ref:`sphinx:ref-role`
-   - :ref:`:ref: role <sphinx:ref-role>`
-   - :doc:`sphinx:usage/extensions/intersphinx`
-   - :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         - :ref:`sphinx:ref-role`
+         - :ref:`:ref: role <sphinx:ref-role>`
+         - :doc:`sphinx:usage/extensions/intersphinx`
+         - :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         - {ref}`sphinx:ref-role`
+         - {ref}`:ref: role <sphinx:ref-role>`
+         - {doc}`sphinx:usage/extensions/intersphinx`
+         - {doc}`Intersphinx <sphinx:usage/extensions/intersphinx>`
 
 Result:
 
