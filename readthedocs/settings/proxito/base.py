@@ -5,6 +5,9 @@ Some of these settings will eventually be backported into the main settings file
 but currently we have them to be able to run the site with the old middleware for
 a staged rollout of the proxito code.
 """
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class CommunityProxitoSettingsMixin:
@@ -13,11 +16,9 @@ class CommunityProxitoSettingsMixin:
     USE_SUBDOMAIN = True
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
-    # Always set to Lax for proxito cookies.
-    # Even if the donate app is present.
-    # Since we don't want to allow cookies from cross origin requests.
-    # This is django's default.
-    SESSION_COOKIE_SAMESITE = 'Lax'
+    # Allow cookies from cross-site requests on subdomains for now.
+    # As 'Lax' breaks when the page is embedded in an iframe.
+    SESSION_COOKIE_SAMESITE = None
 
     @property
     def DATABASES(self):

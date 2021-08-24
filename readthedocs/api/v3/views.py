@@ -406,7 +406,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return f'Organizations {self.suffix}'
 
     def get_queryset(self):
-        # Allow hitting ``/api/v3/organizations/`` to list their own organizaions
+        # Allow hitting ``/api/v3/organizations/`` to list their own organizations
         if self.basename == 'organizations' and self.action == 'list':
             # We force returning ``Organization`` objects here because it's
             # under the ``organizations`` view.

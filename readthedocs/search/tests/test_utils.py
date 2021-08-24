@@ -70,7 +70,7 @@ class TestSearchUtils:
         time.sleep(1)
 
         assert self.has_results(api_client, project, LATEST) is False
-        # Ony latest was deleted.
+        # Only latest was deleted.
         assert self.has_results(api_client, project, STABLE) is True
 
         for project in ['pipeline', 'docs']:

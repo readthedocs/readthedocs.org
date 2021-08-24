@@ -146,7 +146,7 @@ class BuildConfigBase:
 
        You need to call ``validate`` before the config is ready to use.
 
-    :param env_config: A dict that cointains additional information
+    :param env_config: A dict that contains additional information
                        about the environment.
     :param raw_config: A dict with all configuration without validation.
     :param source_file: The file that contains the configuration.
@@ -1026,8 +1026,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates the submodules key.
 
-        - We can use the ``ALL`` keyword in include or exlude.
-        - We can't exlude and include submodules at the same time.
+        - We can use the ``ALL`` keyword in include or exclude.
+        - We can't exclude and include submodules at the same time.
         """
         raw_submodules = self._raw_config.get('submodules', {})
         with self.catch_validation_error('submodules'):

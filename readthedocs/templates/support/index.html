@@ -120,14 +120,6 @@ and we will get back to you as soon as possible.
         {% endif %}
   </div>
 
-
-  {% if request.user.is_authenticated %}
-  <input type="hidden" name="username" value="{{ request.user.username }}">
-  <input type="hidden" name="pk" value="{{ request.user.pk }}">
-  {% else %}
-  <input type="hidden" name="auth" value="Unknown">
-  {% endif %}
-
   <input type="hidden" name="subject" value="Community Support Request">
 
   <input type="submit" value="Submit support request">

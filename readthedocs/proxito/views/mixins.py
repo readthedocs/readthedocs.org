@@ -263,7 +263,7 @@ class ServeRedirectMixin:
         """
         Build the response for the ``redirect_path``, ``proxito_path`` and its ``http_status``.
 
-        :returns: redirect respose with the correct path
+        :returns: redirect response with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
 
