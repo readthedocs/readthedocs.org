@@ -12,7 +12,7 @@ similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutor
 No prior experience with Sphinx is required,
 and you can follow this tutorial without having done the Sphinx one.
 
-The only things you will need to follow the are
+The only things you will need to follow are
 a web browser, an Internet connection, and a GitHub account
 (you can `register for a free account <https://github.com/signup>`_ if you don't have one).
 You will use Read the Docs Community, which means that the project will be public.
