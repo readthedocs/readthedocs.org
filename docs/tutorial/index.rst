@@ -282,5 +282,7 @@ you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
 
-That's the end of the tutorial for now,
+----
+
+That's the end of the tutorial,
 but you can learn more about the platform starting with our :doc:`/features` page.
