@@ -77,7 +77,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         filters = filters or {}
 
-        # We may recieve invalid filters
+        # We may receive invalid filters
         valid_filters = {
             k: v
             for k, v in filters.items()
@@ -218,7 +218,7 @@ class RTDFacetedSearch(FacetedSearch):
         return not tokens.isdisjoint(query_tokens)
 
     def aggregate(self, search):
-        """Overriden to decide if we should aggregate or not."""
+        """Overridden to decide if we should aggregate or not."""
         if self.aggregate_results:
             super().aggregate(search)
 

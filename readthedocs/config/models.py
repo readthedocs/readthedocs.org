@@ -9,7 +9,7 @@ class Base:
     Base class for every configuration.
 
     Each inherited class should define
-    its attibutes in the `__slots__` attribute.
+    its attributes in the `__slots__` attribute.
 
     We are using `__slots__` so we can't add more attributes by mistake,
     this is similar to a namedtuple.

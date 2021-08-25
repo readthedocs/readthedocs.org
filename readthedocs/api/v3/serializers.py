@@ -188,7 +188,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
         """
         Return ``None`` if the build is not finished.
 
-        This is needed becase ``default=True`` in the model field.
+        This is needed because ``default=True`` in the model field.
         """
         if obj.finished:
             return obj.success

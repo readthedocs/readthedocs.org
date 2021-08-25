@@ -1,7 +1,8 @@
 Link to Other Projects' Documentation With Intersphinx
 ======================================================
 
-You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to link to any location of your docs.
+You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to
+:doc:`link to any location of your docs </guides/cross-referencing-with-sphinx>`.
 It helps you to keep all links within your docs up to date and warns you if a reference target moves or changes
 so you can ensure that your docs don't have broken cross-references.
 
@@ -46,14 +47,27 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
    }
 
 
-Now we can use the ``sphinx`` name with a cross-reference role:
+Now you can use the ``sphinx`` name with a cross-reference role:
 
-.. code:: rst
+.. tabs::
 
-   - :ref:`sphinx:ref-role`
-   - :ref:`:ref: role <sphinx:ref-role>`
-   - :doc:`sphinx:usage/extensions/intersphinx`
-   - :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         - :ref:`sphinx:ref-role`
+         - :ref:`:ref: role <sphinx:ref-role>`
+         - :doc:`sphinx:usage/extensions/intersphinx`
+         - :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         - {ref}`sphinx:ref-role`
+         - {ref}`:ref: role <sphinx:ref-role>`
+         - {doc}`sphinx:usage/extensions/intersphinx`
+         - {doc}`Intersphinx <sphinx:usage/extensions/intersphinx>`
 
 Result:
 
@@ -65,7 +79,8 @@ Result:
 .. note::
 
    You can get the targets used in Intersphinx by inspecting the source file of the project or
-   using `this utility <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#showing-all-links-of-an-intersphinx-mapping-file>`__ provided by Intersphinx:
+   using `this utility <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#showing-all-links-of-an-intersphinx-mapping-file>`__
+   provided by Intersphinx:
 
    .. prompt:: bash $
       
@@ -128,7 +143,7 @@ Now we can add the link to the private project with the token like:
 
 You can use your tokens with environment variables,
 so you don't have to hard code them in your ``conf.py`` file.
-See :doc:`/guides/environment-variables` to use environment variables inside Read the Docs.
+See :doc:`/environment-variables` to use environment variables inside Read the Docs.
 
 For example,
 if you create an environment variable named ``RTD_TOKEN_DOCS`` with the token from the "docs" project.

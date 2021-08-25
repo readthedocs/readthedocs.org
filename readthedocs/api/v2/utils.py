@@ -30,7 +30,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     - it does not delete versions
 
     :param project: project to update versions
-    :param versions: list of VCSVersion fetched from the respository
+    :param versions: list of VCSVersion fetched from the repository
     :param type: internal or external version
     :returns: set of versions' slug added
     """

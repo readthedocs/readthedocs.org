@@ -184,7 +184,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         with the ``Domain`` object.
         """
         if hasattr(request, 'domain'):
-            response_headers = [header.lower() for header in response]
+            # Use a private method to get this
+            # TODO: In Django 3.2 this has been upgraded to a top-level method
+            # pylint: disable=protected-access
+            response_headers = [header.lower() for header in response._headers.keys()]
             for http_header in request.domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
@@ -193,7 +196,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                         request.domain.domain,
                     )
                 log.info(
-                    'Adding custtom response HTTP header. header=%s domain=%s',
+                    'Adding custom response HTTP header. header=%s domain=%s',
                     http_header.name,
                     request.domain.domain,
                 )

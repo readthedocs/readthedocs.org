@@ -196,7 +196,7 @@ class EmbedAPI(SettingsOverrideObject):
 
 
 def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
-    """Get the embed reponse from a document section."""
+    """Get the embed response from a document section."""
     if not url:
         external = version.type == EXTERNAL
         url = resolve(
