@@ -11,7 +11,7 @@ Today we:
 Read the Docs is provided as a free service to the open source community,
 and we hope to maintain a reliable and stable hosting platform for years to come.
 
-There are five major parts of this work:
+The teams that we have currently created are:
 
 .. contents::
    :local:
