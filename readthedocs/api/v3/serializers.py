@@ -5,23 +5,27 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
     REPO_CHOICES,
 )
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
-from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
+from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.models import Redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -624,21 +628,13 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         super().__init__(*args, **kwargs)
 
         user = self.context['request'].user
-        # TODO: Filter projects using project restrictions for subproject.
-        self.fields['child'].queryset = user.projects.all()
-
-    def validate_child(self, value):
-        # Check the user is maintainer of the child project
-        user = self.context['request'].user
-        if user not in value.users.all():
-            raise serializers.ValidationError(
-                _('You do not have permissions on the child project'),
-            )
-
-        value.is_valid_as_subproject(
-            self.parent_project, serializers.ValidationError
+        self.fields['child'].queryset = (
+            self.parent_project.get_subproject_candidates(user)
         )
-        return value
+        # Give users a better error message.
+        self.fields['child'].error_messages['does_not_exist'] = _(
+            'Project with {slug_name}={value} is not a valid subproject'
+        )
 
     def validate_alias(self, value):
         # Check there is not a subproject with this alias already

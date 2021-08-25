@@ -1307,6 +1307,30 @@ class Project(models.Model):
                 _('Project can not be subproject of itself'),
             )
 
+    def get_subproject_candidates(self, user):
+        """
+        Get a queryset of projects that would be valid as a subproject for this project.
+
+        This excludes:
+
+        - The project itself
+        - Projects that are already a subproject of another project
+        - Projects that are a superproject.
+
+        If the project belongs to an organization,
+        we only allow projects under the same organization as subprojects,
+        otherwise only projects that don't belong to an organization.
+        """
+        organization = self.organizations.first()
+        queryset = (
+            Project.objects.for_admin_user(user)
+            .filter(organizations=organization)
+            .exclude(subprojects__isnull=False)
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.pk)
+        )
+        return queryset
+
 
 class APIProject(Project):
 
