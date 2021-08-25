@@ -2159,9 +2159,8 @@ msgid "Build a version"
 msgstr "Запустить сборку версии"
 
 #: templates/core/project_details.html:71
-msgctxt "Build is a verb"
 msgid "Build version"
-msgstr "Версия сборки"
+msgstr "Собрать версию"
 
 #: templates/core/project_downloads.html:31
 msgid "No downloads for this project."
