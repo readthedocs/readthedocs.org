@@ -3,7 +3,7 @@ Build Images
 
 This document describes how Read the Docs uses the `Docker Images`_ and how they are named.
 Besides, it proposes a path forward about a new way to create and name our Docker build images to allow sharing as many image layers as possible
-and support installation of OS level packages as well as extra requirements.
+and support installation of other languages (e.g. nodejs, rust, go) as extra requirements.
 
 .. _Docker Images: https://github.com/readthedocs/readthedocs-docker-images
 
@@ -25,15 +25,12 @@ and go through different steps:
 
 *All* those steps depends on specific commands versions: ``git``, ``python``, ``virtualenv``, ``conda``, etc.
 Currently, we are pinning only a few of them in our Docker images and that have caused issues
-when re-deploying these images with bugfixes: **the images are not reproducible in time**.
+when re-deploying these images with bugfixes: **the images are not reproducible over time**.
 
 .. note::
 
-   The reproducibility of the images will be better once these PRs are merged,
-   but OS packages still won't be 100% the exact same versions.
-
-   * https://github.com/readthedocs/readthedocs-docker-images/pull/145
-   * https://github.com/readthedocs/readthedocs-docker-images/pull/146
+   We have been improving the reproducibility of our images by adding some tests cases.
+   These are run inside the Docker image after it's built and check that it contains the versions we expect.
 
 To allow users to pin the image we ended up exposing three images: ``stable``, ``latest`` and ``testing``.
 With that naming, we were able to bugfix issues and add more features
@@ -48,16 +45,19 @@ This produced issues to people pinning their images to any of these names becaus
 Goals
 -----
 
-* release completely new Docker images without forcing users to change their pinned image
-* allow users to stick with an image "forever" (~years)
+* release completely new Docker images without forcing users to change their pinned image (``stable``, ``latest``, ``testing``)
+* allow users to select language requirements instead of an image name
 * use a ``base`` image with the dependencies that don't change frequently (OS and base requirements)
 * ``base`` image naming is tied to the OS version (e.g. Ubuntu LTS)
 * allow us to add/update a Python version without affecting the ``base`` image
 * reduce size on builder VM disks by sharing Docker image layers
-* allow users to specify extra dependencies (apt packages, node, rust, etc)
-* automatically build & push *all* images on commit
-* deprecate ``stable``, ``latest`` and ``testing``
+* allow users to specify extra languages (e.g. nodejs, rust, go)
+* de-motivate the usage of ``stable``, ``latest`` and ``testing``; and promote declaring language requirements instead
 * new images won't contain old/deprecated OS (eg. Ubuntu 18) and Python versions (eg. 3.5, miniconda2)
+* install language requirements *at built time* using ``asdf`` and its plugins
+* pre-build images with most common languages combination used by users to speed up built times
+* deleting a pre-built image won't make builds to fail; only make them slower
+* support only the latest Ubuntu LTS version and give 1 year to users to migrate from the previous one
 
 
 Non goals
@@ -65,12 +65,16 @@ Non goals
 
 * allow creation/usage of custom Docker images
 * allow to execute arbitrary commands via hooks (eg. ``pre_build``)
+* automatically build & push *all* images on commit
 
 
-New build image structure
--------------------------
+Pre-built build image structure
+-------------------------------
 
 .. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/master/Dockerfile
+
+The new pre-built images will use Ubuntu OS + Python (Python, Conda, Mamba) version.
+They will contain all the requirements to add extra languages support at built time via ``asdf`` command.
 
 * ``ubuntu20-base``
 
@@ -79,28 +83,34 @@ New build image structure
   * system dependencies
   * install requirements
   * LaTeX dependencies (for PDF generation)
-  * other languages version managers (``pyenv``, ``nodenv``, etc)
+  * languages version manager (``asdf``) and its plugins for each language
   * UID and GID
 
 The following images all are based on ``ubuntu20-base``:
 
 * ``ubuntu20-py*``
 
-  * Python version installed via ``pyenv``
+  * Python version installed via ``asdf``
   * default Python packages (pinned versions)
+
     * pip
     * setuptools
     * virtualenv
+
   * labels
 
 * ``ubuntu20-conda*``
 
-  * same as ``-py*`` versions
-  * Conda version installed via ``pyenv``
-  * ``mamba`` executable (installed via ``conda``)
+  * Conda (``miniconda3-*``) version installed via ``asdf``
+  * labels
 
-Note that all these images only need to run ``pyenv install ${PYTHON_VERSION}``
-to install a specific Python/Conda version.
+* ``ubuntu20-mamba*``
+
+  * Mamba (``mambaforge*``) version installed via ``asdf``
+  * labels
+
+Note that all these images only need to run ``asdf install python ${PYTHON_VERSION}``
+to install a specific Python/Conda/Mamba version.
 
 .. Build all these images with Docker
 
@@ -111,63 +121,111 @@ to install a specific Python/Conda version.
    Check the shared space between images
    docker system df --verbose | grep -E 'SHARED SIZE|readthedocs'
 
+   REPOSITORY          TAG                 IMAGE ID            CREATED ago             SIZE                SHARED SIZE         UNIQUE SiZE         CONTAINERS
+   readthedocs/build   ubuntu20-conda47    23378d0eab23        32 seconds ago ago      6.252GB             5.906GB             346.5MB             0
+   readthedocs/build   ubuntu20-py39       e696c672302e        2 minutes ago ago       6.184GB             5.906GB             278.7MB             0
+   readthedocs/build   ubuntu20-mamba410   1a1f6a2eeeec        5 minutes ago ago       6.451GB             5.906GB             545.7MB             0
+   readthedocs/build   ubuntu20-py27       bed2a8953854        About an hour ago ago   6.065GB             5.906GB             159.6MB             0
+   readthedocs/build   ubuntu20-py38       b197e9aeeae4        About an hour ago ago   6.172GB             5.906GB             266.5MB             0
+   readthedocs/build   ubuntu20-base       49b683d70723        About an hour ago ago   5.906GB             5.906GB             0B                  0
+
    Initial Dockerfile.* as example for this are pushed in this PR
    https://github.com/readthedocs/readthedocs-docker-images/pull/166
 
+   Note that once the -base image is built, the other ones are **fast** to build.
 
-Specifying extra user's dependencies
-------------------------------------
 
-Different users may have different requirements. We were already requested to install
-``swig``, ``imagemagick``, ``libmysqlclient-dev``, ``lmod``, ``rust``, ``poppler-utils``, etc.
+Specifying extra languages requirements
+---------------------------------------
 
-People with specific dependencies will be able to install them as APT packages or as extras
-using ``.readthedocs.yaml`` config file. Example:
+Different users may have different requirements.
+People with specific language dependencies will be able to install them by using ``.readthedocs.yaml`` config file.
+Example:
 
 .. code:: yaml
 
+   version: 3
    build:
-     image: ubuntu20
-     python: 3.9
-     system_packages:
-       - swig
-       - imagemagick
-     extras:
-       - node==14
-       - rust==1.46
+     os: ubuntu20
+     languages:
+       python: "3.9"  # supports "pypy3", "miniconda3" and "mambaforge"
+       nodejs: "14"
+       rust: "1.54.0"
+       golang: "1.17"
 
 Important highlights:
 
-* users won't be able to use custom Ubuntu PPAs to install packages
-* all APT packages installed will be from official Ubuntu repositories
-* not specifying ``build.image`` will pick the latest OS image available
-* not specifying ``build.python`` will pick the latest Python version available
-* Ubuntu 18 will still be available via ``stable`` and ``latest`` images
-* all ``node`` (major) pre-compiled versions on ``nodenv`` are available to select
-* all ``rust`` (minor) pre-compiled versions on ``rustup`` are available to select
-* knowing exactly what packages users are installing,
-  could allow us to prebuild extra images: ``ubuntu20-py37+node14``
+* do not treat Python language different from the others (will help us to support other non-Python doctools in the future)
+* specifying ``build.languages.python: "3"`` will use Python version ``3.x.y``, and may different between builds
+* specifying ``build.languages.python: "3.9"`` will use Python version ``3.9.y``, and may different between builds
+* specifying ``build.languages.nodejs: "14"`` will use nodejs version ``14.x.y``, and may different between builds
+* if no full version is declared, it will use the latest available in pre-built images first; if there is no pre-built images for that version; the latest available on ``asdf`` will be installed
+* not specifying ``build.os`` will make the config file parser to fail
+* not specifying ``build.languages`` will make the config file parsing to fail (at least one is required)
+* specifying only ``build.languages.nodejs`` and using Sphinx to build the docs, will make the build to fail
+* ``build.image`` is incompatible with ``build.os`` or ``build.languages``
+* Ubuntu 18 will still be available via ``stable`` and ``latest`` images, but not in new ones
+* a subset (not defined yet) of ``python``, ``nodejs``, ``rust`` and ``go`` versions on ``asdf`` are available to select
 
-.. admonition:: Implementation
+.. note::
 
-   We talked about using a ``Dockerfile.custom`` and build it on every build.
-   However, at this point it requires extra work to change our build pipeline.
-   We decided to install OS packages from the application itself for now using
-   Docker API to call ``docker exec`` as ``root`` user.
+   We are moving away from users specifying a particular Docker image.
+   With the new approach, users will specify the languages requirements they need,
+   and Read the Docs will decide if it will use a pre-built image or will spin up the base one and install these languages on the fly.
 
-   This reduces the amount of work required but also allows us to add this feature
-   to our current existing images (they require a rebuild to add ``nodenv`` and ``rustup``)
+   However, ``build.image`` will be still available for backward compatibility with ``stable``, ``latest`` and ``testing`` but won't support the new ``build.languages`` config.
+
+Note that knowing exactly what packages users are installing,
+could allow us to pre-build the most common combinations used images: ``ubuntu20-py39+node14``.
+
+
+Time required to install languages at build time
+------------------------------------------------
+
+In my testings using ``time`` command in ASG instances,
+installing extra languages took these "real" times:
+
+* ``build-default``
+
+  * python 3.9.6: 2m21.331s
+  * mambaforge 4.10.1: 0m26.291s
+  * miniconda3 4.7.12: 0m9.955s
+  * nodejs 14.17.5: 0m5.603s
+  * rust 1.54.0: 0m13.587s
+  * golang 1.17: 1m30.428s
+
+* ``build-large``
+
+  * python 3.9.6: 2m33.688s
+  * mambaforge 4.10.1: 0m28.781s
+  * miniconda3 4.7.12: 0m10.551s
+  * nodejs 14.17.5: 0m6.136s
+  * rust 1.54.0: 0m14.716s
+  * golang 1.17: 1m36.470s
+
+Note that the only one that required compilation was Python.
+All the others, spend 100% of its time downloading the binary.
+These download times are *way better from EU* with my home internet connection.
+
+In the worst scenario: "none of the specified language version has a pre-built image",
+the build will require ~5 minutes to install all the language requirements.
+By providing *only* pre-built images with the Python version (that's the most time consuming),
+build times will only require ~2 minutes to install the others.
+However, requiring one version of each language is not a common case.
 
 
 Updating versions over time
 ---------------------------
 
-How do we add/upgrade a Python version?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do we upgrade a Python version?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Python patch versions can be upgraded on the affected image.
 As the ``base`` image won't change for this case, it will only modify the layers after it.
 All the OS package versions will remain the same.
+
+How do we add a Python version?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In case we need to *add* a new Python version, we just need to build a new image based on ``base``:
 ``ubuntu20-py310`` that will contain Python 3.10 and none of the other images are affected.
@@ -191,7 +249,12 @@ Examples of these versions are:
 
 This case will introduce a new ``base`` image. Example, ``ubuntu22-base`` in 2022.
 Note that these images will be completely isolated from the rest and don't require them to rebuild.
-This also allow us to test new Ubuntu versions without breaking people's builds.
+This also allow us to start testing a newer Ubuntu version (e.g. 22.04 LTS) without breaking people's builds,
+even before it's officially released.
+
+We can start just with the ``base`` image and install all the languages dependencies at built time for the tests,
+without building many images based on the new OS version and having to store them on disk without people using them.
+
 
 How do we add an extra requirement?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,74 +262,96 @@ How do we add an extra requirement?
 In case we need to add an extra requirement to the ``base`` image,
 we will need to rebuild all of them.
 The new image *may have different package versions* since there may be updates on the Ubuntu repositories.
-This conveys some small risk here, but in general we shouldn't require to add packages to the base images.
+This conveys some risk here, but in general we shouldn't require to add packages to the base images.
 
-Users with specific requirements could use ``build.system_packages`` and/or ``build.extras`` in the config file.
+In case we need an extra requirement for *all our images*,
+I'd recommend to add it when creating a new base image.
+
+If it's strongly needed and we can't wait for a new base image,
+we could install it at build time in a similar way as we do with ``build.apt_packages`` as a temporal workaround.
+
 
 How do we remove an old Python version?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-At some point an old version of Python will be deprecated (eg. 3.4) and will be removed.
-To achieve this, we can just remove the Docker image affected: ``ubuntu20-py34``,
-once there are no users depending on it anymore.
+At some point, an old version of Python will be deprecated (eg. 3.4) and will be removed.
+To achieve this, we can just remove the the pre-built Docker image affected: ``ubuntu20-py34``,
+once there are no users depending on it anymore (``build.os: ubuntu20`` and ``build.languages.python: 3.4``).
 
-We will know which projects are using these images because they are pinning it in the config file.
+We will know which projects are using these images because they are pinning these specific versions in the config file.
 We could show a message in the build output page and also send them an email with the EOL date for this image.
+
+However, removing an image that it's being currently used by some users won't make their builds to fail.
+Instead, that Python version will be installed at build time from the ``base`` image;
+adding a "penalization" time to those projects and motivating them to move forward to a newer version.
+
 
 Deprecation plan
 ----------------
 
 It seems we have ~50Gb free on builders disks.
-Considering that the new images will be sized approximately (built locally as test):
+Considering that the new images will be sized approximately (built on ``build-large`` as test):
 
-* ``ubuntu20-base``: ~5Gb
-* ``ubuntu20-py27``: ~150Mb
-* ``ubuntu20-py36``: ~210Mb
-* ``ubuntu20-py39``: ~20Mb
-* ``ubuntu20-conda47``: ~713Mb
+* ``ubuntu20-base``: 6Gb
+* ``ubuntu20-py27``: 150Mb
+* ``ubuntu20-py38``: 250Mb
+* ``ubuntu20-py39``: 300Mb
+* ``ubuntu20-conda47``: 350Mb
+* ``ubuntu20-mamba410``: 550Mb
 
-which is about ~6Gb in total, we still have plenty of space.
+which is about ~8Gb in total, we still have plenty of space.
 
-We could keep ``stable``, ``latest`` and ``testing`` for some time without worry too much.
-New projects shouldn't be able to select these images and they will be forced to use ``ubuntu20``
-if they don't specify one.
+We could keep ``stable``, ``latest`` and ``testing`` for some good amount of time without worry too much.
+However, new projects shouldn't be able to select these images and they will be forced to use ``build.os`` and ``build.languages``.
 
-We may want to keep the two latest Ubuntu LTS releases available in production.
-At the moment of writing this they are:
+We may want to keep only the latest Ubuntu LTS releases available in production,
+with a special consideration for our current Ubuntu 18.04 LTS on ``stable``, ``latest`` and ``testing`` because 100% of the projects depend on them currently.
+Once Ubuntu 22.04 LTS is released, we should communicate that Ubuntu 20.04 LTS is deprecated,
+and give users 2 years to migrate to a newer image (1 year less than the official Ubuntu support for LTS images)
 
-* Ubuntu 18.04 LTS (our ``stable``, ``latest`` and ``testing`` images)
-* Ubuntu 20.04 LTS (our new ``ubuntu20``)
+.. warning::
 
-Once Ubuntu 22.04 LTS is released, we should deprecate Ubuntu 18.04 LTS,
-and give users 6 months to migrate to a newer image.
+   Deleting ``-base`` images from the build servers **will make project's builds to fail**.
+   We want to keep supporting them as much as we can, but having a well-defined deprecation policy is a win.
 
 
-Work required
--------------
+Work required and rollout plan
+------------------------------
 
-There are a lot of work to do here.
-However, we want to prioritize it based on users' impact.
+The following steps are required to support the full proposal of this document.
 
-#. allow users to install packages with APT
+#. allow users to install extras languages requirements via config file
 
-   * update config file to support ``build.system_packages`` config
-   * modify builder code to run ``apt-get install`` as ``root`` user
+   * update config file to support ``build.os`` and ``build.languages`` config
+   * modify builder code to run ``asdf install`` for all supported languages
 
-#. allow users to install extras via config file
+#. build new Docker images with new structure (``ubuntu20-base``)
 
-   * update config file to support ``build.extras`` config
-   * modify builder code to run ``nodenv install`` / ``rustup install``
-   * re-build our current images with pre-installed nodenv and rustup
-   * make sure that all the versions are the same we have in production
-   * deploy builders with newer images
+   * build new images with Ubuntu 20.04 LTS and pre-installed ``asdf`` with all its plugins
+   * do not install any language version on pre-built images
+   * deploy builders with new base image
 
-#. pre-build commands (not covered in this document)
+#. update builders to install ``build.languages`` selected by the user
 
-#. new structure
 
-   * update config file to support new image names for ``build.image``
-   * automate Docker image building
-   * deploy builders with newer images
+At this point, we will have a full working setup.
+It will be opt-in by using the new Config File V3.
+However, *all languages* will be installed at build time;
+which will "penalize" all projects because all of them will have to install Python.
+
+After testing this for some time, we can continue with the following steps that provides pre-built images:
+
+#. pre-build latest 3 Python versions and Python 2.7, latest conda and latest mamba without extra languages
+
+   * ``ubuntu20-py27``
+   * ``ubuntu20-py37``, ``ubuntu20-py38``, ``ubuntu20-py39``
+   * ``ubuntu20-miniconda47``
+   * ``ubuntu20-mambaforge410``
+   * deploy builders with new pre-built images
+
+#. add feature flag to force new projects to use Config File V3 (``build.os`` and ``build.language``)
+
+#. collect some data on most used languages combinations and pre-built Docker images for them
 
 
 Conclusion
@@ -278,7 +363,15 @@ The version of the OS will change many library versions,
 LaTeX dependencies, basic required commands like git and more,
 that doesn't seem to be useful to have the same OS version with different states.
 
-Allowing users to install system dependencies and extras will cover most of the support requests we have had in the past.
+Allowing users to install extra languages by using the Config File will cover most of the support requests we have had in the past.
 It also will allow us to know more about how our users are using the platform to make future decisions based on this data.
 Exposing users how we want them to use our platform will allow us to be able to maintain it longer,
-than giving them totally freedom on the Docker image.
+than giving the option to select a specific Docker image by name that it's not freezed.
+
+Finally, having the ability to deprecate and *remove* pre-built images from our builders over time,
+will reduce the maintainance work required from the the core team and also will reduce the disk space required.
+We can always support all the languages versions by installing them at build time.
+The only required pre-built image for this are the OS ``-base`` images.
+In fact, even after decided to deprecate and removed a pre-built image from the builders,
+we can re-build it if we find that it's affecting many projects and slowing down their builds too much,
+causing us problems.
