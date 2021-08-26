@@ -105,7 +105,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Project with slug=new-project is not a valid subproject',
+            'Project with slug=new-project is not valid as subproject',
             response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
@@ -130,7 +130,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Project with slug=project is not a valid subproject',
+            'Project with slug=project is not valid as subproject',
             response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
@@ -155,7 +155,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Project with slug=subproject is not a valid subproject',
+            'Project with slug=subproject is not valid as subproject',
             response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)

@@ -1282,31 +1282,6 @@ class Project(models.Model):
                 _('Subproject nesting is not supported'),
             )
 
-    def is_valid_as_subproject(self, parent, error_class):
-        """
-        Checks if the project can be a subproject.
-
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
-        """
-        # Check the child project is not a subproject already
-        if self.superprojects.exists():
-            raise error_class(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if self.subprojects.exists():
-            raise error_class(
-                _('Child is already a superproject'),
-            )
-
-        # Check the parent and child are not the same project
-        if parent.slug == self.slug:
-            raise error_class(
-                _('Project can not be subproject of itself'),
-            )
-
     def get_subproject_candidates(self, user):
         """
         Get a queryset of projects that would be valid as a subproject for this project.
@@ -1320,6 +1295,8 @@ class Project(models.Model):
         If the project belongs to an organization,
         we only allow projects under the same organization as subprojects,
         otherwise only projects that don't belong to an organization.
+
+        Both projects need to share the same owner/admin.
         """
         organization = self.organizations.first()
         queryset = (

@@ -633,7 +633,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         )
         # Give users a better error message.
         self.fields['child'].error_messages['does_not_exist'] = _(
-            'Project with {slug_name}={value} is not a valid subproject'
+            'Project with {slug_name}={value} is not valid as subproject'
         )
 
     def validate_alias(self, value):
