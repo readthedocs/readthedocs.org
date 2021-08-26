@@ -619,14 +619,8 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         ]
 
     def __init__(self, *args, **kwargs):
-        # Initialize the instance with the parent Project to be used in the
-        # serializer validation. When this Serializer is rendered as a Form in
-        # BrowsableAPIRenderer, it's not initialized with the ``parent``, so we
-        # default to ``None`` because we don't need it at that point.
-        self.parent_project = kwargs.pop('parent', None)
-
         super().__init__(*args, **kwargs)
-
+        self.parent_project = self.context['parent']
         user = self.context['request'].user
         self.fields['child'].queryset = (
             self.parent_project.get_subproject_candidates(user)
