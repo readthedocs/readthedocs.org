@@ -76,6 +76,11 @@ class Organization(models.Model):
         help_text='Docs and builds are disabled for this organization',
         default=False,
     )
+    artifacts_cleaned = models.BooleanField(
+        _('Artifacts Cleaned'),
+        help_text='Artifacts are cleaned out from storage',
+        default=False,
+    )
     max_concurrent_builds = models.IntegerField(
         _('Maximum concurrent builds allowed for this organization'),
         null=True,
