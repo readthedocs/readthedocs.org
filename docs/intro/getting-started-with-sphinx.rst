@@ -4,7 +4,6 @@ Getting Started with Sphinx
 .. meta::
    :description lang=en: Get started writing technical documentation with Sphinx and publishing to Read the Docs.
 
-
 Sphinx is a powerful documentation generator that
 has many great features for writing technical documentation including:
 
@@ -15,6 +14,10 @@ has many great features for writing technical documentation including:
 * An extensive system of cross-referencing code and documentation
 * Syntax highlighted code samples
 * A vibrant ecosystem of first and third-party :doc:`extensions <sphinx:usage/extensions/index>`
+
+If you want to learn more about how to create your first Sphinx project, read on.
+If you are interested in exploring the Read the Docs platform using an already existing Sphinx project,
+check out :doc:`/tutorial/index`.
 
 Quick start
 -----------
