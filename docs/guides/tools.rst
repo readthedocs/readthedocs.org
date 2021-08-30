@@ -12,7 +12,6 @@ whether that is Sphinx or MkDocs.
    intersphinx
    jupyter
    manage-translations
-   mkdocs-old-versions
    pdf-non-ascii-languages
    remove-edit-buttons
    vcs
