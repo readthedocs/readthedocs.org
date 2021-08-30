@@ -1,3 +1,15 @@
+Version 5.23.3
+--------------
+
+:Date: August 30, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8449 <https://github.com/readthedocs/readthedocs.org/pull/8449>`__)
+* `@stsewd <https://github.com/stsewd>`__: Upgrade ES to 7.14.0 (`#8448 <https://github.com/readthedocs/readthedocs.org/pull/8448>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: typo in tutorial (`#8442 <https://github.com/readthedocs/readthedocs.org/pull/8442>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Docs miscellaneous enhancements (`#8440 <https://github.com/readthedocs/readthedocs.org/pull/8440>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
+* `@humitos <https://github.com/humitos>`__: Track organization artifacts cleanup (`#8418 <https://github.com/readthedocs/readthedocs.org/pull/8418>`__)
+
 Version 5.23.2
 --------------
 
