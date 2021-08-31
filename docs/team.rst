@@ -105,3 +105,11 @@ are :doc:`open source </open-source-philosophy>`, and therefore
 Our platform code has `over a hundred
 contributors <https://github.com/readthedocs/readthedocs.org/graphs/contributors>`_,
 which makes us extremely proud and thankful.
+In addition, several contributors have performed ongoing maintenance on several subprojects
+over the years:
+
+* `Aaron Carlisle`_ for `our Sphinx theme <https://github.com/readthedocs/sphinx_rtd_theme>`_.
+* `Ashley Whetter`_ for `our autoapi Sphinx extension <https://github.com/readthedocs/sphinx-autoapi>`_.
+
+.. _Aaron Carlisle: https://github.com/blendify
+.. _Ashley Whetter: https://github.com/AWhetter
