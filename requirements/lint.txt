@@ -1,4 +1,4 @@
 # Packages required for doing linting
 
 -r pip.txt
-prospector==1.5.0.1
+prospector==1.4.1
