@@ -784,6 +784,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         # the image set by user or,
         if self.config and self.config.build.image:
             self.container_image = self.config.build.image
+        # the new Docker image structure or,
+        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
+            self.container_image = 'readthedocs/build:ubuntu20'
         # the image overridden by the project (manually set by an admin).
         if self.project.container_image:
             self.container_image = self.project.container_image

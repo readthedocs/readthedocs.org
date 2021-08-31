@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import shutil
+import tarfile
 
 import yaml
 from django.conf import settings
@@ -22,6 +23,7 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+from readthedocs.storage import build_languages_storage
 
 log = logging.getLogger(__name__)
 
@@ -317,14 +319,116 @@ class Virtualenv(PythonEnvironment):
         cli_args.append(
             self.venv_path(),
         )
+
+        # TODO: make ``self.config.python_interpreter`` return the correct value
+        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
+            python_interpreter = 'python'
+        else:
+            python_interpreter = self.config.python_interpreter
+
         self.build_env.run(
-            self.config.python_interpreter,
+            python_interpreter,
             *cli_args,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
             cwd=None,
         )
+
+    def install_languages(self):
+        if settings.RTD_DOCKER_COMPOSE:
+            # Create a symlink for ``root`` user to use the same ``.asdf``
+            # installation than ``docs`` user. Required for local building
+            # since everything is run as ``root`` when using Local Development
+            # instance
+            cmd = [
+                'ln',
+                '-s',
+                '/home/docs/.asdf',
+                '/root/.asdf',
+            ]
+            self.build_env.run(
+                *cmd,
+            )
+
+        # TODO: do not use a Feature flag here, but check for ``build.os`` and
+        # ``build.languages`` instead
+        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
+            # TODO: iterate over ``build.languages`` and install all languages
+            # specified for this project
+            os = 'ubuntu20'
+            language = 'python'
+            version = '3.9.6'
+
+            # TODO: generate the correct path for the Python version
+            # language_path = f'{os}/{language}/2021-08-30/{version}.tar.gz'
+            language_path = f'{os}-{language}-{version}.tar.gz'
+            language_version_cached = build_languages_storage.exists(language_path)
+            if language_version_cached:
+                remote_fd = build_languages_storage.open(language_path, mode='rb')
+                with tarfile.open(fileobj=remote_fd) as tar:
+                    # Extract it on the shared path between host and Docker container
+                    extract_path = os.path.join(self.project.doc_path, 'languages')
+                    tar.extractall(extra_path)
+
+                    # Move the extracted content to the ``asdf`` installation
+                    cmd = [
+                        'mv',
+                        f'{extract_path}/{version}',
+                        f'/home/docs/.asdf/installs/{language}/{version}',
+                    ]
+                    self.build_env.run(
+                        *cmd,
+                    )
+            else:
+                # If the language version selected is not available from the
+                # cache we compile it at build time
+                cmd = [
+                    'asdf',
+                    'install',
+                    language,
+                    version,
+                ]
+                self.build_env.run(
+                    *cmd,
+                )
+
+            # Make the language version chosen by the user the default one
+            cmd = [
+                'asdf',
+                'global',
+                language,
+                version,
+            ]
+            self.build_env.run(
+                *cmd,
+            )
+
+            # Recreate shims for this language to make the new version
+            # installed available
+            cmd = [
+                'asdf',
+                'reshim',
+                language,
+            ]
+            self.build_env.run(
+                *cmd,
+            )
+
+            if language == 'python' and not language_version_cached:
+                # Install our own requirements if the version is compiled
+                cmd = [
+                    'python',
+                    '-m'
+                    'pip',
+                    'install',
+                    '-U',
+                    'virtualenv',
+                    'setuptools',
+                ]
+                self.build_env.run(
+                    *cmd,
+                )
 
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""

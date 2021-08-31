@@ -26,6 +26,12 @@ class ConfiguredBuildCommandsStorage(LazyObject):
         self._wrapped = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
 
 
+class ConfiguredBuildLanguagesStorage(LazyObject):
+    def _setup(self):
+        self._wrapped = get_storage_class(settings.RTD_BUILD_LANGUAGES_STORAGE)()
+
+
 build_media_storage = ConfiguredBuildMediaStorage()
 build_environment_storage = ConfiguredBuildEnvironmentStorage()
 build_commands_storage = ConfiguredBuildCommandsStorage()
+build_languages_storage = ConfiguredBuildLanguagesStorage()

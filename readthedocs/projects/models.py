@@ -1669,6 +1669,7 @@ class Feature(models.Model):
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     DONT_CREATE_INDEX = 'dont_create_index'
+    USE_NEW_DOCKER_IMAGES_STRUCTURE = 'use_new_docker_images_structure'
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -1689,6 +1690,10 @@ class Feature(models.Model):
         (
             USE_TESTING_BUILD_IMAGE,
             _('Use Docker image labelled as `testing` to build the docs'),
+        ),
+        (
+            USE_NEW_DOCKER_IMAGES_STRUCTURE,
+            _('Use new Docker images that install languages at build time'),
         ),
         (
             API_LARGE_DATA,
