@@ -124,7 +124,7 @@ The main difference with the current approach are:
 
 * the image spin is selected depending on the OS version
 * all language dependencies are installed at build time
-* languages not offereing binaries are pre-compiled by Read the Docs and stored in the cache
+* languages not offering binaries are pre-compiled by Read the Docs and stored in the cache
 * miniconda/mambaforge are now managed with the same management tool
 
 
@@ -170,7 +170,7 @@ Important highlights:
    However, ``build.image`` will be still available for backward compatibility with ``stable``, ``latest`` and ``testing`` but won't support the new ``build.languages`` config.
 
 Note that knowing exactly what packages users are installing,
-could allow us to pre-build the most common combinations used images: ``ubuntu20-py39+node14``.
+could allow us to pre-build the most common combinations used images: ``ubuntu20+py39+node14``.
 
 
 Time required to install languages at build time
