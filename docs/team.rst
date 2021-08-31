@@ -15,7 +15,8 @@ We mainly fund our operations through :doc:`advertising </advertising/index>`
 and corporate-hosted documentation with `Read the Docs for Business <https://readthedocs.com/>`_,
 and we are supported by a number of generous :doc:`sponsors </sponsors>`.
 
-The :ref:`Core Team <core-team>` works full time on the service.
+The :ref:`Core Team <core-team>` works full time on the service,
+and we are also honored to have several :ref:`External Contributors <external-contributors>`.
 
 .. _core-team:
 
@@ -90,3 +91,17 @@ Advocacy, Support            Frontend
          :width: 100px
          :alt: Ana Costa
          :target: `Ana Costa`_
+
+.. _external-contributors:
+
+External Contributors
+---------------------
+
+`The code that powers the Read the Docs platform <https://github.com/readthedocs/readthedocs.org/>`_,
+as well as many other related projects in `our GitHub organization <https://github.com/readthedocs>`_,
+are :doc:`open source </open-source-philosophy>`, and therefore
+:doc:`anybody can contribute </contribute>`.
+
+Our platform code has `over a hundred
+contributors <https://github.com/readthedocs/readthedocs.org/graphs/contributors>`_,
+which makes us extremely proud and thankful.
