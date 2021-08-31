@@ -11,112 +11,48 @@ Today we:
 Read the Docs is provided as a free service to the open source community,
 and we hope to maintain a reliable and stable hosting platform for years to come.
 
-The teams that we have currently created are:
+We mainly fund our operations through :doc:`advertising </advertising/index>`
+and corporate-hosted documentation with `Read the Docs for Business <https://readthedocs.com/>`_,
+and we are supported by a number of generous :doc:`sponsors </sponsors>`.
 
-.. contents::
-   :local:
-   :depth: 1
+The :ref:`Core Team <core-team>` works full time on the service.
 
-Backend Team
-------------
+.. _core-team:
 
-The Backend Team folks develop the Django code that powers the backend of the project.
+Core Team
+---------
 
-Backend team members
-~~~~~~~~~~~~~~~~~~~~
-
-* `Eric Holscher`_
-* `Anthony Johnson`_
-* `Manuel Kaufmann`_
-* `Santos Gallegos`_
-
-.. rst-class:: team-roster
-
-====== ========= ======== ========
-|eric| |anthony| |manuel| |santos|
-====== ========= ======== ========
-
-Frontend Team
--------------
-
-The members of the Frontend Team care about UX, CSS, HTML, and JavaScript,
-and they maintain the project UI as well as the Sphinx theme.
-
-Frontend team members
-~~~~~~~~~~~~~~~~~~~~~
-
-* `Eric Holscher`_
-* `Anthony Johnson`_
-* `Ana Costa`_
+* The **Backend Team** folks develop the Django code that powers the backend of the project.
+* The members of the **Frontend Team** care about UX, CSS, HTML, and JavaScript,
+  and they maintain the project UI as well as the Sphinx theme.
+* As part of operating the site, members of the **Operations Team** maintain a 24/7 on-call rotation.
+  This means that folks have to be available and have their phone in service.
+* The members of the **Advocacy Team** spread the word about all the work we do,
+  and seek to understand the users priorities and feedback.
+* The **Support Team** helps our thousands of users using the service,
+  addressing tasks like resetting passwords, enable experimental features, or troubleshooting build errors.
 
 .. rst-class:: team-roster
 
-====== ========= =====
-|eric| |anthony| |ana|
-====== ========= =====
+============================ ============================
+|eric| Eric Holscher         |anthony| Anthony Johnson
+============================ ============================
+*All teams*                  *All teams*
 
-Operations Team
----------------
+|manuel| Manuel Kaufmann     |santos| Santos Gallegos
 
-readthedocs.org is a service that millions of people depend on each month.
-As part of operating the site, members of the Ops Team maintain a 24/7 on-call rotation.
-This means that folks have to be available and have their phone in service.
+Backend, Operations, Support Backend, Operations, Support
 
-Ops team members
-~~~~~~~~~~~~~~~~
+|juanlu| Juan Luis Cano      |ana| Ana Costa
 
-* `Eric Holscher`_ (Pacific Time)
-* `Anthony Johnson`_ (Mountain Time)
-* `Santos Gallegos`_ (Ecuador Time)
-* `Manuel Kaufmann`_ (Central European Time)
+Advocacy, Support            Frontend
+============================ ============================
 
-.. rst-class:: team-roster
+.. note::
 
-====== ========= ======== ========
-|eric| |anthony| |manuel| |santos|
-====== ========= ======== ========
-
-Advocacy Team
--------------
-
-The members of the Advocacy Team spread the word about all the work we do,
-and seek to understand the users priorities and feedback.
-
-Advocacy team members
-~~~~~~~~~~~~~~~~~~~~~
-
-* `Eric Holscher`_
-* `Anthony Johnson`_
-* `Juan Luis Cano`_
-
-.. rst-class:: team-roster
-
-====== ========= ========
-|eric| |anthony| |juanlu|
-====== ========= ========
-
-Support Team
-------------
-
-Read the Docs has thousands of users who depend on it everyday.
-Every day at least one of them has an issue that needs to be addressed by a site admin.
-This might include tasks like:
-
-* Resetting a password
-* Asking for a project name to be released
-* Troubleshooting build errors
-
-Support team members
-~~~~~~~~~~~~~~~~~~~~
-
-* `Eric Holscher`_ (Pacific Time)
-* `Anthony Johnson`_ (Mountain Time)
-* `Santos Gallegos`_ (Ecuador Time)
-* `Manuel Kaufmann`_ (Central European Time)
-* `Juan Luis Cano`_ (Central European Time)
-
-**Please don't email us personally for support on Read the Docs.**
-You can `use our support form <https://readthedocs.org/support/>`_ for any issues you may have.
+   **Please don't email us personally for support on Read the Docs.**
+   You can `use our support form <https://readthedocs.org/support/>`_
+   for any issues you may have.
 
 .. _Eric Holscher: https://github.com/ericholscher
 .. _Anthony Johnson: https://github.com/agjohnson
