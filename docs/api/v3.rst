@@ -909,6 +909,12 @@ Subproject create
             "alias": "subproject-alias"
         }
 
+    .. note::
+
+      ``child`` must be a project that you have access to.
+      Or if you are using :doc:`/commercial/index`,
+      additionally the project must be under the same organization as the parent project.
+
     **Example response**:
 
     `See Subproject details <#subproject-details>`_

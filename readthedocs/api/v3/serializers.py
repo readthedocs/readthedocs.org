@@ -651,30 +651,16 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         ]
 
     def __init__(self, *args, **kwargs):
-        # Initialize the instance with the parent Project to be used in the
-        # serializer validation. When this Serializer is rendered as a Form in
-        # BrowsableAPIRenderer, it's not initialized with the ``parent``, so we
-        # default to ``None`` because we don't need it at that point.
-        self.parent_project = kwargs.pop('parent', None)
-
         super().__init__(*args, **kwargs)
-
+        self.parent_project = self.context['parent']
         user = self.context['request'].user
-        # TODO: Filter projects using project restrictions for subproject.
-        self.fields['child'].queryset = user.projects.all()
-
-    def validate_child(self, value):
-        # Check the user is maintainer of the child project
-        user = self.context['request'].user
-        if user not in value.users.all():
-            raise serializers.ValidationError(
-                _('You do not have permissions on the child project'),
-            )
-
-        value.is_valid_as_subproject(
-            self.parent_project, serializers.ValidationError
+        self.fields['child'].queryset = (
+            self.parent_project.get_subproject_candidates(user)
         )
-        return value
+        # Give users a better error message.
+        self.fields['child'].error_messages['does_not_exist'] = _(
+            'Project with {slug_name}={value} is not valid as subproject'
+        )
 
     def validate_alias(self, value):
         # Check there is not a subproject with this alias already
