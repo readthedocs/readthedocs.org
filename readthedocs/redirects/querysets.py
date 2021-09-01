@@ -1,9 +1,10 @@
 """Queryset for the redirects app."""
-
 import logging
 
 from django.db import models
 from django.db.models import CharField, F, Q, Value
+
+from readthedocs.core.permissions import AdminPermission
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,14 @@ class RedirectQuerySet(models.QuerySet):
 
     def _add_from_user_projects(self, queryset, user):
         if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset.distinct()
