@@ -5,8 +5,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
-
+from readthedocs.projects.models import Project
 
 User = get_user_model()
 
@@ -331,56 +330,3 @@ class TestExternalBuildManager(TestBuildManagerBase):
         }
         self.assertEqual(query.count(), len(builds))
         self.assertEqual(set(query), builds)
-
-
-class TestHTMLFileManager(TestCase):
-
-    fixtures = ['test_data', 'eric']
-
-    def setUp(self):
-        self.user = User.objects.create(username='test_user', password='test')
-        self.client.login(username='test_user', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: pull/merge request Version.
-        self.external_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PUBLIC
-        )
-        self.internal_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            privacy_level=PUBLIC
-        )
-        self.external_html_file = HTMLFile.objects.create(
-            project=self.pip,
-            version=self.external_version,
-            name='file.html',
-            path='file.html',
-            commit='1234567890abcdef',
-        )
-        self.internal_html_file = HTMLFile.objects.create(
-            project=self.pip,
-            version=self.internal_version,
-            name='file.html',
-            path='file.html',
-            commit='1234567890abcdef',
-        )
-
-    def test_internal_html_file_queryset(self):
-        """
-        It will exclude pull/merge request Version html files from the queries
-        and only include BRANCH, TAG, UNKNOWN type Version files.
-        """
-        self.assertNotIn(self.external_html_file, HTMLFile.objects.internal())
-        self.assertIn(self.internal_html_file, HTMLFile.objects.internal())
-
-    def test_external_html_file_queryset(self):
-        """
-        It will only include pull/merge request Version html files in the queries.
-        """
-        self.assertNotIn(self.internal_html_file, HTMLFile.objects.external())
-        self.assertIn(self.external_html_file, HTMLFile.objects.external())

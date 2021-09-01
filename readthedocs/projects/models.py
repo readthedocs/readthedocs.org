@@ -34,7 +34,6 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
-    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -1433,7 +1432,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
+    objects = HTMLFileManager()
 
     def get_processed_json(self):
         parser_class = (
