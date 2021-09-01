@@ -10,7 +10,7 @@ Read the Docs currently uses the OAuth Application to support "Login with
 GitHub" and "Import Project". They require different level of permissions, but
 OAuth Application does not really allow us to manage them in a granular way.
 
-Based in our needings and the GitHub recommendations in
+Based on our needs and the GitHub recommendations in
 https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps#determining-which-integration-to-build
 we should use a GitHub Application for Read the Docs::
 
@@ -34,7 +34,7 @@ implementation.
 Problems with current implementation
 ------------------------------------
 
-* We request too permisives scope at Sign Up
+* We request permissions that are too permissive at Sign Up
 
   Even if our application will never require some of these scopes (because it's
   a read user --and will never import a project), we ask for too many permissions.
@@ -65,9 +65,9 @@ Goals
 * Support GitHub Application *and* OAuth Application at the same time during the
   migration time
 * Support all the GitHub features current using OAuth Application
-  * GitHub SSO
-  * Pull Request builder
-  * Trigger a build on push
+   * GitHub SSO
+   * Pull Request builder
+   * Trigger a build on push
 * Don't require SSH key to clone private repositories
 
 
@@ -254,17 +254,12 @@ By doing this, we will keep our ``Remote*`` table very small because we will
 only track repositories that users gave us permissions. Then, only these
 repositories will be shown in the "Import Project" page.
 
-Once they created a new repository under their organization, they will need to
-go to the GitHub Application installation configuration and grant access to the
+Once they created a new repository under their organization, if they haven't given us
+access to "All repositories",
+they will need to go to the GitHub Application installation configuration and grant access to the
 new repository. This will send us a webhook (``installation_repositories``,
 https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#installation_repositories)
 and we can automatically do a re-sync of ``Remote*`` models.
-
-.. note::
-
-   Users installing our GitHub Application and selecting "All repositories" will
-   always see all the repositories on the "Import Project" page.
-
 
 Need more research
 ------------------
