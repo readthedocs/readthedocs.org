@@ -55,10 +55,9 @@ Goals
 * de-motivate the usage of ``stable``, ``latest`` and ``testing``; and promote declaring language requirements instead
 * new images won't contain old/deprecated OS (eg. Ubuntu 18) and Python versions (eg. 3.5, miniconda2)
 * install language requirements *at built time* using ``asdf`` and its plugins
-* pre-build images with most common languages combination used by users to speed up built times
 * create local mirrors for all languages supported
 * deleting a pre-built image won't make builds to fail; only make them slower
-* support only the latest Ubuntu LTS version and give 2 year to users to migrate from the previous one
+* support only the latest Ubuntu LTS version and keep the old one as long as it's officially supported
 * reduce the number of images supported only to the latest 2 Ubuntu LTS versions
 
 
