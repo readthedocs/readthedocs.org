@@ -122,10 +122,10 @@ With this new approach, the steps followed by a builder will be:
 
 The main difference with the current approach are:
 
-* the image spin is selected depending on the OS version
+* the image to spin up is selected depending on the OS version
 * all language dependencies are installed at build time
 * languages not offering binaries are pre-compiled by Read the Docs and stored in the cache
-* miniconda/mambaforge are now managed with the same management tool
+* miniconda/mambaforge are now managed with the same management tool (e.g. ``asdf install python miniconda3-4.7.12``)
 
 
 Specifying extra languages requirements
@@ -137,7 +137,6 @@ Example:
 
 .. code:: yaml
 
-   version: 3
    build:
      os: ubuntu20
      languages:
@@ -220,6 +219,14 @@ This will make a good improvement for languages that offer binaries: ``nodejs``,
 However, currently Python does not offer binaries and a different solution is needed.
 Python versions can be pre-compiled once and expose the output on the S3 for the builders to download and extract in the correct PATH.
 
+.. note::
+
+   Since we are building a special cache for pre-compiled Python,
+   we could use the same method for all the other languages instead of creating a full mirror (many Gigabyes)
+   This simple `bash script`_ download the language sources, compiles it and upload it to S3 without requiring a mirror.
+   Note that it works in the same way for all the languages, not just for Python.
+
+
 
 Questions
 ---------
@@ -240,22 +247,29 @@ How do we upgrade a Python version?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Python patch versions can be upgraded by re-compiling the new patch version and making it available in our cache.
-For example, if 3.9.6 is the one available and 3.9.7 is released:
+For example, if version 3.9.6 is the one available and 3.9.7 is released:
 
-* users specifying ``build.languages.python: "3.9"`` will get the newest version
-* users specifying ``build.languages.python: "3"`` will get the newest version
+* users specifying ``build.languages.python: "3.9"`` will get the 3.9.7 version
+* users specifying ``build.languages.python: "3"`` will get the 3.9.7 version
 
 .. note::
 
    Python versions may need to be re-compiled each time that the ``-base`` image is re-built.
    This is due that some underlying libraries that Python depend on may have changed.
 
+Note that as we will have control over these version, we can decide *when* to upgrade (if ever required)
+and we can roll back if the new pre-compiled version was built with a problem.
 
-How long a Python pre-compiled version will be supported?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
 
-It will be supported as long as the ``-base`` Ubuntu OS version is supported by Read the Docs as well.
+   Installing always the latest version is harder to maintain.
+   It will require building the newest version each time a new patch version is released.
+   Beacause of that, Read the Docs will always be behind official releases.
+   Besides, it will give projects different versions more often.
 
+   Exposing to the user the patch version would require to cache many different versions ourselves,
+   and if the user selects one patched version that we don't have cached by mistake,
+   those builds will add extra build time.
 
 How do we add a Python version?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -346,6 +360,9 @@ How local development will work with the new approach?
 Local development will require scripts to clone the official mirrors for each language and upload them to MinIO (S3).
 Besides, a script to define a set of Python version, pre-compile them and also upload them to S3.
 
+This is already covered by this simple `bash script`_ and tested in this PR with a POC:
+https://github.com/readthedocs/readthedocs.org/pull/8453
+
 
 Deprecation plan
 ----------------
@@ -358,7 +375,9 @@ New projects shouldn't be able to select these images and they will be forced to
 We may want to keep only the latest Ubuntu LTS releases available in production,
 with a special consideration for our current Ubuntu 18.04 LTS on ``stable``, ``latest`` and ``testing`` because 100% of the projects depend on them currently.
 Once Ubuntu 22.04 LTS is released, we should communicate that Ubuntu 20.04 LTS is deprecated,
-and give users 2 years to migrate to a newer image (1 year less than the official Ubuntu support for LTS images)
+and keep it available in our servers during the time that's officially supported by Ubuntu during the "Maintenance updates"
+(see "Login term support and interim releases" in https://ubuntu.com/about/release-cycle).
+As an example, Ubuntu 22.04 LTS will be officially released on April 2022 and we will offer support for it until 2027.
 
 .. warning::
 
@@ -382,11 +401,8 @@ The following steps are required to support the full proposal of this document.
    * do not install any language version on base image
    * deploy builders with new base image
 
-#. update builders to install ``build.languages`` selected by the user
-
-
 At this point, we will have a full working setup.
-It will be opt-in by using the new Config File V3.
+It will be opt-in by using the new configs ``build.os`` and ``build.languages``.
 However, *all languages* will be installed at build time;
 which will "penalize" all projects because all of them will have to install Python.
 
@@ -394,7 +410,6 @@ After testing this for some time, we can continue with the following steps that 
 
 #. create mirrors on S3 for all supported languages
 #. create mirror for pre-compiled latest 3 Python versions, Python 2.7 and PyPy3
-#. add feature flag to force new projects to use Config File V3 (``build.os`` and ``build.language``)
 
 
 Conclusion
@@ -418,3 +433,6 @@ The only required pre-built image for this are the OS ``-base`` images.
 In fact, even after decided to deprecate and removed a pre-built image from the builders,
 we can re-build it if we find that it's affecting many projects and slowing down their builds too much,
 causing us problems.
+
+
+.. _bash script: https://gist.github.com/humitos/191ee6990cbd951cf70318edbd13b922
