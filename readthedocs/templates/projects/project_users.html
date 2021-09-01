@@ -24,16 +24,14 @@
     {% endfor %}
     </ul>
 
-  {% if users|length > 1 %}
+  {% if not is_last_user %}
   <h3>{% trans "Remove Maintainer" %}</h3>
     <p>
         <form method="post" action="{% url "projects_users_delete" project.slug %}">
             {% csrf_token %}
           <select id="id_user" name="username">
           {% for user in users %}
-            {% if user != request.user %}
             <option value="{{ user.username }}">{{ user }}</option>
-            {% endif %}
           {% endfor %}
           </select>
           <input type="submit" value="{% trans "Remove" %}">

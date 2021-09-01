@@ -12,12 +12,12 @@ django-simple-history==3.0.0
 djangorestframework==3.12.4
 
 # For intersphinx during builds
-Sphinx==4.0.3
+Sphinx==4.1.2
 
 # Filtering for the REST API
 django-filter==2.4.0
 
-drf-flex-fields==0.9.1
+drf-flex-fields==0.9.3
 drf-extensions==0.7.1
 
 django-vanilla-views==3.0.0
@@ -114,9 +114,9 @@ git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c0
 
 
 # Required only in development and linting
-django-debug-toolbar==3.2.1
+django-debug-toolbar==3.2.2
 
 # For enabling content-security-policy
 django-csp==3.7
 # For setting the permissions-policy security header
-django-permissions-policy==4.0.1
+django-permissions-policy==4.2.0

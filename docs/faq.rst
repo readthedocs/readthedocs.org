@@ -265,6 +265,24 @@ In your Conda environment file (``environment.yml``)::
     -e ..
 
 
+Can I use Anaconda Project and ``anaconda-project.yml``?
+--------------------------------------------------------
+
+Yes. With ``anaconda-project>=0.8.4`` you can use the `Anaconda Project`_ configuration
+file ``anaconda-project.yaml`` (or ``anaconda-project.yml``) directly in place of a
+Conda environment file by using ``dependencies:`` as an alias for ``packages:``.
+
+I.e., your ``anaconda-project.yaml`` file can be used as a ``conda.environment`` config
+in the ``.readthedocs.yaml`` config file if it contains::
+
+    dependencies:
+      - python=3.9
+      - scipy
+      ...
+      
+.. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
+
+
 How can I avoid search results having a deprecated version of my docs?
 ----------------------------------------------------------------------
 
