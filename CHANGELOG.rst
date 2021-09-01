@@ -1,3 +1,41 @@
+Version 5.23.3
+--------------
+
+:Date: August 30, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8449 <https://github.com/readthedocs/readthedocs.org/pull/8449>`__)
+* `@stsewd <https://github.com/stsewd>`__: Upgrade ES to 7.14.0 (`#8448 <https://github.com/readthedocs/readthedocs.org/pull/8448>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: typo in tutorial (`#8442 <https://github.com/readthedocs/readthedocs.org/pull/8442>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Docs miscellaneous enhancements (`#8440 <https://github.com/readthedocs/readthedocs.org/pull/8440>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
+* `@humitos <https://github.com/humitos>`__: Track organization artifacts cleanup (`#8418 <https://github.com/readthedocs/readthedocs.org/pull/8418>`__)
+
+Version 5.23.2
+--------------
+
+:Date: August 24, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add MyST (Markdown) examples to "cross referencing with Sphinx" guide (`#8437 <https://github.com/readthedocs/readthedocs.org/pull/8437>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Added Search and Filters for `RemoteRepository` and `RemoteOrganization` admin list page (`#8431 <https://github.com/readthedocs/readthedocs.org/pull/8431>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Try out codeowners (`#8429 <https://github.com/readthedocs/readthedocs.org/pull/8429>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: do not log response header for each custom domain request (`#8427 <https://github.com/readthedocs/readthedocs.org/pull/8427>`__)
+* `@cclauss <https://github.com/cclauss>`__: Fix undefined names (`#8425 <https://github.com/readthedocs/readthedocs.org/pull/8425>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow cookies from cross site requests to avoid problems with iframes (`#8422 <https://github.com/readthedocs/readthedocs.org/pull/8422>`__)
+* `@cclauss <https://github.com/cclauss>`__: Finish codespell -- Concludes #8409 (`#8421 <https://github.com/readthedocs/readthedocs.org/pull/8421>`__)
+* `@cclauss <https://github.com/cclauss>`__: codespell CHANGELOG.rst (`#8420 <https://github.com/readthedocs/readthedocs.org/pull/8420>`__)
+* `@cclauss <https://github.com/cclauss>`__: codespell part 2 - Continues #8409 (`#8419 <https://github.com/readthedocs/readthedocs.org/pull/8419>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't filter on large items in the auditing sidebar. (`#8417 <https://github.com/readthedocs/readthedocs.org/pull/8417>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Fix YAML extension (`#8416 <https://github.com/readthedocs/readthedocs.org/pull/8416>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.23.1 (`#8415 <https://github.com/readthedocs/readthedocs.org/pull/8415>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: attach project from the request if available (`#8414 <https://github.com/readthedocs/readthedocs.org/pull/8414>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update logout button image (`#8413 <https://github.com/readthedocs/readthedocs.org/pull/8413>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 33 (`#8411 <https://github.com/readthedocs/readthedocs.org/pull/8411>`__)
+* `@cclauss <https://github.com/cclauss>`__: Fix typos discovered by codespell in /docs (`#8409 <https://github.com/readthedocs/readthedocs.org/pull/8409>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support: update contact information via Front webhook (`#8406 <https://github.com/readthedocs/readthedocs.org/pull/8406>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: environment variables (`#8390 <https://github.com/readthedocs/readthedocs.org/pull/8390>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow users to remove themselves from a project (`#8384 <https://github.com/readthedocs/readthedocs.org/pull/8384>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: document how to terminate a session (`#8286 <https://github.com/readthedocs/readthedocs.org/pull/8286>`__)
+
 Version 5.23.1
 --------------
 

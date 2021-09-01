@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 from pprint import pprint
 
-import markdown
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -35,12 +34,15 @@ class Command(BaseCommand):
       django-admin contact_owners --email email.md --notification notification.md --organization readthedocs  # noqa
 
     Where ``email.md`` is a markdown file with the first line as the subject, and the rest is the content.
+    ``user`` and ``domain`` are available in the context.
 
     .. code:: markdown
 
        Read the Docs deprecated option, action required
 
-       Dear user...
+       Dear {{ user.firstname }},
+
+       Greetings from [Read the Docs]({{ domain }}).
 
     .. note::
 
@@ -128,24 +130,21 @@ class Command(BaseCommand):
         if options['notification']:
             file = Path(options['notification'])
             with file.open() as f:
-                notification_content = markdown.markdown(f.read())
+                notification_content = f.read()
 
         email_subject = ''
         email_content = ''
-        email_content_html = ''
         if options['email']:
             file = Path(options['email'])
             with file.open() as f:
                 content = f.read().split('\n')
             email_subject = content[0].strip()
             email_content = '\n'.join(content[1:]).strip()
-            email_content_html = markdown.markdown(email_content)
 
         resp = contact_users(
             users=users,
             email_subject=email_subject,
             email_content=email_content,
-            email_content_html=email_content_html,
             notification_content=notification_content,
             dryrun=not options['production'],
         )
