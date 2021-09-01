@@ -111,5 +111,8 @@ over the years:
 * `Aaron Carlisle`_ for `our Sphinx theme <https://github.com/readthedocs/sphinx_rtd_theme>`_.
 * `Ashley Whetter`_ for `our autoapi Sphinx extension <https://github.com/readthedocs/sphinx-autoapi>`_.
 
+We know that we're missing a large number of people who have contributed in major ways to our various projects.
+Please let us know if you feel that you should be on this list, and aren't!
+
 .. _Aaron Carlisle: https://github.com/blendify
 .. _Ashley Whetter: https://github.com/AWhetter
