@@ -11,27 +11,15 @@ Today we:
 Read the Docs is provided as a free service to the open source community,
 and we hope to maintain a reliable and stable hosting platform for years to come.
 
+Staff
+-----
+
+The members of the Staff work full time on the service,
+and we are also honored to have several :ref:`external contributors <major-contributors>`.
+
 We mainly fund our operations through :doc:`advertising </advertising/index>`
 and corporate-hosted documentation with `Read the Docs for Business <https://readthedocs.com/>`_,
 and we are supported by a number of generous :doc:`sponsors </sponsors>`.
-
-The :ref:`Core Team <core-team>` works full time on the service,
-and we are also honored to have several :ref:`External Contributors <external-contributors>`.
-
-.. _core-team:
-
-Core Team
----------
-
-* The **Backend Team** folks develop the Django code that powers the backend of the project.
-* The members of the **Frontend Team** care about UX, CSS, HTML, and JavaScript,
-  and they maintain the project UI as well as the Sphinx theme.
-* As part of operating the site, members of the **Operations Team** maintain a 24/7 on-call rotation.
-  This means that folks have to be available and have their phone in service.
-* The members of the **Advocacy Team** spread the word about all the work we do,
-  and seek to understand the users priorities and feedback.
-* The **Support Team** helps our thousands of users using the service,
-  addressing tasks like resetting passwords, enable experimental features, or troubleshooting build errors.
 
 .. rst-class:: team-roster
 
@@ -48,6 +36,19 @@ Backend, Operations, Support Backend, Operations, Support
 
 Advocacy, Support            Frontend
 ============================ ============================
+
+Teams
+~~~~~
+
+* The **Backend Team** folks develop the Django code that powers the backend of the project.
+* The members of the **Frontend Team** care about UX, CSS, HTML, and JavaScript,
+  and they maintain the project UI as well as the Sphinx theme.
+* As part of operating the site, members of the **Operations Team** maintain a 24/7 on-call rotation.
+  This means that folks have to be available and have their phone in service.
+* The members of the **Advocacy Team** spread the word about all the work we do,
+  and seek to understand the users priorities and feedback.
+* The **Support Team** helps our thousands of users using the service,
+  addressing tasks like resetting passwords, enable experimental features, or troubleshooting build errors.
 
 .. note::
 
@@ -92,10 +93,10 @@ Advocacy, Support            Frontend
          :alt: Ana Costa
          :target: `Ana Costa`_
 
-.. _external-contributors:
+.. _major-contributors:
 
-External Contributors
----------------------
+Major Contributors
+------------------
 
 `The code that powers the Read the Docs platform <https://github.com/readthedocs/readthedocs.org/>`_,
 as well as many other related projects in `our GitHub organization <https://github.com/readthedocs>`_,
