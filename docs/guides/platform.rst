@@ -12,7 +12,6 @@ These guides will help you customize or tune aspects of Read the Docs.
    conda
    deprecating-content
    embedding-content
-   environment-variables
    feature-flags
    google-analytics
    hiding-a-version

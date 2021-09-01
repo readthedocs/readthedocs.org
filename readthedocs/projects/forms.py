@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -31,7 +32,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
 
-class ProjectForm(forms.ModelForm):
+class ProjectForm(SimpleHistoryModelForm):
 
     """
     Project form.
@@ -198,12 +199,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         per_project_settings = (
             'default_version',
             'default_branch',
+            'privacy_level',
             'analytics_code',
             'analytics_disabled',
             'show_version_warning',
             'single_version',
             'external_builds_enabled',
-            'privacy_level',
+            'external_builds_privacy_level',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -235,8 +237,9 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         per_project_settings = list(self.Meta.per_project_settings)
         if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop('privacy_level')
-            per_project_settings.remove('privacy_level')
+            for field in ['privacy_level', 'external_builds_privacy_level']:
+                self.fields.pop(field)
+                per_project_settings.remove(field)
 
         field_sets = [
             Fieldset(
@@ -350,7 +353,7 @@ class UpdateProjectForm(
         return language
 
 
-class ProjectRelationshipBaseForm(forms.ModelForm):
+class ProjectRelationshipForm(forms.ModelForm):
 
     """Form to add/update project relationships."""
 
@@ -369,27 +372,13 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         if hasattr(self, 'instance') and self.instance.pk is not None:
             self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
-            self.fields['child'].queryset = self.get_subproject_queryset()
+            self.fields['child'].queryset = self.project.get_subproject_candidates(self.user)
 
     def clean_parent(self):
         self.project.is_valid_as_superproject(
             forms.ValidationError
         )
         return self.project
-
-    def clean_child(self):
-        """
-        Validate child is a valid subproject.
-
-        Validation is done on creation only,
-        when editing users can't change the child.
-        """
-        child = self.cleaned_data['child']
-        if self.instance.pk is None:
-            child.is_valid_as_subproject(
-                self.project, forms.ValidationError
-            )
-        return child
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
@@ -404,25 +393,6 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
                 _('A subproject with this alias already exists'),
             )
         return alias
-
-    def get_subproject_queryset(self):
-        """
-        Return scrubbed subproject choice queryset.
-
-        This removes projects that are either already a subproject of another
-        project, or are a superproject, as neither case is supported.
-        """
-        queryset = (
-            Project.objects.for_admin_user(self.user)
-            .exclude(subprojects__isnull=False)
-            .exclude(superprojects__isnull=False)
-            .exclude(pk=self.project.pk)
-        )
-        return queryset
-
-
-class ProjectRelationshipForm(SettingsOverrideObject):
-    _default_class = ProjectRelationshipBaseForm
 
 
 class UserForm(forms.Form):
@@ -571,7 +541,7 @@ class TranslationBaseForm(forms.Form):
     def save(self, commit=True):
         if commit:
             # Don't use ``self.parent.translations.add()`` here as this
-            # triggeres a problem with database routing and multiple databases.
+            # triggers a problem with database routing and multiple databases.
             # Directly set the ``main_language_project`` instead of doing a
             # bulk update.
             self.translation.main_language_project = self.parent

@@ -134,7 +134,7 @@ class ExternalBuildManager(models.Manager):
 class VersionAutomationRuleManager(PolymorphicManager):
 
     """
-    Mananger for VersionAutomationRule.
+    Manager for VersionAutomationRule.
 
     .. note::
 

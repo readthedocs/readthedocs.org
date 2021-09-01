@@ -15,11 +15,12 @@ class AdminPermissionBase:
         Return all the projects the user has access to as ``admin`` or ``member``.
 
         If `RTD_ALLOW_ORGANIZATIONS` is enabled
-        this function takes SSO into consideration, it includes:
+        This function takes into consideration VCS SSO and Google SSO.
+        It includes:
 
-        - Projects where the user has access to via SSO.
+        - projects where the user has access to via VCS SSO.
         - Projects where the user has access via Team,
-          if SSO is not enabled for the organization of that team.
+          if VCS SSO is not enabled for the organization of that team.
 
         .. note::
 
@@ -32,6 +33,8 @@ class AdminPermissionBase:
         :param bool member: include projects where the user has read access to the project
         """
         from readthedocs.projects.models import Project
+        from readthedocs.sso.models import SSOIntegration
+
         projects = Project.objects.none()
         if not user or not user.is_authenticated:
             return projects
@@ -45,12 +48,12 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls._has_sso_enabled(team.organization):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             # Org Admin
             for org in user.owner_organizations.all():
-                if not cls._has_sso_enabled(org):
+                if not cls.has_sso_enabled(org, SSOIntegration.PROVIDER_ALLAUTH):
                     # Do not grant admin access on projects for owners if the
                     # organization has SSO enabled with Authorization on the provider.
                     projects |= org.projects.all()
@@ -61,7 +64,7 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls._has_sso_enabled(team.organization):
+                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
@@ -69,13 +72,33 @@ class AdminPermissionBase:
         return projects
 
     @classmethod
-    def _has_sso_enabled(cls, organization):
+    def has_sso_enabled(cls, obj, provider=None):
         return False
 
     @classmethod
     def _get_projects_for_sso_user(cls, user, admin=False):
         from readthedocs.projects.models import Project
         return Project.objects.none()
+
+    @classmethod
+    def owners(cls, obj):
+        """
+        Return the owners of `obj`.
+
+        If organizations are enabled,
+        we return the owners of the project organization instead.
+        """
+        from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
+
+        if isinstance(obj, Project):
+            if settings.RTD_ALLOW_ORGANIZATIONS:
+                obj = obj.organizations.first()
+            else:
+                return obj.users.all()
+
+        if isinstance(obj, Organization):
+            return obj.owners.all()
 
     @classmethod
     def admins(cls, obj):

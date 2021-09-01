@@ -112,7 +112,19 @@ They will not display on any list view, and will 404 when you link them to other
 If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
 In addition, if you want other users to view the build page of your public versions,
-you'll neeed to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+
+Logging out
+'''''''''''
+
+When you log in to a documentation site, you will be logged in until close your browser.
+To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
+This is usually located in the bottom right or bottom left, depending on the theme design.
+This will log you out from the current domain,
+but not end any other session that you have active. 
+
+.. figure:: /_static/images/logout-button.png
+   :align: center
 
 Tags and branches
 -----------------

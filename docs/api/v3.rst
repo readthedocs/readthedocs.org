@@ -158,7 +158,7 @@ Projects list
                     "home": "https://pip.pypa.io/"
                 },
                 "tags": [
-                    "disutils",
+                    "distutils",
                     "easy_install",
                     "egg",
                     "setuptools",
@@ -259,7 +259,7 @@ Project details
                 "home": "https://pip.pypa.io/"
             },
             "tags": [
-                "disutils",
+                "distutils",
                 "easy_install",
                 "egg",
                 "setuptools",
@@ -909,6 +909,12 @@ Subproject create
             "alias": "subproject-alias"
         }
 
+    .. note::
+
+      ``child`` must be a project that you have access to.
+      Or if you are using :doc:`/commercial/index`,
+      additionally the project must be under the same organization as the parent project.
+
     **Example response**:
 
     `See Subproject details <#subproject-details>`_
@@ -917,7 +923,7 @@ Subproject create
     :>json string alias: optional slug alias to be used in the URL (e.g ``/projects/<alias>/en/latest/``).
                          If not provided, child project's slug is used as alias.
 
-    :statuscode 201: Subproject created sucessfully
+    :statuscode 201: Subproject created successfully
 
 
 Subproject delete
@@ -1015,7 +1021,7 @@ Translations listing
                     "home": "https://pip.pypa.io/"
                 },
                 "tags": [
-                    "disutils",
+                    "distutils",
                     "easy_install",
                     "egg",
                     "setuptools",
@@ -1277,7 +1283,7 @@ Environment Variables are variables that you can define for your project.
 These variables are used in the build process when building your documentation.
 They are for example useful to define secrets in a safe way that can be used by your documentation to build properly.
 Environment variables can also be made public, allowing for them to be used in PR builds.
-See :doc:`/guides/environment-variables`
+See :doc:`/environment-variables`.
 
 
 Environment Variable details

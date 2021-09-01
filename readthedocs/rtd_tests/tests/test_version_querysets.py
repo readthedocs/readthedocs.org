@@ -17,6 +17,7 @@ class TestVersionQuerySetBase(TestCase):
         self.project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user],
             main_language_project=None,
             versions=[],
@@ -38,6 +39,7 @@ class TestVersionQuerySetBase(TestCase):
         self.another_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.another_user],
             main_language_project=None,
             versions=[],
@@ -59,6 +61,7 @@ class TestVersionQuerySetBase(TestCase):
         self.shared_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user, self.another_user],
             main_language_project=None,
             versions=[],
@@ -287,22 +290,53 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
 
-    def test_public(self):
+    def test_public_with_private_external_versions(self):
+        self.project.external_builds_privacy_level = PRIVATE
+        self.project.save()
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
+        self.shared_project.external_builds_privacy_level = PRIVATE
+        self.shared_project.save()
+        query = Version.external.public()
+        versions = set()
+        self.assertEqual(query.count(), len(versions))
+        self.assertEqual(set(query), versions)
+
+    def test_public_with_some_private_external_versions(self):
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
+        self.shared_project.external_builds_privacy_level = PRIVATE
+        self.shared_project.save()
         query = Version.external.public()
         versions = {
             self.external_version_public,
-            self.another_external_version_public,
+            self.external_version_private,
+        }
+        self.assertEqual(query.count(), len(versions))
+        self.assertEqual(set(query), versions)
+
+    def test_public_with_public_external_versions(self):
+        query = Version.external.public()
+        versions = {
+            self.external_version_public,
+            self.external_version_private,
             self.shared_external_version_public,
+            self.shared_external_version_private,
+            self.another_external_version_public,
+            self.another_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
 
     def test_public_user(self):
+        self.project.external_builds_privacy_level = PRIVATE
+        self.project.save()
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Version.external.public(user=self.user)
         versions = {
             self.external_version_public,
             self.external_version_private,
-            self.another_external_version_public,
             self.shared_external_version_public,
             self.shared_external_version_private,
         }
@@ -319,11 +353,14 @@ class VersionQuerySetWithExternalManagerTest(TestVersionQuerySetWithManagerBase)
         self.assertEqual(set(query), versions)
 
     def test_api(self):
+        self.project.external_builds_privacy_level = PRIVATE
+        self.project.save()
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Version.external.api()
         versions = {
-            self.external_version_public,
-            self.another_external_version_public,
             self.shared_external_version_public,
+            self.shared_external_version_private,
         }
         self.assertEqual(query.count(), len(versions))
         self.assertEqual(set(query), versions)
