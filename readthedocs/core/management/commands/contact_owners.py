@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
        Dear {{ user.firstname }},
 
-       Greetings from {{ domain }}.
+       Greetings from [Read the Docs]({{ domain }}).
 
     .. note::
 
