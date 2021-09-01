@@ -65,9 +65,11 @@ Goals
 * Support GitHub Application *and* OAuth Application at the same time during the
   migration time
 * Support all the GitHub features current using OAuth Application
-   * GitHub SSO
-   * Pull Request builder
-   * Trigger a build on push
+
+  * GitHub SSO
+  * Pull Request builder
+  * Trigger a build on push
+
 * Don't require SSH key to clone private repositories
 
 
@@ -75,6 +77,11 @@ Non Goals
 ---------
 
 * Escalate permissions as they are needed
+
+  * Only ask mostly for ``Read-only`` permissions
+  * ``Write`` permission is only required to send commit status on Pull Request
+  * Only ask for the smallest subset required for Read the Docs to work
+
 * Migrate all current OAuth Application users to GitHub Application users at
   once
 * Implement something similar to GitHub Application for other VCS providers
