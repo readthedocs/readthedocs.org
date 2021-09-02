@@ -1,7 +1,9 @@
-from django.test import TestCase
 from unittest import mock
-from django_dynamic_fixture import get
+
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django_dynamic_fixture import get
+
 from readthedocs.core.utils.contact import contact_users
 from readthedocs.notifications.backends import SiteBackend
 
@@ -22,7 +24,6 @@ class TestContactUsers(TestCase):
             users=User.objects.all(),
             email_subject='Subject',
             email_content='Content',
-            email_content_html='<p>Content</p>',
             notification_content='Notification',
             dryrun=True,
         )
@@ -51,7 +52,6 @@ class TestContactUsers(TestCase):
             users=User.objects.all(),
             email_subject='Subject',
             email_content='Content',
-            email_content_html='<p>Content</p>',
             notification_content='Notification',
             dryrun=False,
         )

@@ -46,7 +46,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.managers import (
     AutomationRuleMatchManager,
-    BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
     InternalBuildManager,
@@ -680,7 +679,7 @@ class Build(models.Model):
     )
 
     # Managers
-    objects = BuildManager.from_queryset(BuildQuerySet)()
+    objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
