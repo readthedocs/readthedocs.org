@@ -34,7 +34,6 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
-    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -1282,30 +1281,31 @@ class Project(models.Model):
                 _('Subproject nesting is not supported'),
             )
 
-    def is_valid_as_subproject(self, parent, error_class):
+    def get_subproject_candidates(self, user):
         """
-        Checks if the project can be a subproject.
+        Get a queryset of projects that would be valid as a subproject for this project.
 
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
+        This excludes:
+
+        - The project itself
+        - Projects that are already a subproject of another project
+        - Projects that are a superproject.
+
+        If the project belongs to an organization,
+        we only allow projects under the same organization as subprojects,
+        otherwise only projects that don't belong to an organization.
+
+        Both projects need to share the same owner/admin.
         """
-        # Check the child project is not a subproject already
-        if self.superprojects.exists():
-            raise error_class(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if self.subprojects.exists():
-            raise error_class(
-                _('Child is already a superproject'),
-            )
-
-        # Check the parent and child are not the same project
-        if parent.slug == self.slug:
-            raise error_class(
-                _('Project can not be subproject of itself'),
-            )
+        organization = self.organizations.first()
+        queryset = (
+            Project.objects.for_admin_user(user)
+            .filter(organizations=organization)
+            .exclude(subprojects__isnull=False)
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.pk)
+        )
+        return queryset
 
 
 class APIProject(Project):
@@ -1432,7 +1432,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
+    objects = HTMLFileManager()
 
     def get_processed_json(self):
         parser_class = (
