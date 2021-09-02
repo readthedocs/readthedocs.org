@@ -2,8 +2,8 @@
 
 from django import template
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.version_handling import comparable_version
-
 
 register = template.Library()
 
@@ -23,5 +23,5 @@ def sort_version_aware(versions):
 
 @register.filter
 def is_project_user(user, project):
-    """Return if user is a member of project.users."""
-    return user in project.users.all()
+    """Checks if the user has access to the project."""
+    return user in AdminPermission.members(project)

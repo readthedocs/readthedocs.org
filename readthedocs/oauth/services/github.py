@@ -6,7 +6,6 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -17,13 +16,11 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
 )
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -547,7 +544,7 @@ class GitHubService(Service):
             if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
-                for user in project.users.all():
+                for user in AdminPermission.admins(project):
                     tokens = SocialToken.objects.filter(
                         account__user=user,
                         app__provider=cls.adapter.provider_id,
