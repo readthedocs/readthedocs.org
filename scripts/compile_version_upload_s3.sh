@@ -39,7 +39,7 @@
 set -e
 
 # Define variables
-SLEEP=1200
+SLEEP=350
 OS="ubuntu20"
 LANGUAGE=$1
 VERSION=$2
