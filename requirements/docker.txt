@@ -28,3 +28,6 @@ argh==0.26.2
 
 # run tests
 tox==3.24.1
+
+# AWS utilities to use against MinIO
+awscli==1.20.34
