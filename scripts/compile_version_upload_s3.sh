@@ -78,7 +78,7 @@ then
 fi
 
 # Compress it as a .tar.gz without include the full path in the compressed file
-docker exec $CONTAINER_ID tar --create --verbose --gzip --directory=/home/docs/.asdf/installs/$LANGUAGE --file=$OS-$LANGUAGE-$VERSION.tar.gz $VERSION
+docker exec $CONTAINER_ID tar --create --gzip --directory=/home/docs/.asdf/installs/$LANGUAGE --file=$OS-$LANGUAGE-$VERSION.tar.gz $VERSION
 
 # Copy the .tar.gz from the container to the host
 docker cp $CONTAINER_ID:/home/docs/$OS-$LANGUAGE-$VERSION.tar.gz .
