@@ -51,7 +51,7 @@ echo "Running all the commands in Docker container: $CONTAINER_ID"
 # Install the language version requested
 if [[ $LANGUAGE -eq "python" ]]
 then
-    docker exec $CONTAINER_ID --env PYTHON_CONFIGURE_OPTS="--enable-shared" asdf install $LANGUAGE $VERSION
+    docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $LANGUAGE $VERSION
 else
     docker exec $CONTAINER_ID asdf install $LANGUAGE $VERSION
 fi
