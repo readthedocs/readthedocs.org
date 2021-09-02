@@ -49,7 +49,7 @@ CONTAINER_ID=$(docker run --user docs --detach readthedocs/build:$OS sleep $SLEE
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
 # Install the language version requested
-if [[ $LANGUAGE -eq "python" ]]
+if [[ $LANGUAGE == "python" ]]
 then
     docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $LANGUAGE $VERSION
 else
@@ -61,7 +61,7 @@ docker exec $CONTAINER_ID asdf global $LANGUAGE $VERSION
 docker exec $CONTAINER_ID asdf reshim $LANGUAGE
 
 # Install dependencies for this version
-if [[ $LANGUAGE -eq "python" ]]
+if [[ $LANGUAGE == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
     RTD_PIP_VERSION=21.2.4
     RTD_SETUPTOOLS_VERSION=57.4.0
