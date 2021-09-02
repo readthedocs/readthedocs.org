@@ -369,7 +369,7 @@ class Virtualenv(PythonEnvironment):
                 with tarfile.open(fileobj=remote_fd) as tar:
                     # Extract it on the shared path between host and Docker container
                     extract_path = os.path.join(self.project.doc_path, 'languages')
-                    tar.extractall(extra_path)
+                    tar.extractall(extract_path)
 
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
