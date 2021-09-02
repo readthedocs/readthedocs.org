@@ -384,6 +384,8 @@ class Virtualenv(PythonEnvironment):
                 # If the language version selected is not available from the
                 # cache we compile it at build time
                 cmd = [
+                    'env',
+                    'PYTHON_CONFIGURE_OPTS="--enable-shared"',
                     'asdf',
                     'install',
                     language,
