@@ -356,13 +356,13 @@ class Virtualenv(PythonEnvironment):
         if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
             # TODO: iterate over ``build.languages`` and install all languages
             # specified for this project
-            os = 'ubuntu20'
+            build_os = 'ubuntu20'
             language = 'python'
             version = '3.9.6'
 
             # TODO: generate the correct path for the Python version
-            # language_path = f'{os}/{language}/2021-08-30/{version}.tar.gz'
-            language_path = f'{os}-{language}-{version}.tar.gz'
+            # language_path = f'{build_os}/{language}/2021-08-30/{version}.tar.gz'
+            language_path = f'{build_os}-{language}-{version}.tar.gz'
             language_version_cached = build_languages_storage.exists(language_path)
             if language_version_cached:
                 remote_fd = build_languages_storage.open(language_path, mode='rb')
