@@ -63,7 +63,18 @@ docker exec $CONTAINER_ID asdf reshim $LANGUAGE
 # Install dependencies for this version
 if [[ $LANGUAGE -eq "python" ]]
 then
-    docker exec $CONTAINER_ID $LANGUAGE -m pip install -U pip==21.2.4 setuptools==57.4.0 virtualenv==20.7.2
+    RTD_PIP_VERSION=21.2.4
+    RTD_SETUPTOOLS_VERSION=57.4.0
+    RTD_VIRTUALENV_VERSION=20.7.2
+
+    if [[ $VERSION == "2.7.18" ]]
+    then
+        # Pin to the latest versions supported on Python 2.7
+        RTD_PIP_VERSION=20.3.4
+        RTD_SETUPTOOLS_VERSION=44.1.1
+        RTD_VIRTUALENV_VERSION=20.7.2
+    fi
+    docker exec $CONTAINER_ID $LANGUAGE -m pip install -U pip==$RTD_PIP_VERSION setuptools==$RTD_SETUPTOOLS_VERSION virtualenv==$RTD_VIRTUALENV_VERSION
 fi
 
 # Compress it as a .tar.gz without include the full path in the compressed file
