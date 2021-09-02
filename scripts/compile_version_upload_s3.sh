@@ -36,6 +36,8 @@
 #
 #
 
+set -e
+
 # Define variables
 SLEEP=1200
 OS="ubuntu20"
