@@ -13,7 +13,7 @@ from unittest import mock
 from unittest.mock import Mock, PropertyMock, mock_open, patch
 
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
@@ -356,6 +356,7 @@ class TestLocalBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
@@ -699,7 +700,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -759,7 +761,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -806,7 +809,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'echo\\ test'",
+            workdir='/tmp',
             environment=mock.ANY,
             user='docs:docs',
             stderr=True,
@@ -1010,6 +1014,7 @@ class TestDockerBuildEnvironment(TestCase):
         })
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestBuildCommand(TestCase):
 
     """Test build command creation."""
@@ -1019,7 +1024,7 @@ class TestBuildCommand(TestCase):
         env = {'FOOBAR': 'foobar', 'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
         for key in list(env.keys()):
-            self.assertEqual(cmd.environment[key], env[key])
+            self.assertEqual(cmd._environment[key], env[key])
 
     def test_result(self):
         """Test result of output using unix true/false commands."""
@@ -1090,6 +1095,7 @@ class TestBuildCommand(TestCase):
         )
 
 
+@override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestDockerBuildCommand(TestCase):
 
     """Test docker build commands."""
@@ -1109,7 +1115,7 @@ class TestDockerBuildCommand(TestCase):
         )
         self.assertEqual(
             cmd.get_wrapped_command(),
-            "/bin/sh -c 'cd /tmp/foobar && pip install requests'",
+            "/bin/sh -c 'pip install requests'",
         )
         cmd = DockerBuildCommand(
             ['python', '/tmp/foo/pip', 'install', 'Django>1.7'],
@@ -1120,7 +1126,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             (
                 '/bin/sh -c '
-                "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
+                "'PATH=/tmp/foo:$PATH "
                 r"python /tmp/foo/pip install Django\>1.7'"
             ),
         )
@@ -1495,7 +1501,7 @@ class AutoWipeEnvironmentBase:
                 'hash': 'a1b2c3',
             },
             'python': {
-                'version': 2.7,
+                'version': '2.7',
             },
             'env_vars_hash': env_vars_hash
         }
@@ -1632,7 +1638,7 @@ class AutoWipeEnvironmentBase:
         m.update(env_var_str.encode('utf-8'))
         env_vars_hash = m.hexdigest()
 
-        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": 3.5}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
+        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": "3.5"}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)

@@ -693,15 +693,6 @@ class APITests(TestCase):
         self.assertIn('features', resp.data)
         self.assertEqual(resp.data['features'], [feature.feature_id])
 
-    def test_project_pagination(self):
-        for _ in range(100):
-            get(Project)
-
-        resp = self.client.get('/api/v2/project/')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.data['results']), 100)  # page_size
-        self.assertIn('?page=2', resp.data['next'])
-
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider='github')
         user = get(User)
@@ -1452,7 +1443,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_github_sync_on_push_event(self, trigger_build):
-        """Sync if the webhook doesn't have the create/delete events, but we recieve a push event with created/deleted."""
+        """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,

@@ -10,8 +10,8 @@ whether that is Sphinx or MkDocs.
    adding-custom-css
    cross-referencing-with-sphinx
    intersphinx
+   jupyter
    manage-translations
-   mkdocs-old-versions
    pdf-non-ascii-languages
    remove-edit-buttons
    vcs

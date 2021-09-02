@@ -1,7 +1,6 @@
 """Git-related utilities."""
 
 import logging
-import os
 import re
 
 import git
@@ -72,10 +71,15 @@ class Backend(BaseVCS):
 
     def repo_exists(self):
         try:
-            git.Repo(self.working_dir)
+            self._repo
         except (InvalidGitRepositoryError, NoSuchPathError):
             return False
         return True
+
+    @property
+    def _repo(self):
+        """Get a `git.Repo` instance from the current `self.working_dir`."""
+        return git.Repo(self.working_dir, expand_vars=False)
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -94,7 +98,7 @@ class Backend(BaseVCS):
 
         .. note::
 
-           Allways call after `self.are_submodules_available`.
+           Always call after `self.are_submodules_available`.
 
         :returns: tuple(bool, list)
 
@@ -103,7 +107,7 @@ class Backend(BaseVCS):
         - Include is `ALL`, returns all submodules available.
         - Include is a list, returns just those.
         - Exclude is `ALL` - this should never happen.
-        - Exlude is a list, returns all available submodules
+        - Exclude is a list, returns all available submodules
           but those from the list.
 
         Returns `False` if at least one submodule is invalid.
@@ -202,7 +206,7 @@ class Backend(BaseVCS):
     @property
     def lsremote(self):
         """
-        Use ``git ls-remote`` to list branches and tags without clonning the repository.
+        Use ``git ls-remote`` to list branches and tags without cloning the repository.
 
         :returns: tuple containing a list of branch and tags
         """
@@ -232,13 +236,13 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         versions = []
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
 
         # Build a cache of tag -> commit
         # GitPython is not very optimized for reading large numbers of tags
         ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
         # This code is the same that is executed for each tag in gitpython,
-        # we excute it only once for all tags.
+        # we execute it only once for all tags.
         for hexsha, ref in git.TagReference._iter_packed_refs(repo):
             gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
             if gitobject.type == 'commit':
@@ -265,7 +269,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
         versions = []
         branches = []
 
@@ -285,14 +289,13 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
             return stdout.strip()
         return None
 
     @property
     def submodules(self):
-        repo = git.Repo(self.working_dir)
-        return list(repo.submodules)
+        return list(self._repo.submodules)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -350,17 +353,8 @@ class Backend(BaseVCS):
 
     def ref_exists(self, ref):
         try:
-            r = git.Repo(self.working_dir)
-            if r.commit(ref):
+            if self._repo.commit(ref):
                 return True
         except (BadName, ValueError):
             return False
         return False
-
-    @property
-    def env(self):
-        env = super().env
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env

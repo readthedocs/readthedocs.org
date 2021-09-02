@@ -158,6 +158,20 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
+    def test_remote_repository_invalid_type(self):
+        self.step_data['basics']['remote_repository'] = 'Invalid id'
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
+    def test_remote_repository_invalid_id(self):
+        self.step_data['basics']['remote_repository'] = 9
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)
         remote_repo = get(RemoteRepository)
@@ -487,24 +501,22 @@ class TestPrivateViews(TestCase):
         self.user.set_password('test')
         self.user.save()
         self.client.login(username='eric', password='test')
+        self.project = get(Project, slug='pip', users=[self.user])
 
     def test_versions_page(self):
-        pip = get(Project, slug='pip', users=[self.user])
-        pip.versions.create(verbose_name='1.0')
+        self.project.versions.create(verbose_name='1.0')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
         # Test if the versions page works with a version that contains a slash.
         # That broke in the past, see issue #1176.
-        pip.versions.create(verbose_name='1.0/with-slash')
+        self.project.versions.create(verbose_name='1.0/with-slash')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
     def test_delete_project(self):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
@@ -515,15 +527,13 @@ class TestPrivateViews(TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             clean_project_resources.assert_called_once()
-            self.assertEqual(clean_project_resources.call_args[0][0].slug, project.slug)
-
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, self.project.slug)
 
     def test_delete_superproject(self):
-        super_proj = get(Project, slug='pip', users=[self.user])
         sub_proj = get(Project, slug='test-sub-project', users=[self.user])
 
-        self.assertFalse(super_proj.subprojects.all().exists())
-        super_proj.add_subproject(sub_proj)
+        self.assertFalse(self.project.subprojects.all().exists())
+        self.project.add_subproject(sub_proj)
 
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
@@ -538,41 +548,95 @@ class TestPrivateViews(TestCase):
 
     @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create(self, attach_webhook):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.post(
-            reverse('projects_integrations_create', args=[project.slug]),
+            reverse('projects_integrations_create', args=[self.project.slug]),
             data={
-                'project': project.pk,
+                'project': self.project.pk,
                 'integration_type': GitHubWebhook.GITHUB_WEBHOOK
             },
         )
-        integration = GitHubWebhook.objects.filter(project=project)
+        integration = GitHubWebhook.objects.filter(project=self.project)
 
         self.assertTrue(integration.exists())
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
-            project_pk=project.pk,
+            project_pk=self.project.pk,
             user_pk=self.user.pk,
             integration=integration.first()
         )
 
     @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create_generic_webhook(self, attach_webhook):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.post(
-            reverse('projects_integrations_create', args=[project.slug]),
+            reverse('projects_integrations_create', args=[self.project.slug]),
             data={
-                'project': project.pk,
+                'project': self.project.pk,
                 'integration_type': GenericAPIWebhook.API_WEBHOOK
             },
         )
-        integration = GenericAPIWebhook.objects.filter(project=project)
+        integration = GenericAPIWebhook.objects.filter(project=self.project)
 
         self.assertTrue(integration.exists())
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
+
+    def test_integration_webhooks_sync_no_remote_repository(self):
+        self.project.has_valid_webhook = True
+        self.project.save()
+        integration = get(
+            GitHubWebhook,
+            project=self.project,
+        )
+
+        response = self.client.post(
+            reverse(
+                'projects_integrations_webhooks_sync',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+        self.project.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(self.project.has_valid_webhook)
+
+    def test_remove_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'test'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
+
+    def test_remove_own_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'test')
+
+    def test_remove_last_user(self):
+        self.assertEqual(self.project.users.count(), 1)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 400)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())

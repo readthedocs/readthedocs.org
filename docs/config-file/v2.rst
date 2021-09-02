@@ -31,7 +31,7 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Optionally set the version of Python and requirements required to build your docs
          python:
-            version: 3.7
+            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -51,7 +51,7 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Optionally set the version of Python and requirements required to build your docs
          python:
-            version: 3.7
+            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -69,7 +69,7 @@ This is to avoid typos and provide feedback on invalid configurations.
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 3
 
 version
 ~~~~~~~
@@ -138,7 +138,7 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - method: pip
@@ -154,13 +154,18 @@ python.version
 
 The Python version (this depends on :ref:`config-file/v2:build.image`).
 
-:Type: ``number``
+:Type: ``string``
 :Default: ``3``
 
+.. note::
+
+   Make sure to use quotes (``"``) to make it a string.
+   We previously supported using numbers here,
+   but that approach is deprecated.
 .. warning::
 
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
-  the build, this setting will not have any effect, as the Python version is managed by Conda.
+   If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+   the build, this setting will not have any effect, as the Python version is managed by Conda.
 
 python.install
 ``````````````
@@ -189,7 +194,7 @@ Example:
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
@@ -237,7 +242,7 @@ Example:
    version: 2
 
    python:
-     version: 3.7
+     version: "3.7"
      install:
        - method: pip
          path: .
@@ -303,9 +308,12 @@ Configuration for the documentation build process.
 
    build:
      image: latest
+     apt_packages:
+       - libclang
+       - cmake
 
    python:
-     version: 3.7
+     version: "3.7"
 
 
 build.image
@@ -322,6 +330,32 @@ as defined here:
 
 * `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
 * `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+
+build.apt_packages
+``````````````````
+
+List of `APT packages`_ to install.
+Our build servers run Ubuntu 18.04, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories.
+
+.. _APT packages: https://packages.ubuntu.com/
+
+:Type: ``list``
+:Default: ``[]``
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     apt_packages:
+       - libclang
+       - cmake
+
+.. note::
+
+   When possible avoid installing Python packages using apt (``python3-numpy`` for example),
+   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
 sphinx
 ~~~~~~

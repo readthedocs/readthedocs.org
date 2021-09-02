@@ -5,8 +5,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import HTMLFile, Project
-
+from readthedocs.projects.models import Project
 
 User = get_user_model()
 
@@ -20,6 +19,7 @@ class TestBuildManagerBase(TestCase):
         self.project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user],
             main_language_project=None,
             versions=[],
@@ -78,6 +78,7 @@ class TestBuildManagerBase(TestCase):
         self.another_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.another_user],
             main_language_project=None,
             versions=[],
@@ -136,6 +137,7 @@ class TestBuildManagerBase(TestCase):
         self.shared_project = get(
             Project,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.user, self.another_user],
             main_language_project=None,
             versions=[],
@@ -257,17 +259,6 @@ class TestInternalBuildManager(TestBuildManagerBase):
         self.assertEqual(query.count(), len(builds))
         self.assertEqual(set(query), builds)
 
-    def test_api_user(self):
-        query = Build.internal.api(user=self.user, detail=False)
-        builds = {
-            self.build_private,
-            self.shared_build_private,
-            self.build_public,
-            self.shared_build_public,
-        }
-        self.assertEqual(query.count(), len(builds))
-        self.assertEqual(set(query), builds)
-
 
 class TestExternalBuildManager(TestBuildManagerBase):
 
@@ -291,22 +282,28 @@ class TestExternalBuildManager(TestBuildManagerBase):
         self.assertEqual(set(query), external_builds)
 
     def test_public(self):
+        self.shared_project.external_builds_privacy_level = PRIVATE
+        self.shared_project.save()
         query = Build.external.public()
         public_external_builds = {
             self.build_public_external,
+            self.build_private_external,
             self.another_build_public_external,
-            self.shared_build_public_external,
+            self.another_build_private_external,
         }
         self.assertEqual(query.count(), len(public_external_builds))
         self.assertEqual(set(query), public_external_builds)
 
     def test_public_user(self):
+        self.project.external_builds_privacy_level = PRIVATE
+        self.project.save()
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Build.external.public(user=self.user)
         builds = {
             self.build_private_external,
             self.shared_build_private_external,
             self.build_public_external,
-            self.another_build_public_external,
             self.shared_build_public_external,
         }
         self.assertEqual(query.count(), len(builds))
@@ -322,77 +319,14 @@ class TestExternalBuildManager(TestBuildManagerBase):
         self.assertEqual(set(query), builds)
 
     def test_api(self):
+        self.another_project.external_builds_privacy_level = PRIVATE
+        self.another_project.save()
         query = Build.external.api(user=self.user)
         builds = {
             self.build_private_external,
             self.shared_build_private_external,
             self.build_public_external,
-            self.another_build_public_external,
             self.shared_build_public_external,
         }
         self.assertEqual(query.count(), len(builds))
         self.assertEqual(set(query), builds)
-
-    def test_api_user(self):
-        query = Build.external.api(user=self.user, detail=False)
-        builds = {
-            self.build_private_external,
-            self.shared_build_private_external,
-            self.build_public_external,
-            self.shared_build_public_external,
-        }
-        self.assertEqual(query.count(), len(builds))
-        self.assertEqual(set(query), builds)
-
-
-class TestHTMLFileManager(TestCase):
-
-    fixtures = ['test_data', 'eric']
-
-    def setUp(self):
-        self.user = User.objects.create(username='test_user', password='test')
-        self.client.login(username='test_user', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: pull/merge request Version.
-        self.external_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PUBLIC
-        )
-        self.internal_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            privacy_level=PUBLIC
-        )
-        self.external_html_file = HTMLFile.objects.create(
-            project=self.pip,
-            version=self.external_version,
-            name='file.html',
-            path='file.html',
-            commit='1234567890abcdef',
-        )
-        self.internal_html_file = HTMLFile.objects.create(
-            project=self.pip,
-            version=self.internal_version,
-            name='file.html',
-            path='file.html',
-            commit='1234567890abcdef',
-        )
-
-    def test_internal_html_file_queryset(self):
-        """
-        It will exclude pull/merge request Version html files from the queries
-        and only include BRANCH, TAG, UNKNOWN type Version files.
-        """
-        self.assertNotIn(self.external_html_file, HTMLFile.objects.internal())
-        self.assertIn(self.internal_html_file, HTMLFile.objects.internal())
-
-    def test_external_html_file_queryset(self):
-        """
-        It will only include pull/merge request Version html files in the queries.
-        """
-        self.assertNotIn(self.internal_html_file, HTMLFile.objects.external())
-        self.assertIn(self.external_html_file, HTMLFile.objects.external())

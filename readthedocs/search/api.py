@@ -78,20 +78,11 @@ class SearchPagination(PageNumberPagination):
         self.request = request
 
         page_size = self.get_page_size(request)
-
-        total_count = 0
-        total_pages = 1
-        if queryset:
-            total_count = queryset.total_count()
-            hits = max(1, total_count)
-            total_pages = ceil(hits / page_size)
-
         page_number = request.query_params.get(self.page_query_param, 1)
-        if page_number in self.last_page_strings:
-            page_number = total_pages
 
         original_page_number = page_number
         page_number = self._get_page_number(page_number)
+
         if page_number <= 0:
             msg = self.invalid_page_message.format(
                 page_number=original_page_number,
@@ -99,13 +90,22 @@ class SearchPagination(PageNumberPagination):
             )
             raise NotFound(msg)
 
+        start = (page_number - 1) * page_size
+        end = page_number * page_size
+
+        result = []
+        total_count = 0
+        total_pages = 1
+
+        if queryset:
+            result = queryset[start:end].execute()
+            total_count = result.hits.total['value']
+            hits = max(1, total_count)
+            total_pages = ceil(hits / page_size)
+
         if total_pages > 1 and self.template is not None:
             # The browsable API should display pagination controls.
             self.display_page_controls = True
-
-        start = (page_number - 1) * page_size
-        end = page_number * page_size
-        result = list(queryset[start:end])
 
         # Needed for other methods of this class.
         self.page = PaginatorPage(
@@ -228,11 +228,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
             )
 
             # Fallback to the default version of the subproject.
-            if (
-                not version
-                and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
-                and subproject.default_version
-            ):
+            if not version and subproject.default_version:
                 version = self._get_subproject_version(
                     version_slug=subproject.default_version,
                     subproject=subproject,
@@ -271,7 +267,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         Check if `user` is authorized to access `version`.
 
         The queryset from `_get_subproject_version` already filters public
-        projects. This is mainly to be overriden in .com to make use of
+        projects. This is mainly to be overridden in .com to make use of
         the auth backends in the proxied API.
         """
         return True
@@ -305,38 +301,22 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
            is compatible with DRF's paginator.
         """
         main_project = self._get_project()
-        main_version = self._get_version()
         projects = {}
-        filters = {}
 
-        if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
-            projects = {
-                project: project_data.version.slug
-                for project, project_data in self._get_all_projects_data().items()
-            }
-            # Check to avoid searching all projects in case it's empty.
-            if not projects:
-                log.info('Unable to find a version to search')
-                return []
-        else:
-            filters['project'] = list(self._get_all_projects_data().keys())
-            filters['version'] = main_version.slug
-            # Check to avoid searching all projects in case these filters are empty.
-            if not filters['project']:
-                log.info('Unable to find a project to search')
-                return []
-            if not filters['version']:
-                log.info('Unable to find a version to search')
-                return []
+        projects = {
+            project: project_data.version.slug
+            for project, project_data in self._get_all_projects_data().items()
+        }
+        # Check to avoid searching all projects in case it's empty.
+        if not projects:
+            log.info('Unable to find a version to search')
+            return []
 
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
             projects=projects,
-            filters=filters,
-            user=self.request.user,
-            # We use a permission class to control authorization
-            filter_by_user=False,
+            aggregate_results=False,
             use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset

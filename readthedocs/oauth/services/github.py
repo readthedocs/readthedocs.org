@@ -113,14 +113,30 @@ class GitHubService(Service):
                 self.user, self.account
             )
 
-            if repo.organization and repo.organization != organization:
+            # It's possible that a user has access to a repository from within
+            # an organization without being member of that organization
+            # (external contributor). In this case, the repository will be
+            # listed under the ``/repos`` endpoint but not under ``/orgs``
+            # endpoint. Then, when calling this method (``create_repository``)
+            # we will have ``organization=None`` but we don't have to skip the
+            # creation of the ``RemoteRepositoryRelation``.
+            if repo.organization and organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
                     fields['name'],
                 )
                 return None
 
-            repo.organization = organization
+            if any([
+                # There is an organization associated with this repository:
+                # attach the organization to the repository
+                organization is not None,
+                # There is no organization and the repository belongs to a
+                # user: removes the organization linked to the repository
+                not organization and fields['owner']['type'] == 'User',
+            ]):
+                repo.organization = organization
+
             repo.name = fields['name']
             repo.full_name = fields['full_name']
             repo.description = fields['description']

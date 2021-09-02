@@ -1,5 +1,4 @@
 """Project models."""
-
 import fnmatch
 import logging
 import os
@@ -25,6 +24,7 @@ from taggit.managers import TaggableManager
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
@@ -34,7 +34,6 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
-    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -57,6 +56,11 @@ from .constants import (
 )
 
 log = logging.getLogger(__name__)
+
+
+def default_privacy_level():
+    """Wrapper around the setting, so the level is dynamically included in the migration."""
+    return settings.DEFAULT_PRIVACY_LEVEL
 
 
 class ProjectRelationship(models.Model):
@@ -107,8 +111,8 @@ class Project(models.Model):
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -213,10 +217,22 @@ class Project(models.Model):
         ),
     )
 
+    # External versions
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+    )
+    external_builds_privacy_level = models.CharField(
+        _('Privacy level of Pull Requests'),
+        max_length=20,
+        # TODO: remove after migration
+        null=True,
+        choices=constants.PRIVACY_CHOICES,
+        default=default_privacy_level,
+        help_text=_(
+            'Should builds from pull requests be public?',
+        ),
     )
 
     # Project features
@@ -420,8 +436,16 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
+    history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
-    all_objects = models.Manager()
+
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
@@ -433,8 +457,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -1162,7 +1184,7 @@ class Project(models.Model):
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
-        subproject, __ = ProjectRelationship.objects.get_or_create(
+        subproject, _ = ProjectRelationship.objects.get_or_create(
             parent=self,
             child=child,
             alias=alias,
@@ -1259,30 +1281,31 @@ class Project(models.Model):
                 _('Subproject nesting is not supported'),
             )
 
-    def is_valid_as_subproject(self, parent, error_class):
+    def get_subproject_candidates(self, user):
         """
-        Checks if the project can be a subproject.
+        Get a queryset of projects that would be valid as a subproject for this project.
 
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
+        This excludes:
+
+        - The project itself
+        - Projects that are already a subproject of another project
+        - Projects that are a superproject.
+
+        If the project belongs to an organization,
+        we only allow projects under the same organization as subprojects,
+        otherwise only projects that don't belong to an organization.
+
+        Both projects need to share the same owner/admin.
         """
-        # Check the child project is not a subproject already
-        if self.superprojects.exists():
-            raise error_class(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if self.subprojects.exists():
-            raise error_class(
-                _('Child is already a superproject'),
-            )
-
-        # Check the parent and child are not the same project
-        if parent.slug == self.slug:
-            raise error_class(
-                _('Project can not be subproject of itself'),
-            )
+        organization = self.organizations.first()
+        queryset = (
+            Project.objects.for_admin_user(user)
+            .filter(organizations=organization)
+            .exclude(subprojects__isnull=False)
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.pk)
+        )
+        return queryset
 
 
 class APIProject(Project):
@@ -1409,7 +1432,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
+    objects = HTMLFileManager()
 
     def get_processed_json(self):
         parser_class = (
@@ -1547,6 +1570,47 @@ class Domain(TimeStampedModel, models.Model):
         super().save(*args, **kwargs)
 
 
+class HTTPHeader(TimeStampedModel, models.Model):
+
+    """
+    Define a HTTP header for a user Domain.
+
+    All the HTTPHeader(s) associated with the domain are added in the response
+    from El Proxito.
+
+    NOTE: the available headers are hardcoded in the NGINX configuration for
+    now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
+    expose them all without hardcoding them.
+    """
+
+    HEADERS_CHOICES = (
+        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
+        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
+        ('content_security_policy', 'Content-Security-Policy'),
+        ('feature_policy', 'Feature-Policy'),
+        ('permissions_policy', 'Permissions-Policy'),
+        ('referrer_policy', 'Referrer-Policy'),
+        ('x_frame_options', 'X-Frame-Options'),
+    )
+
+    domain = models.ForeignKey(
+        Domain,
+        related_name='http_headers',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=128,
+        choices=HEADERS_CHOICES,
+    )
+    value = models.CharField(max_length=256)
+    only_if_secure_request = models.BooleanField(
+        help_text='Only set this header if the request is secure (HTTPS)',
+    )
+
+    def __str__(self):
+        return f"HttpHeader: {self.name} on {self.domain.domain}"
+
+
 class Feature(models.Model):
 
     """
@@ -1584,7 +1648,7 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
 
-    # Dependecies related features
+    # Dependencies related features
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
@@ -1598,7 +1662,6 @@ class Feature(models.Model):
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
-    SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
 
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1677,7 +1740,7 @@ class Feature(models.Model):
             _('Skip sync versions task'),
         ),
 
-        # Dependecies related features
+        # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
         (
@@ -1711,13 +1774,6 @@ class Feature(models.Model):
         (
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
-        ),
-        (
-            SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
-            _(
-                'When searching subprojects default to its default version if it doesn\'t '
-                'have the same version as the main project'
-            ),
         ),
 
         (

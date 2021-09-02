@@ -6,16 +6,17 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
-import sys
 import re
+import sys
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.utils.deprecation import MiddlewareMixin
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.proxito import constants
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -65,7 +66,13 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
                 https=True,
             ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
-                request.canonicalize = 'canonical-cname'
+                request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
+            elif (
+                ProjectRelationship.objects.
+                filter(child__slug=project_slug).exists()
+            ):
+                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect: host=%s', host)
+                request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
             return project_slug
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
@@ -101,7 +108,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            request.canonicalize = 'https'
+            request.canonicalize = constants.REDIRECT_HTTPS
 
         # NOTE: consider redirecting non-canonical custom domains to the canonical one
         # Whether that is another custom domain or the public domain
@@ -118,6 +125,16 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
 class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
+
+    # None of these need the proxito request middleware (response is needed).
+    # The analytics API isn't listed because it depends on the unresolver,
+    # which depends on the proxito middleware.
+    skip_views = (
+        'health_check',
+        'footer_html',
+        'search_api',
+        'embed_api',
+    )
 
     # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
@@ -159,13 +176,87 @@ class ProxitoMiddleware(MiddlewareMixin):
         else:
             response['X-RTD-Version-Method'] = 'path'
 
+    def add_user_headers(self, request, response):
+        """
+        Set specific HTTP headers requested by the user.
+
+        The headers added come from ``projects.models.HTTPHeader`` associated
+        with the ``Domain`` object.
+        """
+        if hasattr(request, 'domain'):
+            # Use a private method to get this
+            # TODO: In Django 3.2 this has been upgraded to a top-level method
+            # pylint: disable=protected-access
+            response_headers = [header.lower() for header in response._headers.keys()]
+            for http_header in request.domain.http_headers.all():
+                if http_header.name.lower() in response_headers:
+                    log.error(
+                        'Overriding an existing response HTTP header. header=%s domain=%s',
+                        http_header.name,
+                        request.domain.domain,
+                    )
+                log.info(
+                    'Adding custom response HTTP header. header=%s domain=%s',
+                    http_header.name,
+                    request.domain.domain,
+                )
+
+                if http_header.only_if_secure_request and not request.is_secure():
+                    continue
+
+                # HTTP headers here are limited to
+                # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
+                # headers is potentially dangerous
+                response[http_header.name] = http_header.value
+
+    def add_hsts_headers(self, request, response):
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+        hsts_header_values = []
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
+            domain = request.domain
+            # TODO: migrate Domains with HSTS set using these fields to
+            # ``HTTPHeader`` and remove this chunk of code from here.
+            if domain.hsts_max_age:
+                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
+                # These other options don't make sense without max_age > 0
+                if domain.hsts_include_subdomains:
+                    hsts_header_values.append('includeSubDomains')
+                if domain.hsts_preload:
+                    hsts_header_values.append('preload')
+
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
     def process_request(self, request):  # noqa
-        if any([
-            not settings.USE_SUBDOMAIN,
-            'localhost' in request.get_host(),
-            'testserver' in request.get_host(),
-            request.path.startswith(reverse('health_check')),
-        ]):
+        skip = any(
+            request.path.startswith(reverse(view))
+            for view in self.skip_views
+        )
+        if (
+            skip
+            or not settings.USE_SUBDOMAIN
+            or 'localhost' in request.get_host()
+            or 'testserver' in request.get_host()
+        ):
             log.debug('Not processing Proxito middleware')
             return None
 
@@ -221,42 +312,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def process_response(self, request, response):  # noqa
-        """
-        Set the Strict-Transport-Security (HSTS) header for docs sites.
-
-        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
-        * For custom domains, check the HSTS values on the Domain object.
-          The domain object should be saved already in request.domain.
-        """
-        host = request.get_host().lower().split(':')[0]
-        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
-
-        hsts_header_values = []
-
         self.add_proxito_headers(request, response)
-
-        if not request.is_secure():
-            # Only set the HSTS header if the request is over HTTPS
-            return response
-
-        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
-            hsts_header_values = [
-                'max-age=31536000',
-                'includeSubDomains',
-                'preload',
-            ]
-        elif hasattr(request, 'domain'):
-            domain = request.domain
-            if domain.hsts_max_age:
-                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
-                # These other options don't make sense without max_age > 0
-                if domain.hsts_include_subdomains:
-                    hsts_header_values.append('includeSubDomains')
-                if domain.hsts_preload:
-                    hsts_header_values.append('preload')
-
-        if hsts_header_values:
-            # See https://tools.ietf.org/html/rfc6797
-            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
-
+        self.add_hsts_headers(request, response)
+        self.add_user_headers(request, response)
         return response

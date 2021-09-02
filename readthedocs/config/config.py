@@ -64,6 +64,7 @@ PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
+INVALID_NAME = 'invalid-name'
 
 LATEST_CONFIGURATION_VERSION = 2
 
@@ -121,10 +122,18 @@ class InvalidConfig(ConfigError):
         super().__init__(message, code=code)
 
     def _get_display_key(self):
-        # Checks for patterns similar to `python.install.0.requirements`
-        # if matched change to `python.install[0].requirements` using backreference.
+        """
+        Display keys in a more friendly format.
+
+        Indexes are displayed like ``n``,
+        but users may be more familiar with the ``[n]`` syntax.
+        For example ``python.install.0.requirements``
+        is changed to `python.install[0].requirements`.
+        """
         return re.sub(
-            r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', self.key
+            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
+            r'\1[\2]\3',
+            self.key
         )
 
 
@@ -137,7 +146,7 @@ class BuildConfigBase:
 
        You need to call ``validate`` before the config is ready to use.
 
-    :param env_config: A dict that cointains additional information
+    :param env_config: A dict that contains additional information
                        about the environment.
     :param raw_config: A dict with all configuration without validation.
     :param source_file: The file that contains the configuration.
@@ -245,23 +254,22 @@ class BuildConfigBase:
 
     @property
     def python_interpreter(self):
-        ver = self.python_full_version
-        if not ver or isinstance(ver, (int, float)):
-            return 'python{}'.format(ver)
-
-        # Allow to specify ``pypy3.5`` as Python interpreter
-        return ver
+        version = self.python_full_version
+        if version.startswith('pypy'):
+            # Allow to specify ``pypy3.5`` as Python interpreter
+            return version
+        return f'python{version}'
 
     @property
     def python_full_version(self):
-        ver = self.python.version
-        if ver in [2, 3]:
+        version = self.python.version
+        if version in ['2', '3']:
             # use default Python version if user only set '2', or '3'
             return self.get_default_python_version_for_image(
                 self.build.image,
-                ver,
+                version,
             )
-        return ver
+        return version
 
     @property
     def valid_build_images(self):
@@ -445,7 +453,7 @@ class BuildConfigV1(BuildConfigBase):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
         use_system_packages = self.defaults.get('use_system_packages', False)
-        version = self.defaults.get('python_version', 2)
+        version = self.defaults.get('python_version', '2')
         python = {
             'use_system_site_packages': use_system_packages,
             'install_with_pip': False,
@@ -504,17 +512,7 @@ class BuildConfigV1(BuildConfigBase):
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
-                    # Try to convert strings to an int first, to catch '2', then
-                    # a float, to catch '2.7'
-                    version = raw_python['version']
-                    if isinstance(version, str):
-                        try:
-                            version = int(version)
-                        except ValueError:
-                            try:
-                                version = float(version)
-                            except ValueError:
-                                pass
+                    version = str(raw_python['version'])
                     python['version'] = validate_choice(
                         version,
                         self.get_valid_python_versions(),
@@ -745,11 +743,68 @@ class BuildConfigV2(BuildConfigBase):
                 ),
             )
 
-        # Allow to override specific project
-        config_image = self.defaults.get('build_image')
-        if config_image:
-            build['image'] = config_image
+            # Allow to override specific project
+            config_image = self.defaults.get('build_image')
+            if config_image:
+                build['image'] = config_image
+
+        with self.catch_validation_error('build.apt_packages'):
+            raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
+            validate_list(raw_packages)
+            # Transform to a dict, so is easy to validate individual entries.
+            self._raw_config.setdefault('build', {})['apt_packages'] = (
+                list_to_dict(raw_packages)
+            )
+
+            build['apt_packages'] = [
+                self.validate_apt_package(index)
+                for index in range(len(raw_packages))
+            ]
+            if not raw_packages:
+                self.pop_config('build.apt_packages')
+
         return build
+
+    def validate_apt_package(self, index):
+        """
+        Validate the package name to avoid injections of extra options.
+
+        We validate that they aren't interpreted as an option or file.
+        See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
+        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
+        for allowed chars in packages names.
+        """
+        key = f'build.apt_packages.{index}'
+        package = self.pop_config(key)
+        with self.catch_validation_error(key):
+            validate_string(package)
+            package = package.strip()
+            invalid_starts = [
+                # Don't allow extra options.
+                '-',
+                # Don't allow to install from a path.
+                '/',
+                '.',
+            ]
+            for start in invalid_starts:
+                if package.startswith(start):
+                    self.error(
+                        key=key,
+                        message=(
+                            'Invalid package name. '
+                            f'Package can\'t start with {start}.',
+                        ),
+                        code=INVALID_NAME,
+                    )
+            # List of valid chars in packages names.
+            pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
+            if not pattern.match(package):
+                self.error(
+                    key=key,
+                    message='Invalid package name.',
+                    code=INVALID_NAME,
+                )
+        return package
 
     def validate_python(self):
         """
@@ -773,15 +828,13 @@ class BuildConfigV2(BuildConfigBase):
 
         python = {}
         with self.catch_validation_error('python.version'):
-            version = self.pop_config('python.version', 3)
-            if isinstance(version, str):
-                try:
-                    version = int(version)
-                except ValueError:
-                    try:
-                        version = float(version)
-                    except ValueError:
-                        pass
+            version = self.pop_config('python.version', '3')
+            if version == 3.1:
+                # Special case for ``python.version: 3.10``,
+                # yaml will transform this to the numeric value of `3.1`.
+                # Save some frustration to users.
+                version = '3.10'
+            version = str(version)
             python['version'] = validate_choice(
                 version,
                 self.get_valid_python_versions(),
@@ -973,8 +1026,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates the submodules key.
 
-        - We can use the ``ALL`` keyword in include or exlude.
-        - We can't exlude and include submodules at the same time.
+        - We can use the ``ALL`` keyword in include or exclude.
+        - We can't exclude and include submodules at the same time.
         """
         raw_submodules = self._raw_config.get('submodules', {})
         with self.catch_validation_error('submodules'):

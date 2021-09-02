@@ -13,8 +13,7 @@ Connecting your account allows for:
 If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab
 credentials, you're all done. Your account is connected.
 
-To connect your unconnected account, go to your *Settings* dashboard
-and select `Connected Services <https://readthedocs.org/accounts/social/connections/>`_.
+To connect a social account, go to your :guilabel:`Username dropdown` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
@@ -66,6 +65,38 @@ Repository status (``repo:status``)
     but there isn't a more granular permission
     that only allows setting up SSH keys for read access.
 
+.. _github-permission-troubleshooting:
+
+GitHub permission troubleshooting
+`````````````````````````````````
+
+**Repositories not in your list to import**.
+
+Many organizations require approval for each OAuth application that is used,
+or you might have disabled it in the past for your personal account.
+This can happen at the personal or organization level,
+depending on where the project you are trying to access has permissions from.
+
+.. tabs::
+
+   .. tab:: Personal Account
+
+       You need to make sure that you have granted access to the Read the Docs `OAuth App`_ to your **personal GitHub account**.
+       If you do not see Read the Docs in the `OAuth App`_ settings, you might need to disconnect and reconnect the GitHub service.
+
+       .. seealso:: GitHub docs on `requesting access to your personal OAuth`_ for step-by-step instructions.
+
+       .. _OAuth App: https://github.com/settings/applications
+       .. _requesting access to your personal OAuth: https://docs.github.com/en/organizations/restricting-access-to-your-organizations-data/approving-oauth-apps-for-your-organization
+
+   .. tab:: Organization Account
+
+       You need to make sure that you have granted access to the Read the Docs OAuth App to your **organization GitHub account**.
+       If you don't see "Read the Docs" listed, then you might need to connect GitHub to your social accounts as noted above.
+
+       .. seealso:: GitHub doc on `requesting access to your organization OAuth`_ for step-by-step instructions.
+
+       .. _requesting access to your organization OAuth: https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps
 
 Bitbucket
 ~~~~~~~~~

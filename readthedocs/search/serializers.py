@@ -12,24 +12,30 @@ from functools import namedtuple
 from operator import attrgetter
 from urllib.parse import urlparse
 
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
-
-# Structure used for storing cached data of a version mostly.
+# Structures used for storing cached data of a version mostly.
 ProjectData = namedtuple('ProjectData', ['version', 'alias'])
 VersionData = namedtuple('VersionData', ['slug', 'docs_url'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
 
-    name = serializers.ListField(child=serializers.CharField(), default=list)
-    slug = serializers.ListField(child=serializers.CharField(), default=list)
-    description = serializers.ListField(child=serializers.CharField(), default=list)
+    name = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        return list(getattr(obj, 'name', []))
+
+    def get_slug(self, obj):
+        return list(getattr(obj, 'slug', []))
+
+    def get_description(self, obj):
+        return list(getattr(obj, 'description', []))
 
 
 class ProjectSearchSerializer(serializers.Serializer):
@@ -44,7 +50,10 @@ class ProjectSearchSerializer(serializers.Serializer):
 
 class PageHighlightSerializer(serializers.Serializer):
 
-    title = serializers.ListField(child=serializers.CharField(), default=list)
+    title = serializers.SerializerMethodField()
+
+    def get_title(self, obj):
+        return list(getattr(obj, 'title', []))
 
 
 class PageSearchSerializer(serializers.Serializer):
@@ -166,12 +175,10 @@ class DomainHighlightSerializer(serializers.Serializer):
     content = serializers.SerializerMethodField()
 
     def get_name(self, obj):
-        name = getattr(obj, 'domains.name', [])
-        return list(name)
+        return list(getattr(obj, 'domains.name', []))
 
     def get_content(self, obj):
-        docstring = getattr(obj, 'domains.docstrings', [])
-        return list(docstring)
+        return list(getattr(obj, 'domains.docstrings', []))
 
 
 class DomainSearchSerializer(serializers.Serializer):
@@ -190,12 +197,10 @@ class SectionHighlightSerializer(serializers.Serializer):
     content = serializers.SerializerMethodField()
 
     def get_title(self, obj):
-        title = getattr(obj, 'sections.title', [])
-        return list(title)
+        return list(getattr(obj, 'sections.title', []))
 
     def get_content(self, obj):
-        content = getattr(obj, 'sections.content', [])
-        return list(content)
+        return list(getattr(obj, 'sections.content', []))
 
 
 class SectionSearchSerializer(serializers.Serializer):

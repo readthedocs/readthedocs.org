@@ -7,6 +7,7 @@ from django.core.validators import EmailValidator
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
@@ -19,7 +20,7 @@ from readthedocs.organizations.models import (
 )
 
 
-class OrganizationForm(forms.ModelForm):
+class OrganizationForm(SimpleHistoryModelForm):
 
     """
     Base organization form.
@@ -27,6 +28,11 @@ class OrganizationForm(forms.ModelForm):
     :param user: User instance, responsible for ownership of Organization
     :type user: django.contrib.auth.models.User
     """
+
+    # We use the organization slug + project name
+    # to form the final project slug.
+    # A valid project slug is 63 chars long.
+    name = forms.CharField(max_length=32)
 
     class Meta:
         model = Organization
@@ -57,7 +63,11 @@ class OrganizationForm(forms.ModelForm):
         name = self.cleaned_data['name']
         if self.instance and self.instance.name and name == self.instance.name:
             return name
-        if Organization.objects.filter(slug=slugify(name)).exists():
+
+        potential_slug = slugify(name)
+        if not potential_slug:
+            raise forms.ValidationError(_('Invalid organization name: no slug generated'))
+        if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
                 _('Organization %(name)s already exists'),
                 params={'name': name},
@@ -95,7 +105,7 @@ class OrganizationSignupFormBase(OrganizationForm):
     def save(self, commit=True):
         org = super().save(commit)
 
-        # If not commiting, we can't save M2M fields
+        # If not committing, we can't save M2M fields
         if not commit:
             return org
 
@@ -144,7 +154,7 @@ class OrganizationOwnerForm(forms.ModelForm):
         return owner
 
 
-class OrganizationTeamBasicFormBase(forms.ModelForm):
+class OrganizationTeamBasicFormBase(SimpleHistoryModelForm):
 
     """Form to manage teams."""
 

@@ -74,12 +74,13 @@ class BaseAnalyticsView(APIView):
             path=path,
             date=timezone.now().date(),
         )
-        page_view = PageView.objects.filter(**fields).first()
-        if page_view:
+        page_view, created = PageView.objects.get_or_create(
+            **fields,
+            defaults={'view_count': 1},
+        )
+        if not created:
             page_view.view_count = F('view_count') + 1
             page_view.save(update_fields=['view_count'])
-        else:
-            PageView.objects.create(**fields, view_count=1)
 
 
 class AnalyticsView(SettingsOverrideObject):

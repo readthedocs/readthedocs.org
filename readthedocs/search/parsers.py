@@ -407,7 +407,7 @@ class SphinxParser(BaseParser):
         """
         Removes sphinx domain nodes.
 
-        This method is overriden to remove contents that are likely
+        This method is overridden to remove contents that are likely
         to be a sphinx domain (`dl` tags).
         We already index those in another step.
         """
@@ -585,7 +585,7 @@ class MkDocsParser(BaseParser):
             path = parsed_path.path
 
             # Some old versions of mkdocs
-            # index the pages as ``/page.html`` insted of ``page.html``.
+            # index the pages as ``/page.html`` instead of ``page.html``.
             path = path.lstrip('/')
 
             if path == '' or path.endswith('/'):

@@ -1,6 +1,5 @@
 import os
 import tempfile
-from collections import namedtuple
 from unittest import mock
 from unittest.mock import patch
 
@@ -13,7 +12,11 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, SafeDumper, yaml_load_safely
+from readthedocs.doc_builder.backends.mkdocs import (
+    MkdocsHTML,
+    SafeDumper,
+    yaml_load_safely,
+)
 from readthedocs.doc_builder.backends.sphinx import (
     BaseSphinx,
     HtmlBuilder,
@@ -21,9 +24,10 @@ from readthedocs.doc_builder.backends.sphinx import (
     SingleHtmlBuilder,
 )
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -134,7 +138,7 @@ class SphinxBuilderTest(TestCase):
                 },
                 {
                     'slug': 'v3',
-                    'privacy_level': PROTECTED,
+                    'privacy_level': PRIVATE,
                 },
                 {
                     'slug': 'latest',
@@ -317,7 +321,7 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = namedtuple('project', 'version')
+        self.build_env = LocalBuildEnvironment(record=False)
         self.build_env.project = self.project
         self.build_env.version = self.version
 

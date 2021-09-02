@@ -11,7 +11,6 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
-    PROTECTED,
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
@@ -220,7 +219,7 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             slug='public-3',
             active=False,
-            privacy_level=PROTECTED,
+            privacy_level=PUBLIC,
             identifier='public-3',
             verbose_name='public-3',
         )
@@ -242,15 +241,6 @@ class TestProjectAdvancedForm(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_active_versions_on_default_version(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -261,7 +251,7 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'private'},
         )
 
     def test_default_version_field_if_no_active_version(self):
@@ -298,6 +288,7 @@ class TestProjectAdvancedForm(TestCase):
                 'documentation_type': SPHINX,
                 'python_interpreter': 'python3',
                 'privacy_level': PRIVATE,
+                'external_builds_privacy_level': PRIVATE,
             },
             instance=self.project,
         )
@@ -336,15 +327,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -358,7 +340,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'stable', 'public-1', 'protected', 'private',
+                None, 'stable', 'public-1', 'private',
             },
         )
         # Auto generated version `latest` should not be among the choices

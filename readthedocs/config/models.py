@@ -9,7 +9,7 @@ class Base:
     Base class for every configuration.
 
     Each inherited class should define
-    its attibutes in the `__slots__` attribute.
+    its attributes in the `__slots__` attribute.
 
     We are using `__slots__` so we can't add more attributes by mistake,
     this is similar to a namedtuple.
@@ -28,7 +28,11 @@ class Base:
 
 class Build(Base):
 
-    __slots__ = ('image',)
+    __slots__ = ('image', 'apt_packages')
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('apt_packages', [])
+        super().__init__(**kwargs)
 
 
 class Python(Base):

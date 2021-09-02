@@ -4,6 +4,7 @@ import datetime
 import logging
 import os.path
 import re
+from functools import partial
 from shutil import rmtree
 
 import regex
@@ -45,7 +46,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.managers import (
     AutomationRuleMatchManager,
-    BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
     InternalBuildManager,
@@ -179,9 +179,9 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
+    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -611,6 +611,7 @@ class Build(models.Model):
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+        db_index=True,
     )
 
     # Describe status as *why* the build is in a particular state. It is
@@ -625,7 +626,7 @@ class Build(models.Model):
         default=None,
         blank=True,
     )
-    date = models.DateTimeField(_('Date'), auto_now_add=True)
+    date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
     setup = models.TextField(_('Setup'), null=True, blank=True)
@@ -678,7 +679,7 @@ class Build(models.Model):
     )
 
     # Managers
-    objects = BuildManager.from_queryset(BuildQuerySet)()
+    objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
@@ -692,6 +693,9 @@ class Build(models.Model):
         index_together = [
             ['version', 'state', 'type'],
             ['date', 'id'],
+        ]
+        indexes = [
+            models.Index(fields=['project', 'date']),
         ]
 
     def __init__(self, *args, **kwargs):
@@ -924,7 +928,7 @@ class Build(models.Model):
         """
         Reset the build so it can be re-used when re-trying.
 
-        Dates and states are usually overriden by the build,
+        Dates and states are usually overridden by the build,
         we care more about deleting the commands.
         """
         self.state = BUILD_STATE_TRIGGERED
@@ -1182,7 +1186,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             )
             expression = F('priority') + 1
 
-        # Put an imposible priority to avoid
+        # Put an impossible priority to avoid
         # the unique constraint (project, priority)
         # while updating.
         self.priority = total + 99
@@ -1265,7 +1269,7 @@ class RegexAutomationRule(VersionAutomationRule):
            arg to avoid ReDoS.
 
            We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writting this code.
+           but there isn't a stable library at the time of writing this code.
         """
         try:
             match = regex.search(

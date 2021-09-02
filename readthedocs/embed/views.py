@@ -196,7 +196,7 @@ class EmbedAPI(SettingsOverrideObject):
 
 
 def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
-    """Get the embed reponse from a document section."""
+    """Get the embed response from a document section."""
     if not url:
         external = version.type == EXTERNAL
         url = resolve(
@@ -307,9 +307,15 @@ def parse_sphinx(content, section, url):
     for element_id in elements_id:
         if not element_id:
             continue
-        query_result = body_obj(f'#{element_id}')
-        if query_result:
-            break
+        try:
+            query_result = body_obj(f'#{element_id}')
+            if query_result:
+                break
+        except Exception:  # noqa
+            log.info(
+                'Failed to query section. url=%s id=%s',
+                url, element_id,
+            )
 
     if not query_result:
         selector = f':header:contains("{escaped_section}")'

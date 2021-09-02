@@ -8,7 +8,6 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
-from django.conf import settings
 from django.utils import timezone
 
 import django
@@ -32,7 +31,6 @@ extensions = [
     'doc_extensions',
     'sphinx_tabs.tabs',
     'sphinx-prompt',
-    'recommonmark',
     'notfound.extension',
     'hoverxref.extension',
     'sphinx_search.extension',
@@ -40,10 +38,9 @@ extensions = [
 ]
 
 templates_path = ['_templates']
-source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
-project = u'Read the Docs'
+project = 'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
@@ -56,15 +53,31 @@ intersphinx_mapping = {
     'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'pip': ('https://pip.pypa.io/en/stable/', None),
+    'nbsphinx': ('https://nbsphinx.readthedocs.io/en/0.8.6/', None),
+    'myst-nb': ('https://myst-nb.readthedocs.io/en/v0.12.3/', None),
+    'ipywidgets': ('https://ipywidgets.readthedocs.io/en/7.6.3/', None),
+    'jupytext': ('https://jupytext.readthedocs.io/en/stable/', None),
+    'ipyleaflet': ('https://ipyleaflet.readthedocs.io/en/stable/', None),
+    'poliastro': ('https://docs.poliastro.space/en/v0.15.2/', None),
+    'qiskit': ('https://qiskit.org/documentation/', None),
+    'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
 }
+hoverxref_intersphinx = [
+   "sphinx",
+   "pip",
+   "nbsphinx",
+   "myst-nb",
+   "ipywidgets",
+   "jupytext",
+]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
-    ('index', 'ReadTheDocs.tex', u'Read the Docs Documentation',
-     u'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
+    ('index', 'ReadTheDocs.tex', 'Read the Docs Documentation',
+     'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
 ]
 man_pages = [
-    ('index', 'read-the-docs', u'Read the Docs Documentation',
-     [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
+    ('index', 'read-the-docs', 'Read the Docs Documentation',
+     ['Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
 
 exclude_patterns = [
@@ -109,8 +122,6 @@ rst_epilog = """
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
-
-numfig = True
 
 # sphinx-notfound-page
 # https://github.com/readthedocs/sphinx-notfound-page

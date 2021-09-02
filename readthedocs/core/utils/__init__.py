@@ -1,4 +1,4 @@
-"""Common utilty functions."""
+"""Common utility functions."""
 
 import datetime
 import errno
@@ -18,7 +18,6 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
@@ -65,7 +64,6 @@ def prepare_build(
     )
 
     build = None
-
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because Project is not active: project=%s',
@@ -234,11 +232,11 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         commit,
     )
     update_docs_task, build = prepare_build(
-        project,
-        version,
-        commit,
-        record,
-        force,
+        project=project,
+        version=version,
+        commit=commit,
+        record=record,
+        force=force,
         immutable=True,
     )
 
@@ -281,12 +279,15 @@ def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
 
-    :param dns_safe: Remove underscores from slug as well
+    :param bool dns_safe: Replace special chars like underscores with ``-``.
+     And remove trailing ``-``.
     """
     dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = mark_safe(re.sub('[-_]+', '-', value))
+        value = re.sub('[-_]+', '-', value)
+        # DNS doesn't allow - at the beginning or end of subdomains
+        value = mark_safe(value.strip('-'))
     return value
 
 

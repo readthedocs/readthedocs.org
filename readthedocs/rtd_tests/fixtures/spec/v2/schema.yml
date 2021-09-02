@@ -50,6 +50,10 @@ build:
   # Note: it can be overridden by a project
   image: enum('stable', 'latest', required=False)
 
+  # List of packages to be installed with apt-get
+  # Default: []
+  apt_packages: list(str(), required=False)
+
 python:
   # The Python version (this depends on the build image)
   # Default: '3'
@@ -113,7 +117,7 @@ mkdocs:
   # Default: rtd will try to find it
   configuration: path(required=False)
 
-  # Add the --strict optio to mkdocs build
+  # Add the --strict option to mkdocs build
   # Default: false
   fail_on_warning: bool(required=False)
 
