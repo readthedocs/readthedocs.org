@@ -45,7 +45,7 @@ LANGUAGE=$1
 VERSION=$2
 
 # Spin up a container with the Ubuntu 20.04 LTS image
-CONTAINER_ID=$(docker run --user docs --detach readthedocs/build:$OS sleep $SLEEP)
+CONTAINER_ID=$(docker run --user docs --rm --detach readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
 # Install the language version requested
