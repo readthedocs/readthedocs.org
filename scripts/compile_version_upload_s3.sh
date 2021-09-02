@@ -87,10 +87,10 @@ docker cp $CONTAINER_ID:/home/docs/$OS-$LANGUAGE-$VERSION.tar.gz .
 docker container kill $CONTAINER_ID
 
 # Upload the .tar.gz to S3
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
 AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
 AWS_LANGUAGES_BUCKET="${AWS_LANGUAGES_BUCKET:-languages}"
+AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}" \
+AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}" \
 aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$LANGUAGE-$VERSION.tar.gz s3://$AWS_LANGUAGES_BUCKET
 
 # Delete the .tar.gz file from the host
