@@ -77,3 +77,8 @@ you can include the theme's normal CSS using the CSS
     body {
         /* ... */
     }
+
+
+.. seealso::
+
+   You can also add custom classes to your html elements. See `Docutils Class <https://docutils.sourceforge.io/docs/ref/rst/directives.html#class>`_ and this related `Sphinx footnote... <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#id2>`_ for more information.
