@@ -285,6 +285,159 @@ you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
 
+Customizing the build process
+-----------------------------
+
+The Settings page of the :term:`project home` allows you
+to change some *global* configuration values of your project.
+In addition, you can further customize the building process
+using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
+This has two advantages:
+
+- The configuration lives next to your code and documentation, tracked by version control.
+- It can be different for every version (more on versioning in the next section).
+
+Read the Docs works without this configuration by making some decisions on your behalf.
+For example, what Python version to use, how to install the requirements, and others.
+
+Upgrading the Python version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For example, to explicitly use Python 3.9 to build your project,
+navigate to your GitHub repository, click on the :guilabel:`Add file` button,
+and add a ``.readthedocs.yaml`` file with these contents to the root of your project:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     image: testing
+
+   python:
+     version: "3.9"
+
+The purpose of each key is:
+
+``version``
+  Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
+
+``build.image``
+  Specifies a newer :ref:`Docker image <builds:Docker images>`,
+  needed to use more recent versions of Python.
+
+``python.version``
+  Declares the Python version to be used.
+
+After you commit these changes, go back to your project home,
+navigate to the "Builds" page, and open the new build that just started.
+You will notice that one of the lines contains ``python3.9``:
+if you click on it, you will see the full output of the corresponding command,
+stating that it used ``CPython3.9.1`` to create the virtual environment.
+
+.. figure:: /_static/images/tutorial/build-python3.9.png
+   :width: 80%
+   :align: center
+   :alt: Read the Docs build using Python 3.9
+
+   Read the Docs build using Python 3.9
+
+Making warnings more visible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you navigate to your HTML documentation,
+you will notice that the index page looks correct,
+but actually the API section is empty.
+This is a very common annoyance with Sphinx,
+and the reason is stated in the build logs.
+On the build page you opened before,
+click on the "View raw" text on the top right,
+which opens the build logs in plain text,
+and you will see several warnings:
+
+.. code-block:: text
+
+   WARNING: [autosummary] failed to import 'lumache': no module named lumache
+   ...
+   WARNING: autodoc: failed to import function 'get_random_ingredients' from module 'lumache'; the following exception was raised:
+   No module named 'lumache'
+   WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
+   No module named 'lumache'
+
+To spot these warnings more easily and allow you to address them or selectively ignore them,
+you can add the ``sphinx.fail_on_warning`` to your Read the Docs configuration file.
+For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
+click on the |:pencil2:| icon, and add these contents:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 4-5
+
+   python:
+     version: "3.9"
+
+   sphinx:
+     fail_on_warning: true
+
+At this point, if you navigate back to your "Builds" page,
+you will see a `Failed` build, which is exactly the intended result:
+the Sphinx project is not properly configured yet,
+and instead of rendering an empty API page, now the build fails.
+
+The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc`
+fail to import the code is because it is not installed.
+Luckily, the ``.readthedocs.yaml`` also allows you to specify
+which requirements to install.
+
+To install the library code of your project,
+go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 3-5
+
+   python:
+     version: "3.9"
+     install:
+       - method: pip
+         path: .
+
+With this change, Read the Docs will install the Python code in the virtual environment
+before starting the Sphinx build, which will finish seamlessly.
+If you go now to the API page of your HTML documentation,
+you will see the ``lumache`` summary!
+
+Enabling PDF and EPUB builds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx can build several other formats in addition to HTML, such as PDF and EPUB.
+You might want to enable this formats for your project
+so your users can read the documentation offline.
+
+To do so, add this extra content to your ``.readthedocs.yaml``:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 4-6
+
+   sphinx:
+     fail_on_warning: true
+
+   formats:
+     - pdf
+     - epub
+
+After this change, PDF and EPUB downloads will be available
+both from the "Downloads" section of the :term:`project home`,
+as well as the :term:`flyout menu`.
+
+.. figure:: /_static/images/tutorial/flyout-downloads.png
+   :align: center
+   :alt: Downloads available from the flyout menu
+
+   Downloads available from the flyout menu
+
 ----
 
 That's the end of the tutorial,

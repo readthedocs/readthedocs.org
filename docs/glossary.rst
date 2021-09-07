@@ -7,6 +7,10 @@ Glossary
       `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
       and import a new project.
 
+   flyout menu
+      Menu displayed on the documentation, readily accessible for readers, containing the list active versions,
+      links to the static downloads, and other useful information.
+
    profile page
       Page where you can see the projects of a certain user.
 
