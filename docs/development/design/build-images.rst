@@ -156,6 +156,7 @@ Important highlights:
 * not specifying ``build.languages`` will make the config file parsing to fail (at least one is required)
 * specifying only ``build.languages.nodejs`` and using Sphinx to build the docs, will make the build to fail (e.g. "Command not found")
 * ``build.image`` is incompatible with ``build.os`` or ``build.languages`` and will produce an error
+* ``python.version`` is incompatible with ``build.os`` or ``build.languages`` and will produce an error
 * Ubuntu 18 will still be available via ``stable`` and ``latest`` images, but not in new ones
 * only a subset (not defined yet) of ``python``, ``nodejs``, ``rust`` and ``go`` versions on ``asdf`` are available to select
 
