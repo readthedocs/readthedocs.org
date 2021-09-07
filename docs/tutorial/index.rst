@@ -259,7 +259,10 @@ __  https://docs.github.com/en/github/managing-files-in-a-repository/managing-fi
 
 In the editor, add the following sentence to the file:
 
-    Lumache has its documentation hosted on Read the Docs.
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   Lumache has its documentation hosted on Read the Docs.
 
 Write an appropriate commit message,
 and choose the "Create a **new branch** for this commit and start a pull request" option,
