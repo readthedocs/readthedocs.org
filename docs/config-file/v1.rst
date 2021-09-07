@@ -259,5 +259,5 @@ Behind the scene the following Pip command will be run:
 
 
 .. _environment file: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file
-.. _extra requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
-.. _package default dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
+.. _extra requirements: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies
+.. _package default dependencies: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#declaring-required-dependency
