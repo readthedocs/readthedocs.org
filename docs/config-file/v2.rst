@@ -224,8 +224,8 @@ The installation method.
 
 `Extra requirements`_ section to install in addition to the `package dependencies`_.
 
-.. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
-.. _package dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
+.. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies
+.. _package dependencies: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#declaring-required-dependency
 
 .. warning::
 
