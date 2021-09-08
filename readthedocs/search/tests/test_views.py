@@ -251,19 +251,17 @@ class TestPageSearch:
             search_params=search_params
         )
         new_role_names_facets = new_facets['role_name']
-        # there is only one result with role_name='py:class'
-        # in `signals` page
+        # All results from domains  should have role_name='py:class'.
         assert len(new_results) == 1
-        first_result = new_results[0]  # first result
-        blocks = first_result['blocks']  # blocks of first results
-        assert len(blocks) >= 1
-        inner_hit_0 = blocks[0]  # first inner_hit
-        assert inner_hit_0['type'] == 'domain'
-        assert inner_hit_0['role'] == confval_facet
+        first_result = new_results[0]
+        blocks = first_result['blocks']
+        for block in blocks:
+            assert block['type'] == 'domain'
+            assert block['role'] == confval_facet
 
         for facet in new_role_names_facets:
             if facet[0] == confval_facet:
-                assert facet[2] == True  # because 'std:confval' filter is active
+                assert facet[2] == True  # because 'py:class' filter is active
             else:
                 assert facet[2] == False
 

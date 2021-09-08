@@ -93,6 +93,7 @@ gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_css_files = ['css/custom.css']
 html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'

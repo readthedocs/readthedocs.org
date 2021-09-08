@@ -66,13 +66,13 @@ and we will get back to you as soon as possible.
 >
   <div>
     <label for="name">Name</label>
-    <input type="text" name="name" {% if request.user.is_authenticated %} value="{{ request.user.first_name }} {{ request.user.last_name }}" {% endif %}>
+    <input type="text" name="name" value="{{ request.user.get_full_name }}">
     <p></p>
   </div>
 
   <div>
     <label for="email">Email</label>
-    <input type="email" name="email"  {% if request.user.is_authenticated %} value="{{ request.user.email }}" {% endif %}>
+    <input type="email" name="email" value="{{ request.user.email }}" readonly>
     <p></p>
   </div>
 

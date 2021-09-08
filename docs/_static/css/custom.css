@@ -1,0 +1,5 @@
+.team-roster a img {
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px #fff, 0 0 0 8px #cecece;
+  margin: 9px 17px 9px 3px;
+}
