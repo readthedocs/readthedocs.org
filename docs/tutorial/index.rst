@@ -488,6 +488,67 @@ and hit :guilabel:`Save` at the bottom.
 From now on, every time a user visits the :term:`root URL` of your documentation,
 they will get redirected to the ``stable`` version of it.
 
+Modifying versions
+~~~~~~~~~~~~~~~~~~
+
+Both ``latest`` and ``stable`` are now *active*, which means that
+they are visible for users, and new builds can be triggered for them.
+In addition to these, Read the Docs also created an *inactive* ``1.0.x``
+version, which will always point to the ``1.0.x`` branch of your repository.
+
+.. figure:: /_static/images/tutorial/inactive-versions.png
+   :width: 80%
+   :align: center
+   :alt: List of inactive versions of the project
+
+   List of inactive versions of the project
+
+Let's activate the ``1.0.x`` version.
+For that, go to the "Versions" on your :term:`project home`,
+locate ``1.0.x`` under "Activate a version",
+and click on the :guilabel:`Activate` button.
+This will take you to a new page with two checkboxes,
+"Active" and "Hidden". Check only "Active",
+and click :guilabel:`Save`.
+
+After you do this, ``1.0.x`` will appear on the "Active Versions" section,
+and a new build will be triggered for it.
+
+Show a warning for old versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When your project matures, the number of versions might increase.
+Sometimes you will want to warn your readers
+when they are browsing an old or outdated version of your documentation.
+
+To showcase how to do that, let's create a ``2.0`` version of the code:
+navigate to your GitHub repository, click on the branch selector,
+type :kbd:`2.0.x`, and click on "Create branch: 2.0.x from 'main'".
+This will trigger two things:
+
+- Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
+- A new ``2.0.x`` version will be created on your Read the Docs project.
+
+.. warning::
+
+   At the time of writing, this ``2.0.x`` version will become active automatically.
+   This, however, is unintended behaviour under investigation.
+
+From this point, ``1.0.x`` version is no longer the most up to date one.
+To display a warning to your readers, go to the "⚙ Admin" menu of your project home,
+click on the "Advanced Settings" link on the left,
+enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
+
+If you now browse the ``1.0.x`` documentation, you will see a warning on top
+encouraging you to browse the latest version instead. Neat!
+
+.. figure:: /_static/images/tutorial/old-version-warning.png
+   :width: 80%
+   :align: center
+   :alt: Warning for old versions
+
+   Warning for old versions
+
 ----
 
 That's the end of the tutorial,
