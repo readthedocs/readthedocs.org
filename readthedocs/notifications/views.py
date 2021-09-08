@@ -78,7 +78,7 @@ class SendNotificationView(FormView):
 
         For example, this could be made to return project owners with::
 
-            for owner in project.users.all():
+            for owner in AdminPermission.members(project):
                 yield owner
 
         :param obj: object from queryset, type is dependent on model class

@@ -4,7 +4,6 @@ import uuid
 
 from django.db import models
 
-from readthedocs.organizations.models import Organization
 from readthedocs.projects.validators import validate_domain_name
 
 
@@ -30,7 +29,7 @@ class SSOIntegration(models.Model):
         # editable=False,
     )
     organization = models.OneToOneField(
-        Organization,
+        'organizations.Organization',
         on_delete=models.CASCADE,
     )
     provider = models.CharField(

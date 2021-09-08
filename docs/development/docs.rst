@@ -13,7 +13,7 @@ you can verify those changes through the documentation generated when you open a
 
 #. click the checkmark next to your commit and it will expand to have multiple options
 
-#. right-click the "details" link next to the "docs/readthedocs.org:docs" item
+#. click the "details" link next to the "docs/readthedocs.org:docs" item
 
    .. image:: /img/details_link.png
 
