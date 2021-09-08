@@ -438,6 +438,62 @@ as well as the :term:`flyout menu`.
 
    Downloads available from the flyout menu
 
+Versioning documentation
+------------------------
+
+.. Explain how to manage versions on RTD: create release branches,
+   activate the corresponding version, browse them in the version selector,
+   selectively build versions
+
+Read the Docs allows you to have :doc:`several versions of your documentation </versions>`,
+in the same way that you have several versions of your code.
+By default, it creates a ``latest`` version
+that points to the default branch of your version control system
+(``main`` in the case of this tutorial),
+and that's why the URLs of your HTML documentation contain the string ``/latest/``.
+
+Creating a new version
+~~~~~~~~~~~~~~~~~~~~~~
+
+Let's say you want to create a ``1.0`` version of your code,
+with a corresponding ``1.0`` version of the documentation.
+For that, first navigate to your GitHub repository, click on the branch selector,
+type :kbd:`1.0.x`, and click on "Create branch: 1.0.x from 'main'"
+(more information `on their documentation`__).
+
+__  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
+
+Next, go to your :term:`project home`, click on the "Versions" button,
+and under "Active Versions" you will see two entries:
+
+- The ``latest`` version, pointing to the ``main`` branch, and "Public".
+- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch, and also "Public".
+
+.. figure:: /_static/images/tutorial/active-versions.png
+   :width: 80%
+   :align: center
+   :alt: List of active versions of the project
+
+   List of active versions of the project
+
+Right after you created your branch,
+Read the Docs created a new special version called ``stable`` pointing to it,
+and started building it. When the build finishes,
+the ``stable`` version will be listed in the :term:`flyout menu`
+and your readers will be able to choose it.
+
+Now you might want to set ``stable`` as the *default version*,
+rather than ``latest``.
+This has the advantage that users will see the documentation
+corresponding to the most recent release of your software,
+while they can optionally switch to the development version.
+
+For that, go to the "Advanced Settings" link under the "⚙ Admin" menu of your project home,
+choose ``stable`` in the "Default version*" dropdown,
+and hit :guilabel:`Save` at the bottom.
+From now on, every time a user visits the :term:`root URL` of your documentation,
+they will get redirected to the ``stable`` version of it.
+
 ----
 
 That's the end of the tutorial,

@@ -20,3 +20,7 @@ Glossary
 
    project page
       Another name for :term:`project home`.
+
+   root URL
+      Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
+      For projects without custom domains, the one ending in ``.readthedocs.io/``.
