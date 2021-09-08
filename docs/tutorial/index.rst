@@ -304,7 +304,7 @@ For example, what Python version to use, how to install the requirements, and ot
 Upgrading the Python version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For example, to explicitly use Python 3.9 to build your project,
+For example, to explicitly use Python 3.8 to build your project,
 navigate to your GitHub repository, click on the :guilabel:`Add file` button,
 and add a ``.readthedocs.yaml`` file with these contents to the root of your project:
 
@@ -313,36 +313,29 @@ and add a ``.readthedocs.yaml`` file with these contents to the root of your pro
 
    version: 2
 
-   build:
-     image: testing
-
    python:
-     version: "3.9"
+     version: "3.8"
 
 The purpose of each key is:
 
 ``version``
   Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
 
-``build.image``
-  Specifies a newer :ref:`Docker image <builds:Docker images>`,
-  needed to use more recent versions of Python.
-
 ``python.version``
   Declares the Python version to be used.
 
 After you commit these changes, go back to your project home,
 navigate to the "Builds" page, and open the new build that just started.
-You will notice that one of the lines contains ``python3.9``:
+You will notice that one of the lines contains ``python3.8``:
 if you click on it, you will see the full output of the corresponding command,
-stating that it used ``CPython3.9.1`` to create the virtual environment.
+stating that it used Python 3.8.6 to create the virtual environment.
 
-.. figure:: /_static/images/tutorial/build-python3.9.png
+.. figure:: /_static/images/tutorial/build-python3.8.png
    :width: 80%
    :align: center
-   :alt: Read the Docs build using Python 3.9
+   :alt: Read the Docs build using Python 3.8
 
-   Read the Docs build using Python 3.9
+   Read the Docs build using Python 3.8
 
 Making warnings more visible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
