@@ -74,7 +74,7 @@ class PythonEnvironment:
             )
             shutil.rmtree(venv_dir)
 
-    def install_languages(self):
+    def install_build_languages(self):
         if settings.RTD_DOCKER_COMPOSE:
             # Create a symlink for ``root`` user to use the same ``.asdf``
             # installation than ``docs`` user. Required for local building
