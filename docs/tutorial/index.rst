@@ -361,7 +361,7 @@ and you will see several warnings:
 
 To spot these warnings more easily and allow you to address them
 (or :doc:`selectively ignore them <sphinx:usage/configuration>` by setting the ``suppress_warnings`` configuration),
-you can add the ``sphinx.fail_on_warning`` to your Read the Docs configuration file.
+you can add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
 For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
 click on the |:pencil2:| icon, and add these contents:
 
@@ -449,7 +449,7 @@ Creating a new version
 Let's say you want to create a ``1.0`` version of your code,
 with a corresponding ``1.0`` version of the documentation.
 For that, first navigate to your GitHub repository, click on the branch selector,
-type :kbd:`1.0.x`, and click on "Create branch: 1.0.x from 'main'"
+type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
 (more information `on their documentation`__).
 
 __  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
@@ -521,7 +521,7 @@ when they are browsing an old or outdated version of your documentation.
 
 To showcase how to do that, let's create a ``2.0`` version of the code:
 navigate to your GitHub repository, click on the branch selector,
-type :kbd:`2.0.x`, and click on "Create branch: 2.0.x from 'main'".
+type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
 This will trigger two things:
 
 - Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
