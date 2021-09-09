@@ -460,8 +460,8 @@ __  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing
 Next, go to your :term:`project home`, click on the "Versions" button,
 and under "Active Versions" you will see two entries:
 
-- The ``latest`` version, pointing to the ``main`` branch, and "Public".
-- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch, and also "Public".
+- The ``latest`` version, pointing to the ``main`` branch.
+- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
 
 .. figure:: /_static/images/tutorial/active-versions.png
    :width: 80%
