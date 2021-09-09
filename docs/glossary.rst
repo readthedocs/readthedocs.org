@@ -23,4 +23,5 @@ Glossary
 
    root URL
       Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
-      For projects without custom domains, the one ending in ``.readthedocs.io/``.
+      For projects without custom domains, the one ending in ``.readthedocs.io/``
+      (for example, ``https://docs.readthedocs.io`` as opposed to ``https://docs.readthedocs.io/en/latest``).
