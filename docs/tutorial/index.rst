@@ -468,11 +468,17 @@ and under "Active Versions" you will see two entries:
    List of active versions of the project
 
 Right after you created your branch,
-since its name follows the `semantic versioning <https://semver.org/>`_ convention,
 Read the Docs created a new special version called ``stable`` pointing to it,
 and started building it. When the build finishes,
 the ``stable`` version will be listed in the :term:`flyout menu`
 and your readers will be able to choose it.
+
+.. note::
+
+   Read the Docs :ref:`follows some implicit rules <versions:how we envision versions working>`
+   to decide whether to create a ``stable`` version pointing to your new branch or tag.
+   To simplify, it will check if the name resembles a version number
+   like ``1.0``, ``2.0.3`` or ``4.x``.
 
 Now you might want to set ``stable`` as the *default version*,
 rather than ``latest``.
