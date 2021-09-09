@@ -468,6 +468,7 @@ and under "Active Versions" you will see two entries:
    List of active versions of the project
 
 Right after you created your branch,
+since its name follows the `semantic versioning <https://semver.org/>`_ convention,
 Read the Docs created a new special version called ``stable`` pointing to it,
 and started building it. When the build finishes,
 the ``stable`` version will be listed in the :term:`flyout menu`
