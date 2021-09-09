@@ -371,7 +371,6 @@ Deprecation plan
 After this design document gets implemented and tested,
 all our current images (``stable``, ``latest``, ``testing``) will be deprecated and their usage will be de-motivated.
 However, we could keep them on our builders to give users a good time to migrate their projects to the new ones.
-New projects shouldn't be able to select these images and they will be forced to use ``build.os`` and ``build.languages``.
 
 We may want to keep only the latest Ubuntu LTS release available in production,
 with a special consideration for our current Ubuntu 18.04 LTS on ``stable``, ``latest`` and ``testing`` because 100% of the projects depend on them currently.
