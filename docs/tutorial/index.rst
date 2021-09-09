@@ -526,11 +526,7 @@ This will trigger two things:
 
 - Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
 - A new ``2.0.x`` version will be created on your Read the Docs project.
-
-.. warning::
-
-   At the time of writing, this ``2.0.x`` version will become active automatically.
-   This, however, is unintended behaviour under investigation.
+- Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
 
 From this point, ``1.0.x`` version is no longer the most up to date one.
 To display a warning to your readers, go to the "⚙ Admin" menu of your project home,
