@@ -436,10 +436,6 @@ as well as the :term:`flyout menu`.
 Versioning documentation
 ------------------------
 
-.. Explain how to manage versions on RTD: create release branches,
-   activate the corresponding version, browse them in the version selector,
-   selectively build versions
-
 Read the Docs allows you to have :doc:`several versions of your documentation </versions>`,
 in the same way that you have several versions of your code.
 By default, it creates a ``latest`` version
