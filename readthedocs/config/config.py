@@ -16,6 +16,7 @@ from .models import (
     Build,
     Conda,
     Mkdocs,
+    OldBuild,
     Python,
     PythonInstall,
     PythonInstallRequirements,
@@ -620,7 +621,7 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def build(self):
         """The docker image used by the builders."""
-        return Build(**self._config['build'])
+        return OldBuild(**self._config['build'])
 
     @property
     def doctype(self):
@@ -669,6 +670,19 @@ class BuildConfigV2(BuildConfigBase):
         'htmldir': 'sphinx_htmldir',
         'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
+    }
+    valid_os = ['ubuntu-20.04']
+    valid_languages = {
+        'python': [
+            '2.7',
+            '3', '3.8', '3.9', '3.10',
+            'pypy3.7',
+            'miniconda3-4.7',
+            'mambaforge-4.10',
+        ],
+        'nodejs': ['14', '16'],
+        'rust': ['1.55'],
+        'golang': ['1.17'],
     }
 
     def validate(self):
@@ -723,15 +737,52 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
-    def validate_build(self):
+    def validate_new_build_config(self):
         """
-        Validates the build object.
+        Validates the build object (new format).
+
+        At least one element must be provided in ``build.languages``.
+        """
+        build = {}
+        with self.catch_validation_error('build.os'):
+            build_os = self.pop_config('build.os', raise_ex=True)
+            build['os'] = validate_choice(build_os, self.valid_os)
+
+        languages = {}
+        with self.catch_validation_error('build.languages'):
+            languages = self.pop_config('build.languages')
+            validate_dict(languages)
+            for lang in languages.keys():
+                validate_choice(lang, self.valid_languages.keys())
+
+        if not languages:
+            self.error(
+                key='build.languages',
+                message=(
+                    'At least one language of [{}] must be provided.'.format(
+                        ' ,'.join(self.valid_languages.keys())
+                    )
+                ),
+                code=CONFIG_REQUIRED,
+            )
+
+        build['languages'] = {}
+        for lang, version in languages.items():
+            with self.catch_validation_error(f'build.languages.{lang}'):
+                build['languages'][lang] = validate_choice(
+                    version,
+                    self.valid_languages[lang],
+                )
+
+        build['apt_packages'] = self.validate_apt_packages()
+        return build
+
+    def validate_old_build_config(self):
+        """
+        Validates the build object (old format).
 
         It prioritizes the value from the default image if exists.
         """
-        raw_build = self._raw_config.get('build', {})
-        with self.catch_validation_error('build'):
-            validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
@@ -748,6 +799,11 @@ class BuildConfigV2(BuildConfigBase):
             if config_image:
                 build['image'] = config_image
 
+        build['apt_packages'] = self.validate_apt_packages()
+        return build
+
+    def validate_apt_packages(self):
+        apt_packages = []
         with self.catch_validation_error('build.apt_packages'):
             raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
             validate_list(raw_packages)
@@ -756,14 +812,22 @@ class BuildConfigV2(BuildConfigBase):
                 list_to_dict(raw_packages)
             )
 
-            build['apt_packages'] = [
+            apt_packages = [
                 self.validate_apt_package(index)
                 for index in range(len(raw_packages))
             ]
             if not raw_packages:
                 self.pop_config('build.apt_packages')
 
-        return build
+        return apt_packages
+
+    def validate_build(self):
+        raw_build = self._raw_config.get('build', {})
+        with self.catch_validation_error('build'):
+            validate_dict(raw_build)
+        if 'os' in raw_build:
+            return self.validate_new_build_config()
+        return self.validate_old_build_config()
 
     def validate_apt_package(self, index):
         """
@@ -821,24 +885,27 @@ class BuildConfigV2(BuildConfigBase):
         .. note::
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
+           - If the new build config is used (``build.os``),
+             ``python.version`` shouldn't exist.
         """
         raw_python = self._raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
 
         python = {}
-        with self.catch_validation_error('python.version'):
-            version = self.pop_config('python.version', '3')
-            if version == 3.1:
-                # Special case for ``python.version: 3.10``,
-                # yaml will transform this to the numeric value of `3.1`.
-                # Save some frustration to users.
-                version = '3.10'
-            version = str(version)
-            python['version'] = validate_choice(
-                version,
-                self.get_valid_python_versions(),
-            )
+        if isinstance(self.build, OldBuild):
+            with self.catch_validation_error('python.version'):
+                version = self.pop_config('python.version', '3')
+                if version == 3.1:
+                    # Special case for ``python.version: 3.10``,
+                    # yaml will transform this to the numeric value of `3.1`.
+                    # Save some frustration to users.
+                    version = '3.10'
+                version = str(version)
+                python['version'] = validate_choice(
+                    version,
+                    self.get_valid_python_versions(),
+                )
 
         with self.catch_validation_error('python.install'):
             raw_install = self._raw_config.get('python', {}).get('install', [])
@@ -1173,7 +1240,10 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def build(self):
-        return Build(**self._config['build'])
+        klass = OldBuild
+        if 'os' in self._config['build']:
+            klass = Build
+        return klass(**self._config['build'])
 
     @property
     def python(self):
@@ -1185,7 +1255,7 @@ class BuildConfigV2(BuildConfigBase):
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(
-            version=python['version'],
+            version=python.get('version'),
             install=python_install,
             use_system_site_packages=python['use_system_site_packages'],
         )
