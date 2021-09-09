@@ -292,11 +292,11 @@ The Settings page of the :term:`project home` allows you
 to change some *global* configuration values of your project.
 In addition, you can further customize the building process
 using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
-This has two advantages:
+This has several advantages:
 
 - The configuration lives next to your code and documentation, tracked by version control.
 - It can be different for every version (more on versioning in the next section).
-- Some configurations are only available using the file.
+- Some configurations are only available using the config file.
 
 Read the Docs works without this configuration by making some decisions on your behalf.
 For example, what Python version to use, how to install the requirements, and others.
@@ -369,13 +369,13 @@ click on the |:pencil2:| icon, and add these contents:
    :emphasize-lines: 4-5
 
    python:
-     version: "3.9"
+     version: "3.8"
 
    sphinx:
      fail_on_warning: true
 
 At this point, if you navigate back to your "Builds" page,
-you will see a `Failed` build, which is exactly the intended result:
+you will see a ``Failed`` build, which is exactly the intended result:
 the Sphinx project is not properly configured yet,
 and instead of rendering an empty API page, now the build fails.
 
@@ -406,7 +406,7 @@ Enabling PDF and EPUB builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx can build several other formats in addition to HTML, such as PDF and EPUB.
-You might want to enable this formats for your project
+You might want to enable these formats for your project
 so your users can read the documentation offline.
 
 To do so, add this extra content to your ``.readthedocs.yaml``:
