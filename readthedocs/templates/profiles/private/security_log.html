@@ -1,0 +1,63 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Security Log" %}{% endblock %}
+
+{% block profile-admin-security-log %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Security Log" %} {% endblock %}
+
+{% block edit_content %}
+
+<p>
+  {% blocktrans trimmed with days_limit as days_limit %}
+  Showing logs from the last {{ days_limit }} days.
+  {% endblocktrans %}
+</p>
+
+{% autopaginate object_list 15 %}
+
+<div class="module">
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for log in object_list %}
+        <li class="module-item">
+          {% blocktrans trimmed with ip=log.ip browser=log.browser %}
+          Authenticated from
+          <a href="?ip={{ ip }}" title="{{ browser }}">
+            <code>{{ ip }}</code>
+          </a>
+          {% endblocktrans %}
+          {% if log.log_project_id %}
+            &middot;
+            {% if log.project %}
+              <a href="{% url 'projects_detail' log.log_project_slug %}">
+                <code>{{ log.log_project_slug }}</code>
+              </a>
+            {% else %}
+              <code>{{ log.log_project_slug }}</code>
+            {% endif %}
+          {% endif %}
+
+          <span class="quiet right" title="{{ log.created|date:"DATETIME_FORMAT" }}">
+            {% blocktrans trimmed with log.created|timesince as date %}
+            {{ date }} ago
+            {% endblocktrans %}
+          </span>
+        </li>
+        {% empty %}
+        <li class="module-item">
+          <p class="quiet">
+          {% trans 'Nothing here yet.' %}
+          </p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% paginate %}
+{% endblock %}

@@ -150,6 +150,10 @@ class AuditLog(TimeStampedModel):
 
     objects = AuditLogManager()
 
+    class Meta:
+
+        ordering = ['-created']
+
     def save(self, **kwargs):
         if self.user:
             self.log_user_id = self.user.id

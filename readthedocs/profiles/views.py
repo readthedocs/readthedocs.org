@@ -1,5 +1,7 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
+from datetime import timedelta
+
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
 from django.contrib import messages
@@ -8,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 from vanilla import (
@@ -19,6 +22,8 @@ from vanilla import (
     UpdateView,
 )
 
+from readthedocs.audit.filters import UserSecurityLogFilter
+from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import (
     UserAdvertisingForm,
     UserDeleteForm,
@@ -169,3 +174,35 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     def get_object(self, queryset=None):  # noqa
         return self.request.user.auth_token
+
+
+class UserSecurityLogView(PrivateViewMixin, ListView):
+    model = AuditLog
+    template_name = 'profiles/private/security_log.html'
+    days_limit = 90
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['days_limit'] = self.days_limit
+        context['filter'] = self.filter
+        return context
+
+    def get_queryset(self):
+        user = self.request.user
+        days_ago = timezone.now() - timedelta(days=self.days_limit)
+        queryset = AuditLog.objects.filter(
+            user=user,
+            action=AuditLog.AUTHN,
+            created__gte=days_ago,
+        )
+        # Set filter on self, so we can use it in the context.
+        # Without executing it twice.
+        self.filter = UserSecurityLogFilter(
+            self.request.GET,
+            queryset=queryset,
+        )
+        # If an invalid ip was passed, dont filter it.
+        # Otherwise django will raise an error when executing the queryset.
+        if self.filter.is_valid():
+            return self.filter.qs
+        return queryset.none()
