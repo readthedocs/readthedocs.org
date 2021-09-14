@@ -27,13 +27,13 @@ you may want to verify those changes locally before pushing upstream.
 
 #. clone the `readthedocs.org` repository:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
 #. create a virtual environment with Python 3.6 and activate it:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ cd readthedocs.org
       $ python3.6 -m venv .venv
@@ -42,14 +42,14 @@ you may want to verify those changes locally before pushing upstream.
 
 #. install documentation requirements
 
-   .. code-block:: bash
+   .. code-block:: console
 
       (.venv) $ pip install -r requirements/testing.txt
       (.venv) $ pip install -r requirements/docs.txt
 
 #. build the documents
 
-   .. code-block:: bash
+   .. code-block:: console
 
       (.venv) $ cd docs
       (.venv) $ make livehtml
