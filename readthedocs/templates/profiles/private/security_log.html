@@ -25,19 +25,32 @@
       <ul>
         {% for log in object_list %}
         <li class="module-item">
+          {% if log.action == 'authentication' %}
+            {% blocktrans trimmed %}
+            <a href="?action=authentication">Authenticated</a>
+            {% endblocktrans %}
+          {% elif log.action == 'authentication-failure' %}
+            {% blocktrans trimmed %}
+            <a href="?action=authentication-failure">Authentication attempt</a>
+            {% endblocktrans %}
+          {% endif %}
+
           {% blocktrans trimmed with ip=log.ip browser=log.browser %}
-          Authenticated from
+          from
           <a href="?ip={{ ip }}" title="{{ browser }}">
             <code>{{ ip }}</code>
           </a>
           {% endblocktrans %}
+
+          {# If the authentication was on a doc domain. #}
           {% if log.log_project_id %}
-            &middot;
+            {% trans "on" %}
             {% if log.project %}
               <a href="{% url 'projects_detail' log.log_project_slug %}">
                 <code>{{ log.log_project_slug }}</code>
               </a>
             {% else %}
+              {# The original project has been deleted, don't link to it. #}
               <code>{{ log.log_project_slug }}</code>
             {% endif %}
           {% endif %}
@@ -51,7 +64,7 @@
         {% empty %}
         <li class="module-item">
           <p class="quiet">
-          {% trans 'Nothing here yet.' %}
+          {% trans 'No authentication attempts logged yet' %}
           </p>
         </li>
         {% endfor %}

@@ -192,7 +192,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         days_ago = timezone.now() - timedelta(days=self.days_limit)
         queryset = AuditLog.objects.filter(
             user=user,
-            action=AuditLog.AUTHN,
+            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
             created__gte=days_ago,
         )
         # Set filter on self, so we can use it in the context.
