@@ -29,17 +29,18 @@ Set up your environment
 
    .. prompt:: bash
 
+      cd readthedocs.org
       pip install -r common/dockerfiles/requirements.txt
 
 #. build the Docker image for the servers:
 
-   .. warning::
-
-      This command could take a while to finish since it will download several Docker images.
-
    .. prompt:: bash
 
       inv docker.build
+
+   .. warning::
+
+      This command could take a while to finish since it will download several Docker images.
 
    .. tip::
 
@@ -84,11 +85,34 @@ Check that everything works
 #. click on the "View docs" button to browse the documentation, and verify that it works
 
 
+.. admonition:: Front End Development
+
+  If you were sent to this page from the *Front End Development Getting Started* section, you can now `go back and follow the instructions there </development/front-end.html#getting-started>`_.
+
+
+
+
 Working with Docker Compose
 ---------------------------
 
-We wrote a wrapper with ``invoke`` around ``docker-compose`` to have some shortcuts and
-save some work while typing docker compose commands. This section explains these ``invoke`` commands:
+After the initial setup you'll need to run a few commands each time.
+
+#. get the containers running:
+
+  .. prompt:: bash
+
+    inv docker.up  # Options: --no-search --no-reload
+
+#. do stuff
+
+
+List of available commands
+""""""""""""""""""""""""""
+
+.. admonition:: Note
+
+  We wrote a wrapper with ``invoke`` around ``docker-compose`` to have some shortcuts and
+  save some work while typing docker compose commands.
 
 ``inv docker.build``
     Builds the generic Docker image used by our servers (web, celery, build and proxito).
