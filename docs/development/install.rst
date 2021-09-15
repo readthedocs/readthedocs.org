@@ -8,6 +8,10 @@ These are development setup and :ref:`standards <development/install:Core team s
 developing Read the Docs and related services. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
 
+To follow these instructions you will need a Linux-like operating system,
+including `Windows Subsystem for Linux (WSL) <https://docs.microsoft.com/en-us/windows/wsl/>`_.
+Other systems are not supported.
+
 .. note::
 
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production usage.
