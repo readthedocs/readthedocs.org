@@ -1,8 +1,8 @@
 {
   "name": "readthedocs",
-  "version": "5.23.0",
-  "description": "Read the Docs build dependencies",
-  "author": "Anthony Johnson <anthony@readthedocs.com>",
+  "version": "5.23.1",
+  "description": "Read the Docs",
+  "author": "Read the Docs, Inc <dev@readthedocs.com>",
   "scripts": {
     "build": "gulp build",
     "dev": "gulp dev",
