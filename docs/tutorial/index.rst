@@ -522,6 +522,11 @@ and click :guilabel:`Save`.
 After you do this, ``1.0.x`` will appear on the "Active Versions" section,
 and a new build will be triggered for it.
 
+.. note::
+
+   You can read more about :ref:`hidden versions <versions:hidden>`
+   in our documentation.
+
 Show a warning for old versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
