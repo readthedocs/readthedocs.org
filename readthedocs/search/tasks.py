@@ -6,7 +6,6 @@ from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 
@@ -131,13 +130,13 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
     """
-    Delete old SearchQuery objects.
+    Delete old SearchQuery objects older than 3 months.
 
     This is run by celery beat every day.
     """
-    last_3_months = timezone.now().date() - timezone.timedelta(days=90)
+    days_ago = timezone.now().date() - timezone.timedelta(days=30 * 3)
     search_queries_qs = SearchQuery.objects.filter(
-        created__date__lte=last_3_months,
+        created__date__lt=days_ago,
     )
 
     if search_queries_qs.exists():
