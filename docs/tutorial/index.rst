@@ -364,8 +364,7 @@ and you will see several warnings:
    WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
    No module named 'lumache'
 
-To spot these warnings more easily and allow you to address them
-(or :doc:`selectively ignore them <sphinx:usage/configuration>` by setting the ``suppress_warnings`` configuration),
+To spot these warnings more easily and allow you to address them,
 you can add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
 For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
 click on the |:pencil2:| icon, and add these contents:
