@@ -343,7 +343,7 @@ Making warnings more visible
 If you navigate to your HTML documentation,
 you will notice that the index page looks correct,
 but actually the API section is empty.
-This is a very common annoyance with Sphinx,
+This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
 click on the "View raw" text on the top right,
@@ -394,11 +394,12 @@ go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
 
    python:
      version: "3.9"
+     # Install our python package before building the docs
      install:
        - method: pip
          path: .
 
-With this change, Read the Docs will install the Python code in the virtual environment
+With this change, Read the Docs will install the Python code
 before starting the Sphinx build, which will finish seamlessly.
 If you go now to the API page of your HTML documentation,
 you will see the ``lumache`` summary!
@@ -475,7 +476,7 @@ and your readers will be able to choose it.
 
 .. note::
 
-   Read the Docs :ref:`follows some implicit rules <versions:how we envision versions working>`
+   Read the Docs :ref:`follows some rules <versions:how we envision versions working>`
    to decide whether to create a ``stable`` version pointing to your new branch or tag.
    To simplify, it will check if the name resembles a version number
    like ``1.0``, ``2.0.3`` or ``4.x``.
