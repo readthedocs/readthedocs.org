@@ -31,14 +31,16 @@ you may want to verify those changes locally before pushing upstream.
 
       $ git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-#. create a virtual environment with Python 3.6, activate it, and upgrade pip:
+#. create a virtual environment with Python 3.6
+   (preferably the latest release, 3.6.15 at the time of writing),
+   activate it, and upgrade both pip and setuptools:
 
    .. code-block:: console
 
       $ cd readthedocs.org
       $ python3.6 -m venv .venv
       $ source .venv/bin/activate
-      (.venv) $ python -m pip install -U pip
+      (.venv) $ python -m pip install -U pip setuptools
 
 #. install documentation requirements
 
