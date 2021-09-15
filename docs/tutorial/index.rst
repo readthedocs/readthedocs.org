@@ -486,16 +486,15 @@ and your readers will be able to choose it.
    like ``1.0``, ``2.0.3`` or ``4.x``.
 
 Now you might want to set ``stable`` as the *default version*,
-rather than ``latest``.
-This has the advantage that users will see the documentation
-corresponding to the most recent release of your software,
-while they can optionally switch to the development version.
+rather than ``latest``,
+so that users see the ``stable`` documentation
+when they visit the :term:`root URL` of your documentation
+(while still being able to change the version in the flyout menu).
 
 For that, go to the "Advanced Settings" link under the "⚙ Admin" menu of your project home,
 choose ``stable`` in the "Default version*" dropdown,
 and hit :guilabel:`Save` at the bottom.
-From now on, every time a user visits the :term:`root URL` of your documentation,
-they will get redirected to the ``stable`` version of it.
+Done!
 
 Modifying versions
 ~~~~~~~~~~~~~~~~~~
