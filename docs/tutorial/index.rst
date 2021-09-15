@@ -300,7 +300,8 @@ This has several advantages:
 
 Read the Docs works without this configuration by making some decisions on your behalf.
 For example, what Python version to use, how to install the requirements, and others.
-
+.. tip:: Settings that apply to the entire project are controlled in the web dashboard,
+           while settings that are version or build specific are better in the YAML file. 
 Upgrading the Python version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
