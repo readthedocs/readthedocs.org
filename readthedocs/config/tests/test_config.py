@@ -929,7 +929,7 @@ class TestBuildConfigV2:
             {
                 'build': {
                     'os': value,
-                    'languages': {'python': '3'},
+                    'tools': {'python': '3'},
                 },
             },
         )
@@ -938,45 +938,45 @@ class TestBuildConfigV2:
         assert excinfo.value.key == 'build.os'
 
     @pytest.mark.parametrize('value', ['', None, 'python', ['python', 'nodejs'], {}, {'cobol': '99'}])
-    def test_new_build_config_invalid_languages(self, value):
+    def test_new_build_config_invalid_tools(self, value):
         build = self.get_build_config(
             {
                 'build': {
                     'os': 'ubuntu-20.04',
-                    'languages': value,
+                    'tools': value,
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.languages'
+        assert excinfo.value.key == 'build.tools'
 
-    def test_new_build_config_invalid_languages_version(self):
+    def test_new_build_config_invalid_tools_version(self):
         build = self.get_build_config(
             {
                 'build': {
                     'os': 'ubuntu-20.04',
-                    'languages': {'python': '2.6'},
+                    'tools': {'python': '2.6'},
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.languages.python'
+        assert excinfo.value.key == 'build.tools.python'
 
     def test_new_build_config(self):
         build = self.get_build_config(
             {
                 'build': {
                     'os': 'ubuntu-20.04',
-                    'languages': {'python': '3.9'},
+                    'tools': {'python': '3.9'},
                 },
             },
         )
         build.validate()
         assert isinstance(build.build, Build)
         assert build.build.os == 'ubuntu-20.04'
-        assert build.build.languages == {'python': '3.9'}
+        assert build.build.tools == {'python': '3.9'}
 
     def test_new_build_config_conflict_with_build_image(self):
         build = self.get_build_config(
@@ -984,7 +984,7 @@ class TestBuildConfigV2:
                 'build': {
                     'image': 'latest',
                     'os': 'ubuntu-20.04',
-                    'languages': {'python': '3.9'},
+                    'tools': {'python': '3.9'},
                 },
             },
         )
@@ -997,7 +997,7 @@ class TestBuildConfigV2:
             {
                 'build': {
                     'os': 'ubuntu-20.04',
-                    'languages': {'python': '3.8'},
+                    'tools': {'python': '3.8'},
                 },
                 'python': {'version': '3.8'},
             },
@@ -2257,7 +2257,7 @@ class TestBuildConfigV2:
                 'formats': ['pdf'],
                 'build': {
                     'os': 'ubuntu-20.04',
-                    'languages': {
+                    'tools': {
                         'python': '3.9',
                         'nodejs': '16',
                     },
@@ -2283,7 +2283,7 @@ class TestBuildConfigV2:
             },
             'build': {
                 'os': 'ubuntu-20.04',
-                'languages': {
+                'tools': {
                     'python': '3.9',
                     'nodejs': '16',
                 },

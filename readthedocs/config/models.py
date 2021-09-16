@@ -37,7 +37,7 @@ class OldBuild(Base):
 
 class Build(Base):
 
-    __slots__ = ('os', 'languages', 'apt_packages')
+    __slots__ = ('os', 'tools', 'apt_packages')
 
     def __init__(self, **kwargs):
         kwargs.setdefault('apt_packages', [])

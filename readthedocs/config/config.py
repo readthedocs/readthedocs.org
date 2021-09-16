@@ -671,19 +671,10 @@ class BuildConfigV2(BuildConfigBase):
         'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
-    valid_os = ['ubuntu-20.04']
-    valid_languages = {
-        'python': [
-            '2.7',
-            '3', '3.8', '3.9', '3.10',
-            'pypy3.7',
-            'miniconda3-4.7',
-            'mambaforge-4.10',
-        ],
-        'nodejs': ['14', '16'],
-        'rust': ['1.55'],
-        'golang': ['1.17'],
-    }
+
+    @property
+    def settings(self):
+        return settings.RTD_DOCKER_BUILD_SETTINGS
 
     def validate(self):
         """
@@ -741,37 +732,37 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates the build object (new format).
 
-        At least one element must be provided in ``build.languages``.
+        At least one element must be provided in ``build.tools``.
         """
         build = {}
         with self.catch_validation_error('build.os'):
             build_os = self.pop_config('build.os', raise_ex=True)
-            build['os'] = validate_choice(build_os, self.valid_os)
+            build['os'] = validate_choice(build_os, self.settings['os'].keys())
 
-        languages = {}
-        with self.catch_validation_error('build.languages'):
-            languages = self.pop_config('build.languages')
-            validate_dict(languages)
-            for lang in languages.keys():
-                validate_choice(lang, self.valid_languages.keys())
+        tools = {}
+        with self.catch_validation_error('build.tools'):
+            tools = self.pop_config('build.tools')
+            validate_dict(tools)
+            for tool in tools.keys():
+                validate_choice(tool, self.settings['tools'].keys())
 
-        if not languages:
+        if not tools:
             self.error(
-                key='build.languages',
+                key='build.tools',
                 message=(
-                    'At least one language of [{}] must be provided.'.format(
-                        ' ,'.join(self.valid_languages.keys())
+                    'At least one tools of [{}] must be provided.'.format(
+                        ' ,'.join(self.settings['tools'].keys())
                     )
                 ),
                 code=CONFIG_REQUIRED,
             )
 
-        build['languages'] = {}
-        for lang, version in languages.items():
-            with self.catch_validation_error(f'build.languages.{lang}'):
-                build['languages'][lang] = validate_choice(
+        build['tools'] = {}
+        for tool, version in tools.items():
+            with self.catch_validation_error(f'build.tools.{tool}'):
+                build['tools'][tool] = validate_choice(
                     version,
-                    self.valid_languages[lang],
+                    self.settings['tools'][tool].keys(),
                 )
 
         build['apt_packages'] = self.validate_apt_packages()

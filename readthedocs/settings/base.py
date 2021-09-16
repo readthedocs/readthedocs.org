@@ -520,6 +520,39 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
+    RTD_DOCKER_BUILD_SETTINGS = {
+        # Mapping of build.os options to docker image.
+        'os': {
+            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu20',
+        },
+        # Mapping of build.tools options to specific versions.
+        'tools': {
+            'python': {
+                '2.7': '2.7.18',
+                '3.6': '3.6.15',
+                '3.7': '3.7.12',
+                '3.8': '3.8.12',
+                '3.9': '3.9.7',
+                '3.10': '3.10.0.rc2',
+                'pypy3.7': 'pypy3.7-7.3.5',
+                'miniconda3-4.7': 'miniconda3-4.7.12',
+                'mambaforge-4.10': 'mambaforge-4.10.1-5',
+            },
+            'nodejs': {
+                '14': '14.17.6',
+                '16': '16.9.1',
+            },
+            'rust': {
+                '1.55': '1.55.0',
+            },
+            'golang': {
+                '1.17': '1.17.1',
+            },
+        },
+    }
+    # Always point to the latest stable release.
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+
     def _get_docker_memory_limit(self):
         try:
             total_memory = int(subprocess.check_output(
