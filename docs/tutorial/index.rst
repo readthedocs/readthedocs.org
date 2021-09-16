@@ -298,7 +298,8 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration by making some decisions on your behalf.
+Read the Docs works without this configuration
+by :doc:`making some decisions on your behalf </default-versions>`.
 For example, what Python version to use, how to install the requirements, and others.
 
 .. tip::
