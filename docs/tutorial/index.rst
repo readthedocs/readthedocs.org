@@ -24,7 +24,7 @@ Preparing your project on GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To start, `sign in to GitHub <https://github.com/login>`_
-and navigate to `the tutorial GitHub template <https://github.com/astrojuanlu/tutorial-template/>`_,
+and navigate to `the tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_,
 where you will see a green :guilabel:`Use this template` button.
 Click it to open a new page that will ask you for some details:
 
