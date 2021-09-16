@@ -56,9 +56,9 @@ class AuditLog(TimeStampedModel):
     """
     Track user actions for audit purposes.
 
-    A log can be attached to a user and/or project.
-    If the user or project are deleted the log will be preserved,
-    and the deleted user/project can be accessed via the ``log_*`` attributes.
+    A log can be attached to a user and/or project and organization.
+    If the user, project or organization are deleted the log will be preserved,
+    and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
     PAGEVIEW = 'pageview'
@@ -117,6 +117,27 @@ class AuditLog(TimeStampedModel):
         db_index=True,
     )
 
+    organization = models.ForeignKey(
+        'organizations.Organization',
+        verbose_name=_('Organization'),
+        null=True,
+        db_index=True,
+        on_delete=models.SET_NULL,
+    )
+    log_organization_id = models.IntegerField(
+        _('Organization ID'),
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+    log_organization_slug = models.CharField(
+        _('Organization slug'),
+        max_length=255,
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+
     action = models.CharField(
         _('Action'),
         max_length=150,
@@ -157,6 +178,11 @@ class AuditLog(TimeStampedModel):
         if self.project:
             self.log_project_id = self.project.id
             self.log_project_slug = self.project.slug
+            organization = self.project.organizations.first()
+            if organization:
+                self.organization = organization
+                self.log_organization_id = organization.id
+                self.log_organization_slug = organization.slug
         super().save(**kwargs)
 
     def __str__(self):

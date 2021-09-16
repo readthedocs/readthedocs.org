@@ -1,3 +1,16 @@
+Version 5.23.5
+--------------
+
+:Date: September 14, 2021
+
+* `@humitos <https://github.com/humitos>`__: Organization: only mark artifacts cleaned as False if they are True (`#8481 <https://github.com/readthedocs/readthedocs.org/pull/8481>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Fix link to version states documentation (`#8475 <https://github.com/readthedocs/readthedocs.org/pull/8475>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth models: increase avatar_url lenght (`#8472 <https://github.com/readthedocs/readthedocs.org/pull/8472>`__)
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: update the links to the dependency management content of setuptools docs (`#8470 <https://github.com/readthedocs/readthedocs.org/pull/8470>`__)
+* `@stsewd <https://github.com/stsewd>`__: Permissions: avoid using project.users, use proper permissions instead (`#8458 <https://github.com/readthedocs/readthedocs.org/pull/8458>`__)
+* `@humitos <https://github.com/humitos>`__: Docker build images: update design doc (`#8447 <https://github.com/readthedocs/readthedocs.org/pull/8447>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
+
 Version 5.23.4
 --------------
 
