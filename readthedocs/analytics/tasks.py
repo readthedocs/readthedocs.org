@@ -75,9 +75,10 @@ def analytics_event(
 @app.task(queue='web')
 def delete_old_page_counts():
     """
-    Delete page counts older than 3 months.
+    Delete page counts older than ``RTD_DEFAULT_ANALYTICS_RETENTION_DAYS``.
 
     This is intended to run from a periodic task daily.
     """
-    days_ago = timezone.now().date() - timezone.timedelta(days=30 * 3)
+    retention_days = settings.RTD_DEFAULT_ANALYTICS_RETENTION_DAYS
+    days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
     return PageView.objects.filter(date__lt=days_ago).delete()

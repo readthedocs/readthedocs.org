@@ -59,7 +59,7 @@ class Echo:
         return value
 
 
-def get_csv_file(file_name, csv_data):
+def get_csv_file(filename, csv_data):
     """Get a CSV file to be downloaded as an attachment."""
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -67,5 +67,5 @@ def get_csv_file(file_name, csv_data):
         (writer.writerow(row) for row in csv_data),
         content_type="text/csv",
     )
-    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response

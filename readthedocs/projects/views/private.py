@@ -1084,7 +1084,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 .values_list('created', 'query', 'total_results')
             )
 
-        file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+        filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
             start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
@@ -1095,7 +1095,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             for time, query, total_results in data
         ]
         csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
-        return get_csv_file(file_name=file_name, csv_data=csv_data)
+        return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""
@@ -1169,7 +1169,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
                 .values_list('date', 'version__slug', 'path', 'view_count')
             )
 
-        file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+        filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
             start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
@@ -1184,7 +1184,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             for date, version, path, view_count in data
         ]
         csv_data.insert(0, ['Date', 'Version', 'Path', 'Views'])
-        return get_csv_file(file_name=file_name, csv_data=csv_data)
+        return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""

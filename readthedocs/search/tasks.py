@@ -2,6 +2,7 @@ import logging
 
 from dateutil.parser import parse
 from django.apps import apps
+from django.conf import settings
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
@@ -130,11 +131,12 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
     """
-    Delete old SearchQuery objects older than 3 months.
+    Delete old SearchQuery objects older than ``RTD_DEFAULT_ANALYTICS_RETENTION_DAYS``.
 
     This is run by celery beat every day.
     """
-    days_ago = timezone.now().date() - timezone.timedelta(days=30 * 3)
+    retention_days = settings.RTD_DEFAULT_ANALYTICS_RETENTION_DAYS
+    days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
     search_queries_qs = SearchQuery.objects.filter(
         created__date__lt=days_ago,
     )
