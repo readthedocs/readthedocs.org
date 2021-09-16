@@ -88,9 +88,9 @@
                 "ubuntu-20.04"
               ]
             },
-            "languages": {
-              "title": "Languages",
-              "description": "Languages and their version to be used in the build.",
+            "tools": {
+              "title": "Tools",
+              "description": "Tools and their version to be used in the build.",
               "type": "object",
               "properties": {
                 "python": {
@@ -138,7 +138,7 @@
           },
           "required": [
             "os",
-            "languages"
+            "tools"
           ],
           "additionalProperties": false
         }
