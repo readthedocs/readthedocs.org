@@ -90,24 +90,30 @@ Check that everything works
   If you were sent to this page from the *Front End Development Getting Started* section, you can now `go back and follow the instructions there </development/front-end.html#getting-started>`_.
 
 
+Common development workflow
+---------------------------
+
+After the initial setup you'll need to run a few commands each time.
+Here we list the most common workflow but keep in mind that it may differ for specific situations.
+
+#. get the containers running:
+
+   .. prompt:: bash
+
+      inv docker.up  # Options: --no-search --no-reload
+
+   .. warning::
+
+      Windows WSL users sometimes have trouble running celery and need to use the ``--no-reload`` flag to make this work.
+      Check `bellow <install.html#list-of-available-commands>`_ for more info on ``inv docker.up`` options.
+
+#. do stuff?
 
 
 Working with Docker Compose
 ---------------------------
 
-After the initial setup you'll need to run a few commands each time.
-
-#. get the containers running:
-
-  .. prompt:: bash
-
-    inv docker.up  # Options: --no-search --no-reload
-
-#. do stuff
-
-
-List of available commands
-""""""""""""""""""""""""""
+Bellow is the list of all available commands.
 
 .. admonition:: Note
 
@@ -123,7 +129,10 @@ List of available commands
     * ``--no-search`` can be passed to disable search
     * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
-      to use no reload and do not watch for files changes
+      to use no reload and do not watch for files changes. 
+      
+      When using this option services have to restarted manually. Run ``inv docker.restart {containers}`` or ``inv docker.down`` + ``inv docker.up`` again to do so. 
+
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
