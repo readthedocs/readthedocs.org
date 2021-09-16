@@ -22,33 +22,39 @@ you can verify those changes through the documentation generated when you open a
 Contributing from your local machine
 ------------------------------------
 
-.. note::
-
-   You must use python 3.6 to generate the documentation.
-
 If you're making large changes to the documentation,
 you may want to verify those changes locally before pushing upstream.
 
 #. clone the `readthedocs.org` repository:
 
-   .. prompt:: bash
+   .. code-block:: console
 
-      git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+      $ git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
+
+#. create a virtual environment with Python 3.6
+   (preferably the latest release, 3.6.15 at the time of writing),
+   activate it, and upgrade both pip and setuptools:
+
+   .. code-block:: console
+
+      $ cd readthedocs.org
+      $ python3.6 -m venv .venv
+      $ source .venv/bin/activate
+      (.venv) $ python -m pip install -U pip setuptools
 
 #. install documentation requirements
 
-   .. prompt:: bash
+   .. code-block:: console
 
-      cd readthedocs.org
-      pip install -r requirements/testing.txt
-      pip install -r requirements/docs.txt
+      (.venv) $ pip install -r requirements/testing.txt
+      (.venv) $ pip install -r requirements/docs.txt
 
 #. build the documents
 
-   .. prompt:: bash
+   .. code-block:: console
 
-      cd docs
-      make livehtml
+      (.venv) $ cd docs
+      (.venv) $ make livehtml
 
 #. the documents will be available at http://127.0.0.1:4444/ and will rebuild each time you edit and save a file.
 
