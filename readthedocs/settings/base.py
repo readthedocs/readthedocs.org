@@ -520,6 +520,8 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
+    # When updating this options,
+    # update the readthedocs/rtd_tests/fixtures/spec/v2/schema.json file as well.
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
