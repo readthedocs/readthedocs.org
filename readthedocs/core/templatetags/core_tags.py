@@ -1,19 +1,17 @@
 """Template tags for core app."""
-
 import hashlib
 import json
+from pathlib import Path
 from urllib.parse import urlencode
 
+import yaml
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
-
 
 register = template.Library()
 
@@ -123,3 +121,18 @@ def escapejson(data, indent=None):
             cls=DjangoJSONEncoder,
             indent=indent,
         ).translate(_json_script_escapes))
+
+
+domains_file = Path(__file__).parent / '../../../all_rtd_domains.yaml'
+domains_to_migrate = set(yaml.safe_load(domains_file.open()).keys())
+
+
+@register.simple_tag
+def deprecated_domains(user):
+    """List all domains from user using a deprecated or unsupported way of creating a custom domain."""
+    domains = []
+    for project in user.projects:
+        for domainobj in project.domains:
+            if domainobj.domain in domains_to_migrate:
+                domains.append(domainobj)
+    return domains
