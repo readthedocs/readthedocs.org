@@ -1,3 +1,40 @@
+Version 5.23.5
+--------------
+
+:Date: September 14, 2021
+
+* `@humitos <https://github.com/humitos>`__: Organization: only mark artifacts cleaned as False if they are True (`#8481 <https://github.com/readthedocs/readthedocs.org/pull/8481>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Fix link to version states documentation (`#8475 <https://github.com/readthedocs/readthedocs.org/pull/8475>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth models: increase avatar_url lenght (`#8472 <https://github.com/readthedocs/readthedocs.org/pull/8472>`__)
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: update the links to the dependency management content of setuptools docs (`#8470 <https://github.com/readthedocs/readthedocs.org/pull/8470>`__)
+* `@stsewd <https://github.com/stsewd>`__: Permissions: avoid using project.users, use proper permissions instead (`#8458 <https://github.com/readthedocs/readthedocs.org/pull/8458>`__)
+* `@humitos <https://github.com/humitos>`__: Docker build images: update design doc (`#8447 <https://github.com/readthedocs/readthedocs.org/pull/8447>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
+
+Version 5.23.4
+--------------
+
+:Date: September 07, 2021
+
+* `@pzhlkj6612 <https://github.com/pzhlkj6612>`__: Docs: update the links to the dependency management content of setuptools docs (`#8470 <https://github.com/readthedocs/readthedocs.org/pull/8470>`__)
+* `@nienn <https://github.com/nienn>`__: Add custom team img styling (`#8467 <https://github.com/readthedocs/readthedocs.org/pull/8467>`__)
+* `@nienn <https://github.com/nienn>`__: Docs: Change "right-click" to "click" (`#8465 <https://github.com/readthedocs/readthedocs.org/pull/8465>`__)
+* `@stsewd <https://github.com/stsewd>`__: Permissions: avoid using project.users, use proper permissions instead (`#8458 <https://github.com/readthedocs/readthedocs.org/pull/8458>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add templatetag to filter by admin projects (`#8456 <https://github.com/readthedocs/readthedocs.org/pull/8456>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support form: don't allow to change the email (`#8455 <https://github.com/readthedocs/readthedocs.org/pull/8455>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: show only results from the current role_name being filtered (`#8454 <https://github.com/readthedocs/readthedocs.org/pull/8454>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#8451 <https://github.com/readthedocs/readthedocs.org/pull/8451>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8449 <https://github.com/readthedocs/readthedocs.org/pull/8449>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3 (subprojects): filter by correct owner/organization (`#8446 <https://github.com/readthedocs/readthedocs.org/pull/8446>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Rework Team page (`#8441 <https://github.com/readthedocs/readthedocs.org/pull/8441>`__)
+* `@mforbes <https://github.com/mforbes>`__: Added note about how to use Anaconda Project. (`#8436 <https://github.com/readthedocs/readthedocs.org/pull/8436>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact users: pass user and domain in the context (`#8430 <https://github.com/readthedocs/readthedocs.org/pull/8430>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part I (`#8428 <https://github.com/readthedocs/readthedocs.org/pull/8428>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: remove auth block (`#8397 <https://github.com/readthedocs/readthedocs.org/pull/8397>`__)
+* `@stsewd <https://github.com/stsewd>`__: API: fix subprojects creation when organizaions are enabled (`#8393 <https://github.com/readthedocs/readthedocs.org/pull/8393>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: remove unused overrides (`#8299 <https://github.com/readthedocs/readthedocs.org/pull/8299>`__)
+* `@stsewd <https://github.com/stsewd>`__: QuerySets: filter permissions by organizations (`#8298 <https://github.com/readthedocs/readthedocs.org/pull/8298>`__)
+
 Version 5.23.3
 --------------
 
