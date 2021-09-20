@@ -1148,7 +1148,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def setup_build(self):
         self.install_system_dependencies()
-        self.python_env.install_build_tools()
         self.setup_python_environment()
 
     def setup_python_environment(self):
@@ -1168,6 +1167,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.python_env.delete_existing_venv_dir()
         else:
             self.python_env.delete_existing_build_dir()
+
+        # Install all ``build.tools`` specified by the user
+        self.python_env.install_build_tools()
 
         self.python_env.setup_base()
         self.python_env.save_environment_json()
