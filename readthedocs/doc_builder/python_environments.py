@@ -75,6 +75,17 @@ class PythonEnvironment:
             shutil.rmtree(venv_dir)
 
     def install_build_tools(self):
+        build_os = getattr(self.config.build, 'os', None)
+        build_tools = getattr(self.config.build, 'tools', None)
+        if not build_os or not build_tools:
+            log.debug(
+                'Not installing "build.tools" because they are not defined. '
+                'build.os=%s build.tools=%s',
+                build_os,
+                build_tools,
+            )
+            return
+
         if settings.RTD_DOCKER_COMPOSE:
             # Create a symlink for ``root`` user to use the same ``.asdf``
             # installation than ``docs`` user. Required for local building
@@ -89,9 +100,6 @@ class PythonEnvironment:
             self.build_env.run(
                 *cmd,
             )
-
-        build_os = self.config.build.os
-        build_tools = self.config.build.tools
 
         for tool, version in build_tools.items():
             # TODO: ask config file object for the specific tool version required by asdf
