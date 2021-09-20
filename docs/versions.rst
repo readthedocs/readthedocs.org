@@ -6,9 +6,8 @@ On initial import,
 we will create a ``latest`` version.
 This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
 
-We also create a ``stable`` version,
-if your project has any tagged releases.
-``stable`` will be automatically kept up to date to point at your highest version.
+If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
+we also create a ``stable`` version, tracking your most recent release.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
@@ -24,7 +23,7 @@ If you develop on a branch that is different than the default for your VCS,
 you should set the **Default Branch** to that branch.
 
 You should push a **tag** for each version of your project.
-These tags should be numbered in a way that is consistent with `semantic versioning <https://semver.org/>`_.
+These tags should be numbered in a way that is consistent with semantic versioning.
 This will map to your ``stable`` branch by default.
 
 .. note::

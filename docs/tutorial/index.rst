@@ -24,7 +24,7 @@ Preparing your project on GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To start, `sign in to GitHub <https://github.com/login>`_
-and navigate to `the tutorial GitHub template <https://github.com/astrojuanlu/tutorial-template/>`_,
+and navigate to `the tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_,
 where you will see a green :guilabel:`Use this template` button.
 Click it to open a new page that will ask you for some details:
 
@@ -259,7 +259,10 @@ __  https://docs.github.com/en/github/managing-files-in-a-repository/managing-fi
 
 In the editor, add the following sentence to the file:
 
-    Lumache has its documentation hosted on Read the Docs.
+.. code-block:: rst
+   :caption: docs/source/index.rst
+
+   Lumache has its documentation hosted on Read the Docs.
 
 Write an appropriate commit message,
 and choose the "Create a **new branch** for this commit and start a pull request" option,
@@ -281,6 +284,280 @@ If you click on the "Details" link while it is building,
 you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
+
+Customizing the build process
+-----------------------------
+
+The Settings page of the :term:`project home` allows you
+to change some *global* configuration values of your project.
+In addition, you can further customize the building process
+using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
+This has several advantages:
+
+- The configuration lives next to your code and documentation, tracked by version control.
+- It can be different for every version (more on versioning in the next section).
+- Some configurations are only available using the config file.
+
+Read the Docs works without this configuration
+by :ref:`making some decisions on your behalf <default-versions>`.
+For example, what Python version to use, how to install the requirements, and others.
+
+.. tip::
+
+   Settings that apply to the entire project are controlled in the web dashboard,
+   while settings that are version or build specific are better in the YAML file.
+
+Upgrading the Python version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For example, to explicitly use Python 3.8 to build your project,
+navigate to your GitHub repository, click on the :guilabel:`Add file` button,
+and add a ``.readthedocs.yaml`` file with these contents to the root of your project:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   python:
+     version: "3.8"
+
+The purpose of each key is:
+
+``version``
+  Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
+
+``python.version``
+  Declares the Python version to be used.
+
+After you commit these changes, go back to your project home,
+navigate to the "Builds" page, and open the new build that just started.
+You will notice that one of the lines contains ``python3.8``:
+if you click on it, you will see the full output of the corresponding command,
+stating that it used Python 3.8.6 to create the virtual environment.
+
+.. figure:: /_static/images/tutorial/build-python3.8.png
+   :width: 80%
+   :align: center
+   :alt: Read the Docs build using Python 3.8
+
+   Read the Docs build using Python 3.8
+
+Making warnings more visible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you navigate to your HTML documentation,
+you will notice that the index page looks correct,
+but actually the API section is empty.
+This is a very common issue with Sphinx,
+and the reason is stated in the build logs.
+On the build page you opened before,
+click on the "View raw" text on the top right,
+which opens the build logs in plain text,
+and you will see several warnings:
+
+.. code-block:: text
+
+   WARNING: [autosummary] failed to import 'lumache': no module named lumache
+   ...
+   WARNING: autodoc: failed to import function 'get_random_ingredients' from module 'lumache'; the following exception was raised:
+   No module named 'lumache'
+   WARNING: autodoc: failed to import exception 'InvalidKindError' from module 'lumache'; the following exception was raised:
+   No module named 'lumache'
+
+To spot these warnings more easily and allow you to address them,
+you can add the ``sphinx.fail_on_warning`` option to your Read the Docs configuration file.
+For that, navigate to GitHub, locate the ``.readthedocs.yaml`` file you created earlier,
+click on the |:pencil2:| icon, and add these contents:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 4-5
+
+   python:
+     version: "3.8"
+
+   sphinx:
+     fail_on_warning: true
+
+At this point, if you navigate back to your "Builds" page,
+you will see a ``Failed`` build, which is exactly the intended result:
+the Sphinx project is not properly configured yet,
+and instead of rendering an empty API page, now the build fails.
+
+The reason :py:mod:`sphinx:sphinx.ext.autosummary` and :py:mod:`sphinx:sphinx.ext.autodoc`
+fail to import the code is because it is not installed.
+Luckily, the ``.readthedocs.yaml`` also allows you to specify
+which requirements to install.
+
+To install the library code of your project,
+go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 3-5
+
+   python:
+     version: "3.9"
+     # Install our python package before building the docs
+     install:
+       - method: pip
+         path: .
+
+With this change, Read the Docs will install the Python code
+before starting the Sphinx build, which will finish seamlessly.
+If you go now to the API page of your HTML documentation,
+you will see the ``lumache`` summary!
+
+Enabling PDF and EPUB builds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx can build several other formats in addition to HTML, such as PDF and EPUB.
+You might want to enable these formats for your project
+so your users can read the documentation offline.
+
+To do so, add this extra content to your ``.readthedocs.yaml``:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+   :emphasize-lines: 4-6
+
+   sphinx:
+     fail_on_warning: true
+
+   formats:
+     - pdf
+     - epub
+
+After this change, PDF and EPUB downloads will be available
+both from the "Downloads" section of the :term:`project home`,
+as well as the :term:`flyout menu`.
+
+.. figure:: /_static/images/tutorial/flyout-downloads.png
+   :align: center
+   :alt: Downloads available from the flyout menu
+
+   Downloads available from the flyout menu
+
+Versioning documentation
+------------------------
+
+Read the Docs allows you to have :doc:`several versions of your documentation </versions>`,
+in the same way that you have several versions of your code.
+By default, it creates a ``latest`` version
+that points to the default branch of your version control system
+(``main`` in the case of this tutorial),
+and that's why the URLs of your HTML documentation contain the string ``/latest/``.
+
+Creating a new version
+~~~~~~~~~~~~~~~~~~~~~~
+
+Let's say you want to create a ``1.0`` version of your code,
+with a corresponding ``1.0`` version of the documentation.
+For that, first navigate to your GitHub repository, click on the branch selector,
+type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
+(more information `on their documentation`__).
+
+__  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
+
+Next, go to your :term:`project home`, click on the "Versions" button,
+and under "Active Versions" you will see two entries:
+
+- The ``latest`` version, pointing to the ``main`` branch.
+- A new ``stable`` version, pointing to the ``origin/1.0.x`` branch.
+
+.. figure:: /_static/images/tutorial/active-versions.png
+   :width: 80%
+   :align: center
+   :alt: List of active versions of the project
+
+   List of active versions of the project
+
+Right after you created your branch,
+Read the Docs created a new special version called ``stable`` pointing to it,
+and started building it. When the build finishes,
+the ``stable`` version will be listed in the :term:`flyout menu`
+and your readers will be able to choose it.
+
+.. note::
+
+   Read the Docs :ref:`follows some rules <versions:how we envision versions working>`
+   to decide whether to create a ``stable`` version pointing to your new branch or tag.
+   To simplify, it will check if the name resembles a version number
+   like ``1.0``, ``2.0.3`` or ``4.x``.
+
+Now you might want to set ``stable`` as the *default version*,
+rather than ``latest``,
+so that users see the ``stable`` documentation
+when they visit the :term:`root URL` of your documentation
+(while still being able to change the version in the flyout menu).
+
+For that, go to the "Advanced Settings" link under the "⚙ Admin" menu of your project home,
+choose ``stable`` in the "Default version*" dropdown,
+and hit :guilabel:`Save` at the bottom.
+Done!
+
+Modifying versions
+~~~~~~~~~~~~~~~~~~
+
+Both ``latest`` and ``stable`` are now *active*, which means that
+they are visible for users, and new builds can be triggered for them.
+In addition to these, Read the Docs also created an *inactive* ``1.0.x``
+version, which will always point to the ``1.0.x`` branch of your repository.
+
+.. figure:: /_static/images/tutorial/inactive-versions.png
+   :width: 80%
+   :align: center
+   :alt: List of inactive versions of the project
+
+   List of inactive versions of the project
+
+Let's activate the ``1.0.x`` version.
+For that, go to the "Versions" on your :term:`project home`,
+locate ``1.0.x`` under "Activate a version",
+and click on the :guilabel:`Activate` button.
+This will take you to a new page with two checkboxes,
+"Active" and "Hidden". Check only "Active",
+and click :guilabel:`Save`.
+
+After you do this, ``1.0.x`` will appear on the "Active Versions" section,
+and a new build will be triggered for it.
+
+.. note::
+
+   You can read more about :ref:`hidden versions <versions:hidden>`
+   in our documentation.
+
+Show a warning for old versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When your project matures, the number of versions might increase.
+Sometimes you will want to warn your readers
+when they are browsing an old or outdated version of your documentation.
+
+To showcase how to do that, let's create a ``2.0`` version of the code:
+navigate to your GitHub repository, click on the branch selector,
+type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
+This will trigger two things:
+
+- Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
+- A new ``2.0.x`` version will be created on your Read the Docs project.
+- Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
+
+From this point, ``1.0.x`` version is no longer the most up to date one.
+To display a warning to your readers, go to the "⚙ Admin" menu of your project home,
+click on the "Advanced Settings" link on the left,
+enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
+
+If you now browse the ``1.0.x`` documentation, you will see a warning on top
+encouraging you to browse the latest version instead. Neat!
+
+.. figure:: /_static/images/tutorial/old-version-warning.png
+   :width: 80%
+   :align: center
+   :alt: Warning for old versions
+
+   Warning for old versions
 
 ----
 

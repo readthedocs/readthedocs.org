@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.backends.views import ImportDemoView, ImportWizardView
+from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
     AutomationRuleDelete,
@@ -57,10 +57,6 @@ urlpatterns = [
     url(
         r'^import/manual/$', ImportWizardView.as_view(),
         name='projects_import_manual',
-    ),
-    url(
-        r'^import/manual/demo/$', ImportDemoView.as_view(),
-        name='projects_import_demo',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/$',

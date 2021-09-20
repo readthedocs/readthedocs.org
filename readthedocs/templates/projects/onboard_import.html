@@ -4,20 +4,21 @@
 <div class="onboard onboard-import-project">
   <h2>{% trans "Ready to share your documentation" %}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}?</h2>
 
-  {% with getting_started_url="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html" %}
+  {% with tutorial_url="https://docs.readthedocs.io/page/tutorial/" template_project_url="https://github.com/readthedocs/tutorial-template/" %}
     <form method="get" action="{% url "projects_import" %}">
       <p>
         {% blocktrans trimmed %}
           You don't have any projects yet, but you can start building documentation by importing one.
           Not sure how to start documenting your project?
-          Check out the <a href="{{ getting_started_url }}">Getting Started Guide</a> to learn how.
+          Check out the <a href="{{ tutorial_url }}">Tutorial</a> to learn how.
         {% endblocktrans %}
       </p>
 
       <p>
-        {% url "projects_import_demo" as import_demo_url %}
+        {% url "projects_import" as projects_import_url %}
         {% blocktrans trimmed %}
-          Want to try a demo? <a href="{{ import_demo_url }}">Import our own demo project</a>.
+          In a hurry? <a href="{{ template_project_url }}">Fork our template project</a> on Github,
+          and <a href="{{ projects_import_url }}">import it</a>.
         {% endblocktrans %}
       </p>
 
