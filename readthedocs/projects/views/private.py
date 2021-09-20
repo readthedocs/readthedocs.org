@@ -959,7 +959,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
         if download_data:
-            return self._search_analytics_csv_data()
+            return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -996,7 +996,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
         return context
 
-    def _search_analytics_csv_data(self):
+    def _get_csv_data(self):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
@@ -1007,6 +1007,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         else:
             days_ago = now - timezone.timedelta(days=retention_limit)
 
+        headers = ['Created Date', 'Query', 'Total Results']
         data = []
         if self._is_enabled(project):
             data = (
@@ -1025,10 +1026,10 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
 
         csv_data = [
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
-            for time, query, total_results in data
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
         ]
-        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
+        csv_data.insert(0, headers)
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
@@ -1092,6 +1093,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
         else:
             days_ago = now - timezone.timedelta(days=retention_limit)
 
+        headers = ['Date', 'Version', 'Path', 'Views']
         data = []
         if self._is_enabled(project):
             data = (
@@ -1109,15 +1111,10 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
         csv_data = [
-            [
-                timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'),
-                version,
-                path,
-                view_count
-            ]
-            for date, version, path, view_count in data
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
         ]
-        csv_data.insert(0, ['Date', 'Version', 'Path', 'Views'])
+        csv_data.insert(0, headers)
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
