@@ -83,10 +83,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/manual/')
         self.assertRedirectToLogin(response)
 
-    def test_import_wizard_demo(self):
-        response = self.client.get('/dashboard/import/manual/demo/')
-        self.assertRedirectToLogin(response)
-
     def test_edit(self):
         response = self.client.get('/dashboard/pip/edit/')
         self.assertRedirectToLogin(response)
