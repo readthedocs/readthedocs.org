@@ -24,7 +24,7 @@ Preparing your project on GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To start, `sign in to GitHub <https://github.com/login>`_
-and navigate to `the tutorial GitHub template <https://github.com/astrojuanlu/tutorial-template/>`_,
+and navigate to `the tutorial GitHub template <https://github.com/readthedocs/tutorial-template/>`_,
 where you will see a green :guilabel:`Use this template` button.
 Click it to open a new page that will ask you for some details:
 
@@ -298,7 +298,8 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration by making some decisions on your behalf.
+Read the Docs works without this configuration
+by :ref:`making some decisions on your behalf <default-versions>`.
 For example, what Python version to use, how to install the requirements, and others.
 
 .. tip::
