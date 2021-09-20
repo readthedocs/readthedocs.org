@@ -786,7 +786,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             self.container_image = self.config.build.image
         # the new Docker image structure or,
         if self.config and getattr(self.config.build, 'os', None):
-            self.container_image = self.config.build.os
+            self.container_image = f'readthedocs/build:{self.config.build.os}'
         # the image overridden by the project (manually set by an admin).
         if self.project.container_image:
             self.container_image = self.project.container_image

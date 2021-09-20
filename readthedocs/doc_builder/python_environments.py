@@ -94,6 +94,9 @@ class PythonEnvironment:
         build_tools = self.config.build.tools
 
         for tool, version in build_tools.items():
+            # TODO: ask config file object for the specific tool version required by asdf
+            version = settings.RTD_DOCKER_BUILD_SETTINGS['tools'][tool][version]
+
             # TODO: generate the correct path for the Python version
             # tool_path = f'{build_os}/{tool}/2021-08-30/{version}.tar.gz'
             tool_path = f'{build_os}-{tool}-{version}.tar.gz'
@@ -118,7 +121,7 @@ class PythonEnvironment:
                 log.debug(
                     'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
                     build_os,
-                    build_tool,
+                    tool,
                     version,
                     tool_path,
                 )
