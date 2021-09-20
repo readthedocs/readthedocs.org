@@ -40,7 +40,7 @@ set -e
 
 # Define variables
 SLEEP=350
-OS="ubuntu20"
+OS="ubuntu-20.04"
 TOOL=$1
 VERSION=$2
 
