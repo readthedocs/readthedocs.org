@@ -1,3 +1,19 @@
+Version 5.23.6
+--------------
+
+:Date: September 20, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Change newsletter form (`#8509 <https://github.com/readthedocs/readthedocs.org/pull/8509>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact users: Allow to pass additional context to each email (`#8507 <https://github.com/readthedocs/readthedocs.org/pull/8507>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update onboarding (`#8504 <https://github.com/readthedocs/readthedocs.org/pull/8504>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: List default installed dependencies (`#8503 <https://github.com/readthedocs/readthedocs.org/pull/8503>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify that the development installation instructions are for Linux (`#8494 <https://github.com/readthedocs/readthedocs.org/pull/8494>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: attach organization (`#8491 <https://github.com/readthedocs/readthedocs.org/pull/8491>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add virtual env instructions to local installation (`#8488 <https://github.com/readthedocs/readthedocs.org/pull/8488>`__)
+* `@humitos <https://github.com/humitos>`__: Requirement: update orjson (`#8487 <https://github.com/readthedocs/readthedocs.org/pull/8487>`__)
+* `@humitos <https://github.com/humitos>`__: Release 5.23.5 (`#8486 <https://github.com/readthedocs/readthedocs.org/pull/8486>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part II (`#8473 <https://github.com/readthedocs/readthedocs.org/pull/8473>`__)
+
 Version 5.23.5
 --------------
 
