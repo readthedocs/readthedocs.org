@@ -20,6 +20,10 @@
 {% autopaginate object_list 15 %}
 
 <div class="module">
+  <form method="get">
+    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+  </form>
+
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul>
