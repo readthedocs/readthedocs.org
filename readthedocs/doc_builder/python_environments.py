@@ -621,9 +621,10 @@ class Conda(PythonEnvironment):
         """
         # Config file using ``build.tools.python``
         if getattr(self.config.build, 'tools', None):
-            if self.config.build.tools.python.startswith('miniconda'):
+            python_tool = self.config.build.tools.get('python', '')
+            if 'miniconda' in python_tool:
                 return 'conda'
-            elif self.config.build.tools.python.startswith('mambaforge'):
+            elif 'mambaforge' in python_tool:
                 return 'mamba'
 
         # Config file using ``conda``
