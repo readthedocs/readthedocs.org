@@ -299,7 +299,7 @@ This has several advantages:
 - Some configurations are only available using the config file.
 
 Read the Docs works without this configuration
-by :doc:`making some decisions on your behalf </default-versions>`.
+by :ref:`making some decisions on your behalf <default-versions>`.
 For example, what Python version to use, how to install the requirements, and others.
 
 .. tip::
