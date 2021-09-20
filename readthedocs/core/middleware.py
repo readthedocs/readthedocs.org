@@ -121,7 +121,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                                 "The request's session was deleted before the "
                                 "request completed. The user may have logged "
                                 "out in a concurrent request, for example."
-                            )
+                            ) from None
 
                         response.set_cookie(
                             settings.SESSION_COOKIE_NAME,

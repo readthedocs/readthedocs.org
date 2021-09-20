@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration admin models."""
 
 from django import urls
@@ -102,8 +100,8 @@ class IntegrationAdmin(admin.ModelAdmin):
         """
         url = urls.reverse(
             'admin:{}_{}_changelist'.format(
-                HttpExchange._meta.app_label,  # pylint: disable=protected-access
-                HttpExchange._meta.model_name,  # pylint: disable=protected-access
+                HttpExchange._meta.app_label,
+                HttpExchange._meta.model_name,
             ),
         )
         return mark_safe(

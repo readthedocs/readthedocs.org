@@ -117,7 +117,7 @@ class Organization(models.Model):
     def members(self):
         return AdminPermission.members(self)
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
 
@@ -225,7 +225,7 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
@@ -261,12 +261,9 @@ class TeamInvite(models.Model):
         unique_together = ('team', 'email')
 
     def __str__(self):
-        return '{email} to {team}'.format(
-            email=self.email,
-            team=self.team,
-        )
+        return f'{self.email} to {self.team}'
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         hash_ = salted_hmac(
             # HMAC key per applications
             '.'.join([self.__module__, self.__class__.__name__]),
@@ -313,11 +310,7 @@ class TeamMember(models.Model):
         state = ''
         if self.is_invite:
             state = ' (pending)'
-        return '{username} to {team}{state}'.format(
-            username=self.username,
-            team=self.team,
-            state=state,
-        )
+        return f'{self.username} to {self.team}{state}'
 
     @property
     def username(self):

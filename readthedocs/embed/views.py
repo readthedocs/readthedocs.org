@@ -396,8 +396,7 @@ def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
     if section:
         body_obj = PQ(body)
         escaped_section = escape_selector(section)
-        section_list = body_obj(
-            ':header:contains("{title}")'.format(title=str(escaped_section)))
+        section_list = body_obj(f':header:contains("{escaped_section}")')
         for num in range(len(section_list)):
             header2 = section_list.eq(num)
             # h2_title = h2.text().strip()
@@ -409,7 +408,7 @@ def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
                     break
                 h2_html = next_p.outerHtml()
                 if h2_html:
-                    h2_content += "\n%s\n" % h2_html
+                    h2_content += f'\n{h2_html}\n'
                 next_p = next_p.next()
             if h2_content:
                 ret.append(h2_content)

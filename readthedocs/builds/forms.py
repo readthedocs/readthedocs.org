@@ -173,7 +173,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
         except Exception:
             raise forms.ValidationError(
                 _('Invalid Python regular expression.'),
-            )
+            ) from None
         return match_arg
 
     def save(self, commit=True):

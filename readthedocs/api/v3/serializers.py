@@ -671,12 +671,11 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             )
         return value
 
-    # pylint: disable=arguments-differ
-    def validate(self, data):
+    def validate(self, attrs):
         self.parent_project.is_valid_as_superproject(
             serializers.ValidationError
         )
-        return data
+        return attrs
 
 
 class SubprojectLinksSerializer(BaseLinksSerializer):

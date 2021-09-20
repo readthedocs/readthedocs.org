@@ -612,7 +612,7 @@ class BuildEnvironment(BaseEnvironment):
         })
         return super().run(*cmd, **kwargs)
 
-    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
+    def run_command_class(self, *cmd, **kwargs):
         kwargs.update({
             'build_env': self,
         })
@@ -939,7 +939,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
             else:
                 error = 'Failed to connect to Docker API client'
-            raise BuildEnvironmentError(error)
+            raise BuildEnvironmentError(error) from None
 
     def _get_binds(self):
         """
@@ -1077,7 +1077,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                     build_id=self.build['id'],
                 ),
-            )
+            ) from None
         except DockerAPIError as e:
             log.exception(
                 LOG_TEMPLATE,
@@ -1087,4 +1087,4 @@ class DockerBuildEnvironment(BuildEnvironment):
                     'msg': e.explanation,
                 }
             )
-            raise BuildEnvironmentCreationFailed
+            raise BuildEnvironmentCreationFailed from None

@@ -22,7 +22,7 @@ def parse(stream):
     try:
         config = yaml.safe_load(stream)
     except yaml.YAMLError as error:
-        raise ParseError('YAML: {message}'.format(message=error))
+        raise ParseError(f'YAML: {error}') from None
     if not isinstance(config, dict):
         raise ParseError('Expected mapping')
     if not config:

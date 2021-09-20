@@ -139,7 +139,7 @@ def get_public_task_data(request, task_id):
     except TaskNotFound:
         # No task info has been found act like we don't have permission to see
         # the results.
-        raise TaskNoPermission(task_id)
+        raise TaskNoPermission(task_id) from None
 
     if not hasattr(task, 'check_permission'):
         raise TaskNoPermission(task_id)

@@ -55,7 +55,7 @@ class OrganizationForm(SimpleHistoryModelForm):
         except KeyError:
             raise TypeError(
                 'OrganizationForm expects a `user` keyword argument',
-            )
+            ) from None
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
@@ -259,7 +259,7 @@ class OrganizationTeamMemberForm(forms.ModelForm):
             member = User.objects.get(username=lookup, is_active=True)
             return self.validate_member_user(member)
         except User.DoesNotExist:
-            raise forms.ValidationError('User not found')
+            raise forms.ValidationError('User not found') from None
 
     def validate_member_user(self, member):
         """Verify duplicate team member doesn't already exists."""

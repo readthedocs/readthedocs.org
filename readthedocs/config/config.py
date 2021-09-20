@@ -188,10 +188,7 @@ class BuildConfigBase:
         """Raise an error related to ``key``."""
         if not os.path.isdir(self.source_file):
             source = os.path.relpath(self.source_file, self.base_path)
-            error_message = '{source}: {message}'.format(
-                source=source,
-                message=message,
-            )
+            error_message = f'{source}: {message}'
         else:
             error_message = message
         raise InvalidConfig(
@@ -212,7 +209,7 @@ class BuildConfigBase:
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-            )
+            ) from None
 
     def pop(self, name, container, default, raise_ex):
         """
@@ -298,10 +295,7 @@ class BuildConfigBase:
         ``build_image`` found.
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
-            build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
-                self.default_build_image,
-            )
+            build_image = f'{settings.DOCKER_DEFAULT_IMAGE}:{self.default_build_image}'
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
     def get_default_python_version_for_image(self, build_image, python_version):
@@ -320,10 +314,7 @@ class BuildConfigBase:
                   ``build_image`` found.
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
-            build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
-                self.default_build_image,
-            )
+            build_image = f'{settings.DOCKER_DEFAULT_IMAGE}:{self.default_build_image}'
         return (
             # For linting
             settings.DOCKER_IMAGE_SETTINGS[build_image]['python']
@@ -433,10 +424,8 @@ class BuildConfigV1(BuildConfigBase):
                     )
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
-                build['image'] = '{}:{}'.format(
-                    settings.DOCKER_DEFAULT_IMAGE,
-                    build['image'],
-                )
+                image = build['image']
+                build['image'] = f'{settings.DOCKER_DEFAULT_IMAGE}:{image}'
         # Update docker default settings from image name
         if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
             self.env_config.update(
@@ -734,14 +723,11 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
-            image = self.pop_config('build.image', self.default_build_image)
-            build['image'] = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
-                validate_choice(
-                    image,
-                    self.valid_build_images,
-                ),
+            image = validate_choice(
+                self.pop_config('build.image', self.default_build_image),
+                self.valid_build_images,
             )
+            build['image'] = f'{settings.DOCKER_DEFAULT_IMAGE}:{image}'
 
             # Allow to override specific project
             config_image = self.defaults.get('build_image')
@@ -873,7 +859,7 @@ class BuildConfigV2(BuildConfigBase):
     def validate_python_install(self, index):
         """Validates the python.install.{index} key."""
         python_install = {}
-        key = 'python.install.{}'.format(index)
+        key = f'python.install.{index}'
         raw_install = self._raw_config['python']['install'][str(index)]
         with self.catch_validation_error(key):
             validate_dict(raw_install)
@@ -1229,17 +1215,15 @@ def load(path, env_config):
 
     if not filename:
         raise ConfigFileNotFound(path)
-    with open(filename, 'r') as configuration_file:
+    with open(filename, 'r', encoding='utf-8') as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:
+            filename = os.path.relpath(filename, path)
             raise ConfigError(
-                'Parse error in {filename}: {message}'.format(
-                    filename=os.path.relpath(filename, path),
-                    message=str(error),
-                ),
+                f'Parse error in {filename}: {error}',
                 code=CONFIG_SYNTAX_INVALID,
-            )
+            ) from None
         version = config.get('version', 1)
         build_config = get_configuration_class(version)(
             env_config,
@@ -1269,4 +1253,4 @@ def get_configuration_class(version):
             'version',
             code=VERSION_INVALID,
             error_message='Invalid version of the configuration file',
-        )
+        ) from None

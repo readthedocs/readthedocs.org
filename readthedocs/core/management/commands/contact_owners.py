@@ -129,14 +129,14 @@ class Command(BaseCommand):
         notification_content = ''
         if options['notification']:
             file = Path(options['notification'])
-            with file.open() as f:
+            with file.open(encoding='utf-8') as f:
                 notification_content = f.read()
 
         email_subject = ''
         email_content = ''
         if options['email']:
             file = Path(options['email'])
-            with file.open() as f:
+            with file.open(encoding='utf-8') as f:
                 content = f.read().split('\n')
             email_subject = content[0].strip()
             email_content = '\n'.join(content[1:]).strip()

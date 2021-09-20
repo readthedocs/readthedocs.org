@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration models for external services."""
 
 import json
@@ -102,8 +100,8 @@ class HttpExchangeManager(models.Manager):
         else:
             queryset = self.filter(
                 content_type=ContentType.objects.get(
-                    app_label=related_object._meta.app_label,  # pylint: disable=protected-access
-                    model=related_object._meta.model_name,  # pylint: disable=protected-access
+                    app_label=related_object._meta.app_label,
+                    model=related_object._meta.model_name,
                 ),
                 object_id=related_object.pk,
             )

@@ -20,7 +20,7 @@ from readthedocs.builds.models import RegexAutomationRule, Version
 log = logging.getLogger(__name__)
 
 
-def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+def sync_versions_to_db(project, versions, type):
     """
     Update the database with the current versions from the repository.
 

@@ -1,8 +1,6 @@
 """Django models for recurring donations aka Gold membership."""
 import math
-from datetime import datetime
 
-import pytz
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -57,6 +55,6 @@ class GoldUser(models.Model):
 
     @property
     def num_supported_projects(self):
-        dollars = int(self.level.split('-')[-1])
+        dollars = int(self.level.rsplit('-', maxsplit=1)[-1])
         num_projects = int(math.floor(dollars // DOLLARS_PER_PROJECT))
         return num_projects

@@ -316,7 +316,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
         tasks.clean_project_resources(self.project, self)
@@ -575,7 +575,7 @@ class APIVersion(Version):
                 pass
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         return 0
 
 
@@ -1203,7 +1203,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project

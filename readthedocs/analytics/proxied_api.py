@@ -46,7 +46,6 @@ class BaseAnalyticsView(APIView):
         )
         return version
 
-    # pylint: disable=unused-argument
     def get(self, request, *args, **kwargs):
         project = self._get_project()
         version = self._get_version()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Gold subscription views."""
 
 import json
@@ -16,17 +14,16 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from vanilla import DetailView, FormView, GenericView
-from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
-from .models import GoldUser, LEVEL_CHOICES
+from .models import GoldUser
 
 
 log = logging.getLogger(__name__)
@@ -114,7 +111,6 @@ class GoldProjectRemove(GoldProjectsMixin, GenericView):
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
-        # pylint: disable=unused-argument
         gold_user = self.get_gold_user()
 
         project = get_object_or_404(

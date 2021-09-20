@@ -192,7 +192,7 @@ class PythonEnvironment:
             return False
 
         try:
-            with open(self.environment_json_path(), 'r') as fpath:
+            with open(self.environment_json_path(), 'r', encoding='utf-8') as fpath:
                 environment_conf = json.load(fpath)
         except (IOError, TypeError, KeyError, ValueError):
             log.warning(
@@ -277,7 +277,7 @@ class PythonEnvironment:
                 },
             })
 
-        with open(self.environment_json_path(), 'w') as fpath:
+        with open(self.environment_json_path(), 'w', encoding='utf-8') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
             # unicode but ``json.dumps`` returns str in Py2.
             fpath.write(str(json.dumps(data)))

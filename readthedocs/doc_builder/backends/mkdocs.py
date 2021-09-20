@@ -71,7 +71,7 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-        with open(self.yaml_file, 'r') as f:
+        with open(self.yaml_file, 'r', encoding='utf-8') as f:
             config = yaml_load_safely(f)
             use_directory_urls = config.get('use_directory_urls', True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
@@ -93,7 +93,7 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml_load_safely(open(self.yaml_file, 'r'))
+            config = yaml_load_safely(open(self.yaml_file, 'r', encoding='utf-8'))
 
             if not config:
                 raise MkDocsYAMLParseError(
@@ -126,7 +126,7 @@ class BaseMkdocs(BaseBuilder):
             raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
                 'possibly due to a syntax error{note}'.format(note=note),
-            )
+            ) from None
 
     def append_conf(self):
         """
@@ -197,7 +197,7 @@ class BaseMkdocs(BaseBuilder):
             docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
-        with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
+        with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w', encoding='utf-8') as f:
             f.write(rtd_data)
 
         # Use Read the Docs' analytics setup rather than mkdocs'
@@ -212,10 +212,8 @@ class BaseMkdocs(BaseBuilder):
                 user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
-        yaml_dump_safely(
-            user_config,
-            open(self.yaml_file, 'w'),
-        )
+        with open(self.yaml_file, 'w', encoding='utf-8') as f:
+            yaml_dump_safely(user_config, f)
 
         # Write the mkdocs.yml to the build logs
         self.run(
@@ -356,10 +354,10 @@ class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
     Issue https://github.com/readthedocs/readthedocs.org/issues/7461
     """
 
-    def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
+    def ignore_unknown(self, node):  # pylint: disable=unused-argument
         return None
 
-    def construct_python_name(self, suffix, node):  # pylint: disable=no-self-use, unused-argument
+    def construct_python_name(self, suffix, node):  # pylint: disable=unused-argument
         return ProxyPythonName(suffix)
 
 

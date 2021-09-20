@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utilities for retrieving task data."""
 
 from celery import states
@@ -33,5 +31,5 @@ def get_task_data(task_id):
     try:
         task = app.tasks[info['task_name']]
     except KeyError:
-        raise TaskNotFound(task_id)
+        raise TaskNotFound(task_id) from None
     return task, state, info

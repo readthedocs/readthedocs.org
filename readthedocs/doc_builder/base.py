@@ -134,7 +134,7 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                with open(index_filename, 'w+') as index_file:
+                with open(index_filename, 'w+', encoding='utf-8') as index_file:
                     index_file.write(index_text.format(dir=docs_dir, ext=extension))
 
         return 'index'
