@@ -6,6 +6,7 @@ import copy
 import os
 import re
 from contextlib import contextmanager
+from functools import lru_cache
 
 from django.conf import settings
 
@@ -14,9 +15,9 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from .find import find_one
 from .models import (
     Build,
+    BuildWithTools,
     Conda,
     Mkdocs,
-    OldBuild,
     Python,
     PythonInstall,
     PythonInstallRequirements,
@@ -254,12 +255,30 @@ class BuildConfigBase:
         raise NotImplementedError()
 
     @property
+    def using_build_tools(self):
+        return isinstance(self.build, BuildWithTools)
+
+    @property
     def python_interpreter(self):
+        if self.using_build_tools:
+            if self.build.tools['python'].startswith('mamba'):
+                return 'mamba'
+            if self.build.tools['python'].startswith('miniconda'):
+                return 'conda'
+            if self.build.tools['python']:
+                return 'python'
+            return None
         version = self.python_full_version
         if version.startswith('pypy'):
             # Allow to specify ``pypy3.5`` as Python interpreter
             return version
         return f'python{version}'
+
+    @property
+    def docker_image(self):
+        if self.using_build_tools:
+            return self.settings['os'][self.build.os]
+        return self.build.image
 
     @property
     def python_full_version(self):
@@ -619,9 +638,10 @@ class BuildConfigV1(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
         """The docker image used by the builders."""
-        return OldBuild(**self._config['build'])
+        return Build(**self._config['build'])
 
     @property
     def doctype(self):
@@ -728,7 +748,7 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
-    def validate_new_build_config(self):
+    def validate_build_config_with_tools(self):
         """
         Validates the build object (new format).
 
@@ -817,7 +837,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('build'):
             validate_dict(raw_build)
         if 'os' in raw_build:
-            return self.validate_new_build_config()
+            return self.validate_build_config_with_tools()
         return self.validate_old_build_config()
 
     def validate_apt_package(self, index):
@@ -884,7 +904,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_python)
 
         python = {}
-        if isinstance(self.build, OldBuild):
+        if not self.using_build_tools:
             with self.catch_validation_error('python.version'):
                 version = self.pop_config('python.version', '3')
                 if version == 3.1:
@@ -1230,10 +1250,11 @@ class BuildConfigV2(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
-        klass = OldBuild
+        klass = Build
         if 'os' in self._config['build']:
-            klass = Build
+            klass = BuildWithTools
         return klass(**self._config['build'])
 
     @property

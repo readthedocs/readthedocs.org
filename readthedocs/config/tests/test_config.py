@@ -32,8 +32,8 @@ from readthedocs.config.config import (
 )
 from readthedocs.config.models import (
     Build,
+    BuildWithTools,
     Conda,
-    OldBuild,
     PythonInstall,
     PythonInstallRequirements,
 )
@@ -906,7 +906,8 @@ class TestBuildConfigV2:
     def test_build_image_default_value(self):
         build = self.get_build_config({})
         build.validate()
-        assert isinstance(build.build, OldBuild)
+        assert not build.using_build_tools
+        assert isinstance(build.build, Build)
         assert build.build.image == 'readthedocs/build:latest'
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
@@ -974,7 +975,8 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, Build)
+        assert build.using_build_tools
+        assert isinstance(build.build, BuildWithTools)
         assert build.build.os == 'ubuntu-20.04'
         assert build.build.tools == {'python': '3.9'}
 

@@ -26,7 +26,7 @@ class Base:
         }
 
 
-class OldBuild(Base):
+class Build(Base):
 
     __slots__ = ('image', 'apt_packages')
 
@@ -35,7 +35,7 @@ class OldBuild(Base):
         super().__init__(**kwargs)
 
 
-class Build(Base):
+class BuildWithTools(Base):
 
     __slots__ = ('os', 'tools', 'apt_packages')
 
