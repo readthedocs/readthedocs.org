@@ -205,17 +205,14 @@ your contact information.
 Email newsletter
 ++++++++++++++++
 
-If you sign up for the `Read the Docs email newsletter`_,
-your email address and name will be stored by Mailchimp.
+If you sign up for the Read the Docs email newsletter,
+your email address and name will be stored by MailerLite.
 This newsletter is separate from creating a Read the Docs account and
 signing up for Read the Docs does not opt you in for the newsletter.
 
 You can manage your email subscription
-including unsubscribing and deleting your records with Mailchimp.
+including unsubscribing and deleting your records with MailerLite.
 There is a link to do so in the footer of any newsletter you receive from us.
-
-.. _Read the Docs email newsletter: http://readthedocs.us3.list-manage.com/subscribe?u=a6a22369cc2b356379cf789ca&id=a85a83a5a5
-
 
 Public Information on Read the Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
