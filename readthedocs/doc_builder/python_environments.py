@@ -319,7 +319,11 @@ class PythonEnvironment:
         env_build_hash = env_build.get('hash', None)
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build.image or DOCKER_IMAGE
+            build_image = (
+                getattr(self.config.build, 'image', None) or
+                getattr(self.config.build, 'os', None) or
+                DOCKER_IMAGE
+            )
             image_hash = self.build_env.image_hash
         else:
             # e.g. LocalBuildEnvironment
@@ -374,7 +378,11 @@ class PythonEnvironment:
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build.image or DOCKER_IMAGE
+            build_image = (
+                getattr(self.config.build, 'image', None) or
+                getattr(self.config.build, 'os', None) or
+                DOCKER_IMAGE
+            )
             data.update({
                 'build': {
                     'image': build_image,
@@ -608,6 +616,14 @@ class Conda(PythonEnvironment):
 
         See https://github.com/QuantStack/mamba
         """
+        # Config file using ``build.tools.python``
+        if getattr(self.config.build, 'tools', None):
+            if self.config.build.tools.python.startswith('miniconda'):
+                return 'conda'
+            elif self.config.build.tools.python.startswith('mambaforge'):
+                return 'mamba'
+
+        # Config file using ``conda``
         if self.project.has_feature(Feature.CONDA_USES_MAMBA):
             return 'mamba'
         return 'conda'
@@ -668,8 +684,12 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
-        # TODO: remove it when ``mamba`` is installed in the Docker image
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+        if all([
+                # The project has CONDA_USES_MAMBA feature enabled and,
+                self.project.has_feature(Feature.CONDA_USES_MAMBA),
+                # the project is not using ``build.tools``
+                getattr(self.config.build, 'tools', None) is None,
+        ]):
             self._install_mamba()
 
         self.build_env.run(

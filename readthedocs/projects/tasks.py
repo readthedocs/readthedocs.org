@@ -762,7 +762,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Environment used for building code, usually with Docker
         with self.build_env:
             python_env_cls = Virtualenv
-            if self.config.conda is not None:
+            if any([
+                    self.config.conda is not None,
+                    getattr(self.config.build, 'tools', {}).get('python', '').startswith('miniconda'),
+                    getattr(self.config.build, 'tools', {}).get('python', '').startswith('mambaforge'),
+            ]):
                 log.info(
                     LOG_TEMPLATE,
                     {

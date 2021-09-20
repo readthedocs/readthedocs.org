@@ -782,11 +782,11 @@ class DockerBuildEnvironment(BuildEnvironment):
         if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
             self.container_image = 'readthedocs/build:testing'
         # the image set by user or,
-        if self.config and self.config.build.image:
+        if self.config and getattr(self.config.build, 'image', None):
             self.container_image = self.config.build.image
         # the new Docker image structure or,
-        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
-            self.container_image = 'readthedocs/build:ubuntu20'
+        if self.config and getattr(self.config.build, 'os', None):
+            self.container_image = self.config.build.os
         # the image overridden by the project (manually set by an admin).
         if self.project.container_image:
             self.container_image = self.project.container_image
