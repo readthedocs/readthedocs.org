@@ -23,7 +23,7 @@
 # To create a pre-compiled cached version and make it available on production,
 # the script has to be ran from a builder (build-default or build-large) and
 # it's required to set the following environment variables for an IAM user with
-# permissions on ``language`` S3's bucket:
+# permissions on ``build-tools`` S3's bucket:
 #
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
@@ -41,27 +41,27 @@ set -e
 # Define variables
 SLEEP=350
 OS="ubuntu20"
-LANGUAGE=$1
+TOOL=$1
 VERSION=$2
 
 # Spin up a container with the Ubuntu 20.04 LTS image
 CONTAINER_ID=$(docker run --user docs --rm --detach readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
-# Install the language version requested
-if [[ $LANGUAGE == "python" ]]
+# Install the tool version requested
+if [[ $TOOL == "python" ]]
 then
-    docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $LANGUAGE $VERSION
+    docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
 else
-    docker exec $CONTAINER_ID asdf install $LANGUAGE $VERSION
+    docker exec $CONTAINER_ID asdf install $TOOL $VERSION
 fi
 
 # Set the default version and reshim
-docker exec $CONTAINER_ID asdf global $LANGUAGE $VERSION
-docker exec $CONTAINER_ID asdf reshim $LANGUAGE
+docker exec $CONTAINER_ID asdf global $TOOL $VERSION
+docker exec $CONTAINER_ID asdf reshim $TOOL
 
 # Install dependencies for this version
-if [[ $LANGUAGE == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
+if [[ $TOOL == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
     RTD_PIP_VERSION=21.2.4
     RTD_SETUPTOOLS_VERSION=57.4.0
@@ -74,24 +74,24 @@ then
         RTD_SETUPTOOLS_VERSION=44.1.1
         RTD_VIRTUALENV_VERSION=20.7.2
     fi
-    docker exec $CONTAINER_ID $LANGUAGE -m pip install -U pip==$RTD_PIP_VERSION setuptools==$RTD_SETUPTOOLS_VERSION virtualenv==$RTD_VIRTUALENV_VERSION
+    docker exec $CONTAINER_ID $TOOL -m pip install -U pip==$RTD_PIP_VERSION setuptools==$RTD_SETUPTOOLS_VERSION virtualenv==$RTD_VIRTUALENV_VERSION
 fi
 
 # Compress it as a .tar.gz without include the full path in the compressed file
-docker exec $CONTAINER_ID tar --create --gzip --directory=/home/docs/.asdf/installs/$LANGUAGE --file=$OS-$LANGUAGE-$VERSION.tar.gz $VERSION
+docker exec $CONTAINER_ID tar --create --gzip --directory=/home/docs/.asdf/installs/$TOOL --file=$OS-$TOOL-$VERSION.tar.gz $VERSION
 
 # Copy the .tar.gz from the container to the host
-docker cp $CONTAINER_ID:/home/docs/$OS-$LANGUAGE-$VERSION.tar.gz .
+docker cp $CONTAINER_ID:/home/docs/$OS-$TOOL-$VERSION.tar.gz .
 
 # Kill the container
 docker container kill $CONTAINER_ID
 
 # Upload the .tar.gz to S3
 AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
-AWS_LANGUAGES_BUCKET="${AWS_LANGUAGES_BUCKET:-languages}"
+AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
 AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}" \
 AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}" \
-aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$LANGUAGE-$VERSION.tar.gz s3://$AWS_LANGUAGES_BUCKET
+aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 
 # Delete the .tar.gz file from the host
-rm $OS-$LANGUAGE-$VERSION.tar.gz
+rm $OS-$TOOL-$VERSION.tar.gz

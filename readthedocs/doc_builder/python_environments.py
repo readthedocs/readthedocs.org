@@ -23,7 +23,7 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-from readthedocs.storage import build_languages_storage
+from readthedocs.storage import build_tools_storage
 
 log = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class PythonEnvironment:
             )
             shutil.rmtree(venv_dir)
 
-    def install_build_languages(self):
+    def install_build_tools(self):
         if settings.RTD_DOCKER_COMPOSE:
             # Create a symlink for ``root`` user to use the same ``.asdf``
             # installation than ``docs`` user. Required for local building
@@ -90,78 +90,84 @@ class PythonEnvironment:
                 *cmd,
             )
 
-        # TODO: do not use a Feature flag here, but check for ``build.os`` and
-        # ``build.languages`` instead
-        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
-            # TODO: iterate over ``build.languages`` and install all languages
-            # specified for this project
-            build_os = 'ubuntu20'
-            language = 'python'
-            version = '3.9.6'
+        build_os = self.config.build.os
+        build_tools = self.config.build.tools
 
+        for tool, version in build_tools.items():
             # TODO: generate the correct path for the Python version
-            # language_path = f'{build_os}/{language}/2021-08-30/{version}.tar.gz'
-            language_path = f'{build_os}-{language}-{version}.tar.gz'
-            language_version_cached = build_languages_storage.exists(language_path)
-            if language_version_cached:
-                remote_fd = build_languages_storage.open(language_path, mode='rb')
+            # tool_path = f'{build_os}/{tool}/2021-08-30/{version}.tar.gz'
+            tool_path = f'{build_os}-{tool}-{version}.tar.gz'
+            tool_version_cached = build_tools_storage.exists(tool_path)
+            if tool_version_cached:
+                remote_fd = build_tools_storage.open(tool_path, mode='rb')
                 with tarfile.open(fileobj=remote_fd) as tar:
                     # Extract it on the shared path between host and Docker container
-                    extract_path = os.path.join(self.project.doc_path, 'languages')
+                    extract_path = os.path.join(self.project.doc_path, 'tools')
                     tar.extractall(extract_path)
 
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
                         'mv',
                         f'{extract_path}/{version}',
-                        f'/home/docs/.asdf/installs/{language}/{version}',
+                        f'/home/docs/.asdf/installs/{tool}/{version}',
                     ]
                     self.build_env.run(
                         *cmd,
                     )
             else:
-                # If the language version selected is not available from the
+                log.debug(
+                    'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
+                    build_os,
+                    build_tool,
+                    version,
+                    tool_path,
+                )
+                # If the tool version selected is not available from the
                 # cache we compile it at build time
                 cmd = [
                     # TODO: make this environment variable to work
                     # 'PYTHON_CONFIGURE_OPTS="--enable-shared"',
                     'asdf',
                     'install',
-                    language,
+                    tool,
                     version,
                 ]
                 self.build_env.run(
                     *cmd,
                 )
 
-            # Make the language version chosen by the user the default one
+            # Make the tool version chosen by the user the default one
             cmd = [
                 'asdf',
                 'global',
-                language,
+                tool,
                 version,
             ]
             self.build_env.run(
                 *cmd,
             )
 
-            # Recreate shims for this language to make the new version
+            # Recreate shims for this tool to make the new version
             # installed available
             cmd = [
                 'asdf',
                 'reshim',
-                language,
+                tool,
             ]
             self.build_env.run(
                 *cmd,
             )
 
-            if language == 'python' and not language_version_cached:
+            if all([
+                    tool == 'python',
+                    not tool_version_cached,
+                    not version.startswith('miniconda'),
+                    not version.startswith('mambaforge'),
+            ]):
                 # Install our own requirements if the version is compiled
                 cmd = [
                     'python',
-                    '-m'
-                    'pip',
+                    '-mpip',
                     'install',
                     '-U',
                     'virtualenv',

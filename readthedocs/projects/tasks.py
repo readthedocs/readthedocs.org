@@ -1144,7 +1144,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def setup_build(self):
         self.install_system_dependencies()
-        self.python_env.install_build_languages()
+        self.python_env.install_build_tools()
         self.setup_python_environment()
 
     def setup_python_environment(self):

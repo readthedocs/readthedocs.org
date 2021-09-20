@@ -91,9 +91,9 @@ class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3
             )
 
 
-class S3BuildLanguagesStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
 
-    bucket_name = getattr(settings, 'S3_BUILD_LANGUAGES_STORAGE_BUCKET', None)
+    bucket_name = getattr(settings, 'S3_BUILD_TOOLS_STORAGE_BUCKET', None)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,5 +101,5 @@ class S3BuildLanguagesStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Bo
         if not self.bucket_name:
             raise ImproperlyConfigured(
                 'AWS S3 not configured correctly. '
-                'Ensure S3_BUILD_LANGUAGES_STORAGE_BUCKET is defined.',
+                'Ensure S3_BUILD_TOOLS_STORAGE_BUCKET is defined.',
             )
