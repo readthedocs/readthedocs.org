@@ -2296,7 +2296,7 @@ class TestBuildConfigV2:
                     },
                     'nodejs': {
                         'version': '16',
-                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['3.9'],
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
                     },
                 },
                 'apt_packages': [],
