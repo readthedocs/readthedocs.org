@@ -30,7 +30,7 @@ class UserSecurityLogFilter(FilterSet):
         field_name='action',
         lookup_expr='exact',
         choices=[
-            (AuditLog.AUTHN, _('Authentication')),
+            (AuditLog.AUTHN, _('Authentication success')),
             (AuditLog.AUTHN_FAILURE, _('Authentication failure')),
         ],
     )
