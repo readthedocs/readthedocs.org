@@ -1,17 +1,13 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from datetime import timedelta
-
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
 from vanilla import (
@@ -23,8 +19,6 @@ from vanilla import (
     UpdateView,
 )
 
-from readthedocs.audit.filters import UserSecurityLogFilter
-from readthedocs.audit.models import AuditLog
 from readthedocs.core.forms import (
     UserAdvertisingForm,
     UserDeleteForm,
@@ -34,7 +28,6 @@ from readthedocs.core.history import safe_update_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.utils import get_csv_file
 
 
 class LoginViewBase(AllAuthLoginView):
@@ -176,67 +169,3 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     def get_object(self, queryset=None):  # noqa
         return self.request.user.auth_token
-
-
-class UserSecurityLogView(PrivateViewMixin, ListView):
-    model = AuditLog
-    template_name = 'profiles/private/security_log.html'
-    days_limit = settings.RTD_DEFAULT_LOGS_RETENTION_DAYS
-
-    def get(self, request, *args, **kwargs):
-        download_data = request.GET.get('download', False)
-        if download_data:
-            return self._get_csv_data()
-        return super().get(request, *args, **kwargs)
-
-    def _get_csv_data(self):
-        values = [
-            ('Date', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
-        ]
-        data = self._get_queryset().values_list(*[value for _, value in values])
-        now = timezone.now()
-        days_ago = now - timedelta(days=self.days_limit)
-        filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
-            username=self.request.user.username,
-            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
-            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
-        )
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
-        csv_data.insert(0, [header for header, _ in values])
-        return get_csv_file(filename=filename, csv_data=csv_data)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['days_limit'] = self.days_limit
-        context['filter'] = self.filter
-        context['AuditLog'] = AuditLog
-        return context
-
-    def _get_queryset(self):
-        user = self.request.user
-        days_ago = timezone.now() - timedelta(days=self.days_limit)
-        queryset = AuditLog.objects.filter(
-            user=user,
-            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
-            created__gte=days_ago,
-        )
-        return queryset
-
-    def get_queryset(self):
-        queryset = self._get_queryset()
-        # Set filter on self, so we can use it in the context.
-        # Without executing it twice.
-        self.filter = UserSecurityLogFilter(
-            self.request.GET,
-            queryset=queryset,
-        )
-        return self.filter.qs

@@ -28,7 +28,7 @@ class TestSignals(TestCase):
         self.assertTrue(self.client.login(username='test', password='password'))
         self.client.logout()
         self.assertEqual(AuditLog.objects.all().count(), 2)
-        log = AuditLog.objects.first()
+        log = AuditLog.objects.last()
         self.assertEqual(log.user, self.user)
         self.assertEqual(log.action, AuditLog.LOGOUT)
 
