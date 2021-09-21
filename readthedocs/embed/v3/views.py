@@ -312,7 +312,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             )
 
         if not content_requested:
-            log.warning('Identifier not found. url=%s', url)
+            log.warning('Identifier not found. url=%s fragment=%s', url, fragment)
             return Response(
                 {
                     'error': (
