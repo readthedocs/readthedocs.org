@@ -181,7 +181,7 @@ class TokenDeleteView(TokenMixin, DeleteView):
 class UserSecurityLogView(PrivateViewMixin, ListView):
     model = AuditLog
     template_name = 'profiles/private/security_log.html'
-    days_limit = settings.RTD_DEFAULT_LOGS_RETENTION_DAYS
+    days_limit = settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
