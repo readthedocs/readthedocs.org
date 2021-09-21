@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
@@ -979,7 +980,8 @@ class TestBuildConfigV2:
         assert isinstance(build.build, BuildWithTools)
         assert build.build.os == 'ubuntu-20.04'
         assert build.build.tools['python'].version == '3.9'
-        assert build.build.tools['python'].full_version == '3.9.7'
+        full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+        assert build.build.tools['python'].full_version == full_version
 
     def test_new_build_config_conflict_with_build_image(self):
         build = self.get_build_config(
@@ -2287,8 +2289,14 @@ class TestBuildConfigV2:
             'build': {
                 'os': 'ubuntu-20.04',
                 'tools': {
-                    'python': {'version': '3.9', 'full_version': '3.9.7'},
-                    'nodejs': {'version': '16', 'full_version': '16.9.1'},
+                    'python': {
+                        'version': '3.9',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9'],
+                    },
+                    'nodejs': {
+                        'version': '16',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['3.9'],
+                    },
                 },
                 'apt_packages': [],
             },
