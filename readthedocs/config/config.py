@@ -262,11 +262,12 @@ class BuildConfigBase:
     @property
     def python_interpreter(self):
         if self.using_build_tools:
-            if self.build.tools['python'].startswith('mamba'):
+            tool = self.build.tools.get('python')
+            if tool and tool.version.startswith('mamba'):
                 return 'mamba'
-            if self.build.tools['python'].startswith('miniconda'):
+            if tool and tool.version.startswith('miniconda'):
                 return 'conda'
-            if self.build.tools['python']:
+            if tool:
                 return 'python'
             return None
         version = self.python_full_version

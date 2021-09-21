@@ -982,6 +982,7 @@ class TestBuildConfigV2:
         assert build.build.tools['python'].version == '3.9'
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
         assert build.build.tools['python'].full_version == full_version
+        assert build.python_interpreter == 'python'
 
     def test_new_build_config_conflict_with_build_image(self):
         build = self.get_build_config(
