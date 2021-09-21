@@ -63,7 +63,11 @@ class TestContactUsers(TestCase):
                     'failed': set(),
                 },
                 'notification': {
-                    'sent': {self.user.pk, self.user_two.pk, self.user_three.pk},
+                    'sent': {
+                        self.user.username,
+                        self.user_two.username,
+                        self.user_three.username,
+                    },
                     'failed': set(),
                 }
             }
