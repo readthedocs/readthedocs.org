@@ -108,7 +108,10 @@ class PythonEnvironment:
                     cmd = [
                         'mv',
                         f'{extract_path}/{version}',
-                        os.path.join(settings.RTD_DOCKER_WORKDIR, f'.asdf/installs/{tool}/{version}'),
+                        os.path.join(
+                            settings.RTD_DOCKER_WORKDIR,
+                            f'.asdf/installs/{tool}/{version}',
+                        ),
                     ]
                     self.build_env.run(
                         *cmd,
