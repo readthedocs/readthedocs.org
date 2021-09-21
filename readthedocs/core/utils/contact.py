@@ -18,6 +18,7 @@ def contact_users(
     email_content=None,
     from_email=None,
     notification_content=None,
+    context_function=None,
     dryrun=True,
 ):
     """
@@ -28,6 +29,8 @@ def contact_users(
     :param string email_content: Email content (markdown)
     :param string from_email: Email to sent from (Test Support <support@test.com>)
     :param string notification_content: Content for the sticky notification (markdown)
+    :param context_function: A callable that will receive an user
+     and return a dict of additional context to be used in the email/notification content
     :param bool dryrun: If `True` don't sent the email or notification, just print the content
 
     The `email_content` and `notification_content` contents will be rendered using
@@ -41,6 +44,7 @@ def contact_users(
     :returns: A dictionary with a list of sent/failed emails/notifications.
     """
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
+    context_function = context_function or (lambda user: {})
     sent_emails = set()
     failed_emails = set()
     sent_notifications = set()
@@ -58,16 +62,22 @@ def contact_users(
     class TempNotification(SiteNotification):
 
         def render(self, *args, **kwargs):
+            context = {
+                'user': self.user,
+                'domain': f'https://{settings.PRODUCTION_DOMAIN}',
+            }
+            context.update(context_function(self.user))
             return markdown.markdown(
-                notification_template.render(
-                    Context({
-                        'user': self.user,
-                        'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                    })
-                )
+                notification_template.render(Context(context))
             )
 
     for user in users.iterator():
+        context = {
+            'user': user,
+            'domain': f'https://{settings.PRODUCTION_DOMAIN}',
+        }
+        context.update(context_function(user))
+
         if notification_content:
             notification = TempNotification(
                 user=user,
@@ -78,12 +88,7 @@ def contact_users(
                     backend.send(notification)
                 else:
                     pprint(markdown.markdown(
-                        notification_template.render(
-                            Context({
-                                'user': user,
-                                'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                            })
-                        )
+                        notification_template.render(Context(context))
                     ))
             except Exception:
                 log.exception('Notification failed to send')
@@ -103,10 +108,7 @@ def contact_users(
 
             # First render the markdown context.
             email_txt_content = email_template.render(
-                Context({
-                    'user': user,
-                    'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                })
+                Context(context)
             )
             email_html_content = markdown.markdown(email_txt_content)
 
