@@ -19,6 +19,7 @@ def contact_users(
     email_content=None,
     from_email=None,
     notification_content=None,
+    sticky_notification=False,
     context_function=None,
     dryrun=True,
 ):
@@ -62,7 +63,8 @@ def contact_users(
 
     class TempNotification(SiteNotification):
 
-        success_level = message_constants.SUCCESS_PERSISTENT
+        if sticky_notification:
+            success_level = message_constants.SUCCESS_PERSISTENT
 
         def render(self, *args, **kwargs):
             context = {
