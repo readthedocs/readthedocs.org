@@ -3,3 +3,58 @@
   box-shadow: 0 0 0 7px #fff, 0 0 0 8px #cecece;
   margin: 9px 17px 9px 3px;
 }
+
+:root {
+  --theme-gray: #404040;
+  --theme-light-gray: #777;
+  --theme-blue: #55a5d9;
+  --sd-color-card-border-hover: var(--theme-blue); 
+  --sd-color-shadow: rgba(0,0,0,.12);
+}
+
+#guides h2 {
+  font-size: 19px;
+}
+
+#guides .sd-card {
+  text-align: center;
+  border-top: 6px solid var(--theme-blue);
+}
+#guides .sd-card-large {
+  border-top-color: var(--theme-gray);
+}
+.sd-card {
+  border-radius: 0;
+}
+.sd-card-hover:hover {
+  transform: none;
+}
+.sd-card-large {}
+
+
+.sd-card-title {
+  font-size: 18px;
+}
+.sd-card-large .sd-card-title {
+  font-size: 20px;
+}
+.sd-card-small .sd-card-title {
+  font-size: 16px;
+}
+
+.sd-card-title:after {
+  display: block;
+  content: "";
+  height: 2px;
+  background-color: var(--theme-blue);
+  margin: 20px 0;
+}
+.sd-card-large .sd-card-title:after {
+  background-color: var(--theme-gray);
+}
+
+.sd-card-text {
+  color: var(--theme-light-gray);
+  font-size: 14px;
+  line-height: 1.4;
+}
