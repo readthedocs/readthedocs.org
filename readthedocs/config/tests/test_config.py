@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
@@ -31,6 +32,8 @@ from readthedocs.config.config import (
     VERSION_INVALID,
 )
 from readthedocs.config.models import (
+    Build,
+    BuildWithTools,
     Conda,
     PythonInstall,
     PythonInstallRequirements,
@@ -904,6 +907,8 @@ class TestBuildConfigV2:
     def test_build_image_default_value(self):
         build = self.get_build_config({})
         build.validate()
+        assert not build.using_build_tools
+        assert isinstance(build.build, Build)
         assert build.build.image == 'readthedocs/build:latest'
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
@@ -919,6 +924,93 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'build.image'
+
+    @pytest.mark.parametrize('value', ['', None, 'latest'])
+    def test_new_build_config_invalid_os(self, value):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': value,
+                    'tools': {'python': '3'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.os'
+
+    @pytest.mark.parametrize('value', ['', None, 'python', ['python', 'nodejs'], {}, {'cobol': '99'}])
+    def test_new_build_config_invalid_tools(self, value):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': value,
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.tools'
+
+    def test_new_build_config_invalid_tools_version(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '2.6'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.tools.python'
+
+    def test_new_build_config(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.9'},
+                },
+            },
+        )
+        build.validate()
+        assert build.using_build_tools
+        assert isinstance(build.build, BuildWithTools)
+        assert build.build.os == 'ubuntu-20.04'
+        assert build.build.tools['python'].version == '3.9'
+        full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+        assert build.build.tools['python'].full_version == full_version
+        assert build.python_interpreter == 'python'
+
+    def test_new_build_config_conflict_with_build_image(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'image': 'latest',
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.9'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.image'
+
+    def test_new_build_config_conflict_with_build_python_version(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.8'},
+                },
+                'python': {'version': '3.8'},
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.version'
 
     @pytest.mark.parametrize(
         'value',
@@ -2137,6 +2229,76 @@ class TestBuildConfigV2:
             },
             'build': {
                 'image': 'readthedocs/build:latest',
+                'apt_packages': [],
+            },
+            'conda': None,
+            'sphinx': {
+                'builder': 'sphinx',
+                'configuration': None,
+                'fail_on_warning': False,
+            },
+            'mkdocs': None,
+            'doctype': 'sphinx',
+            'submodules': {
+                'include': [],
+                'exclude': ALL,
+                'recursive': False,
+            },
+            'search': {
+                'ranking': {},
+                'ignore': [
+                    'search.html',
+                    'search/index.html',
+                    '404.html',
+                    '404/index.html',
+                ],
+            },
+        }
+        assert build.as_dict() == expected_dict
+
+    def test_as_dict_new_build_config(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'version': 2,
+                'formats': ['pdf'],
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.9',
+                        'nodejs': '16',
+                    },
+                },
+                'python': {
+                    'install': [{
+                        'requirements': 'requirements.txt',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        expected_dict = {
+            'version': '2',
+            'formats': ['pdf'],
+            'python': {
+                'version': None,
+                'install': [{
+                    'requirements': 'requirements.txt',
+                }],
+                'use_system_site_packages': False,
+            },
+            'build': {
+                'os': 'ubuntu-20.04',
+                'tools': {
+                    'python': {
+                        'version': '3.9',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9'],
+                    },
+                    'nodejs': {
+                        'version': '16',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
+                    },
+                },
                 'apt_packages': [],
             },
             'conda': None,

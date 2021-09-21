@@ -64,6 +64,12 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_CLEAN_AFTER_BUILD = True
 
     @property
+    def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
+        domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
+        domains.append(r'.*\.readthedocs\.io')
+        return domains
+
+    @property
     def LOGGING(self):
         logging = super().LOGGING
         logging['loggers'].update({
