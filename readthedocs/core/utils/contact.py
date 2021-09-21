@@ -71,7 +71,8 @@ def contact_users(
                 notification_template.render(Context(context))
             )
 
-    for user in users.iterator():
+    total = users.count()
+    for count, user in enumerate(users.iterator(), start=1):
         context = {
             'user': user,
             'domain': f'https://{settings.PRODUCTION_DOMAIN}',
@@ -94,7 +95,10 @@ def contact_users(
                 log.exception('Notification failed to send')
                 failed_notifications.add(user.username)
             else:
-                log.info('Successfully set notification user=%s', user)
+                log.info(
+                    'Successfully set notification (%s/%s). user=%s',
+                    count, total, user,
+                )
                 sent_notifications.add(user.username)
 
         if email_subject:
@@ -133,10 +137,10 @@ def contact_users(
                 else:
                     pprint(kwargs)
             except Exception:
-                log.exception('Mail failed to send')
+                log.exception('Email failed to send')
                 failed_emails.update(emails)
             else:
-                log.info('Email sent to %s', emails)
+                log.info('Email sent (%s/%s). emails=%s', count, total, emails)
                 sent_emails.update(emails)
 
     return {
