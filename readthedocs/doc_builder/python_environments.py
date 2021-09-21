@@ -75,17 +75,6 @@ class PythonEnvironment:
             shutil.rmtree(venv_dir)
 
     def install_build_tools(self):
-        build_os = getattr(self.config.build, 'os', None)
-        build_tools = getattr(self.config.build, 'tools', None)
-        if not build_os or not build_tools:
-            log.debug(
-                'Not installing "build.tools" because they are not defined. '
-                'build.os=%s build.tools=%s',
-                build_os,
-                build_tools,
-            )
-            return
-
         if settings.RTD_DOCKER_COMPOSE:
             # Create a symlink for ``root`` user to use the same ``.asdf``
             # installation than ``docs`` user. Required for local building
@@ -101,13 +90,12 @@ class PythonEnvironment:
                 *cmd,
             )
 
-        for tool, version in build_tools.items():
-            # TODO: ask config file object for the specific tool version required by asdf
-            version = self.config.settings['tools'][tool][version]
+        for tool, version in self.config.build.tools.items():
+            version = version.full_version  # e.g. 3.9 -> 3.9.7
 
             # TODO: generate the correct path for the Python version
-            # tool_path = f'{build_os}/{tool}/2021-08-30/{version}.tar.gz'
-            tool_path = f'{build_os}-{tool}-{version}.tar.gz'
+            # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{version}.tar.gz'
+            tool_path = f'{self.config.build.os}-{tool}-{version}.tar.gz'
             tool_version_cached = build_tools_storage.exists(tool_path)
             if tool_version_cached:
                 remote_fd = build_tools_storage.open(tool_path, mode='rb')
@@ -128,7 +116,7 @@ class PythonEnvironment:
             else:
                 log.debug(
                     'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
-                    build_os,
+                    self.config.build.os,
                     tool,
                     version,
                     tool_path,
