@@ -762,11 +762,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Environment used for building code, usually with Docker
         with self.build_env:
             python_env_cls = Virtualenv
-            build_tools_python = getattr(self.config.build, 'tools', {}).get('python', '')
             if any([
                     self.config.conda is not None,
-                    build_tools_python.startswith('miniconda'),
-                    build_tools_python.startswith('mambaforge'),
+                    self.config.python_interpreter in ('conda', 'mamba'),
             ]):
                 log.info(
                     LOG_TEMPLATE,
@@ -1170,7 +1168,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.python_env.delete_existing_build_dir()
 
         # Install all ``build.tools`` specified by the user
-        self.python_env.install_build_tools()
+        if self.config.using_build_tools:
+            self.python_env.install_build_tools()
 
         self.python_env.setup_base()
         self.python_env.save_environment_json()

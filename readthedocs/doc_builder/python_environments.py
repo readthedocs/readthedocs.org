@@ -94,7 +94,7 @@ class PythonEnvironment:
             cmd = [
                 'ln',
                 '-s',
-                '/home/docs/.asdf',
+                os.path.join(settings.RTD_DOCKER_WORKDIR, '.asdf'),
                 '/root/.asdf',
             ]
             self.build_env.run(
@@ -103,7 +103,7 @@ class PythonEnvironment:
 
         for tool, version in build_tools.items():
             # TODO: ask config file object for the specific tool version required by asdf
-            version = settings.RTD_DOCKER_BUILD_SETTINGS['tools'][tool][version]
+            version = self.config.settings['tools'][tool][version]
 
             # TODO: generate the correct path for the Python version
             # tool_path = f'{build_os}/{tool}/2021-08-30/{version}.tar.gz'
@@ -120,7 +120,7 @@ class PythonEnvironment:
                     cmd = [
                         'mv',
                         f'{extract_path}/{version}',
-                        f'/home/docs/.asdf/installs/{tool}/{version}',
+                        os.path.join(settings.RTD_DOCKER_WORKDIR, f'.asdf/installs/{tool}/{version}'),
                     ]
                     self.build_env.run(
                         *cmd,
@@ -171,9 +171,10 @@ class PythonEnvironment:
 
             if all([
                     tool == 'python',
+                    # Do not install them if the tool version was cached
                     not tool_version_cached,
-                    not version.startswith('miniconda'),
-                    not version.startswith('mambaforge'),
+                    # Do not install them on conda/mamba
+                    self.config.python_interpreter == 'python',
             ]):
                 # Install our own requirements if the version is compiled
                 cmd = [
@@ -330,11 +331,7 @@ class PythonEnvironment:
         env_build_hash = env_build.get('hash', None)
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = (
-                getattr(self.config.build, 'image', None) or
-                getattr(self.config.build, 'os', None) or
-                DOCKER_IMAGE
-            )
+            build_image = self.config.docker_image
             image_hash = self.build_env.image_hash
         else:
             # e.g. LocalBuildEnvironment
@@ -389,11 +386,7 @@ class PythonEnvironment:
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = (
-                getattr(self.config.build, 'image', None) or
-                getattr(self.config.build, 'os', None) or
-                DOCKER_IMAGE
-            )
+            build_image = self.config.docker_image
             data.update({
                 'build': {
                     'image': build_image,
@@ -442,14 +435,8 @@ class Virtualenv(PythonEnvironment):
             self.venv_path(),
         )
 
-        # TODO: make ``self.config.python_interpreter`` return the correct value
-        if self.project.has_feature(Feature.USE_NEW_DOCKER_IMAGES_STRUCTURE):
-            python_interpreter = 'python'
-        else:
-            python_interpreter = self.config.python_interpreter
-
         self.build_env.run(
-            python_interpreter,
+            self.config.python_interpreter,
             *cli_args,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
@@ -628,12 +615,8 @@ class Conda(PythonEnvironment):
         See https://github.com/QuantStack/mamba
         """
         # Config file using ``build.tools.python``
-        if getattr(self.config.build, 'tools', None):
-            python_tool = self.config.build.tools.get('python', '')
-            if 'miniconda' in python_tool:
-                return 'conda'
-            elif 'mambaforge' in python_tool:
-                return 'mamba'
+        if self.config.using_build_tools:
+            return self.config.python_interpreter
 
         # Config file using ``conda``
         if self.project.has_feature(Feature.CONDA_USES_MAMBA):
@@ -700,7 +683,7 @@ class Conda(PythonEnvironment):
                 # The project has CONDA_USES_MAMBA feature enabled and,
                 self.project.has_feature(Feature.CONDA_USES_MAMBA),
                 # the project is not using ``build.tools``
-                getattr(self.config.build, 'tools', None) is None,
+                not self.config.using_build_tools,
         ]):
             self._install_mamba()
 
