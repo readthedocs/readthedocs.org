@@ -1007,7 +1007,11 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         else:
             days_ago = now - timezone.timedelta(days=retention_limit)
 
-        headers = ['Created Date', 'Query', 'Total Results']
+        values = [
+            ('Created Date', 'created'),
+            ('Query', 'query'),
+            ('Total Results', 'total_results'),
+        ]
         data = []
         if self._is_enabled(project):
             data = (
@@ -1016,7 +1020,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                     created__date__gte=days_ago,
                 )
                 .order_by('-created')
-                .values_list('created', 'query', 'total_results')
+                .values_list(*[value for _, value in values])
             )
 
         filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
@@ -1029,7 +1033,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
             for date, *rest in data
         ]
-        csv_data.insert(0, headers)
+        csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
@@ -1093,7 +1097,12 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
         else:
             days_ago = now - timezone.timedelta(days=retention_limit)
 
-        headers = ['Date', 'Version', 'Path', 'Views']
+        values = [
+            ('Date', 'date'),
+            ('Version', 'version__slug'),
+            ('Path', 'path'),
+            ('Views', 'view_count'),
+        ]
         data = []
         if self._is_enabled(project):
             data = (
@@ -1102,7 +1111,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
                     date__gte=days_ago,
                 )
                 .order_by('-date')
-                .values_list('date', 'version__slug', 'path', 'view_count')
+                .values_list(*[value for _, value in values])
             )
 
         filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
@@ -1114,7 +1123,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
             for date, *rest in data
         ]
-        csv_data.insert(0, headers)
+        csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_retention_days_limit(self, project):
