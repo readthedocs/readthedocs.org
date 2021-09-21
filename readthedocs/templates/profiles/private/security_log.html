@@ -29,22 +29,21 @@
       <ul>
         {% for log in object_list %}
         <li class="module-item">
-          {% if log.action == 'authentication' %}
-            {% blocktrans trimmed %}
-            <a href="?action=authentication">Authenticated</a>
+          {% if log.action == AuditLog.AUTHN %}
+            {% blocktrans trimmed with action=AuditLog.AUTHN%}
+            <a href="?action={{ action }}">Authenticated</a>
             {% endblocktrans %}
-          {% elif log.action == 'authentication-failure' %}
-            {% blocktrans trimmed %}
-            <a href="?action=authentication-failure">Authentication attempt</a>
+          {% elif log.action == AuditLog.AUTHN_FAILURE %}
+            {% blocktrans trimmed with action=AuditLog.AUTHN_FAILURE %}
+            <a href="?action={{ action }}">Authentication attempt</a>
             {% endblocktrans %}
           {% endif %}
 
-          {% blocktrans trimmed with ip=log.ip browser=log.browser %}
-          from
-          <a href="?ip={{ ip }}" title="{{ browser }}">
-            <code>{{ ip }}</code>
+          {% trans "from" %}
+
+          <a href="?ip={{ log.ip }}" title="{{ log.browser }}">
+            <code>{{ log.ip }}</code>
           </a>
-          {% endblocktrans %}
 
           {# If the authentication was on a doc domain. #}
           {% if log.log_project_id %}

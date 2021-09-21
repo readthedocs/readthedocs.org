@@ -190,27 +190,16 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def _get_csv_data(self):
-        headers = [
-            'Date',
-            'User',
-            'Project',
-            'Organization',
-            'Action',
-            'IP',
-            'Browser',
+        values = [
+            ('Date', 'created'),
+            ('User', 'log_user_username'),
+            ('Project', 'log_project_slug'),
+            ('Organization', 'log_organization_slug'),
+            ('Action', 'action'),
+            ('IP', 'ip'),
+            ('Browser', 'browser'),
         ]
-        data = (
-            self._get_queryset()
-            .values_list(
-                'created',
-                'log_user_username',
-                'log_project_slug',
-                'log_organization_slug',
-                'action',
-                'ip',
-                'browser',
-            )
-        )
+        data = self._get_queryset().values_list(*[value for _, value in values])
         now = timezone.now()
         days_ago = now - timedelta(days=self.days_limit)
         filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
@@ -222,13 +211,14 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
             for date, *rest in data
         ]
-        csv_data.insert(0, headers)
+        csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['days_limit'] = self.days_limit
         context['filter'] = self.filter
+        context['AuditLog'] = AuditLog
         return context
 
     def _get_queryset(self):
@@ -249,8 +239,4 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             self.request.GET,
             queryset=queryset,
         )
-        # If an invalid ip was passed, dont filter it.
-        # Otherwise django will raise an error when executing the queryset.
-        if self.filter.is_valid():
-            return self.filter.qs
-        return queryset.none()
+        return self.filter.qs

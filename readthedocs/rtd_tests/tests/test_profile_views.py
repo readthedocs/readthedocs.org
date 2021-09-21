@@ -213,8 +213,14 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(auditlogs.count(), 6)
 
         # Show logs filtered by invalid values.
-        for filter in ['action', 'ip', 'project']:
+        for filter in ['ip', 'project']:
             resp = self.client.get(reverse('profiles_security_log') + f'?{filter}=invalid')
             self.assertEqual(resp.status_code, 200)
             auditlogs = resp.context_data['object_list']
-            self.assertEqual(auditlogs.count(), 0)
+            self.assertEqual(auditlogs.count(), 0, filter)
+
+        # If action isn't a valid value, the filter is just ignored.
+        resp = self.client.get(reverse('profiles_security_log') + '?action=invalid')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 12)
