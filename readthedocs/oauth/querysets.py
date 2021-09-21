@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Managers for OAuth models."""
 
 from django.db import models
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 
-
-class RelatedUserQuerySetBase(models.QuerySet):
+class RelatedUserQuerySet(models.QuerySet):
 
     """For models with relations through :py:class:`User`."""
 
@@ -16,11 +12,6 @@ class RelatedUserQuerySetBase(models.QuerySet):
         if not user.is_authenticated:
             return self.none()
         return self.filter(users=user)
-
-
-class RelatedUserQuerySet(SettingsOverrideObject):
-    _default_class = RelatedUserQuerySetBase
-    _override_setting = 'RELATED_USER_MANAGER'
 
 
 class RemoteRepositoryQuerySet(RelatedUserQuerySet):

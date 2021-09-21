@@ -1,18 +1,18 @@
 """Signal handling for core app."""
 
 import logging
-from urllib.parse import urlparse
 
 from corsheaders import signals
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
+from simple_history.signals import pre_create_historical_record
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
@@ -49,8 +49,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     * It's a safe HTTP method
     * The origin is in ALLOWED_URLS
     * The URL is owned by the project that they are requesting data from
-    * The version is public or the domain is linked to the project
-      (except for the embed API).
+    * The version is public
 
     .. note::
 
@@ -61,8 +60,6 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     """
     if 'HTTP_ORIGIN' not in request.META or request.method not in SAFE_METHODS:
         return False
-
-    host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
     # Always allow the sustainability API,
     # it's used only on .org to check for ad-free users.
@@ -103,20 +100,6 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             if is_public:
                 return True
 
-            # Don't check for known domains for the embed api.
-            # It gives a lot of information,
-            # we should use a list of trusted domains from the user.
-            if valid_url == '/api/v2/embed':
-                return False
-
-            # Or allow if they have a registered domain
-            # linked to that project.
-            domain = Domain.objects.filter(
-                Q(domain__iexact=host),
-                Q(project=project) | Q(project__subprojects__child=project),
-            )
-            if domain.exists():
-                return True
     return False
 
 
@@ -134,6 +117,15 @@ def delete_projects(sender, instance, *args, **kwargs):
     )
 
     projects.delete()
+
+
+@receiver(pre_create_historical_record)
+def add_extra_historical_fields(sender, **kwargs):
+    history_instance = kwargs['history_instance']
+    history_user = kwargs['history_user']
+    if history_instance and history_user:
+        history_instance.extra_history_user_id = history_user.id
+        history_instance.extra_history_user_username = history_user.username
 
 
 signals.check_request_enabled.connect(decide_if_cors)

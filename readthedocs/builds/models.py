@@ -46,7 +46,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.managers import (
     AutomationRuleMatchManager,
-    BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
     InternalBuildManager,
@@ -680,7 +679,7 @@ class Build(models.Model):
     )
 
     # Managers
-    objects = BuildManager.from_queryset(BuildQuerySet)()
+    objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
@@ -929,7 +928,7 @@ class Build(models.Model):
         """
         Reset the build so it can be re-used when re-trying.
 
-        Dates and states are usually overriden by the build,
+        Dates and states are usually overridden by the build,
         we care more about deleting the commands.
         """
         self.state = BUILD_STATE_TRIGGERED
@@ -1187,7 +1186,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             )
             expression = F('priority') + 1
 
-        # Put an imposible priority to avoid
+        # Put an impossible priority to avoid
         # the unique constraint (project, priority)
         # while updating.
         self.priority = total + 99
@@ -1270,7 +1269,7 @@ class RegexAutomationRule(VersionAutomationRule):
            arg to avoid ReDoS.
 
            We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writting this code.
+           but there isn't a stable library at the time of writing this code.
         """
         try:
             match = regex.search(

@@ -66,7 +66,7 @@ and replace all the relative links from its content making them absolute.
    Any other case outside this contract will be considered *special* and will be implemented
    only under ``?doctool=``, ``?version=`` and ``?writer=`` arguments.
 
-If no ``id`` selector is sent to the request, the content of the first meaningfull HTML tag
+If no ``id`` selector is sent to the request, the content of the first meaningful HTML tag
 (``<main>``, ``<div role="main">`` or other well-defined standard tags) identifier found is returned.
 
 
@@ -80,13 +80,13 @@ This is the list of endpoints to be implemented in APIv3:
    Returns the exact HTML content for a specific identifier (``id``).
    If no anchor identifier is specified the content of the first one returned.
 
-    **Example request**:
+   **Example request**:
 
-    .. tabs::
+   .. code:: bash
 
-       $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
+      $ curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/development/install.html#set-up-your-environment
 
-    **Example response**:
+   **Example response**:
 
    .. sourcecode:: json
 
@@ -117,13 +117,13 @@ This is the list of endpoints to be implemented in APIv3:
       --which is handy in the development process of a new tool that consumes the API.
       Because of this, we don't have too much traction to add it in the initial version.
 
-    **Example request**:
+   **Example request**:
 
-    .. tabs::
+   .. code:: bash
 
-       $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
+      $ curl https://readthedocs.org/api/v3/embed/metadata/?url=https://docs.readthedocs.io/en/latest/development/install.html
 
-    **Example response**:
+   **Example response**:
 
    .. sourcecode:: json
 
@@ -221,7 +221,7 @@ The whole logic should be the same, the only difference would be where the sourc
 
 .. warning::
 
-   We should be carefull with the URL received from the user because those may be internal URLs and we could be leaking some data.
+   We should be careful with the URL received from the user because those may be internal URLs and we could be leaking some data.
    Example: ``?url=http://localhost/some-weird-endpoint`` or ``?url=http://169.254.169.254/latest/meta-data/``
    (see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html).
 

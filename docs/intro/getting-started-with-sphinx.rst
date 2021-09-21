@@ -4,7 +4,6 @@ Getting Started with Sphinx
 .. meta::
    :description lang=en: Get started writing technical documentation with Sphinx and publishing to Read the Docs.
 
-
 Sphinx is a powerful documentation generator that
 has many great features for writing technical documentation including:
 
@@ -15,6 +14,10 @@ has many great features for writing technical documentation including:
 * An extensive system of cross-referencing code and documentation
 * Syntax highlighted code samples
 * A vibrant ecosystem of first and third-party :doc:`extensions <sphinx:usage/extensions/index>`
+
+If you want to learn more about how to create your first Sphinx project, read on.
+If you are interested in exploring the Read the Docs platform using an already existing Sphinx project,
+check out :doc:`/tutorial/index`.
 
 Quick start
 -----------
@@ -91,16 +94,11 @@ Then in your ``conf.py``:
 
    extensions = ['myst_parser']
 
-.. warning::
+You can now continue writing your docs in ``.md`` files and it will work with Sphinx.
+Read the `Getting started with MyST in Sphinx`_ docs for additional instructions.
 
-   Markdown does work for basic prose content.
-   But reStructuredText is the preferred format for technical documentation,
-   please read `this blog post`_ for motivation.
-
+.. _Getting started with MyST in Sphinx: https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
-
-.. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
-
 
 External resources
 ------------------

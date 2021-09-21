@@ -6,9 +6,8 @@ On initial import,
 we will create a ``latest`` version.
 This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
 
-We also create a ``stable`` version,
-if your project has any tagged releases.
-``stable`` will be automatically kept up to date to point at your highest version.
+If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
+we also create a ``stable`` version, tracking your most recent release.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
@@ -24,7 +23,7 @@ If you develop on a branch that is different than the default for your VCS,
 you should set the **Default Branch** to that branch.
 
 You should push a **tag** for each version of your project.
-These tags should be numbered in a way that is consistent with `semantic versioning <https://semver.org/>`_.
+These tags should be numbered in a way that is consistent with semantic versioning.
 This will map to your ``stable`` branch by default.
 
 .. note::
@@ -112,7 +111,19 @@ They will not display on any list view, and will 404 when you link them to other
 If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
 In addition, if you want other users to view the build page of your public versions,
-you'll neeed to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+you'll need to the set the :doc:`privacy level of your project </commercial/privacy-level>` to public.
+
+Logging out
+'''''''''''
+
+When you log in to a documentation site, you will be logged in until close your browser.
+To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
+This is usually located in the bottom right or bottom left, depending on the theme design.
+This will log you out from the current domain,
+but not end any other session that you have active. 
+
+.. figure:: /_static/images/logout-button.png
+   :align: center
 
 Tags and branches
 -----------------

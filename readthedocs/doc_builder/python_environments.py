@@ -462,7 +462,7 @@ class Virtualenv(PythonEnvironment):
             '-m',
             'pip',
             'list',
-            # Inlude pre-release versions.
+            # Include pre-release versions.
             '--pre',
         ]
         self.build_env.run(

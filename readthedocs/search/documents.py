@@ -170,16 +170,10 @@ class PageDocument(RTDDocTypeMixin, Document):
         return all_domains
 
     def get_queryset(self):
-        """
-        Ignore certain files from indexing.
-
-        - Files from external versions
-        - Ignored files
-        """
+        """Don't include ignored files."""
         queryset = super().get_queryset()
         queryset = (
             queryset
-            .internal()
             .exclude(ignore=True)
             .select_related('version', 'project')
         )

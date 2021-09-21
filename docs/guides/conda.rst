@@ -79,7 +79,7 @@ conda also needs to know which channels to use, and which ones take precedence.
 If not specified, conda will use ``defaults``, the channel maintained by Anaconda Inc.
 and subject to `Anaconda Terms of Service`_. It contains well-tested versions of the most widely used
 packages. However, some packages are not available on the ``defaults`` channel,
-and even if they are, they might not be on their lastest versions.
+and even if they are, they might not be on their latest versions.
 
 As an alternative, there are channels maintained by the community that have a broader selection
 of packages and more up-to-date versions of them, the most popular one being ``conda-forge``.
@@ -108,7 +108,7 @@ Mixing conda and pip packages
 -----------------------------
 
 There are valid reasons to use pip inside a conda environment: some dependency
-might not be avaliable yet as a conda package in any channel,
+might not be available yet as a conda package in any channel,
 or you might want to avoid precompiled binaries entirely.
 In either case, it is possible to specify the subset of packages
 that will be installed with pip in the ``environment.yml`` file. For example:

@@ -105,8 +105,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.shell = shell
         self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
         self.user = user or settings.RTD_DOCKER_USER
-        self.environment = environment.copy() if environment else {}
-        if 'PATH' in self.environment:
+        self._environment = environment.copy() if environment else {}
+        if 'PATH' in self._environment:
             raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
         self.build_env = build_env
@@ -132,7 +132,7 @@ class BuildCommand(BuildCommandResultMixin):
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
         self.start_time = datetime.utcnow()
-        environment = self.environment.copy()
+        environment = self._environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
@@ -302,7 +302,7 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
-                environment=self.environment,
+                environment=self._environment,
                 user=self.user,
                 workdir=self.cwd,
                 stdout=True,
@@ -384,7 +384,7 @@ class BaseEnvironment:
     def __init__(self, project, environment=None):
         # TODO: maybe we can remove this Project dependency also
         self.project = project
-        self.environment = environment or {}
+        self._environment = environment or {}
         self.commands = []
 
     def record_command(self, command):
@@ -423,7 +423,7 @@ class BaseEnvironment:
             kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
-        environment = self.environment.copy()
+        environment = self._environment.copy()
         env_path = environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path

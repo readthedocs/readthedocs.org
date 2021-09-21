@@ -1,4 +1,4 @@
-"""Common utilty functions."""
+"""Common utility functions."""
 
 import datetime
 import errno

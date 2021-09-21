@@ -77,7 +77,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         filters = filters or {}
 
-        # We may recieve invalid filters
+        # We may receive invalid filters
         valid_filters = {
             k: v
             for k, v in filters.items()
@@ -218,7 +218,7 @@ class RTDFacetedSearch(FacetedSearch):
         return not tokens.isdisjoint(query_tokens)
 
     def aggregate(self, search):
-        """Overriden to decide if we should aggregate or not."""
+        """Overridden to decide if we should aggregate or not."""
         if self.aggregate_results:
             super().aggregate(search)
 
@@ -357,12 +357,25 @@ class PageSearch(RTDFacetedSearch):
             query=query,
             fields=fields,
         )
+        bool_query = Bool(should=queries)
 
         raw_fields = [
             # Remove boosting from the field
             re.sub(r'\^.*$', '', field)
             for field in fields
         ]
+
+        # The ``post_filter`` filter will only filter documents
+        # at the parent level (domains is a nested document),
+        # resulting in results with domains that don't match the current
+        # role_name being filtered, so we need to force filtering by role_name
+        # on the ``domains`` document here. See #8268.
+        # TODO: We should use a flattened document instead
+        # to avoid this kind of problems and have faster queries.
+        role_name = self.filter_values.get('role_name')
+        if path == 'domains' and role_name:
+            role_name_query = Bool(must=Terms(**{'domains.role_name': role_name}))
+            bool_query = Bool(must=[role_name_query, bool_query])
 
         highlight = dict(
             self._highlight_options,
@@ -375,7 +388,7 @@ class PageSearch(RTDFacetedSearch):
         return Nested(
             path=path,
             inner_hits={'highlight': highlight},
-            query=Bool(should=queries),
+            query=bool_query,
         )
 
     def _get_script_score(self):

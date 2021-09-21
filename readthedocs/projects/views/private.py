@@ -10,12 +10,11 @@ from django.db.models import Count
 from django.http import (
     Http404,
     HttpResponseBadRequest,
-    HttpResponseNotAllowed,
     HttpResponseRedirect,
     StreamingHttpResponse,
 )
 from django.middleware.csrf import get_token
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -40,10 +39,8 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import (
-    ListViewWithForm,
-    PrivateViewMixin,
-)
+from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -72,7 +69,6 @@ from readthedocs.projects.models import (
     Domain,
     EmailHook,
     EnvironmentVariable,
-    Feature,
     Project,
     ProjectRelationship,
     WebHook,
@@ -169,7 +165,7 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectDelete(ProjectMixin, DeleteView):
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     success_message = _('Project deleted')
     template_name = 'projects/project_delete.html'
@@ -347,72 +343,6 @@ class ImportWizardView(
         return data.get('advanced', True)
 
 
-class ImportDemoView(PrivateViewMixin, ProjectImportMixin, View):
-
-    """View to pass request on to import form to import demo project."""
-
-    form_class = ProjectBasicsForm
-    request = None
-    args = None
-    kwargs = None
-
-    def get(self, request, *args, **kwargs):
-        """Process link request as a form post to the project import form."""
-        self.request = request
-        self.args = args
-        self.kwargs = kwargs
-
-        data = self.get_form_data()
-        project = Project.objects.for_admin_user(
-            request.user,
-        ).filter(repo=data['repo']).first()
-        if project is not None:
-            messages.success(
-                request,
-                _('The demo project is already imported!'),
-            )
-        else:
-            kwargs = self.get_form_kwargs()
-            form = self.form_class(data=data, **kwargs)
-            if form.is_valid():
-                project = form.save()
-                project.save()
-                self.trigger_initial_build(project, request.user)
-                messages.success(
-                    request,
-                    _('Your demo project is currently being imported'),
-                )
-            else:
-                messages.error(
-                    request,
-                    _('There was a problem adding the demo project'),
-                )
-                return HttpResponseRedirect(reverse('projects_dashboard'))
-        return HttpResponseRedirect(
-            reverse('projects_detail', args=[project.slug]),
-        )
-
-    def get_form_data(self):
-        """Get form data to post to import form."""
-        return {
-            'name': '{}-demo'.format(self.request.user.username),
-            'repo_type': 'git',
-            'repo': 'https://github.com/readthedocs/template.git',
-        }
-
-    def get_form_kwargs(self):
-        """Form kwargs passed in during instantiation."""
-        return {'user': self.request.user}
-
-    def trigger_initial_build(self, project, user):
-        """
-        Trigger initial build.
-
-        Allow to override the behavior from outside.
-        """
-        return trigger_build(project)
-
-
 class ImportView(PrivateViewMixin, TemplateView):
 
     """
@@ -532,6 +462,9 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_success_url(self):
         return reverse('projects_users', args=[self.get_project().slug])
 
+    def _is_last_user(self):
+        return self.get_queryset().count() <= 1
+
 
 class ProjectUsersCreateList(ProjectUsersMixin, FormView):
 
@@ -544,6 +477,7 @@ class ProjectUsersCreateList(ProjectUsersMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['users'] = self.get_queryset()
+        context['is_last_user'] = self._is_last_user()
         return context
 
 
@@ -557,11 +491,14 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             self.get_queryset(),
             username=username,
         )
-        if user == request.user:
-            raise Http404
+        if self._is_last_user():
+            return HttpResponseBadRequest(_(f'{username} is the last owner, can\'t be removed'))
 
         project = self.get_project()
         project.users.remove(user)
+
+        if user == request.user:
+            return HttpResponseRedirect(reverse('projects_dashboard'))
 
         return HttpResponseRedirect(self.get_success_url())
 

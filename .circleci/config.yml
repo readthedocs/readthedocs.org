@@ -6,7 +6,7 @@ jobs:
       - image: 'cimg/python:3.6'
         environment:
           TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
         name: search
         environment:
           discovery.type: single-node

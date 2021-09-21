@@ -1443,7 +1443,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_github_sync_on_push_event(self, trigger_build):
-        """Sync if the webhook doesn't have the create/delete events, but we recieve a push event with created/deleted."""
+        """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,

@@ -117,7 +117,7 @@ mkdocs:
   # Default: rtd will try to find it
   configuration: path(required=False)
 
-  # Add the --strict optio to mkdocs build
+  # Add the --strict option to mkdocs build
   # Default: false
   fail_on_warning: bool(required=False)
 
