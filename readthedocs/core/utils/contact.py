@@ -93,13 +93,13 @@ def contact_users(
                     ))
             except Exception:
                 log.exception('Notification failed to send')
-                failed_notifications.add(user.pk)
+                failed_notifications.add(user.username)
             else:
                 log.info(
                     'Successfully set notification (%s/%s). user=%s',
                     count, total, user,
                 )
-                sent_notifications.add(user.pk)
+                sent_notifications.add(user.username)
 
         if email_subject:
             emails = list(
