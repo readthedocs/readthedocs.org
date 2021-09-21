@@ -1253,7 +1253,7 @@ class BuildConfigV2(BuildConfigBase):
     @property
     @lru_cache(maxsize=1)
     def build(self):
-        build =  self._config['build']
+        build = self._config['build']
         if 'os' in build:
             tools = {
                 tool: BuildTool(
