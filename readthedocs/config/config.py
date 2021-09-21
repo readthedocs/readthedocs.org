@@ -15,6 +15,7 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from .find import find_one
 from .models import (
     Build,
+    BuildTool,
     BuildWithTools,
     Conda,
     Mkdocs,
@@ -1252,10 +1253,21 @@ class BuildConfigV2(BuildConfigBase):
     @property
     @lru_cache(maxsize=1)
     def build(self):
-        klass = Build
-        if 'os' in self._config['build']:
-            klass = BuildWithTools
-        return klass(**self._config['build'])
+        build =  self._config['build']
+        if 'os' in build:
+            tools = {
+                tool: BuildTool(
+                    version=version,
+                    full_version=self.settings['tools'][tool][version],
+                )
+                for tool, version in build['tools'].items()
+            }
+            return BuildWithTools(
+                os=build['os'],
+                tools=tools,
+                apt_packages=build['apt_packages'],
+            )
+        return Build(**build)
 
     @property
     def python(self):

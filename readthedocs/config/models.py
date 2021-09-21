@@ -44,6 +44,11 @@ class BuildWithTools(Base):
         super().__init__(**kwargs)
 
 
+class BuildTool(Base):
+
+    __slots__ = ('version', 'full_version')
+
+
 class Python(Base):
 
     __slots__ = ('version', 'install', 'use_system_site_packages')

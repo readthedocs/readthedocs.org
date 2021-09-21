@@ -978,7 +978,8 @@ class TestBuildConfigV2:
         assert build.using_build_tools
         assert isinstance(build.build, BuildWithTools)
         assert build.build.os == 'ubuntu-20.04'
-        assert build.build.tools == {'python': '3.9'}
+        assert build.build.tools['python'].version == '3.9'
+        assert build.build.tools['python'].full_version == '3.9.7'
 
     def test_new_build_config_conflict_with_build_image(self):
         build = self.get_build_config(
@@ -2286,8 +2287,8 @@ class TestBuildConfigV2:
             'build': {
                 'os': 'ubuntu-20.04',
                 'tools': {
-                    'python': '3.9',
-                    'nodejs': '16',
+                    'python': {'version': '3.9', 'full_version': '3.9.7'},
+                    'nodejs': {'version': '16', 'full_version': '16.9.1'},
                 },
                 'apt_packages': [],
             },
