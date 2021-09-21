@@ -2,7 +2,6 @@
 
 from django.conf.urls import url
 
-from readthedocs.core.forms import UserProfileForm
 from readthedocs.profiles import views
 
 # Split URLs into different lists to be able to selectively import them from a
@@ -30,6 +29,11 @@ account_urls = [
         r'^delete/',
         views.AccountDelete.as_view(),
         name='delete_account',
+    ),
+    url(
+        r'security-log/',
+        views.UserSecurityLogView.as_view(),
+        name='profiles_security_log',
     ),
     url(
         r'^advertising/$',
