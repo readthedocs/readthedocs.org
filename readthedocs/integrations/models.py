@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration models for external services."""
 
 import json
@@ -93,6 +91,25 @@ class HttpExchangeManager(models.Manager):
         }
         fields['related_object'] = related_object
         obj = self.create(**fields)
+        self.delete_limit(related_object)
+        return obj
+
+    def from_requests_exchange(self, response, related_object):
+        """
+        Create an exchange object from a requests' response.
+
+        :param response: The result from calling request.post() or similar.
+        :param related_object: Object to use for generic relationship.
+        """
+        request = response.request
+        obj = self.create(
+            related_object=related_object,
+            request_headers=request.headers or {},
+            request_body=request.body or '',
+            status_code=response.status_code,
+            response_headers=response.headers,
+            response_body=response.text,
+        )
         self.delete_limit(related_object)
         return obj
 

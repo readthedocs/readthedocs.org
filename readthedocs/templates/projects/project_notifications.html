@@ -2,19 +2,29 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "Edit Notifications" %}{% endblock %}
+{% block title %}{% trans "Email Notifications" %}{% endblock %}
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
 {% block project-notifications-active %}active{% endblock %}
-{% block project_edit_content_header %}{% trans "Notifications" %}{% endblock %}
+{% block project_edit_content_header %}{% trans "Email Notifications" %}{% endblock %}
 
 {% block project_edit_content %}
   <p class="help_text">
-    {% trans "Configure Notifications to be sent on build failures." %}
+    {% trans "Configure email notifications to be sent on build failures." %}
   </p>
+
+  {% if has_old_webhooks %}
+  <p class="help_text">
+    {% url 'projects_webhooks' project.slug as webhooks_url %}
+    {% blocktrans trimmed with webhooks_url=webhooks_url %}
+    Webhooks have been moved to its own page.
+    Go to the <a href="{{ webhooks_url }}">Webhooks tab</a> if you are looking for your webhooks.
+    {% endblocktrans %}
+  </p>
+  {% endif %}
 
   {% if emails or urls %}
     <h3>{% trans "Existing Notifications" %}</h3>
@@ -65,17 +75,6 @@
   </p>
   <form method="post" action=".">{% csrf_token %}
     {{ email_form }}
-    <p>
-      <input style="display: inline;" type="submit" value="{% trans "Add" %}">
-    </p>
-  </form>
-
-  <h3>{% trans "New Webhook Notifications" %}</h3>
-  <p>
-    {% trans "Add a URL to notify" %}
-  </p>
-  <form method="post" action=".">{% csrf_token %}
-    {{ webhook_form }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Add" %}">
     </p>

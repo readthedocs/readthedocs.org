@@ -1,10 +1,8 @@
 from datetime import timedelta
 from unittest import mock
 
-from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase
 from django.urls import reverse
