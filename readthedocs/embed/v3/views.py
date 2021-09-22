@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 import requests
 
 from selectolax.parser import HTMLParser
-from pyquery import PyQuery as PQ  # noqa
 
 from django.conf import settings
 from django.core.cache import cache
@@ -71,12 +70,15 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         if response.ok:
+            # NOTE: we use ``response.content`` to get its binary
+            # representation. Then ``selectolax`` is in charge to auto-detect
+            # it. We trust more in selectolax for this than in requests.
             cache.set(
                 cache_key,
-                response.text,
+                response.content,
                 timeout=settings.RTD_EMBED_API_PAGE_CACHE_TIMEOUT,
             )
-            return response.text
+            return response.content
 
     def _get_page_content_from_storage(self, project, version_slug, filename):
         version = get_object_or_404(
@@ -205,6 +207,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # </dl>
                     node = node.parent
 
+        # FIXME: this is returning '\uf0c1' when it should be '' in the HTML itself
         return node.html
 
     def get(self, request):  # noqa
