@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
       django-admin contact_owners --email email.md
 
-    Email and send a ephemeral notification to all owners of the "readthedocs" organization::
+    Email and send an ephemeral (disappears after shown once) notification to all owners of the "readthedocs" organization::
 
       django-admin contact_owners --email email.md --notification notification.md --organization readthedocs  # noqa
 
@@ -80,8 +80,8 @@ class Command(BaseCommand):
             dest='sticky',
             default=False,
             help=(
-                'If the notification should be sticky '
-                '(the notification disappears after the first view by default).'
+                'Make the notification sticky '
+                '(the notification stays until the user closes it)'
             )
         )
         parser.add_argument(
