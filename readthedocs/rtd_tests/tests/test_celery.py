@@ -658,32 +658,36 @@ class TestCeleryBuilding(TestCase):
         rust_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['rust']['1.55']
         golang_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['golang']['1.17']
         self.assertEqual(
-            build_run.call_args_list,
+            # NOTE: casting the first argument as `list()` shows a better diff
+            # explaining where the problem is
+            list(build_run.call_args_list),
             [
                 mock.call(
                     'mv',
-                    f'/usr/src/app/checkouts/readthedocs.org/user_builds/docs/tools/{python_version}',
+                    # Use mock.ANY here because path differs when ran locally
+                    # and on CircleCI
+                    mock.ANY,
                     f'/home/docs/.asdf/installs/python/{python_version}',
                 ),
                 mock.call('asdf', 'global', 'python', python_version),
                 mock.call('asdf', 'reshim', 'python'),
                 mock.call(
                     'mv',
-                    f'/usr/src/app/checkouts/readthedocs.org/user_builds/docs/tools/{nodejs_version}',
+                    mock.ANY,
                     f'/home/docs/.asdf/installs/nodejs/{nodejs_version}',
                 ),
                 mock.call('asdf', 'global', 'nodejs', nodejs_version),
                 mock.call('asdf', 'reshim', 'nodejs'),
                 mock.call(
                     'mv',
-                    f'/usr/src/app/checkouts/readthedocs.org/user_builds/docs/tools/{rust_version}',
+                    mock.ANY,
                     f'/home/docs/.asdf/installs/rust/{rust_version}',
                 ),
                 mock.call('asdf', 'global', 'rust', rust_version),
                 mock.call('asdf', 'reshim', 'rust'),
                 mock.call(
                     'mv',
-                    f'/usr/src/app/checkouts/readthedocs.org/user_builds/docs/tools/{golang_version}',
+                    mock.ANY,
                     f'/home/docs/.asdf/installs/golang/{golang_version}',
                 ),
                 mock.call('asdf', 'global', 'golang', golang_version),
