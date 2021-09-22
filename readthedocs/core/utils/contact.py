@@ -5,6 +5,7 @@ import markdown
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
+from messages_extends import constants as message_constants
 
 from readthedocs.notifications import SiteNotification
 from readthedocs.notifications.backends import SiteBackend
@@ -18,6 +19,7 @@ def contact_users(
     email_content=None,
     from_email=None,
     notification_content=None,
+    sticky_notification=False,
     context_function=None,
     dryrun=True,
 ):
@@ -60,6 +62,9 @@ def contact_users(
     email_html_template = engine.get_template('core/email/common.html')
 
     class TempNotification(SiteNotification):
+
+        if sticky_notification:
+            success_level = message_constants.SUCCESS_PERSISTENT
 
         def render(self, *args, **kwargs):
             context = {
