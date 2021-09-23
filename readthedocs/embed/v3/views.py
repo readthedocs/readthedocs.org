@@ -72,7 +72,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         if response.ok:
             # NOTE: we use ``response.content`` to get its binary
             # representation. Then ``selectolax`` is in charge to auto-detect
-            # it. We trust more in selectolax for this than in requests.
+            # its encoding. We trust more in selectolax for this than in requests.
             cache.set(
                 cache_key,
                 response.content,
