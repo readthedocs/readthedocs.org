@@ -211,7 +211,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # </dl>
                     node = node.parent
 
-        # FIXME: this is returning '\uf0c1' when it should be '' in the HTML itself
         return node.html
 
     def get(self, request):  # noqa
