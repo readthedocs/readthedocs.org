@@ -44,13 +44,24 @@ OS="ubuntu-20.04"
 TOOL=$1
 VERSION=$2
 
+# https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # Spin up a container with the Ubuntu 20.04 LTS image
-CONTAINER_ID=$(docker run --user docs --rm --detach readthedocs/build:$OS sleep $SLEEP)
+CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
 # Install the tool version requested
 if [[ $TOOL == "python" ]]
 then
+    # Download list for all Python to force pyenv to be installed
+    docker exec $CONTAINER_ID asdf list all python &> /dev/null
+    # Patch pyenv to not update conda when installing pip
+    # https://github.com/pyenv/pyenv/issues/2070
+    docker exec $CONTAINER_ID patch -p0 /home/docs/.asdf/plugins/python/pyenv/plugins/python-build/bin/python-build /tmp/python-build.diff
+    # Remove .git because otherwise the patch is reset
+    docker exec $CONTAINER_ID rm -rf /home/docs/.asdf/plugins/python/pyenv/.git
+
     docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
 else
     docker exec $CONTAINER_ID asdf install $TOOL $VERSION
