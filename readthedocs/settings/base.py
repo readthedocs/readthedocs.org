@@ -821,6 +821,7 @@ class CommunityBaseSettings(Settings):
         r'.*\.org\.readthedocs\.build',
         r'.*\.com\.readthedocs\.build',
         r'www.sphinx-doc.org',
+        r'numpy\.org',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10
     RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT = 1
