@@ -66,7 +66,11 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
-        domains.append(r'.*\.readthedocs\.io')
+        domains.extend([
+            r'.*\.readthedocs\.io',
+            r'.*\.org\.readthedocs\.build',
+            r'.*\.com\.readthedocs\.build',
+        ])
         return domains
 
     @property

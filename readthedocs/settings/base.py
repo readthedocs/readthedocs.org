@@ -818,8 +818,6 @@ class CommunityBaseSettings(Settings):
         r'docs\.python\.org',
         r'docs\.scipy\.org',
         r'docs\.sympy\.org',
-        r'.*\.org\.readthedocs\.build',
-        r'.*\.com\.readthedocs\.build',
         r'www.sphinx-doc.org',
         r'numpy\.org',
     ]
