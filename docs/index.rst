@@ -41,31 +41,33 @@ or are you looking to use your existing docs with Read the Docs?
 Learn about documentation authoring tools such as Sphinx and MkDocs
 to help you create fantastic documentation for your project.
 
-* **Tutorial**: :doc:`/tutorial/index`
-
-* **Getting started**:
-  :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
-  :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
-  :doc:`Feature Overview </features>` |
-  :doc:`/choosing-a-site` | :doc:`/glossary`
-
-* **Importing your existing documentation**:
-  :doc:`Import guide </intro/import-guide>`
-
+.. rst-class:: index-toc
 
 .. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: First steps
+   :maxdepth: 1
+   :caption: Tutorial
 
    /tutorial/index
-   /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
 
-   /intro/import-guide
-   /features
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Getting started
+
+   With Sphinx </intro/getting-started-with-sphinx>
+   With MkDocs </intro/getting-started-with-mkdocs>
+   Feature Overview </features>
    /choosing-a-site
    /glossary
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Importing your existing documentation
+
+   /intro/import-guide
 
 
 Getting started with Read the Docs
@@ -74,37 +76,13 @@ Getting started with Read the Docs
 Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
-* **Overview of core features**:
-  :doc:`Incoming webhooks </webhooks>` |
-  :doc:`/custom_domains` |
-  :doc:`/versions` |
-  :doc:`/downloadable-documentation` |
-  :doc:`/hosting` |
-  :doc:`/server-side-search` |
-  :doc:`/analytics`
-  :doc:`/pull-requests`
-
-* **Connecting with GitHub, BitBucket, or GitLab**:
-  :doc:`Connecting your VCS account </connected-accounts>` |
-  :doc:`VCS webhooks </webhooks>`
-
-* **Read the Docs build process**:
-  :doc:`Configuration reference </config-file/index>` |
-  :doc:`Build process </builds>` |
-  :doc:`/environment-variables` |
-  :doc:`/badges`
-
-* **Troubleshooting**:
-  :doc:`/support` |
-  :doc:`Frequently asked questions </faq>`
+.. rst-class:: index-toc
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
-   :caption: Getting started
+   :caption: Overview of core features
 
-   /config-file/index
-   /webhooks
+   Incoming webhooks </webhooks>
    /custom_domains
    /versions
    /downloadable-documentation
@@ -112,15 +90,36 @@ and some of the core features of Read the Docs.
    /server-side-search
    /analytics
    /pull-requests
+   User defined redirects <user-defined-redirects>
 
-   /connected-accounts
+.. rst-class:: index-toc
 
-   /builds
+.. toctree::
+   :maxdepth: 1
+   :caption: Connecting with GitHub, BitBucket, or GitLab
+
+   Connecting your VCS account </connected-accounts>
+   VCS webhooks </webhooks>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Read the Docs build process
+
+   Configuration reference </config-file/index>
+   Build process </builds>
    /environment-variables
    /badges
 
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Troubleshooting
+
    /support
-   /faq
+   Frequently asked questions </faq>
 
 
 Step-by-step Guides
@@ -130,18 +129,10 @@ These guides will help walk you through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
-* :doc:`/guides/tools`
-* :doc:`/guides/platform`
-* :doc:`/guides/commercial`
-
 .. toctree::
- :maxdepth: 2
- :hidden:
- :caption: Step-by-step Guides
+   :maxdepth: 2
 
- /guides/tools
- /guides/platform
- /guides/commercial
+   /guides/index
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -150,46 +141,46 @@ Read the Docs offers many advanced features and options.
 Learn more about these integrations and how you can get the most
 out of your documentation and Read the Docs.
 
-* **Advanced project configuration**:
-  :doc:`subprojects` |
-  :doc:`Single version docs <single_version>`
-
-* **Multi-language documentation**:
-  :doc:`Translations and localization <localization>`
-
-.. TODO: Move user-defined to Getting started, they are core functionality
-
-* **Redirects**:
-  :doc:`User defined redirects <user-defined-redirects>` |
-  :doc:`Automatic redirects <automatic-redirects>`
-
-* **Versions**
-  :doc:`Automation rules <automation-rules>`
-
-* **Topic specific guides**:
-  :doc:`How-to guides <guides/index>`
-
-* **Extending Read the Docs**:
-  :doc:`REST API <api/index>`
+.. rst-class:: index-toc
 
 .. toctree::
-   :maxdepth: 2
-   :hidden:
-   :glob:
-   :caption: Advanced features
+   :maxdepth: 1
+   :caption: Advanced project configuration
 
-   subprojects
-   single_version
+   /subprojects
+   Single version docs <single_version>
 
-   localization
+.. rst-class:: index-toc
 
-   user-defined-redirects
-   automatic-redirects
+.. toctree::
+   :maxdepth: 1
+   :caption: Multi-language Documentation
 
-   automation-rules
+   Translations and localization <localization>
 
+.. rst-class:: index-toc
 
-   api/index
+.. toctree::
+   :maxdepth: 1
+   :caption: Redirects
+
+   Automatic redirects <automatic-redirects>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Versions
+
+   Automation rules <automation-rules>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Extending Read the docs
+
+   REST API <api/index>
 
 
 The Read the Docs project and organization
@@ -199,61 +190,62 @@ Learn about Read the Docs, the project and the company,
 and find out how you can get involved and contribute to the development and success
 of Read the Docs and the larger software documentation ecosystem.
 
-* **Getting involved with Read the Docs**:
-  :doc:`Contributing <contribute>` |
-  :doc:`Development installation </development/install>` |
-  :doc:`roadmap` |
-  :doc:`Code of conduct <code-of-conduct>`
-
-* **Policies & Process**:
-  :doc:`security` |
-  :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
-  :doc:`Release notes & changelog <changelog>`
-
-* **The people and philosophy behind Read the Docs**:
-  :doc:`About Us </about>` |
-  :doc:`Team <team>` |
-  :doc:`Open source philosophy <open-source-philosophy>` |
-  :doc:`Our story <story>`
-
-* **Financial and material support**:
-  :doc:`advertising/index` |
-  :doc:`Sponsors <sponsors>`
-
-* **Read the Docs for Business**:
-  :doc:`Support and additional features <commercial/index>`
-
-* **Legal documents**:
-  :doc:`Terms of service <terms-of-service>` |
-  :doc:`Privacy policy <privacy-policy>` |
-  :doc:`Data processing agreement <legal/dpa/index>`
-
+.. rst-class:: index-toc
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
-   :caption: About Read the Docs
+   :caption: Getting involved with Read the docs
 
-   contribute
-   development/index
+   Contributing <contribute>
+   Development installation </development/install>
    roadmap
-   gsoc
-   code-of-conduct
+   Code of conduct <code-of-conduct>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Policies & Process
 
    security
-   dmca/index
-   abandoned-projects
-   changelog
+   DMCA takedown policy <dmca/index>
+   Policy for abandoned projects <abandoned-projects>
+   Release notes & changelog <changelog>
 
-   about
-   team
-   open-source-philosophy
-   story
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: The people and philosophy behind Read the Docs
+
+   About Us </about>
+   Team <team>
+   Open source philosophy <open-source-philosophy>
+   Our story <story>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Financial and material support
 
    advertising/index
-   sponsors
+   Sponsors <sponsors>
 
-   commercial/index
+.. rst-class:: index-toc
 
-   legal/index
+.. toctree::
+   :maxdepth: 1
+   :caption: Read the Docs for Business
+
+   Support and additional features <commercial/index>
+
+.. rst-class:: index-toc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Legal documents
+
+   Terms of service <terms-of-service>
+   Privacy policy <privacy-policy>
+   Data processing agreement <legal/dpa/index>
