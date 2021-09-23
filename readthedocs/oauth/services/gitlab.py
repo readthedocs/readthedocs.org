@@ -3,7 +3,7 @@
 import json
 import logging
 import re
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
@@ -16,13 +16,9 @@ from readthedocs.builds.constants import (
     SELECT_BUILD_STATUS,
 )
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import Project
 
 from ..constants import GITLAB
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -52,8 +48,11 @@ class GitLabService(Service):
     vcs_provider_slug = GITLAB
 
     def _get_repo_id(self, project):
-        # The ID or URL-encoded path of the project
-        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
+        """
+        Get the ID or URL-encoded path of the project.
+
+        See https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding.
+        """
         if project.remote_repository:
             repo_id = project.remote_repository.remote_id
         else:
@@ -64,10 +63,7 @@ class GitLabService(Service):
             if (username, repo) == (None, None):
                 return None
 
-            repo_id = '{username}%2F{repo}'.format(
-                username=username,
-                repo=repo,
-            )
+            repo_id = quote_plus(f'{username}/{repo}')
         return repo_id
 
     def get_next_url_to_paginate(self, response):
