@@ -140,7 +140,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         node = None
         if fragment:
-            selector = f'#{fragment}'
+            # NOTE: we use the `[id=]` selector because using `#{id}` requires
+            # scaping the selector since CSS does not support the same
+            # characters than the `id=` HTML attribute
+            # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
+            selector = f'[id="{fragment}"]'
             node = HTMLParser(page_content).css_first(selector)
         else:
             html = HTMLParser(page_content)
