@@ -34,7 +34,10 @@
 #
 #  ./scripts/compile_version_upload.sh python 3.9.6
 #
+# ARGUMENTS
 #
+#  $1 is the name of the tool (found by `asdf plugin list all`)
+#  $2 is the version of the tool (found by `asdf list all <tool>`)
 
 set -e
 
