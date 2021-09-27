@@ -54,14 +54,6 @@ echo "Running all the commands in Docker container: $CONTAINER_ID"
 # Install the tool version requested
 if [[ $TOOL == "python" ]]
 then
-    # Download list for all Python to force pyenv to be installed
-    docker exec $CONTAINER_ID asdf list all python &> /dev/null
-    # Patch pyenv to not update conda when installing pip
-    # https://github.com/pyenv/pyenv/issues/2070
-    docker exec $CONTAINER_ID patch -p0 /home/docs/.asdf/plugins/python/pyenv/plugins/python-build/bin/python-build /tmp/python-build.diff
-    # Remove .git because otherwise the patch is reset
-    docker exec $CONTAINER_ID rm -rf /home/docs/.asdf/plugins/python/pyenv/.git
-
     docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
 else
     docker exec $CONTAINER_ID asdf install $TOOL $VERSION
