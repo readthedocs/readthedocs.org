@@ -141,8 +141,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         node = None
         if fragment:
             # NOTE: we use the `[id=]` selector because using `#{id}` requires
-            # scaping the selector since CSS does not support the same
-            # characters than the `id=` HTML attribute
+            # escaping the selector since CSS does not support the same
+            # characters as the `id=` HTML attribute
             # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
             selector = f'[id="{fragment}"]'
             node = HTMLParser(page_content).css_first(selector)
@@ -187,7 +187,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # Note that ``.iter()`` returns a generator and we modify
                     # the HTML in-place, so we have to convert it to a list
                     # before removing elements. Otherwise we break the
-                    # iteration before compliting it
+                    # iteration before completing it
                     for n in list(parent_node.iter()):  # pylint: disable=invalid-name
                         if n not in (node, next_node):
                             n.remove()
