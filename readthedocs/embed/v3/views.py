@@ -156,7 +156,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         if doctool == 'sphinx':
             # Handle ``dt`` special cases
             if node.tag == 'dt':
-                if 'glossary' in node.parent.attributes.get('class'):
+                if any([
+                        'glossary' in node.parent.attributes.get('class'),
+                        'citation' in node.parent.attributes.get('class'),
+                ]):
                     # Sphinx HTML structure for term glossary puts the ``id`` in the
                     # ``dt`` element with the title of the term. In this case, we
                     # return the parent node which contains the definition list
@@ -169,32 +172,26 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # ...
                     # </dl>
 
-                    # TODO: figure it out if it's needed to remove the siblings here
-                    # parent = node.parent
-                    # for n in parent.traverse():
-                    #     if n not in (node, node.next):
-                    #         n.remove()
-                    node = node.parent
+                    parent_node = node.parent
+                    if 'glossary' in node.parent.attributes.get('class'):
+                        next_node = node.next
 
-                elif 'citation' in node.parent.attributes.get('class'):
-                    # Sphinx HTML structure for sphinxcontrib-bibtex puts the ``id`` in the
-                    # ``dt`` element with the title of the cite. In this case, we
-                    # return the parent node which contains the definition list
-                    # and remove all ``dt/dd`` that are not the requested one
+                    elif 'citation' in node.parent.attributes.get('class'):
+                        next_node = node.next.next
 
-                    # Structure:
-                    # <dl class="citation">
-                    # <dt id="cite-id"><span><a>Title of the cite</a></span></dt>
-                    # <dd>Content of the cite</dd>
-                    # ...
-                    # </dl>
-
-                    # TODO: figure it out if it's needed to remove the siblings here
-                    # parent = node.parent
-                    # for n in parent.traverse():
-                    #     if n not in (node, node.next):
-                    #         n.remove()
-                    node = node.parent
+                    # Iterate over all the siblings (``.iter()``) of the parent
+                    # node and remove ``dt`` and ``dd`` that are not the ones
+                    # we are looking for. Then return the parent node as
+                    # result.
+                    #
+                    # Note that ``.iter()`` returns a generator and we modify
+                    # the HTML in-place, so we have to convert it to a list
+                    # before removing elements. Otherwise we break the
+                    # iteration before compliting it
+                    for n in list(parent_node.iter()):
+                        if n not in (node, next_node):
+                            n.remove()
+                    node = parent_node
 
                 else:
                     # Sphinx HTML structure for definition list puts the ``id``
