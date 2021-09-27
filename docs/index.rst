@@ -129,25 +129,42 @@ and some of the core features of Read the Docs.
    /faq
 
 
-Step-by-step Guides
--------------------
+How-to Guides
+-------------
 
 These guides will help walk you through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
-* :doc:`/guides/tools`
-* :doc:`/guides/platform`
-* :doc:`/guides/commercial`
+* **For documentation authors**:
+  :doc:`/guides/cross-referencing-with-sphinx` |
+  :doc:`/guides/intersphinx` |
+  :doc:`/guides/jupyter` |
+  :doc:`Other guides for authors </guides/authors>`
+
+* **For project administrators**:
+  :doc:`/guides/technical-docs-seo-guide` |
+  :doc:`/guides/manage-translations` |
+  :doc:`/guides/searching-with-readthedocs` |
+  :doc:`/guides/private-submodules` |
+  :doc:`Other guides for administrators </guides/administrators>`
+
+* **For developers and designers**:
+  :doc:`/guides/private-python-packages` |
+  :doc:`/guides/adding-custom-css` |
+  :doc:`/guides/reproducible-builds` |
+  :doc:`/guides/embedding-content` |
+  :doc:`/guides/conda` |
+  :doc:`Other guides for developers and designers </guides/developers>`
 
 .. toctree::
  :maxdepth: 2
  :hidden:
- :caption: Step-by-step Guides
+ :caption: How-to Guides
 
- /guides/tools
- /guides/platform
- /guides/commercial
+ /guides/authors
+ /guides/administrators
+ /guides/developers
 
 Advanced features of Read the Docs
 ----------------------------------

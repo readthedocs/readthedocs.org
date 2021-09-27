@@ -21,4 +21,4 @@ You can also access to analytics data from :ref:`search results <server-side-sea
 .. note::
 
    If you require more information about page views,
-   you can use a solution like :doc:`Google Analytics </guides/google-analytics>`.
+   you can use a solution like :doc:`Google Analytics </google-analytics>`.
