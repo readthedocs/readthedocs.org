@@ -69,6 +69,7 @@ class DockerBaseSettings(CommunityDevSettings):
         domains.extend([
             r'.*\.readthedocs\.io',
             r'.*\.org\.readthedocs\.build',
+            r'.*\.readthedocs-hosted\.com',
             r'.*\.com\.readthedocs\.build',
         ])
         return domains
