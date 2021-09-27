@@ -188,7 +188,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # the HTML in-place, so we have to convert it to a list
                     # before removing elements. Otherwise we break the
                     # iteration before compliting it
-                    for n in list(parent_node.iter()):
+                    for n in list(parent_node.iter()):  # pylint: disable=invalid-name
                         if n not in (node, next_node):
                             n.remove()
                     node = parent_node
