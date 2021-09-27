@@ -77,12 +77,15 @@ and some of the core features of Read the Docs.
 * **Overview of core features**:
   :doc:`Incoming webhooks </webhooks>` |
   :doc:`/custom_domains` |
+  :doc:`/canonical` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
   :doc:`/server-side-search` |
-  :doc:`/analytics`
-  :doc:`/pull-requests`
+  :doc:`/analytics` |
+  :doc:`/google-analytics` |
+  :doc:`/pull-requests` |
+  :doc:`/build-notifications`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>` |
@@ -106,12 +109,15 @@ and some of the core features of Read the Docs.
    /config-file/index
    /webhooks
    /custom_domains
+   /canonical
    /versions
    /downloadable-documentation
    /hosting
    /server-side-search
    /analytics
+   /google-analytics
    /pull-requests
+   /build-notifications
 
    /connected-accounts
 
@@ -152,7 +158,8 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>`
+  :doc:`Single version docs <single_version>` |
+  :doc:`feature-flags`
 
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
@@ -180,6 +187,7 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
+   feature-flags
 
    localization
 
