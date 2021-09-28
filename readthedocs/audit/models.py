@@ -149,10 +149,11 @@ class AuditLog(TimeStampedModel):
         blank=True,
         null=True,
     )
-    ip = models.GenericIPAddressField(
+    ip = models.CharField(
         _('IP address'),
         blank=True,
         null=True,
+        max_length=250,
     )
     browser = models.CharField(
         _('Browser user-agent'),
@@ -170,6 +171,10 @@ class AuditLog(TimeStampedModel):
     )
 
     objects = AuditLogManager()
+
+    class Meta:
+
+        ordering = ['-created']
 
     def save(self, **kwargs):
         if self.user:

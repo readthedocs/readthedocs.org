@@ -35,6 +35,20 @@ class Build(Base):
         super().__init__(**kwargs)
 
 
+class BuildWithTools(Base):
+
+    __slots__ = ('os', 'tools', 'apt_packages')
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('apt_packages', [])
+        super().__init__(**kwargs)
+
+
+class BuildTool(Base):
+
+    __slots__ = ('version', 'full_version')
+
+
 class Python(Base):
 
     __slots__ = ('version', 'install', 'use_system_site_packages')
