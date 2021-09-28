@@ -3,7 +3,7 @@ from collections import namedtuple
 import pytest
 from pyquery import PyQuery
 
-from readthedocs.embed.views import clean_links
+from readthedocs.embed.utils import clean_links
 
 URLData = namedtuple('URLData', ['docurl', 'href', 'expected'])
 

@@ -5,6 +5,7 @@ import markdown
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
+from messages_extends import constants as message_constants
 
 from readthedocs.notifications import SiteNotification
 from readthedocs.notifications.backends import SiteBackend
@@ -18,6 +19,7 @@ def contact_users(
     email_content=None,
     from_email=None,
     notification_content=None,
+    sticky_notification=False,
     context_function=None,
     dryrun=True,
 ):
@@ -61,6 +63,9 @@ def contact_users(
 
     class TempNotification(SiteNotification):
 
+        if sticky_notification:
+            success_level = message_constants.SUCCESS_PERSISTENT
+
         def render(self, *args, **kwargs):
             context = {
                 'user': self.user,
@@ -71,7 +76,8 @@ def contact_users(
                 notification_template.render(Context(context))
             )
 
-    for user in users.iterator():
+    total = users.count()
+    for count, user in enumerate(users.iterator(), start=1):
         context = {
             'user': user,
             'domain': f'https://{settings.PRODUCTION_DOMAIN}',
@@ -92,10 +98,13 @@ def contact_users(
                     ))
             except Exception:
                 log.exception('Notification failed to send')
-                failed_notifications.add(user.pk)
+                failed_notifications.add(user.username)
             else:
-                log.info('Successfully set notification user=%s', user)
-                sent_notifications.add(user.pk)
+                log.info(
+                    'Successfully set notification (%s/%s). user=%s',
+                    count, total, user,
+                )
+                sent_notifications.add(user.username)
 
         if email_subject:
             emails = list(
@@ -133,10 +142,10 @@ def contact_users(
                 else:
                     pprint(kwargs)
             except Exception:
-                log.exception('Mail failed to send')
+                log.exception('Email failed to send')
                 failed_emails.update(emails)
             else:
-                log.info('Email sent to %s', emails)
+                log.info('Email sent (%s/%s). emails=%s', count, total, emails)
                 sent_emails.update(emails)
 
     return {
