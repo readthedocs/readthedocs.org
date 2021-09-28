@@ -82,7 +82,6 @@ and some of the core features of Read the Docs.
   :doc:`/hosting` |
   :doc:`/server-side-search` |
   :doc:`/analytics` |
-  :doc:`/google-analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
   :doc:`/user-defined-redirects`
@@ -114,7 +113,6 @@ and some of the core features of Read the Docs.
    /hosting
    /server-side-search
    /analytics
-   /google-analytics
    /pull-requests
    /build-notifications
 
