@@ -140,14 +140,14 @@ and how to write successful documentation.
   :doc:`/guides/cross-referencing-with-sphinx` |
   :doc:`/guides/intersphinx` |
   :doc:`/guides/jupyter` |
-  :doc:`Other guides for authors </guides/authors>`
+  :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations` |
   :doc:`/guides/searching-with-readthedocs` |
   :doc:`/guides/private-submodules` |
-  :doc:`Other guides for administrators </guides/administrators>`
+  :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
   :doc:`/guides/private-python-packages` |
@@ -155,7 +155,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  :doc:`Other guides for developers and designers </guides/developers>`
+  :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
  :maxdepth: 2
