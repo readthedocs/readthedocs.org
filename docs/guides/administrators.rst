@@ -3,7 +3,7 @@ Guides for project administrators
 
 These guides cover common use cases
 relevant for managing documentation projects,
-using the Read the Docs web interface
+using the Read the Docs web interface,
 and making changes to the configuration files.
 
 For an introduction to Read the Docs,
