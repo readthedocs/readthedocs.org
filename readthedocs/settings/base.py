@@ -527,7 +527,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
-            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu20',
+            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
         },
         # Mapping of build.tools options to specific versions.
         'tools': {
