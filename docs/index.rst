@@ -85,7 +85,8 @@ and some of the core features of Read the Docs.
   :doc:`/analytics` |
   :doc:`/google-analytics` |
   :doc:`/pull-requests` |
-  :doc:`/build-notifications`
+  :doc:`/build-notifications` |
+  :doc:`/user-defined-redirects`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>` |
@@ -181,10 +182,7 @@ out of your documentation and Read the Docs.
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
 
-.. TODO: Move user-defined to Getting started, they are core functionality
-
 * **Redirects**:
-  :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
 * **Versions**
