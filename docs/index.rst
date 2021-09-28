@@ -68,8 +68,8 @@ to help you create fantastic documentation for your project.
    /glossary
 
 
-Getting started with Read the Docs
------------------------------------
+Read the Docs feature overview
+------------------------------
 
 Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
@@ -103,7 +103,7 @@ and some of the core features of Read the Docs.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Getting started
+   :caption: Feature Overview
 
    /config-file/index
    /webhooks
