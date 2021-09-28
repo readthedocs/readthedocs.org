@@ -1,5 +1,5 @@
-Searching with Read the Docs
-============================
+Using advanced search features
+==============================
 
 Read the Docs uses :doc:`/server-side-search` to power our search.
 This guide explains how to add a "search as you type" feature to your documentation,
