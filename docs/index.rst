@@ -77,7 +77,6 @@ and some of the core features of Read the Docs.
 * **Overview of core features**:
   :doc:`Incoming webhooks </webhooks>` |
   :doc:`/custom_domains` |
-  :doc:`/canonical` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
@@ -110,7 +109,6 @@ and some of the core features of Read the Docs.
    /config-file/index
    /webhooks
    /custom_domains
-   /canonical
    /versions
    /downloadable-documentation
    /hosting
