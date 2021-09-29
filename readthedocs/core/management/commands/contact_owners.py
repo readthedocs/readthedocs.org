@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
       django-admin contact_owners --email email.md
 
-    Email and send a sticky notification to all owners of the "readthedocs" organization::
+    Email and send an ephemeral (disappears after shown once) notification to all owners of the "readthedocs" organization::
 
       django-admin contact_owners --email email.md --notification notification.md --organization readthedocs  # noqa
 
@@ -73,6 +73,16 @@ class Command(BaseCommand):
         parser.add_argument(
             '--notification',
             help='Path to a file with the notification content in markdown.',
+        )
+        parser.add_argument(
+            '--sticky',
+            action='store_true',
+            dest='sticky',
+            default=False,
+            help=(
+                'Make the notification sticky '
+                '(the notification stays until the user closes it)'
+            )
         )
         parser.add_argument(
             '--organization',
@@ -146,6 +156,7 @@ class Command(BaseCommand):
             email_subject=email_subject,
             email_content=email_content,
             notification_content=notification_content,
+            sticky_notification=options['sticky'],
             dryrun=not options['production'],
         )
 

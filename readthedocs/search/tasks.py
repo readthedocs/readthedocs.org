@@ -131,11 +131,11 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
     """
-    Delete old SearchQuery objects older than ``RTD_DEFAULT_ANALYTICS_RETENTION_DAYS``.
+    Delete old SearchQuery objects older than ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
 
     This is run by celery beat every day.
     """
-    retention_days = settings.RTD_DEFAULT_ANALYTICS_RETENTION_DAYS
+    retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
     search_queries_qs = SearchQuery.objects.filter(
         created__date__lt=days_ago,

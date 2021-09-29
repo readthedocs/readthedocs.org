@@ -62,7 +62,7 @@ so they can have any value, or not be present at all.
 .. warning:: Pinning Sphinx and other Read the Docs core dependencies
    is not yet supported by default when using conda (see `this GitHub issue for discussion`_).
    If your project needs it, request that we enable the ``CONDA_APPEND_CORE_REQUIREMENTS``
-   :ref:`feature flag <guides/feature-flags:Feature Flags>`.
+   :ref:`feature flag <feature-flags:Feature Flags>`.
 
 .. _this GitHub issue for discussion: https://github.com/readthedocs/readthedocs.org/issues/3829
 .. _exporting a conda environment: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment
@@ -178,7 +178,7 @@ minimize the running time or the memory usage:
   and opting out of the defaults adding ``nodefaults``.
 - Constrain the package versions as much as possible to reduce the solution space.
 - Use mamba_, an alternative package manager fully compatible with conda packages,
-  by requesting the ``CONDA_USES_MAMBA`` :ref:`feature flag <guides/feature-flags:Feature Flags>`.
+  by requesting the ``CONDA_USES_MAMBA`` :ref:`feature flag <feature-flags:Feature Flags>`.
 - And, if all else fails,
   :ref:`request more resources <guides/build-using-too-many-resources:Requests more resources>`.
 

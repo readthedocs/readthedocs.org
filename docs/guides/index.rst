@@ -11,6 +11,6 @@ and how to write successful documentation.
 .. toctree::
    :maxdepth: 2
 
-   tools
-   platform
-   commercial
+   authors
+   administrators
+   developers

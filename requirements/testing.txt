@@ -6,9 +6,9 @@ django-dynamic-fixture==3.1.1
 pytest==6.2.5
 pytest-custom-exit-code==0.3.0
 pytest-django==4.4.0
-pytest-xdist==2.3.0
+pytest-xdist==2.4.0
 pytest-cov==2.12.1
-apipkg==1.5
+apipkg==2.0.0
 execnet==1.9.0
 
 # Mercurial 4.3 and newer require Python 2.7

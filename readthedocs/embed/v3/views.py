@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 import requests
 
 from selectolax.parser import HTMLParser
-from pyquery import PyQuery as PQ  # noqa
 
 from django.conf import settings
 from django.core.cache import cache
@@ -71,12 +70,15 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
         if response.ok:
+            # NOTE: we use ``response.content`` to get its binary
+            # representation. Then ``selectolax`` is in charge to auto-detect
+            # its encoding. We trust more in selectolax for this than in requests.
             cache.set(
                 cache_key,
-                response.text,
+                response.content,
                 timeout=settings.RTD_EMBED_API_PAGE_CACHE_TIMEOUT,
             )
-            return response.text
+            return response.content
 
     def _get_page_content_from_storage(self, project, version_slug, filename):
         version = get_object_or_404(
@@ -138,7 +140,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         node = None
         if fragment:
-            selector = f'#{fragment}'
+            # NOTE: we use the `[id=]` selector because using `#{id}` requires
+            # escaping the selector since CSS does not support the same
+            # characters as the `id=` HTML attribute
+            # https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
+            selector = f'[id="{fragment}"]'
             node = HTMLParser(page_content).css_first(selector)
         else:
             html = HTMLParser(page_content)
@@ -150,7 +156,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         if doctool == 'sphinx':
             # Handle ``dt`` special cases
             if node.tag == 'dt':
-                if 'glossary' in node.parent.attributes.get('class'):
+                if any([
+                        'glossary' in node.parent.attributes.get('class'),
+                        'citation' in node.parent.attributes.get('class'),
+                ]):
                     # Sphinx HTML structure for term glossary puts the ``id`` in the
                     # ``dt`` element with the title of the term. In this case, we
                     # return the parent node which contains the definition list
@@ -163,32 +172,26 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                     # ...
                     # </dl>
 
-                    # TODO: figure it out if it's needed to remove the siblings here
-                    # parent = node.parent
-                    # for n in parent.traverse():
-                    #     if n not in (node, node.next):
-                    #         n.remove()
-                    node = node.parent
+                    parent_node = node.parent
+                    if 'glossary' in node.parent.attributes.get('class'):
+                        next_node = node.next
 
-                elif 'citation' in node.parent.attributes.get('class'):
-                    # Sphinx HTML structure for sphinxcontrib-bibtex puts the ``id`` in the
-                    # ``dt`` element with the title of the cite. In this case, we
-                    # return the parent node which contains the definition list
-                    # and remove all ``dt/dd`` that are not the requested one
+                    elif 'citation' in node.parent.attributes.get('class'):
+                        next_node = node.next.next
 
-                    # Structure:
-                    # <dl class="citation">
-                    # <dt id="cite-id"><span><a>Title of the cite</a></span></dt>
-                    # <dd>Content of the cite</dd>
-                    # ...
-                    # </dl>
-
-                    # TODO: figure it out if it's needed to remove the siblings here
-                    # parent = node.parent
-                    # for n in parent.traverse():
-                    #     if n not in (node, node.next):
-                    #         n.remove()
-                    node = node.parent
+                    # Iterate over all the siblings (``.iter()``) of the parent
+                    # node and remove ``dt`` and ``dd`` that are not the ones
+                    # we are looking for. Then return the parent node as
+                    # result.
+                    #
+                    # Note that ``.iter()`` returns a generator and we modify
+                    # the HTML in-place, so we have to convert it to a list
+                    # before removing elements. Otherwise we break the
+                    # iteration before completing it
+                    for n in list(parent_node.iter()):  # pylint: disable=invalid-name
+                        if n not in (node, next_node):
+                            n.remove()
+                    node = parent_node
 
                 else:
                     # Sphinx HTML structure for definition list puts the ``id``

@@ -1038,7 +1038,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""
-        return settings.RTD_DEFAULT_ANALYTICS_RETENTION_DAYS
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show search analytics for this project?"""
@@ -1128,7 +1128,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""
-        return settings.RTD_DEFAULT_ANALYTICS_RETENTION_DAYS
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show traffic analytics for this project?"""
