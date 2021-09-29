@@ -45,10 +45,11 @@ class ExtraFieldsHistoricalModel(models.Model):
         null=True,
         db_index=True,
     )
-    extra_history_ip = models.GenericIPAddressField(
+    extra_history_ip = models.CharField(
         _('IP address'),
         blank=True,
         null=True,
+        max_length=250,
     )
     extra_history_browser = models.CharField(
         _('Browser user-agent'),
