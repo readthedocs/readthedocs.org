@@ -5,6 +5,7 @@ import markdown
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
+from messages_extends import constants as message_constants
 
 from readthedocs.notifications import SiteNotification
 from readthedocs.notifications.backends import SiteBackend
@@ -18,6 +19,8 @@ def contact_users(
     email_content=None,
     from_email=None,
     notification_content=None,
+    sticky_notification=False,
+    context_function=None,
     dryrun=True,
 ):
     """
@@ -28,6 +31,8 @@ def contact_users(
     :param string email_content: Email content (markdown)
     :param string from_email: Email to sent from (Test Support <support@test.com>)
     :param string notification_content: Content for the sticky notification (markdown)
+    :param context_function: A callable that will receive an user
+     and return a dict of additional context to be used in the email/notification content
     :param bool dryrun: If `True` don't sent the email or notification, just print the content
 
     The `email_content` and `notification_content` contents will be rendered using
@@ -41,6 +46,7 @@ def contact_users(
     :returns: A dictionary with a list of sent/failed emails/notifications.
     """
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
+    context_function = context_function or (lambda user: {})
     sent_emails = set()
     failed_emails = set()
     sent_notifications = set()
@@ -57,17 +63,27 @@ def contact_users(
 
     class TempNotification(SiteNotification):
 
+        if sticky_notification:
+            success_level = message_constants.SUCCESS_PERSISTENT
+
         def render(self, *args, **kwargs):
+            context = {
+                'user': self.user,
+                'domain': f'https://{settings.PRODUCTION_DOMAIN}',
+            }
+            context.update(context_function(self.user))
             return markdown.markdown(
-                notification_template.render(
-                    Context({
-                        'user': self.user,
-                        'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                    })
-                )
+                notification_template.render(Context(context))
             )
 
-    for user in users.iterator():
+    total = users.count()
+    for count, user in enumerate(users.iterator(), start=1):
+        context = {
+            'user': user,
+            'domain': f'https://{settings.PRODUCTION_DOMAIN}',
+        }
+        context.update(context_function(user))
+
         if notification_content:
             notification = TempNotification(
                 user=user,
@@ -78,19 +94,17 @@ def contact_users(
                     backend.send(notification)
                 else:
                     pprint(markdown.markdown(
-                        notification_template.render(
-                            Context({
-                                'user': user,
-                                'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                            })
-                        )
+                        notification_template.render(Context(context))
                     ))
             except Exception:
                 log.exception('Notification failed to send')
-                failed_notifications.add(user.pk)
+                failed_notifications.add(user.username)
             else:
-                log.info('Successfully set notification user=%s', user)
-                sent_notifications.add(user.pk)
+                log.info(
+                    'Successfully set notification (%s/%s). user=%s',
+                    count, total, user,
+                )
+                sent_notifications.add(user.username)
 
         if email_subject:
             emails = list(
@@ -103,10 +117,7 @@ def contact_users(
 
             # First render the markdown context.
             email_txt_content = email_template.render(
-                Context({
-                    'user': user,
-                    'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-                })
+                Context(context)
             )
             email_html_content = markdown.markdown(email_txt_content)
 
@@ -131,10 +142,10 @@ def contact_users(
                 else:
                     pprint(kwargs)
             except Exception:
-                log.exception('Mail failed to send')
+                log.exception('Email failed to send')
                 failed_emails.update(emails)
             else:
-                log.info('Email sent to %s', emails)
+                log.info('Email sent (%s/%s). emails=%s', count, total, emails)
                 sent_emails.update(emails)
 
     return {

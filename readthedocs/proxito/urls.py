@@ -97,6 +97,14 @@ proxied_urls = [
         ),
         include('readthedocs.api.v2.proxied_urls'),
     ),
+
+    # /_/api/v3/
+    url(
+        r'^{DOC_PATH_PREFIX}api/v3/'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
+        include('readthedocs.api.v3.proxied_urls'),
+    ),
 ]
 
 core_urls = [

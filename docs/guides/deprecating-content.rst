@@ -1,5 +1,5 @@
-Deprecating Content on Read the Docs
-====================================
+Deprecating Content
+===================
 
 When you deprecate a feature from your project,
 you may want to deprecate its docs as well,
@@ -40,8 +40,8 @@ and mark the :guilabel:`Hidden` option. Check :ref:`versions:Version States` for
 
    .. _semver: https://semver.org/
 
-Deprecating content
--------------------
+Deprecating pages
+-----------------
 
 You may not always want to deprecate a version, but deprecate some pages.
 For example, if you have documentation about two APIs and you want to deprecate v1:

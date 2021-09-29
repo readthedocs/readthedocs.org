@@ -66,6 +66,7 @@ api_urls = [
         include('rest_framework.urls', namespace='rest_framework')
     ),
     url(r'^api/v3/', include('readthedocs.api.v3.urls')),
+    url(r'^api/v3/embed/', include('readthedocs.embed.v3.urls')),
 ]
 
 i18n_urls = [

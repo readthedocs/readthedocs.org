@@ -6,6 +6,7 @@ import copy
 import os
 import re
 from contextlib import contextmanager
+from functools import lru_cache
 
 from django.conf import settings
 
@@ -14,6 +15,8 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from .find import find_one
 from .models import (
     Build,
+    BuildTool,
+    BuildWithTools,
     Conda,
     Mkdocs,
     Python,
@@ -253,12 +256,31 @@ class BuildConfigBase:
         raise NotImplementedError()
 
     @property
+    def using_build_tools(self):
+        return isinstance(self.build, BuildWithTools)
+
+    @property
     def python_interpreter(self):
+        if self.using_build_tools:
+            tool = self.build.tools.get('python')
+            if tool and tool.version.startswith('mamba'):
+                return 'mamba'
+            if tool and tool.version.startswith('miniconda'):
+                return 'conda'
+            if tool:
+                return 'python'
+            return None
         version = self.python_full_version
         if version.startswith('pypy'):
             # Allow to specify ``pypy3.5`` as Python interpreter
             return version
         return f'python{version}'
+
+    @property
+    def docker_image(self):
+        if self.using_build_tools:
+            return self.settings['os'][self.build.os]
+        return self.build.image
 
     @property
     def python_full_version(self):
@@ -618,6 +640,7 @@ class BuildConfigV1(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
         """The docker image used by the builders."""
         return Build(**self._config['build'])
@@ -671,6 +694,10 @@ class BuildConfigV2(BuildConfigBase):
         'singlehtml': 'sphinx_singlehtml',
     }
 
+    @property
+    def settings(self):
+        return settings.RTD_DOCKER_BUILD_SETTINGS
+
     def validate(self):
         """
         Validates and process ``raw_config`` and ``env_config``.
@@ -723,15 +750,52 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
-    def validate_build(self):
+    def validate_build_config_with_tools(self):
         """
-        Validates the build object.
+        Validates the build object (new format).
+
+        At least one element must be provided in ``build.tools``.
+        """
+        build = {}
+        with self.catch_validation_error('build.os'):
+            build_os = self.pop_config('build.os', raise_ex=True)
+            build['os'] = validate_choice(build_os, self.settings['os'].keys())
+
+        tools = {}
+        with self.catch_validation_error('build.tools'):
+            tools = self.pop_config('build.tools')
+            validate_dict(tools)
+            for tool in tools.keys():
+                validate_choice(tool, self.settings['tools'].keys())
+
+        if not tools:
+            self.error(
+                key='build.tools',
+                message=(
+                    'At least one tools of [{}] must be provided.'.format(
+                        ' ,'.join(self.settings['tools'].keys())
+                    )
+                ),
+                code=CONFIG_REQUIRED,
+            )
+
+        build['tools'] = {}
+        for tool, version in tools.items():
+            with self.catch_validation_error(f'build.tools.{tool}'):
+                build['tools'][tool] = validate_choice(
+                    version,
+                    self.settings['tools'][tool].keys(),
+                )
+
+        build['apt_packages'] = self.validate_apt_packages()
+        return build
+
+    def validate_old_build_config(self):
+        """
+        Validates the build object (old format).
 
         It prioritizes the value from the default image if exists.
         """
-        raw_build = self._raw_config.get('build', {})
-        with self.catch_validation_error('build'):
-            validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
@@ -748,6 +812,11 @@ class BuildConfigV2(BuildConfigBase):
             if config_image:
                 build['image'] = config_image
 
+        build['apt_packages'] = self.validate_apt_packages()
+        return build
+
+    def validate_apt_packages(self):
+        apt_packages = []
         with self.catch_validation_error('build.apt_packages'):
             raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
             validate_list(raw_packages)
@@ -756,14 +825,22 @@ class BuildConfigV2(BuildConfigBase):
                 list_to_dict(raw_packages)
             )
 
-            build['apt_packages'] = [
+            apt_packages = [
                 self.validate_apt_package(index)
                 for index in range(len(raw_packages))
             ]
             if not raw_packages:
                 self.pop_config('build.apt_packages')
 
-        return build
+        return apt_packages
+
+    def validate_build(self):
+        raw_build = self._raw_config.get('build', {})
+        with self.catch_validation_error('build'):
+            validate_dict(raw_build)
+        if 'os' in raw_build:
+            return self.validate_build_config_with_tools()
+        return self.validate_old_build_config()
 
     def validate_apt_package(self, index):
         """
@@ -821,24 +898,27 @@ class BuildConfigV2(BuildConfigBase):
         .. note::
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
+           - If the new build config is used (``build.os``),
+             ``python.version`` shouldn't exist.
         """
         raw_python = self._raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
 
         python = {}
-        with self.catch_validation_error('python.version'):
-            version = self.pop_config('python.version', '3')
-            if version == 3.1:
-                # Special case for ``python.version: 3.10``,
-                # yaml will transform this to the numeric value of `3.1`.
-                # Save some frustration to users.
-                version = '3.10'
-            version = str(version)
-            python['version'] = validate_choice(
-                version,
-                self.get_valid_python_versions(),
-            )
+        if not self.using_build_tools:
+            with self.catch_validation_error('python.version'):
+                version = self.pop_config('python.version', '3')
+                if version == 3.1:
+                    # Special case for ``python.version: 3.10``,
+                    # yaml will transform this to the numeric value of `3.1`.
+                    # Save some frustration to users.
+                    version = '3.10'
+                version = str(version)
+                python['version'] = validate_choice(
+                    version,
+                    self.get_valid_python_versions(),
+                )
 
         with self.catch_validation_error('python.install'):
             raw_install = self._raw_config.get('python', {}).get('install', [])
@@ -1172,8 +1252,23 @@ class BuildConfigV2(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
-        return Build(**self._config['build'])
+        build = self._config['build']
+        if 'os' in build:
+            tools = {
+                tool: BuildTool(
+                    version=version,
+                    full_version=self.settings['tools'][tool][version],
+                )
+                for tool, version in build['tools'].items()
+            }
+            return BuildWithTools(
+                os=build['os'],
+                tools=tools,
+                apt_packages=build['apt_packages'],
+            )
+        return Build(**build)
 
     @property
     def python(self):
@@ -1185,7 +1280,7 @@ class BuildConfigV2(BuildConfigBase):
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(
-            version=python['version'],
+            version=python.get('version'),
             install=python_install,
             use_system_site_packages=python['use_system_site_packages'],
         )

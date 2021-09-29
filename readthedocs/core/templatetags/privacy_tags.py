@@ -20,15 +20,6 @@ def is_member(user, project):
     return AdminPermission.is_member(user, project)
 
 
-@register.filter
-def projects_admin(user, privacy_level=None):
-    """List all projects where user is admin."""
-    query = Project.objects.for_admin_user(user)
-    if privacy_level:
-        query = query.filter(privacy_level=privacy_level)
-    return query
-
-
 @register.simple_tag(takes_context=True)
 def get_public_projects(context, user):
     # 'Exists()' checks if the project has any good builds.
