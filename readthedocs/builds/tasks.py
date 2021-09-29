@@ -542,7 +542,7 @@ class BuildNotificationSender:
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
             ),
-            'unsub_url': 'https://{}{}'.format(
+            'unsubscribe_url': 'https://{}{}'.format(
                 settings.PRODUCTION_DOMAIN,
                 reverse('projects_notifications', args=[self.project.slug]),
             ),
