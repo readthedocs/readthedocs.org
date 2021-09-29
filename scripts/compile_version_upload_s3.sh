@@ -21,7 +21,7 @@
 # PRODUCTION ENVIRONMENT
 #
 # To create a pre-compiled cached version and make it available on production,
-# the script has to be ran from a builder (build-default or build-large) and
+# **the script must be ran from a builder (build-default or build-large)** and
 # it's required to set the following environment variables for an IAM user with
 # permissions on ``build-tools`` S3's bucket:
 #
