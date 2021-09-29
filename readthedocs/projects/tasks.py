@@ -767,7 +767,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Environment used for building code, usually with Docker
         with self.build_env:
             python_env_cls = Virtualenv
-            if self.config.conda is not None:
+            if any([
+                    self.config.conda is not None,
+                    self.config.python_interpreter in ('conda', 'mamba'),
+            ]):
                 log.info(
                     LOG_TEMPLATE,
                     {
@@ -1176,6 +1179,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.python_env.delete_existing_venv_dir()
         else:
             self.python_env.delete_existing_build_dir()
+
+        # Install all ``build.tools`` specified by the user
+        if self.config.using_build_tools:
+            self.python_env.install_build_tools()
 
         self.python_env.setup_base()
         self.python_env.save_environment_json()

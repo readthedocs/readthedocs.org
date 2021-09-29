@@ -1,3 +1,20 @@
+Version 5.24.0
+--------------
+
+:Date: September 28, 2021
+
+* `@humitos <https://github.com/humitos>`__: EmbedAPIv3: updates after QA with sphinx-hoverxref (`#8521 <https://github.com/readthedocs/readthedocs.org/pull/8521>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact users: show progress (`#8518 <https://github.com/readthedocs/readthedocs.org/pull/8518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Rename audit retention days setting (`#8517 <https://github.com/readthedocs/readthedocs.org/pull/8517>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact users: make notification sticky (`#8516 <https://github.com/readthedocs/readthedocs.org/pull/8516>`__)
+* `@stsewd <https://github.com/stsewd>`__: Contact users: report usernames instead of PK (`#8515 <https://github.com/readthedocs/readthedocs.org/pull/8515>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: update admin (`#8514 <https://github.com/readthedocs/readthedocs.org/pull/8514>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 38 (`#8510 <https://github.com/readthedocs/readthedocs.org/pull/8510>`__)
+* `@stsewd <https://github.com/stsewd>`__: New config for new docker build images (`#8478 <https://github.com/readthedocs/readthedocs.org/pull/8478>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: expose user security logs (`#8477 <https://github.com/readthedocs/readthedocs.org/pull/8477>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use new Docker images from design document (`#8453 <https://github.com/readthedocs/readthedocs.org/pull/8453>`__)
+* `@humitos <https://github.com/humitos>`__: Embed APIv3: initial implementation (`#8319 <https://github.com/readthedocs/readthedocs.org/pull/8319>`__)
+
 Version 5.23.6
 --------------
 

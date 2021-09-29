@@ -66,7 +66,12 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
-        domains.append(r'.*\.readthedocs\.io')
+        domains.extend([
+            r'.*\.readthedocs\.io',
+            r'.*\.org\.readthedocs\.build',
+            r'.*\.readthedocs-hosted\.com',
+            r'.*\.com\.readthedocs\.build',
+        ])
         return domains
 
     @property
@@ -140,6 +145,8 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.s3_storage.S3BuildMediaStorage'
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.s3_storage.S3BuildEnvironmentStorage'
+    # Storage backend for build languages
+    RTD_BUILD_TOOLS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildToolsStorage'
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
 
@@ -148,6 +155,7 @@ class DockerBaseSettings(CommunityDevSettings):
     S3_MEDIA_STORAGE_BUCKET = 'media'
     S3_BUILD_COMMANDS_STORAGE_BUCKET = 'builds'
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
+    S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'

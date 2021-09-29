@@ -38,7 +38,7 @@ Search across projects you have access to (|com_brand|)
 
 Special query syntax for more specific results.
    We support a full range of search queries.
-   You can see some examples in our :ref:`guides/searching-with-readthedocs:search query syntax` guide.
+   You can see some examples in our :ref:`guides/advanced-search:search query syntax` guide.
 
 Configurable.
    Tweak search results according to your needs using a

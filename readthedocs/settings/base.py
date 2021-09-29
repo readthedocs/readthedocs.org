@@ -122,6 +122,7 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
+    RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
     # Database and API hitting settings
@@ -311,6 +312,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     @property
@@ -526,7 +528,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
-            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu20',
+            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
         },
         # Mapping of build.tools options to specific versions.
         'tools': {
@@ -818,6 +820,8 @@ class CommunityBaseSettings(Settings):
         r'docs\.python\.org',
         r'docs\.scipy\.org',
         r'docs\.sympy\.org',
+        r'www.sphinx-doc.org',
+        r'numpy\.org',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10
     RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT = 1

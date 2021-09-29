@@ -1,18 +1,12 @@
 """Project views for authenticated users."""
 
-import csv
 import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Count, Q
-from django.http import (
-    Http404,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-    StreamingHttpResponse,
-)
+from django.db.models import Count
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -73,7 +67,7 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
-from readthedocs.projects.utils import Echo
+from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
@@ -1021,7 +1015,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
         if download_data:
-            return self._search_analytics_csv_data()
+            return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1058,46 +1052,49 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
         return context
 
-    def _search_analytics_csv_data(self):
+    def _get_csv_data(self):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
-        last_3_month = now - timezone.timedelta(days=90)
+        retention_limit = self._get_retention_days_limit(project)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = project.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=retention_limit)
 
+        values = [
+            ('Created Date', 'created'),
+            ('Query', 'query'),
+            ('Total Results', 'total_results'),
+        ]
         data = []
         if self._is_enabled(project):
             data = (
                 SearchQuery.objects.filter(
                     project=project,
-                    created__date__gte=last_3_month,
-                    created__date__lte=now,
+                    created__date__gte=days_ago,
                 )
                 .order_by('-created')
-                .values_list('created', 'query', 'total_results')
+                .values_list(*[value for _, value in values])
             )
 
-        file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+        filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
-            start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
+            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
-        # remove any spaces in filename.
-        file_name = '-'.join([text for text in file_name.split() if text])
 
         csv_data = [
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
-            for time, query, total_results in data
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
         ]
-        # Add headers to the CSV
-        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
-        pseudo_buffer = Echo()
-        writer = csv.writer(pseudo_buffer)
-        response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_data),
-            content_type="text/csv",
-        )
-        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-        return response
+        csv_data.insert(0, [header for header, _ in values])
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_retention_days_limit(self, project):
+        """From how many days we need to show data for this project?"""
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show search analytics for this project?"""
@@ -1112,6 +1109,12 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        download_data = request.GET.get('download', False)
+        if download_data:
+            return self._get_csv_data()
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1139,6 +1142,49 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
         })
 
         return context
+
+    def _get_csv_data(self):
+        project = self.get_project()
+        now = timezone.now().date()
+        retention_limit = self._get_retention_days_limit(project)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = project.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=retention_limit)
+
+        values = [
+            ('Date', 'date'),
+            ('Version', 'version__slug'),
+            ('Path', 'path'),
+            ('Views', 'view_count'),
+        ]
+        data = []
+        if self._is_enabled(project):
+            data = (
+                PageView.objects.filter(
+                    project=project,
+                    date__gte=days_ago,
+                )
+                .order_by('-date')
+                .values_list(*[value for _, value in values])
+            )
+
+        filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+        )
+        csv_data = [
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
+        ]
+        csv_data.insert(0, [header for header, _ in values])
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_retention_days_limit(self, project):
+        """From how many days we need to show data for this project?"""
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show traffic analytics for this project?"""
