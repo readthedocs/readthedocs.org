@@ -98,6 +98,7 @@ class PythonEnvironment:
             ]
             self.build_env.run(
                 *cmd,
+                record=False,
             )
 
         for tool, version in self.config.build.tools.items():
@@ -126,6 +127,7 @@ class PythonEnvironment:
                     ]
                     self.build_env.run(
                         *cmd,
+                        record=False,
                     )
             else:
                 log.debug(
@@ -173,6 +175,7 @@ class PythonEnvironment:
             ]
             self.build_env.run(
                 *cmd,
+                record=False,
             )
 
             if all([
