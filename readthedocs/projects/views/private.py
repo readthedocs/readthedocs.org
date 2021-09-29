@@ -5,7 +5,7 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
