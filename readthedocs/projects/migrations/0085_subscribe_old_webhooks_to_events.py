@@ -21,7 +21,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0083_create_webhook_events'),
+        ('projects', '0084_create_webhook_events'),
     ]
 
     operations = [

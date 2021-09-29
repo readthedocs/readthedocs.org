@@ -13,7 +13,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0082_init_generic_webhooks'),
+        ('projects', '0083_init_generic_webhooks'),
     ]
 
     operations = [

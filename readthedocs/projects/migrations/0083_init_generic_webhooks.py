@@ -8,7 +8,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0081_add_another_header'),
+        ('projects', '0082_add_extra_history_fields'),
     ]
 
     operations = [
