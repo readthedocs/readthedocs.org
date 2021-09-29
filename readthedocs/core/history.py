@@ -29,7 +29,8 @@ class ExtraFieldsHistoricalModel(models.Model):
 
     Extra data includes:
 
-    - Users after they have been deleted.
+    - User information to retain after they have been deleted
+    - IP & browser
     """
 
     extra_history_user_id = models.IntegerField(
@@ -43,6 +44,18 @@ class ExtraFieldsHistoricalModel(models.Model):
         max_length=150,
         null=True,
         db_index=True,
+    )
+    extra_history_ip = models.CharField(
+        _('IP address'),
+        blank=True,
+        null=True,
+        max_length=250,
+    )
+    extra_history_browser = models.CharField(
+        _('Browser user-agent'),
+        max_length=250,
+        blank=True,
+        null=True,
     )
 
     class Meta:
