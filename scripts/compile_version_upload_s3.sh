@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 #
-# Script to compile a language version and upload it to the cache.
+# Script to compile a tool version and upload it to the cache.
 #
 # This script automates the process to build and upload a Python/Node/Rust/Go
 # version and upload it to S3 making it available for the builders. When a
 # pre-compiled version is available in the cache, builds are faster because they
-# don't have to donwload and compile.
+# don't have to donwload and compile the requested version.
 #
 #
 # LOCAL DEVELOPMENT ENVIRONMENT
@@ -14,8 +14,8 @@
 # https://docs.readthedocs.io/en/latest/development/install.html
 #
 # You can run this script from you local environment to create cached version
-# and upload them to MinIO. For this, it's required that you have the MinIO
-# instance running before executing this script command:
+# and upload them to MinIO (S3 emulator). For this, it's required that you have
+# the MinIO instance running before executing this script command:
 #
 #   inv docker.up
 #
@@ -25,14 +25,16 @@
 # To create a pre-compiled cached version and make it available on production,
 # **the script must be ran from a builder (build-default or build-large)** and
 # it's required to set the following environment variables for an IAM user with
-# permissions on ``build-tools`` S3's bucket:
+# permissions on ``readthedocs(inc)-build-tools`` S3's bucket:
 #
 #   AWS_REGION
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
 #   AWS_BUILD_TOOLS_BUCKET_NAME
 #
-# Note that in production we need to install `aws` Python package. We can do that by:
+# Note that in production we need to install `aws` Python package to run the
+# script. We can do this in a different virtualenv to avoid collision with the
+# builder's code:
 #
 #   virtualenv venv
 #   source venv/bin/activate
@@ -41,12 +43,17 @@
 #
 # USAGE
 #
-#  ./scripts/compile_version_upload.sh python 3.9.6
+#  ./scripts/compile_version_upload.sh $TOOL $VERSION
 #
 # ARGUMENTS
 #
-#  $1 is the name of the tool (found by `asdf plugin list all`)
-#  $2 is the version of the tool (found by `asdf list all <tool>`)
+#  $TOOL is the name of the tool (found by `asdf plugin list all`)
+#  $VERSION is the version of the tool (found by `asdf list all <tool>`)
+#
+# EXAMPLES
+#
+#  ./scripts/compile_version_upload.sh python 3.9.7
+#  ./scripts/compile_version_upload.sh nodejs 14.17.6
 
 set -e
 
