@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.8'
         environment:
           TOX_POSARGS: ''
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
@@ -19,7 +19,7 @@ jobs:
 
   tests-embedapi:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.8'
     steps:
       - checkout
       - run: git submodule sync
@@ -29,7 +29,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.8'
         environment:
           NODE_VERSION: 10.17.0
     steps:
