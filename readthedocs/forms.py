@@ -7,7 +7,7 @@ import requests
 
 from allauth.account.forms import SignupForm
 from django.conf import settings
-from django.forms.fields import BooleanField
+from django import forms
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -16,7 +16,7 @@ class SignupFormWithNewsletter(SignupForm):
 
     """Custom signup form that includes a checkbox to subscribe to a newsletter."""
 
-    receive_newsletter = BooleanField(
+    receive_newsletter = forms.BooleanField(
         required=False,
         label=(
             "I also wish to subscribe to the Read the Docs newsletter "
