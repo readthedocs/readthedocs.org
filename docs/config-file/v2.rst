@@ -315,6 +315,10 @@ Configuration for the documentation build process.
    python:
      version: "3.7"
 
+.. note::
+
+   Check out the :ref:`new-build` below for an alternative method
+   that is more flexible.
 
 build.image
 ```````````
@@ -635,6 +639,112 @@ Schema
 
 You can see the complete schema
 `here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.yml>`_.
+
+.. _new-build:
+
+New ``build`` specification
+---------------------------
+
+.. warning::
+
+   This functionality is in beta. If you find any inconsistencies
+   or have feedback, please `open an
+   issue <https://github.com/readthedocs/readthedocs.org/issues/>`_.
+
+Read the Docs has introduced a more flexible ``build`` specification
+that allows you to use a more recent base image
+and control the versions of several tools:
+Python, Node.js, Rust, and Go.
+
+To opt in, specify the ``build.os`` setting
+and declare at least one tool version inside the ``build.tools`` key,
+as follows: 
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-20.04
+     tools:
+       python: 3.9
+       nodejs: 16
+       rust: 1.55
+       golang: 1.17
+
+The new ``build`` specification also supports
+the ``apt_packages`` key described above.
+
+.. warning::
+
+   The keys ``build.os`` and ``python.version`` cannot be used at the same time.
+   Doing so will error the build.
+
+build (new)
+~~~~~~~~~~~
+
+Configuration for the documentation build process.
+
+build.os
+````````
+
+The Docker image used for building the docs.
+
+:Type: ``string``
+:Options: ``ubuntu-20.04``
+:Default: ``ubuntu-20.04``
+
+build.tools
+```````````
+
+Version specifiers for each tool. It must contain at least one tool.
+All tools are managed with `asdf <https://asdf-vm.com/>`_.
+
+:Type: ``dict``
+:Keys: ``python``, ``nodejs``, ``rust``, ``golang``
+
+build.tools.python
+``````````````````
+
+Python version to use. Supported values are:
+
+* CPython 2.7 and 3.6+
+* PyPy3.7
+* Miniconda3 4.7
+* Mambaforge 4.10
+
+.. note::
+
+   If you use Miniconda3 or Mambaforge, you can select the Python version
+   using the ``environment.yml`` file. See our :doc:`/guides/conda` guide
+   for more information.
+
+:Type: ``string``
+:Options: ``2.7``, ``3``, ``3.6``, ``3.7``, ``3.8``, ``3.9``, ``3.10``, ``pypy3.7``, ``miniconda3-4.7``, ``mambaforge-4.10``
+
+build.tools.nodejs
+``````````````````
+
+Node.js version to use.
+
+:Type: ``string``
+:Options: ``14``, ``16``
+
+build.tools.rust
+````````````````
+
+Rust version to use.
+
+:Type: ``string``
+:Options: ``1.55``
+
+build.tools.golang
+``````````````````
+
+Go version to use.
+
+:Type: ``string``
+:Options: ``1.17``
 
 Migrating from v1
 -----------------
