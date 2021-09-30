@@ -1,14 +1,16 @@
 #!/bin/bash
 #
 #
-# Script to compile a languge version and upload it to the cache.
+# Script to compile a language version and upload it to the cache.
 #
 # This script automates the process to build and upload a Python/Node/Rust/Go
 # version and upload it to S3 making it available for the builders. When a
 # pre-compiled version is available in the cache, builds are faster because they
 # don't have to donwload and compile.
 #
+#
 # LOCAL DEVELOPMENT ENVIRONMENT
+#
 # https://docs.readthedocs.io/en/latest/development/install.html
 #
 # You can run this script from you local environment to create cached version
@@ -25,9 +27,16 @@
 # it's required to set the following environment variables for an IAM user with
 # permissions on ``build-tools`` S3's bucket:
 #
+#   AWS_REGION
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
-#   AWS_ENDPOINT_URL
+#   AWS_BUILD_TOOLS_BUCKET_NAME
+#
+# Note that in production we need to install `aws` Python package. We can do that by:
+#
+#   virtualenv venv
+#   source venv/bin/activate
+#   pip install awscli==1.20.34
 #
 #
 # USAGE
@@ -95,9 +104,17 @@ docker container kill $CONTAINER_ID
 # Upload the .tar.gz to S3
 AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
 AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}" \
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}" \
-aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
+AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
+AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
+
+if [[ -z $AWS_REGION ]]
+then
+    # Development environment
+    aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
+else
+    # Production environment does not requires `--endpoint-url`
+    aws s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
+fi
 
 # Delete the .tar.gz file from the host
 rm $OS-$TOOL-$VERSION.tar.gz
