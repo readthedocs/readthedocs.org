@@ -75,9 +75,19 @@ class PythonEnvironment:
             shutil.rmtree(venv_dir)
 
     def install_build_tools(self):
+        """
+        Install all ``build.tools`` defined by the user in the config file.
+
+        It uses ``asdf`` behind the scenes to manage all the tools and versions
+        of them. These tools/versions are stored in the Cloud cache and are
+        downloaded on each build (~50 - ~100Mb).
+
+        If the requested tool/version is not present in the cache, it's
+        installed via ``asdf`` on the fly.
+        """
         if settings.RTD_DOCKER_COMPOSE:
             # Create a symlink for ``root`` user to use the same ``.asdf``
-            # installation than ``docs`` user. Required for local building
+            # installation as the ``docs`` user. Required for local building
             # since everything is run as ``root`` when using Local Development
             # instance
             cmd = [
@@ -88,14 +98,16 @@ class PythonEnvironment:
             ]
             self.build_env.run(
                 *cmd,
+                record=False,
             )
 
         for tool, version in self.config.build.tools.items():
-            version = version.full_version  # e.g. 3.9 -> 3.9.7
+            full_version = version.full_version  # e.g. 3.9 -> 3.9.7
 
             # TODO: generate the correct path for the Python version
-            # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{version}.tar.gz'
-            tool_path = f'{self.config.build.os}-{tool}-{version}.tar.gz'
+            # see https://github.com/readthedocs/readthedocs.org/pull/8447#issuecomment-911562267
+            # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
+            tool_path = f'{self.config.build.os}-{tool}-{full_version}.tar.gz'
             tool_version_cached = build_tools_storage.exists(tool_path)
             if tool_version_cached:
                 remote_fd = build_tools_storage.open(tool_path, mode='rb')
@@ -107,32 +119,36 @@ class PythonEnvironment:
                     # Move the extracted content to the ``asdf`` installation
                     cmd = [
                         'mv',
-                        f'{extract_path}/{version}',
+                        f'{extract_path}/{full_version}',
                         os.path.join(
                             settings.RTD_DOCKER_WORKDIR,
-                            f'.asdf/installs/{tool}/{version}',
+                            f'.asdf/installs/{tool}/{full_version}',
                         ),
                     ]
                     self.build_env.run(
                         *cmd,
+                        record=False,
                     )
             else:
                 log.debug(
                     'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
                     self.config.build.os,
                     tool,
-                    version,
+                    full_version,
                     tool_path,
                 )
                 # If the tool version selected is not available from the
                 # cache we compile it at build time
                 cmd = [
-                    # TODO: make this environment variable to work
-                    # 'PYTHON_CONFIGURE_OPTS="--enable-shared"',
+                    # TODO: make ``PYTHON_CONFIGURE_OPTS="--enable-shared"``
+                    # environment variable to work here. Note that
+                    # ``self.build_env.run`` does not support passing
+                    # environment for a particular command:
+                    # https://github.com/readthedocs/readthedocs.org/blob/9d2d1a2/readthedocs/doc_builder/environments.py#L430-L431
                     'asdf',
                     'install',
                     tool,
-                    version,
+                    full_version,
                 ]
                 self.build_env.run(
                     *cmd,
@@ -143,7 +159,7 @@ class PythonEnvironment:
                 'asdf',
                 'global',
                 tool,
-                version,
+                full_version,
             ]
             self.build_env.run(
                 *cmd,
@@ -151,6 +167,7 @@ class PythonEnvironment:
 
             # Recreate shims for this tool to make the new version
             # installed available
+            # https://asdf-vm.com/learn-more/faq.html#newly-installed-exectable-not-running
             cmd = [
                 'asdf',
                 'reshim',
@@ -158,14 +175,20 @@ class PythonEnvironment:
             ]
             self.build_env.run(
                 *cmd,
+                record=False,
             )
 
             if all([
                     tool == 'python',
                     # Do not install them if the tool version was cached
+                    # because these dependencies are already installed when
+                    # created with our script and uploaded to the cache's
+                    # bucket
                     not tool_version_cached,
-                    # Do not install them on conda/mamba
-                    self.config.python_interpreter == 'python',
+                    # Do not install them on conda/mamba since they are not
+                    # needed because the environment is managed by conda/mamba
+                    # itself
+                    self.config.python_interpreter not in ('conda', 'mamba'),
             ]):
                 # Install our own requirements if the version is compiled
                 cmd = [
@@ -673,7 +696,8 @@ class Conda(PythonEnvironment):
         if all([
                 # The project has CONDA_USES_MAMBA feature enabled and,
                 self.project.has_feature(Feature.CONDA_USES_MAMBA),
-                # the project is not using ``build.tools``
+                # the project is not using ``build.tools``,
+                # which has mamba installed via asdf.
                 not self.config.using_build_tools,
         ]):
             self._install_mamba()
