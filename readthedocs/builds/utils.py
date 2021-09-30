@@ -1,8 +1,8 @@
 """Utilities for the builds app."""
+from time import monotonic
 
 from contextlib import contextmanager
 
-from celery.five import monotonic
 from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL

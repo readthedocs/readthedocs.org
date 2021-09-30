@@ -58,6 +58,7 @@
 {% endblock %}
 
 {% block footerjs %}
+<script>
 
   (function() {
     var message = "{% trans 'Do you really want to remove the selected email address?' %}";
@@ -109,4 +110,5 @@
     {% endif %}
   })();
 
+</script>
 {% endblock %}

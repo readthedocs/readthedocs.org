@@ -1,4 +1,4 @@
-"""Common utilty functions."""
+"""Common utility functions."""
 
 import datetime
 import errno
@@ -6,7 +6,6 @@ import logging
 import os
 import re
 
-from celery import chord, group
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import keep_lazy
@@ -14,53 +13,22 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, DuplicatedBuildError
-
+from readthedocs.doc_builder.exceptions import (
+    BuildMaxConcurrencyError,
+    DuplicatedBuildError,
+)
+from readthedocs.projects.constants import (
+    CELERY_HIGH,
+    CELERY_LOW,
+    CELERY_MEDIUM,
+)
 
 log = logging.getLogger(__name__)
-
-
-def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
-    """
-    Run a broadcast across our servers.
-
-    Returns a task group that can be checked for results.
-
-    `callback` should be a task signature that will be run once,
-    after all of the broadcast tasks have finished running.
-    """
-    if type not in ['web', 'app', 'build']:
-        raise ValueError('allowed value of `type` are web, app and build.')
-    if kwargs is None:
-        kwargs = {}
-
-    if type in ['web', 'app']:
-        servers = settings.MULTIPLE_APP_SERVERS
-    elif type in ['build']:
-        servers = settings.MULTIPLE_BUILD_SERVERS
-
-    tasks = []
-    for server in servers:
-        task_sig = task.s(*args, **kwargs).set(queue=server)
-        tasks.append(task_sig)
-    if callback:
-        task_promise = chord(tasks, callback).apply_async()
-    else:
-        # Celery's Group class does some special handling when an iterable with
-        # len() == 1 is passed in. This will be hit if there is only one server
-        # defined in the above queue lists
-        if len(tasks) > 1:
-            task_promise = group(*tasks).apply_async()
-        else:
-            task_promise = group(tasks).apply_async()
-    return task_promise
 
 
 def prepare_build(
@@ -88,15 +56,14 @@ def prepare_build(
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Project, Feature
+    from readthedocs.projects.models import Feature, Project
     from readthedocs.projects.tasks import (
-        update_docs_task,
         send_external_build_status,
         send_notifications,
+        update_docs_task,
     )
 
     build = None
-
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because Project is not active: project=%s',
@@ -265,11 +232,11 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         commit,
     )
     update_docs_task, build = prepare_build(
-        project,
-        version,
-        commit,
-        record,
-        force,
+        project=project,
+        version=version,
+        commit=commit,
+        record=record,
+        force=force,
         immutable=True,
     )
 
@@ -312,12 +279,15 @@ def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
 
-    :param dns_safe: Remove underscores from slug as well
+    :param bool dns_safe: Replace special chars like underscores with ``-``.
+     And remove trailing ``-``.
     """
     dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = mark_safe(re.sub('[-_]+', '-', value))
+        value = re.sub('[-_]+', '-', value)
+        # DNS doesn't allow - at the beginning or end of subdomains
+        value = mark_safe(value.strip('-'))
     return value
 
 

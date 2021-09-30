@@ -1,5 +1,5 @@
-Deprecating Content on Read the Docs
-====================================
+Deprecating Content
+===================
 
 When you deprecate a feature from your project,
 you may want to deprecate its docs as well,
@@ -40,8 +40,8 @@ and mark the :guilabel:`Hidden` option. Check :ref:`versions:Version States` for
 
    .. _semver: https://semver.org/
 
-Deprecating content
--------------------
+Deprecating pages
+-----------------
 
 You may not always want to deprecate a version, but deprecate some pages.
 For example, if you have documentation about two APIs and you want to deprecate v1:
@@ -74,16 +74,16 @@ For example:
       ranking:
          api/v1.html: -1
 
-This wont hide results from that page, but it will give priority to results from other pages.
+This won't hide results from that page, but it will give priority to results from other pages.
 
 .. TODO: mention search.ignore when it's implemented.
 
-
 .. tip::
 
-   If you are using Sphinx with reStructuredText,
-   you can make use of some :doc:`directives <sphinx:usage/restructuredtext/directives>`
-   like ``warning``, ``deprecated``, ``versionchanged`` to warn your users about deprecated content.
+   You can make use of Sphinx :doc:`directives <sphinx:usage/restructuredtext/directives>`
+   (like ``warning``, ``deprecated``, ``versionchanged``)
+   or MkDocs `admonitions <https://python-markdown.github.io/extensions/admonition/>`_
+   to warn your users about deprecated content.
 
 Moving and deleting pages
 -------------------------

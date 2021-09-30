@@ -24,3 +24,15 @@ class OverrideHostnameMixin:
             url = urlunsplit(parts)
 
         return url
+
+
+class S3PrivateBucketMixin:
+
+    """Make the bucket private and use auth querystring."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.bucket_acl = 'private'
+        self.default_acl = 'private'
+        self.querystring_auth = True

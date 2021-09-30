@@ -6,9 +6,7 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-
 from django.conf import settings
-from django.db.models import Q
 from django.urls import reverse
 from requests.exceptions import RequestException
 
@@ -18,8 +16,10 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
 )
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 
+from ..constants import GITHUB
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
@@ -33,6 +33,7 @@ class GitHubService(Service):
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
+    vcs_provider_slug = GITHUB
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
@@ -97,47 +98,65 @@ class GitHubService(Service):
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
-                (privacy == 'private'),
-                (fields['private'] is False and privacy == 'public'),
+            (privacy == 'private'),
+            (fields['private'] is False and privacy == 'public'),
         ]):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['full_name'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['full_name'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
-            if repo.organization and repo.organization != organization:
+
+            repo, _ = RemoteRepository.objects.get_or_create(
+                remote_id=fields['id'],
+                vcs_provider=self.vcs_provider_slug
+            )
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
+            )
+
+            # It's possible that a user has access to a repository from within
+            # an organization without being member of that organization
+            # (external contributor). In this case, the repository will be
+            # listed under the ``/repos`` endpoint but not under ``/orgs``
+            # endpoint. Then, when calling this method (``create_repository``)
+            # we will have ``organization=None`` but we don't have to skip the
+            # creation of the ``RemoteRepositoryRelation``.
+            if repo.organization and organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
                     fields['name'],
                 )
                 return None
 
-            repo.organization = organization
+            if any([
+                # There is an organization associated with this repository:
+                # attach the organization to the repository
+                organization is not None,
+                # There is no organization and the repository belongs to a
+                # user: removes the organization linked to the repository
+                not organization and fields['owner']['type'] == 'User',
+            ]):
+                repo.organization = organization
+
             repo.name = fields['name']
+            repo.full_name = fields['full_name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
             repo.html_url = fields['html_url']
             repo.private = fields['private']
+            repo.vcs = 'git'
+            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            repo.default_branch = fields.get('default_branch')
+
             if repo.private:
                 repo.clone_url = fields['ssh_url']
             else:
                 repo.clone_url = fields['clone_url']
-            repo.admin = fields.get('permissions', {}).get('admin', False)
-            repo.vcs = 'git'
-            repo.default_branch = fields.get('default_branch')
-            repo.account = self.account
-            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-            repo.json = json.dumps(fields)
+
             repo.save()
+
+            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation.save()
+
             return repo
 
         log.debug(
@@ -152,27 +171,26 @@ class GitHubService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        try:
-            organization = RemoteOrganization.objects.get(
-                slug=fields.get('login'),
-                users=self.user,
-                account=self.account,
-            )
-        except RemoteOrganization.DoesNotExist:
-            organization = RemoteOrganization.objects.create(
-                slug=fields.get('login'),
-                account=self.account,
-            )
-            organization.users.add(self.user)
+        organization, _ = RemoteOrganization.objects.get_or_create(
+            remote_id=fields['id'],
+            vcs_provider=self.vcs_provider_slug
+        )
+        organization.get_remote_organization_relation(
+            self.user, self.account
+        )
+
         organization.url = fields.get('html_url')
+        # fields['login'] contains GitHub Organization slug
+        organization.slug = fields.get('login')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
+
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
-        organization.json = json.dumps(fields)
-        organization.account = self.account
+
         organization.save()
+
         return organization
 
     def get_next_url_to_paginate(self, response):
@@ -526,7 +544,7 @@ class GitHubService(Service):
             if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
-                for user in project.users.all():
+                for user in AdminPermission.admins(project):
                     tokens = SocialToken.objects.filter(
                         account__user=user,
                         app__provider=cls.adapter.provider_id,

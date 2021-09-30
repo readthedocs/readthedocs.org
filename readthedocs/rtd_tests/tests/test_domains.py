@@ -170,18 +170,3 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example.com')
         self.assertFalse(domain.canonical)
-
-
-class TestAPI(TestCase):
-
-    def setUp(self):
-        self.project = get(Project)
-        self.domain = self.project.domains.create(domain='djangokong.com')
-
-    def test_basic_api(self):
-        resp = self.client.get('/api/v2/domain/')
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['results'][0]['domain'], 'djangokong.com')
-        self.assertEqual(obj['results'][0]['canonical'], False)
-        self.assertNotIn('https', obj['results'][0])

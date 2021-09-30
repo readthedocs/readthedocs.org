@@ -69,6 +69,23 @@ $(document).ready(function () {
           </a>
         </li>
       </div>
+
+
+      {# Show rebuild button only if the version is external and it's the latest build for this version #}
+      {# see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969 #}
+      {% if request.user|is_admin:project and build.version.type == "external" and is_latest_build %}
+      <div data-bind="visible: finished()">
+        <form method="post" name="rebuild_commit" action="{% url "builds_project_list" project.slug %}">
+          {% csrf_token %}
+            <a href="#" onclick="document.forms['rebuild_commit'].submit();">
+              Rebuild this build
+            </a>
+            <input type="hidden" name="version_slug" value="{{ build.version.slug }}">
+            <input type="hidden" name="build_pk" value="{{ build.pk }}">
+        </form>
+      </div>
+      {% endif %}
+
     </ul>
 
     <div class="build-id">
@@ -148,7 +165,7 @@ $(document).ready(function () {
           <p>
             {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
               <strong>Configure your documentation builds!</strong>
-              Adding a <a href="{{ config_file_link }}">.readthedocs.yml</a> file to your project
+              Adding a <a href="{{ config_file_link }}">.readthedocs.yaml</a> file to your project
               is the recommended way to configure your documentation builds.
               You can declare dependencies, set up submodules, and many other great features.
             {% endblocktrans %}

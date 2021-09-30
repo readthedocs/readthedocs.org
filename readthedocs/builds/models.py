@@ -4,11 +4,11 @@ import datetime
 import logging
 import os.path
 import re
+from functools import partial
 from shutil import rmtree
 
 import regex
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -46,7 +46,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.managers import (
     AutomationRuleMatchManager,
-    BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
     InternalBuildManager,
@@ -67,7 +66,6 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -88,6 +86,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.storage import build_environment_storage
 
 log = logging.getLogger(__name__)
 
@@ -180,9 +179,9 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
+    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -411,8 +410,7 @@ class Version(TimeStampedModel):
 
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
-        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
-        return storage.join(self.project.slug, f'{self.slug}.tar')
+        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -613,6 +611,7 @@ class Build(models.Model):
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+        db_index=True,
     )
 
     # Describe status as *why* the build is in a particular state. It is
@@ -627,7 +626,7 @@ class Build(models.Model):
         default=None,
         blank=True,
     )
-    date = models.DateTimeField(_('Date'), auto_now_add=True)
+    date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
     setup = models.TextField(_('Setup'), null=True, blank=True)
@@ -680,7 +679,7 @@ class Build(models.Model):
     )
 
     # Managers
-    objects = BuildManager.from_queryset(BuildQuerySet)()
+    objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
@@ -694,6 +693,9 @@ class Build(models.Model):
         index_together = [
             ['version', 'state', 'type'],
             ['date', 'id'],
+        ]
+        indexes = [
+            models.Index(fields=['project', 'date']),
         ]
 
     def __init__(self, *args, **kwargs):
@@ -921,6 +923,24 @@ class Build(models.Model):
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+
+    def reset(self):
+        """
+        Reset the build so it can be re-used when re-trying.
+
+        Dates and states are usually overridden by the build,
+        we care more about deleting the commands.
+        """
+        self.state = BUILD_STATE_TRIGGERED
+        self.status = ''
+        self.success = True
+        self.output = ''
+        self.error = ''
+        self.exit_code = None
+        self.builder = ''
+        self.cold_storage = False
+        self.commands.all().delete()
+        self.save()
 
 
 class BuildCommandResultMixin:
@@ -1166,7 +1186,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             )
             expression = F('priority') + 1
 
-        # Put an imposible priority to avoid
+        # Put an impossible priority to avoid
         # the unique constraint (project, priority)
         # while updating.
         self.priority = total + 99
@@ -1249,7 +1269,7 @@ class RegexAutomationRule(VersionAutomationRule):
            arg to avoid ReDoS.
 
            We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writting this code.
+           but there isn't a stable library at the time of writing this code.
         """
         try:
             match = regex.search(

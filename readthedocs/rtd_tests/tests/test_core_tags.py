@@ -1,5 +1,4 @@
 from unittest import mock
-import pytest
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -30,10 +29,9 @@ class CoreTagsTests(TestCase):
         self.pip_latest_document_url = url_base.format(version='/en/latest/document')
         self.pip_latest_document_page_url = url_base.format(version='/en/latest/document.html')
 
-        with mock.patch('readthedocs.projects.models.broadcast'):
-            self.client.login(username='eric', password='test')
-            self.pip = Project.objects.get(slug='pip')
-            self.pip_fr = Project.objects.create(name='PIP-FR', slug='pip-fr', language='fr', main_language_project=self.pip)
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        self.pip_fr = Project.objects.create(name='PIP-FR', slug='pip-fr', language='fr', main_language_project=self.pip)
 
     def test_project_only(self):
         proj = Project.objects.get(slug='pip')
@@ -91,20 +89,6 @@ class CoreTagsTests(TestCase):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, LATEST, 'index', 'index.html')
         self.assertEqual(url, self.pip_latest_url_index)
-
-    def test_restructured_text(self):
-        value = '*test*'
-        result = core_tags.restructuredtext(value)
-        self.assertIn('<em>test</em>', result)
-
-    def test_restructured_text_invalid(self):
-        value = (
-            '*******\n'
-            'Test\n'
-            '****\n\n'
-        )
-        result = core_tags.restructuredtext(value)
-        self.assertEqual(result, value)
 
     def test_escapejson(self):
         tests = (

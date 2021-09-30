@@ -104,7 +104,7 @@ form p label { font-weight: normal; }
 form p.required label { font-weight: bold; }
 textarea, input, button, .button, select { display: block; padding: 5px; color: #444; background-color: #fff; border: 1px solid #BFBFBF; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 textarea, input, .button { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
-input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
+input[type="text"], input[type="password"], input[type="email"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
 input::-webkit-input-placeholder { color: #ccc; }
 input:-moz-placeholder { color: #ccc; opacity: 1; }
 input::-moz-placeholder { color: #ccc; opacity: 1; }
@@ -613,14 +613,29 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 
 /* notification box */
-.notification { padding: 5px 0; color: #a55; }
+.notification {
+    padding: 5px 0;
+    color: #a55;
+    max-width: max-content;
+}
 .notification-20,
 .notification-25,
+.notification-26,
 .notification-101,
 .notification-102 {
   color: #5a5;
 }
 
+a.notification-action {
+    text-decoration: none;
+    float: right;
+    padding-left: 5px;
+}
+
+.notification-action > .icon.close:before {
+    font-family: FontAwesome;
+    content: "\f057";
+}
 
 /* warning banner */
 
@@ -698,7 +713,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 /* Change language form */
 #footer .footer-bottom { margin-top: 30px; }
 #footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
-#footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
+#footer input[type="submit"], #footer button[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
 
 /* Other footer forms */
 #footer #email-signup { margin-bottom: 20px; }

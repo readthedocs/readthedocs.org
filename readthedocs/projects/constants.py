@@ -17,7 +17,7 @@ SPHINX_SINGLEHTML = 'sphinx_singlehtml'
 MKDOCS_HTML = 'mkdocs_html'
 DOCUMENTATION_CHOICES = (
     (SPHINX, _('Sphinx Html')),
-    (MKDOCS, _('Mkdocs (Markdown)')),
+    (MKDOCS, _('Mkdocs')),
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
@@ -80,12 +80,10 @@ REPO_CHOICES = (
 )
 
 PUBLIC = 'public'
-PROTECTED = 'protected'
 PRIVATE = 'private'
 
 PRIVACY_CHOICES = (
     (PUBLIC, _('Public')),
-    (PROTECTED, _('Protected')),
     (PRIVATE, _('Private')),
 )
 

@@ -1,0 +1,46 @@
+{
+  "body": "",
+  "alabaster_version": "0.7.10",
+  "display_toc": false,
+  "title": "Welcome to Read The Docs",
+  "sourcename": "index.rst.txt",
+  "customsidebar": null,
+  "metatags": "",
+  "current_page_name": "index",
+  "next": {
+    "link": "getting_started/",
+    "title": "Getting Started"
+  },
+  "rellinks": [
+    [
+      "genindex",
+      "General Index",
+      "I",
+      "index"
+    ],
+    [
+      "http-routingtable",
+      "HTTP Routing Table",
+      "",
+      "routing table"
+    ],
+    [
+      "py-modindex",
+      "Python Module Index",
+      "",
+      "modules"
+    ],
+    [
+      "getting_started",
+      "Getting Started",
+      "N",
+      "next"
+    ]
+  ],
+  "meta": {},
+  "parents": [],
+  "sidebars": null,
+  "toc": "<ul>\n<li><a class=\"reference internal\" href=\"#\">Welcome to Read The Docs</a><ul>\n</ul>\n</li>\n</ul>\n",
+  "prev": null,
+  "page_source_suffix": ".rst"
+}

@@ -12,7 +12,7 @@ from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.core.unresolver import unresolve_from_request
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 
 class BaseAnalyticsView(APIView):
@@ -62,9 +62,6 @@ class BaseAnalyticsView(APIView):
     # pylint: disable=no-self-use
     def increase_page_view_count(self, request, project, version, absolute_uri):
         """Increase the page view count for the given project."""
-        if not absolute_uri or not project.has_feature(Feature.STORE_PAGEVIEWS):
-            return
-
         unresolved = unresolve_from_request(request, absolute_uri)
         if not unresolved:
             return
@@ -77,12 +74,13 @@ class BaseAnalyticsView(APIView):
             path=path,
             date=timezone.now().date(),
         )
-        page_view = PageView.objects.filter(**fields).first()
-        if page_view:
+        page_view, created = PageView.objects.get_or_create(
+            **fields,
+            defaults={'view_count': 1},
+        )
+        if not created:
             page_view.view_count = F('view_count') + 1
             page_view.save(update_fields=['view_count'])
-        else:
-            PageView.objects.create(**fields, view_count=1)
 
 
 class AnalyticsView(SettingsOverrideObject):

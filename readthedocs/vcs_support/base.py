@@ -45,7 +45,7 @@ class BaseVCS:
     supports_branches = False  # Whether this VCS supports branches or not.
     supports_submodules = False
 
-    # Whether this VCS supports listing remotes (branches, tags) without clonning
+    # Whether this VCS supports listing remotes (branches, tags) without cloning
     supports_lsremote = False
 
     # =========================================================================
@@ -67,13 +67,10 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        # TODO: always pass an explict environment
+        # TODO: always pass an explicit environment
         # This is only used in tests #6546
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
         self.environment = environment or LocalBuildEnvironment(record=False)
-
-        # Update the env variables with the proper VCS env variables
-        self.environment.environment.update(self.env)
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -83,10 +80,6 @@ class BaseVCS:
         """Ensures that the working dir exists and is empty."""
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
-
-    @property
-    def env(self):
-        return {}
 
     def update(self):
         """

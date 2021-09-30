@@ -6,6 +6,7 @@ from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
@@ -18,6 +19,7 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
+    HTTPHeader,
     HTMLFile,
     ImportedFile,
     Project,
@@ -141,7 +143,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
 
@@ -165,7 +167,7 @@ class ProjectAdmin(admin.ModelAdmin):
         DomainInline,
     ]
     readonly_fields = ('pub_date', 'feature_flags',)
-    raw_id_fields = ('users', 'main_language_project')
+    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
@@ -221,12 +223,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
-        """
-        Remove HTML/etc artifacts from storage.
-
-        Prior to the query delete, broadcast tasks to delete HTML artifacts from
-        application instances.
-        """
+        """Remove HTML/etc artifacts from storage."""
         if request.POST.get('post'):
             for project in queryset:
                 clean_project_resources(project)
@@ -346,6 +343,10 @@ class ImportedFileAdmin(admin.ModelAdmin):
     search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
 
+class HTTPHeaderInline(admin.TabularInline):
+    model = HTTPHeader
+
+
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
         'domain',
@@ -357,10 +358,29 @@ class DomainAdmin(admin.ModelAdmin):
         'created',
         'modified',
     )
+    inlines = (HTTPHeaderInline,)
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
     list_filter = ('canonical', 'https', 'ssl_status')
     model = Domain
+
+
+class HTTPHeaderAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'value',
+        'domain_name',
+        'project_slug',
+    )
+    raw_id_fields = ('domain',)
+    search_fields = ('name', 'domain__name', 'project__slug')
+    model = HTTPHeader
+
+    def domain_name(self, http_header):
+        return http_header.domain.domain
+
+    def project_slug(self, http_header):
+        return http_header.domain.project.slug
 
 
 class FeatureAdmin(admin.ModelAdmin):
@@ -378,13 +398,14 @@ class FeatureAdmin(admin.ModelAdmin):
 
 class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
-    list_display = ('name', 'value', 'project', 'created')
+    list_display = ('name', 'value', 'public', 'project', 'created')
     search_fields = ('name', 'project__slug')
 
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(HTTPHeader, HTTPHeaderAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)

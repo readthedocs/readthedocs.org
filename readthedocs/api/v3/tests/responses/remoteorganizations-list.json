@@ -1,0 +1,17 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
+      "created": "2019-04-29T10:00:00Z",
+      "modified": "2019-04-29T12:00:00Z",
+      "name": "Read the Docs",
+      "pk": 1,
+      "slug": "readthedocs",
+      "url": "https://github.com/readthedocs",
+      "vcs_provider": "github"
+    }
+  ]
+}

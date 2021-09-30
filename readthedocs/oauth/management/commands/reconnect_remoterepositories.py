@@ -55,7 +55,7 @@ class Command(BaseCommand):
             Q(ssh_url__in=Subquery(organization.projects.values('repo'))) |
             Q(clone_url__in=Subquery(organization.projects.values('repo')))
         )
-        for remote in RemoteRepository.objects.filter(remote_query).order_by('pub_date'):
+        for remote in RemoteRepository.objects.filter(remote_query).order_by('created'):
             admin = json.loads(remote.json).get('permissions', {}).get('admin')
 
             if only_owners and remote.users.first() not in organization.owners.all():

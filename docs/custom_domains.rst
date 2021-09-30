@@ -26,7 +26,7 @@ You can also host your documentation from your own domain.
 .. tabs::
 
    .. tab:: Read the Docs Community
-      
+
       In order to setup your custom domain, follow these steps:
 
       #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
@@ -45,7 +45,7 @@ You can also host your documentation from your own domain.
       .. prompt:: bash $, auto
 
          $ dig CNAME +short docs.fabfile.org
-         readthedocs.io.
+           readthedocs.io.
 
    .. tab:: Read the Docs for Business
 
@@ -56,7 +56,7 @@ You can also host your documentation from your own domain.
       #. Enter your domain and click on :guilabel:`Add`
       #. Follow the steps shown on the domain page.
          This will require adding 2 DNS records, one pointing your custom domain to our servers,
-         and another allowing us to provision an SSL certificate. 
+         and another allowing us to provision an SSL certificate.
 
       By default, we provide a validated SSL certificate for the domain.
       The SSL certificate issuance can take a few days,
@@ -127,57 +127,58 @@ You will need to update your CAA records to allow us to issue the certificate.
 .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
-Notes for Cloudflare DNS users
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
 
-Due to a limitation between |org_brand| and Cloudflare,
-a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-You will see a "CNAME Cross-User Banned" error in your Cloudflare dashboard
-and a ``requested hostname resolves to a Cloudflare zone that is not owned by you`` error in the Read the Docs dashboard.
-In order to do SSL termination, we must proxy this connection.
-If you don't want us to do SSL termination for your domain —
-**which means you are responsible for the SSL certificate** —
-then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-For more details, see `this previous issue`_.
+   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
+   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
+   else it will always redirect to GitBook.
 
-.. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+Canonical URLs
+--------------
 
+Canonical URLs allow people to have consistent page URLs for domains.
+This is mainly useful for search engines,
+so that they can send people to the correct page.
 
-Proxy SSL
----------
+Read the Docs uses these in two ways:
 
-.. warning::
+* We point all versions of your docs at the "latest" version as canonical
+* We point at the user specified canonical URL, generally a custom domain for your docs.
 
-   This option is deprecated,
-   we already issue SSL certificates for all domains.
+Example
++++++++
 
-If you would prefer to do your own SSL termination
-on a server you own and control,
-you can do that although the setup is a bit more complex.
+Fabric hosts their docs on Read the Docs.
+They mostly use their own domain for them ``http://docs.fabfile.org``.
+This means that Google will index both ``http://fabric-docs.readthedocs.io`` and
+``http://docs.fabfile.org`` for their documentation.
 
-Broadly, the steps are:
+Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
+This means that when Google indexes ``http://fabric-docs.readthedocs.io``,
+it will know that it should really point at ``http://docs.fabfile.org``.
 
-* Have a server listening on 443 that you control
-* Procure an SSL certificate for your domain and provision it
-  and the private key on your server.
-* Add a domain that you wish to point at Read the Docs
-* Enable proxying to us, with a custom ``X-RTD-SLUG`` header
+Enabling
+++++++++
 
-An example nginx configuration for pip would look like:
+You can set the canonical URL for your project in the Project Admin page.
+Check your :guilabel:`Admin` > :guilabel:`Domains` page for the domains that we know about.
 
-.. code-block:: nginx
-   :emphasize-lines: 9
+Implementation
+++++++++++++++
 
-    server {
-        server_name pip.pypa.io;
-        location / {
-            proxy_pass https://pip.readthedocs.io:443;
-            proxy_set_header Host $http_host;
-            proxy_set_header X-Forwarded-Proto https;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Scheme $scheme;
-            proxy_set_header X-RTD-SLUG pip;
-            proxy_connect_timeout 10s;
-            proxy_read_timeout 20s;
-        }
-    }
+If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
+Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
+
+.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
+
+If you are using :doc:`MkDocs </intro/getting-started-with-mkdocs>`,
+you can use the site_url_ setting.
+
+.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
+
+If you look at the source code for documentation built after you set your canonical URL,
+you should see a bit of HTML like this:
+
+.. code-block:: html
+
+    <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />

@@ -7,9 +7,9 @@ import re
 from urllib.parse import urlparse
 
 import orjson as json
-from django.conf import settings
-from django.core.files.storage import get_storage_class
 from selectolax.parser import HTMLParser
+
+from readthedocs.storage import build_media_storage
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class BaseParser:
     def __init__(self, version):
         self.version = version
         self.project = self.version.project
-        self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        self.storage = build_media_storage
 
     def _get_page_content(self, page):
         """Gets the page content from storage."""
@@ -166,11 +166,13 @@ class BaseParser:
 
            This will mutate the original `body`.
         """
-        # Remove all navigation nodes
         nodes_to_be_removed = itertools.chain(
+            # Navigation nodes
             body.css('nav'),
             body.css('[role=navigation]'),
             body.css('[role=search]'),
+            # Permalinks
+            body.css('.headerlink'),
         )
         for node in nodes_to_be_removed:
             node.decompose()
@@ -405,7 +407,7 @@ class SphinxParser(BaseParser):
         """
         Removes sphinx domain nodes.
 
-        This method is overriden to remove contents that are likely
+        This method is overridden to remove contents that are likely
         to be a sphinx domain (`dl` tags).
         We already index those in another step.
         """
@@ -583,7 +585,7 @@ class MkDocsParser(BaseParser):
             path = parsed_path.path
 
             # Some old versions of mkdocs
-            # index the pages as ``/page.html`` insted of ``page.html``.
+            # index the pages as ``/page.html`` instead of ``page.html``.
             path = path.lstrip('/')
 
             if path == '' or path.endswith('/'):

@@ -33,7 +33,7 @@ My documentation requires additional dependencies
 -------------------------------------------------
 
 For most Python dependencies, you can can specify a requirements file
-which details your dependencies. See our guide on :doc:`/guides/specifying-dependencies`.
+which details your dependencies. See our guide on :ref:`guides/reproducible-builds:using a configuration file`.
 You can also set your project documentation to install your project itself
 as a dependency.
 
@@ -50,7 +50,7 @@ see :ref:`faq:My documentation requires additional dependencies`.
 Read the Docs offers some settings which can be used for a variety of purposes.
 To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
-Read more about these settings :doc:`here <guides/feature-flags>`.
+Read more about these settings :doc:`here <feature-flags>`.
 
 
 I get import errors on libraries that depend on C modules
@@ -216,8 +216,7 @@ and as a result, it tends to look a bit better with the default theme.
 .. note::
 
    To use these extensions you need to specify the dependencies on your project
-   by following this :doc:`guide <guides/specifying-dependencies>`.
-
+   by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
 
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
@@ -237,12 +236,10 @@ following contents::
 
     src/python/
 
-Please note that the path must be relative to the file. So the example path
-above would work if the file is in the root of your repository. If you want to
-put the requirements in a file called ``requirements/requirements.txt``, the
-contents would look like::
-
-    ../python/
+Please note that the path must be relative to the working directory where ``pip`` is launched,
+rather than the directory where the requirements file is located.
+Therefore, even if you want to move the requirements file to a ``requirements/`` directory,
+the example path above would work.
 
 You can customize the path to your requirements file and any other installed dependency
 using a Read the Docs :doc:`config-file/index`.
@@ -266,6 +263,24 @@ In your Conda environment file (``environment.yml``)::
 
     # path to the directory containing setup.py relative to the environment file
     -e ..
+
+
+Can I use Anaconda Project and ``anaconda-project.yml``?
+--------------------------------------------------------
+
+Yes. With ``anaconda-project>=0.8.4`` you can use the `Anaconda Project`_ configuration
+file ``anaconda-project.yaml`` (or ``anaconda-project.yml``) directly in place of a
+Conda environment file by using ``dependencies:`` as an alias for ``packages:``.
+
+I.e., your ``anaconda-project.yaml`` file can be used as a ``conda.environment`` config
+in the ``.readthedocs.yaml`` config file if it contains::
+
+    dependencies:
+      - python=3.9
+      - scipy
+      ...
+      
+.. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
 
 
 How can I avoid search results having a deprecated version of my docs?

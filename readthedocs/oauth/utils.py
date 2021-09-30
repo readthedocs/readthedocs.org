@@ -30,11 +30,21 @@ def update_webhook(project, integration, request=None):
         return None
 
     updated = False
-    try:
-        account = project.remote_repository.account
-        service = service_cls(request.user, account)
-        updated, __ = service.update_webhook(project, integration)
-    except Project.remote_repository.RelatedObjectDoesNotExist:
+    if project.remote_repository:
+        remote_repository_relations = (
+            project.remote_repository.remote_repository_relations.filter(
+                account__isnull=False,
+                user=request.user
+            ).select_related('account')
+        )
+
+        for relation in remote_repository_relations:
+            service = service_cls(request.user, relation.account)
+            updated, __ = service.update_webhook(project, integration)
+
+            if updated:
+                break
+    else:
         # The project was imported manually and doesn't have a RemoteRepository
         # attached. We do brute force over all the accounts registered for this
         # service

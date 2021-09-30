@@ -1,5 +1,4 @@
 """Project models."""
-
 import fnmatch
 import logging
 import os
@@ -11,7 +10,6 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
-from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
@@ -26,8 +24,9 @@ from taggit.managers import TaggableManager
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -35,7 +34,6 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
-    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -46,6 +44,7 @@ from readthedocs.projects.validators import (
 )
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
+from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -57,6 +56,11 @@ from .constants import (
 )
 
 log = logging.getLogger(__name__)
+
+
+def default_privacy_level():
+    """Wrapper around the setting, so the level is dynamically included in the migration."""
+    return settings.DEFAULT_PRIVACY_LEVEL
 
 
 class ProjectRelationship(models.Model):
@@ -107,8 +111,8 @@ class Project(models.Model):
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -213,10 +217,22 @@ class Project(models.Model):
         ),
     )
 
+    # External versions
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+    )
+    external_builds_privacy_level = models.CharField(
+        _('Privacy level of Pull Requests'),
+        max_length=20,
+        # TODO: remove after migration
+        null=True,
+        choices=constants.PRIVACY_CHOICES,
+        default=default_privacy_level,
+        help_text=_(
+            'Should builds from pull requests be public?',
+        ),
     )
 
     # Project features
@@ -420,8 +436,16 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
+    history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
-    all_objects = models.Manager()
+
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
@@ -433,8 +457,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -844,12 +866,11 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
             version_type=version_type
         )
-        return storage.exists(storage_path)
+        return build_media_storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -1163,7 +1184,7 @@ class Project(models.Model):
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
-        subproject, __ = ProjectRelationship.objects.get_or_create(
+        subproject, _ = ProjectRelationship.objects.get_or_create(
             parent=self,
             child=child,
             alias=alias,
@@ -1233,17 +1254,18 @@ class Project(models.Model):
 
         return True
 
-    @property
-    def environment_variables(self):
+    def environment_variables(self, *, public_only=True):
         """
         Environment variables to build this particular project.
 
-        :returns: dictionary with all the variables {name: value}
+        :param public_only: Only return publicly visible variables?
+        :returns: dictionary with all visible variables {name: value}
         :rtype: dict
         """
         return {
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
+            if variable.public or not public_only
         }
 
     def is_valid_as_superproject(self, error_class):
@@ -1259,30 +1281,31 @@ class Project(models.Model):
                 _('Subproject nesting is not supported'),
             )
 
-    def is_valid_as_subproject(self, parent, error_class):
+    def get_subproject_candidates(self, user):
         """
-        Checks if the project can be a subproject.
+        Get a queryset of projects that would be valid as a subproject for this project.
 
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
+        This excludes:
+
+        - The project itself
+        - Projects that are already a subproject of another project
+        - Projects that are a superproject.
+
+        If the project belongs to an organization,
+        we only allow projects under the same organization as subprojects,
+        otherwise only projects that don't belong to an organization.
+
+        Both projects need to share the same owner/admin.
         """
-        # Check the child project is not a subproject already
-        if self.superprojects.exists():
-            raise error_class(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if self.subprojects.exists():
-            raise error_class(
-                _('Child is already a superproject'),
-            )
-
-        # Check the parent and child are not the same project
-        if parent.slug == self.slug:
-            raise error_class(
-                _('Project can not be subproject of itself'),
-            )
+        organization = self.organizations.first()
+        queryset = (
+            Project.objects.for_admin_user(user)
+            .filter(organizations=organization)
+            .exclude(subprojects__isnull=False)
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.pk)
+        )
+        return queryset
 
 
 class APIProject(Project):
@@ -1334,9 +1357,12 @@ class APIProject(Project):
         """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
-    @property
-    def environment_variables(self):
-        return self._environment_variables
+    def environment_variables(self, *, public_only=True):
+        return {
+            name: spec['value']
+            for name, spec in self._environment_variables.items()
+            if spec['public'] or not public_only
+        }
 
 
 class ImportedFile(models.Model):
@@ -1367,7 +1393,6 @@ class ImportedFile(models.Model):
     # of 4096 characters for most filesystems (including EXT4).
     # https://github.com/rtfd/readthedocs.org/issues/5061
     path = models.CharField(_('Path'), max_length=4096)
-    md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -1407,7 +1432,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
+    objects = HTMLFileManager()
 
     def get_processed_json(self):
         parser_class = (
@@ -1545,6 +1570,47 @@ class Domain(TimeStampedModel, models.Model):
         super().save(*args, **kwargs)
 
 
+class HTTPHeader(TimeStampedModel, models.Model):
+
+    """
+    Define a HTTP header for a user Domain.
+
+    All the HTTPHeader(s) associated with the domain are added in the response
+    from El Proxito.
+
+    NOTE: the available headers are hardcoded in the NGINX configuration for
+    now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
+    expose them all without hardcoding them.
+    """
+
+    HEADERS_CHOICES = (
+        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
+        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
+        ('content_security_policy', 'Content-Security-Policy'),
+        ('feature_policy', 'Feature-Policy'),
+        ('permissions_policy', 'Permissions-Policy'),
+        ('referrer_policy', 'Referrer-Policy'),
+        ('x_frame_options', 'X-Frame-Options'),
+    )
+
+    domain = models.ForeignKey(
+        Domain,
+        related_name='http_headers',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=128,
+        choices=HEADERS_CHOICES,
+    )
+    value = models.CharField(max_length=256)
+    only_if_secure_request = models.BooleanField(
+        help_text='Only set this header if the request is secure (HTTPS)',
+    )
+
+    def __str__(self):
+        return f"HttpHeader: {self.name} on {self.domain.domain}"
+
+
 class Feature(models.Model):
 
     """
@@ -1563,19 +1629,13 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
-    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     CONDA_USES_MAMBA = 'conda_uses_mamba'
@@ -1587,36 +1647,31 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
-    SYNC_VERSIONS_USING_A_TASK = 'sync_versions_using_a_task'
+
+    # Dependencies related features
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
-    SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION = 'search_subprojects_on_default_version'
 
-    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
-    STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
-    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DONT_CREATE_INDEX = 'dont_create_index'
-    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
-        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (
-            DONT_INSTALL_DOCUTILS,
-            _(
-                'Do not install docutils as requirement for build documentation',
-            ),
-        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
-        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1640,20 +1695,8 @@ class Feature(models.Model):
             _('Try alternative method of posting large data'),
         ),
         (
-            SHARE_SPHINX_DOCTREE,
-            _('Use shared directory for doctrees'),
-        ),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default'),
-        ),
-        (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
-        ),
-        (
-            EXTERNAL_VERSION_BUILD,
-            _('Enable project to build on pull/merge requests'),
         ),
         (
             UPDATE_CONDA_STARTUP,
@@ -1696,9 +1739,23 @@ class Feature(models.Model):
             SKIP_SYNC_VERSIONS,
             _('Skip sync versions task'),
         ),
+
+        # Dependencies related features
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
         (
-            SYNC_VERSIONS_USING_A_TASK,
-            _('Sync versions using a task instead of the API'),
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
+        ),
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (USE_MKDOCS_LATEST, _('Use latest version of MkDocs')),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
         ),
 
         # Search related features.
@@ -1718,18 +1775,7 @@ class Feature(models.Model):
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
         ),
-        (
-            SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION,
-            _(
-                'When searching subprojects default to its default version if it doesn\'t '
-                'have the same version as the main project'
-            ),
-        ),
 
-        (
-            FORCE_SPHINX_FROM_VENV,
-            _('Force to use Sphinx from the current virtual environment'),
-        ),
         (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
@@ -1740,10 +1786,6 @@ class Feature(models.Model):
         (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
-        ),
-        (
-            STORE_PAGEVIEWS,
-            _('Store pageviews for this project'),
         ),
         (
             SPHINX_PARALLEL,
@@ -1758,16 +1800,8 @@ class Feature(models.Model):
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
-            USE_SPHINX_RTD_EXT_LATEST,
-            _('Use latest version of the Read the Docs Sphinx extension'),
-        ),
-        (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
-        ),
-        (
-            DONT_INSTALL_LATEST_PIP,
-            _('Don\'t install the latest version of pip'),
         ),
     )
 
@@ -1825,6 +1859,12 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         Project,
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
+    )
+    public = models.BooleanField(
+        _('Public'),
+        default=False,
+        null=True,
+        help_text=_('Expose this environment variable in PR builds?'),
     )
 
     objects = RelatedProjectQuerySet.as_manager()

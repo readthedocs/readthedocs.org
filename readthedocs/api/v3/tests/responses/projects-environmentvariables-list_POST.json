@@ -7,5 +7,6 @@
     "modified": "2019-04-29T12:00:00Z",
     "pk": 2,
     "project": "project",
+    "public": true,
     "name": "NEWENVVAR"
 }

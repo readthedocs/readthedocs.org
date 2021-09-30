@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
 import datetime
 import os
-
 from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django_dynamic_fixture import fixture, get
 from django.utils import timezone
-
-from allauth.socialaccount.models import SocialAccount
+from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.constants import (
     BRANCH,
     EXTERNAL,
+    GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
     GITLAB_EXTERNAL_VERSION_NAME,
-    GENERIC_EXTERNAL_VERSION_NAME
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
@@ -23,7 +20,6 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import DuplicatedBuildError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import EnvironmentVariable, Feature, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -73,7 +69,8 @@ class BuildEnvironmentTests(TestCase):
         self.assertEqual(self.mocks.popen.call_count, 1)
         cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegex(cmd[0][0], r'python')
-        self.assertRegex(cmd[0][1], r'sphinx-build')
+        self.assertRegex(cmd[0][1], '-m')
+        self.assertRegex(cmd[0][2], 'sphinx')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):
@@ -324,7 +321,7 @@ class BuildEnvironmentTests(TestCase):
         task.run_setup()
         build_config = task.build['config']
         # For patch
-        api_v2.build.assert_called_once()
+        api_v2.build().patch.assert_called_once()
         assert build_config['version'] == '1'
         assert 'sphinx' in build_config
         assert build_config['doctype'] == 'sphinx'
@@ -364,7 +361,7 @@ class BuildEnvironmentTests(TestCase):
             ),
             'TOKEN': 'a1b2c3',
         }
-        self.assertEqual(task.get_env_vars(), env)
+        self.assertEqual(task.get_build_env_vars(), env)
 
         # mock this object to make sure that we are in a conda env
         task.config = mock.Mock(conda=True)
@@ -378,7 +375,7 @@ class BuildEnvironmentTests(TestCase):
                 'bin',
             ),
         })
-        self.assertEqual(task.get_env_vars(), env)
+        self.assertEqual(task.get_build_env_vars(), env)
 
 
 class BuildModelTests(TestCase):

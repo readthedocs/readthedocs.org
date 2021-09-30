@@ -38,7 +38,7 @@ Search across projects you have access to (|com_brand|)
 
 Special query syntax for more specific results.
    We support a full range of search queries.
-   You can see some examples in our :ref:`guides/searching-with-readthedocs:search query syntax` guide.
+   You can see some examples in our :ref:`guides/advanced-search:search query syntax` guide.
 
 Configurable.
    Tweak search results according to your needs using a
@@ -72,14 +72,15 @@ and then click on :guilabel:`Search Analytics`.
 API
 ---
 
-Search is exposed through our API that's proxied from the domain where your docs are being served.
-This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project, for example.
+If you are using :doc:`/commercial/index` you will need to replace
+https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
+Check :ref:`server-side-search:authentication and authorization` if you are using private versions.
 
 .. warning::
 
    This API isn't stable yet, some small things may change in the future.
 
-.. http:get:: /_/api/v2/search/
+.. http:get:: /api/v2/search/
 
    Return a list of search results for a project,
    including results from its :doc:`/subprojects`.
@@ -90,6 +91,8 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
    :query q: Search query
    :query project: Project slug
    :query version: Version slug
+   :query page: Jump to a specific page
+   :query page_size: Limits the results per page, default is 50
 
    .. Response
 
@@ -118,12 +121,12 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
 
       .. code-tab:: bash
 
-         $ curl "https://docs.readthedocs.io/_/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
+         $ curl "https://readthedocs.org/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
 
       .. code-tab:: python
 
          import requests
-         URL = 'https://docs.readthedocs.io/_/api/v2/search/'
+         URL = 'https://readthedocs.org/api/v2/search/'
          params = {
             'q': 'server side search',
             'project': 'docs',
@@ -138,7 +141,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
 
       {
           "count": 41,
-          "next": "https://docs.readthedocs.io/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
+          "next": "https://readthedocs.org/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
           "previous": null,
           "results": [
               {
@@ -192,3 +195,8 @@ If you are using :ref:`private versions <versions:privacy levels>`,
 users will only be allowed to search projects they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
+
+To be able to use the user's current session you need to use the API from the domain where your docs are being served
+(``<you-docs-domain>/_/api/v2/search/``).
+This is ``https://docs.readthedocs-hosted.com/_/api/v2/search/``
+for the ``https://docs.readthedocs-hosted.com/`` project, for example.

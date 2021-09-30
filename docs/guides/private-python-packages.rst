@@ -34,7 +34,7 @@ To install the package,
 you need to add the URI in your :ref:`requirements file <config-file/v2:Requirements file>`.
 Pip will automatically expand environment variables in your URI,
 so you don't have to hard code the token in the URI.
-See :doc:`using environment variables in Read the Docs </guides/environment-variables>` for more information.
+See :doc:`using environment variables in Read the Docs </environment-variables>` for more information.
 
 .. note::
 
@@ -42,7 +42,7 @@ See :doc:`using environment variables in Read the Docs </guides/environment-vari
    and including a dollar sign and curly brackets around the name (``${API_TOKEN}``)
    for :ref:`pip to be able to recognize them <pip:using environment variables>`.
 
-Bellow you can find how to get a personal access token from our supported providers.
+Below you can find how to get a personal access token from our supported providers.
 We will be using environment variables for the token.
 
 GitHub
@@ -108,7 +108,7 @@ If you are using a repository manager like *pypiserver*, or *Nexus Repository*,
 you need to set the :option:`pip:--index-url` option.
 You have two ways of set that option:
 
-- Set the ``PIP_INDEX_URL`` :doc:`environment variable in Read the Docs </guides/environment-variables>` with the index URL.
+- Set the ``PIP_INDEX_URL`` :doc:`environment variable in Read the Docs </environment-variables>` with the index URL.
   See :ref:`pip:using environment variables`.
 - Put ``--index-url=https://my-index-url.com/`` at the top of your requirements file.
   See :ref:`pip:requirements file format`.

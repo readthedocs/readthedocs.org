@@ -1,5 +1,5 @@
-Version Control System Integration
-==================================
+Version Control System integration on your Sphinx theme
+=======================================================
 
 .. note::
 

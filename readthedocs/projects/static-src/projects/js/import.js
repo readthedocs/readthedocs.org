@@ -119,7 +119,6 @@ function Project(instance, view) {
         }
     });
     self.private = ko.observable(instance.private);
-    self.active = ko.observable(instance.active);
     self.admin = ko.observable(instance.admin);
     self.is_locked = ko.computed(function () {
         if (view.has_sso_enabled) {

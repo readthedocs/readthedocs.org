@@ -66,7 +66,12 @@ Custom Not Found (404) Pages
 If you want your project to use a custom page for not found pages instead of the "Maze Found" default,
 you can put a ``404.html`` at the top level of your project's HTML output.
 
-When a 404 is returned, Read the Docs checks if there is a ``404.html`` in the root of your project's output and uses it if it exists.
+When a 404 is returned,
+Read the Docs checks if there is a ``404.html`` in the root of your project's output
+corresponding to the *current* version
+and uses it if it exists.
+Otherwise, it tries to fall back to the ``404.html`` page
+corresponding to the *default* version of the project.
 
 We recommend the `sphinx-notfound-page`_ extension,
 which Read the Docs maintains.

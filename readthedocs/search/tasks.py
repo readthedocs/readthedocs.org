@@ -2,11 +2,11 @@ import logging
 
 from dateutil.parser import parse
 from django.apps import apps
+from django.conf import settings
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 
@@ -131,13 +131,14 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
     """
-    Delete old SearchQuery objects.
+    Delete old SearchQuery objects older than ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
 
     This is run by celery beat every day.
     """
-    last_3_months = timezone.now().date() - timezone.timedelta(days=90)
+    retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
+    days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
     search_queries_qs = SearchQuery.objects.filter(
-        created__date__lte=last_3_months,
+        created__date__lt=days_ago,
     )
 
     if search_queries_qs.exists():
@@ -167,35 +168,32 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         modified__gte=before_10_sec,
     ).order_by('-modified')
 
-    # If a partial query exists,
-    # then just update that object.
-    for partial_query in partial_query_qs.iterator():
+    # If a partial query exists, then just update that object.
+    # Check max 30 queries, in case there is a flood of queries.
+    max_queries = 30
+    for partial_query in partial_query_qs[:max_queries]:
         if query.startswith(partial_query.query):
             partial_query.query = query
             partial_query.total_results = total_results
             partial_query.save()
             return
 
-    project = Project.objects.filter(slug=project_slug).first()
-    if not project:
-        log.debug(
-            'Not recording the search query because project does not exist. '
-            'project_slug: %s', project_slug
-        )
-        return
-
-    version = Version.objects.filter(project=project, slug=version_slug).first()
-
+    version = (
+        Version.objects
+        .filter(slug=version_slug, project__slug=project_slug)
+        .prefetch_related('project')
+        .first()
+    )
     if not version:
         log.debug(
-            'Not recording the search query because version does not exist. '
-            'project_slug: %s, version_slug: %s', project_slug, version_slug
+            'Not recording the search query because project does not exist. '
+            'project=%s version=%s',
+            project_slug, version_slug,
         )
         return
 
-    # Create a new SearchQuery object.
     SearchQuery.objects.create(
-        project=project,
+        project=version.project,
         version=version,
         query=query,
         total_results=total_results,

@@ -14,16 +14,22 @@ This works, but it has some disadvantages:
 - There is no easy way to link to specific sections like paragraphs, figures, or code blocks.
 - URL links only work for the html version of your documentation.
 
-reStructuredText has a built-in way to linking to elements,
-and Sphinx extends this to make it even more powerful!
-Some advantages of using reStructuredText's references:
+Instead, Sphinx offers a powerful way to linking to the different elements of the document,
+called *cross-references*.
+Some advantages of using them:
 
 - Use a human-readable name of your choice, instead of a URL.
 - Portable between formats: html, PDF, ePub.
 - Sphinx will warn you of invalid references.
 - You can cross reference more than just pages and section headers.
 
-This page describes some best-practices for cross-referencing with Sphinx.
+This page describes some best-practices for cross-referencing with Sphinx
+with two markup options: reStructuredText and MyST (Markdown).
+
+- If you are not familiar with reStructuredText,
+  check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
+- If you want to learn more about the MyST Markdown dialect,
+  check out :doc:`myst-parser:syntax/syntax`.
 
 .. contents:: Table of contents
    :local:
@@ -38,11 +44,6 @@ Getting started
 Explicit targets
 ~~~~~~~~~~~~~~~~
 
-.. note::
-
-   If you are not familiar with reStructuredText,
-   check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
-
 Cross referencing in Sphinx uses two components, **references** and **targets**.
 
 - **references** are pointers in your documentation to other parts of your documentation.
@@ -53,70 +54,111 @@ you to *reference* it from other pages. These are called **explicit targets**.
 
 For example, one way of creating an explicit target for a section is:
 
-.. code-block:: rst
+.. tabs::
 
-   .. _My target:
+   .. tab:: reStructuredText
 
-   Explicit targets
-   ~~~~~~~~~~~~~~~~
+      .. code-block:: rst
 
-Then we can reference the section using ```My target`_``,
-that will be rendered as `My target`_.
+         .. _My target:
+
+         Explicit targets
+         ~~~~~~~~~~~~~~~~
+
+         Reference `My target`_.
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         (My_target)=
+         ## Explicit targets
+
+         Reference [](My_target).
+
+Then the reference will be rendered as `My target`_.
 
 You can also add explicit targets before paragraphs (or any other part of a page).
 
-Another example, here we add a target to a paragraph:
+Another example, add a target to a paragraph:
 
-.. code-block:: rst
+.. tabs::
 
-   .. _target to paragraph:
+   .. tab:: reStructuredText
 
-   An easy way is just to use the final link of the page/section.
-   This works, but it has some disadvantages:
+      .. code-block:: rst
 
-Then we can reference it using ```target to paragraph`_``,
-that will be rendered as: `target to paragraph`_.
+         .. _target to paragraph:
 
-The reference displays the name of the target by default,
-but we can use any text you want. For example:
-```my custom text <target to paragraph>`_``,
-that will be rendered as: `my custom text <target to paragraph>`_.
+         An easy way is just to use the final link of the page/section.
+         This works, but it has :ref:`some disadvantages <target to paragraph>`:
 
-We can also create _`in-line targets` within an element on your page,
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         (target_to_paragraph)=
+
+         An easy way is just to use the final link of the page/section.
+         This works, but it has [some disadvantages](target_to_paragraph):
+
+Then the reference will be rendered as: `target to paragraph`_.
+
+You can also create _`in-line targets` within an element on your page,
 allowing you to, for example, reference text *within* a paragraph.
 
 For example, an in-line target inside a paragraph:
 
-.. code-block:: rst
+.. tabs::
 
-   We can also create _`in-line targets` within an element on your page,
-   allowing you to, for example, reference text *within* a paragraph.
+   .. tab:: reStructuredText
 
-Then we can reference it using ```in-line targets`_``,
+      .. code-block:: rst
+
+         You can also create _`in-line targets` within an element on your page,
+         allowing you to, for example, reference text *within* a paragraph.
+
+Then you can reference it using ```in-line targets`_``,
 that will be rendered as: `in-line targets`_.
 
 Implicit targets
 ~~~~~~~~~~~~~~~~
 
-You may also reference sections by name without explicitly giving them one by
-using *implicit targets*.
+You may also reference some objects by name
+without explicitly giving them one
+by using *implicit targets*.
 
-When we create a section,
-reStructuredText will create a target with the title as the name.
-For example, to reference the previous section we can use ```Explicit targets`_``,
-that will be rendered as: `Explicit targets`_.
+When you create a section, a footnote, or a citation,
+Sphinx will create a target with the title as the name:
 
-.. note::
+.. tabs::
 
-   `Footnotes <https://docutils.sourceforge.io/docs/user/rst/quickref.html#footnotes>`_ and
-   `citations <https://docutils.sourceforge.io/docs/user/rst/quickref.html#citations>`_
-   also create implicit targets.
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         For example, to reference the previous section
+         you can use `Explicit targets`_.
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         For example, to reference the previous section
+         you can use [](#explicit-targets).
+
+      .. note::
+
+         This requires setting ``myst_heading_anchors = 2`` in your ``conf.py``,
+         see :ref:`myst-parser:syntax/header-anchors`.
+
+The reference will be rendered as: `Explicit targets`_.
 
 Cross-referencing using roles
 -----------------------------
 
-All targets that we have seen so far can be referenced only from the same page.
-Sphinx provides some roles that allows us to reference any explicit target from any page.
+All targets seen so far can be referenced only from the same page.
+Sphinx provides some roles that allow you to reference any explicit target from any page.
 
 .. note::
 
@@ -124,18 +166,29 @@ Sphinx provides some roles that allows us to reference any explicit target from 
    all targets must be unique.
 
 You can see the complete list of cross-referencing roles at :ref:`sphinx:xref-syntax`.
-Next, we will explore the most common ones.
+Next, you will explore the most common ones.
 
 The ref role
 ~~~~~~~~~~~~
 
-The ``ref`` role can be used to reference any explicit target. For example:
+The ``ref`` role can be used to reference any explicit targets. For example:
 
-.. code-block:: rst
+.. tabs::
 
-   - :ref:`my target`.
-   - :ref:`Target to paragraph <target to paragraph>`.
-   - :ref:`Target inside a paragraph <in-line targets>`.
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         - :ref:`my target`.
+         - :ref:`Target to paragraph <target to paragraph>`.
+         - :ref:`Target inside a paragraph <in-line targets>`.
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         - {ref}`my target`.
+         - {ref}`Target to paragraph <target_to_paragraph>`.
 
 That will be rendered as:
 
@@ -165,17 +218,29 @@ that will be rendered as: :ref:`code <target to code>`.
 The doc role
 ~~~~~~~~~~~~
 
-The `doc` role allows us to link to a page instead of just a section.
+The ``doc`` role allows us to link to a page instead of just a section.
 The target name can be relative to the page where the role exists, or relative
 to your documentation's root folder (in both cases, you should omit the extension).
 
-For example, to link to a page in the same directory as this one we can use:
+For example, to link to a page in the same directory as this one you can use:
 
-.. code-block:: rst
+.. tabs::
 
-   - :doc:`intersphinx`
-   - :doc:`/guides/intersphinx`
-   - :doc:`Custom title </guides/intersphinx>`
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         - :doc:`intersphinx`
+         - :doc:`/guides/intersphinx`
+         - :doc:`Custom title </guides/intersphinx>`
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         - {doc}`intersphinx`
+         - {doc}`/guides/intersphinx`
+         - {doc}`Custom title </guides/intersphinx>`
 
 That will be rendered as:
 
@@ -186,7 +251,7 @@ That will be rendered as:
 .. tip::
 
    Using paths relative to your documentation root is recommended,
-   so we avoid changing the target name if the page is moved.
+   so you avoid changing the target name if the page is moved.
 
 The numref role
 ~~~~~~~~~~~~~~~
@@ -203,7 +268,7 @@ To activate numbered references, add this to your ``conf.py`` file:
 
 Next, ensure that an object you would like to reference has an explicit target.
 
-For example, we can create a target for the next image:
+For example, you can create a target for the next image:
 
 .. _target to image:
 
@@ -214,19 +279,35 @@ For example, we can create a target for the next image:
 
    Link me!
 
-.. code-block:: rst
+.. tabs::
 
-   .. _target to image:
+   .. tab:: reStructuredText
 
-   .. figure:: /img/logo.png
-      :alt: Logo
-      :align: center
-      :width: 240px
+      .. code-block:: rst
 
-      Link me!
+         .. _target to image:
+
+         .. figure:: /img/logo.png
+            :alt: Logo
+            :align: center
+            :width: 240px
+
+            Link me!
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         (target_to_image)=
+
+         ```{figure} /img/logo.png
+         :alt: Logo
+         :align: center
+         :width: 240px
+         ```
 
 Finally, reference it using ``:numref:`target to image```,
-that will be rendered as :numref:`target to image`.
+that will be rendered as ``Fig. N``.
 Sphinx will enumerate the image automatically.
 
 Automatically label sections
@@ -253,12 +334,23 @@ To activate the ``autosectionlabel`` extension, add this to your ``conf.py`` fil
 Sphinx will create explicit targets for all your sections,
 the name of target has the form ``{path/to/page}:{title-of-section}``.
 
-For example, we can reference the previous section using:
+For example, you can reference the previous section using:
 
-.. code-block:: rst
+.. tabs::
 
-   - :ref:`guides/cross-referencing-with-sphinx:explicit targets`.
-   - :ref:`Custom title <guides/cross-referencing-with-sphinx:explicit targets>`.
+   .. tab:: reStructuredText
+
+      .. code-block:: rst
+
+         - :ref:`guides/cross-referencing-with-sphinx:explicit targets`.
+         - :ref:`Custom title <guides/cross-referencing-with-sphinx:explicit targets>`.
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         - {ref}`guides/cross-referencing-with-sphinx:explicit targets`.
+         - {ref}`Custom title <guides/cross-referencing-with-sphinx:explicit targets>`.
 
 That will be rendered as:
 
@@ -268,7 +360,7 @@ That will be rendered as:
 Invalid targets
 ---------------
 
-If we reference an invalid or undefined target Sphinx will warn us.
+If you reference an invalid or undefined target Sphinx will warn us.
 You can use the :option:`-W <sphinx:sphinx-build.-W>` option when building your docs
 to fail the build if there are any invalid references.
 On Read the Docs you can use the :ref:`config-file/v2:sphinx.fail_on_warning` option.

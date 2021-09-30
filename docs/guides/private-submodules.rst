@@ -11,42 +11,21 @@ In order to give Read the Docs access to clone your submodules you'll need to ad
 
 .. note::
 
-   You can manage which submodules Read the Docs should clone using a configuration file.
-   See :ref:`config-file/v2:submodules`.
+   - You can manage which submodules Read the Docs should clone using a configuration file.
+     See :ref:`config-file/v2:submodules`.
 
-.. note::
-
-   Make sure you are using ``SSH`` URLs for your submodules
-   (``git@github.com:readthedocs/readthedocs.org.git`` for example)
-   in your ``.gitmodules`` file, not ``http`` URLs.
+   - Make sure you are using ``SSH`` URLs for your submodules
+     (``git@github.com:readthedocs/readthedocs.org.git`` for example)
+     in your ``.gitmodules`` file, not ``http`` URLs.
 
 .. contents:: Table of contents
    :local:
    :backlinks: none
    :depth: 2
 
-
-Copy your project's SSH Key
----------------------------
-
-You can find the public SSH key of your Read the Docs project by
-
-#. Going to the :guilabel:`Admin` tab of your project
-#. Click on :guilabel:`SSH Keys`
-#. Click on the fingerprint of the SSH key (it looks like ``6d:ca:6d:ca:6d:ca:6d:ca``)
-#. Copy the text from the ``Public key`` section
-
-.. note::
-
-   The private part of the SSH key is kept secret.
-
-Add the SSH key to your submodules
-----------------------------------
-
 GitHub
-~~~~~~
+------
 
-For GitHub, Read the Docs uses `deploy keys with read only access <https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys>`__.
 Since GitHub doesn't allow you to reuse a deploy key across different repositories,
 you'll need to use `machine users <https://developer.github.com/v3/guides/managing-deploy-keys/#machine-users>`__
 to give read access to several repositories using only one SSH key.
@@ -71,48 +50,27 @@ to give read access to several repositories using only one SSH key.
    #. Click on :guilabel:`SSH and GPG keys`
    #. Click on :guilabel:`New SSH key`
    #. Put a descriptive title and paste the
-   #. :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Copy your project's SSH key>`
+      :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
    #. Click on :guilabel:`Add SSH key`
 
-GitLab
-~~~~~~
+Azure DevOps
+------------
 
-For GitLab, Read the Docs uses `deploy keys with read only access <https://docs.gitlab.com/ee/ssh/#deploy-keys>`__,
-which allows you to reuse a SSH key across different repositories.
-Since Read the Docs already added the public SSH key on your main repository,
-you only need to add it to each repository of your submodules.
+Azure DevOps does not have per-repository SSH keys, but keys can be added to a user instead.
+As long as this user has access to your main repository and all its submodules,
+Read the Docs can clone all the repositories with the same key.
 
-#. Go to the project of your submodule on GitLab
-#. Click on :guilabel:`Settings`
-#. Click on :guilabel:`Repository`
-#. Expand the :guilabel:`Deploy Keys` section
-#. Put a descriptive title and paste the
-#. :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Copy your project's SSH key>`
-#. Click on :guilabel:`Add key`
-#. Repeat the previous steps for each submodule
+.. seealso::
 
-Bitbucket
-~~~~~~~~~
-
-For Bitbucket, Read the Docs uses `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__,
-which allows you to reuse a SSH key across different repositories.
-Since Read the Docs already set the public SSH key on your main repository,
-you only need to add it to each repository of your submodules.
-
-#. Go to the project of your submodule on Bitbucket
-#. Click on :guilabel:`Settings`
-#. Click on :guilabel:`Access keys`
-#. Click on :guilabel:`Add key`
-#. Put a descriptive label and paste the
-#. :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Copy your project's SSH key>`
-#. Click on :guilabel:`Add key`
-#. Repeat the previous steps for each submodule
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:azure devops>`.
 
 Others
-~~~~~~
+------
 
-If you are not using any of the above providers.
-Read the Docs will still generate a pair of SSH keys.
-You'll need to add the :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Copy your project's SSH key>`
-to the main repository and each of its submodules.
-Refer to your provider's documentation for the steps required to do this.
+GitLab and Bitbucket allow you to reuse the same SSH key across different repositories.
+Since Read the Docs already added the public SSH key on your main repository,
+you only need to add it to each submodule repository.
+
+.. seealso::
+
+   :ref:`guides/importing-private-repositories:Giving access to your project with an SSH key`

@@ -34,22 +34,6 @@
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
     <hr>
 
-    {% if facets.index %}
-      <h5>{% trans 'Index' %}</h5>
-      {% for name, count, selected in facets.index %}
-        <li class="{% if selected %}active{% endif %} index-list">
-          {% if index == name %}
-            <a href="?{% url_replace request 'index' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'index' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
-          </a>
-        </li>
-      {% endfor %}
-      <hr>
-    {% endif %}
-
     {% if facets.project and not project_obj %}
       <h5>{% trans 'Projects' %}</h5>
       {% for name, count, selected in facets.project %}

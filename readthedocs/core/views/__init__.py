@@ -10,10 +10,11 @@ import logging
 from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
@@ -21,6 +22,11 @@ log = logging.getLogger(__name__)
 
 class NoProjectException(Exception):
     pass
+
+
+class HealthCheckView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'status': 200}, status=200)
 
 
 class HomepageView(TemplateView):
@@ -31,6 +37,17 @@ class HomepageView(TemplateView):
         """Add latest builds and featured projects."""
         context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
+        return context
+
+
+class SupportView(PrivateViewMixin, TemplateView):
+
+    template_name = 'support/index.html'
+
+    def get_context_data(self, **kwargs):
+        """Pass along endpoint for support form."""
+        context = super().get_context_data(**kwargs)
+        context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
         return context
 
 

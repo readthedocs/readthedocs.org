@@ -1,10 +1,11 @@
 """Utility functions used by projects."""
 
+import csv
 import logging
 import os
 
 from django.conf import settings
-
+from django.http import StreamingHttpResponse
 
 log = logging.getLogger(__name__)
 
@@ -56,3 +57,15 @@ class Echo:
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
+
+
+def get_csv_file(filename, csv_data):
+    """Get a CSV file to be downloaded as an attachment."""
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in csv_data),
+        content_type="text/csv",
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

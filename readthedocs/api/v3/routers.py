@@ -9,7 +9,7 @@ class DocsAPIRootView(APIRootView):
     """
     Read the Docs APIv3 root endpoint.
 
-    The API is browseable by sending the header ``Authorization: Token <token>`` on each request. You can find your Token at [https://readthedocs.org/accounts/tokens/](https://readthedocs.org/accounts/tokens/).
+    The API is browsable by sending the header ``Authorization: Token <token>`` on each request. You can find your Token at [https://readthedocs.org/accounts/tokens/](https://readthedocs.org/accounts/tokens/).
 
     Read its full documentation at [https://docs.readthedocs.io/page/api/v3.html](https://docs.readthedocs.io/page/api/v3.html).
     """  # noqa

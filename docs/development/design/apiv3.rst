@@ -1,6 +1,6 @@
-=======================
- APIv3 Design Document
-=======================
+======================
+API v3 Design Document
+======================
 
 This document describes the design,
 some decisions already made and built (current Version 1 of APIv3)
@@ -38,7 +38,7 @@ Goals
 Non-Goals
 ---------
 
-* Filter by arbitrary and non-useful fields
+* Filter by arbitrary and useless fields
 
   * "Builds with ``exit_code=1``"
   * "Builds containing ``ERROR`` on their output"

@@ -89,7 +89,7 @@ Sections
 
 Sections are ``h`` tags, and sections of the same level should be neighbors.
 Additionally, sections should have an unique ``id`` attribute per page (this is used to link to the section).
-All content bellow the section, till the new section will be indexed as part of the section. Example:
+All content below the section, till the new section will be indexed as part of the section. Example:
 
 .. code-block:: html
    :emphasize-lines: 2-10
@@ -124,7 +124,7 @@ All content bellow the section, till the new section will be indexed as part of 
 
 Sections can be inside till two nested tags (and have nested sections),
 and its immediate parent can contain the ``id`` attribute.
-Note that the section content still needs to be bellow the ``h`` tag. Example:
+Note that the section content still needs to be below the ``h`` tag. Example:
 
 .. code-block:: html
    :emphasize-lines: 3-11,14-21

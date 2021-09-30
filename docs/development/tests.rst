@@ -1,6 +1,8 @@
 Testing
 =======
 
+.. TODO: upgrade this guide to mention how to do this with ``inv docker.test``.
+
 Before contributing to Read the Docs, make sure your patch passes our test suite
 and your code style passes our code linting suite.
 
@@ -39,10 +41,6 @@ you can also set the ``TOX_POSARGS`` environment variable to an empty string:
 .. prompt:: bash
 
        tox -- -m 'not search' -x
-
-.. warning::
-
-   Running tests for search needs an Elasticsearch :ref:`instance running locally <development/search:Manual Elasticsearch installation and setup>`.
 
 To target a specific environment:
 
@@ -99,6 +97,6 @@ Tests without mark are from the main instance.
 Continuous Integration
 ----------------------
 
-The RTD test suite is exercised by Travis CI on every push to our repo at
+The RTD test suite is exercised by Circle CI on every push to our repo at
 GitHub. You can check out the current build status:
-https://travis-ci.org/readthedocs/readthedocs.org
+https://app.circleci.com/pipelines/github/readthedocs/readthedocs.org

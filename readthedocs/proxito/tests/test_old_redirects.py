@@ -534,7 +534,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
 
 # FIXME: these tests are valid, but the problem I'm facing is that the request
-# is received as ``GET '//my.host/path/'`` (note that we are loosing the http:)
+# is received as ``GET '//my.host/path/'`` (note that we are losing the http:)
 @pytest.mark.xfail(strict=True)
 class UserRedirectCrossdomainTest(BaseDocServing):
 
