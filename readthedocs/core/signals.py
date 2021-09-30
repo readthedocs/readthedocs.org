@@ -23,6 +23,7 @@ ALLOWED_URLS = [
     '/api/v2/search',
     '/api/v2/docsearch',
     '/api/v2/embed',
+    '/api/v3/embed',
 ]
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -78,6 +79,12 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         url = request.GET.get('url')
         if url:
             unresolved = unresolve(url)
+            if unresolved is None:
+                # NOTE: Embed APIv3 now supports external sites. In that case
+                # ``unresolve()`` will return None and we want to allow it
+                # since the target is a public project.
+                return True
+
             project = unresolved.project
             version_slug = unresolved.version_slug
         else:
