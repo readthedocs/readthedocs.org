@@ -37,7 +37,11 @@ class SignupFormWithNewsletter(SignupForm):
         user = super().save(request)
 
         if self.cleaned_data.get("receive_newsletter"):
-            log.info('Subscribing user to newsletter. email=%s', self.cleaned_data["email"])
+            log.info(
+                'Subscribing user to newsletter. email=%s, user=%s',
+                self.cleaned_data["email"],
+                user.username,
+            )
 
             url = settings.MAILERLITE_API_SUBSCRIBERS_URL
             payload = json.dumps({
@@ -56,9 +60,17 @@ class SignupFormWithNewsletter(SignupForm):
                     timeout=3,  # seconds
                 )
             except requests.Timeout:
-                log.warning('Timeout subscribing user to newsletter')
+                log.warning(
+                    'Timeout subscribing user to newsletter. email=%s, user=%s',
+                    self.cleaned_data["email"],
+                    user.username,
+                )
 
             if resp and not resp.ok:
-                log.exception('Unknown error subscribing user to newsletter')
+                log.exception(
+                    'Unknown error subscribing user to newsletter. email=%s, user=%s',
+                    self.cleaned_data["email"],
+                    user.username,
+                )
 
         return user
