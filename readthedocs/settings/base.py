@@ -523,8 +523,17 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
-    # When updating this options,
-    # update the readthedocs/rtd_tests/fixtures/spec/v2/schema.json file as well.
+    # Adding a new tool/version to this setting requires:
+    #
+    # - a mapping between the expected version in the config file, to the full
+    # version installed via asdf (found via ``asdf list all <tool>``)
+    #
+    # - running the script ``./scripts/compile_version_upload.sh`` in
+    # development and production environments to compile and cache the new
+    # tool/version
+    #
+    # Note that when updating this options, you should also update the file:
+    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
