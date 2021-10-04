@@ -320,17 +320,14 @@ build.tools
 Version specifiers for each tool. It must contain at least one tool.
 
 :Type: ``dict``
-:Keys: ``python``, ``nodejs``, ``rust``, ``golang``
+:Options: ``python``, ``nodejs``, ``rust``, ``golang``
+:Required: ``true``
 
 build.tools.python
 ``````````````````
 
-Python version to use. Supported values are:
-
-* CPython 2.7 and 3.6+
-* PyPy3.7
-* Miniconda3 4.7
-* Mambaforge 4.10
+Python version to use.
+You can use several interpretes and versions, from CPython, PyPy, Miniconda, and Mamba.
 
 .. note::
 
@@ -339,7 +336,17 @@ Python version to use. Supported values are:
    for more information.
 
 :Type: ``string``
-:Options: ``2.7``, ``3``, ``3.6``, ``3.7``, ``3.8``, ``3.9``, ``3.10``, ``pypy3.7``, ``miniconda3-4.7``, ``mambaforge-4.10``
+:Options:
+  - ``2.7``
+  - ``3``
+  - ``3.6``
+  - ``3.7``
+  - ``3.8``
+  - ``3.9``
+  - ``3.10``
+  - ``pypy3.7``
+  - ``miniconda3-4.7``
+  - ``mambaforge-4.10``
 
 build.tools.nodejs
 ``````````````````
