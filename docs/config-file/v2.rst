@@ -688,7 +688,6 @@ Schema
 You can see the complete schema
 `here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
 
-.. _new-build:
 
 Legacy ``build`` specification
 ------------------------------
@@ -775,7 +774,7 @@ Changes
 - The ``build.image`` setting has been replaced by ``build.os``.
   See :ref:`config-file/v2:build.os`.
   Alternatively, you can use the legacy ``build.image``
-  that now only has two options: ``latest`` (default) and ``stable``.
+  that now has only two options: ``latest`` (default) and ``stable``.
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.
