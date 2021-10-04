@@ -159,6 +159,16 @@ Configuration of the Python environment to be used.
          path: another/package
      system_packages: true
 
+python.version
+``````````````
+
+.. warning::
+
+   This option is now deprecated
+   and replaced by :ref:`config-file/v2:build.tools.python`.
+   See :ref:`config-file/v2:python.version (legacy)`
+   for the description of this option.
+
 python.install
 ``````````````
 
