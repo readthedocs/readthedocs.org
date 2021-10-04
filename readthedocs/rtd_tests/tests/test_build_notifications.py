@@ -21,7 +21,7 @@ from readthedocs.projects.models import (
 )
 
 
-override_settings(
+@override_settings(
     PRODUCTION_DOMAIN='readthedocs.org',
     PUBLIC_DOMAIN='readthedocs.io',
     USE_SUBDOMAIN=True,
@@ -183,7 +183,7 @@ class BuildNotificationsTests(TestCase):
                     'build_id': str(self.build.pk),
                     'build_commit': self.build.commit,
                     'build_url': f'https://readthedocs.org{self.build.get_absolute_url()}',
-                    'build_docsurl': f'http://test.readthedocs.io/en/1.0',
+                    'build_docsurl': 'http://test.readthedocs.io/en/1.0/',
                     'organization_name': '',
                     'organization_slug': '',
                     'project_name': self.project.name,
