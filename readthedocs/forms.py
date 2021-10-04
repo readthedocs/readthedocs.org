@@ -57,19 +57,18 @@ class SignupFormWithNewsletter(SignupForm):
                     headers=headers,
                     timeout=3,  # seconds
                 )
+                resp.raise_for_status()
             except requests.Timeout:
                 log.warning(
                     'Timeout subscribing user to newsletter. email=%s, user=%s',
                     self.cleaned_data["email"],
                     user.username,
                 )
-
-            else:
-                if not resp.ok:
-                    log.exception(
-                        'Unknown error subscribing user to newsletter. email=%s, user=%s',
-                        self.cleaned_data["email"],
-                        user.username,
-                    )
+            except Exception:  # noqa
+                log.exception(
+                    'Unknown error subscribing user to newsletter. email=%s, user=%s',
+                    self.cleaned_data["email"],
+                    user.username,
+                )
 
         return user
