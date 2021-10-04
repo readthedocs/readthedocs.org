@@ -42,6 +42,7 @@ class SignupFormWithNewsletter(SignupForm):
             url = settings.MAILERLITE_API_SUBSCRIBERS_URL
             payload = json.dumps({
                 'email': self.cleaned_data["email"],
+                'resubscribe': True,
             })
             headers = {
                 'Content-Type': "application/json",
