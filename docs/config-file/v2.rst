@@ -312,7 +312,7 @@ Image names refer to the operating system Read the Docs uses to build them.
 
 :Type: ``string``
 :Options: ``ubuntu-20.04``
-:Default: ``ubuntu-20.04``
+:Required: ``true``
 
 build.tools
 ```````````
