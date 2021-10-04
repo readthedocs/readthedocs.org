@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailhook',
             name='modified',
-            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified'),
+            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified', null=True),
         ),
         migrations.AddField(
             model_name='webhook',
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='webhook',
             name='modified',
-            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified'),
+            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified', null=True),
         ),
         migrations.AddField(
             model_name='webhook',

@@ -21,7 +21,10 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -1455,6 +1458,11 @@ class Notification(TimeStampedModel):
     # remove after deploy.
     created = CreationDateTimeField(
         _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
         null=True,
         blank=True,
     )
