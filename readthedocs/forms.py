@@ -64,11 +64,12 @@ class SignupFormWithNewsletter(SignupForm):
                     user.username,
                 )
 
-            if resp and not resp.ok:
-                log.exception(
-                    'Unknown error subscribing user to newsletter. email=%s, user=%s',
-                    self.cleaned_data["email"],
-                    user.username,
-                )
+            else:
+                if not resp.ok:
+                    log.exception(
+                        'Unknown error subscribing user to newsletter. email=%s, user=%s',
+                        self.cleaned_data["email"],
+                        user.username,
+                    )
 
         return user
