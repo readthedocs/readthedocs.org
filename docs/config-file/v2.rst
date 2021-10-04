@@ -686,7 +686,7 @@ Schema
 ------
 
 You can see the complete schema
-`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.yml>`_.
+`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
 
 .. _new-build:
 
