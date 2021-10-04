@@ -21,6 +21,13 @@ Below is an example YAML file which shows the most common configuration options:
          # Required
          version: 2
 
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+             nodejs: "16"
+
          # Build documentation in the docs/ directory with Sphinx
          sphinx:
             configuration: docs/conf.py
@@ -29,9 +36,8 @@ Below is an example YAML file which shows the most common configuration options:
          formats:
             - pdf
 
-         # Optionally set the version of Python and requirements required to build your docs
+         # Optionally declare the Python requirements required to build your docs
          python:
-            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -46,12 +52,17 @@ Below is an example YAML file which shows the most common configuration options:
          # Required
          version: 2
 
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+
          mkdocs:
            configuration: mkdocs.yml
 
-         # Optionally set the version of Python and requirements required to build your docs
+         # Optionally declare the Python requirements required to build your docs
          python:
-            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
