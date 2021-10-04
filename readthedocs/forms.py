@@ -1,6 +1,5 @@
 """Community site-wide form overrides."""
 
-import json
 import logging
 
 import requests
@@ -44,18 +43,17 @@ class SignupFormWithNewsletter(SignupForm):
             )
 
             url = settings.MAILERLITE_API_SUBSCRIBERS_URL
-            payload = json.dumps({
+            payload = {
                 'email': self.cleaned_data["email"],
                 'resubscribe': True,
-            })
+            }
             headers = {
-                'Content-Type': "application/json",
                 'X-MailerLite-ApiKey': settings.MAILERLITE_API_KEY,
             }
             try:
                 resp = requests.post(
                     url,
-                    data=payload,
+                    json=payload,
                     headers=headers,
                     timeout=3,  # seconds
                 )
