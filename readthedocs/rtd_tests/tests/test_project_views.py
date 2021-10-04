@@ -16,7 +16,7 @@ from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
@@ -665,3 +665,56 @@ class TestTags(TestCase):
         pip.tags.add('tag with space')
         response = self.client.get('/projects/tags/tag-with-space/')
         self.assertContains(response, '"/projects/pip/"')
+
+
+class TestWebhooksViews(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug='test', users=[self.user])
+        self.version = get(Version, slug='1.0', project=self.project)
+        self.webhook = get(WebHook, project=self.project)
+        self.client.force_login(self.user)
+
+    def test_list(self):
+        resp = self.client.get(
+            reverse('projects_webhooks', args=[self.project.slug]),
+        )
+        self.assertEqual(resp.status_code, 200)
+        queryset = resp.context['object_list']
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first(), self.webhook)
+
+    def test_create(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        resp = self.client.post(
+            reverse('projects_webhooks_create', args=[self.project.slug]),
+            data = {
+                'url': 'http://www.example.com/',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
+
+    def test_update(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_edit', args=[self.project.slug, self.webhook.pk]),
+            data = {
+                'url': 'http://www.example.com/new',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.webhook.refresh_from_db()
+        self.assertEqual(self.webhook.url, 'http://www.example.com/new')
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+    def test_delete(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_delete', args=[self.project.slug, self.webhook.pk]),
+        )
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
