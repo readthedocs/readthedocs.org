@@ -1842,6 +1842,7 @@ def finish_inactive_builds():
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
     )
 
+    stale_build_pks = []
     builds = Build.objects.filter(query)[:50]
     redis_client = redis.Redis.from_url(settings.BROKER_URL)
 
