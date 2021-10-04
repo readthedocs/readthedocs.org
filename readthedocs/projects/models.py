@@ -1551,14 +1551,27 @@ class WebHook(Notification):
             organization_slug = organization.slug
             organization_name = organization.name
 
+        # Commit can be None, display an empty string instead.
+        commit = build.commit or ''
+        protocol = 'http' if settings.DEBUG else 'https'
+        project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
+        build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
+        build_docsurl = self.project.get_docs_url(
+            version_slug=self.version.slug,
+            external=self.version.is_external,
+        )
+
         substitutions = {
             '${event}': event,
             '${build.id}': build.id,
-            '${build.commit}': build.commit or '',
+            '${build.commit}': commit,
+            '${build.url}': build_url,
+            '${build.docsurl}': build_docsurl,
             '${organization.name}': organization_name,
             '${organization.slug}': organization_slug,
             '${project.slug}': project.slug,
             '${project.name}': project.name,
+            '${project.url}': project_url,
             '${version.slug}': version.slug,
             '${version.name}': version.verbose_name,
         }

@@ -6,7 +6,7 @@ from unittest import mock
 
 import requests_mock
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
@@ -21,12 +21,17 @@ from readthedocs.projects.models import (
 )
 
 
+override_settings(
+    PRODUCTION_DOMAIN='readthedocs.org',
+    PUBLIC_DOMAIN='readthedocs.io',
+    USE_SUBDOMAIN=True,
+)
 class BuildNotificationsTests(TestCase):
 
     def setUp(self):
-        self.project = get(Project)
-        self.version = get(Version, project=self.project)
-        self.build = get(Build, version=self.version, commit='abc123')
+        self.project = get(Project, slug='test', language='en')
+        self.version = get(Version, project=self.project, slug='1.0')
+        self.build = get(Build, version=self.version, commit='abc1234567890')
 
     @mock.patch('readthedocs.builds.managers.log')
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):
@@ -110,6 +115,7 @@ class BuildNotificationsTests(TestCase):
                     'content-type': 'application/json',
                     'X-Hub-Signature': mock.ANY,
                     'User-Agent': mock.ANY,
+                    'X-RTD-Event': mock.ANY,
                 },
                 timeout=mock.ANY,
             )
@@ -148,10 +154,13 @@ class BuildNotificationsTests(TestCase):
                 'extra-data': {
                     'build_id': '${build.id}',
                     'build_commit': '${build.commit}',
+                    'build_url': '${build.url}',
+                    'build_docsurl': '${build.docsurl}',
                     'organization_slug': '${organization.slug}',
                     'organization_name': '${organization.name}',
                     'project_slug': '${project.slug}',
                     'project_name': '${project.name}',
+                    'project_url': '${project.url}',
                     'version_slug': '${version.slug}',
                     'version_name': '${version.name}',
                     'invalid_substitution': '${invalid.substitution}',
@@ -173,10 +182,13 @@ class BuildNotificationsTests(TestCase):
                 'extra-data': {
                     'build_id': str(self.build.pk),
                     'build_commit': self.build.commit,
+                    'build_url': f'http://readthedocs.org{self.build.get_absolute_url()}',
+                    'build_docsurl': f'http://test.readthedocs.io/en/1.0',
                     'organization_name': '',
                     'organization_slug': '',
                     'project_name': self.project.name,
                     'project_slug': self.project.slug,
+                    'project_url': f'http://readthedocs.org{self.project.get_absolute_url()}',
                     'version_name': self.version.verbose_name,
                     'version_slug': self.version.slug,
                     'invalid_substitution': '${invalid.substitution}',
@@ -213,6 +225,7 @@ class BuildNotificationsTests(TestCase):
         headers = request.headers
         self.assertTrue(headers['User-Agent'].startswith('Read-the-Docs/'))
         self.assertEqual(headers['X-Hub-Signature'], signature)
+        self.assertEqual(headers['X-RTD-Event'], WebHookEvent.BUILD_FAILED)
         self.assertEqual(webhook.exchanges.all().count(), 1)
 
     @requests_mock.Mocker(kw='mock_request')

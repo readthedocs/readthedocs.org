@@ -1,4 +1,3 @@
-import itertools
 import json
 import logging
 from datetime import datetime, timedelta
@@ -490,7 +489,7 @@ class BuildNotificationSender:
 
     def send(self):
         """
-        Send email and webhook notifications for `project`.
+        Send email and webhook notifications for `project` about the `build`.
 
         Email notifications are only send for build:failed events.
         Webhooks choose to what events they subscribe to.
@@ -527,6 +526,7 @@ class BuildNotificationSender:
         """Send email notifications for build failures."""
         # We send only what we need from the Django model objects here to avoid
         # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+        protocol = 'http' if settings.DEBUG else 'https'
         context = {
             'version': {
                 'verbose_name': self.version.verbose_name,
@@ -538,11 +538,13 @@ class BuildNotificationSender:
                 'pk': self.build.pk,
                 'error': self.build.error,
             },
-            'build_url': 'https://{}{}'.format(
+            'build_url': '{}://{}{}'.format(
+                protocol,
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
             ),
-            'unsubscribe_url': 'https://{}{}'.format(
+            'unsubscribe_url': '{}://{}{}'.format(
+                protocol,
                 settings.PRODUCTION_DOMAIN,
                 reverse('projects_notifications', args=[self.project.slug]),
             ),
@@ -604,7 +606,8 @@ class BuildNotificationSender:
 
         headers = {
             'content-type': 'application/json',
-            'User-Agent': f'Read-the-Docs/{__version__}'
+            'User-Agent': f'Read-the-Docs/{__version__} ({settings.PRODUCTION_DOMAIN})',
+            'X-RTD-Event': self.event,
         }
         if webhook.secret:
             headers['X-Hub-Signature'] = webhook.sign_payload(payload)

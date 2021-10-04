@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def forwards_func(apps, schema_editor):
-    """Sets all null ranks to zero."""
+    """Create supported events for webhooks."""
     WebHookEvent = apps.get_model('projects', 'WebHookEvent')
     for event in ['build:triggered', 'build:failed', 'build:passed']:
         WebHookEvent.objects.get_or_create(name=event)
