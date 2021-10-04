@@ -1556,9 +1556,9 @@ class WebHook(Notification):
         protocol = 'http' if settings.DEBUG else 'https'
         project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
         build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
-        build_docsurl = self.project.get_docs_url(
-            version_slug=self.version.slug,
-            external=self.version.is_external,
+        build_docsurl = project.get_docs_url(
+            version_slug=version.slug,
+            external=version.is_external,
         )
 
         substitutions = {
