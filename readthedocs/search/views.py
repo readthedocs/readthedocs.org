@@ -2,6 +2,7 @@
 import collections
 import logging
 
+from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
@@ -41,8 +42,8 @@ class SearchViewBase(View):
     http_method_names = ['get']
     max_search_results = 50
 
-    def _search(self, user_input, use_advanced_query):
-        """Return search results and facets given a `user_input` to filter by."""
+    def _search(self, *, user_input, projects, use_advanced_query):
+        """Return search results and facets given a `user_input` and `projects` to filter by."""
         if not user_input.query:
             return [], {}
 
@@ -63,7 +64,7 @@ class SearchViewBase(View):
         search = faceted_search_class(
             query=user_input.query,
             filters=filters,
-            user=self.request.user,
+            projects=projects,
             use_advanced_query=use_advanced_query,
         )
         results = search[:self.max_search_results].execute()
@@ -133,6 +134,7 @@ class ProjectSearchView(SearchViewBase):
 
         results, facets = self._search(
             user_input=user_input,
+            projects=[user_input.project],
             use_advanced_query=use_advanced_query,
         )
 
@@ -178,10 +180,24 @@ class GlobalSearchView(SearchViewBase):
             role_name=request.GET.get('role_name'),
         )
 
-        results, facets = self._search(
-            user_input=user_input,
-            use_advanced_query=True,
-        )
+        projects = []
+        # If we allow private projects,
+        # we only search on projects the user belongs or have access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            projects = list(
+                Project.objects.for_user(request.user)
+                .values_list('slug', flat=True)
+            )
+
+        # Make sure we always have projects to filter by if we allow private projects.
+        if settings.ALLOW_PRIVATE_REPOS and not projects:
+            results, facets = [], {}
+        else:
+            results, facets = self._search(
+                user_input=user_input,
+                projects=projects,
+                use_advanced_query=True,
+            )
 
         serializers = {
             'project': ProjectSearchSerializer,

@@ -41,11 +41,13 @@ or are you looking to use your existing docs with Read the Docs?
 Learn about documentation authoring tools such as Sphinx and MkDocs
 to help you create fantastic documentation for your project.
 
+* **Tutorial**: :doc:`/tutorial/index`
+
 * **Getting started**:
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
   :doc:`Feature Overview </features>` |
-  :doc:`/choosing-a-site`
+  :doc:`/choosing-a-site` | :doc:`/glossary`
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
@@ -56,16 +58,18 @@ to help you create fantastic documentation for your project.
    :hidden:
    :caption: First steps
 
+   /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
 
    /intro/import-guide
    /features
    /choosing-a-site
+   /glossary
 
 
-Getting started with Read the Docs
------------------------------------
+Read the Docs feature overview
+------------------------------
 
 Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
@@ -77,8 +81,10 @@ and some of the core features of Read the Docs.
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
   :doc:`/server-side-search` |
-  :doc:`/analytics`
-  :doc:`/pull-requests`
+  :doc:`/analytics` |
+  :doc:`/pull-requests` |
+  :doc:`/build-notifications` |
+  :doc:`/user-defined-redirects`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>` |
@@ -87,7 +93,8 @@ and some of the core features of Read the Docs.
 * **Read the Docs build process**:
   :doc:`Configuration reference </config-file/index>` |
   :doc:`Build process </builds>` |
-  :doc:`/badges` |
+  :doc:`/environment-variables` |
+  :doc:`/badges`
 
 * **Troubleshooting**:
   :doc:`/support` |
@@ -96,7 +103,7 @@ and some of the core features of Read the Docs.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Getting started
+   :caption: Feature Overview
 
    /config-file/index
    /webhooks
@@ -107,35 +114,54 @@ and some of the core features of Read the Docs.
    /server-side-search
    /analytics
    /pull-requests
+   /build-notifications
 
    /connected-accounts
 
    /builds
+   /environment-variables
    /badges
 
    /support
    /faq
 
 
-Step-by-step Guides
--------------------
+How-to Guides
+-------------
 
 These guides will help walk you through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
-* :doc:`/guides/tools`
-* :doc:`/guides/platform`
-* :doc:`/guides/commercial`
+* **For documentation authors**:
+  :doc:`/guides/cross-referencing-with-sphinx` |
+  :doc:`/guides/intersphinx` |
+  :doc:`/guides/jupyter` |
+  :doc:`More guides for authors </guides/authors>`
+
+* **For project administrators**:
+  :doc:`/guides/technical-docs-seo-guide` |
+  :doc:`/guides/manage-translations-sphinx` |
+  :doc:`/guides/advanced-search` |
+  :doc:`/guides/private-submodules` |
+  :doc:`More guides for administrators </guides/administrators>`
+
+* **For developers and designers**:
+  :doc:`/guides/private-python-packages` |
+  :doc:`/guides/adding-custom-css` |
+  :doc:`/guides/reproducible-builds` |
+  :doc:`/guides/embedding-content` |
+  :doc:`/guides/conda` |
+  :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
  :maxdepth: 2
  :hidden:
- :caption: Step-by-step Guides
+ :caption: How-to Guides
 
- /guides/tools
- /guides/platform
- /guides/commercial
+ /guides/authors
+ /guides/administrators
+ /guides/developers
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -146,15 +172,13 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>`
+  :doc:`Single version docs <single_version>` |
+  :doc:`feature-flags`
 
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
 
-.. TODO: Move user-defined to Getting started, they are core functionality
-
 * **Redirects**:
-  :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
 * **Versions**
@@ -174,6 +198,7 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
+   feature-flags
 
    localization
 

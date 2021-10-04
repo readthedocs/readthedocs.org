@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import shutil
+import tarfile
 
 import yaml
 from django.conf import settings
@@ -22,6 +23,7 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+from readthedocs.storage import build_tools_storage
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +73,135 @@ class PythonEnvironment:
                 }
             )
             shutil.rmtree(venv_dir)
+
+    def install_build_tools(self):
+        """
+        Install all ``build.tools`` defined by the user in the config file.
+
+        It uses ``asdf`` behind the scenes to manage all the tools and versions
+        of them. These tools/versions are stored in the Cloud cache and are
+        downloaded on each build (~50 - ~100Mb).
+
+        If the requested tool/version is not present in the cache, it's
+        installed via ``asdf`` on the fly.
+        """
+        if settings.RTD_DOCKER_COMPOSE:
+            # Create a symlink for ``root`` user to use the same ``.asdf``
+            # installation as the ``docs`` user. Required for local building
+            # since everything is run as ``root`` when using Local Development
+            # instance
+            cmd = [
+                'ln',
+                '-s',
+                os.path.join(settings.RTD_DOCKER_WORKDIR, '.asdf'),
+                '/root/.asdf',
+            ]
+            self.build_env.run(
+                *cmd,
+                record=False,
+            )
+
+        for tool, version in self.config.build.tools.items():
+            full_version = version.full_version  # e.g. 3.9 -> 3.9.7
+
+            # TODO: generate the correct path for the Python version
+            # see https://github.com/readthedocs/readthedocs.org/pull/8447#issuecomment-911562267
+            # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
+            tool_path = f'{self.config.build.os}-{tool}-{full_version}.tar.gz'
+            tool_version_cached = build_tools_storage.exists(tool_path)
+            if tool_version_cached:
+                remote_fd = build_tools_storage.open(tool_path, mode='rb')
+                with tarfile.open(fileobj=remote_fd) as tar:
+                    # Extract it on the shared path between host and Docker container
+                    extract_path = os.path.join(self.project.doc_path, 'tools')
+                    tar.extractall(extract_path)
+
+                    # Move the extracted content to the ``asdf`` installation
+                    cmd = [
+                        'mv',
+                        f'{extract_path}/{full_version}',
+                        os.path.join(
+                            settings.RTD_DOCKER_WORKDIR,
+                            f'.asdf/installs/{tool}/{full_version}',
+                        ),
+                    ]
+                    self.build_env.run(
+                        *cmd,
+                        record=False,
+                    )
+            else:
+                log.debug(
+                    'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
+                    self.config.build.os,
+                    tool,
+                    full_version,
+                    tool_path,
+                )
+                # If the tool version selected is not available from the
+                # cache we compile it at build time
+                cmd = [
+                    # TODO: make ``PYTHON_CONFIGURE_OPTS="--enable-shared"``
+                    # environment variable to work here. Note that
+                    # ``self.build_env.run`` does not support passing
+                    # environment for a particular command:
+                    # https://github.com/readthedocs/readthedocs.org/blob/9d2d1a2/readthedocs/doc_builder/environments.py#L430-L431
+                    'asdf',
+                    'install',
+                    tool,
+                    full_version,
+                ]
+                self.build_env.run(
+                    *cmd,
+                )
+
+            # Make the tool version chosen by the user the default one
+            cmd = [
+                'asdf',
+                'global',
+                tool,
+                full_version,
+            ]
+            self.build_env.run(
+                *cmd,
+            )
+
+            # Recreate shims for this tool to make the new version
+            # installed available
+            # https://asdf-vm.com/learn-more/faq.html#newly-installed-exectable-not-running
+            cmd = [
+                'asdf',
+                'reshim',
+                tool,
+            ]
+            self.build_env.run(
+                *cmd,
+                record=False,
+            )
+
+            if all([
+                    tool == 'python',
+                    # Do not install them if the tool version was cached
+                    # because these dependencies are already installed when
+                    # created with our script and uploaded to the cache's
+                    # bucket
+                    not tool_version_cached,
+                    # Do not install them on conda/mamba since they are not
+                    # needed because the environment is managed by conda/mamba
+                    # itself
+                    self.config.python_interpreter not in ('conda', 'mamba'),
+            ]):
+                # Install our own requirements if the version is compiled
+                cmd = [
+                    'python',
+                    '-mpip',
+                    'install',
+                    '-U',
+                    'virtualenv',
+                    'setuptools',
+                ]
+                self.build_env.run(
+                    *cmd,
+                )
 
     def install_requirements(self):
         """Install all requirements from the config object."""
@@ -214,7 +345,7 @@ class PythonEnvironment:
         env_build_hash = env_build.get('hash', None)
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build.image or DOCKER_IMAGE
+            build_image = self.config.docker_image
             image_hash = self.build_env.image_hash
         else:
             # e.g. LocalBuildEnvironment
@@ -269,7 +400,7 @@ class PythonEnvironment:
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build.image or DOCKER_IMAGE
+            build_image = self.config.docker_image
             data.update({
                 'build': {
                     'image': build_image,
@@ -317,6 +448,7 @@ class Virtualenv(PythonEnvironment):
         cli_args.append(
             self.venv_path(),
         )
+
         self.build_env.run(
             self.config.python_interpreter,
             *cli_args,
@@ -462,7 +594,7 @@ class Virtualenv(PythonEnvironment):
             '-m',
             'pip',
             'list',
-            # Inlude pre-release versions.
+            # Include pre-release versions.
             '--pre',
         ]
         self.build_env.run(
@@ -496,6 +628,11 @@ class Conda(PythonEnvironment):
 
         See https://github.com/QuantStack/mamba
         """
+        # Config file using ``build.tools.python``
+        if self.config.using_build_tools:
+            return self.config.python_interpreter
+
+        # Config file using ``conda``
         if self.project.has_feature(Feature.CONDA_USES_MAMBA):
             return 'mamba'
         return 'conda'
@@ -556,8 +693,13 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
-        # TODO: remove it when ``mamba`` is installed in the Docker image
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+        if all([
+                # The project has CONDA_USES_MAMBA feature enabled and,
+                self.project.has_feature(Feature.CONDA_USES_MAMBA),
+                # the project is not using ``build.tools``,
+                # which has mamba installed via asdf.
+                not self.config.using_build_tools,
+        ]):
             self._install_mamba()
 
         self.build_env.run(

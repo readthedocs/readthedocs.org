@@ -33,7 +33,6 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
 
         self.remote_repository = fixture.get(
             RemoteRepository,
-            project=self.project,
             organization=self.remote_organization,
             created=self.created,
             modified=self.modified,
@@ -49,6 +48,8 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             default_branch="master",
             private=False
         )
+        self.remote_repository.projects.add(self.project)
+
         social_account = fixture.get(SocialAccount, user=self.me, provider=GITHUB)
         fixture.get(
             RemoteRepositoryRelation,
@@ -70,8 +71,8 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             reverse('remoterepositories-list'),
             {
                 'expand': (
-                    'project,'
-                    'organization'
+                    'projects,'
+                    'remote_organization'
                 )
             }
         )
@@ -88,8 +89,8 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
             reverse('remoterepositories-list'),
             {
                 'expand': (
-                    'project,'
-                    'organization'
+                    'projects,'
+                    'remote_organization'
                 ),
                 'name': 'proj'
             }

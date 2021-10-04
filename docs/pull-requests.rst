@@ -38,8 +38,15 @@ Privacy levels
 
    Privacy levels are only supported on :doc:`/commercial/index`.
 
-All docs built from a pull requests are private by default.
-Currently, this can't be changed, but we are planning to support this.
+By default all docs built from pull requests are private.
+To change their privacy level:
+
+#. Go to your project dashboard
+#. Go to :guilabel:`Admin > Advanced settings`
+#. Select your option in :guilabel:`Privacy level of builds from pull requests`
+#. Click on :guilabel:`Save`
+
+Privacy levels work the same way as for :ref:`normal versions <versions:privacy levels>`.
 
 Limitations
 -----------
@@ -59,17 +66,15 @@ Troubleshooting
 #. **Pull Requests builds are not triggered**.
    We only support GitHub and GitLab currently.
    You need to make sure that your Read the Docs account is connected with that provider.
-   You can check this by going to your `profile settings`_.
+   You can check this by going to your :guilabel:`Username dropdown` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 
 #. **Build status is not being reported to your VCS provider**.
    You need to make sure that you have granted access to the Read the Docs
-   `OAuth App`_ to your personal or organization GitHub account.
-   If you do not see "Read the Docs" in the `OAuth App`_ settings,
-   you might need to disconnect and reconnect to GitHub service.
+   OAuth App to your personal or organization GitHub account.
+   Learn more about this in our :ref:`github-permission-troubleshooting` section.
 
    Also make sure your webhook is properly setup
    to handle events related to pull requests. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
-.. _profile settings: https://readthedocs.org/accounts/social/connections/
 .. _OAuth App: https://github.com/settings/applications

@@ -6,7 +6,7 @@ jobs:
       - image: 'cimg/python:3.6'
         environment:
           TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
         name: search
         environment:
           discovery.type: single-node
@@ -16,6 +16,16 @@ jobs:
       - run: git submodule update --init
       - run: pip install --user tox
       - run: tox -e py36,codecov
+
+  tests-embedapi:
+    docker:
+      - image: 'cimg/python:3.6'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user tox
+      - run: tox -c tox.embedapi.ini
 
   checks:
     docker:
@@ -45,3 +55,4 @@ workflows:
     jobs:
       - checks
       - tests
+      - tests-embedapi

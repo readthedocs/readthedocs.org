@@ -6,7 +6,6 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -17,13 +16,11 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
 )
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -113,14 +110,30 @@ class GitHubService(Service):
                 self.user, self.account
             )
 
-            if repo.organization and repo.organization != organization:
+            # It's possible that a user has access to a repository from within
+            # an organization without being member of that organization
+            # (external contributor). In this case, the repository will be
+            # listed under the ``/repos`` endpoint but not under ``/orgs``
+            # endpoint. Then, when calling this method (``create_repository``)
+            # we will have ``organization=None`` but we don't have to skip the
+            # creation of the ``RemoteRepositoryRelation``.
+            if repo.organization and organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
                     fields['name'],
                 )
                 return None
 
-            repo.organization = organization
+            if any([
+                # There is an organization associated with this repository:
+                # attach the organization to the repository
+                organization is not None,
+                # There is no organization and the repository belongs to a
+                # user: removes the organization linked to the repository
+                not organization and fields['owner']['type'] == 'User',
+            ]):
+                repo.organization = organization
+
             repo.name = fields['name']
             repo.full_name = fields['full_name']
             repo.description = fields['description']
@@ -531,7 +544,7 @@ class GitHubService(Service):
             if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
-                for user in project.users.all():
+                for user in AdminPermission.admins(project):
                     tokens = SocialToken.objects.filter(
                         account__user=user,
                         app__provider=cls.adapter.provider_id,

@@ -28,13 +28,6 @@ namespace.add_collection(
 )
 
 namespace.add_collection(
-    Collection(
-        common.tasks.upgrade_all_packages,
-    ),
-    name='packages',
-)
-
-namespace.add_collection(
     Collection.from_module(
         common.dockerfiles.tasks,
         config={

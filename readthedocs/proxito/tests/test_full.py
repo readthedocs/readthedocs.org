@@ -1,28 +1,30 @@
 # Copied from .org
 
 import os
+from textwrap import dedent
 from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
-from textwrap import dedent
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
+    PRIVATE,
+    PUBLIC,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
-    PUBLIC,
-    PRIVATE,
 )
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
+from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
 from .base import BaseDocServing
@@ -302,6 +304,36 @@ class TestDocServingBackends(BaseDocServing):
             resp['x-accel-redirect'],
             '/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
         )
+
+    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
+    def test_track_html_files_only(self, is_audit_enabled):
+        is_audit_enabled.return_value = False
+
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+        url = '/en/latest/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+
+        is_audit_enabled.return_value = True
+        url = '/en/latest/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
+
+        log = AuditLog.objects.last()
+        self.assertEqual(log.user, None)
+        self.assertEqual(log.project, self.project)
+        self.assertEqual(log.resource, url)
+        self.assertEqual(log.action, AuditLog.PAGEVIEW)
+
+        resp = self.client.get('/en/latest/awesome.js', HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        resp = self.client.get('/en/latest/awesome.css', HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
 
 
 @override_settings(

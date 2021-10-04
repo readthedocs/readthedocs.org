@@ -2,7 +2,6 @@ import datetime
 import os
 from unittest import mock
 
-from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
@@ -21,7 +20,6 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import DuplicatedBuildError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import EnvironmentVariable, Feature, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -363,7 +361,7 @@ class BuildEnvironmentTests(TestCase):
             ),
             'TOKEN': 'a1b2c3',
         }
-        self.assertEqual(task.get_env_vars(), env)
+        self.assertEqual(task.get_build_env_vars(), env)
 
         # mock this object to make sure that we are in a conda env
         task.config = mock.Mock(conda=True)
@@ -377,7 +375,7 @@ class BuildEnvironmentTests(TestCase):
                 'bin',
             ),
         })
-        self.assertEqual(task.get_env_vars(), env)
+        self.assertEqual(task.get_build_env_vars(), env)
 
 
 class BuildModelTests(TestCase):

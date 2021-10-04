@@ -62,7 +62,7 @@ so they can have any value, or not be present at all.
 .. warning:: Pinning Sphinx and other Read the Docs core dependencies
    is not yet supported by default when using conda (see `this GitHub issue for discussion`_).
    If your project needs it, request that we enable the ``CONDA_APPEND_CORE_REQUIREMENTS``
-   :ref:`feature flag <guides/feature-flags:Feature Flags>`.
+   :ref:`feature flag <feature-flags:Feature Flags>`.
 
 .. _this GitHub issue for discussion: https://github.com/readthedocs/readthedocs.org/issues/3829
 .. _exporting a conda environment: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment
@@ -79,7 +79,7 @@ conda also needs to know which channels to use, and which ones take precedence.
 If not specified, conda will use ``defaults``, the channel maintained by Anaconda Inc.
 and subject to `Anaconda Terms of Service`_. It contains well-tested versions of the most widely used
 packages. However, some packages are not available on the ``defaults`` channel,
-and even if they are, they might not be on their lastest versions.
+and even if they are, they might not be on their latest versions.
 
 As an alternative, there are channels maintained by the community that have a broader selection
 of packages and more up-to-date versions of them, the most popular one being ``conda-forge``.
@@ -108,7 +108,7 @@ Mixing conda and pip packages
 -----------------------------
 
 There are valid reasons to use pip inside a conda environment: some dependency
-might not be avaliable yet as a conda package in any channel,
+might not be available yet as a conda package in any channel,
 or you might want to avoid precompiled binaries entirely.
 In either case, it is possible to specify the subset of packages
 that will be installed with pip in the ``environment.yml`` file. For example:
@@ -178,7 +178,7 @@ minimize the running time or the memory usage:
   and opting out of the defaults adding ``nodefaults``.
 - Constrain the package versions as much as possible to reduce the solution space.
 - Use mamba_, an alternative package manager fully compatible with conda packages,
-  by requesting the ``CONDA_USES_MAMBA`` :ref:`feature flag <guides/feature-flags:Feature Flags>`.
+  by requesting the ``CONDA_USES_MAMBA`` :ref:`feature flag <feature-flags:Feature Flags>`.
 - And, if all else fails,
   :ref:`request more resources <guides/build-using-too-many-resources:Requests more resources>`.
 

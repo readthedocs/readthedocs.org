@@ -346,120 +346,6 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertTrue(self.user.profile.banned)
 
 
-@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
-class TestImportDemoView(TestCase):
-    """Test project import demo view."""
-
-    fixtures = ['test_data', 'eric']
-
-    def setUp(self):
-        self.client.login(username='eric', password='test')
-
-    def test_import_demo_pass(self):
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-    def test_import_demo_already_imported(self):
-        """Import demo project multiple times, expect failure 2nd post."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
-        )
-
-    def test_import_demo_another_user_imported(self):
-        """Import demo project after another user, expect success."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-
-        self.client.logout()
-        self.client.login(username='test', password='test')
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/test-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-    def test_import_demo_imported_renamed(self):
-        """If the demo project is renamed, don't import another."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-        project.name = 'eric-demo-foobar'
-        project.save()
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegex(
-            messages[0].message,
-            r'already imported',
-        )
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
-        )
-
-    def test_import_demo_imported_duplicate(self):
-        """
-        If a project exists with same name, expect a failure importing demo.
-
-        This should be edge case, user would have to import a project (not the
-        demo project), named user-demo, and then manually enter the demo import
-        URL, as the onboarding isn't shown when projects > 0
-        """
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-        project.repo = 'file:///foobar'
-        project.save()
-
-        # Setting the primary and verified email of the test user.
-        user = User.objects.get(username='eric')
-        user_email = get(EmailAddress, user=user, primary=True, verified=True)
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/dashboard/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegex(
-            messages[0].message,
-            r'There was a problem',
-        )
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
-        )
-
-
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class TestPublicViews(TestCase):
     def setUp(self):
@@ -501,24 +387,22 @@ class TestPrivateViews(TestCase):
         self.user.set_password('test')
         self.user.save()
         self.client.login(username='eric', password='test')
+        self.project = get(Project, slug='pip', users=[self.user])
 
     def test_versions_page(self):
-        pip = get(Project, slug='pip', users=[self.user])
-        pip.versions.create(verbose_name='1.0')
+        self.project.versions.create(verbose_name='1.0')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
         # Test if the versions page works with a version that contains a slash.
         # That broke in the past, see issue #1176.
-        pip.versions.create(verbose_name='1.0/with-slash')
+        self.project.versions.create(verbose_name='1.0/with-slash')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
     def test_delete_project(self):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
@@ -529,15 +413,13 @@ class TestPrivateViews(TestCase):
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             clean_project_resources.assert_called_once()
-            self.assertEqual(clean_project_resources.call_args[0][0].slug, project.slug)
-
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, self.project.slug)
 
     def test_delete_superproject(self):
-        super_proj = get(Project, slug='pip', users=[self.user])
         sub_proj = get(Project, slug='test-sub-project', users=[self.user])
 
-        self.assertFalse(super_proj.subprojects.all().exists())
-        super_proj.add_subproject(sub_proj)
+        self.assertFalse(self.project.subprojects.all().exists())
+        self.project.add_subproject(sub_proj)
 
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
@@ -552,41 +434,95 @@ class TestPrivateViews(TestCase):
 
     @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create(self, attach_webhook):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.post(
-            reverse('projects_integrations_create', args=[project.slug]),
+            reverse('projects_integrations_create', args=[self.project.slug]),
             data={
-                'project': project.pk,
+                'project': self.project.pk,
                 'integration_type': GitHubWebhook.GITHUB_WEBHOOK
             },
         )
-        integration = GitHubWebhook.objects.filter(project=project)
+        integration = GitHubWebhook.objects.filter(project=self.project)
 
         self.assertTrue(integration.exists())
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_called_once_with(
-            project_pk=project.pk,
+            project_pk=self.project.pk,
             user_pk=self.user.pk,
             integration=integration.first()
         )
 
     @mock.patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create_generic_webhook(self, attach_webhook):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.post(
-            reverse('projects_integrations_create', args=[project.slug]),
+            reverse('projects_integrations_create', args=[self.project.slug]),
             data={
-                'project': project.pk,
+                'project': self.project.pk,
                 'integration_type': GenericAPIWebhook.API_WEBHOOK
             },
         )
-        integration = GenericAPIWebhook.objects.filter(project=project)
+        integration = GenericAPIWebhook.objects.filter(project=self.project)
 
         self.assertTrue(integration.exists())
         self.assertEqual(response.status_code, 302)
         attach_webhook.assert_not_called()
+
+    def test_integration_webhooks_sync_no_remote_repository(self):
+        self.project.has_valid_webhook = True
+        self.project.save()
+        integration = get(
+            GitHubWebhook,
+            project=self.project,
+        )
+
+        response = self.client.post(
+            reverse(
+                'projects_integrations_webhooks_sync',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+        self.project.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(self.project.has_valid_webhook)
+
+    def test_remove_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'test'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
+
+    def test_remove_own_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'test')
+
+    def test_remove_last_user(self):
+        self.assertEqual(self.project.users.count(), 1)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 400)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())

@@ -54,9 +54,9 @@ class GitLabService(Service):
     def _get_repo_id(self, project):
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
-        try:
+        if project.remote_repository:
             repo_id = project.remote_repository.remote_id
-        except Project.remote_repository.RelatedObjectDoesNotExist:
+        else:
             # Handle "Manual Import" when there is no RemoteRepository
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)

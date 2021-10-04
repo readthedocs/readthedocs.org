@@ -58,7 +58,7 @@ release number.
 
 Group milestones are blocks of work that will have priority in the future, but
 aren't included on point releases yet. When the core team does decide to make
-these milestones a priorty, they will be moved into point release milestones.
+these milestones a priority, they will be moved into point release milestones.
 
 .. _semantic versioning: https://semver.org
 
