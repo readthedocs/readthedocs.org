@@ -36,8 +36,8 @@ Below is an example YAML file which shows the most common configuration options:
             configuration: docs/conf.py
 
          # Optionally build your docs in additional formats such as PDF
-         formats:
-            - pdf
+         # formats:
+            # - pdf
 
          # Optionally declare the Python requirements required to build your docs
          python:
