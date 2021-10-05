@@ -644,6 +644,9 @@ class CommunityBaseSettings(Settings):
         },
         # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
     }
+    ACCOUNT_FORMS = {
+        'signup': 'readthedocs.forms.SignupFormWithNewsletter',
+    }
 
     # CORS
     # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
@@ -824,6 +827,10 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
+
+    # MailerLite API for newsletter signups
+    MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
         r'docs\.python\.org',
