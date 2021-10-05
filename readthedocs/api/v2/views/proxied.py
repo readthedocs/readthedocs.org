@@ -1,26 +1,20 @@
 from readthedocs.api.v2.views.footer_views import BaseFooterHTML
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.views import EmbedAPIBase
+from readthedocs.core.mixins import AuthenticatedClassesMixin
 
 
-class BaseProxiedFooterHTML(BaseFooterHTML):
-
-    # DRF has BasicAuthentication and SessionAuthentication as default classes.
-    # We don't support neither in the community site.
-    authentication_classes = []
-
+class BaseProxiedFooterHTML(BaseFooterHTML, AuthenticatedClassesMixin):
+    
+    pass
 
 class ProxiedFooterHTML(SettingsOverrideObject):
 
     _default_class = BaseProxiedFooterHTML
 
+class ProxiedEmbedAPIBase(EmbedAPIBase, AuthenticatedClassesMixin):
 
-class ProxiedEmbedAPIBase(EmbedAPIBase):
-
-    # DRF has BasicAuthentication and SessionAuthentication as default classes.
-    # We don't support neither in the community site.
-    authentication_classes = []
-
+    pass
 
 class ProxiedEmbedAPI(SettingsOverrideObject):
 

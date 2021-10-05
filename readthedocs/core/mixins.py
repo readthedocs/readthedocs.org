@@ -17,3 +17,8 @@ class ListViewWithForm(ListView):
 class PrivateViewMixin(LoginRequiredMixin):
 
     pass
+
+class AuthenticatedClassesMixin():
+    # DRF has BasicAuthentication and SessionAuthentication as default classes.
+    # We don't support neither in the community site.
+    authentication_classes = []
