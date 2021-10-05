@@ -21,6 +21,13 @@ Below is an example YAML file which shows the most common configuration options:
          # Required
          version: 2
 
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+             nodejs: "16"
+
          # Build documentation in the docs/ directory with Sphinx
          sphinx:
             configuration: docs/conf.py
@@ -29,9 +36,8 @@ Below is an example YAML file which shows the most common configuration options:
          formats:
             - pdf
 
-         # Optionally set the version of Python and requirements required to build your docs
+         # Optionally declare the Python requirements required to build your docs
          python:
-            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -46,12 +52,17 @@ Below is an example YAML file which shows the most common configuration options:
          # Required
          version: 2
 
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+
          mkdocs:
            configuration: mkdocs.yml
 
-         # Optionally set the version of Python and requirements required to build your docs
+         # Optionally declare the Python requirements required to build your docs
          python:
-            version: "3.7"
             install:
             - requirements: docs/requirements.txt
 
@@ -138,7 +149,6 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - method: pip
@@ -152,20 +162,12 @@ Configuration of the Python environment to be used.
 python.version
 ``````````````
 
-The Python version (this depends on :ref:`config-file/v2:build.image`).
-
-:Type: ``string``
-:Default: ``3``
-
-.. note::
-
-   Make sure to use quotes (``"``) to make it a string.
-   We previously supported using numbers here,
-   but that approach is deprecated.
 .. warning::
 
-   If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
-   the build, this setting will not have any effect, as the Python version is managed by Conda.
+   This option is now deprecated
+   and replaced by :ref:`config-file/v2:build.tools.python`.
+   See :ref:`config-file/v2:python.version (legacy)`
+   for the description of this option.
 
 python.install
 ``````````````
@@ -266,11 +268,6 @@ Give the virtual environment access to the global site-packages directory.
 :Type: ``bool``
 :Default: ``false``
 
-Depending on the :ref:`config-file/v2:build.image`,
-Read the Docs includes some libraries like scipy, numpy, etc.
-That you can access to them by enabling this option.
-See :doc:`/builds` for more details.
-
 .. warning::
 
   If you are using a :ref:`Conda <config-file/v2:conda>` environment
@@ -297,39 +294,104 @@ The path to the Conda environment file, relative to the root of the project.
 :Type: ``path``
 :Required: ``true``
 
-build
-~~~~~
+build (beta specification)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning::
+
+   This functionality is in beta. If you find any inconsistencies
+   or have feedback, please `open an
+   issue <https://github.com/readthedocs/readthedocs.org/issues/>`_.
 
 Configuration for the documentation build process.
+This allows you to specify the base Read the Docs image
+used to build the documentation,
+and control the versions of several tools:
+Python, Node.js, Rust, and Go.
 
 .. code-block:: yaml
 
    version: 2
 
    build:
-     image: latest
-     apt_packages:
-       - libclang
-       - cmake
+     os: ubuntu-20.04
+     tools:
+       python: "3.9"
+       nodejs: "16"
+       rust: "1.55"
+       golang: "1.17"
 
-   python:
-     version: "3.7"
-
-
-build.image
-```````````
+build.os
+````````
 
 The Docker image used for building the docs.
+Image names refer to the operating system Read the Docs uses to build them.
+
+.. note::
+
+   Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``stable``, ``latest``
-:Default: ``latest``
+:Options: ``ubuntu-20.04``
+:Required: ``true``
 
-Each image support different Python versions and has different packages installed,
-as defined here:
+build.tools
+```````````
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+Version specifiers for each tool. It must contain at least one tool.
+
+:Type: ``dict``
+:Options: ``python``, ``nodejs``, ``rust``, ``golang``
+:Required: ``true``
+
+build.tools.python
+``````````````````
+
+Python version to use.
+You can use several interpretes and versions, from CPython, PyPy, Miniconda, and Mamba.
+
+.. note::
+
+   If you use Miniconda3 or Mambaforge, you can select the Python version
+   using the ``environment.yml`` file. See our :doc:`/guides/conda` guide
+   for more information.
+
+:Type: ``string``
+:Options:
+  - ``2.7``
+  - ``3`` (last stable CPython version)
+  - ``3.6``
+  - ``3.7``
+  - ``3.8``
+  - ``3.9``
+  - ``3.10``
+  - ``pypy3.7``
+  - ``miniconda3-4.7``
+  - ``mambaforge-4.10``
+
+build.tools.nodejs
+``````````````````
+
+Node.js version to use.
+
+:Type: ``string``
+:Options: ``14``, ``16``
+
+build.tools.rust
+````````````````
+
+Rust version to use.
+
+:Type: ``string``
+:Options: ``1.55``
+
+build.tools.golang
+``````````````````
+
+Go version to use.
+
+:Type: ``string``
+:Options: ``1.17``
 
 build.apt_packages
 ``````````````````
@@ -634,7 +696,76 @@ Schema
 ------
 
 You can see the complete schema
-`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.yml>`_.
+`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+
+
+Legacy ``build`` specification
+------------------------------
+
+The legacy ``build`` specification used a different set of Docker images,
+and only allowed you to specify the Python version.
+It remains supported for backwards compatibility reasons.
+Check out the :ref:`config-file/v2:build (beta specification)` above
+for an alternative method that is more flexible.
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     image: latest
+     apt_packages:
+       - libclang
+       - cmake
+
+   python:
+     version: "3.7"
+
+The legacy ``build`` specification also supports
+the ``apt_packages`` key described above.
+
+.. warning::
+
+   When using the new speficiation,
+   the ``build.os`` and ``python.version`` options cannot be used.
+   Doing so will error the build.
+
+build (legacy)
+~~~~~~~~~~~~~~
+
+build.image (legacy)
+````````````````````
+
+The Docker image used for building the docs.
+
+:Type: ``string``
+:Options: ``stable``, ``latest``
+:Default: ``latest``
+
+Each image support different Python versions and has different packages installed,
+as defined here:
+
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+
+python.version (legacy)
+```````````````````````
+
+The Python version (this depends on :ref:`config-file/v2:build.image (legacy)`).
+
+:Type: ``string``
+:Default: ``3``
+
+.. note::
+
+   Make sure to use quotes (``"``) to make it a string.
+   We previously supported using numbers here,
+   but that approach is deprecated.
+
+.. warning::
+
+   If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+   the build, this setting will not have any effect, as the Python version is managed by Conda.
 
 Migrating from v1
 -----------------
@@ -650,8 +781,10 @@ Changes
   See :ref:`config-file/v2:Requirements file`.
 - The setting ``conda.file`` was renamed to ``conda.environment``.
   See :ref:`config-file/v2:conda.environment`.
-- The ``build.image`` setting now only has two options: ``latest`` (default) and ``stable``.
-  See :ref:`config-file/v2:build.image`.
+- The ``build.image`` setting has been replaced by ``build.os``.
+  See :ref:`config-file/v2:build.os`.
+  Alternatively, you can use the legacy ``build.image``
+  that now has only two options: ``latest`` (default) and ``stable``.
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.

@@ -1,8 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-# We can't use >4.0.3 till this is merged
-# https://github.com/sphinx-contrib/httpdomain/pull/51.
-Sphinx==4.0.3  # pyup: ignore
+Sphinx==4.2.0
 Pygments==2.10.0
 
 sphinx_rtd_theme==1.0.0
@@ -16,7 +14,7 @@ git+https://github.com/readthedocs/sphinx-hoverxref@master
 
 # Docs
 sphinxemoji==0.1.9
-sphinxcontrib-httpdomain==1.7.0
+sphinxcontrib-httpdomain==1.8.0
 sphinx-prompt==1.4.0
 sphinx-notfound-page==0.7.1
 sphinx-autobuild==2021.3.14

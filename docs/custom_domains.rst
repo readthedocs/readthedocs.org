@@ -133,41 +133,52 @@ You will need to update your CAA records to allow us to issue the certificate.
    to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
    else it will always redirect to GitBook.
 
-Proxy SSL
----------
+Canonical URLs
+--------------
 
-.. warning::
+Canonical URLs allow people to have consistent page URLs for domains.
+This is mainly useful for search engines,
+so that they can send people to the correct page.
 
-   This option is deprecated,
-   we already issue SSL certificates for all domains.
+Read the Docs uses these in two ways:
 
-If you would prefer to do your own SSL termination
-on a server you own and control,
-you can do that although the setup is a bit more complex.
+* We point all versions of your docs at the "latest" version as canonical
+* We point at the user specified canonical URL, generally a custom domain for your docs.
 
-Broadly, the steps are:
+Example
++++++++
 
-* Have a server listening on 443 that you control
-* Procure an SSL certificate for your domain and provision it
-  and the private key on your server.
-* Add a domain that you wish to point at Read the Docs
-* Enable proxying to us, with a custom ``X-RTD-SLUG`` header
+Fabric hosts their docs on Read the Docs.
+They mostly use their own domain for them ``http://docs.fabfile.org``.
+This means that Google will index both ``http://fabric-docs.readthedocs.io`` and
+``http://docs.fabfile.org`` for their documentation.
 
-An example nginx configuration for pip would look like:
+Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
+This means that when Google indexes ``http://fabric-docs.readthedocs.io``,
+it will know that it should really point at ``http://docs.fabfile.org``.
 
-.. code-block:: nginx
-   :emphasize-lines: 9
+Enabling
+++++++++
 
-    server {
-        server_name pip.pypa.io;
-        location / {
-            proxy_pass https://pip.readthedocs.io:443;
-            proxy_set_header Host $http_host;
-            proxy_set_header X-Forwarded-Proto https;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Scheme $scheme;
-            proxy_set_header X-RTD-SLUG pip;
-            proxy_connect_timeout 10s;
-            proxy_read_timeout 20s;
-        }
-    }
+You can set the canonical URL for your project in the Project Admin page.
+Check your :guilabel:`Admin` > :guilabel:`Domains` page for the domains that we know about.
+
+Implementation
+++++++++++++++
+
+If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
+Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
+
+.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
+
+If you are using :doc:`MkDocs </intro/getting-started-with-mkdocs>`,
+you can use the site_url_ setting.
+
+.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
+
+If you look at the source code for documentation built after you set your canonical URL,
+you should see a bit of HTML like this:
+
+.. code-block:: html
+
+    <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />

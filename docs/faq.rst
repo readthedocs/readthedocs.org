@@ -50,7 +50,7 @@ see :ref:`faq:My documentation requires additional dependencies`.
 Read the Docs offers some settings which can be used for a variety of purposes.
 To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
-Read more about these settings :doc:`here <guides/feature-flags>`.
+Read more about these settings :doc:`here <feature-flags>`.
 
 
 I get import errors on libraries that depend on C modules
