@@ -907,16 +907,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # https://community.letsencrypt.org/t/openssl-client-compatibility-changes-for-let-s-encrypt-certificates/143816
         # TODO: remove this when a newer version of ``ca-certificates`` gets
         # pre-installed in the Docker images
-        self.setup_env.run(
-            'apt-get', 'update', '--assume-yes', '--quiet',
-            user=settings.RTD_DOCKER_SUPER_USER,
-            record=False,
-        )
-        self.setup_env.run(
-            'apt-get', 'install', '--assume-yes', '--quiet', 'ca-certificates',
-            user=settings.RTD_DOCKER_SUPER_USER,
-            record=False,
-        )
+        if self.project.has_feature(Feature.UPDATE_CA_CERTIFICATES):
+            self.setup_env.run(
+                'apt-get', 'update', '--assume-yes', '--quiet',
+                user=settings.RTD_DOCKER_SUPER_USER,
+                record=False,
+            )
+            self.setup_env.run(
+                'apt-get', 'install', '--assume-yes', '--quiet', 'ca-certificates',
+                user=settings.RTD_DOCKER_SUPER_USER,
+                record=False,
+            )
 
         log.info(
             LOG_TEMPLATE,
