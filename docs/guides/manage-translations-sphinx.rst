@@ -1,5 +1,5 @@
-Manage Translations
-===================
+Manage Translations for Sphinx projects
+=======================================
 
 This guide walks through the process needed to manage translations of your documentation.
 Once this work is done, you can setup your project under Read the Docs to build each language of your documentation by reading :doc:`/localization`.

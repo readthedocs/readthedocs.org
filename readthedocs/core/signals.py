@@ -8,8 +8,10 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
+from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
 
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Project
@@ -21,6 +23,7 @@ ALLOWED_URLS = [
     '/api/v2/search',
     '/api/v2/docsearch',
     '/api/v2/embed',
+    '/api/v3/embed',
 ]
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -76,6 +79,12 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         url = request.GET.get('url')
         if url:
             unresolved = unresolve(url)
+            if unresolved is None:
+                # NOTE: Embed APIv3 now supports external sites. In that case
+                # ``unresolve()`` will return None and we want to allow it
+                # since the target is a public project.
+                return True
+
             project = unresolved.project
             version_slug = unresolved.version_slug
         else:
@@ -122,10 +131,18 @@ def delete_projects(sender, instance, *args, **kwargs):
 @receiver(pre_create_historical_record)
 def add_extra_historical_fields(sender, **kwargs):
     history_instance = kwargs['history_instance']
+    if not history_instance:
+        return
+
     history_user = kwargs['history_user']
-    if history_instance and history_user:
+    if history_user:
         history_instance.extra_history_user_id = history_user.id
         history_instance.extra_history_user_username = history_user.username
+
+    request = getattr(HistoricalRecords.context, 'request', None)
+    if request:
+        history_instance.extra_history_ip = get_client_ip(request)
+        history_instance.extra_history_browser = request.headers.get('User-Agent')
 
 
 signals.check_request_enabled.connect(decide_if_cors)

@@ -122,6 +122,7 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
+    RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
     # Database and API hitting settings
@@ -522,8 +523,17 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
-    # When updating this options,
-    # update the readthedocs/rtd_tests/fixtures/spec/v2/schema.json file as well.
+    # Adding a new tool/version to this setting requires:
+    #
+    # - a mapping between the expected version in the config file, to the full
+    # version installed via asdf (found via ``asdf list all <tool>``)
+    #
+    # - running the script ``./scripts/compile_version_upload.sh`` in
+    # development and production environments to compile and cache the new
+    # tool/version
+    #
+    # Note that when updating this options, you should also update the file:
+    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
@@ -633,6 +643,9 @@ class CommunityBaseSettings(Settings):
             ],
         },
         # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
+    }
+    ACCOUNT_FORMS = {
+        'signup': 'readthedocs.forms.SignupFormWithNewsletter',
     }
 
     # CORS
@@ -814,6 +827,10 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
+
+    # MailerLite API for newsletter signups
+    MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
         r'docs\.python\.org',
