@@ -8,13 +8,16 @@ class BaseProxiedFooterHTML(ProxiedAPIMixin, BaseFooterHTML):
 
     pass
 
+
 class ProxiedFooterHTML(SettingsOverrideObject):
 
     _default_class = BaseProxiedFooterHTML
 
+
 class ProxiedEmbedAPIBase(ProxiedAPIMixin, EmbedAPIBase):
 
     pass
+
 
 class ProxiedEmbedAPI(SettingsOverrideObject):
 
