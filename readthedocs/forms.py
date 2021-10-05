@@ -18,9 +18,7 @@ class SignupFormWithNewsletter(SignupForm):
     receive_newsletter = forms.BooleanField(
         required=False,
         label=(
-            "I also wish to subscribe to the Read the Docs newsletter "
-            "to receive news and updates regularly. "
-            "I know I can unsubscribe at any time."
+            "Subscribe to our newsletter to get product updates."
         ),
     )
 
