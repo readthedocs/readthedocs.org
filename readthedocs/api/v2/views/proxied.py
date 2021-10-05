@@ -1,18 +1,18 @@
 from readthedocs.api.v2.views.footer_views import BaseFooterHTML
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.views import EmbedAPIBase
-from readthedocs.core.mixins import AuthenticatedClassesMixin
+from readthedocs.core.mixins import ProxiedAPIMixin
 
 
-class BaseProxiedFooterHTML(BaseFooterHTML, AuthenticatedClassesMixin):
-    
+class BaseProxiedFooterHTML(ProxiedAPIMixin, BaseFooterHTML):
+
     pass
 
 class ProxiedFooterHTML(SettingsOverrideObject):
 
     _default_class = BaseProxiedFooterHTML
 
-class ProxiedEmbedAPIBase(EmbedAPIBase, AuthenticatedClassesMixin):
+class ProxiedEmbedAPIBase(ProxiedAPIMixin, EmbedAPIBase):
 
     pass
 

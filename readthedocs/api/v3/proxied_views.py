@@ -1,9 +1,9 @@
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.v3.views import EmbedAPIBase
-from readthedocs.core.mixins import AuthenticatedClassesMixin
+from readthedocs.core.mixins import ProxiedAPIMixin
 
 
-class ProxiedEmbedAPIBase(EmbedAPIBase, AuthenticatedClassesMixin):
+class ProxiedEmbedAPIBase(ProxiedAPIMixin, EmbedAPIBase):
     
     pass
 

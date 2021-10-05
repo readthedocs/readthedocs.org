@@ -18,7 +18,7 @@ class PrivateViewMixin(LoginRequiredMixin):
 
     pass
 
-class AuthenticatedClassesMixin():
+class ProxiedAPIMixin():
     # DRF has BasicAuthentication and SessionAuthentication as default classes.
     # We don't support neither in the community site.
     authentication_classes = []
