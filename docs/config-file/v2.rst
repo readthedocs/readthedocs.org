@@ -359,7 +359,7 @@ You can use several interpretes and versions, from CPython, PyPy, Miniconda, and
 :Type: ``string``
 :Options:
   - ``2.7``
-  - ``3``
+  - ``3`` (last stable CPython version)
   - ``3.6``
   - ``3.7``
   - ``3.8``
