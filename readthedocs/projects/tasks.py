@@ -901,6 +901,23 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         """
         environment.update_build(state=BUILD_STATE_CLONING)
 
+        # Install a newer version of ca-certificates packages because it's
+        # required for Let's Encrypt certificates
+        # https://github.com/readthedocs/readthedocs.org/issues/8555
+        # https://community.letsencrypt.org/t/openssl-client-compatibility-changes-for-let-s-encrypt-certificates/143816
+        # TODO: remove this when a newer version of ``ca-certificates`` gets
+        # pre-installed in the Docker images
+        self.setup_env.run(
+            'apt-get', 'update', '--assume-yes', '--quiet',
+            user=settings.RTD_DOCKER_SUPER_USER,
+            record=False,
+        )
+        self.setup_env.run(
+            'apt-get', 'install', '--assume-yes', '--quiet', 'ca-certificates',
+            user=settings.RTD_DOCKER_SUPER_USER,
+            record=False,
+        )
+
         log.info(
             LOG_TEMPLATE,
             {
