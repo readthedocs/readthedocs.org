@@ -1953,7 +1953,7 @@ def finish_inactive_builds():
         )
         build.save()
 
-    log.info(
+    log.warning(
         'Builds marked as "Terminated due inactivity". count=%s pks=%s',
         len(stale_build_pks),
         stale_build_pks,
