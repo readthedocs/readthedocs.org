@@ -18,6 +18,7 @@ import tempfile
 from collections import Counter, defaultdict
 from fnmatch import fnmatch
 
+import redis
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
@@ -1850,7 +1851,7 @@ def finish_inactive_builds():
         build_stale = True
 
         # 1. check if it's being executed by celery
-        for queue, tasks in app.control.inspect().active():
+        for queue, tasks in app.control.inspect().active().items():
             for task in tasks:
                 if task['kwargs']['build_pk'] == build.pk:
                     # The build is not stale, it's being executed
