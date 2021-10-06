@@ -1826,6 +1826,45 @@ Remote Repository listing
     :requestheader Authorization: token to authenticate.
 
 
+Embed
+-----
+
+.. http:get::  /api/v3/embed/
+
+    Retrieve HTML-formatted content from documentation page or section.
+
+    **Example request**:
+
+    .. prompt:: bash $
+
+        curl https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23read-the-docs-features
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+       {
+           "url": "https://docs.readthedocs.io/en/latest/features.html#read-the-docs-features",
+           "fragment": "read-the-docs-features",
+           "content": "<div class=\"section\" id=\"read-the-docs-features\">\n<h1>Read the Docs ...",
+           "external": false
+       }
+
+    :>json string url: URL of the document.
+    :>json string fragment: fragmet part of the URL used to query the page.
+    :>json string content: HTML content of the section.
+    :>json string external: whether or not the page is hosted on Read the Docs or externally.
+
+    :query string url: full URL of the document (with optional fragment) to fetch content from.
+    :query string doctool: *optional* documentation tool key name used to generate the target documentation (e.g. ``sphinx``)
+    :query string doctoolversion: *optional* documentation tool version used to generate the target documentation (e.g. ``4.2.0``).
+
+    .. note::
+
+       Passing ``?doctool=`` and ``?doctoolversion=`` may make the response to behave better,
+       since the endpoint will know more about the exact structure of the HTML and can make better decisions.
+
+
 Additional APIs
 ---------------
 

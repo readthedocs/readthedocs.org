@@ -43,7 +43,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
     ### Example
 
-    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23#full-text-search
+    GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23full-text-search
 
     """  # noqa
 
