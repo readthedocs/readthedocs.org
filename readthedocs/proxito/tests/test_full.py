@@ -14,6 +14,7 @@ from django.urls import reverse
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
+from readthedocs.core.models import UserProfile
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
@@ -335,6 +336,17 @@ class TestDocServingBackends(BaseDocServing):
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
+
+    def test_spam_fighting(self):
+        self.eric.profile.banned = True
+        self.eric.profile.save()
+        resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(resp.status_code, 403)
+
+        self.eric.profile.banned = False
+        self.eric.profile.save()
+        resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(resp.status_code, 200)
 
 @override_settings(
     PYTHON_MEDIA=False,
