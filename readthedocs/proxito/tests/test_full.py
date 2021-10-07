@@ -341,7 +341,7 @@ class TestDocServingBackends(BaseDocServing):
         self.eric.profile.banned = True
         self.eric.profile.save()
         resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 401)
 
         self.eric.profile.banned = False
         self.eric.profile.save()
