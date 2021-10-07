@@ -5,7 +5,8 @@ import logging
 from urllib.parse import urlparse
 
 from readthedocs.core.resolver import resolve_path
-from django.http import Http404, HttpResponse, HttpResponseRedirect, Http403
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
@@ -84,7 +85,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
         # Return a 403 on projects that are classified as spam
         if final_project.users.filter(profile__banned=True):
-            raise Http403('Project detected as spam, refusing to serve')
+            raise PermissionDenied('Project detected as spam, refusing to serve')
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):

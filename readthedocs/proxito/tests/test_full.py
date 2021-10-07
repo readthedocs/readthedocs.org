@@ -7,6 +7,7 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -340,8 +341,8 @@ class TestDocServingBackends(BaseDocServing):
     def test_spam_fighting(self):
         self.eric.profile.banned = True
         self.eric.profile.save()
-        resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(resp.status_code, 403)
+        with self.assertRaises(PermissionDenied):
+            resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
 
         self.eric.profile.banned = False
         self.eric.profile.save()
