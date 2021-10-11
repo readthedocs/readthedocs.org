@@ -1,0 +1,34 @@
+{% load organizations gravatar i18n %}
+
+<div class="module-list team-member-list">
+  <div class="module-list-wrapper">
+    <ul>
+      {% for member in members %}
+        <li class="module-item team-member-{% if member.is_member %}member{% else %}invite{% endif %}">
+          {% if request.user|org_owner:team %}
+            <span class="right">
+              <form method="post" action="{% url "organization_team_member_delete" organization.slug team.slug member.pk %}">
+                {% csrf_token %}
+                <input type="submit" value="{% trans "Remove" %}">
+              </form>
+            </span>
+          {% endif %}
+
+          <img class="gravatar" src="{% gravatar_url member.email 96 %}" width=48 height=48 title="{{ member.get_full_name  }}" />
+
+          <span class="detail detail-username">{{ member.username }}</span>
+          {% if member.is_invite %}
+            <span class="detail detail-status">({% trans "invite pending" %})</span>
+          {% else %}
+            <span class="detail detail-name">{{ member.full_name }}</span>
+          {% endif %}
+
+        </li>
+      {% empty %}
+        <li class="module-item">
+          {% trans "This team doesn't have any members" %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

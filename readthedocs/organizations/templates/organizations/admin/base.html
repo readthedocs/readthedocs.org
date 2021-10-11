@@ -1,0 +1,25 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n %}
+
+{% block organization-bar-admin %}active{% endblock %}
+
+{% block content %}
+<div id="organization_edit" class="module">
+  <div class="wrapper">
+    <div class="navigable">
+      <ul>
+        <li class="{% block organization-admin-details %}{% endblock %}"><a href="{% url 'organization_edit' organization.slug %}">{% trans "Details" %}</a></li>
+        <li class="{% block organization-admin-owners %}{% endblock %}"><a href="{% url 'organization_owners' organization.slug %}">{% trans "Owners" %}</a></li>
+        <li class="{% block organization-admin-subscription %}{% endblock %}"><a href="{% url 'subscription_detail' organization.slug %}">{% trans "Subscription" %}</a></li>
+        <li class="{% block organization-admin-sso %}{% endblock %}"><a href="{% url 'organization_sso' organization.slug %}">{% trans "Authorization" %}</a></li>
+      </ul>
+      <div>
+        <h2>{% block edit_content_header %}{% endblock %}</h2>
+        {% block edit_content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n %}
+{% load organizations %}
+
+{% block title %}{% trans "Authorization" %}{% endblock %}
+
+{% block organization-admin-sso %}active{% endblock %}
+
+{% block edit_content_header %}{% trans "Authorization" %}{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript">
+ $(document).ready(function() {
+     var value = $('#id_provider').val();
+     if (value !== 'email') {
+         $('#id_domain').parent().hide();
+     }
+
+     $('#id_provider').bind('change', function (ev) {
+         if (this.value === 'email') {
+             $('#id_domain').parent().show();
+             $('#id_domain').attr('required', true);
+         } else {
+             $('#id_domain').parent().hide();
+             $('#id_domain').attr('required', false);
+         }
+     })
+ })
+</script>
+{% endblock %}
+
+{% block edit_content %}
+<p>
+ These methods allow you to use an external source of authentication and authorization for your documentation.
+ The <strong>VCS Auth <em>(GitHub, GitLab, Bitbucket)</em> option replaces your Read the Docs managed teams</strong>,
+ allowing you to control all access to your documentation from these services.
+ The <em>Google</em> option gives you a way to include all users from your organization in a specific team,
+ allowing them permissions to a subset of your documentation.
+</p>
+{% if organization.subscription and not organization.subscription.plan|has_feature:"sso" %}
+<p class="empty">
+    Single sign-on with Google is only available in the Pro Plan.
+    <a href="{% url 'subscription_detail' organization.slug %}">
+        Upgrade your subscription
+    </a>
+    to enable this feature.
+</p>
+{% endif %}
+
+{% if organization.ssointegration %}
+<p>
+    {% trans "You can invite people to join your organization by sending them this link:" %}
+    <a href="http://{{ PRODUCTION_DOMAIN }}{% url 'account_signup' %}?organization={{ organization.slug }}">
+        http://{{ PRODUCTION_DOMAIN }}{% url 'account_signup' %}?organization={{ organization.slug }}
+    </a>.
+</p>
+{% endif %}
+
+<form method="POST" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+        <input type="submit" name="submit" value="{% trans "Save" %}" id="submit"/>
+    </p>
+</form>
+{% endblock %}
