@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}Organization List{% endblock %}
+
+{% block organization-bar-organization %}active{% endblock %}
+
+{% block content %}
+  <div class="col-major organization-major">
+    <div class="module organizations organizations-list">
+      <div class="module-wrapper">
+
+        <h2>Organizations</h2>
+
+        {% with orgs=request.user|organization %}
+          {% if orgs %}
+            <!-- BEGIN organization list -->
+            <div class="module-list">
+              <div class="module-list-wrapper">
+
+                <ul>
+                  {% for org in orgs %}
+                    <li>
+                      <a href="{{ org.get_absolute_url }}">
+                        {% gravatar org.email 48 %}
+                        {{ org.name }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+
+              </div>
+            </div>
+            <!-- END organization list -->
+          {% else %}
+            <p>You aren't currently a member of any organizations</p>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-minor organization-minor">
+    <div class="module teams teams-list">
+      <h2>Teams</h2>
+
+      {% with teams=request.user|teams %}
+        {% if teams %}
+          <ul>
+            {% for team in teams %}
+              <li>
+                {% include 'organizations/includes/team_list_item.html' with show_org=True %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>
+            You currently aren't a member of any teams.
+          </p>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+{% endblock %}

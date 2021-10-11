@@ -1,0 +1,63 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n gravatar %}
+
+{% block title %}{% trans "Edit Organization Owners" %}{% endblock %}
+
+{% block organization-admin-owners %}active{% endblock %}
+
+{% block edit_content_header %}Owners{% endblock %}
+
+{% block edit_content %}
+  <p class="help_text">
+    {% trans "Owners have full access to this Organization" %}
+  </p>
+
+  <!-- BEGIN organization owner edit -->
+  <div class="module">
+    <div class="module-list">
+      <div class="module-list-wrapper">
+
+        <ul class="colspan">
+          {% for owner_model in owner_objs %}
+            <li class="module-item">
+              <span class="right">
+                {% if request.user != owner_model.owner %}
+                  <form method="post" action="{% url "organization_owner_delete" organization.slug owner_model.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user" value="{{ owner_model.owner.username }}" />
+                    <input type="submit" value="Remove">
+                  </form>
+                {% endif %}
+              </span>
+
+              <span>
+                {% gravatar owner_model.owner.email 24 %}
+                {% with owner_name=owner_model.owner.get_full_name %}
+                  {% if owner_name %}
+                    {{ owner_name }}
+                  {% else %}
+                    {{ owner_model.owner.username }}
+                  {% endif %}
+                {% endwith %}
+              </span>
+
+            </li>
+          {% endfor %}
+        </ul>
+
+      </div>
+    </div>
+
+    <div class="module-item">
+      <h3>{% trans "Add Owner" %}</h3>
+      <form method="post" action="{% url "organization_owner_add" organization.slug %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="{% trans "Add Owner" %}">
+      </form>
+    </div>
+
+  </div>
+  <!-- END organization owner edit -->
+{% endblock %}
