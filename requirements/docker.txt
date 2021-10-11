@@ -30,4 +30,4 @@ argh==0.26.2
 tox==3.24.4
 
 # AWS utilities to use against MinIO
-awscli==1.20.48
+awscli==1.20.58
