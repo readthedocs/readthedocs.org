@@ -547,7 +547,7 @@ class CommunityBaseSettings(Settings):
                 '3.7': '3.7.12',
                 '3.8': '3.8.12',
                 '3.9': '3.9.7',
-                '3.10': '3.10.0rc2',
+                '3.10': '3.10.0',
                 'pypy3.7': 'pypy3.7-7.3.5',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.1-5',
@@ -565,7 +565,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
 
     def _get_docker_memory_limit(self):
         try:
