@@ -1,3 +1,15 @@
+Version 5.25.1
+--------------
+
+:Date: October 11, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Small fixes (`#8564 <https://github.com/readthedocs/readthedocs.org/pull/8564>`__)
+* `@deepto98 <https://github.com/deepto98>`__: Moved authenticated_classes definitions from API classes to AuthenticatedClassesMixin (`#8562 <https://github.com/readthedocs/readthedocs.org/pull/8562>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update ca-certificates before cloning (`#8559 <https://github.com/readthedocs/readthedocs.org/pull/8559>`__)
+* `@humitos <https://github.com/humitos>`__: Build: support Python 3.10.0 stable release (`#8558 <https://github.com/readthedocs/readthedocs.org/pull/8558>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Document new `build` specification (`#8547 <https://github.com/readthedocs/readthedocs.org/pull/8547>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add checkbox to subscribe new users to newsletter (`#8546 <https://github.com/readthedocs/readthedocs.org/pull/8546>`__)
+
 Version 5.25.0
 --------------
 
