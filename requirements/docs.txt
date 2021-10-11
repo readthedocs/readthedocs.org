@@ -13,7 +13,7 @@ readthedocs-sphinx-search==0.1.0
 git+https://github.com/readthedocs/sphinx-hoverxref@master
 
 # Docs
-sphinxemoji==0.1.9
+sphinxemoji==0.2.0
 sphinxcontrib-httpdomain==1.8.0
 sphinx-prompt==1.4.0
 sphinx-notfound-page==0.7.1
