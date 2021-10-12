@@ -54,6 +54,19 @@ project_urls = [
     url(r'^projects/', include('readthedocs.projects.urls.public')),
 ]
 
+
+organization_urls = [
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.private'),
+    ),
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.public'),
+    ),
+]
+
+
 api_urls = [
     url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
@@ -117,6 +130,9 @@ groups = [
     core_urls,
     i18n_urls,
 ]
+
+if settings.RTD_ALLOW_ORGANIZATIONS:
+    groups.append(organization_urls)
 
 if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported

@@ -1,20 +1,15 @@
-# -*- coding: utf-8 -*-
-
 """Allauth overrides."""
 
 import json
 import logging
 
 from allauth.account.adapter import DefaultAccountAdapter
+from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils.encoding import force_text
 
 from readthedocs.core.utils import send_email
-
-
-try:
-    from django.utils.encoding import force_text
-except ImportError:
-    from django.utils.encoding import force_unicode as force_text
+from readthedocs.organizations.models import TeamMember
 
 log = logging.getLogger(__name__)
 
@@ -56,3 +51,21 @@ class AccountAdapter(DefaultAccountAdapter):
             template_html='{}_message.html'.format(template_prefix),
             context=context,
         )
+
+    def save_user(self, request, user, form, commit=True):
+        """Override default account signup to link user to correct team."""
+        user = super().save_user(request, user, form)
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return
+
+        invite_id = request.session.get('invite')
+        if invite_id:
+            try:
+                teammember = TeamMember.objects.get(invite__pk=invite_id)
+                teammember.member = user
+                teammember.save()
+                teammember.invite.delete()
+            except TeamMember.DoesNotExist:
+                log.error(
+                    "Didn't find member related to invite, not adding to team",
+                )
