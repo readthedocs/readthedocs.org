@@ -39,11 +39,6 @@ urlpatterns = [
         views.EditOrganizationOwners.as_view(),
         name='organization_owners',
     ),
-    url(
-        r'^(?P<slug>[\w.-]+)/authorization/$',
-        views.OrganizationSSO.as_view(),
-        name='organization_sso',
-    ),
     # Teams
     url(
         r'^(?P<slug>[\w.-]+)/teams/add/$',

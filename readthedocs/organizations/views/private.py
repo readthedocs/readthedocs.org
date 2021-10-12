@@ -16,8 +16,6 @@ from readthedocs.organizations.views.base import (
     OrganizationTeamView,
     OrganizationView,
 )
-from readthedocs.sso.models import SSOIntegration
-from readthedocsinc.acl.sso.forms import SSOIntegrationForm
 
 
 # Organization views
@@ -74,38 +72,6 @@ class DeleteOrganization(
 
     def get_success_url(self):
         return reverse_lazy('organization_list')
-
-
-class OrganizationSSO(PrivateViewMixin, OrganizationView, UpdateView):
-    form_class = SSOIntegrationForm
-    template_name = 'organizations/admin/sso_edit.html'
-
-    def get_form(self, data=None, files=None, **kwargs):
-        self.organization = self.object
-        try:
-            ssointegration = self.organization.ssointegration
-            ssodomain = ssointegration.domains.first()
-            initial = {
-                'enabled': True,
-                'provider': ssointegration.provider,
-                'domain': ssodomain.domain if ssodomain else None,
-            }
-        except SSOIntegration.DoesNotExist:
-            ssointegration = None
-            initial = {}
-
-        kwargs.update({
-            'instance': ssointegration,
-            'initial': initial,
-        })
-        cls = self.get_form_class()
-        return cls(self.organization, data, files, **kwargs)
-
-    def get_success_url(self):
-        return reverse_lazy(
-            'organization_sso',
-            args=[self.organization.slug],
-        )
 
 
 # Owners views
