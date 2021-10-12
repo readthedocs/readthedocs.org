@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
 
-from readthedocsinc.organizations.views import public as views
+from readthedocs.organizations.views import public as views
 
 urlpatterns = [
     url(

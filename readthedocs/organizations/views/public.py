@@ -7,13 +7,13 @@ from vanilla import DetailView, GenericModelView, ListView
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.organizations.models import Team, TeamMember
-from readthedocs.projects.models import Project
-from readthedocsinc.organizations.views.base import (
+from readthedocs.organizations.views.base import (
     OrganizationMixin,
     OrganizationTeamMemberView,
     OrganizationTeamView,
     OrganizationView,
 )
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 

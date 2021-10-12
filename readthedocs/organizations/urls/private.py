@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from readthedocsinc.organizations.views import private as views
+from readthedocs.organizations.views import private as views
 
 urlpatterns = [
     url(

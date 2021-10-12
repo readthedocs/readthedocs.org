@@ -11,11 +11,11 @@ from readthedocs.organizations.models import (
     TeamInvite,
     TeamMember,
 )
+from readthedocs.organizations.views import private as private_views
+from readthedocs.organizations.views import public as public_views
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
 from readthedocsinc.core.tests.utils import RequestFactoryTestMixin
-from readthedocsinc.organizations.views import private as private_views
-from readthedocsinc.organizations.views import public as public_views
 
 
 class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
