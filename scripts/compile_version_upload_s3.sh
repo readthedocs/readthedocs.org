@@ -25,7 +25,7 @@
 # To create a pre-compiled cached version and make it available on production,
 # **the script must be ran from a builder (build-default or build-large)** and
 # it's required to set the following environment variables for an IAM user with
-# permissions on ``readthedocs(inc)-build-tools`` S3's bucket:
+# permissions on ``readthedocs(inc)-build-tools-prod`` S3's bucket:
 #
 #   AWS_REGION
 #   AWS_ACCESS_KEY_ID
@@ -55,11 +55,12 @@
 #  ./scripts/compile_version_upload.sh python 3.9.7
 #  ./scripts/compile_version_upload.sh nodejs 14.17.6
 
-set -e
+set -e # Stop on errors
+set -x # Echo commands
 
 # Define variables
-SLEEP=350
-OS="ubuntu-20.04"
+SLEEP=350 # Container timeout
+OS="ubuntu-20.04" # Docker image name
 TOOL=$1
 VERSION=$2
 
@@ -117,9 +118,11 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
 if [[ -z $AWS_REGION ]]
 then
     # Development environment
+    echo "Uploading to dev environment"
     aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 else
     # Production environment does not requires `--endpoint-url`
+    echo "Uploading to prod environment"
     aws s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 fi
 
