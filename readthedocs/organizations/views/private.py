@@ -10,14 +10,14 @@ from readthedocs.organizations.forms import (
     OrganizationTeamProjectForm,
 )
 from readthedocs.organizations.models import Organization
-from readthedocs.sso.models import SSOIntegration
-from readthedocsinc.acl.sso.forms import SSOIntegrationForm
-from readthedocsinc.organizations.views.base import (
+from readthedocs.organizations.views.base import (
     OrganizationOwnerView,
     OrganizationTeamMemberView,
     OrganizationTeamView,
     OrganizationView,
 )
+from readthedocs.sso.models import SSOIntegration
+from readthedocsinc.acl.sso.forms import SSOIntegrationForm
 
 
 # Organization views
