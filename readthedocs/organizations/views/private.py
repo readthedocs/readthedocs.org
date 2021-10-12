@@ -1,3 +1,5 @@
+"""Views that require login."""
+# pylint: disable=too-many-ancestors
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +22,9 @@ from readthedocs.organizations.views.base import (
 
 # Organization views
 class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
+
+    """View to create an organization after the user has signed up."""
+
     template_name = 'organizations/organization_create.html'
     form_class = OrganizationSignupForm
 
@@ -147,7 +152,7 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
-        self.object = self.get_object()
+        self.object = self.get_object()  # noqa
         if self.object.invite:
             self.object.invite.delete()
         resp = super().post(request, *args, **kwargs)

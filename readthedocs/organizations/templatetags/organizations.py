@@ -70,4 +70,5 @@ def admin_teams(user):
 
 @register.filter(name='has_sso_enabled')
 def has_sso_enabled_filter(obj, provider=None):
+    """Check if `obj` has sso enabled for `provider`."""
     return AdminPermission.has_sso_enabled(obj, provider)
