@@ -126,13 +126,11 @@ groups = [
     basic_urls,
     rtd_urls,
     project_urls,
+    organization_urls,
     api_urls,
     core_urls,
     i18n_urls,
 ]
-
-if settings.RTD_ALLOW_ORGANIZATIONS:
-    groups.append(organization_urls)
 
 if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported

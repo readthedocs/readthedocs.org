@@ -1,7 +1,10 @@
+"""Base classes for organization views."""
+
 from functools import lru_cache
 
+from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
@@ -19,8 +22,25 @@ from readthedocs.organizations.models import (
 )
 
 
+class CheckOrganizationsEnabled:
+
+    """
+    Return 404 if organizations aren't enabled.
+
+    All organization views should inherit this class.
+    This is mainly for our tests to work,
+    adding the organization urls conditionally on readthedocs/urls.py
+    doesn't work as the file is evaluated only once, not per-test case.
+    """
+
+    def dispatch(self, *args, **kwargs):
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            raise Http404
+        return super().dispatch(*args, **kwargs)
+
+
 # Mixins
-class OrganizationMixin:
+class OrganizationMixin(CheckOrganizationsEnabled):
 
     """
     Mixin class that provides organization sublevel objects.
@@ -108,7 +128,10 @@ class OrganizationTeamMixin(OrganizationMixin):
 
 
 # Base views
-class OrganizationView:
+class OrganizationView(CheckOrganizationsEnabled):
+
+    """Mixin for an organization view that doesn't have nested components."""
+
     model = Organization
     lookup_field = 'slug'
     lookup_url_field = 'slug'
@@ -140,6 +163,9 @@ class OrganizationView:
 
 
 class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
+
+    """Mixin for views related to organization owners."""
+
     model = OrganizationOwner
     form_class = OrganizationOwnerForm
     admin_only = True
@@ -179,6 +205,9 @@ class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
 
 
 class OrganizationTeamView(SuccessMessageMixin, OrganizationTeamMixin):
+
+    """Mixin for views related to organization teams."""
+
     model = Team
     form_class = OrganizationTeamBasicForm
 
@@ -199,6 +228,8 @@ class OrganizationTeamView(SuccessMessageMixin, OrganizationTeamMixin):
 
 
 class OrganizationTeamMemberView(SuccessMessageMixin, OrganizationTeamMixin):
+
+    """Mixin for views related to organization team members."""
 
     model = TeamMember
     form_class = OrganizationTeamMemberForm

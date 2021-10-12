@@ -1,12 +1,12 @@
+"""URLs that don't require login."""
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
 
 from readthedocs.organizations.views import public as views
 
 urlpatterns = [
     url(
         r'^verify-email/$',
-        TemplateView.as_view(template_name='organizations/verify_email.html'),
+        views.OrganizationTemplateView.as_view(template_name='organizations/verify_email.html'),
         name='organization_verify_email',
     ),
     url(

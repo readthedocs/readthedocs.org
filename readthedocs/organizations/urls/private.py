@@ -1,3 +1,4 @@
+"""URLs that require login."""
 from django.conf.urls import url
 
 from readthedocs.organizations.views import private as views

@@ -1,13 +1,17 @@
+"""Views that don't require login."""
+# pylint: disable=too-many-ancestors
 import logging
 
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
+from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericModelView, ListView
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.organizations.models import Team, TeamMember
 from readthedocs.organizations.views.base import (
+    CheckOrganizationsEnabled,
     OrganizationMixin,
     OrganizationTeamMemberView,
     OrganizationTeamView,
@@ -18,9 +22,17 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
+class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
+
+    """Wrappe around `TemplateView` to check if organizations are enabled."""
+
+
 # Organization
 
 class DetailOrganization(OrganizationView, DetailView):
+
+    """Display information about an organization."""
+
     template_name = 'organizations/organization_detail.html'
     admin_only = False
 
@@ -83,7 +95,10 @@ class ListOrganizationTeamMembers(OrganizationTeamMemberView, ListView):
         return context
 
 
-class UpdateOrganizationTeamMember(GenericModelView):
+class UpdateOrganizationTeamMember(CheckOrganizationsEnabled, GenericModelView):
+
+    """Process organization invitation links."""
+
     model = TeamMember
 
     def get_object(self):
@@ -92,7 +107,7 @@ class UpdateOrganizationTeamMember(GenericModelView):
             invite__count__lte=F('invite__total'),
         ).first()
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa
         """
         Process GET from link click and let user in to team.
 
@@ -100,7 +115,7 @@ class UpdateOrganizationTeamMember(GenericModelView):
         the user is not logged in, and doesn't have an account, the user will be
         prompted to sign up.
         """
-        member = self.object = self.get_object()
+        member = self.object = self.get_object()  # noqa
         if member is not None:
             if not request.user.is_authenticated:
                 member.invite.count += 1
