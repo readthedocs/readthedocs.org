@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
 import logging
@@ -10,11 +9,13 @@ from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import RequestFactory
 from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
-
 
 log = logging.getLogger(__name__)
 
@@ -215,3 +216,47 @@ def create_user(username, password, **kwargs):
     user.set_password(password)
     user.save()
     return user
+
+
+class RequestFactoryTestMixin:
+
+    """
+    Adds helper methods for testing with :py:cls:`RequestFactory`
+
+    This handles setting up authentication, messages, and session handling
+    """
+
+    def request(self, method, *args, **kwargs):
+        """
+        Perform request from factory.
+
+        :param method: Request method as string
+        :returns: Request instance
+
+        Several additional keywords arguments can be passed in:
+
+        user
+            User instance to use for the request, will default to an
+            :py:cls:`AnonymousUser` instance otherwise.
+
+        session
+            Dictionary to instantiate the session handler with.
+
+        Other keyword arguments are passed into the request method
+        """
+        factory = RequestFactory()
+        fn = getattr(factory, method)
+        request = fn(*args, **kwargs)
+
+        # Mock user, session, and messages
+        request.user = kwargs.pop('user', AnonymousUser())
+
+        session = kwargs.pop('session', {})
+        middleware = SessionMiddleware()
+        middleware.process_request(request)
+        request.session.update(session)
+
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        return request

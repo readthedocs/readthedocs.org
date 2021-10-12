@@ -3,6 +3,7 @@ from allauth.account.views import SignupView
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from readthedocs.organizations.models import (
@@ -14,10 +15,10 @@ from readthedocs.organizations.models import (
 from readthedocs.organizations.views import private as private_views
 from readthedocs.organizations.views import public as public_views
 from readthedocs.projects.models import Project
-from readthedocs.sso.models import SSOIntegration
-from readthedocsinc.core.tests.utils import RequestFactoryTestMixin
+from readthedocs.rtd_tests.utils import RequestFactoryTestMixin
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
     """Organization views tests."""
@@ -53,6 +54,7 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
                         .exists())
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
 
     """Tests for invite handling in views."""
@@ -193,63 +195,8 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
         with self.assertRaises(TeamInvite.DoesNotExist):
             TeamInvite.objects.get(pk=invite.pk)
 
-    def test_redemption_to_organization_with_vcs_sso(self):
-        user = fixture.get(User)
-        invite = fixture.get(
-            TeamInvite,
-            email=user.email,
-            team=self.team,
-            organization=self.organization,
-        )
-        member = fixture.get(
-            TeamMember,
-            invite=invite,
-            member=None,
-            team=self.team,
-        )
-        fixture.get(
-            SSOIntegration,
-            organization=self.organization,
-            provider=SSOIntegration.PROVIDER_EMAIL,
-        )
-        response = self.client.get(
-            reverse('organization_invite_redeem', args=[invite.hash]),
-        )
-        self.assertRedirects(
-            response,
-            '/accounts/signup/'
-            f'?organization={self.organization.slug}'
-        )
 
-    def test_redemption_to_organization_with_google_sso(self):
-        user = fixture.get(User)
-        invite = fixture.get(
-            TeamInvite,
-            email=user.email,
-            team=self.team,
-            organization=self.organization,
-        )
-        member = fixture.get(
-            TeamMember,
-            invite=invite,
-            member=None,
-            team=self.team,
-        )
-        fixture.get(
-            SSOIntegration,
-            organization=self.organization,
-            provider=SSOIntegration.PROVIDER_ALLAUTH,
-        )
-        response = self.client.get(
-            reverse('organization_invite_redeem', args=[invite.hash]),
-        )
-        self.assertRedirects(
-            response,
-            '/accounts/signup/'
-            f'?organization={self.organization.slug}'
-        )
-
-
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationSignupTestCase(TestCase):
 
     def tearDown(self):
