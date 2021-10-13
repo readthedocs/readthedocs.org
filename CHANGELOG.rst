@@ -1,3 +1,20 @@
+Version 6.0.0
+-------------
+
+:Date: October 13, 2021
+
+
+This release includes the upgrade of some base dependencies:
+
+- Python version from 3.6 to 3.8 
+- Ubuntu version from 18.04 LTS to 20.04 LTS
+
+Starting from this release, all the Read the Docs code will be tested and QAed on these versions.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.25.1 (`#8576 <https://github.com/readthedocs/readthedocs.org/pull/8576>`__)
+* `@deepto98 <https://github.com/deepto98>`__: Moved authenticated_classes definitions from API classes to AuthenticatedClassesMixin (`#8562 <https://github.com/readthedocs/readthedocs.org/pull/8562>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Ubuntu 20.04 and Python 3.8 (`#7421 <https://github.com/readthedocs/readthedocs.org/pull/7421>`__)
+
 Version 5.25.1
 --------------
 
