@@ -95,8 +95,8 @@ class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, CreateView):
 
 
 class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteView):
-    template_name = 'organizations/admin/owners_edit.html'
     success_message = _('Owner removed')
+    http_method_names = ['post']
 
 
 # Team views
@@ -149,6 +149,7 @@ class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, Cr
 
 class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, DeleteView):
     success_message = _('Member removed from team')
+    http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
