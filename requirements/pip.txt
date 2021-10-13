@@ -57,8 +57,7 @@ pyquery==1.4.3
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.2
 
-# Version 3.6.3 is not available for Python 3.6
-orjson==3.6.1  # pyup: ignore
+orjson==3.6.3
 
 # Utils
 django-gravatar2==1.4.4
