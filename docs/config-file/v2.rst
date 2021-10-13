@@ -351,7 +351,7 @@ build.tools.python
 ``````````````````
 
 Python version to use.
-You can use several interpretes and versions, from CPython, PyPy, Miniconda, and Mamba.
+You can use several interpreters and versions, from CPython, PyPy, Miniconda, and Mamba.
 
 .. note::
 
