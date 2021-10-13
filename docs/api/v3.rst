@@ -1861,7 +1861,7 @@ Embed
 
     .. note::
 
-       Passing ``?doctool=`` and ``?doctoolversion=`` may make the response to behave better,
+       Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
 
 
