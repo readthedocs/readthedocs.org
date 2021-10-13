@@ -16,7 +16,7 @@ This enables a workflow that we call *Continuous Documentation*:
 **Once you set up your Read the Docs project,
 your users will always have up-to-date documentation.**
 
-Learn more about :doc:`/webhooks`.
+Learn more about :doc:`/integrations`.
 
 Custom Domains & White Labeling
 -------------------------------

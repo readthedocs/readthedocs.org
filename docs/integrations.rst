@@ -1,48 +1,43 @@
-Incoming Webhooks and Automation
-================================
+Integrations
+============
 
 The primary method that Read the Docs uses to detect changes to your
-documentation and versions is through the use of *webhooks*. Webhooks are configured with
-your repository provider, such as GitHub, Bitbucket or GitLab, 
+documentation and versions is through the use of *integrations*.
+Integrations are configured with your repository provider,
+such as GitHub, Bitbucket or GitLab,
 and with each change to your repository, Read the Docs is notified. When we
-receive a webhook notification, we determine if the change is related to an
+receive an integration notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
 version.
 
-Webhook Integrations
---------------------
-
-You'll find a list of configured webhook integrations on your project's :guilabel:`Admin`
+You'll find a list of configured integrations on your project's :guilabel:`Admin`
 dashboard, under :guilabel:`Integrations`. You can select any of these integrations to
 see the *integration detail page*. This page has additional configuration
-details and a list of HTTP exchanges that have taken place for the integration.
+details and a list of HTTP exchanges that have taken place for the integration,
+including the Payload URL needed by the repository provider
+such as GitHub, GitLab, or Bitbucket.
 
-You need this information for the URL, webhook, or Payload URL needed by the
-repository provider such as GitHub, GitLab, or Bitbucket.
-
-.. _webhook-creation:
-
-Webhook Creation
-----------------
+Integration Creation
+--------------------
 
 If you have :doc:`connected your Read the Docs account </connected-accounts>` to GitHub, Bitbucket, or GitLab,
-**a webhook will be set up automatically for your repository**. However, if your
+**an integration will be set up automatically for your repository**. However, if your
 project was not imported through a connected account, you may need to
-manually configure a webhook for your project.
+manually configure an integration for your project.
 
-To manually set up a webhook, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
+To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
 After you have added the integration, you'll see a link to information about the integration.
 
 As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
-Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider.
+Use this URL when setting up a new integration with your provider -- these steps vary depending on the provider.
 
 .. note::
 
    If your account is connected to the provider,
-   we'll try to setup the webhook automatically.
-   If something fails, you can still setup the webhook manually.
+   we'll try to setup the integration automatically.
+   If something fails, you can still setup the integration manually.
 
 .. _webhook-integration-github:
 
