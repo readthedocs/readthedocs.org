@@ -1832,6 +1832,7 @@ Embed
 .. http:get::  /api/v3/embed/
 
     Retrieve HTML-formatted content from documentation page or section.
+    Read :doc:`guides/embedding-content` to know more about how to use this endpoint.
 
     **Example request**:
 
@@ -1856,7 +1857,7 @@ Embed
     :>json string external: whether or not the page is hosted on Read the Docs or externally.
 
     :query string url: full URL of the document (with optional fragment) to fetch content from.
-    :query string doctool: *optional* documentation tool key name used to generate the target documentation (e.g. ``sphinx``)
+    :query string doctool: *optional* documentation tool key name used to generate the target documentation (currently, only ``sphinx`` is accepted)
     :query string doctoolversion: *optional* documentation tool version used to generate the target documentation (e.g. ``4.2.0``).
 
     .. note::
