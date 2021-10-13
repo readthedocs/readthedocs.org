@@ -15,7 +15,7 @@ from readthedocs.organizations.models import (
 from readthedocs.organizations.views import private as private_views
 from readthedocs.organizations.views import public as public_views
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.utils import RequestFactoryTestMixin
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

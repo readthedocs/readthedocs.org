@@ -35,7 +35,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_proper_cname(self):
         domain = 'docs.random.com'
         get(Domain, project=self.pip, domain=domain)
-        request = self.request(self.url, HTTP_HOST=domain)
+        request = self.request('get', self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertEqual(request.cname, True)
@@ -46,7 +46,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         get(Domain, project=self.pip, domain=cname, canonical=True, https=True)
 
         for url in (self.url, '/subdir/'):
-            request = self.request(url, HTTP_HOST=cname)
+            request = self.request('get', url, HTTP_HOST=cname)
             res = self.run_middleware(request)
             self.assertIsNone(res)
             self.assertTrue(hasattr(request, 'canonicalize'))
@@ -57,7 +57,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
-        request = self.request(self.url, HTTP_HOST='pip.dev.readthedocs.io')
+        request = self.request('get', self.url, HTTP_HOST='pip.dev.readthedocs.io')
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertFalse(hasattr(request, 'canonicalize'))
@@ -67,7 +67,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         domain.https = True
         domain.save()
         for url in (self.url, '/subdir/'):
-            request = self.request(url, HTTP_HOST='pip.dev.readthedocs.io')
+            request = self.request('get', url, HTTP_HOST='pip.dev.readthedocs.io')
             res = self.run_middleware(request)
             self.assertIsNone(res)
             self.assertTrue(hasattr(request, 'canonicalize'))
@@ -90,7 +90,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
 
         for url in (self.url, '/subdir/', '/en/latest/'):
-            request = self.request(url, HTTP_HOST='subproject.dev.readthedocs.io')
+            request = self.request('get', url, HTTP_HOST='subproject.dev.readthedocs.io')
             res = self.run_middleware(request)
             self.assertIsNone(res)
             self.assertEqual(getattr(request, 'canonicalize', None), 'subproject-main-domain')
@@ -104,7 +104,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             canonical=True,
             https=True,
         )
-        request = self.request(self.url, HTTP_HOST='subproject.dev.readthedocs.io')
+        request = self.request('get', self.url, HTTP_HOST='subproject.dev.readthedocs.io')
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertEqual(getattr(request, 'canonicalize', None), 'canonical-cname')
@@ -116,7 +116,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
-        request = self.request(self.url, HTTP_HOST=cname)
+        request = self.request('get', self.url, HTTP_HOST=cname)
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertTrue(hasattr(request, 'canonicalize'))
@@ -126,27 +126,27 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         domain.canonical = True
         domain.save()
         for url in (self.url, '/subdir/'):
-            request = self.request(url, HTTP_HOST=cname)
+            request = self.request('get', url, HTTP_HOST=cname)
             res = self.run_middleware(request)
             self.assertIsNone(res)
             self.assertFalse(hasattr(request, 'canonicalize'))
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')
-        request = self.request(self.url, HTTP_HOST='docs.RANDOM.COM')
+        request = self.request('get', self.url, HTTP_HOST='docs.RANDOM.COM')
         self.run_middleware(request)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_invalid_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
-        request = self.request(self.url, HTTP_HOST='my.host.com')
+        request = self.request('get', self.url, HTTP_HOST='my.host.com')
         r = self.run_middleware(request)
         # We show the 404 error page
         self.assertContains(r, 'my.host.com', status_code=404)
 
     def test_proper_subdomain(self):
-        request = self.request(self.url, HTTP_HOST='pip.dev.readthedocs.io')
+        request = self.request('get', self.url, HTTP_HOST='pip.dev.readthedocs.io')
         self.run_middleware(request)
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.host_project_slug, 'pip')
@@ -154,7 +154,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     @override_settings(PUBLIC_DOMAIN='foo.bar.readthedocs.io')
     def test_subdomain_different_length(self):
         request = self.request(
-            self.url, HTTP_HOST='pip.foo.bar.readthedocs.io'
+            'get', self.url, HTTP_HOST='pip.foo.bar.readthedocs.io'
         )
         self.run_middleware(request)
         self.assertEqual(request.subdomain, True)
@@ -162,7 +162,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def test_request_header(self):
         request = self.request(
-            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
+            'get', self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
         )
         self.run_middleware(request)
         self.assertEqual(request.rtdheader, True)
@@ -170,7 +170,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def test_request_header_uppercase(self):
         request = self.request(
-            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
+            'get', self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
         )
         self.run_middleware(request)
 
@@ -179,7 +179,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def test_long_bad_subdomain(self):
         domain = 'www.pip.dev.readthedocs.io'
-        request = self.request(self.url, HTTP_HOST=domain)
+        request = self.request('get', self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 400)
 
