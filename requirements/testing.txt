@@ -11,13 +11,7 @@ pytest-cov==2.12.1
 apipkg==2.0.0
 execnet==1.9.0
 
-# Mercurial 4.3 and newer require Python 2.7
-# Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
-# some commands work on Python 3. However, Python 3 is not yet a
-# supported platform.
-# mercurial-scm.org/wiki/SupportedPythonVersions
-# (Pinned to 4.4.2 since what we need for testing is still useful)
-Mercurial==4.4.2  # pyup: ignore
+Mercurial==5.5
 
 yamale==2.2.0  # pyup: <3.0
 pytest-mock==3.6.1
