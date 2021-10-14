@@ -1,5 +1,5 @@
 Adding "Edit Source" links on your Sphinx theme
-============================================
+===============================================
 
 Read the Docs injects some extra variables in the Sphinx ``html_context``
 that are used by `our Sphinx theme`_ to display "edit source" links at the top of all pages.
