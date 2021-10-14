@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
 
-    """Wrappe around `TemplateView` to check if organizations are enabled."""
+    """Wrapper around `TemplateView` to check if organizations are enabled."""
 
 
 # Organization
@@ -115,6 +115,7 @@ class UpdateOrganizationTeamMember(CheckOrganizationsEnabled, GenericModelView):
         the user is not logged in, and doesn't have an account, the user will be
         prompted to sign up.
         """
+        # Linter doesn't like declaring `self.object` outside `__init__`.
         member = self.object = self.get_object()  # noqa
         if member is not None:
             if not request.user.is_authenticated:

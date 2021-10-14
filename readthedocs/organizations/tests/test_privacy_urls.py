@@ -33,6 +33,8 @@ class OrganizationMixin(URLAccessMixin):
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class NoOrganizationsTest(OrganizationMixin, TestCase):
+
+    """Organization views aren't available if organizations aren't allowed."""
     
     default_status_code = 404
 
@@ -50,6 +52,8 @@ class NoOrganizationsTest(OrganizationMixin, TestCase):
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class AuthUserOrganizationsTest(OrganizationMixin, TestCase):
+
+    """All views are available for the owner of the organization."""
 
     response_data = {
         # Places where we 302 on success.
