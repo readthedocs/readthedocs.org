@@ -53,7 +53,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     def test_profile_middleware_no_profile(self):
         """User without profile and isn't banned."""
-        req = self.request('post', '/projects/import', data=self.data)
+        req = self.request(method='post', path='/projects/import', data=self.data)
         req.user = get(User, profile=None)
         resp = ImportWizardView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
@@ -63,7 +63,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
     def test_profile_middleware_spam(self, form):
         """User will be banned."""
         form.side_effect = ProjectSpamError
-        req = self.request('post', '/projects/import', data=self.data)
+        req = self.request(method='post', path='/projects/import', data=self.data)
         req.user = get(User)
         resp = ImportWizardView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
@@ -72,7 +72,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     def test_profile_middleware_banned(self):
         """User is banned."""
-        req = self.request('post', '/projects/import', data=self.data)
+        req = self.request(method='post', path='/projects/import', data=self.data)
         req.user = get(User)
         req.user.profile.banned = True
         req.user.profile.save()

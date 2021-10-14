@@ -153,6 +153,7 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
+        # Linter doesn't like declaring `self.object` outside `__init__`.
         self.object = self.get_object()  # noqa
         if self.object.invite:
             self.object.invite.delete()
