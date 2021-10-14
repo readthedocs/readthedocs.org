@@ -30,7 +30,7 @@
 #   AWS_REGION
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
-#   AWS_BUILD_TOOLS_BUCKET_NAME
+#   AWS_BUILD_TOOLS_BUCKET
 #
 # Note that in production we need to install `aws` Python package to run the
 # script. We can do this in a different virtualenv to avoid collision with the
