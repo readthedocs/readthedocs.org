@@ -1,4 +1,4 @@
-Edit source integration on your Sphinx theme
+Adding "Edit Source" links on your Sphinx theme
 ============================================
 
 Read the Docs injects some extra variables in the Sphinx ``html_context``
