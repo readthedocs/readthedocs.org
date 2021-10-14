@@ -40,7 +40,7 @@ See :doc:`using environment variables in Read the Docs </environment-variables>`
 
    You have to use the POSIX format for variable names (only uppercase letters and ``_`` are allowed),
    and including a dollar sign and curly brackets around the name (``${API_TOKEN}``)
-   for :ref:`pip to be able to recognize them <pip:using environment variables>`.
+   for `pip to be able to recognize them <https://pip.pypa.io/en/stable/reference/requirements-file-format/#using-environment-variables>`__.
 
 Below you can find how to get a personal access token from our supported providers.
 We will be using environment variables for the token.
@@ -109,9 +109,9 @@ you need to set the :option:`pip:--index-url` option.
 You have two ways of set that option:
 
 - Set the ``PIP_INDEX_URL`` :doc:`environment variable in Read the Docs </environment-variables>` with the index URL.
-  See :ref:`pip:using environment variables`.
+  See https://pip.pypa.io/en/stable/reference/requirements-file-format#using-environment-variables.
 - Put ``--index-url=https://my-index-url.com/`` at the top of your requirements file.
-  See :ref:`pip:requirements file format`.
+  See :ref:`pip:requirements-file-format`.
 
 .. note::
 
