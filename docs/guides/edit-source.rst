@@ -1,18 +1,19 @@
-Version Control System integration on your Sphinx theme
-=======================================================
+Edit source integration on your Sphinx theme
+============================================
 
-If you want to integrate editing into your own theme, you will have to declare
-few variables inside your configuration file ``conf.py`` in the ``'html_context'``
-setting, for the template to use them.
+Read the Docs injects some extra variables in the Sphinx ``html_context``
+that are used by `our Sphinx theme`_ to display "edit source" links at the top of all pages.
+You can use these variables in your own Sphinx theme as well.
 
 More information can be found on `Sphinx documentation`_.
 
-.. _`Sphinx documentation`: http://www.sphinx-doc.org/en/1.5.2/config.html#confval-html_context
+.. _`our Sphinx theme`: https://sphinx-rtd-theme.readthedocs.io/
+.. _`Sphinx documentation`: http://www.sphinx-doc.org/en/master/configuration.html#confval-html_context
 
 GitHub
 ------
 
-If you want to integrate GitHub, you can put the following snippet into
+If you want to integrate GitHub, these are the required variables to put into
 your ``conf.py``::
 
     html_context = {
@@ -23,7 +24,7 @@ your ``conf.py``::
         "conf_py_path": "/source/", # Path in the checkout to the docs root
     }
 
-It can be used like this::
+They can be used like this::
 
     {% if display_github %}
         <li><a href="https://github.com/{{ github_user }}/{{ github_repo }}
@@ -34,7 +35,7 @@ It can be used like this::
 Bitbucket
 ---------
 
-If you want to integrate Bitbucket, you can put the following snippet into
+If you want to integrate Bitbucket, these are the required variables to put into
 your ``conf.py``::
 
     html_context = {
@@ -45,7 +46,7 @@ your ``conf.py``::
         "conf_py_path": "/source/", # Path in the checkout to the docs root
     }
 
-It can be used like this::
+They can be used like this::
 
     {% if display_bitbucket %}
         <a href="https://bitbucket.org/{{ bitbucket_user }}/{{ bitbucket_repo }}
@@ -56,7 +57,7 @@ It can be used like this::
 Gitlab
 ------
 
-If you want to integrate Gitlab, you can put the following snippet into
+If you want to integrate Gitlab, these are the required variables to put into
 your ``conf.py``::
 
     html_context = {
@@ -67,7 +68,7 @@ your ``conf.py``::
         "conf_py_path": "/source/", # Path in the checkout to the docs root
     }
 
-It can be used like this::
+They can be used like this::
 
     {% if display_gitlab %}
         <a href="https://{{ gitlab_host|default("gitlab.com") }}/
