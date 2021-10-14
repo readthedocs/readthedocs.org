@@ -1832,7 +1832,7 @@ Embed
 .. http:get::  /api/v3/embed/
 
     Retrieve HTML-formatted content from documentation page or section.
-    Read :doc:`guides/embedding-content` to know more about how to use this endpoint.
+    Read :doc:`/guides/embedding-content` to know more about how to use this endpoint.
 
     **Example request**:
 
