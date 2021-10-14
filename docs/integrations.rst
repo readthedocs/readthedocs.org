@@ -1,8 +1,8 @@
 Integrations
 ============
 
-The primary method that Read the Docs uses to detect changes to your
-documentation and versions is through the use of *integrations*.
+Read the Docs provides integrations with several VCS providers to detect changes to your
+documentation and versions, mainly using *webhooks*.
 Integrations are configured with your repository provider,
 such as GitHub, Bitbucket or GitLab,
 and with each change to your repository, Read the Docs is notified. When we
