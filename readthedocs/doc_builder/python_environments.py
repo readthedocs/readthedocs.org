@@ -694,9 +694,7 @@ class Conda(PythonEnvironment):
         conda_env_file = self.config.conda.environment
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
             conda_env_file = self._append_core_requirements()
-            log.warning("Exists: %s", Path(conda_env_file).exists())
             self._show_environment_yaml(conda_env_file)
-            log.warning(self.config)
 
         if all([
                 # The project has CONDA_USES_MAMBA feature enabled and,
