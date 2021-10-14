@@ -206,7 +206,7 @@ using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.
 
 However, because these services will not be able to connect back to your local development instance,
-:doc:`webhooks </integrations>` will not function correctly.
+:doc:`incoming webhooks </integrations>` will not function correctly.
 For some services, the webhooks will fail to be added when the repository is imported.
 For others, the webhook will simply fail to connect when there are new commits to the repository.
 
