@@ -1,0 +1,37 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Security Log" %}{% endblock %}
+
+{% block organization-admin-security-log %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Security Log" %} {% endblock %}
+
+{% block edit_content %}
+
+{% if not enabled %}
+  {% include 'projects/includes/feature_disabled.html' with organization=organization %}
+{% elif days_limit and days_limit > 0 %}
+  <p>
+    {% blocktrans trimmed with days_limit as days_limit %}
+      Showing logs from the last {{ days_limit }} days.
+    {% endblocktrans %}
+  </p>
+{% else %}
+  <p>{% trans "Showing logs from all time." %}</p>
+{% endif %}
+</p>
+
+{% autopaginate object_list 15 %}
+
+<div class="module">
+  <form method="get">
+    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+  </form>
+
+  {% include "audit/list_logs.html" with omit_user=False %}
+</div>
+{% paginate %}
+{% endblock %}

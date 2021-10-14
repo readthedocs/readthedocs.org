@@ -21,4 +21,18 @@ class UserSecurityLogFilter(FilterSet):
 
     class Meta:
         model = AuditLog
-        fields = ['ip', 'project', 'action']
+        fields = []
+
+
+class OrganizationSecurityLogFilter(UserSecurityLogFilter):
+
+    action = ChoiceFilter(
+        field_name='action',
+        lookup_expr='exact',
+        choices=[
+            (AuditLog.AUTHN, _('Authentication success')),
+            (AuditLog.AUTHN_FAILURE, _('Authentication failure')),
+            (AuditLog.PAGEVIEW, _('Page view')),
+        ],
+    )
+    user = CharFilter(field_name='log_user_username', lookup_expr='exact')

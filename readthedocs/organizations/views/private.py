@@ -1,23 +1,31 @@
 """Views that require login."""
 # pylint: disable=too-many-ancestors
+
+from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from vanilla import CreateView, DeleteView, ListView, UpdateView
 
+from readthedocs.audit.filters import OrganizationSecurityLogFilter
+from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
     OrganizationTeamProjectForm,
 )
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.views.base import (
+    OrganizationMixin,
     OrganizationOwnerView,
     OrganizationTeamMemberView,
     OrganizationTeamView,
     OrganizationView,
 )
+from readthedocs.projects.utils import get_csv_file
 
 
 # Organization views
@@ -160,3 +168,100 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
         resp = super().post(request, *args, **kwargs)
         messages.success(self.request, self.success_message)
         return resp
+
+
+class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView):
+
+    """Display security logs related to this organization."""
+
+    model = AuditLog
+    template_name = 'organizations/security_log.html'
+
+    def get(self, request, *args, **kwargs):
+        download_data = request.GET.get('download', False)
+        if download_data:
+            return self._get_csv_data()
+        return super().get(request, *args, **kwargs)
+
+    def _get_csv_data(self):
+        organization = self.get_organization()
+        now = timezone.now().date()
+        retention_limit = self._get_retention_days_limit(organization)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = organization.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=retention_limit)
+
+        values = [
+            ('Date', 'created'),
+            ('User', 'log_user_username'),
+            ('Project', 'log_project_slug'),
+            ('Organization', 'log_organization_slug'),
+            ('Action', 'action'),
+            ('Resource', 'resource'),
+            ('IP', 'ip'),
+            ('Browser', 'browser'),
+        ]
+        data = self._get_queryset().values_list(*[value for _, value in values])
+        csv_data = [
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
+        ]
+        csv_data.insert(0, [header for header, _ in values])
+        filename = 'readthedocs_organization_security_logs_{organization}_{start}_{end}.csv'.format(
+            organization=organization.slug,
+            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+        )
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def get_context_data(self, **kwargs):
+        organization = self.get_organization()
+        context = super().get_context_data(**kwargs)
+        context['enabled'] = self._is_enabled(organization)
+        context['days_limit'] = self._get_retention_days_limit(organization)
+        context['filter'] = self.filter
+        context['AuditLog'] = AuditLog
+        return context
+
+    def _get_queryset(self):
+        organization = self.get_organization()
+        if not self._is_enabled(organization):
+            return AuditLog.objects.none()
+
+        retention_limit = self._get_retention_days_limit(organization)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = organization.pub_date.date()
+        else:
+            days_ago = timezone.now() - timezone.timedelta(days=retention_limit)
+        queryset = AuditLog.objects.filter(
+            log_organization_id=organization.id,
+            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW],
+            created__gte=days_ago,
+        )
+        return queryset
+
+    def get_queryset(self):
+        queryset = self._get_queryset()
+        # Set filter on self, so we can use it in the context.
+        # Without executing it twice.
+        # pylint: disable=attribute-defined-outside-init
+        self.filter = OrganizationSecurityLogFilter(
+            self.request.GET,
+            queryset=queryset,
+        )
+        return self.filter.qs
+
+    def _get_retention_days_limit(self, organization):  # noqa
+        """From how many days we need to show data for this project?"""
+        return settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
+
+    def _is_enabled(self, organization):  # noqa
+        """Should we show audit logs for this organization?"""
+        return True
+
+
+class OrganizationSecurityLog(SettingsOverrideObject):
+    _default_class = OrganizationSecurityLogBase

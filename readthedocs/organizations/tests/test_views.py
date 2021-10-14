@@ -1,3 +1,6 @@
+import csv
+import itertools
+
 import django_dynamic_fixture as fixture
 from allauth.account.views import SignupView
 from django.contrib.auth.models import User
@@ -5,7 +8,9 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.organizations.models import (
     Organization,
     Team,
@@ -52,6 +57,128 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertFalse(Project.objects
                         .filter(pk=self.project.pk)
                         .exists())
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class OrganizationSecurityLogTests(TestCase):
+
+    def setUp(self):
+        self.owner = get(User, username='owner')
+        self.member = get(User, username='member')
+        self.project = get(Project, slug='project')
+        self.project_b = get(Project, slug='project-b')
+        self.organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project, self.project_b],
+        )
+        self.team = get(
+            Team,
+            organization=self.organization,
+            members=[self.member],
+        )
+
+        self.another_owner = get(User, username='another-owner')
+        self.another_member = get(User, username='another-member')
+        self.another_project = get(Project, slug='another-project')
+        self.another_organization = get(
+            Organization,
+            owners=[self.another_owner],
+            projects=[self.another_project],
+        )
+        self.another_team = get(
+            Team,
+            organization=self.another_organization,
+            members=[self.another_member],
+        )
+        self.client.force_login(self.owner)
+
+        actions = [
+            AuditLog.AUTHN,
+            AuditLog.AUTHN_FAILURE,
+            AuditLog.LOGOUT,
+            AuditLog.PAGEVIEW,
+        ]
+        ips = [
+            '10.10.10.1',
+            '10.10.10.2',
+        ]
+        users = [self.owner, self.member, self.another_owner, self.another_member]
+        AuditLog.objects.all().delete()
+        for action, ip, user in itertools.product(actions, ips, users):
+            get(
+                AuditLog,
+                user=user,
+                action=action,
+                ip=ip,
+            )
+            for project in [self.project, self.project_b, self.another_project]:
+                get(
+                    AuditLog,
+                    user=user,
+                    action=action,
+                    project=project,
+                    ip=ip,
+                )
+
+        self.url = reverse('organization_security_log', args=[self.organization.slug])
+
+    def test_list_security_logs(self):
+        self.assertEqual(AuditLog.objects.count(), 128)
+
+        # Show logs for self.organization only.
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 48)
+
+        # Show logs filtered by project.
+        resp = self.client.get(self.url + '?project=project')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 24)
+
+        resp = self.client.get(self.url + '?project=another-project')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 0)
+
+        # Show logs filtered by IP.
+        resp = self.client.get(self.url + '?ip=10.10.10.2')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 24)
+
+        # Show logs filtered by action.
+        for action in [AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW]:
+            resp = self.client.get(self.url + f'?action={action}')
+            self.assertEqual(resp.status_code, 200)
+            auditlogs = resp.context_data['object_list']
+            self.assertEqual(auditlogs.count(), 16)
+
+        # Show logs filtered by user.
+        resp = self.client.get(self.url + '?user=member')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 12)
+
+    def test_download_csv(self):
+        self.assertEqual(AuditLog.objects.count(), 128)
+        resp = self.client.get(
+            self.url,
+            {'download': 'true'}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'text/csv')
+
+        # convert streaming data to csv format
+        content = [
+            line.decode()
+            for line in b''.join(resp.streaming_content).splitlines()
+        ]
+        csv_data = list(csv.reader(content))
+        # All records + the header.
+        self.assertEqual(len(csv_data), 48 + 1)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
