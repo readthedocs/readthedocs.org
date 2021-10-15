@@ -1,5 +1,5 @@
-Integrations
-============
+VCS Integrations
+================
 
 Read the Docs provides integrations with several VCS providers to detect changes to your
 documentation and versions, mainly using *webhooks*.
