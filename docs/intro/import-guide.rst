@@ -49,7 +49,7 @@ Add an optional homepage URL and some tags, and then click **Next**.
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changes trigger builds for your
 project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
-configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:Webhook Creation>`
+configure a new webhook, or see :ref:`our steps for webhook creation <integrations:Integration Creation>`
 for more information on this process.
 
 .. note::

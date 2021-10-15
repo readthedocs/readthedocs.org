@@ -73,8 +73,8 @@ Troubleshooting
    OAuth App to your personal or organization GitHub account.
    Learn more about this in our :ref:`github-permission-troubleshooting` section.
 
-   Also make sure your webhook is properly setup
-   to handle events related to pull requests. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
-   Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
+   Also make sure your webhook integration is properly setup
+   to handle events related to pull requests. You can setup or ``re-sync`` the integration from your projects admin dashboard.
+   Learn more about setting up integrations from our :doc:`integrations documentation </integrations>`.
 
 .. _OAuth App: https://github.com/settings/applications
