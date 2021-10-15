@@ -50,7 +50,7 @@ exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
-    'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
+    'django': ('https://docs.djangoproject.com/en/stable/', 'https://docs.djangoproject.com/en/stable/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'pip': ('https://pip.pypa.io/en/stable/', None),
     'nbsphinx': ('https://nbsphinx.readthedocs.io/en/0.8.6/', None),
