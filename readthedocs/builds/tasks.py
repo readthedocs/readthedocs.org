@@ -131,7 +131,8 @@ class TaskRouter:
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info('No routing task because no conditions were met. project=%s', project.slug)
+        log.info(
+            'No routing task because no conditions were met. project=%s', project.slug)
         return
 
     def _get_version(self, task, args, kwargs):
@@ -195,11 +196,13 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
                     cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build. build=%s', build.pk)
+                    log.warning(
+                        'Truncating build command for build. build=%s', build.pk)
             output = BytesIO()
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+            filename = '{date}/{id}.json'.format(
+                date=str(build.date.date()), id=build.id)
             try:
                 build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True
@@ -260,7 +263,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     Creates new Version objects for tags/branches that aren't tracked in the database,
     and deletes Version objects for tags/branches that don't exists in the repository.
 
-    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
+    :param tags_data: List of NamedTuples with ``verbose_name`` and ``identifier``.
     :param branches_data: Same as ``tags_data`` but for branches.
     :returns: `True` or `False` if the task succeeded.
     """
@@ -371,7 +374,8 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status. build=%s project=%s', build.pk, build.project.slug)
+    log.info('Sending build status. build=%s project=%s',
+             build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.

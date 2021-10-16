@@ -14,7 +14,7 @@ import signal
 import socket
 import tarfile
 import tempfile
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, namedtuple
 from fnmatch import fnmatch
 
 import requests
@@ -249,6 +249,8 @@ class SyncRepositoryMixin:
         branches_data = []
         tags_data = []
 
+        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
+
         if (
             version_repo.supports_tags and
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
@@ -256,11 +258,12 @@ class SyncRepositoryMixin:
             # Will be an empty list if we called lsremote and had no tags returned
             if tags is None:
                 tags = version_repo.tags
+
             tags_data = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
+                Version_Data(
+                    v.identifier,
+                    v.verbose_name
+                )
                 for v in tags
             ]
 
@@ -272,10 +275,10 @@ class SyncRepositoryMixin:
             if branches is None:
                 branches = version_repo.branches
             branches_data = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
+                Version_Data(
+                    v.identifier,
+                    v.verbose_name
+                )
                 for v in branches
             ]
 
@@ -298,10 +301,10 @@ class SyncRepositoryMixin:
         ``latest`` or ``stable``. Raise a RepositoryError exception
         if there is a duplicated name.
 
-        :param data: Dict containing the versions from tags and branches
+        :param data: NamedTuple containing the versions from tags and branches
         """
         version_names = [
-            version['verbose_name']
+            version.verbose_name
             for version in tags_data + branches_data
         ]
         counter = Counter(version_names)
@@ -433,10 +436,12 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 not version_repo.supports_lsremote,
                 not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
-            log.info('Syncing repository via full clone. project=%s', self.project.slug)
+            log.info('Syncing repository via full clone. project=%s',
+                     self.project.slug)
             self.sync_repo(environment)
         else:
-            log.info('Syncing repository via remote listing. project=%s', self.project.slug)
+            log.info('Syncing repository via remote listing. project=%s',
+                     self.project.slug)
             self.sync_versions(version_repo)
 
 
@@ -448,7 +453,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 def update_docs_task(self, version_pk, *args, **kwargs):
 
     def sigterm_received(*args, **kwargs):
-        log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+        log.warning(
+            'SIGTERM received. Waiting for build to stop gracefully after it finishes.')
 
     # Do not send the SIGTERM signal to children (pip is automatically killed when
     # receives SIGTERM and make the build to fail one command and stop build)
@@ -561,8 +567,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 try:
-                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
-                    concurrency_limit_reached = response.get('limit_reached', False)
+                    response = api_v2.build.concurrent.get(
+                        project__slug=self.project.slug)
+                    concurrency_limit_reached = response.get(
+                        'limit_reached', False)
                     max_concurrent_builds = response.get(
                         'max_concurrent',
                         settings.RTD_MAX_CONCURRENT_BUILDS,
@@ -715,7 +723,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(environment.failure, VersionLockedError):
-                self.send_notifications(self.version.pk, self.build['id'], email=True)
+                self.send_notifications(
+                    self.version.pk, self.build['id'], email=True)
 
             return False
 
@@ -823,7 +832,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         if self.build_env.failed:
             # Send Webhook and email notification for build failure.
-            self.send_notifications(self.version.pk, self.build['id'], email=True)
+            self.send_notifications(
+                self.version.pk, self.build['id'], email=True)
 
             if self.commit:
                 send_external_build_status(
@@ -834,7 +844,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 )
         elif self.build_env.successful:
             # Send Webhook notification for build success.
-            self.send_notifications(self.version.pk, self.build['id'], email=False)
+            self.send_notifications(
+                self.version.pk, self.build['id'], email=False)
 
             # Push cached environment on success for next build
             self.push_cached_environment()
@@ -1416,7 +1427,8 @@ def _create_intersphinx_data(version, commit, build):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
-    type_file = build_media_storage.join(json_storage_path, 'readthedocs-sphinx-domain-names.json')
+    type_file = build_media_storage.join(
+        json_storage_path, 'readthedocs-sphinx-domain-names.json')
     types = {}
     titles = {}
     if build_media_storage.exists(type_file):
@@ -1425,7 +1437,8 @@ def _create_intersphinx_data(version, commit, build):
             types = data['types']
             titles = data['titles']
         except Exception:
-            log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
+            log.exception(
+                'Exception parsing readthedocs-sphinx-domain-names.json')
 
     # These classes are copied from Sphinx
     # https://github.com/sphinx-doc/sphinx/blob/d79d041f4f90818e0b495523fdcc28db12783caf/sphinx/ext/intersphinx.py#L400-L403  # noqa
