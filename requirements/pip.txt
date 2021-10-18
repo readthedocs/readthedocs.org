@@ -15,7 +15,7 @@ djangorestframework==3.12.4
 Sphinx==4.2.0
 
 # Filtering for the REST API
-django-filter==2.4.0
+django-filter==21.1
 
 drf-flex-fields==0.9.3
 drf-extensions==0.7.1
