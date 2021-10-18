@@ -52,6 +52,24 @@
 #   ./compile_version_upload.sh $TOOL $VERSION
 #
 #
+# ONE-LINE COMMAND FROM UTIL01 PRODUCTION
+#
+#   TOOL=python
+#   VERSION=3.10.0
+#   AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
+#
+#   ssh `scaling status -s build-default -q | head -n 1` \
+#     "cd /home/docs && \
+#     sudo -u docs virtualenv --python python3 /home/docs/buildtools && \
+#     sudo -u docs /home/docs/buildtools/bin/pip install awscli==1.20.34 && \
+#     sudo -u docs env AWS_REGION=$AWS_REGION \
+#       AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+#       AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+#       AWS_BUILD_TOOLS_BUCKET=$AWS_BUILD_TOOLS_BUCKET \
+#       PATH=/home/docs/buildtools/bin:${PATH} \
+#       /home/docs/checkouts/readthedocs.org/scripts/compile_version_upload_s3.sh $TOOL $VERSION"
+#
+#
 # USAGE
 #
 #  ./scripts/compile_version_upload.sh $TOOL $VERSION
