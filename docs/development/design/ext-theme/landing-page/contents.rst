@@ -1,7 +1,7 @@
 Landing Page Contents
 =================================================
 
-This document serves to define the sections and contents for each section to be included on the landing page.
+This document serves to define the sections and contents to be included on the landing page.
 
 
 Main Menu (top)
