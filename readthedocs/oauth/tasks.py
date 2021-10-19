@@ -6,6 +6,7 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
 from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
@@ -47,6 +48,30 @@ def sync_remote_repositories(user_id):
         raise Exception(
             msg.format(providers=', '.join(failed_services))
         )
+
+
+@app.task(queue='web')
+def sync_remote_repositories_organizations():
+    """
+    Re-sync users member of organizations with SSO enabled.
+
+    It will trigger one `sync_remote_repositories` task per user.
+    """
+    query = (
+        SSOIntegration.objects
+        .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
+        .values_list('organization', flat=True)
+    )
+    log.info('Triggering scheduled SSO re-sync for all organizations. count=%s', query.count())
+    for organization in query:
+        members = AdminPermission.members(organization)
+        log.info(
+            'Triggering scheduled SSO re-sync for organization. organization=%s users=%s',
+            organization.slug,
+            members.count(),
+        )
+        for user in members:
+            sync_remote_repositories.delay(user.pk)
 
 
 @app.task(queue='web')

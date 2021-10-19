@@ -422,6 +422,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-sso-organization-users': {
+            'task': 'readthedocs.oauth.tasks.sync_remote_repositories_organizations',
+            'schedule': crontab(minute=0, hour=4),
+            'options': {'queue': 'web'},
+        },
         'hourly-archive-builds': {
             'task': 'readthedocs.builds.tasks.archive_builds',
             'schedule': crontab(minute=30),
