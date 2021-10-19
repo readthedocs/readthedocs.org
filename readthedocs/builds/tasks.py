@@ -197,7 +197,9 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
                     cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
                     log.warning(
-                        'Truncating build command for build. build=%s', build.pk)
+                        'Truncating build command for build. build=%s',
+                        build.pk,
+                    )
             output = BytesIO()
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
