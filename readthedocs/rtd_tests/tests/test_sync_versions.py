@@ -17,6 +17,7 @@ from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.organizations.models import Organization, OrganizationOwner
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
+from ..utils import VersionData
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
@@ -60,14 +61,13 @@ class TestSyncVersions(TestCase):
         self.pip.save()
 
     def test_proper_url_no_slash(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/to_add',
                 'to_add'
             ),
@@ -96,24 +96,22 @@ class TestSyncVersions(TestCase):
         )
         self.pip.update_stable_version()
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/to_add',
                 'to_add'
             ),
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -143,24 +141,22 @@ class TestSyncVersions(TestCase):
         )
         self.pip.update_stable_version()
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/to_add',
                 'to_add'
             ),
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -201,10 +197,8 @@ class TestSyncVersions(TestCase):
 
         self.pip.update_stable_version()
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
@@ -256,10 +250,8 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
@@ -267,11 +259,11 @@ class TestSyncVersions(TestCase):
 
         tags_data = [
             # User new stable
-            Version_Data(
+            VersionData(
                 '1abc2def3',
                 'stable'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -291,13 +283,13 @@ class TestSyncVersions(TestCase):
 
         # Deleting the tag should return the RTD's stable
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -331,10 +323,8 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertIsNone(current_stable)
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
@@ -342,11 +332,11 @@ class TestSyncVersions(TestCase):
 
         tags_data = [
             # User new stable
-            Version_Data(
+            VersionData(
                 '1abc2def3',
                 'stable'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -370,13 +360,13 @@ class TestSyncVersions(TestCase):
 
         # Deleting the tag should return the RTD's stable
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             ),
@@ -425,19 +415,17 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
             # User new stable
-            Version_Data(
+            VersionData(
                 'origin/stable',
                 'stable'
             ),
-            Version_Data(
+            VersionData(
                 'origin/0.8.3',
                 '0.8.3'
             ),
@@ -457,11 +445,11 @@ class TestSyncVersions(TestCase):
 
         # Deleting the branch should return the RTD's stable
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/0.8.3',
                 '0.8.3'
             ),
@@ -493,19 +481,17 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertIsNone(current_stable)
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
             # User stable
-            Version_Data(
+            VersionData(
                 'origin/stable',
                 'stable'
             ),
-            Version_Data(
+            VersionData(
                 'origin/0.8.3',
                 '0.8.3'
             ),
@@ -529,11 +515,11 @@ class TestSyncVersions(TestCase):
 
         # Deleting the branch should return the RTD's stable
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/0.8.3',
                 '0.8.3'
             ),
@@ -561,17 +547,15 @@ class TestSyncVersions(TestCase):
         deleted on the user repository, the RTD's ``latest`` is back (set to
         machine=True)."""
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
             # User new stable
-            Version_Data(
+            VersionData(
                 '1abc2def3',
                 'latest'
             )
@@ -590,11 +574,9 @@ class TestSyncVersions(TestCase):
             version_latest.identifier,
         )
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         # Deleting the tag should return the RTD's latest
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
@@ -621,15 +603,13 @@ class TestSyncVersions(TestCase):
         is deleted on the user repository, the RTD's ``latest`` is back (set to
                                                                          machine=True)."""
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
             # User new latest
-            Version_Data(
+            VersionData(
                 'origin/latest',
                 'latest'
             )
@@ -650,7 +630,7 @@ class TestSyncVersions(TestCase):
 
         # Deleting the branch should return the RTD's latest
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
@@ -672,17 +652,15 @@ class TestSyncVersions(TestCase):
 
     def test_deletes_version_with_same_identifier(self):
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1234',
                 'one'
             )
@@ -702,17 +680,17 @@ class TestSyncVersions(TestCase):
 
         # We add a new tag with the same identifier
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1234',
                 'two'
             ),
-            Version_Data(
+            VersionData(
                 '1234',
                 'one'
             )
@@ -732,13 +710,13 @@ class TestSyncVersions(TestCase):
 
         # We delete one version with identifier `1234`
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1234',
                 'one'
             )
@@ -766,24 +744,22 @@ class TestSyncVersions(TestCase):
             type=TAG,
         )
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/new_branch',
                 'new_branch'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 'new_tag',
                 'new_tag'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -802,14 +778,13 @@ class TestSyncVersions(TestCase):
 
     @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_activate_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'new_tag',
                 'new_tag'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -834,14 +809,13 @@ class TestSyncVersions(TestCase):
 
     @mock.patch('readthedocs.builds.automation_actions.trigger_build', mock.MagicMock())
     def test_automation_rule_set_default_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'new_tag',
                 'new_tag'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -863,14 +837,13 @@ class TestSyncVersions(TestCase):
         self.assertEqual(self.pip.get_default_version(), 'new_tag')
 
     def test_automation_rule_delete_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'new_tag',
                 'new_tag'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -894,14 +867,13 @@ class TestSyncVersions(TestCase):
         self.assertFalse(self.pip.versions.filter(slug=version_slug).exists())
 
     def test_automation_rule_dont_delete_default_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'new_tag',
                 'new_tag'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -951,24 +923,23 @@ class TestStableVersion(TestCase):
             self.org.projects.add(self.pip)
 
     def test_stable_versions(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
-            Version_Data(
+            VersionData(
                 'origin/to_add',
                 'to_add'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8',
                 '0.8'
             )
@@ -989,25 +960,25 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '0.9')
 
     def test_pre_release_are_not_stable(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
+
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1.0a1',
                 '1.0a1'
             ),
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.9b1',
                 '0.9b1'
             ),
-            Version_Data(
+            VersionData(
                 '0.8',
                 '0.8'
             ),
-            Version_Data(
+            VersionData(
                 '0.8rc2',
                 '0.8rc2'
             )
@@ -1023,13 +994,13 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '0.9')
 
     def test_post_releases_are_stable(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
+
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1.0',
                 '1.0'
             ),
-            Version_Data(
+            VersionData(
                 '1.0.post1',
                 '1.0.post1'
             )
@@ -1046,10 +1017,9 @@ class TestStableVersion(TestCase):
 
     def test_invalid_version_numbers_are_not_stable(self):
         self.pip.versions.all().delete()
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'this.is.invalid',
                 'this.is.invalid'
             )
@@ -1063,11 +1033,11 @@ class TestStableVersion(TestCase):
         self.assertFalse(Version.objects.filter(slug=STABLE).exists())
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1.0',
                 '1.0'
             ),
-            Version_Data(
+            VersionData(
                 'this.is.invalid',
                 'this.is.invalid'
             )
@@ -1083,20 +1053,19 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '1.0')
 
     def test_update_stable_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8',
                 '0.8'
             )
@@ -1114,7 +1083,7 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '0.9')
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1.0.0',
                 '1.0.0'
             )
@@ -1131,7 +1100,7 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '1.0.0')
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.7',
                 '0.7'
             )
@@ -1148,16 +1117,15 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '1.0.0')
 
     def test_update_inactive_stable_version(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             )
@@ -1175,7 +1143,7 @@ class TestStableVersion(TestCase):
         version_stable.active = False
         version_stable.save()
 
-        tags_data.append(Version_Data(
+        tags_data.append(VersionData(
             '1.0.0',
             '1.0.0'
         ))
@@ -1193,24 +1161,23 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '1.0.0')
 
     def test_stable_version_tags_over_branches(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/2.0',
                 '2.0'
             ),
-            Version_Data(
+            VersionData(
                 'origin/0.9.1rc1',
                 '0.9.1rc1'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '1.0rc1',
                 '1.0rc1'
             ),
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             )
@@ -1230,7 +1197,7 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 
-        tags_data.append(Version_Data(
+        tags_data.append(VersionData(
             '1.0',
             '1.0'
         ))
@@ -1246,22 +1213,21 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.identifier, '1.0')
 
     def test_stable_version_same_id_tag_branch(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
             # old 1.0 development branch
-            Version_Data(
+            VersionData(
                 'origin/1.0',
                 '1.0'
             )
         ]
         tags_data = [
             # tagged 1.0 final version
-            Version_Data(
+            VersionData(
                 '1.0',
                 '1.0'
             ),
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             )
@@ -1280,10 +1246,9 @@ class TestStableVersion(TestCase):
         self.assertEqual(version_stable.type, 'tag')
 
     def test_unicode(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         tags_data = [
-            Version_Data(
+            VersionData(
                 'foo-£',
                 'foo-£'
             ),
@@ -1314,25 +1279,23 @@ class TestStableVersion(TestCase):
             machine=True,
         )
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
             # A new user-defined stable tag
-            Version_Data(
+            VersionData(
                 '1abc2def3',
                 'stable'
             ),
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -1401,25 +1364,23 @@ class TestStableVersion(TestCase):
         )
         self.pip.update_stable_version()
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
             # A new user-defined stable branch
-            Version_Data(
+            VersionData(
                 'origin/stable',
                 'stable'
             )
         ]
         tags_data = [
-            Version_Data(
+            VersionData(
                 '0.9',
                 '0.9'
             ),
-            Version_Data(
+            VersionData(
                 '0.8.3',
                 '0.8.3'
             )
@@ -1508,17 +1469,15 @@ class TestLatestVersion(TestCase):
         # as a BRANCH, then here we will have a
         # ``latest_a`` version.
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
-
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             )
         ]
         tags_data = [
             # A new user-defined latest tag
-            Version_Data(
+            VersionData(
                 '1abc2def3',
                 'latest'
             )
@@ -1565,15 +1524,14 @@ class TestLatestVersion(TestCase):
         self.assertFalse(other_latest.exists())
 
     def test_user_defined_latest_version_branch(self):
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
 
         branches_data = [
-            Version_Data(
+            VersionData(
                 'origin/master',
                 'master'
             ),
             # A new user-defined latest branch
-            Version_Data(
+            VersionData(
                 'origin/latest',
                 'latest'
             )

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
+from collections import namedtuple
 import logging
 import subprocess
 import textwrap
@@ -17,6 +18,9 @@ from readthedocs.doc_builder.base import restoring_chdir
 
 
 log = logging.getLogger(__name__)
+
+"""NamedTuple declaration used in test_sync_versions. """
+VersionData = namedtuple('VersionData', ['identifier', 'verbose_name'])
 
 
 def get_readthedocs_app_path():
@@ -59,7 +63,8 @@ def make_test_git():
     check_output(['git', 'commit', '-m"Add submodule"'], env=env)
 
     # Add an invalid submodule URL in the invalidsubmodule branch
-    check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env)
+    check_output(['git', 'checkout', '-b',
+                 'invalidsubmodule', 'master'], env=env)
     add_git_submodule_without_cloning(
         directory, 'invalid', 'git@github.com:rtfd/readthedocs.org.git',
     )

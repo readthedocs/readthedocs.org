@@ -204,7 +204,8 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
             filename = '{date}/{id}.json'.format(
-                date=str(build.date.date()), id=build.id)
+                date=str(build.date.date()),
+                id=build.id)
             try:
                 build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True

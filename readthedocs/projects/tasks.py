@@ -249,7 +249,7 @@ class SyncRepositoryMixin:
         branches_data = []
         tags_data = []
 
-        Version_Data = namedtuple('Data', ['identifier', 'verbose_name'])
+        VersionData = namedtuple('VersionData', ['identifier', 'verbose_name'])
 
         if (
             version_repo.supports_tags and
@@ -260,7 +260,7 @@ class SyncRepositoryMixin:
                 tags = version_repo.tags
 
             tags_data = [
-                Version_Data(
+                VersionData(
                     v.identifier,
                     v.verbose_name
                 )
@@ -275,7 +275,7 @@ class SyncRepositoryMixin:
             if branches is None:
                 branches = version_repo.branches
             branches_data = [
-                Version_Data(
+                VersionData(
                     v.identifier,
                     v.verbose_name
                 )
@@ -724,7 +724,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             # one after the other)
             if not isinstance(environment.failure, VersionLockedError):
                 self.send_notifications(
-                    self.version.pk, self.build['id'], email=True)
+                    self.version.pk,
+                    self.build['id'],
+                    email=True)
 
             return False
 
