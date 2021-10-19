@@ -2,6 +2,7 @@
 
 import itertools
 import logging
+from typing import List
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -16,11 +17,12 @@ from readthedocs.builds.constants import (
     TAG,
 )
 from readthedocs.builds.models import RegexAutomationRule, Version
+from rtd_tests.utils import VersionData
 
 log = logging.getLogger(__name__)
 
 
-def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+def sync_versions_to_db(project, versions, type_version):  # pylint: disable=redefined-builtin
     """
     Update the database with the current versions from the repository.
 
@@ -34,7 +36,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     :param type: internal or external version
     :returns: set of versions' slug added
     """
-    old_version_values = project.versions.filter(type=type).values_list(
+    old_version_values = project.versions.filter(type=type_version).values_list(
         'verbose_name',
         'identifier',
     )
@@ -46,8 +48,11 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
     has_user_stable = False
     has_user_latest = False
     for version in versions:
-        version_id = version[0]
-        version_name = version[1]
+        # Reverting celery type change (List to NamedTuple)
+        if type(version) is list:
+            version = VersionData(version[0], version[1])
+        version_id = version.identifier
+        version_name = version.verbose_name
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
             created_version, created = _set_or_create_version(
@@ -55,7 +60,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
                 slug=STABLE,
                 version_id=version_id,
                 verbose_name=version_name,
-                type_=type,
+                type_=type_version,
             )
             if created:
                 added.add(created_version.slug)
@@ -66,7 +71,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
                 slug=LATEST,
                 version_id=version_id,
                 verbose_name=version_name,
-                type_=type,
+                type_=type_version,
             )
             if created:
                 added.add(created_version.slug)
@@ -81,7 +86,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
                 verbose_name=version_name,
             ).update(
                 identifier=version_id,
-                type=type,
+                type=type_version,
                 machine=False,
             )
 
@@ -94,11 +99,11 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             # New Version
             versions_to_create.append((version_id, version_name))
 
-    added.update(_create_versions(project, type, versions_to_create))
+    added.update(_create_versions(project, type_version, versions_to_create))
 
     if not has_user_stable:
         stable_version = (
-            project.versions.filter(slug=STABLE, type=type).first()
+            project.versions.filter(slug=STABLE, type=type_version).first()
         )
         if stable_version:
             # Put back the RTD's stable version
@@ -106,7 +111,7 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             stable_version.save()
     if not has_user_latest:
         latest_version = (
-            project.versions.filter(slug=LATEST, type=type).first()
+            project.versions.filter(slug=LATEST, type=type_version).first()
         )
         if latest_version:
             # Put back the RTD's latest version

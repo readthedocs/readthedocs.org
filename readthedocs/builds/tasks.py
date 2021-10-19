@@ -289,14 +289,14 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         result = sync_versions_to_db(
             project=project,
             versions=tags_data,
-            type=TAG,
+            type_version=TAG,
         )
         added_versions.update(result)
 
         result = sync_versions_to_db(
             project=project,
             versions=branches_data,
-            type=BRANCH,
+            type_version=BRANCH,
         )
         added_versions.update(result)
 
