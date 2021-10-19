@@ -1,5 +1,6 @@
 """Utility functions that are used by both views and celery tasks."""
 
+from collections import namedtuple
 import itertools
 import logging
 from typing import List
@@ -17,7 +18,6 @@ from readthedocs.builds.constants import (
     TAG,
 )
 from readthedocs.builds.models import RegexAutomationRule, Version
-from rtd_tests.utils import VersionData
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +36,8 @@ def sync_versions_to_db(project, versions, type_version):  # pylint: disable=red
     :param type: internal or external version
     :returns: set of versions' slug added
     """
+    VersionData = namedtuple('VersionData', ['identifier', 'verbose_name'])
+
     old_version_values = project.versions.filter(type=type_version).values_list(
         'verbose_name',
         'identifier',
