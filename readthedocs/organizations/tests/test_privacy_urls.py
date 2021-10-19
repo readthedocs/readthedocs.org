@@ -27,6 +27,8 @@ class OrganizationMixin(URLAccessMixin):
             }
         )
 
+        self.another_user = get(User)
+
     def get_url_path_ctx(self):
         return self.default_kwargs
 
@@ -35,7 +37,7 @@ class OrganizationMixin(URLAccessMixin):
 class NoOrganizationsTest(OrganizationMixin, TestCase):
 
     """Organization views aren't available if organizations aren't allowed."""
-    
+
     default_status_code = 404
 
     def login(self):
@@ -70,6 +72,186 @@ class AuthUserOrganizationsTest(OrganizationMixin, TestCase):
     def test_public_urls(self):
         from readthedocs.organizations.urls.public import urlpatterns
         self._test_url(urlpatterns)
+
+    def test_private_urls(self):
+        from readthedocs.organizations.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class AnonymousUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
+
+    """If organizations are public, an anonymous user can access the public views."""
+
+    response_data = {
+        # Places where we 302 on success.
+        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+    }
+
+    def login(self):
+        pass
+
+    def test_public_urls(self):
+        from readthedocs.organizations.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=True,
+)
+class AnonymousUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
+
+    """If organizations are private, an anonymous user can't access the public views."""
+
+    default_status_code = 404
+    response_data = {
+        # Places where we 302 on success.
+        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+    }
+
+    def login(self):
+        pass
+
+    def test_public_urls(self):
+        from readthedocs.organizations.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class AnonymousUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, TestCase):
+
+    """If organizations are public, an anonymous user can't access the private views."""
+
+    # We get redirected to the login page.
+    default_status_code = 302
+
+    def login(self):
+        pass
+
+    def test_private_urls(self):
+        from readthedocs.organizations.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=True,
+)
+class AnonymousUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, TestCase):
+
+    """If organizations are private, an anonymous user can't access the private views."""
+
+    # We get redirected to the login page.
+    default_status_code = 302
+
+    def login(self):
+        pass
+
+    def test_private_urls(self):
+        from readthedocs.organizations.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class AnotherUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
+
+    """If organizations are public, an user outside the organization can access the public views."""
+
+    response_data = {
+        # Places where we 302 on success.
+        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+    }
+
+    def login(self):
+        self.client.force_login(self.another_user)
+
+    def test_public_urls(self):
+        from readthedocs.organizations.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=True,
+)
+class AnotherUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
+
+    """If organizations are private, an user outside the organization can't access the public views."""
+
+    default_status_code = 404
+    response_data = {
+        # Places where we 302 on success.
+        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+    }
+
+    def login(self):
+        self.client.force_login(self.another_user)
+
+    def test_public_urls(self):
+        from readthedocs.organizations.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=False,
+)
+class AnotherUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, TestCase):
+
+    """If organizations are public, an user outside the organization can access the public views."""
+
+    default_status_code = 404
+    response_data = {
+        # All users have access to these views.
+        '/organizations/': {'status_code': 200},
+        '/organizations/create/': {'status_code': 200},
+        '/organizations/verify-email/': {'status_code': 200},
+
+        # 405's where we should be POST'ing
+        '/organizations/{slug}/owners/{owner}/delete/': {'status_code': 405},
+        '/organizations/{slug}/teams/{team}/members/{member}/revoke/': {'status_code': 405},
+    }
+
+    def login(self):
+        self.client.force_login(self.another_user)
+
+    def test_private_urls(self):
+        from readthedocs.organizations.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    ALLOW_PRIVATE_REPOS=True,
+)
+class AnotherUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, TestCase):
+
+    """If organizations are private, an user outside the organization can't access the private views."""
+
+    default_status_code = 404
+    response_data = {
+        # All users have access to these views.
+        '/organizations/': {'status_code': 200},
+        '/organizations/create/': {'status_code': 200},
+        '/organizations/verify-email/': {'status_code': 200},
+
+        # 405's where we should be POST'ing
+        '/organizations/{slug}/owners/{owner}/delete/': {'status_code': 405},
+        '/organizations/{slug}/teams/{team}/members/{member}/revoke/': {'status_code': 405},
+    }
+
+    def login(self):
+        self.client.force_login(self.another_user)
 
     def test_private_urls(self):
         from readthedocs.organizations.urls.private import urlpatterns

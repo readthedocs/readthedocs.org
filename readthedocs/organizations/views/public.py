@@ -5,7 +5,6 @@ import logging
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericModelView, ListView
 
 from readthedocs.core.permissions import AdminPermission
@@ -20,11 +19,6 @@ from readthedocs.organizations.views.base import (
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
-
-
-class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
-
-    """Wrapper around `TemplateView` to check if organizations are enabled."""
 
 
 # Organization

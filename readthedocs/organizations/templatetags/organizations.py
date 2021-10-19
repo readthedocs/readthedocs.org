@@ -38,6 +38,8 @@ def org_owner(user, obj):  # noqa
         Any model instance with a relationship with an organization, or an
         organization itself.
     """
+    if not user.is_authenticated:
+        return False
     try:
         cls = type(obj)
         if cls is Organization:

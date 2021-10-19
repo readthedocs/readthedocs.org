@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import TemplateView
 from vanilla import CreateView, DeleteView, ListView, UpdateView
 
 from readthedocs.core.history import UpdateChangeReasonPostView
@@ -13,11 +14,17 @@ from readthedocs.organizations.forms import (
 )
 from readthedocs.organizations.models import Organization
 from readthedocs.organizations.views.base import (
+    CheckOrganizationsEnabled,
     OrganizationOwnerView,
     OrganizationTeamMemberView,
     OrganizationTeamView,
     OrganizationView,
 )
+
+
+class OrganizationTemplateView(PrivateViewMixin, CheckOrganizationsEnabled, TemplateView):
+
+    """Wrapper around `TemplateView` to check if organizations are enabled."""
 
 
 # Organization views
@@ -52,9 +59,9 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
 class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
     template_name = 'organizations/organization_list.html'
-    admin_only = False
 
     def get_queryset(self):
+        """Overriden so we always list the organizations of the current user."""
         return Organization.objects.for_user(user=self.request.user)
 
 

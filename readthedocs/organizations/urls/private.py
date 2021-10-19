@@ -15,6 +15,11 @@ urlpatterns = [
         name='organization_create',
     ),
     url(
+        r'^verify-email/$',
+        views.OrganizationTemplateView.as_view(template_name='organizations/verify_email.html'),
+        name='organization_verify_email',
+    ),
+    url(
         r'^(?P<slug>[\w.-]+)/edit/$',
         views.EditOrganization.as_view(),
         name='organization_edit',
