@@ -47,14 +47,14 @@ Potential users
   need a high level overview of how Read the Docs can be integrated with my team's tools so I can plan to make it happen.*
 
 
-Initiate users
+Beginners
 ^^^^^^^^^^^^^^^
 
-  *I as a initiate user and a Software Engineer/Technical Writer
+  *I as a beginner and a Software Engineer/Technical Writer
   need to have the next step clearly pointed out so I don't loose time looking for what to do.*
 
   
-Initiate Intermediate or Advanced
+Intermediate or Advanced
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   *I as a intermediate or advanced user
