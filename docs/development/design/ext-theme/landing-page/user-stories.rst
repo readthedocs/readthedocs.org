@@ -8,7 +8,7 @@ User sectors
 ***************
 
 +-------------------+--------------+--------------+--------------+--------------+
-| User Levels →     | Potential    | Initiate     | Intermediate | Advanced     |
+| User Levels →     | Potential    | Beginner     | Intermediate | Advanced     |
 +-------------------+              |              |              |              |
 | User Groups       |              |              |              |              |
 +===================+==============+==============+==============+==============+
