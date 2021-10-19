@@ -6,6 +6,7 @@ This document serves to define the sections and contents to be included on the l
 
 Main Menu (top)
 ***************
+
 I would prefer to have different links here for when the user is in the marketing pages and inside application. Will expand on it later.
 
 
@@ -40,7 +41,7 @@ Section Goals
 
 Section Targets
   * potential users
-  * initiate users
+  * beginner users
 
 
 Section Contents
@@ -84,7 +85,7 @@ Section Goals
 
 Section Targets
   * potential users
-  * initiate users
+  * beginner users
 
 
 Section Contents
