@@ -51,7 +51,7 @@ def sync_versions_to_db(project, versions, type_version):  # pylint: disable=red
     has_user_latest = False
     for version in versions:
         # Reverting celery type change (List to NamedTuple)
-        if type(version) is list:
+        if isinstance(version, list):
             version = VersionData(version[0], version[1])
         version_id = version.identifier
         version_name = version.verbose_name
