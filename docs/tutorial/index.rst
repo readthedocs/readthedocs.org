@@ -605,10 +605,18 @@ as well as a plot similar to the one below.
    when they visit projects that have Google Analytics enabled,
    and this might reduce the number of visitors.
 
+Finally, you can also download this data for closer inspection.
+To do that, scroll to the bottom of the page
+and click on the :guilabel:`Download all data` button.
+That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
+that you can process any way you want.
 
+.. note::
 
-Conversely, if you want to disable it, you can check the "Disable Analytics"
-checkbox, which will also trigger a new build of your project.
+   The amount of analytics data stored for download depends on the plan.
+   On the Community site, the last 90 days are stored.
+   On the Commercial one, it goes from 30 to infinity
+   (check out `the pricing page <https://readthedocs.com/pricing/>`_).
 
 Search Analytics
 ~~~~~~~~~~~~~~~~
