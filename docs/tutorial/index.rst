@@ -563,10 +563,12 @@ Getting insights from your projects
 -----------------------------------
 
 Once your project is up and running, you will probably want to understand
-how readers are using your documentation: what pages are the most visited ones,
-what search terms are the most frequently used,
-and whether readers are finding what they look for
-are some common questions.
+how readers are using your documentation, addressing some common questions like:
+
+- what pages are the most visited pages?
+- what search terms are the most frequently used?
+- are readers finding what they look for?
+
 Read the Docs offers you some analytics tools to find out the answers.
 
 Traffic Analytics
