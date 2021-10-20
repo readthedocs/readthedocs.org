@@ -2,12 +2,9 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from django.core.cache import cache
-from django.test import TestCase
-from django.urls import reverse
+from django.test import TestCase, override_settings
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.organizations import views
 from readthedocs.organizations.models import (
     Organization,
@@ -18,10 +15,9 @@ from readthedocs.organizations.models import (
 )
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
-from readthedocs.sso.models import SSOIntegration
-from readthedocsinc.subscriptions.models import Subscription
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationTestCase(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
@@ -160,8 +156,7 @@ class OrganizationOwnerTests(OrganizationTestCase):
         )
         self.assertEqual(self.organization.owners.count(), 1)
 
-    @mock.patch('readthedocsinc.subscriptions.signals.cancel_subscription')
-    def test_organization_delete(self, cancel_subscription):
+    def test_organization_delete(self):
         """Removing an organization deletes all artifacts and leaf overs."""
 
         version = fixture.get(
@@ -188,11 +183,6 @@ class OrganizationOwnerTests(OrganizationTestCase):
             team=team,
             invite=invite,
         )
-        subscription = fixture.get(
-            Subscription,
-            organization=self.organization,
-            stripe_id='12345',
-        )
 
         self.assertIn(self.organization, Organization.objects.all())
         self.assertIn(team, Team.objects.all())
@@ -209,13 +199,6 @@ class OrganizationOwnerTests(OrganizationTestCase):
                 mock.call(self.project, mock.ANY),  # latest
                 mock.call(self.project, mock.ANY),  # version
             ])
-
-        cancel_subscription.assert_has_calls([
-            mock.call(
-                self.organization.stripe_id,
-                subscription.stripe_id,
-            ),
-        ])
 
         self.assertNotIn(self.organization, Organization.objects.all())
         self.assertNotIn(team, Team.objects.all())
@@ -245,43 +228,6 @@ class OrganizationMemberTests(OrganizationTestCase):
         )
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(self.organization.members.count(), 1)
-
-    def test_admin_member_see_button_to_trigger_builds(self):
-        self.assertEqual(self.tester.teams.count(), 0)
-
-        self.client.force_login(self.owner)
-        self.add_team(team='readonly', access='readonly')
-        self.add_team_member(username='tester', team='readonly')
-        self.add_project_to_team(projects=[self.project], team='readonly')
-        self.assertEqual(self.tester.teams.count(), 1)
-
-        self.client.force_login(self.tester)
-        resp = self.client.get(
-            reverse('projects_detail', args=(self.project.slug,)),
-        )
-        self.assertNotContains(resp, 'Build a version')  # title
-        self.assertNotContains(resp, 'Build version')  # button
-        resp = self.client.get(
-            reverse('builds_project_list', args=(self.project.slug,)),
-        )
-        self.assertNotContains(resp, 'Build Version:')  # button
-
-        self.client.force_login(self.owner)
-        self.add_team(team='admins', access='admin')
-        self.add_team_member(username='tester', team='admins')
-        self.add_project_to_team(projects=[self.project], team='admins')
-        self.assertEqual(self.tester.teams.count(), 2)
-
-        self.client.force_login(self.tester)
-        resp = self.client.get(
-            reverse('projects_detail', args=(self.project.slug,)),
-        )
-        self.assertContains(resp, 'Build a version')  # title
-        self.assertContains(resp, 'Build version')  # button
-        resp = self.client.get(
-            reverse('builds_project_list', args=(self.project.slug,)),
-        )
-        self.assertContains(resp, 'Build Version:')  # button
 
 
 class OrganizationTeamTests(OrganizationTestCase):
@@ -456,80 +402,3 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.team.members.count(), 1)
-
-
-class OrganizationUtilsTests(TestCase):
-
-    def tearDown(self):
-        # Cleanup cache to avoid cached has_sso_enabled
-        cache.clear()
-
-    def test_organization_has_sso_enabled(self):
-        user = fixture.get(
-            User,
-            username='owner',
-        )
-        organization = fixture.get(
-            Organization,
-            owners=[user],
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(organization))
-
-        fixture.get(
-            SSOIntegration,
-            organization=organization,
-        )
-        cache.clear()
-        self.assertTrue(AdminPermission.has_sso_enabled(organization))
-
-    def test_organization_has_sso_enabled_provider(self):
-        user = fixture.get(
-            User,
-            username='owner',
-        )
-        organization = fixture.get(
-            Organization,
-            owners=[user],
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(organization, provider=SSOIntegration.PROVIDER_ALLAUTH))
-        self.assertFalse(AdminPermission.has_sso_enabled(organization, provider=SSOIntegration.PROVIDER_EMAIL))
-
-        fixture.get(
-            SSOIntegration,
-            organization=organization,
-            provider=SSOIntegration.PROVIDER_ALLAUTH,
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(organization, provider=SSOIntegration.PROVIDER_EMAIL))
-        self.assertTrue(AdminPermission.has_sso_enabled(organization, provider=SSOIntegration.PROVIDER_ALLAUTH))
-
-    def test_user_has_sso_enabled(self):
-        user = fixture.get(
-            User,
-            username='owner',
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(user))
-
-        organization = fixture.get(
-            Organization,
-            owners=[user],
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(user))
-
-        fixture.get(
-            Organization,
-            owners=[user],
-        )
-        cache.clear()
-        self.assertFalse(AdminPermission.has_sso_enabled(user))
-
-        fixture.get(
-            SSOIntegration,
-            organization=organization,
-        )
-        cache.clear()
-        self.assertTrue(AdminPermission.has_sso_enabled(user))
