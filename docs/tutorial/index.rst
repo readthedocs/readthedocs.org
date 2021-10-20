@@ -559,7 +559,36 @@ encouraging you to browse the latest version instead. Neat!
 
    Warning for old versions
 
-----
+Where to go from here
+---------------------
 
-That's the end of the tutorial,
-but you can learn more about the platform starting with our :doc:`/features` page.
+This is the end of the tutorial. You started by forking a GitHub repository
+and importing it on Read the Docs, building its HTML documentation,
+and then went through a series of steps to customize the build process,
+tweak the project configuration, and add new versions.
+
+Here you have some resources to continue learning about documentation
+and Read the Docs:
+
+- You can learn more about the functionality of the platform
+  by going over our :doc:`/features` page.
+- To make the most of the documentation generators that are supported,
+  you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
+  or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- Whether you are a documentation author, a project administrator, a developer, or a designer,
+  you can follow our how-to guides that cover specific tasks,
+  available under :doc:`/guides/index`.
+- You can check out some of the
+  :ref:`index:Advanced features of Read the Docs`,
+  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
+- For private project support and other enterprise features,
+  you can use :doc:`our commercial service </commercial/index>`
+  (and if in doubt, check out :doc:`/choosing-a-site`).
+- Do you want to join a global community of fellow technical writers?
+  Check out `Write the Docs <https://www.writethedocs.org/>`_ and
+  :doc:`its Slack workspace <writethedocs:slack>`.
+- Do you want to :doc:`contribute to Read the Docs </contribute>`?
+  We greatly appreciate it! Check out :doc:`/development/docs` and
+  :doc:`/development/install`.
+
+Happy documenting!

@@ -61,6 +61,7 @@ intersphinx_mapping = {
     'poliastro': ('https://docs.poliastro.space/en/v0.15.2/', None),
     'qiskit': ('https://qiskit.org/documentation/', None),
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
+    'writethedocs': ('https://www.writethedocs.org/', None),
 }
 hoverxref_intersphinx = [
    "sphinx",
