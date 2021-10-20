@@ -684,11 +684,10 @@ and Read the Docs:
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).
-- Do you want to join a global community of fellow technical writers?
+- Do you want to join a global community of fellow `documentarians <writethedocs:documentarians>`?
   Check out `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
 - Do you want to :doc:`contribute to Read the Docs </contribute>`?
-  We greatly appreciate it! Check out :doc:`/development/docs` and
-  :doc:`/development/install`.
+  We greatly appreciate it! Check out :doc:`/development/docs`.
 
 Happy documenting!
