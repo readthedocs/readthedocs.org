@@ -129,6 +129,13 @@ These are some examples where this is useful:
 - User wants to pass an extra argument to ``sphinx-build``
 - Project requires to execute a command *before* building
 - User has a personal/private PyPI URL
+- Install project with `pip install -e` (see https://github.com/readthedocs/readthedocs.org/issues/6243)
+- Disable git shallow clone (see https://github.com/readthedocs/readthedocs.org/issues/5989)
+- Call `pip install` with `--constraint` (see https://github.com/readthedocs/readthedocs.org/issues/7258)
+- Do something _before_ install (see https://github.com/readthedocs/readthedocs.org/issues/6662)
+- Use a conda lock file to create the environment (see https://github.com/readthedocs/readthedocs.org/issues/7772)
+- Run a check after the build is done (e.g. ``sphinx-build -W -b linkcheck . _build/html``)
+- Create virtualenv with ``--system-site-packages``
 - etc
 
 .. code:: yaml
