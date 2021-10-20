@@ -306,3 +306,5 @@ Un-answered questions
 * How users will decide what builder to use?
   Should this be a config like ``build.builder: readthedocs-sphinx-magical-builder==1.0.0``?
   Maybe a Python class path ``readthedocs.builder.sphinx.SphinxMagicalBuilder`` that we can import?
+* How do we audit code for new builders (e.g. `PelicanBuilder` done by the community)? The builder is currently executed _outside_ the Docker container.
+* Does it make sense to *isolate* the build process from our Python code and ran it *inside* the container instead? (e.g. ``$ readthedocs build --builder sphinx --source docs/``) This code won't have access to the db nor our app code.
