@@ -1,6 +1,6 @@
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from readthedocs.organizations.models import (
     Organization,
@@ -188,6 +188,7 @@ class OrganizationAccessMixin:
         self.assertEqual(self.organization.teams.count(), 1)
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationOwnerAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed org owner."""
@@ -199,6 +200,7 @@ class OrganizationOwnerAccess(OrganizationAccessMixin, TestCase):
         return True
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationMemberAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed org member."""
@@ -224,6 +226,7 @@ class OrganizationMemberAccess(OrganizationAccessMixin, TestCase):
         return False
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationNonmemberAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed but non-org user."""
