@@ -559,6 +559,106 @@ encouraging you to browse the latest version instead. Neat!
 
    Warning for old versions
 
+Getting insights from your projects
+-----------------------------------
+
+Once your project is up and running, you will probably want to understand
+how readers are using your documentation: what pages are the most visited ones,
+what search terms are the most frequently used,
+and whether readers are finding what they look for
+are some common questions.
+Read the Docs offers you some analytics tools to find out the answers.
+
+Traffic Analytics
+~~~~~~~~~~~~~~~~~
+
+The Traffic Analytics view shows the top viewed documentation pages of the past 30 days,
+plus a visualization of the daily views during that period.
+To generate some artificial views on your newly created project,
+you can first click around the different pages of your project,
+which will be accounted immediately for the current day statistics.
+
+To see the Traffic Analytics view, go back the :term:`project page` again,
+click on the "⚙ Admin" button, and then click on the "Traffic Analytics" section.
+You will see the list of pages in descending order of visits,
+as well as a plot similar to the one below.
+
+.. figure:: /_static/images/tutorial/traffic-analytics-plot.png
+   :width: 80%
+   :align: center
+   :alt: Traffic Analytics plot
+
+   Traffic Analytics plot
+
+Finally, you can also download all the statistics since the project creation
+for closer inspection. To do that, scroll to the bottom of the page
+and click on the :guilabel:`Download all data` button.
+That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
+that you can process any way you want.
+
+Enabling or disabling Google Analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Traffic Analytics view explained above gives you a simple overview
+of how your readers browse your documentation. It has the advantage that
+it stores very little information about your visitors,
+and therefore it respects their privacy.
+However, you might want to use a more sophisticated solution
+like Google Analytics.
+
+.. warning::
+
+   We take some extra measures to :ref:`respect user
+   privacy <advertising/advertising-details:analytics>`
+   when they visit projects that have Google Analytics enabled.
+
+To enable Google Analytics on your project, go back to the "⚙ Admin" section
+of your project page, then click on "Advanced Settings", and locate the
+"Analytics code" input box. Entering a valid Google Analytics Tracking ID
+(for example ``UA-22345342-1``) will trigger a build for your project
+which will include the corresponding tracking code.
+
+.. figure:: /_static/images/tutorial/google-analytics-options.png
+   :width: 80%
+   :align: center
+   :alt: Options to manage Google Analytics
+
+   Options to manage Google Analytics
+
+Conversely, if you want to disable it, you can check the "Disable Analytics"
+checkbox, which will also trigger a new build of your project.
+
+Search Analytics
+~~~~~~~~~~~~~~~~
+
+Apart from traffic analytics, Read the Docs also offers the possibility
+to inspect what search terms your readers use on your documentation.
+This can inform decisions on what areas to reinforce,
+or what parts of your project are less understood or more difficult to find.
+
+To generate some artificial search statistics on the project,
+go to the HTML documentation, locate the Sphinx search box on the left,
+type ``ingredients``, and press the :kbd:`Enter` key.
+You will be redirected to the search results page, which will show two entries.
+
+Next, go back to the "⚙ Admin" section of your project page,
+and then click on the "Search Analytics" section.
+You will see a table with the most searched queries
+(including the ``ingredients`` one you just typed),
+how many results did each query return, and how many times it was searched.
+Below the queries table, you will also see a visualization
+of the daily number of search queries during the past 30 days.
+
+.. figure:: /_static/images/tutorial/search-analytics-terms.png
+   :width: 80%
+   :align: center
+   :alt: Most searched terms
+
+   Most searched terms
+
+Like the Traffic Analytics, you can also download the whole dataset in CSV format
+by clicking on the :guilabel:`Download all data` button.
+
 Where to go from here
 ---------------------
 
