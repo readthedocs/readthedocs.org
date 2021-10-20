@@ -26,7 +26,7 @@ jsonfield==3.1.0
 requests==2.26.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==6.0
+pyyaml==5.4.1
 Pygments==2.10.0
 
 # Basic tools
@@ -64,7 +64,7 @@ django-gravatar2==1.4.4
 pytz==2021.3
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.61.0
+stripe==2.60.0
 regex==2021.10.8
 markdown==3.3.4
 
