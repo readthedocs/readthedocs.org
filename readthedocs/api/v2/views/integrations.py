@@ -30,7 +30,8 @@ from readthedocs.core.views.hooks import (
     trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Feature, Project
+from readthedocs.oauth.tasks import sync_remote_repositories
+from readthedocs.projects.models import Project, Feature
 
 log = logging.getLogger(__name__)
 
@@ -463,8 +464,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 provider=GitHubProvider.id,
                 uid=uid,
             )
-            service = GitHubService(user=socialaccount.user, account=socialaccount)
-            service.sync()
+            sync_remote_repositories.delay(socialaccount.user.pk)
 
         return None
 
