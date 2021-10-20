@@ -27,6 +27,13 @@ You can enable it by:
 * Going to :guilabel:`Admin` > :guilabel:`Advanced Settings` in your project.
 * Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
 
+.. figure:: /_static/images/google-analytics-options.png
+   :width: 80%
+   :align: center
+   :alt: Options to manage Google Analytics
+
+   Options to manage Google Analytics
+
 Once your documentation rebuilds it will include your Analytics tracking code and start sending data.
 Google Analytics usually takes 60 minutes,
 and sometimes can take up to a day before it starts reporting data.

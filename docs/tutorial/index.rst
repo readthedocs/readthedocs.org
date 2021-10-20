@@ -592,40 +592,20 @@ as well as a plot similar to the one below.
 
    Traffic Analytics plot
 
-Finally, you can also download all the statistics since the project creation
-for closer inspection. To do that, scroll to the bottom of the page
-and click on the :guilabel:`Download all data` button.
-That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
-that you can process any way you want.
+.. note::
 
-Enabling or disabling Google Analytics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Traffic Analytics view explained above gives you a simple overview
-of how your readers browse your documentation. It has the advantage that
-it stores very little information about your visitors,
-and therefore it respects their privacy.
-However, you might want to use a more sophisticated solution
-like Google Analytics.
-
-.. warning::
-
-   We take some extra measures to :ref:`respect user
+   The Traffic Analytics view explained above gives you a simple overview
+   of how your readers browse your documentation. It has the advantage that
+   it stores very little information about your visitors,
+   and therefore it respects their privacy.
+   However, you might want to get more detailed data by
+   :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
+   Notice though that we take some extra measures to :ref:`respect user
    privacy <advertising/advertising-details:analytics>`
-   when they visit projects that have Google Analytics enabled.
+   when they visit projects that have Google Analytics enabled,
+   and this might reduce the number of visitors.
 
-To enable Google Analytics on your project, go back to the "⚙ Admin" section
-of your project page, then click on "Advanced Settings", and locate the
-"Analytics code" input box. Entering a valid Google Analytics Tracking ID
-(for example ``UA-22345342-1``) will trigger a build for your project
-which will include the corresponding tracking code.
 
-.. figure:: /_static/images/tutorial/google-analytics-options.png
-   :width: 80%
-   :align: center
-   :alt: Options to manage Google Analytics
-
-   Options to manage Google Analytics
 
 Conversely, if you want to disable it, you can check the "Disable Analytics"
 checkbox, which will also trigger a new build of your project.
