@@ -25,37 +25,43 @@ User Stories
 
 A user story is an informal, natural language description of a software feature, written from the perspective of the end user or other stakeholders. The purpose is to capture ideas about what needs to be built into the application. This will help us define specific features and goals.
 
+Although there's no formality to a user story, the following template is normally useful:
+
+```
+As a <role> I want to <goal> so that I <receive benefit>
+```
+
 
 Potential users
 ^^^^^^^^^^^^^^^
 
-  *I as a potential user and a Software Engineer/Technical Writer
-  need to know what Read the Docs is and how it might help me with my work.*
+  *As a potential user and a Software Engineer/Technical Writer
+  I need to know what Read the Docs is and how it might help me with my work.*
 
-  *I as a potential user and a Manager
-  need to know what Read the Docs is and how it might help my team workflow.*
+  *As a potential user and a Manager
+  I need to know what Read the Docs is and how it might help my team workflow.*
 
 -------
 
-  *I as a potential user and a Software Engineer
-  need to know more about Read the Docs technical features and integrations, so I can know if its a good fit for my tools.*
+  *As a potential user and a Software Engineer
+  I need to know more about Read the Docs technical features and integrations, so I can know if its a good fit for my tools.*
 
-  *I as a potential user and a Technical Writer
-  need to know if Read the Docs is easy to integrate with my tools so it helps me save time.*
+  *As a potential user and a Technical Writer
+  I need to know if Read the Docs is easy to integrate with my tools so it helps me save time.*
 
-  *I as a potential user and a Manager
-  need a high level overview of how Read the Docs can be integrated with my team's tools so I can plan to make it happen.*
+  *As a potential user and a Manager
+  I need a high level overview of how Read the Docs can be integrated with my team's tools so I can plan to make it happen.*
 
 
 Beginners
 ^^^^^^^^^^^^^^^
 
-  *I as a beginner and a Software Engineer/Technical Writer
-  need to have the next step clearly pointed out so I don't loose time looking for what to do.*
+  *As a beginner and a Software Engineer/Technical Writer
+  I need to have the next step clearly pointed out so I don't loose time looking for what to do.*
 
   
 Intermediate or Advanced
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  *I as a intermediate or advanced user
-  need to be able to able to jump fast into login or other important app pages so I can use this page as a start point without loosing time with its marketing contents.*
+  *As a intermediate or advanced user
+  I need to be able to able to jump fast into login or other important app pages so that I can use this page as a start point without loosing time with its marketing contents.*
