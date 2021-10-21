@@ -1,5 +1,6 @@
 import csv
 import itertools
+from unittest import mock
 
 import django_dynamic_fixture as fixture
 from allauth.account.views import SignupView
@@ -8,6 +9,7 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.audit.models import AuditLog
@@ -161,6 +163,47 @@ class OrganizationSecurityLogTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
         self.assertEqual(auditlogs.count(), 12)
+
+    @mock.patch('django.utils.timezone.now')
+    def test_filter_by_date(self, now_mock):
+        date = timezone.datetime(year=2021, month=1, day=15)
+        now_mock.return_value = date
+        self.organization.pub_date = date
+        self.organization.save()
+
+        date = timezone.datetime(year=2021, month=3, day=10)
+        AuditLog.objects.all().update(created=date)
+
+        date = timezone.datetime(year=2021, month=2, day=13)
+        AuditLog.objects.filter(action=AuditLog.AUTHN).update(created=date)
+
+        date = timezone.datetime(year=2021, month=4, day=24)
+        AuditLog.objects.filter(action=AuditLog.AUTHN_FAILURE).update(created=date)
+
+        resp = self.client.get(self.url + '?date_before=2020-10-10')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 0)
+
+        resp = self.client.get(self.url + '?date_after=2023-10-10')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 0)
+
+        resp = self.client.get(self.url + '?date_before=2021-03-9')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 16)
+
+        resp = self.client.get(self.url + '?date_after=2021-03-11')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 16)
+
+        resp = self.client.get(self.url + '?date_after=2021-01-01&date_before=2021-03-10')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 32)
 
     def test_download_csv(self):
         self.assertEqual(AuditLog.objects.count(), 128)

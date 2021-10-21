@@ -1,7 +1,12 @@
 """Filters used in our views."""
 
 from django.utils.translation import ugettext_lazy as _
-from django_filters import CharFilter, ChoiceFilter, FilterSet
+from django_filters import (
+    CharFilter,
+    ChoiceFilter,
+    DateFromToRangeFilter,
+    FilterSet,
+)
 
 from readthedocs.audit.models import AuditLog
 
@@ -18,6 +23,7 @@ class UserSecurityLogFilter(FilterSet):
             (AuditLog.AUTHN_FAILURE, _('Authentication failure')),
         ],
     )
+    date = DateFromToRangeFilter(field_name='created')
 
     class Meta:
         model = AuditLog

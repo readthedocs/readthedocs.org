@@ -1,7 +1,5 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from datetime import timedelta
-
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
 from django.conf import settings
@@ -189,6 +187,13 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
+    def _get_start_date(self):
+        """Get the date to show logs from."""
+        creation_date = self.request.user.date_joined.date()
+        start_date = timezone.now().date() - timezone.timedelta(days=self.days_limit)
+        # The max we can go back is to the creation of the user.
+        return max(start_date, creation_date)
+
     def _get_csv_data(self):
         current_timezone = settings.TIME_ZONE
         values = [
@@ -201,12 +206,12 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             ('Browser', 'browser'),
         ]
         data = self._get_queryset().values_list(*[value for _, value in values])
-        now = timezone.now()
-        start_date = now - timedelta(days=self.days_limit)
+        start_date = self._get_start_date()
+        end_date = timezone.now().date()
         filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
             username=self.request.user.username,
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
-            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
         csv_data = [
             [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
@@ -225,7 +230,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
     def _get_queryset(self):
         """Return the queryset without filters."""
         user = self.request.user
-        start_date = timezone.now() - timedelta(days=self.days_limit)
+        start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             user=user,
             action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],

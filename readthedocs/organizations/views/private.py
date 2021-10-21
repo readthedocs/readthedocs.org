@@ -185,13 +185,8 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
 
     def _get_csv_data(self):
         organization = self.get_organization()
-        now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(organization)
-        if retention_limit in [None, -1]:
-            # Unlimited.
-            start_date = organization.pub_date.date()
-        else:
-            start_date = now - timezone.timedelta(days=retention_limit)
+        start_date = self._get_start_date()
+        end_date = timezone.now().date()
 
         current_timezone = settings.TIME_ZONE
         values = [
@@ -213,7 +208,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         filename = 'readthedocs_organization_security_logs_{organization}_{start}_{end}.csv'.format(
             organization=organization.slug,
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
-            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
         return get_csv_file(filename=filename, csv_data=csv_data)
 
@@ -226,18 +221,24 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         context['AuditLog'] = AuditLog
         return context
 
+    def _get_start_date(self):
+        """Get the date to show logs from."""
+        organization = self.get_organization()
+        creation_date = organization.pub_date.date()
+        retention_limit = self._get_retention_days_limit(organization)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            return creation_date
+        start_date = timezone.now().date() - timezone.timedelta(days=retention_limit)
+        # The max we can go back is to the creation of the organization.
+        return max(start_date, creation_date)
+
     def _get_queryset(self):
         """Return the queryset without filters."""
         organization = self.get_organization()
         if not self._is_enabled(organization):
             return AuditLog.objects.none()
-
-        retention_limit = self._get_retention_days_limit(organization)
-        if retention_limit in [None, -1]:
-            # Unlimited.
-            start_date = organization.pub_date.date()
-        else:
-            start_date = timezone.now() - timezone.timedelta(days=retention_limit)
+        start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
             action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW],
