@@ -63,6 +63,7 @@ def sync_remote_repositories_organizations():
         .values_list('organization', flat=True)
     )
     log.info('Triggering scheduled SSO re-sync for all organizations. count=%s', query.count())
+    n_task = -1
     for organization in query:
         members = AdminPermission.members(organization)
         log.info(
@@ -71,7 +72,12 @@ def sync_remote_repositories_organizations():
             members.count(),
         )
         for user in members:
-            sync_remote_repositories.delay(user.pk)
+            n_task += 1
+            sync_remote_repositories.delay(
+                user.pk,
+                # delay the task by 0, 5, 10, 15, ... seconds
+                countdown=n_task * 5,
+            )
 
 
 @app.task(queue='web')
