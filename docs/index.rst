@@ -84,7 +84,8 @@ and some of the core features of Read the Docs.
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
-  :doc:`/user-defined-redirects`
+  :doc:`/user-defined-redirects` |
+  :doc:`/security-log`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>`
@@ -114,6 +115,7 @@ and some of the core features of Read the Docs.
    /analytics
    /pull-requests
    /build-notifications
+   /security-log
 
    /connected-accounts
 

@@ -11,8 +11,9 @@
 
 {% block edit_content %}
 
-<p>
-  {% blocktrans trimmed with days_limit as days_limit %}
+<p class="help_text">
+  {% blocktrans trimmed with days_limit=days_limit docs_url='https://docs.readthedocs.io/page/security-log.html#user-security-log'%}
+  The <a href="{{ docs_url }}">user security log</a> allows you to see what has happened recently in your account.
   Showing logs from the last {{ days_limit }} days.
   {% endblocktrans %}
 </p>
