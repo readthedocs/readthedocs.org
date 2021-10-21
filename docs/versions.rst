@@ -11,7 +11,7 @@ we also create a ``stable`` version, tracking your most recent release.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
 
-When you have :doc:`/webhooks` configured for your repository,
+When you have :doc:`/integrations` configured for your repository,
 we will automatically build each version when you push a commit.
 
 How we envision versions working

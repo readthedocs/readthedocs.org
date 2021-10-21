@@ -142,7 +142,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.test``
     Runs all the test suites inside the container.
 
-    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py36 -- -k test_api"``)
+    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py38 -- -k test_api"``)
 
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
@@ -206,7 +206,7 @@ using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.
 
 However, because these services will not be able to connect back to your local development instance,
-:doc:`webhooks </webhooks>` will not function correctly.
+:doc:`incoming webhooks </integrations>` will not function correctly.
 For some services, the webhooks will fail to be added when the repository is imported.
 For others, the webhook will simply fail to connect when there are new commits to the repository.
 

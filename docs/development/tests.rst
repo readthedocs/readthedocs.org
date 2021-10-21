@@ -46,13 +46,13 @@ To target a specific environment:
 
 .. prompt:: bash
 
-    tox -e py36
+    tox -e py38
 
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite:
 
-py36
-    Run our test suite using Python 3.6
+py38
+    Run our test suite using Python 3.8
 
 lint
     Run code linting using `Prospector`_. This currently runs `pylint`_,

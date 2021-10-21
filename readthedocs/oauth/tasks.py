@@ -6,6 +6,7 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
 from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
@@ -13,7 +14,9 @@ from readthedocs.oauth.notifications import (
 )
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
@@ -47,6 +50,53 @@ def sync_remote_repositories(user_id):
         raise Exception(
             msg.format(providers=', '.join(failed_services))
         )
+
+
+@app.task(queue='web')
+def sync_remote_repositories_organizations(organization_slugs=None):
+    """
+    Re-sync users member of organizations.
+
+    It will trigger one `sync_remote_repositories` task per user.
+
+    :param organization_slugs: list containg organization's slugs to sync. If
+    not passed, all organizations with ALLAUTH SSO enabled will be synced
+
+    :type organization_slugs: list
+    """
+    if organization_slugs:
+        query = Organization.objects.filter(slug__in=organization_slugs)
+        log.info(
+            'Triggering SSO re-sync for organizations. slugs=%s count=%s',
+            organization_slugs,
+            query.count(),
+        )
+    else:
+        log.info(
+            'Triggering SSO re-sync for all organizations. count=%s',
+            query.count(),
+        )
+        query = (
+            SSOIntegration.objects
+            .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
+            .values_list('organization', flat=True)
+        )
+
+    n_task = -1
+    for organization in query:
+        members = AdminPermission.members(organization)
+        log.info(
+            'Triggering SSO re-sync for organization. organization=%s users=%s',
+            organization.slug,
+            members.count(),
+        )
+        for user in members:
+            n_task += 1
+            sync_remote_repositories.delay(
+                user.pk,
+                # delay the task by 0, 5, 10, 15, ... seconds
+                countdown=n_task * 5,
+            )
 
 
 @app.task(queue='web')

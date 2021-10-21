@@ -1,3 +1,50 @@
+Version 6.0.0
+-------------
+
+:Date: October 13, 2021
+
+
+This release includes the upgrade of some base dependencies:
+
+- Python version from 3.6 to 3.8 
+- Ubuntu version from 18.04 LTS to 20.04 LTS
+
+Starting from this release, all the Read the Docs code will be tested and QAed on these versions.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.25.1 (`#8576 <https://github.com/readthedocs/readthedocs.org/pull/8576>`__)
+* `@deepto98 <https://github.com/deepto98>`__: Moved authenticated_classes definitions from API classes to AuthenticatedClassesMixin (`#8562 <https://github.com/readthedocs/readthedocs.org/pull/8562>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Ubuntu 20.04 and Python 3.8 (`#7421 <https://github.com/readthedocs/readthedocs.org/pull/7421>`__)
+
+Version 5.25.1
+--------------
+
+:Date: October 11, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Small fixes (`#8564 <https://github.com/readthedocs/readthedocs.org/pull/8564>`__)
+* `@deepto98 <https://github.com/deepto98>`__: Moved authenticated_classes definitions from API classes to AuthenticatedClassesMixin (`#8562 <https://github.com/readthedocs/readthedocs.org/pull/8562>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update ca-certificates before cloning (`#8559 <https://github.com/readthedocs/readthedocs.org/pull/8559>`__)
+* `@humitos <https://github.com/humitos>`__: Build: support Python 3.10.0 stable release (`#8558 <https://github.com/readthedocs/readthedocs.org/pull/8558>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Document new `build` specification (`#8547 <https://github.com/readthedocs/readthedocs.org/pull/8547>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add checkbox to subscribe new users to newsletter (`#8546 <https://github.com/readthedocs/readthedocs.org/pull/8546>`__)
+
+Version 5.25.0
+--------------
+
+:Date: October 05, 2021
+
+* `@humitos <https://github.com/humitos>`__: Docs: comment about how to add a new tool/version for builders (`#8548 <https://github.com/readthedocs/readthedocs.org/pull/8548>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add checkbox to subscribe new users to newsletter (`#8546 <https://github.com/readthedocs/readthedocs.org/pull/8546>`__)
+* `@humitos <https://github.com/humitos>`__: Build: missing updates from review (`#8544 <https://github.com/readthedocs/readthedocs.org/pull/8544>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: allow CORS for `/api/v3/embed/` (`#8543 <https://github.com/readthedocs/readthedocs.org/pull/8543>`__)
+* `@humitos <https://github.com/humitos>`__: Script tools cache: fix environment variables (`#8541 <https://github.com/readthedocs/readthedocs.org/pull/8541>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPIv3: proxy URLs to be available under `/_/` (`#8540 <https://github.com/readthedocs/readthedocs.org/pull/8540>`__)
+* `@humitos <https://github.com/humitos>`__: Docker: use the correct image tag (`#8539 <https://github.com/readthedocs/readthedocs.org/pull/8539>`__)
+* `@humitos <https://github.com/humitos>`__: Requirement: ping django-redis-cache to git tag (`#8536 <https://github.com/readthedocs/readthedocs.org/pull/8536>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 39 (`#8531 <https://github.com/readthedocs/readthedocs.org/pull/8531>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Promote and restructure guides (`#8528 <https://github.com/readthedocs/readthedocs.org/pull/8528>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: allow to download all data (`#8498 <https://github.com/readthedocs/readthedocs.org/pull/8498>`__)
+* `@stsewd <https://github.com/stsewd>`__: HistoricalRecords: add additional fields (ip and browser) (`#8490 <https://github.com/readthedocs/readthedocs.org/pull/8490>`__)
+
 Version 5.24.0
 --------------
 

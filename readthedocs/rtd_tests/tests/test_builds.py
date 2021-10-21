@@ -779,6 +779,69 @@ class BuildModelTests(TestCase):
         self.assertEqual(build.version_type, BRANCH)
         self.assertEqual(build.commit, 'a1b2c3')
 
+    def test_can_rebuild_with_regular_version(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            _config={'version': 1},
+        )
+
+        self.assertFalse(build.can_rebuild)
+
+    def test_can_rebuild_with_external_active_version(self):
+        # Turn the build version to EXTERNAL type.
+        self.version.type = EXTERNAL
+        self.version.active = True
+        self.version.save()
+
+        external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            _config={'version': 1},
+        )
+
+        self.assertTrue(external_build.can_rebuild)
+
+    def test_can_rebuild_with_external_inactive_version(self):
+        # Turn the build version to EXTERNAL type.
+        self.version.type = EXTERNAL
+        self.version.active = False
+        self.version.save()
+
+        external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            _config={'version': 1},
+        )
+
+        self.assertFalse(external_build.can_rebuild)
+
+    def test_can_rebuild_with_old_build(self):
+        # Turn the build version to EXTERNAL type.
+        self.version.type = EXTERNAL
+        self.version.active = True
+        self.version.save()
+
+        old_external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            _config={'version': 1},
+        )
+
+        latest_external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            _config={'version': 1},
+        )
+
+        self.assertFalse(old_external_build.can_rebuild)
+        self.assertTrue(latest_external_build.can_rebuild)
+
 
 @mock.patch('readthedocs.projects.tasks.update_docs_task')
 class DeDuplicateBuildTests(TestCase):

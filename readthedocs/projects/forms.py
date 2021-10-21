@@ -470,7 +470,7 @@ class WebHookForm(forms.ModelForm):
                 'slug': '${project.slug}',
                 'version': '${version.slug}',
                 'commit': '${build.commit}',
-                'build': '${build.pk}',
+                'build': '${build.id}',
             }, indent=2)
 
     def clean_project(self):

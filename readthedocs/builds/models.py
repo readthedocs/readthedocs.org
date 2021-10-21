@@ -909,6 +909,26 @@ class Build(models.Model):
         return type == EXTERNAL
 
     @property
+    def can_rebuild(self):
+        """
+        Check if external build can be rebuilt.
+
+        Rebuild can be done only if the build is external,
+        build version is active and
+        it's the latest build for the version.
+        see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969
+        """
+        if self.is_external:
+            is_latest_build = (
+                self == Build.objects.filter(
+                    project=self.project,
+                    version=self.version
+                ).only('id').first()
+            )
+            return self.version and self.version.active and is_latest_build
+        return False
+
+    @property
     def external_version_name(self):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
