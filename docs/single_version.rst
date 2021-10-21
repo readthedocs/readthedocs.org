@@ -20,8 +20,8 @@ Effects
 
 Links pointing to the :term:`root URL` of the project will now point to the proper URL.
 For example, if pip was set as a "Single Version" project,
-then links to its documentation would point to ``http://pip.readthedocs.io/``
-rather than redirecting to ``http://pip.readthedocs.io/en/latest/``.
+then links to its documentation would point to ``https://pip.readthedocs.io/``
+rather than redirecting to ``https://pip.readthedocs.io/en/latest/``.
 
 .. warning::
 
