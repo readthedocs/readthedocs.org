@@ -13,16 +13,19 @@ Enabling
 ~~~~~~~~
 
 You can toggle the "Single Version" option on or off for your project in the Project Admin page.
-Check your :guilabel:`dashboard` for a list of your projects.
+Check your :term:`dashboard` for a list of your projects.
 
 Effects
 ~~~~~~~
 
-Links generated on Read the Docs will now point to the proper URL. For example,
-if pip was set as a "Single Version" project, then links to its documentation would point to
-``http://pip.readthedocs.io/`` rather than the default ``http://pip.readthedocs.io/en/latest/``.
+Links pointing to the :term:`root URL` of the project will now point to the proper URL.
+For example, if pip was set as a "Single Version" project,
+then links to its documentation would point to ``http://pip.readthedocs.io/``
+rather than redirecting to ``http://pip.readthedocs.io/en/latest/``.
 
-Documentation at ``/<language>/<default_version>/`` will still be served for backwards compatibility reasons.
-However, our usage of :ref:`custom_domains:Canonical URLs` should stop these from being indexed by Google.
+.. warning::
 
-.. _dashboard: https://readthedocs.org/dashboard/
+   Documentation at ``/<language>/<default_version>/`` will stop working.
+   Remember to set :ref:`custom_domains:Canonical URLs`
+   to tell search engines like Google what to index,
+   and to create :doc:`user-defined-redirects` to avoid broken incoming links.
