@@ -15,6 +15,7 @@ from readthedocs.oauth.notifications import (
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.projects.models import Project
+from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
