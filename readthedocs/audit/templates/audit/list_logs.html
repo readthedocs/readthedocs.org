@@ -29,7 +29,7 @@ This is useful when listing logs for the same user.
           {% endif %}
         {% elif log.action == AuditLog.AUTHN_FAILURE %}
           {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
-            <a href="?action={{ action }}" title="{{ method }}">Authentication attempt</a>
+            <a href="?action={{ action }}" title="{{ method }}">Authentication failed</a>
           {% endblocktrans %}
         {% elif log.action == AuditLog.PAGEVIEW %}
           {% if log.log_user_id %}

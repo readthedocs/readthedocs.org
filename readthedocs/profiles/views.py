@@ -190,8 +190,9 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def _get_csv_data(self):
+        current_timezone = settings.TIME_ZONE
         values = [
-            ('Date', 'created'),
+            (f'Date ({current_timezone})', 'created'),
             ('User', 'log_user_username'),
             ('Project', 'log_project_slug'),
             ('Organization', 'log_organization_slug'),
@@ -201,10 +202,10 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         ]
         data = self._get_queryset().values_list(*[value for _, value in values])
         now = timezone.now()
-        days_ago = now - timedelta(days=self.days_limit)
+        start_date = now - timedelta(days=self.days_limit)
         filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
             username=self.request.user.username,
-            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
+            start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
         csv_data = [
@@ -222,16 +223,23 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         return context
 
     def _get_queryset(self):
+        """Return the queryset without filters."""
         user = self.request.user
-        days_ago = timezone.now() - timedelta(days=self.days_limit)
+        start_date = timezone.now() - timedelta(days=self.days_limit)
         queryset = AuditLog.objects.filter(
             user=user,
             action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
-            created__gte=days_ago,
+            created__gte=start_date,
         )
         return queryset
 
     def get_queryset(self):
+        """
+        Return the queryset with filters.
+
+        If you want the original queryset without filters,
+        use `_get_queryset`.
+        """
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.
         # Without executing it twice.
