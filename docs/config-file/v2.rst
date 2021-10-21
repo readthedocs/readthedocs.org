@@ -35,7 +35,7 @@ Below is an example YAML file which shows the most common configuration options:
          sphinx:
             configuration: docs/conf.py
 
-         # Optionally build your docs in additional formats such as PDF
+         # If using Sphinx, optionally build your docs in additional formats such as PDF
          # formats:
          #    - pdf
 
@@ -103,10 +103,11 @@ Example:
 formats
 ~~~~~~~
 
-Formats of the documentation to be built.
+Additional formats of the documentation to be built,
+apart from the default HTML.
 
 :Type: ``list``
-:Options: ``htmlzip``, ``pdf``, ``epub``
+:Options: ``htmlzip``, ``pdf``, ``epub``, ``all``
 :Default: ``[]``
 
 Example:
@@ -140,7 +141,8 @@ Example:
 
 .. warning::
 
-   ``pdf``, ``epub``, and ``htmlzip`` output is not supported when using MkDocs.
+   At the moment, only Sphinx supports additional formats.
+   ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
 
 python
 ~~~~~~
