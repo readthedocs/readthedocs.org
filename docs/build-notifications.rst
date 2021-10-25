@@ -3,8 +3,8 @@ Build Notifications and Webhooks
 
 .. note::
 
-   Currently we don't send notifications nor trigger webhooks when
-   a :doc:`build from a pull request fails </pull-requests>`.
+   Currently we don't send notifications nor trigger webhooks
+   on :doc:`builds from pull requests </pull-requests>`.
 
 Email notifications
 -------------------
