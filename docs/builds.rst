@@ -102,8 +102,6 @@ but you can change that using a :doc:`/config-file/index`.
 You can see the current Docker build images that we use in our `docker repository <https://github.com/readthedocs/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
 
-.. _default-versions:
-
 Default versions of dependencies
 --------------------------------
 

@@ -16,7 +16,15 @@ and then click on :guilabel:`Traffic Analytics`.
 
    Traffic analytics demo
 
-You can also access to analytics data from :ref:`search results <server-side-search:analytics>`.
+You can also access to analytics data from :ref:`search results <server-side-search:Search Analytics>`.
+
+.. note::
+
+   The amount of analytics data stored for download depends which site you're using:
+
+   * On the Community site, the last 90 days are stored.
+   * On the Commercial one, it goes from 30 to infinite storage
+      (check out `the pricing page <https://readthedocs.com/pricing/>`_).
 
 Enabling Google Analytics on your Project
 -----------------------------------------
@@ -26,6 +34,13 @@ You can enable it by:
 
 * Going to :guilabel:`Admin` > :guilabel:`Advanced Settings` in your project.
 * Fill in the **Analytics code** heading with your Google Tracking ID (example `UA-123456674-1`)
+
+.. figure:: /_static/images/google-analytics-options.png
+   :width: 80%
+   :align: center
+   :alt: Options to manage Google Analytics
+
+   Options to manage Google Analytics
 
 Once your documentation rebuilds it will include your Analytics tracking code and start sending data.
 Google Analytics usually takes 60 minutes,
