@@ -153,7 +153,7 @@ Slack
      ]
    }
 
-More information on `the Slack Block Kit documentation <https://api.slack.com/block-kit>`_.
+More information on `the Slack Incoming Webhooks documentation <https://api.slack.com/messaging/webhooks>`_.
 
 Discord
 +++++++
@@ -188,7 +188,7 @@ Discord
      ]
    }
 
-More information on `the Discord webhooks documentation <https://discord.com/developers/docs/resources/webhook>`_.
+More information on `the Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_.
 
 Variable substitutions reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
