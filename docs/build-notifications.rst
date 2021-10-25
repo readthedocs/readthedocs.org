@@ -45,14 +45,14 @@ The default payload will look like this:
 
 .. code-block:: json
 
-       {
-            "event": "build:triggered",
-            "name": "Read the Docs",
-            "slug": "rtd",
-            "version": "latest",
-            "commit": "e8dd17a3f1627dd206d721e4be08ae6766fda40",
-            "build": 6321373
-       }
+   {
+       "event": "build:triggered",
+       "name": "Read the Docs",
+       "slug": "rtd",
+       "version": "latest",
+       "commit": "e8dd17a3f1627dd206d721e4be08ae6766fda40",
+       "build": 6321373
+   }
 
 When a webhook is sent, a new entry will be added to the
 "Recent Activity" table. By clicking on each individual entry,
