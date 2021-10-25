@@ -65,6 +65,45 @@ you will see the server response, the webhook request, and the payload.
 
    Activity of a webhook
 
+Validating the payload
+~~~~~~~~~~~~~~~~~~~~~~
+
+After you add a new webhook, Read the Docs will generate a secret key for it
+and uses it to generate a hash
+that is included in the ``X-Hub-Signature`` header of the request.
+This ensures that the webhook is coming from your project.
+
+.. figure:: /_static/images/webhooks-secret.png
+   :width: 80%
+   :align: center
+   :alt: Webhook secret
+
+   Webhook secret
+
+To verify the origin of the request,
+you can add some custom code on your server,
+like this:
+
+.. code-block:: python
+
+   import hashlib
+   import hmac
+   import os
+
+
+   def verify_signature(payload, request_headers):
+       """
+       Verify that the signature of payload is the same as the one coming from request_headers.
+       """
+       digest = hmac.new(
+           key=os.environ["WEBHOOK_SECRET"].encode(),
+           msg=payload.encode(),
+           digestmod=hashlib.sha1,
+       )
+       expected_signature = digest.hexdigest()
+
+       return request_headers["X-Hub-Signature"] == expected_signature
+
 Custom payload examples
 ~~~~~~~~~~~~~~~~~~~~~~~
 
