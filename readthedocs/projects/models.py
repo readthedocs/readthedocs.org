@@ -1569,13 +1569,20 @@ class WebHook(Notification):
             external=version.is_external,
         )
 
+        # Remove timezone and microseconds from the date,
+        # so it's more readable.
+        start_date = build.date.replace(
+            tzinfo=None,
+            microsecond=0
+        ).isoformat()
+
         substitutions = {
             '$event': event,
             '$build.id': build.id,
             '$build.commit': commit,
             '$build.url': build_url,
             '$build.docs_url': build_docsurl,
-            '$build.start_date': build.date.isoformat(),
+            '$build.start_date': start_date,
             '$organization.name': organization_name,
             '$organization.slug': organization_slug,
             '$project.slug': project.slug,

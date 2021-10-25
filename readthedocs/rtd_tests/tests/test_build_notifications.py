@@ -190,7 +190,7 @@ class BuildNotificationsTests(TestCase):
                     'build_commit': self.build.commit,
                     'build_url': f'https://readthedocs.org{self.build.get_absolute_url()}',
                     'build_docsurl': 'http://test.readthedocs.io/en/1.0/',
-                    'build_start_date': '2021-03-15T15:30:04+00:00',
+                    'build_start_date': '2021-03-15T15:30:04',
                     'organization_name': '',
                     'organization_slug': '',
                     'project_name': self.project.name,
