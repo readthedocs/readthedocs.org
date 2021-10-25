@@ -169,7 +169,7 @@ Discord
          "fields": [
            {
              "name": "*Project*",
-             "value": "https://readthedocs.org/projects/${project.slug}|${project.name}",
+             "value": "https://readthedocs.org/projects/${project.slug}",
              "inline": true
            },
            {
@@ -179,7 +179,7 @@ Discord
            },
            {
              "name": "*Build*",
-             "value": "https://readthedocs.org/projects/${project.slug}/builds/${build.id}/|#${build.id}"
+             "value": "https://readthedocs.org/projects/${project.slug}/builds/${build.id}/"
            }
          ]
        }
