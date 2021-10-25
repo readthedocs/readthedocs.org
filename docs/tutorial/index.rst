@@ -330,7 +330,7 @@ The purpose of each key is:
   Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
 
 ``build.os``
-  Mandatory to specify the Python version,
+  Required to specify the Python version,
   :ref:`states the name of the base image <config-file/v2:build.os>`.
 
 ``build.tools.python``
@@ -604,14 +604,14 @@ as well as a plot similar to the one below.
 
    The Traffic Analytics view explained above gives you a simple overview
    of how your readers browse your documentation. It has the advantage that
-   it stores very little information about your visitors,
+   it stores no identifying information about your visitors,
    and therefore it respects their privacy.
    However, you might want to get more detailed data by
    :ref:`enabling Google Analytics <analytics:Enabling Google Analytics on your Project>`.
    Notice though that we take some extra measures to :ref:`respect user
    privacy <advertising/advertising-details:analytics>`
    when they visit projects that have Google Analytics enabled,
-   and this might reduce the number of visitors.
+   and this might reduce the number of visits counted.
 
 Finally, you can also download this data for closer inspection.
 To do that, scroll to the bottom of the page

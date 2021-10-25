@@ -20,10 +20,10 @@ You can also access to analytics data from :ref:`search results <server-side-sea
 
 .. note::
 
-   The amount of analytics data stored for download depends on the plan.
-   On the Community site, the last 90 days are stored.
-   On the Commercial one, it goes from 30 to infinity
-   (check out `the pricing page <https://readthedocs.com/pricing/>`_).
+   The amount of analytics data stored for download depends which site you're using:
+   * On the Community site, the last 90 days are stored.
+   * On the Commercial one, it goes from 30 to infinite storage
+      (check out `the pricing page <https://readthedocs.com/pricing/>`_).
 
 Enabling Google Analytics on your Project
 -----------------------------------------
