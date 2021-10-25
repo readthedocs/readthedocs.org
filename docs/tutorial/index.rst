@@ -319,15 +319,21 @@ and add a ``.readthedocs.yaml`` file with these contents to the root of your pro
 
    version: 2
 
-   python:
-     version: "3.8"
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.8"
 
 The purpose of each key is:
 
 ``version``
   Mandatory, specifies :doc:`version 2 of the configuration file </config-file/v2>`.
 
-``python.version``
+``build.os``
+  Mandatory to specify the Python version,
+  :ref:`states the name of the base image <config-file/v2:build.os>`.
+
+``build.tools.python``
   Declares the Python version to be used.
 
 After you commit these changes, go back to your project home,
