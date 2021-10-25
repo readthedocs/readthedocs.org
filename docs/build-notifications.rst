@@ -69,7 +69,7 @@ Validating the payload
 ~~~~~~~~~~~~~~~~~~~~~~
 
 After you add a new webhook, Read the Docs will generate a secret key for it
-and uses it to generate a hash
+and uses it to generate a hash signature (HMAC-SHA256) for each payload
 that is included in the ``X-Hub-Signature`` header of the request.
 
 .. figure:: /_static/images/webhooks-secret.png
@@ -79,7 +79,7 @@ that is included in the ``X-Hub-Signature`` header of the request.
 
    Webhook secret
 
-Optionally, you can use this signature
+We highly recommend using this signature
 to verify that the webhook is coming from Read the Docs.
 To do so, you can add some custom code on your server,
 like this:
@@ -98,7 +98,7 @@ like this:
        digest = hmac.new(
            key=os.environ["WEBHOOK_SECRET"].encode(),
            msg=payload.encode(),
-           digestmod=hashlib.sha1,
+           digestmod=hashlib.sha256,
        )
        expected_signature = digest.hexdigest()
 
@@ -247,7 +247,7 @@ send a payload with the following structure:
        }
    }
 
-To migrate to the new webhooks and keep the same structure,
+To migrate to the new webhooks and keep a similar structure,
 you can use this payload:
 
 .. code-block:: json
