@@ -136,7 +136,7 @@ Slack
              "fields": [
                {
                  "type": "mrkdwn",
-                 "text": "*Project*: <https://readthedocs.org/projects/${project.slug}|${project.name}>"
+                 "text": "*Project*: <${project.url}|${project.name}>"
                },
                {
                  "type": "mrkdwn",
@@ -144,7 +144,7 @@ Slack
                },
                {
                  "type": "mrkdwn",
-                 "text": "*Build*: <https://readthedocs.org/projects/${project.slug}/builds/${build.id}/|#${build.id}>"
+                 "text": "*Build*: <${build.url}|${build.id}>"
                }
              ]
            }
@@ -167,12 +167,11 @@ Discord
        {
          "title": "Build logs",
          "url": "${build.url}",
-         "description": "Text message. You can use Markdown here. *Italic* **bold** __underline__ ~~strikeout~~ [hyperlink](https://google.com) `code`",
          "color": 15258703,
          "fields": [
            {
              "name": "*Project*",
-             "value": "https://readthedocs.org/projects/${project.slug}",
+             "value": "${project.url}",
              "inline": true
            },
            {
@@ -182,7 +181,7 @@ Discord
            },
            {
              "name": "*Build*",
-             "value": "https://readthedocs.org/projects/${project.slug}/builds/${build.id}/"
+             "value": "${build.url}"
            }
          ]
        }
