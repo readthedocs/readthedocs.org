@@ -465,12 +465,15 @@ class WebHookForm(forms.ModelForm):
             # Don't show the secret in the creation form.
             self.fields.pop('secret')
             self.fields['payload'].initial = json.dumps({
-                'event': '${event}',
-                'name': '${project.name}',
-                'slug': '${project.slug}',
-                'version': '${version.slug}',
-                'commit': '${build.commit}',
-                'build': '${build.id}',
+                'event': '$event',
+                'name': '$project.name',
+                'slug': '$project.slug',
+                'version': '$version.slug',
+                'commit': '$build.commit',
+                'build': '$build.id',
+                'start_date': '$build.start_date',
+                'build_url': '$build.url',
+                'docs_url': '$build.docs_url',
             }, indent=2)
 
     def clean_project(self):

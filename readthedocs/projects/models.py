@@ -1570,18 +1570,19 @@ class WebHook(Notification):
         )
 
         substitutions = {
-            '${event}': event,
-            '${build.id}': build.id,
-            '${build.commit}': commit,
-            '${build.url}': build_url,
-            '${build.docsurl}': build_docsurl,
-            '${organization.name}': organization_name,
-            '${organization.slug}': organization_slug,
-            '${project.slug}': project.slug,
-            '${project.name}': project.name,
-            '${project.url}': project_url,
-            '${version.slug}': version.slug,
-            '${version.name}': version.verbose_name,
+            '$event': event,
+            '$build.id': build.id,
+            '$build.commit': commit,
+            '$build.url': build_url,
+            '$build.docs_url': build_docsurl,
+            '$build.start_date': build.date.isoformat(),
+            '$organization.name': organization_name,
+            '$organization.slug': organization_slug,
+            '$project.slug': project.slug,
+            '$project.name': project.name,
+            '$project.url': project_url,
+            '$version.slug': version.slug,
+            '$version.name': version.verbose_name,
         }
         payload = self.payload
         # Small protection for DDoS.
