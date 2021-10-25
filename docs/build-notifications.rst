@@ -102,7 +102,10 @@ like this:
        )
        expected_signature = digest.hexdigest()
 
-       return request_headers["X-Hub-Signature"] == expected_signature
+       return hmac.compare_digest(
+           request_headers["X-Hub-Signature"].encode(),
+           expected_signature.encode(),
+       )
 
 Custom payload examples
 ~~~~~~~~~~~~~~~~~~~~~~~
