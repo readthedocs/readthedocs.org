@@ -212,7 +212,7 @@ class BuildNotificationsTests(TestCase):
         signature = hmac.new(
             key=secret.encode(),
             msg=webhook.payload.encode(),
-            digestmod=hashlib.sha1,
+            digestmod=hashlib.sha256,
         ).hexdigest()
 
         send_build_notifications(
