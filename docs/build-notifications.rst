@@ -65,11 +65,92 @@ you will see the server response, the webhook request, and the payload.
 
    Activity of a webhook
 
-Custom payloads
-~~~~~~~~~~~~~~~
+Custom payload examples
+~~~~~~~~~~~~~~~~~~~~~~~
 
 You can customize the payload of the webhook to suit your needs,
-as long as it is valid JSON. These are the available variable substitutions:
+as long as it is valid JSON. Below you have a couple of examples,
+and in the following section you will find all the available variables.
+
+Slack
++++++
+
+.. code-block:: json
+
+   {
+     "attachments": [
+       {
+         "color": "#db3238",
+         "blocks": [
+           {
+             "type": "section",
+             "text": {
+               "type": "mrkdwn",
+               "text": "*Read the Docs build failed*"
+             }
+           },
+           {
+             "type": "section",
+             "fields": [
+               {
+                 "type": "mrkdwn",
+                 "text": "*Project*: <https://readthedocs.org/projects/${project.slug}|${project.name}>"
+               },
+               {
+                 "type": "mrkdwn",
+                 "text": "*Version*: ${version.name} (${build.commit})"
+               },
+               {
+                 "type": "mrkdwn",
+                 "text": "*Build*: <https://readthedocs.org/projects/${project.slug}/builds/${build.id}/|#${build.id}>"
+               }
+             ]
+           }
+         ]
+       }
+     ]
+   }
+
+More information on `the Slack Block Kit documentation <https://api.slack.com/block-kit>`_.
+
+Discord
++++++++
+
+.. code-block:: json
+
+   {
+     "username": "Read the Docs",
+     "content": "Read the Docs build failed",
+     "embeds": [
+       {
+         "title": "Build logs",
+         "url": "${build.url}",
+         "description": "Text message. You can use Markdown here. *Italic* **bold** __underline__ ~~strikeout~~ [hyperlink](https://google.com) `code`",
+         "color": 15258703,
+         "fields": [
+           {
+             "name": "*Project*",
+             "value": "https://readthedocs.org/projects/${project.slug}|${project.name}",
+             "inline": true
+           },
+           {
+             "name": "*Version*",
+             "value": "${version.name} (${build.commit})",
+             "inline": true
+           },
+           {
+             "name": "*Build*",
+             "value": "https://readthedocs.org/projects/${project.slug}/builds/${build.id}/|#${build.id}"
+           }
+         ]
+       }
+     ]
+   }
+
+More information on `the Discord webhooks documentation <https://discord.com/developers/docs/resources/webhook>`_.
+
+Variable substitutions reference
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``${event}``
   Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.
