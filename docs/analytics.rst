@@ -16,7 +16,14 @@ and then click on :guilabel:`Traffic Analytics`.
 
    Traffic analytics demo
 
-You can also access to analytics data from :ref:`search results <server-side-search:analytics>`.
+You can also access to analytics data from :ref:`search results <server-side-search:Search Analytics>`.
+
+.. note::
+
+   The amount of analytics data stored for download depends on the plan.
+   On the Community site, the last 90 days are stored.
+   On the Commercial one, it goes from 30 to infinity
+   (check out `the pricing page <https://readthedocs.com/pricing/>`_).
 
 Enabling Google Analytics on your Project
 -----------------------------------------

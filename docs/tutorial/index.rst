@@ -578,10 +578,10 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Traffic Analytics
-~~~~~~~~~~~~~~~~~
+Browsing Traffic Analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Traffic Analytics view shows the top viewed documentation pages of the past 30 days,
+The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
 plus a visualization of the daily views during that period.
 To generate some artificial views on your newly created project,
 you can first click around the different pages of your project,
@@ -619,18 +619,12 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-.. note::
-
-   The amount of analytics data stored for download depends on the plan.
-   On the Community site, the last 90 days are stored.
-   On the Commercial one, it goes from 30 to infinity
-   (check out `the pricing page <https://readthedocs.com/pricing/>`_).
-
-Search Analytics
-~~~~~~~~~~~~~~~~
+Browsing Search Analytics
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect what search terms your readers use on your documentation.
+to inspect :ref:`what search terms your readers use <server-side-search:Search Analytics>`
+on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
 
