@@ -52,8 +52,8 @@ Configurable.
 
 .. _"full-text search": https://docs.readthedocs.io/en/latest/search.html?q=%22full-text+search%22
 
-Analytics
----------
+Search Analytics
+----------------
 
 Know what your users are looking for in your docs.
 To see a list of the top queries and an overview from the last month,

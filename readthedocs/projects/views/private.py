@@ -6,7 +6,12 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+)
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -680,8 +685,18 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_success_url(self):
         return reverse('projects_domains', args=[self.get_project().slug])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['enabled'] = self._is_enabled(project)
+        return context
 
-class DomainList(DomainMixin, ListViewWithForm):
+    def _is_enabled(self, project):
+        """Should we allow custom domains for this project?"""
+        return True
+
+
+class DomainListBase(DomainMixin, ListViewWithForm):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -696,19 +711,36 @@ class DomainList(DomainMixin, ListViewWithForm):
         return ctx
 
 
+class DomainList(SettingsOverrideObject):
+
+    _default_class = DomainListBase
+
+
 class DomainCreateBase(DomainMixin, CreateView):
-    pass
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        if self._is_enabled(project):
+            return super().post(request, *args, **kwargs)
+        return HttpResponse('Action not allowed', status=401)
 
 
 class DomainCreate(SettingsOverrideObject):
+
     _default_class = DomainCreateBase
 
 
 class DomainUpdateBase(DomainMixin, UpdateView):
-    pass
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        if self._is_enabled(project):
+            return super().post(request, *args, **kwargs)
+        return HttpResponse('Action not allowed', status=401)
 
 
 class DomainUpdate(SettingsOverrideObject):
+
     _default_class = DomainUpdateBase
 
 

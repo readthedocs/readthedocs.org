@@ -13,7 +13,7 @@ Never out of sync |:arrows_counterclockwise:|
     whether that is Git, Mercurial, Bazaar, or Subversion,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
-    Read more about :doc:`/webhooks`.
+    Read more about :doc:`/integrations`.
 
 Multiple versions |:card_index_dividers:|
     Read the Docs can host and build multiple versions of your docs
@@ -75,7 +75,7 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
-  :doc:`Incoming webhooks </webhooks>` |
+  :doc:`/integrations` |
   :doc:`/custom_domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
@@ -87,8 +87,7 @@ and some of the core features of Read the Docs.
   :doc:`/user-defined-redirects`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
-  :doc:`Connecting your VCS account </connected-accounts>` |
-  :doc:`VCS webhooks </webhooks>`
+  :doc:`Connecting your VCS account </connected-accounts>`
 
 * **Read the Docs build process**:
   :doc:`Configuration reference </config-file/index>` |
@@ -106,7 +105,7 @@ and some of the core features of Read the Docs.
    :caption: Feature Overview
 
    /config-file/index
-   /webhooks
+   /integrations
    /custom_domains
    /versions
    /downloadable-documentation
