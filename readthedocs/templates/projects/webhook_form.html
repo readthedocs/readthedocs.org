@@ -13,15 +13,16 @@
 {% block project_edit_content %}
 
   <p class="help_text">
-    {% blocktrans trimmed %}
+    {% blocktrans trimmed with docs_url="https://readthedocs.io/page/build-notifications.html#webhooks" %}
       We’ll send a <code>POST</code> request to the URL with the JSON payload below on the selected events.
+      Check <a href="{{ docs_url }}">our docs</a> for more information.
     {% endblocktrans %}
   </p>
 
   {# If the webhook was created from the old implementation, it doesn't have a custom payload. #}
   {% if object.pk and not object.payload %}
   <p class="help_text">
-    {% blocktrans trimmed with docs_url="https://docs.readthedocs.io/page/webhooks.html" %}
+    {% blocktrans trimmed with docs_url="https://docs.readthedocs.io/page/build-notifications.html#legacy-webhooks" %}
     This webhook was created from our old implementation and doesn't have a custom payload.
     Check <a href="{{ docs_url }}">our docs</a> for the payload description or edit the payload to set a custom one.
     {% endblocktrans %}

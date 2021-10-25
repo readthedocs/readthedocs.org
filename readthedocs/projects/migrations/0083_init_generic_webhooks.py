@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='webhook',
             name='payload',
-            field=models.TextField(blank=True, help_text='JSON payload to send to the webhook. Check the docs for available substitutions.', max_length=25000, null=True, verbose_name='JSON payload'),
+            field=models.TextField(blank=True, help_text='JSON payload to send to the webhook. Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.', max_length=25000, null=True, verbose_name='JSON payload'),
         ),
         migrations.AddField(
             model_name='webhook',

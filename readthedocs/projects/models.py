@@ -1529,7 +1529,7 @@ class WebHook(Notification):
         _('JSON payload'),
         help_text=_(
             'JSON payload to send to the webhook. '
-            'Check the docs for available substitutions.',
+            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
         ),
         blank=True,
         null=True,
