@@ -106,3 +106,40 @@ as long as it is valid JSON. These are the available variable substitutions:
 
 ``${version.name}``
   Version name.
+
+Legacy webhooks
+~~~~~~~~~~~~~~~
+
+Webhooks created before the custom payloads functionality was added to Read the Docs
+send a payload with the following structure:
+
+.. code-block:: json
+
+   {
+       "name": "Read the Docs",
+       "slug": "rtd",
+       "build": {
+           "id": 6321373,
+           "commit": "e8dd17a3f1627dd206d721e4be08ae6766fda40",
+           "state": "finished",
+           "success": false,
+           "date": "2017-02-15 20:35:54"
+       }
+   }
+
+To migrate to the new webhooks and keep the same structure,
+you can use this payload:
+
+.. code-block:: json
+
+   {
+       "name": "${project.name}",
+       "slug": "${project.slug}",
+       "build": {
+           "id": "${build.id}",
+           "commit": "${build.commit}",
+           "state": "${build.state}",
+           "success": "${build.success}",
+           "date": "${build.date}"
+       }
+   }
