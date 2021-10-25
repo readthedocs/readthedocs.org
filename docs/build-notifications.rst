@@ -33,7 +33,6 @@ Take these steps to enable build notifications using a webhook:
 * Click on :guilabel:`Save`
 
 .. figure:: /_static/images/webhooks-events.png
-   :width: 80%
    :align: center
    :alt: URL and events for a webhook
 
@@ -59,7 +58,6 @@ When a webhook is sent, a new entry will be added to the
 you will see the server response, the webhook request, and the payload.
 
 .. figure:: /_static/images/webhooks-activity.png
-   :width: 80%
    :align: center
    :alt: Activity of a webhook
 
