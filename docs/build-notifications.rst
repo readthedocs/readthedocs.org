@@ -71,7 +71,6 @@ Validating the payload
 After you add a new webhook, Read the Docs will generate a secret key for it
 and uses it to generate a hash
 that is included in the ``X-Hub-Signature`` header of the request.
-This ensures that the webhook is coming from your project.
 
 .. figure:: /_static/images/webhooks-secret.png
    :width: 80%
@@ -80,8 +79,9 @@ This ensures that the webhook is coming from your project.
 
    Webhook secret
 
-To verify the origin of the request,
-you can add some custom code on your server,
+Optionally, you can use this signature
+to verify that the webhook is coming from Read the Docs.
+To do so, you can add some custom code on your server,
 like this:
 
 .. code-block:: python
