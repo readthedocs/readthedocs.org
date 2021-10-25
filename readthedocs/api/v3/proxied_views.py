@@ -1,12 +1,11 @@
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.v3.views import EmbedAPIBase
+from readthedocs.core.mixins import ProxiedAPIMixin
 
 
-class ProxiedEmbedAPIBase(EmbedAPIBase):
+class ProxiedEmbedAPIBase(ProxiedAPIMixin, EmbedAPIBase):
 
-    # DRF has BasicAuthentication and SessionAuthentication as default classes.
-    # We don't support neither in the community site.
-    authentication_classes = []
+    pass
 
 
 class ProxiedEmbedAPI(SettingsOverrideObject):

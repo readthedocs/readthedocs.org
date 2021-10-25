@@ -16,4 +16,4 @@ or customize the documentation appearance.
    conda
    remove-edit-buttons
    build-using-too-many-resources
-   vcs
+   edit-source-links-sphinx

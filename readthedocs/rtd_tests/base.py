@@ -19,7 +19,7 @@ class RequestFactoryTestMixin:
     This handles setting up authentication, messages, and session handling
     """
 
-    def request(self, *args, **kwargs):
+    def request(self, method, *args, **kwargs):
         """
         Perform request from factory.
 
@@ -38,7 +38,6 @@ class RequestFactoryTestMixin:
         Other keyword arguments are passed into the request method
         """
         factory = RequestFactory()
-        method = kwargs.pop('method', 'get')
         fn = getattr(factory, method)
         request = fn(*args, **kwargs)
 
@@ -85,7 +84,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         # Update with prefixed step data
         data['{}-current_step'.format(self.wizard_class_slug)] = step
         view = self.wizard_class.as_view()
-        req = self.request(self.url, method='post', data=data, **kwargs)
+        req = self.request('post', self.url, data=data, **kwargs)
         resp = view(req)
         self.assertIsNotNone(resp)
         return resp

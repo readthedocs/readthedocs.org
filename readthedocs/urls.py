@@ -54,6 +54,19 @@ project_urls = [
     url(r'^projects/', include('readthedocs.projects.urls.public')),
 ]
 
+
+organization_urls = [
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.private'),
+    ),
+    url(
+        r'^organizations/',
+        include('readthedocs.organizations.urls.public'),
+    ),
+]
+
+
 api_urls = [
     url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
@@ -113,6 +126,7 @@ groups = [
     basic_urls,
     rtd_urls,
     project_urls,
+    organization_urls,
     api_urls,
     core_urls,
     i18n_urls,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
 import logging
@@ -14,7 +13,6 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
-
 
 log = logging.getLogger(__name__)
 

@@ -422,6 +422,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-sso-organization-users': {
+            'task': 'readthedocs.oauth.tasks.sync_remote_repositories_organizations',
+            'schedule': crontab(minute=0, hour=4),
+            'options': {'queue': 'web'},
+        },
         'hourly-archive-builds': {
             'task': 'readthedocs.builds.tasks.archive_builds',
             'schedule': crontab(minute=30),
@@ -523,8 +528,17 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 
-    # When updating this options,
-    # update the readthedocs/rtd_tests/fixtures/spec/v2/schema.json file as well.
+    # Adding a new tool/version to this setting requires:
+    #
+    # - a mapping between the expected version in the config file, to the full
+    # version installed via asdf (found via ``asdf list all <tool>``)
+    #
+    # - running the script ``./scripts/compile_version_upload.sh`` in
+    # development and production environments to compile and cache the new
+    # tool/version
+    #
+    # Note that when updating this options, you should also update the file:
+    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
     RTD_DOCKER_BUILD_SETTINGS = {
         # Mapping of build.os options to docker image.
         'os': {
@@ -538,7 +552,7 @@ class CommunityBaseSettings(Settings):
                 '3.7': '3.7.12',
                 '3.8': '3.8.12',
                 '3.9': '3.9.7',
-                '3.10': '3.10.0rc2',
+                '3.10': '3.10.0',
                 'pypy3.7': 'pypy3.7-7.3.5',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.1-5',
@@ -556,7 +570,7 @@ class CommunityBaseSettings(Settings):
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
 
     def _get_docker_memory_limit(self):
         try:
@@ -634,6 +648,9 @@ class CommunityBaseSettings(Settings):
             ],
         },
         # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
+    }
+    ACCOUNT_FORMS = {
+        'signup': 'readthedocs.forms.SignupFormWithNewsletter',
     }
 
     # CORS
@@ -815,6 +832,10 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
+
+    # MailerLite API for newsletter signups
+    MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
         r'docs\.python\.org',
