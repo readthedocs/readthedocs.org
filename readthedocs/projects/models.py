@@ -1595,7 +1595,7 @@ class WebHook(Notification):
         digest = hmac.new(
             key=self.secret.encode(),
             msg=payload.encode(),
-            digestmod=hashlib.sha1,
+            digestmod=hashlib.sha256,
         )
         return digest.hexdigest()
 
