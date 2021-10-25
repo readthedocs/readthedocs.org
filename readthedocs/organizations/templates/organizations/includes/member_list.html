@@ -1,0 +1,30 @@
+{% load organizations gravatar i18n %}
+
+<div class="module team-member-list">
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for member in members.all %}
+          <li class="module-item">
+            <span class="right">
+              {# Teams here #}
+            </span>
+
+            <img class="gravatar" src="{% gravatar_url member.email 96 %}" width=48 height=48 title="{{ member.get_full_name  }}" />
+            <span class="detail">{{ member.username }}</span>
+            <span class="detail">{{ member.get_full_name }}</span>
+
+            {% if request.user|org_owner:team %}
+              <span class="right">
+                <form method="post" action="{% url "organization_team_member_delete" organization.slug team.slug member.pk %}">
+                  {% csrf_token %}
+                  <input type="submit" value="{% trans "Remove" %}" />
+                </form>
+              </span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

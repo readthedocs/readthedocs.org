@@ -1,0 +1,87 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}{{ organization.name }}{% endblock %}
+
+{% block organization-bar-details %}active{% endblock %}
+
+{% block content %}
+  <div class="col-major organization-major">
+    <div class="module organization organization-detail">
+      {% if projects|length == 0 %}
+        {% include "projects/onboard_import.html" with organization=organization %}
+      {% else %}
+        <!-- BEGIN projects detail -->
+        <div class="module-header">
+          <h2>Projects</h2>
+        </div>
+
+        <div class="module-list">
+          <div class="module-list-wrapper">
+            {% with projects as project_list %}
+              <ul>
+                {% include "core/project_list.html" with omit=profile.user show_users=False %}
+              </ul>
+            {% endwith %}
+          </div>
+        </div>
+        <!-- END projects detail -->
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-minor organization-minor">
+    <div class="module teams teams-list">
+
+      <div class="organization-gravatar">
+        {% gravatar organization.email 200 %}
+      </div>
+
+      {% if organization.url %}
+        <p>
+          {{ organization.url }}
+        </p>
+      {% endif %}
+
+      {% if organization.description %}
+        <p>
+          {{ organization.description }}
+        </p>
+      {% endif %}
+
+      {% if not organization|has_sso_enabled:'allauth' %}
+      <h2>
+        Teams
+      </h2>
+
+        {% if teams %}
+          <ul>
+            {% for team in teams %}
+              <li>
+                {% include 'organizations/includes/team_list_item.html' %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          {% trans "There are no teams currently established." %}
+        {% endif %}
+      {% endif %}
+
+      <h2>
+        Owners
+      </h2>
+
+      <p>
+        {% for owner in owners %}
+          <a href="{{ owner.get_absolute_url }}">
+            {% gravatar owner.email 24 %}
+          </a>
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+
+{% endblock %}

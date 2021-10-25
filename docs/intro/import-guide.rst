@@ -8,6 +8,8 @@ Importing Your Documentation
 To import a public documentation repository, visit your `Read the Docs dashboard`_ and click Import_.
 For private repositories, please use :doc:`Read the Docs for Business </commercial/index>`.
 
+Automatically import your docs
+------------------------------
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
@@ -49,7 +51,7 @@ Add an optional homepage URL and some tags, and then click **Next**.
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changes trigger builds for your
 project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
-configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:Webhook Creation>`
+configure a new webhook, or see :ref:`our steps for webhook creation <integrations:Integration Creation>`
 for more information on this process.
 
 .. note::

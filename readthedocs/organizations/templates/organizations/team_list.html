@@ -1,0 +1,84 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block organization-bar-teams %}active{% endblock %}
+
+{% block content-header %}
+
+{% if organization|has_sso_enabled:'allauth' %}
+<p>
+Permissions for projects under this organization are managed at GitHub.
+Please refer to <a href="https://help.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization">GitHub repositories' help page</a> for more information.
+</p>
+
+<p>
+Owners have full access to the organization's settings,
+and can import projects.
+</p>
+{% else %}
+<p>
+Here is a listing of all the teams you have in your organization.
+Teams are how you can limit access for a set of projects to a set of users.
+</p>
+
+<p>
+You can also add Owners,
+who will be given full access to your Organization.
+</p>
+{% endif %}
+{% endblock %}
+
+
+{% block admin-bar %}
+  {% if request.user|org_owner:organization %}
+    <div class="row">
+      <div class="admin-bar">
+        <ul>
+          {% if not organization|has_sso_enabled:'allauth' %}
+          <li>
+            <a href="{% url "organization_team_add" organization.slug %}">
+              {% trans "Add Team" %}
+            </a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="{% url "organization_owner_add" organization.slug %}">
+              {% trans "Add Owner" %}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col">
+      <div class="module teams teams-list teams-list-large">
+        {% if not organization|has_sso_enabled:'allauth' %}
+        <h2>Teams</h2>
+          {% for team in teams.all %}
+            {% include 'organizations/includes/team_list_item.html' with large=True show_meta=True %}
+          {% empty %}
+            {% trans "There are no teams currently established." %}
+          {% endfor %}
+        {% endif %}
+
+      <h2>Owners</h2>
+      <p>
+        {% for owner in owners %}
+          <a href="{{ owner.get_absolute_url }}">
+            {% gravatar owner.email 24 %}
+          </a>
+        {% endfor %}
+      </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

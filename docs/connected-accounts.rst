@@ -6,7 +6,7 @@ you should connect your Read the Docs account to your repository host first.
 Connecting your account allows for:
 
 * Easier importing of your repositories
-* Automatically configure your repository :doc:`webhooks`
+* Automatically configure your repository :doc:`/integrations`
   which allow Read the Docs to build your docs on every change to your repository
 * Log into Read the Docs with your GitHub, Bitbucket, or GitLab credentials
 
@@ -27,7 +27,7 @@ Read the Docs does not generally ask for write permission to your repositories' 
 and since we only connect to public repositories we don't need special permissions to read them.
 However, we do need permissions for authorizing your account
 so that you can login to Read the Docs with your connected account credentials
-and to setup :doc:`webhooks`
+and to setup :doc:`/integrations`
 which allow us to build your documentation on every change to your repository.
 
 

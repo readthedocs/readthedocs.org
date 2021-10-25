@@ -70,10 +70,9 @@ $(document).ready(function () {
         </li>
       </div>
 
-
-      {# Show rebuild button only if the version is external and it's the latest build for this version #}
+      {# Show rebuild button only if the version is external, active and it's the latest build for this version #}
       {# see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969 #}
-      {% if request.user|is_admin:project and build.version.type == "external" and is_latest_build %}
+      {% if request.user|is_admin:project and build.can_rebuild %}
       <div data-bind="visible: finished()">
         <form method="post" name="rebuild_commit" action="{% url "builds_project_list" project.slug %}">
           {% csrf_token %}

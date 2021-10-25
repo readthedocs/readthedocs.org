@@ -24,21 +24,50 @@
 #
 # To create a pre-compiled cached version and make it available on production,
 # **the script must be ran from a builder (build-default or build-large)** and
-# it's required to set the following environment variables for an IAM user with
-# permissions on ``readthedocs(inc)-build-tools`` S3's bucket:
+# it's required to set several environment variables for an IAM user with
+# permissions on ``readthedocs(inc)-build-tools-prod`` S3's bucket. Also, note
+# that in production we need to install `aws` Python package to run the script.
+# We can do this in a different virtualenv to avoid collision with the builder's
+# code.
 #
-#   AWS_REGION
-#   AWS_ACCESS_KEY_ID
-#   AWS_SECRET_ACCESS_KEY
-#   AWS_BUILD_TOOLS_BUCKET_NAME
+# The whole process would be something like:
 #
-# Note that in production we need to install `aws` Python package to run the
-# script. We can do this in a different virtualenv to avoid collision with the
-# builder's code:
+#   ssh util01
+#   ssh `scaling status -s build-default -q | head -n 1`
 #
+#   sudo su - docs
+#   TOOL=python
+#   VERSION=3.10.0
+#
+#   cd /home/docs/checkouts/readthedocs.org/scripts
 #   virtualenv venv
 #   source venv/bin/activate
 #   pip install awscli==1.20.34
+#
+#   export AWS_REGION=...
+#   export AWS_ACCESS_KEY_ID=...
+#   export AWS_SECRET_ACCESS_KEY=...
+#   export AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
+#
+#   ./compile_version_upload.sh $TOOL $VERSION
+#
+#
+# ONE-LINE COMMAND FROM UTIL01 PRODUCTION
+#
+#   TOOL=python
+#   VERSION=3.10.0
+#   AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
+#
+#   ssh `scaling status -s build-default -q | head -n 1` \
+#     "cd /home/docs && \
+#     sudo -u docs virtualenv --python python3 /home/docs/buildtools && \
+#     sudo -u docs /home/docs/buildtools/bin/pip install awscli==1.20.34 && \
+#     sudo -u docs env AWS_REGION=$AWS_REGION \
+#       AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+#       AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+#       AWS_BUILD_TOOLS_BUCKET=$AWS_BUILD_TOOLS_BUCKET \
+#       PATH=/home/docs/buildtools/bin:${PATH} \
+#       /home/docs/checkouts/readthedocs.org/scripts/compile_version_upload_s3.sh $TOOL $VERSION"
 #
 #
 # USAGE
@@ -55,11 +84,12 @@
 #  ./scripts/compile_version_upload.sh python 3.9.7
 #  ./scripts/compile_version_upload.sh nodejs 14.17.6
 
-set -e
+set -e # Stop on errors
+set -x # Echo commands
 
 # Define variables
-SLEEP=350
-OS="ubuntu-20.04"
+SLEEP=350 # Container timeout
+OS="ubuntu-20.04" # Docker image name
 TOOL=$1
 VERSION=$2
 
@@ -117,9 +147,11 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
 if [[ -z $AWS_REGION ]]
 then
     # Development environment
+    echo "Uploading to dev environment"
     aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 else
     # Production environment does not requires `--endpoint-url`
+    echo "Uploading to prod environment"
     aws s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 fi
 

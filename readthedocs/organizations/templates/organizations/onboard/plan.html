@@ -1,0 +1,8 @@
+{% extends "organizations/onboard/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create an Organization" %}{% endblock %}
+
+{% block wizard-form %}
+  {% include "corporate/pricing_detail_signup.html" %}
+{% endblock %}
