@@ -173,7 +173,7 @@ Checking the first build
 Read the Docs will try to build the documentation of your project
 right after you create it.
 To see the build logs,
-click on the "Your documentation is building" link on the :term:`project home`,
+click on the :guilabel:`Your documentation is building` link on the :term:`project home`,
 or alternatively navigate to the "Builds" page,
 then open the one on top (the most recent one).
 
@@ -191,7 +191,7 @@ meaning that it is still in progress.
 When the build finishes, you will see a green "Build completed" indicator,
 the completion date, the elapsed time,
 and a link to see the corresponding documentation.
-If you now click on "View docs", you will see your documentation live!
+If you now click on :guilabel:`View docs`, you will see your documentation live!
 
 .. figure:: /_static/images/tutorial/rtd-first-light.png
    :width: 80%
@@ -217,7 +217,7 @@ Basic configuration changes
 
 You can now proceed to make some basic configuration adjustments.
 Navigate back to the :term:`project page`
-and click on the "⚙ Admin" button, which will open the Settings page.
+and click on the :guilabel:`⚙ Admin` button, which will open the Settings page.
 
 First of all, add the following text in the description:
 
@@ -229,9 +229,9 @@ and write ``food, python`` in the list of tags.
 All this information will be shown on your project home.
 
 After that, configure your email so you get a notification if the build fails.
-To do so, click on the "Notifications" link on the left,
+To do so, click on the :guilabel:`Notifications` link on the left,
 type the email where you would like to get the notification,
-and click the "Add" button.
+and click the :guilabel:`Add` button.
 After that, your email will be shown under "Existing Notifications".
 
 Trigger a build from a pull request
@@ -240,8 +240,8 @@ Trigger a build from a pull request
 Read the Docs allows you to :doc:`trigger builds from GitHub pull requests </pull-requests>`
 and gives you a preview of how the documentation would look like with those changes.
 
-To enable that functionality, first click on the "Advanced Settings" link on the left
-under the "⚙ Admin" menu, check the "Build pull requests for this project" checkbox,
+To enable that functionality, first click on the :guilabel:`Advanced Settings` link on the left
+under the :guilabel:`⚙ Admin` menu, check the "Build pull requests for this project" checkbox,
 and click the :guilabel:`Save` button at the bottom of the page.
 
 Next, navigate to your GitHub repository, locate the file ``docs/source/index.rst``,
@@ -280,7 +280,7 @@ and there click the :guilabel:`Create pull request` button below the description
 
 After opening the pull request, a Read the Docs check will appear
 indicating that it is building the documentation for that pull request.
-If you click on the "Details" link while it is building,
+If you click on the :guilabel:`Details` link while it is building,
 you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
@@ -358,7 +358,7 @@ but actually the API section is empty.
 This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
-click on the "View raw" text on the top right,
+click on the :guilabel:`View raw` link on the top right,
 which opens the build logs in plain text,
 and you will see several warnings:
 
@@ -466,7 +466,7 @@ type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
 
 __  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
 
-Next, go to your :term:`project home`, click on the "Versions" button,
+Next, go to your :term:`project home`, click on the :guilabel:`Versions` button,
 and under "Active Versions" you will see two entries:
 
 - The ``latest`` version, pointing to the ``main`` branch.
@@ -498,7 +498,8 @@ so that users see the ``stable`` documentation
 when they visit the :term:`root URL` of your documentation
 (while still being able to change the version in the flyout menu).
 
-For that, go to the "Advanced Settings" link under the "⚙ Admin" menu of your project home,
+For that, go to the :guilabel:`Advanced Settings` link
+under the :guilabel:`⚙ Admin` menu of your project home,
 choose ``stable`` in the "Default version*" dropdown,
 and hit :guilabel:`Save` at the bottom.
 Done!
@@ -551,8 +552,8 @@ This will trigger two things:
 - Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
 
 From this point, ``1.0.x`` version is no longer the most up to date one.
-To display a warning to your readers, go to the "⚙ Admin" menu of your project home,
-click on the "Advanced Settings" link on the left,
+To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
+click on the :guilabel:`Advanced Settings` link on the left,
 enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
 
 If you now browse the ``1.0.x`` documentation, you will see a warning on top
@@ -587,7 +588,8 @@ you can first click around the different pages of your project,
 which will be accounted immediately for the current day statistics.
 
 To see the Traffic Analytics view, go back the :term:`project page` again,
-click on the "⚙ Admin" button, and then click on the "Traffic Analytics" section.
+click on the :guilabel:`⚙ Admin` button,
+and then click on the :guilabel:`Traffic Analytics` section.
 You will see the list of pages in descending order of visits,
 as well as a plot similar to the one below.
 
@@ -637,8 +639,8 @@ go to the HTML documentation, locate the Sphinx search box on the left,
 type ``ingredients``, and press the :kbd:`Enter` key.
 You will be redirected to the search results page, which will show two entries.
 
-Next, go back to the "⚙ Admin" section of your project page,
-and then click on the "Search Analytics" section.
+Next, go back to the :guilabel:`⚙ Admin` section of your project page,
+and then click on the :guilabel:`Search Analytics` section.
 You will see a table with the most searched queries
 (including the ``ingredients`` one you just typed),
 how many results did each query return, and how many times it was searched.
