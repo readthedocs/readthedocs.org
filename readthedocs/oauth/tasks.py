@@ -72,14 +72,14 @@ def sync_remote_repositories_organizations(organization_slugs=None):
             query.count(),
         )
     else:
-        log.info(
-            'Triggering SSO re-sync for all organizations. count=%s',
-            query.count(),
-        )
         query = (
             SSOIntegration.objects
             .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
             .values_list('organization', flat=True)
+        )
+        log.info(
+            'Triggering SSO re-sync for all organizations. count=%s',
+            query.count(),
         )
 
     n_task = -1
