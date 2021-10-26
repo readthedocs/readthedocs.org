@@ -22,10 +22,15 @@ class AuditLogManager(models.Manager):
         other fields will be auto-populated from that information.
         """
 
-        actions_requiring_user = (AuditLog.PAGEVIEW, AuditLog.AUTHN, AuditLog.LOGOUT)
+        actions_requiring_user = (
+            AuditLog.PAGEVIEW,
+            AuditLog.DOWNLOAD,
+            AuditLog.AUTHN,
+            AuditLog.LOGOUT,
+        )
         if action in actions_requiring_user and (not user or not request):
             raise TypeError(f'A user and a request is required for the {action} action.')
-        if action == AuditLog.PAGEVIEW and 'project' not in kwargs:
+        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and 'project' not in kwargs:
             raise TypeError(f'A project is required for the {action} action.')
 
         # Don't save anonymous users.
@@ -62,12 +67,14 @@ class AuditLog(TimeStampedModel):
     """
 
     PAGEVIEW = 'pageview'
+    DOWNLOAD = 'download'
     AUTHN = 'authentication'
     AUTHN_FAILURE = 'authentication-failure'
     LOGOUT = 'log-out'
 
     CHOICES = (
         (PAGEVIEW, 'Page view'),
+        (DOWNLOAD, 'Download'),
         (AUTHN, 'Authentication'),
         (AUTHN_FAILURE, 'Authentication failure'),
         (LOGOUT, 'Log out'),
