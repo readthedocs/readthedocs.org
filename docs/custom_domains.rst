@@ -67,6 +67,11 @@ You can also host your documentation from your own domain.
          Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
          These domains will continue to resolve.
 
+      .. note::
+
+         You will need to keep the extra DNS records after the setup is complete.
+         If you remove the validation CNAME, the certificate won't renew next year,
+         and if you remove the CNAME pointing to us, your domain won't serve the documentation.
 
 Strict Transport Security
 +++++++++++++++++++++++++
