@@ -12,7 +12,23 @@ log = logging.getLogger(__name__)
 
 
 def safe_update_change_reason(instance, reason):
-    """Wrapper around update_change_reason to catch exceptions."""
+    """
+    Wrapper around update_change_reason to catch exceptions.
+
+    .. warning::
+
+       The implementation of django-simple-history's `update_change_reason`
+       is very brittle, as it queries for a previous historical record
+       that matches the attributes of the instance to update the ``change_reason``,
+       which could end up updating the wrong record, or not finding it.
+
+       If you already have control over the object, set the ``_change_reason``
+       attribute before updating/deleting the object instead.
+       That's more safe, since the attribute is passed to the signal
+       and used at the creation time of the record.
+
+        https://django-simple-history.readthedocs.io/en/latest/historical_model.html#change-reason  # noqa
+    """
     try:
         update_change_reason(instance=instance, reason=reason)
     except Exception:
@@ -79,12 +95,14 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
         return f'origin=admin class={klass}'
 
     def save_model(self, request, obj, form, change):
+        if obj:
+            obj._change_reason = self.get_change_reason()
         super().save_model(request, obj, form, change)
-        safe_update_change_reason(obj, self.get_change_reason())
 
     def delete_model(self, request, obj):
+        if obj:
+            obj._change_reason = self.get_change_reason()
         super().delete_model(request, obj)
-        safe_update_change_reason(obj, self.change_reason)
 
 
 class SimpleHistoryModelForm(forms.ModelForm):
@@ -100,9 +118,9 @@ class SimpleHistoryModelForm(forms.ModelForm):
         return f'origin=form class={klass}'
 
     def save(self, commit=True):
-        obj = super().save(commit=commit)
-        safe_update_change_reason(obj, self.get_change_reason())
-        return obj
+        if self.instance:
+            self.instance._change_reason = self.get_change_reason()
+        return super().save(commit=commit)
 
 
 class UpdateChangeReasonPostView:
@@ -121,8 +139,7 @@ class UpdateChangeReasonPostView:
         klass = self.__class__.__name__
         return f'origin=form class={klass}'
 
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object()
-        response = super().post(request, *args, **kwargs)
-        safe_update_change_reason(obj, self.get_change_reason())
-        return response
+    def get_object(self):
+        obj = super().get_object()
+        obj._change_reason = self.get_change_reason()
+        return obj

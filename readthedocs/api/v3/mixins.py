@@ -43,8 +43,8 @@ class UpdateChangeReasonMixin:
         return obj
 
     def perform_destroy(self, instance):
+        instance._change_reason = self.get_change_reason()
         super().perform_destroy(instance)
-        safe_update_change_reason(instance, self.get_change_reason())
 
 
 class NestedParentObjectMixin:
