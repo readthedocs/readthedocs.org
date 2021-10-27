@@ -25,21 +25,12 @@ you can create a custom requirements file just for documentation.
 This should speed up your documentation builds,
 as well as reduce your memory footprint.
 
-Use pip when possible
----------------------
+Use mamba instead of conda
+--------------------------
 
-If you don't need ``conda`` to create your *documentation* environment,
-consider using ``pip`` instead since ``conda`` could `require too much memory`_ to calculate the dependency tree
-when using multiple channels.
-
-.. _require too much memory: https://github.com/conda/conda/issues/5003
-
-
-.. tip::
-
-   Even though your *project* environment is created with ``conda``, it may be not necessary for the *documentation* environment.
-   That is, to build the documentation is probably that you need fewer Python packages than to use your library itself.
-   So, in this case, you could use ``pip`` to install those fewer packages instead of creating a big environment with ``conda``.
+If you need conda packages to build your documentation,
+you can :ref:`use mamba as a drop-in replacement to conda <guides/conda:Making builds faster with mamba>`,
+which requires less memory and is noticeably faster.
 
 Document Python modules API statically
 --------------------------------------
