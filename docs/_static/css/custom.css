@@ -3,3 +3,37 @@
   box-shadow: 0 0 0 7px #fff, 0 0 0 8px #cecece;
   margin: 9px 17px 9px 3px;
 }
+
+
+/* RTD docs ad placement in the lower right */
+#rtd-stickybox {
+  z-index: 1000;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+#rtd-stickybox .ea-content {
+  background: rgba(230, 230, 230);
+}
+#rtd-stickybox .stickybox-hide {
+  cursor: pointer;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+
+  background-color: #fefefe;
+  border: 1px solid #088cdb;
+  border-radius: 50%;
+  color: #088cdb;
+  font-size: 0.75rem;
+  text-align: center;
+  height: 1rem;
+  width: 1rem;
+}
+
+/* Hide the placement on mobile completely */
+@media (max-width: 768px) {
+  #rtd-stickybox {
+    display: none !important;
+  }
+}
