@@ -31,9 +31,17 @@
   width: 1rem;
 }
 
-/* Hide the placement on mobile completely */
-@media (max-width: 768px) {
+/* Placement under content on smaller screens/tablets/mobile */
+@media (max-width: 1340px) {
   #rtd-stickybox {
-    display: none !important;
+    position: static;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    text-align: center;
+  }
+
+  #rtd-stickybox .stickybox-hide {
+    display: none;
   }
 }
