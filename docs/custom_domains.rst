@@ -70,7 +70,7 @@ You can also host your documentation from your own domain.
       .. note::
 
          You will need to keep the extra DNS records after the setup is complete.
-         If you remove the validation CNAME, the certificate won't renew next year,
+         If you remove the verification record, the certificate won't renew automatically,
          and if you remove the CNAME pointing to us, your domain won't serve the documentation.
 
 Strict Transport Security
