@@ -19,7 +19,7 @@ def delete_old_personal_audit_logs(days=None):
     If `days` isn't given, default to ``RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS``.
 
     We delete logs that aren't related to an organization,
-    there are tasks com .com to delete those according to their plan.
+    there are tasks in .com to delete those according to their plan.
     """
     days = days or settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
     days_ago = timezone.now() - timezone.timedelta(days=days)
