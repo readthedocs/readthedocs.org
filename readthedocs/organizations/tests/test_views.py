@@ -100,6 +100,7 @@ class OrganizationSecurityLogTests(TestCase):
             AuditLog.AUTHN_FAILURE,
             AuditLog.LOGOUT,
             AuditLog.PAGEVIEW,
+            AuditLog.DOWNLOAD,
         ]
         ips = [
             '10.10.10.1',
@@ -126,19 +127,19 @@ class OrganizationSecurityLogTests(TestCase):
         self.url = reverse('organization_security_log', args=[self.organization.slug])
 
     def test_list_security_logs(self):
-        self.assertEqual(AuditLog.objects.count(), 128)
+        self.assertEqual(AuditLog.objects.count(), 160)
 
         # Show logs for self.organization only.
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 48)
+        self.assertEqual(auditlogs.count(), 64)
 
         # Show logs filtered by project.
         resp = self.client.get(self.url + '?project=project')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 24)
+        self.assertEqual(auditlogs.count(), 32)
 
         resp = self.client.get(self.url + '?project=another-project')
         self.assertEqual(resp.status_code, 200)
@@ -149,10 +150,10 @@ class OrganizationSecurityLogTests(TestCase):
         resp = self.client.get(self.url + '?ip=10.10.10.2')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 24)
+        self.assertEqual(auditlogs.count(), 32)
 
         # Show logs filtered by action.
-        for action in [AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW]:
+        for action in [AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW, AuditLog.DOWNLOAD]:
             resp = self.client.get(self.url + f'?action={action}')
             self.assertEqual(resp.status_code, 200)
             auditlogs = resp.context_data['object_list']
@@ -162,7 +163,7 @@ class OrganizationSecurityLogTests(TestCase):
         resp = self.client.get(self.url + '?user=member')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 12)
+        self.assertEqual(auditlogs.count(), 16)
 
     @mock.patch('django.utils.timezone.now')
     def test_filter_by_date(self, now_mock):
@@ -203,10 +204,10 @@ class OrganizationSecurityLogTests(TestCase):
         resp = self.client.get(self.url + '?date_after=2021-01-01&date_before=2021-03-10')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 32)
+        self.assertEqual(auditlogs.count(), 48)
 
     def test_download_csv(self):
-        self.assertEqual(AuditLog.objects.count(), 128)
+        self.assertEqual(AuditLog.objects.count(), 160)
         resp = self.client.get(
             self.url,
             {'download': 'true'}
@@ -221,7 +222,7 @@ class OrganizationSecurityLogTests(TestCase):
         ]
         csv_data = list(csv.reader(content))
         # All records + the header.
-        self.assertEqual(len(csv_data), 48 + 1)
+        self.assertEqual(len(csv_data), 64 + 1)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

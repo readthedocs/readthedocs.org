@@ -44,6 +44,19 @@ This is useful when listing logs for the same user.
               A user <a href="?action={{ action }}" title="{{ path }}">visited</a> a page
             {% endblocktrans %}
           {% endif %}
+        {% elif log.action == AuditLog.DOWNLOAD %}
+          {% if log.log_user_id %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              <a href="?user={{ user }}">
+                <code>{{ user }}</code>
+              </a>
+              <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              A user <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+            {% endblocktrans %}
+          {% endif %}
         {% endif %}
 
         {% trans "from" %}

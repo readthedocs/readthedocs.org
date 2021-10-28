@@ -39,6 +39,7 @@ class OrganizationSecurityLogFilter(UserSecurityLogFilter):
             (AuditLog.AUTHN, _('Authentication success')),
             (AuditLog.AUTHN_FAILURE, _('Authentication failure')),
             (AuditLog.PAGEVIEW, _('Page view')),
+            (AuditLog.DOWNLOAD, _('Download')),
         ],
     )
     user = CharFilter(field_name='log_user_username', lookup_expr='exact')
