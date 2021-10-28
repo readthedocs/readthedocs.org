@@ -10,6 +10,7 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
@@ -175,6 +176,12 @@ class ServeDocsMixin:
                         version_slug, request.host_version_slug)
             version_slug = request.host_version_slug
         return version_slug
+
+    def _spam_response(self, project):
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import serve_docs
+            if not serve_docs(project):
+                return HttpResponse(render_to_string('spam.html'), status=401)
 
 
 class ServeRedirectMixin:

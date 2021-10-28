@@ -5,6 +5,7 @@ import logging
 from urllib.parse import urlparse
 
 from readthedocs.core.resolver import resolve_path
+from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -81,6 +82,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
+
+        # Verify if the project is marked as SPAM and return a 401 in that case
+        spam_response = self._spam_response(final_project)
+        if spam_response:
+            return spam_response
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
@@ -347,6 +353,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
+
+        # Verify if the project is marked as SPAM and return a custom robots.txt
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import deny_on_robots
+            if deny_on_robots(project):
+                return render(
+                    request,
+                    'robots.spam.txt',
+                    content_type='text/plain',
+                )
 
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
