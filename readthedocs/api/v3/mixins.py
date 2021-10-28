@@ -41,8 +41,8 @@ class UpdateChangeReasonMixin:
         return obj
 
     def perform_update(self, serializer):
+        set_change_reason(serializer.instance, self.get_change_reason())
         obj = serializer.save()
-        safe_update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_destroy(self, instance):
