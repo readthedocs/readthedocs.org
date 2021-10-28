@@ -61,7 +61,7 @@ I get import errors on libraries that depend on C modules
    Another use case for this is when you have a module with a C extension.
 
 This happens because our build system doesn't have the dependencies for building your project.
-This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries.
+This happens with things like ``libevent``, ``mysql``, and other Python packages that depend on C libraries.
 We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
 With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking.
@@ -218,19 +218,19 @@ and as a result, it tends to look a bit better with the default theme.
    To use these extensions you need to specify the dependencies on your project
    by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
 
-Can I document a python package that is not at the root of my repository?
+Can I document a Python package that is not at the root of my repository?
 -------------------------------------------------------------------------
 
-Yes. The most convenient way to access a python package for example via
+Yes. The most convenient way to access a Python package for example via
 `Sphinx's autoapi`_ in your documentation is to use the *Install your project
 inside a virtualenv using setup.py install* option in the admin panel of
 your project. However this assumes that your ``setup.py`` is in the root of
 your repository.
 
 If you want to place your package in a different directory or have multiple
-python packages in the same project, then create a pip requirements file. You
+Python packages in the same project, then create a pip requirements file. You
 can specify the relative path to your package inside the file.
-For example you want to keep your python package in the ``src/python``
+For example you want to keep your Python package in the ``src/python``
 directory, then create a ``requirements.txt`` file with the
 following contents::
 
@@ -251,7 +251,7 @@ using a Read the Docs :doc:`config-file/index`.
 I need to install a package in a environment with pinned versions
 -----------------------------------------------------------------
 
-To ensure proper installation of a python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
 If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
 
 In your ``requirements.txt`` file::
