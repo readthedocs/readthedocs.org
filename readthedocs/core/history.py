@@ -11,6 +11,19 @@ from simple_history.utils import update_change_reason
 log = logging.getLogger(__name__)
 
 
+def set_change_reason(instance, reason):
+    """
+    Set the change reason for the historical record created from the instance.
+
+    This method should be called before calling ``save()`` or ``delete``.
+    It sets `reason` to the `_change_reason` attribute of the instance,
+    that's used to create the historical record on the save/delete signals.
+
+    https://django-simple-history.readthedocs.io/en/latest/historical_model.html#change-reason  # noqa
+    """
+    instance._change_reason = reason
+
+
 def safe_update_change_reason(instance, reason):
     """
     Wrapper around update_change_reason to catch exceptions.
@@ -22,8 +35,8 @@ def safe_update_change_reason(instance, reason):
        that matches the attributes of the instance to update the ``change_reason``,
        which could end up updating the wrong record, or not finding it.
 
-       If you already have control over the object, set the ``_change_reason``
-       attribute before updating/deleting the object instead.
+       If you already have control over the object, use `set_change_reason`
+       before updating/deleting the object instead.
        That's more safe, since the attribute is passed to the signal
        and used at the creation time of the record.
 
@@ -96,12 +109,12 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
 
     def save_model(self, request, obj, form, change):
         if obj:
-            obj._change_reason = self.get_change_reason()
+            set_change_reason(obj, self.get_change_reason())
         super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
         if obj:
-            obj._change_reason = self.get_change_reason()
+            set_change_reason(obj, self.get_change_reason())
         super().delete_model(request, obj)
 
 
@@ -119,7 +132,7 @@ class SimpleHistoryModelForm(forms.ModelForm):
 
     def save(self, commit=True):
         if self.instance:
-            self.instance._change_reason = self.get_change_reason()
+            set_change_reason(self.instance, self.get_change_reason())
         return super().save(commit=commit)
 
 
@@ -141,5 +154,5 @@ class UpdateChangeReasonPostView:
 
     def get_object(self):
         obj = super().get_object()
-        obj._change_reason = self.get_change_reason()
+        set_change_reason(obj, self.get_change_reason())
         return obj

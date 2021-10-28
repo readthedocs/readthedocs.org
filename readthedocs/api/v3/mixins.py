@@ -3,7 +3,10 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import safe_update_change_reason
+from readthedocs.core.history import (
+    safe_update_change_reason,
+    set_change_reason,
+)
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -43,7 +46,7 @@ class UpdateChangeReasonMixin:
         return obj
 
     def perform_destroy(self, instance):
-        instance._change_reason = self.get_change_reason()
+        set_change_reason(instance, self.get_change_reason())
         super().perform_destroy(instance)
 
 

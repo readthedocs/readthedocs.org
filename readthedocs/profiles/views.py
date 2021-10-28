@@ -30,6 +30,7 @@ from readthedocs.core.forms import (
     UserDeleteForm,
     UserProfileForm,
 )
+from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -87,7 +88,7 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
     def form_valid(self, form):
         user = self.get_object()
         logout(self.request)
-        user._change_reason = self.get_change_reason()
+        set_change_reason(user, self.get_change_reason())
         user.delete()
         return super().form_valid(form)
 
