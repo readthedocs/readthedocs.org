@@ -378,10 +378,14 @@ click on the |:pencil2:| icon, and add these contents:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 4-5
+   :emphasize-lines: 8-9
 
-   python:
-     version: "3.8"
+   version: 2
+
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.8"
 
    sphinx:
      fail_on_warning: true
@@ -401,10 +405,9 @@ go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 3-5
+   :emphasize-lines: 2-4
 
    python:
-     version: "3.9"
      # Install our python package before building the docs
      install:
        - method: pip
