@@ -10,11 +10,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
-from readthedocs.integrations.models import (
-    GitHubWebhook,
-    GitLabWebhook,
-)
-from readthedocs.oauth.constants import GITHUB, BITBUCKET, GITLAB
+from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
+from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -1008,6 +1005,15 @@ class GitLabOAuthTests(TestCase):
             'visibility': 'private',
         })
         return data
+
+    def test_project_path_is_escaped(self):
+        repo_id = self.service._get_repo_id(self.project)
+        self.assertEqual(repo_id, 'testorga%2Ftestrepo')
+
+        self.project.repo = 'https://gitlab.com/testorga/subgroup/testrepo.git'
+        self.project.save()
+        repo_id = self.service._get_repo_id(self.project)
+        self.assertEqual(repo_id, 'testorga%2Fsubgroup%2Ftestrepo')
 
     def test_make_project_pass(self):
         repo = self.service.create_repository(

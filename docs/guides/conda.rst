@@ -104,6 +104,39 @@ To maximize compatibility, we recommend putting ``conda-forge`` above ``defaults
 .. _Anaconda Terms of Service: https://www.anaconda.com/terms-of-service
 .. _the relevant conda docs: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html?highlight=nodefaults#creating-an-environment-file-manually
 
+Making builds faster with mamba
+-------------------------------
+
+One important thing to note is that, when enabling the ``conda-forge`` channel,
+the conda dependency solver requires a large amount of RAM and long solve times.
+This is `a known issue`_ due to the sheer amount of packages available in conda-forge.
+
+As an alternative, you can instruct Read the Docs to use mamba_,
+a drop-in replacement for conda that is much faster
+and reduces the memory consumption of the dependency solving process.
+
+To do that, add a ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`
+with these contents:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "mambaforge-4.10"
+
+   conda:
+     environment: environment.yml
+
+You can read more about the :ref:`config-file/v2:build.tools.python` configuration
+in our documentation.
+
+.. _mamba: https://quantstack.net/mamba.html
+.. _a known issue: https://www.anaconda.com/understanding-and-improving-condas-performance/
+
 Mixing conda and pip packages
 -----------------------------
 
@@ -168,22 +201,18 @@ For example, this conda environment contains the required dependencies to compil
 Troubleshooting
 ---------------
 
-As explained in our
-:ref:`guide about build resources <guides/build-using-too-many-resources:Use pip when possible>`,
-``conda`` is known to `require too much memory`_ when solving the satisfiability problem
-for the specified dependencies. There are some conda-specific tips to consider to
-minimize the running time or the memory usage:
+If you have problems on the environment creation phase,
+either because the build runs out of memory or time
+or because some conflicts are found,
+you can try some of these mitigations:
 
 - Reduce the number of channels in ``environment.yml``, even leaving ``conda-forge`` only
   and opting out of the defaults adding ``nodefaults``.
 - Constrain the package versions as much as possible to reduce the solution space.
-- Use mamba_, an alternative package manager fully compatible with conda packages,
-  by requesting the ``CONDA_USES_MAMBA`` :ref:`feature flag <feature-flags:Feature Flags>`.
+- :ref:`Use mamba <guides/conda:Making builds faster with mamba>`,
+  an alternative package manager fully compatible with conda packages.
 - And, if all else fails,
   :ref:`request more resources <guides/build-using-too-many-resources:Requests more resources>`.
-
-.. _require too much memory: https://github.com/conda/conda/issues/5003
-.. _mamba: https://mamba.readthedocs.io/en/latest/
 
 Custom Installs
 ---------------

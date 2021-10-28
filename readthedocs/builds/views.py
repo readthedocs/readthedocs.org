@@ -153,12 +153,6 @@ class BuildDetail(BuildBase, DetailView):
         context['project'] = self.project
 
         build = self.get_object()
-        context['is_latest_build'] = (
-            build == Build.objects.filter(
-                project=build.project,
-                version=build.version,
-            ).first()
-        )
 
         if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
