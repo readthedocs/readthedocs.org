@@ -710,7 +710,7 @@ Legacy ``build`` specification
 The legacy ``build`` specification used a different set of Docker images,
 and only allowed you to specify the Python version.
 It remains supported for backwards compatibility reasons.
-Check out the :ref:`config-file/v2:build (beta specification)` above
+Check out the :ref:`config-file/v2:build` above
 for an alternative method that is more flexible.
 
 .. code-block:: yaml
