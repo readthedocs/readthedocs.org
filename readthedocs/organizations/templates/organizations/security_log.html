@@ -35,8 +35,15 @@
 {% autopaginate object_list 15 %}
 
 <div class="module">
-  <div class="clearfix">
-    <a class="button" href="?download=true&{{ request.GET.urlencode }}">{% trans "Download" %}</a>
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="?download=true&{{ request.GET.urlencode }}">
+          {% trans "Download" %}
+        </a>
+      </li>
+    </ul>
   </div>
 
   {% include "audit/list_logs.html" with omit_user=False %}
