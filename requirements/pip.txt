@@ -1,6 +1,6 @@
 # Base packages
 
-pip==21.3
+pip==21.3.1
 virtualenv==20.8.1
 
 django==2.2.24  # pyup: <2.3
