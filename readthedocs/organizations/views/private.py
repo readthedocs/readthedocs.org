@@ -185,9 +185,6 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
 
     def _get_csv_data(self):
         organization = self.get_organization()
-        start_date = self._get_start_date()
-        end_date = timezone.now().date()
-
         current_timezone = settings.TIME_ZONE
         values = [
             (f'Date ({current_timezone})', 'created'),
@@ -199,17 +196,25 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
             ('IP', 'ip'),
             ('Browser', 'browser'),
         ]
-        data = self._get_queryset().values_list(*[value for _, value in values])
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
-        csv_data.insert(0, [header for header, _ in values])
+        data = self.get_queryset().values_list(*[value for _, value in values])
+
+        start_date = self._get_start_date()
+        end_date = timezone.now().date()
+        date_filter = self.filter.form.cleaned_data.get('date')
+        if date_filter:
+            start_date = date_filter.start or start_date
+            end_date = date_filter.stop or end_date
+
         filename = 'readthedocs_organization_security_logs_{organization}_{start}_{end}.csv'.format(
             organization=organization.slug,
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
             end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
+        csv_data = [
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
+        ]
+        csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def get_context_data(self, **kwargs):

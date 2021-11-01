@@ -205,9 +205,15 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             ('IP', 'ip'),
             ('Browser', 'browser'),
         ]
-        data = self._get_queryset().values_list(*[value for _, value in values])
+        data = self.get_queryset().values_list(*[value for _, value in values])
+
         start_date = self._get_start_date()
         end_date = timezone.now().date()
+        date_filter = self.filter.form.cleaned_data.get('date')
+        if date_filter:
+            start_date = date_filter.start or start_date
+            end_date = date_filter.stop or end_date
+
         filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
             username=self.request.user.username,
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
