@@ -3,7 +3,7 @@ Security Log
 
 Security logs allow you to see what has happened recently in your organization or account.
 We store the IP address and the browser's User-Agent_ on each event,
-so that you can confirm this access was the intended person.
+so that you can confirm this access was from the intended person.
 
 .. _User-Agent: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 
@@ -13,12 +13,13 @@ User security log
 We store user security logs from the last 90 days, and track the following events:
 
 - Authentication on the dashboard
-- Authentication on documentation pages (:doc:`/commercial/index`)
+- Authentication on documentation pages (:doc:`/commercial/index` only)
 
 Authentication failures and successes are both tracked.
 
 To access your logs:
-- Click on :guilabel:`*Username*` dropdown
+
+- Click on :guilabel:`Username` dropdown
 - Click on :guilabel:`Settings`
 - Click on :guilabel:`Security Log`
 
