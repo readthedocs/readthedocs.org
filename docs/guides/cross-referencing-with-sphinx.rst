@@ -102,7 +102,7 @@ Another example, add a target to a paragraph:
          An easy way is just to use the final link of the page/section.
          This works, but it has [some disadvantages](target_to_paragraph):
 
-Then the reference will be rendered as: `target to paragraph`_.
+Then the reference will be rendered as: `some disadvantages <target to paragraph>`_.
 
 You can also create _`in-line targets` within an element on your page,
 allowing you to, for example, reference text *within* a paragraph.
