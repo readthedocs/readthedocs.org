@@ -10,7 +10,6 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
