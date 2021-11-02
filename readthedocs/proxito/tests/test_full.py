@@ -335,6 +335,29 @@ class TestDocServingBackends(BaseDocServing):
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
+    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
+    def test_track_downloads(self, is_audit_enabled):
+        is_audit_enabled.return_value = True
+
+        self.project.versions.update(
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
+        )
+
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+        url = '/_/downloads/en/latest/pdf/'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
+
+        log = AuditLog.objects.last()
+        self.assertEqual(log.user, None)
+        self.assertEqual(log.project, self.project)
+        self.assertEqual(log.resource, url)
+        self.assertEqual(log.action, AuditLog.DOWNLOAD)
+
 
 @override_settings(
     PYTHON_MEDIA=False,
