@@ -83,8 +83,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
 
-        # Verify if the project is marked as SPAM and return a 401 in that case
-        spam_response = self._spam_response(final_project)
+        # Verify if the project is marked as spam and return a 401 in that case
+        spam_response = self._spam_response(request, final_project)
         if spam_response:
             return spam_response
 
