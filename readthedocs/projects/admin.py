@@ -149,7 +149,7 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
     """Filter for projects that are potentially SPAM."""
 
-    title = 'SPAM Threshold'
+    title = 'Spam Threshold'
     parameter_name = 'spam_threshold'
 
     DONT_SHOW_ADS = 'dont_show_ads'
