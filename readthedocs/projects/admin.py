@@ -187,21 +187,21 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
-    list_filter = (
-        'repo_type',
-        'featured',
-        'privacy_level',
-        'documentation_type',
-        'programming_language',
-        'feature__feature_id',
-        ProjectOwnerBannedFilter,
-    )
+    list_display = ('name', 'slug', 'repo')
 
+    list_filter = tuple()
     if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
         list_filter = list_filter + (ProjectSpamThreshold,)
 
-    list_editable = ('featured',)
+    list_filter = list_filter + (
+        ProjectOwnerBannedFilter,
+        'feature__feature_id',
+        'repo_type',
+        'privacy_level',
+        'programming_language',
+        'documentation_type',
+    )
+
     search_fields = ('slug', 'repo')
     inlines = [
         ProjectRelationshipInline,
@@ -209,19 +209,26 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags',)
+    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_tags')
     raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
+        'run_spam_tag_checks',
         'build_default_version',
         'reindex_active_versions',
         'wipe_all_versions',
         'import_tags_from_vcs',
     ]
 
+    def matching_spam_tags(self, obj):
+        result = []
+        for spam_tag in obj.spam_tags.filter(enabled=True):
+            result.append(f'{spam_tag.spam_rule_class_path} ({spam_tag.value})')
+        return '\n'.join(result) or 'No matching spam tags'
+
     def feature_flags(self, obj):
-        return ', '.join([str(f.get_feature_display()) for f in obj.features])
+        return '\n'.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
@@ -230,6 +237,25 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         return view(request, queryset=queryset)
 
     send_owner_email.short_description = 'Notify project owners'
+
+    def run_spam_tag_checks(self, request, queryset):
+        """Run all the spam checks on this project."""
+        if 'readthedocsext.spamfighting' not in settings.INSTALLED_APPS:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Spam fighting Django application not installed',
+            )
+            return
+
+        from readthedocsext.spamfighting.tasks import spam_rules_check
+        project_slugs = queryset.values_list('slug', flat=True)
+        spam_rules_check.delay(project_slugs=list(project_slugs))
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Spam check task triggered for {} projects'.format(queryset.count()),
+        )
 
     def ban_owner(self, request, queryset):
         """
