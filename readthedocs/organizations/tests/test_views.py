@@ -1,10 +1,10 @@
-import django_dynamic_fixture as fixture
 from allauth.account.views import SignupView
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import (
     Organization,
@@ -12,7 +12,6 @@ from readthedocs.organizations.models import (
     TeamInvite,
     TeamMember,
 )
-from readthedocs.organizations.views import private as private_views
 from readthedocs.organizations.views import public as public_views
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
@@ -24,24 +23,23 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
     """Organization views tests."""
 
     def setUp(self):
-        self.owner = fixture.get(User)
-        self.project = fixture.get(Project)
-        self.organization = fixture.get(
+        self.owner = get(User, username='owner', email='owner@example.com')
+        self.owner.emailaddress_set.create(email=self.owner.email, verified=True)
+        self.project = get(Project)
+        self.organization = get(
             Organization,
             owners=[self.owner],
             projects=[self.project],
         )
-        self.team = fixture.get(Team, organization=self.organization)
+        self.team = get(Team, organization=self.organization)
+        self.client.force_login(self.owner)
 
     def test_delete(self):
         """Delete organization on post."""
-        req = self.request(
-            'post',
-            '/organizations/{}/delete/'.format(self.organization.slug),
-            user=self.owner,
+        resp = self.client.post(
+            reverse('organization_delete', args=[self.organization.slug])
         )
-        view = private_views.DeleteOrganization.as_view()
-        resp = view(req, slug=self.organization.slug)
+        self.assertEqual(resp.status_code, 302)
 
         self.assertFalse(Organization.objects
                          .filter(pk=self.organization.pk)
@@ -53,6 +51,45 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
                         .filter(pk=self.project.pk)
                         .exists())
 
+    def test_add_owner(self):
+        url = reverse('organization_owner_add', args=[self.organization])
+        user = get(User, username='test-user', email='test-user@example.com')
+        user.emailaddress_set.create(email=user.email, verified=False)
+
+        user_b = get(User, username='test-user-b', email='test-user-b@example.com')
+        user_b.emailaddress_set.create(email=user_b.email, verified=True)
+
+        # Adding an already owner.
+        for username in [self.owner.username, self.owner.email]:
+            resp = self.client.post(url, data={'owner': username})
+            form = resp.context_data['form']
+            self.assertFalse(form.is_valid())
+            self.assertIn('is already an owner', form.errors['owner'][0])
+
+        # Unknown user.
+        resp = self.client.post(url, data={'owner': 'non-existent'})
+        form = resp.context_data['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('does not exist', form.errors['owner'][0])
+
+        # From an unverified email.
+        resp = self.client.post(url, data={'owner': user.email})
+        form = resp.context_data['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('does not exist', form.errors['owner'][0])
+
+        # Using a username.
+        self.assertFalse(user in self.organization.owners.all())
+        resp = self.client.post(url, data={'owner': user.username})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(user in self.organization.owners.all())
+
+        # Using an email.
+        self.assertFalse(user_b in self.organization.owners.all())
+        resp = self.client.post(url, data={'owner': user_b.email})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(user_b in self.organization.owners.all())
+
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
@@ -60,23 +97,23 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
     """Tests for invite handling in views."""
 
     def setUp(self):
-        self.owner = fixture.get(User)
-        self.organization = fixture.get(
+        self.owner = get(User)
+        self.organization = get(
             Organization,
             owners=[self.owner],
         )
-        self.team = fixture.get(Team, organization=self.organization)
+        self.team = get(Team, organization=self.organization)
 
     def tearDown(self):
         cache.clear()
 
     def test_redemption_by_authed_user(self):
-        user = fixture.get(User)
-        invite = fixture.get(
+        user = get(User)
+        invite = get(
             TeamInvite, email=user.email, team=self.team,
             organization=self.organization,
         )
-        team_member = fixture.get(
+        team_member = get(
             TeamMember,
             invite=invite,
             member=None,
@@ -102,11 +139,11 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
         email = 'non-existant-9238723@example.com'
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(email=email)
-        invite = fixture.get(
+        invite = get(
             TeamInvite, email=email, team=self.team,
             organization=self.organization,
         )
-        team_member = fixture.get(
+        team_member = get(
             TeamMember,
             invite=invite,
             member=None,
@@ -163,18 +200,18 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
         )
 
     def test_redemption_by_dulpicate_user(self):
-        user = fixture.get(User)
-        invite = fixture.get(
+        user = get(User)
+        invite = get(
             TeamInvite, email=user.email, team=self.team,
             organization=self.organization,
         )
-        team_member_a = fixture.get(
+        team_member_a = get(
             TeamMember,
             invite=None,
             member=user,
             team=self.team,
         )
-        team_member_b = fixture.get(
+        team_member_b = get(
             TeamMember,
             invite=invite,
             member=None,
@@ -204,7 +241,7 @@ class OrganizationSignupTestCase(TestCase):
 
     def test_organization_signup(self):
         self.assertEqual(Organization.objects.count(), 0)
-        user = fixture.get(User)
+        user = get(User)
         self.client.force_login(user)
         data = {
             'name': 'Testing Organization',
