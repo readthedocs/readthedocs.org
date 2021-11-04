@@ -168,7 +168,7 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        queryset = queryset.annotate(spam_score=Sum('spam_tags__value'))
+        queryset = queryset.annotate(spam_score=Sum('spam_rules__value'))
         if self.value() == self.DONT_SHOW_ADS:
             return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS)
         if self.value() == self.DENY_ON_ROBOTS:
@@ -209,23 +209,23 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_tags')
+    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
     raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
-        'run_spam_tag_checks',
+        'run_spam_rule_checks',
         'build_default_version',
         'reindex_active_versions',
         'wipe_all_versions',
         'import_tags_from_vcs',
     ]
 
-    def matching_spam_tags(self, obj):
+    def matching_spam_rules(self, obj):
         result = []
-        for spam_tag in obj.spam_tags.filter(enabled=True):
-            result.append(f'{spam_tag.spam_rule_class_path} ({spam_tag.value})')
-        return '\n'.join(result) or 'No matching spam tags'
+        for spam_rule in obj.spam_rules.filter(enabled=True):
+            result.append(f'{spam_rule.spam_rule_type} ({spam_rule.value})')
+        return '\n'.join(result) or 'No matching spam rules'
 
     def feature_flags(self, obj):
         return '\n'.join([str(f.get_feature_display()) for f in obj.features])
@@ -238,7 +238,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     send_owner_email.short_description = 'Notify project owners'
 
-    def run_spam_tag_checks(self, request, queryset):
+    def run_spam_rule_checks(self, request, queryset):
         """Run all the spam checks on this project."""
         if 'readthedocsext.spamfighting' not in settings.INSTALLED_APPS:
             messages.add_message(
