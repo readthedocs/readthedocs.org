@@ -1252,6 +1252,11 @@ class Project(models.Model):
         if self.ad_free or self.gold_owners.exists():
             return False
 
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import spam_score
+            if spam_score(self) >= settings.settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS:
+                return False
+
         return True
 
     def environment_variables(self, *, public_only=True):
