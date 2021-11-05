@@ -248,8 +248,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
             )
             return
 
-        from readthedocsext.spamfighting.tasks import spam_rules_check
+        from readthedocsext.spamfighting.tasks import spam_rules_check  # noqa
         project_slugs = queryset.values_list('slug', flat=True)
+        # NOTE: convert queryset to a simple list so Celery can serialize it
         spam_rules_check.delay(project_slugs=list(project_slugs))
         messages.add_message(
             request,
