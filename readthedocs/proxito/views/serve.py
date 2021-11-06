@@ -354,10 +354,10 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         project, we serve it directly.
         """
 
-        # Verify if the project is marked as SPAM and return a custom robots.txt
+        # Verify if the project is marked as spam and return a custom robots.txt
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
-            from readthedocsext.spamfighting.utils import deny_on_robots
-            if deny_on_robots(project):
+            from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
+            if is_robotstxt_denied(project):
                 return render(
                     request,
                     'robots.spam.txt',

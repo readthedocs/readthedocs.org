@@ -178,8 +178,8 @@ class ServeDocsMixin:
 
     def _spam_response(self, request, project):
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
-            from readthedocsext.spamfighting.utils import serve_docs
-            if not serve_docs(project):
+            from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+            if is_serve_docs_denied(project):
                 return render(request, template_name='spam.html', status=401)
 
 
