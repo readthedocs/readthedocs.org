@@ -1,0 +1,96 @@
+{% load i18n %}
+
+{% comment %}
+If `omit_user` is given, the username attached to the log isn't shown.
+This is useful when listing logs for the same user.
+{% endcomment %}
+
+<div class="module-list">
+  <div class="module-list-wrapper">
+    <ul>
+      {% for log in object_list %}
+      <li class="module-item">
+        {% if log.action == AuditLog.AUTHN %}
+          {% if omit_user %}
+            {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
+              <a href="?action={{ action }}" title="{{ method }}">Authenticated</a>
+            {% endblocktrans %}
+          {% elif log.log_user_id %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username method=log.auth_backend_display %}
+              <a href="?user={{ user }}">
+                <code>{{ user }}</code>
+              </a>
+              <a href="?action={{ action }}" title="{{ method }}">authenticated</a>
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
+              User <a href="?action={{ action }}" title="{{ method }}">authenticated</a>
+            {% endblocktrans %}
+          {% endif %}
+        {% elif log.action == AuditLog.AUTHN_FAILURE %}
+          {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
+            <a href="?action={{ action }}" title="{{ method }}">Authentication failed</a>
+          {% endblocktrans %}
+        {% elif log.action == AuditLog.PAGEVIEW %}
+          {% if log.log_user_id %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              <a href="?user={{ user }}">
+                <code>{{ user }}</code>
+              </a>
+              <a href="?action={{ action }}" title="{{ path }}">visited</a> a page
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              A user <a href="?action={{ action }}" title="{{ path }}">visited</a> a page
+            {% endblocktrans %}
+          {% endif %}
+        {% elif log.action == AuditLog.DOWNLOAD %}
+          {% if log.log_user_id %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              <a href="?user={{ user }}">
+                <code>{{ user }}</code>
+              </a>
+              <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
+              A user <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+            {% endblocktrans %}
+          {% endif %}
+        {% endif %}
+
+        {% trans "from" %}
+
+        <a href="?ip={{ log.ip }}" title="{{ log.browser }}">
+          <code>{{ log.ip }}</code>
+        </a>
+
+        {# If the authentication was on a doc domain. #}
+        {% if log.log_project_id %}
+          {% trans "on" %}
+          {% if log.project %}
+            <a href="{% url 'projects_detail' log.log_project_slug %}">
+              <code>{{ log.log_project_slug }}</code>
+            </a>
+          {% else %}
+            {# The original project has been deleted, don't link to it. #}
+            <code title="{{ log.resource }}">{{ log.log_project_slug }}</code>
+          {% endif %}
+        {% endif %}
+
+        <span class="quiet right" title="{{ log.created|date:"DATETIME_FORMAT" }}">
+          {% blocktrans trimmed with log.created|timesince as date %}
+            {{ date }} ago
+          {% endblocktrans %}
+        </span>
+      </li>
+      {% empty %}
+      <li class="module-item">
+        <p class="quiet">
+          {% trans 'No activity logged yet' %}
+        </p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
