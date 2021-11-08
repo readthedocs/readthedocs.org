@@ -47,13 +47,17 @@ A configuration file with explicit dependencies looks like this:
 
    version: 2
 
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.9"
+
    # Build from the docs/ directory with Sphinx
    sphinx:
      configuration: docs/conf.py
 
    # Explicitly set the version of Python and its requirements
    python:
-     version: 3.7
      install:
        - requirements: docs/requirements.txt
 
@@ -86,11 +90,15 @@ for example:
 
       version: 2
 
+      build:
+        os: "ubuntu-20.04"
+        tools:
+          python: "3.9"
+
       sphinx:
         configuration: docs/conf.py
 
       python:
-        version: 3.7
         install:
           - requirements: docs/requirements.txt
 
