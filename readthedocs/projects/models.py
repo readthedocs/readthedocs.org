@@ -1529,7 +1529,7 @@ class WebHook(Notification):
         _('JSON payload'),
         help_text=_(
             'JSON payload to send to the webhook. '
-            'Check the docs for available substitutions.',
+            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
         ),
         blank=True,
         null=True,
@@ -1546,7 +1546,11 @@ class WebHook(Notification):
         super().save(*args, **kwargs)
 
     def get_payload(self, version, build, event):
-        """Get the final payload replacing all placeholders."""
+        """
+        Get the final payload replacing all placeholders.
+
+        Placeholders are in the ``{{ foo }}`` or ``{{foo}}`` format.
+        """
         if not self.payload:
             return None
 
@@ -1569,25 +1573,34 @@ class WebHook(Notification):
             external=version.is_external,
         )
 
+        # Remove timezone and microseconds from the date,
+        # so it's more readable.
+        start_date = build.date.replace(
+            tzinfo=None,
+            microsecond=0
+        ).isoformat()
+
         substitutions = {
-            '${event}': event,
-            '${build.id}': build.id,
-            '${build.commit}': commit,
-            '${build.url}': build_url,
-            '${build.docsurl}': build_docsurl,
-            '${organization.name}': organization_name,
-            '${organization.slug}': organization_slug,
-            '${project.slug}': project.slug,
-            '${project.name}': project.name,
-            '${project.url}': project_url,
-            '${version.slug}': version.slug,
-            '${version.name}': version.verbose_name,
+            'event': event,
+            'build.id': build.id,
+            'build.commit': commit,
+            'build.url': build_url,
+            'build.docs_url': build_docsurl,
+            'build.start_date': start_date,
+            'organization.name': organization_name,
+            'organization.slug': organization_slug,
+            'project.slug': project.slug,
+            'project.name': project.name,
+            'project.url': project_url,
+            'version.slug': version.slug,
+            'version.name': version.verbose_name,
         }
         payload = self.payload
         # Small protection for DDoS.
         max_substitutions = 99
         for substitution, value in substitutions.items():
-            payload = payload.replace(substitution, str(value), max_substitutions)
+            payload = payload.replace(f'{{{{ {substitution} }}}}', str(value), max_substitutions)
+            payload = payload.replace(f'{{{{{substitution}}}}}', str(value), max_substitutions)
         return payload
 
     def sign_payload(self, payload):
@@ -1595,7 +1608,7 @@ class WebHook(Notification):
         digest = hmac.new(
             key=self.secret.encode(),
             msg=payload.encode(),
-            digestmod=hashlib.sha1,
+            digestmod=hashlib.sha256,
         )
         return digest.hexdigest()
 

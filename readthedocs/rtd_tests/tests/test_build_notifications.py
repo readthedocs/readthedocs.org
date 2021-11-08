@@ -1,6 +1,7 @@
 """Notifications sent after build is completed."""
 import hashlib
 import hmac
+from django.utils import timezone
 import json
 from unittest import mock
 
@@ -144,26 +145,31 @@ class BuildNotificationsTests(TestCase):
 
     @requests_mock.Mocker(kw='mock_request')
     def test_send_webhook_custom_payload(self, mock_request):
+        self.build.date = timezone.datetime(
+            year=2021, month=3, day=15, hour=15, minute=30, second=4,
+        )
+        self.build.save()
         webhook = get(
             WebHook,
             url='https://example.com/webhook/',
             project=self.project,
             events=[WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED)],
             payload=json.dumps({
-                'message': 'Event ${event} triggered for ${version.slug}',
+                'message': 'Event {{ event }} triggered for {{ version.slug }}',
                 'extra-data': {
-                    'build_id': '${build.id}',
-                    'build_commit': '${build.commit}',
-                    'build_url': '${build.url}',
-                    'build_docsurl': '${build.docsurl}',
-                    'organization_slug': '${organization.slug}',
-                    'organization_name': '${organization.name}',
-                    'project_slug': '${project.slug}',
-                    'project_name': '${project.name}',
-                    'project_url': '${project.url}',
-                    'version_slug': '${version.slug}',
-                    'version_name': '${version.name}',
-                    'invalid_substitution': '${invalid.substitution}',
+                    'build_id': '{{build.id}}',
+                    'build_commit': '{{build.commit}}',
+                    'build_url': '{{ build.url }}',
+                    'build_docsurl': '{{ build.docs_url }}',
+                    'build_start_date': '{{ build.start_date }}',
+                    'organization_slug': '{{ organization.slug }}',
+                    'organization_name': '{{ organization.name }}',
+                    'project_slug': '{{ project.slug }}',
+                    'project_name': '{{ project.name }}',
+                    'project_url': '{{ project.url }}',
+                    'version_slug': '{{ version.slug }}',
+                    'version_name': '{{ version.name }}',
+                    'invalid_substitution': '{{ invalid.substitution }}',
                 }
             }),
         )
@@ -184,6 +190,7 @@ class BuildNotificationsTests(TestCase):
                     'build_commit': self.build.commit,
                     'build_url': f'https://readthedocs.org{self.build.get_absolute_url()}',
                     'build_docsurl': 'http://test.readthedocs.io/en/1.0/',
+                    'build_start_date': '2021-03-15T15:30:04',
                     'organization_name': '',
                     'organization_slug': '',
                     'project_name': self.project.name,
@@ -191,7 +198,7 @@ class BuildNotificationsTests(TestCase):
                     'project_url': f'https://readthedocs.org{self.project.get_absolute_url()}',
                     'version_name': self.version.verbose_name,
                     'version_slug': self.version.slug,
-                    'invalid_substitution': '${invalid.substitution}',
+                    'invalid_substitution': '{{ invalid.substitution }}',
                 },
             }
         )
@@ -212,7 +219,7 @@ class BuildNotificationsTests(TestCase):
         signature = hmac.new(
             key=secret.encode(),
             msg=webhook.payload.encode(),
-            digestmod=hashlib.sha1,
+            digestmod=hashlib.sha256,
         ).hexdigest()
 
         send_build_notifications(

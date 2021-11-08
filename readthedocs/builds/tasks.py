@@ -576,7 +576,7 @@ class BuildNotificationSender:
         """
         Send webhook notification.
 
-        The payload is signed using HMAC-SHA1,
+        The payload is signed using HMAC-SHA256,
         for users to be able to verify the authenticity of the request.
 
         Webhooks that don't have a payload,

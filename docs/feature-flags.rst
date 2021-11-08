@@ -24,18 +24,6 @@ In case you prefer to use the latest ``conda`` version available, this is the fl
 Makes Read the Docs to install all the requirements at once on ``conda create`` step.
 This helps users to pin dependencies on conda and to improve build time.
 
-``CONDA_USES_MAMBA``: :featureflags:`CONDA_USES_MAMBA`
-
-``conda`` solver consumes 1Gb minimum when installing any package using ``conda-forge`` channel.
-This seems to be `a known issue`_ due conda forge has so many packages on it, among others.
-Using this feature flag allows you to use mamba_ instead of ``conda`` to create the environment
-and install the dependencies.
-``mamba`` is a drop-in replacement for conda that it's much faster and also
-reduces considerably the amount of memory required to solve the dependencies.
-
-.. _mamba: https://quantstack.net/mamba.html
-.. _a known issue: https://www.anaconda.com/understanding-and-improving-condas-performance/
-
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`

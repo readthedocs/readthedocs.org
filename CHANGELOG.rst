@@ -1,3 +1,43 @@
+Version 6.1.1
+-------------
+
+:Date: November 02, 2021
+
+* `@agjohnson <https://github.com/agjohnson>`__: Drop beta from title of build config option (`#8637 <https://github.com/readthedocs/readthedocs.org/pull/8637>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Remove mentions to old Python version specification (`#8635 <https://github.com/readthedocs/readthedocs.org/pull/8635>`__)
+* `@jugmac00 <https://github.com/jugmac00>`__: fix typos (`#8630 <https://github.com/readthedocs/readthedocs.org/pull/8630>`__)
+* `@Arthur-Milchior <https://github.com/Arthur-Milchior>`__: Correct an example (`#8628 <https://github.com/readthedocs/readthedocs.org/pull/8628>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Inherit theme template (`#8626 <https://github.com/readthedocs/readthedocs.org/pull/8626>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify duration of extra DNS records (`#8625 <https://github.com/readthedocs/readthedocs.org/pull/8625>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Promote mamba more in the documentation, hide `CONDA_USES_MAMBA` (`#8624 <https://github.com/readthedocs/readthedocs.org/pull/8624>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Floating ad placement for docs.readthedocs.io (`#8621 <https://github.com/readthedocs/readthedocs.org/pull/8621>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: track downloads separately from page views (`#8619 <https://github.com/readthedocs/readthedocs.org/pull/8619>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: quick hotfix to task (`#8617 <https://github.com/readthedocs/readthedocs.org/pull/8617>`__)
+* `@Jmennius <https://github.com/Jmennius>`__: Add provision_elasticsearch command (`#4216 <https://github.com/readthedocs/readthedocs.org/pull/4216>`__)
+
+Version 6.1.0
+-------------
+
+:Date: October 26, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify docs (`#8608 <https://github.com/readthedocs/readthedocs.org/pull/8608>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move more organization tests (`#8606 <https://github.com/readthedocs/readthedocs.org/pull/8606>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: New Read the Docs tutorial, part III (and finale?) (`#8605 <https://github.com/readthedocs/readthedocs.org/pull/8605>`__)
+* `@humitos <https://github.com/humitos>`__: SSO: re-sync VCS accounts for SSO organization daily (`#8601 <https://github.com/readthedocs/readthedocs.org/pull/8601>`__)
+* `@humitos <https://github.com/humitos>`__: Django Action: re-sync SSO organization's users (`#8600 <https://github.com/readthedocs/readthedocs.org/pull/8600>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 42 (`#8598 <https://github.com/readthedocs/readthedocs.org/pull/8598>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Don't show the rebuild option on closed/merged Pull Request builds (`#8590 <https://github.com/readthedocs/readthedocs.org/pull/8590>`__)
+* `@carltongibson <https://github.com/carltongibson>`__: Adjust Django intersphinx link to stable version. (`#8589 <https://github.com/readthedocs/readthedocs.org/pull/8589>`__)
+* `@humitos <https://github.com/humitos>`__: Small fixes to asdf image upload script (`#8587 <https://github.com/readthedocs/readthedocs.org/pull/8587>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Documentation names cleanup (`#8586 <https://github.com/readthedocs/readthedocs.org/pull/8586>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#8584 <https://github.com/readthedocs/readthedocs.org/pull/8584>`__)
+* `@adamtheturtle <https://github.com/adamtheturtle>`__: Fix typo "interpreters" (`#8583 <https://github.com/readthedocs/readthedocs.org/pull/8583>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Small fixes to asdf image upload script (`#8578 <https://github.com/readthedocs/readthedocs.org/pull/8578>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move organization views (`#8577 <https://github.com/readthedocs/readthedocs.org/pull/8577>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPIv3: docs for endpoint and guide updated (`#8566 <https://github.com/readthedocs/readthedocs.org/pull/8566>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab integration: escape path (`#8525 <https://github.com/readthedocs/readthedocs.org/pull/8525>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domain: allow to disable domain creation/update (`#8020 <https://github.com/readthedocs/readthedocs.org/pull/8020>`__)
+
 Version 6.0.0
 -------------
 
