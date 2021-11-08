@@ -46,11 +46,14 @@ The default payload will look like this:
 
    {
        "event": "build:triggered",
-       "name": "Read the Docs",
-       "slug": "rtd",
+       "name": "docs",
+       "slug": "docs",
        "version": "latest",
-       "commit": "e8dd17a3f1627dd206d721e4be08ae6766fda40",
-       "build": 6321373
+       "commit": "2552bb609ca46865dc36401dee0b1865a0aee52d",
+       "build": 15173336,
+       "start_date": "2021-11-03T16:23:14",
+       "build_url": "https://readthedocs.org/projects/docs/builds/15173336/",
+       "docs_url": "http://docs.readthedocs.io/en/latest/"
    }
 
 When a webhook is sent, a new entry will be added to the
