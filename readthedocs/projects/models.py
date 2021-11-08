@@ -1599,7 +1599,9 @@ class WebHook(Notification):
         # Small protection for DDoS.
         max_substitutions = 99
         for substitution, value in substitutions.items():
+            # Replace {{ foo }}.
             payload = payload.replace(f'{{{{ {substitution} }}}}', str(value), max_substitutions)
+            # Replace {{foo}}.
             payload = payload.replace(f'{{{{{substitution}}}}}', str(value), max_substitutions)
         return payload
 
