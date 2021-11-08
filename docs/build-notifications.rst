@@ -63,48 +63,6 @@ you will see the server response, the webhook request, and the payload.
 
    Activity of a webhook
 
-Validating the payload
-~~~~~~~~~~~~~~~~~~~~~~
-
-After you add a new webhook, Read the Docs will generate a secret key for it
-and uses it to generate a hash signature (HMAC-SHA256) for each payload
-that is included in the ``X-Hub-Signature`` header of the request.
-
-.. figure:: /_static/images/webhooks-secret.png
-   :width: 80%
-   :align: center
-   :alt: Webhook secret
-
-   Webhook secret
-
-We highly recommend using this signature
-to verify that the webhook is coming from Read the Docs.
-To do so, you can add some custom code on your server,
-like this:
-
-.. code-block:: python
-
-   import hashlib
-   import hmac
-   import os
-
-
-   def verify_signature(payload, request_headers):
-       """
-       Verify that the signature of payload is the same as the one coming from request_headers.
-       """
-       digest = hmac.new(
-           key=os.environ["WEBHOOK_SECRET"].encode(),
-           msg=payload.encode(),
-           digestmod=hashlib.sha256,
-       )
-       expected_signature = digest.hexdigest()
-
-       return hmac.compare_digest(
-           request_headers["X-Hub-Signature"].encode(),
-           expected_signature.encode(),
-       )
-
 Custom payload examples
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -226,6 +184,48 @@ Variable substitutions reference
 
 ``${version.name}``
   Version name.
+
+Validating the payload
+~~~~~~~~~~~~~~~~~~~~~~
+
+After you add a new webhook, Read the Docs will generate a secret key for it
+and uses it to generate a hash signature (HMAC-SHA256) for each payload
+that is included in the ``X-Hub-Signature`` header of the request.
+
+.. figure:: /_static/images/webhooks-secret.png
+   :width: 80%
+   :align: center
+   :alt: Webhook secret
+
+   Webhook secret
+
+We highly recommend using this signature
+to verify that the webhook is coming from Read the Docs.
+To do so, you can add some custom code on your server,
+like this:
+
+.. code-block:: python
+
+   import hashlib
+   import hmac
+   import os
+
+
+   def verify_signature(payload, request_headers):
+       """
+       Verify that the signature of payload is the same as the one coming from request_headers.
+       """
+       digest = hmac.new(
+           key=os.environ["WEBHOOK_SECRET"].encode(),
+           msg=payload.encode(),
+           digestmod=hashlib.sha256,
+       )
+       expected_signature = digest.hexdigest()
+
+       return hmac.compare_digest(
+           request_headers["X-Hub-Signature"].encode(),
+           expected_signature.encode(),
+       )
 
 Legacy webhooks
 ~~~~~~~~~~~~~~~
