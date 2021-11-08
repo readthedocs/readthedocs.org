@@ -21,7 +21,7 @@ Take these steps to enable build notifications using email:
 You should now get notified by email when your builds fail!
 
 Build Status Webhooks
-------------------------------
+---------------------
 
 Read the Docs can also send webhooks when builds are triggered, successful or failed.
 
