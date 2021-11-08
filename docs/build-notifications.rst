@@ -73,6 +73,13 @@ You can customize the payload of the webhook to suit your needs,
 as long as it is valid JSON. Below you have a couple of examples,
 and in the following section you will find all the available variables.
 
+.. figure:: /_static/images/webhooks-payload.png
+   :width: 80%
+   :align: center
+   :alt: Custom payload
+
+   Custom payload
+
 Slack
 +++++
 
