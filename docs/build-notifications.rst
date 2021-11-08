@@ -175,6 +175,9 @@ Variable substitutions reference
   URL of the documentation corresponding to the build,
   for example ``https://docs.readthedocs.io/en/latest/``.
 
+``{{ build.start_date }}``
+  Start date of the build (UTC, ISO format), for example ``2021-11-03T16:23:14``.
+
 ``{{ organization.name }}``
   Organization name (Commercial only).
 
@@ -195,9 +198,6 @@ Variable substitutions reference
 
 ``{{ version.name }}``
   Version name.
-
-``{{ build.start_date }}``
-  Start date of the build, for example ``2021-11-03T16:23:14``.
 
 Validating the payload
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -272,8 +272,7 @@ you can use this payload:
        "build": {
            "id": "{{ build.id }}",
            "commit": "{{ build.commit }}",
-           "state": "{{ build.state }}",
-           "success": "{{ event }}",
+           "state": "{{ event }}",
            "date": "{{ build.start_date }}"
        }
    }
