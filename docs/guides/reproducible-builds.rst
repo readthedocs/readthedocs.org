@@ -66,9 +66,9 @@ A configuration file with explicit dependencies looks like this:
    # File: docs/requirements.txt
 
    # Defining the exact version will make sure things don't break
-   sphinx==3.4.3
-   sphinx_rtd_theme==0.5.1
-   readthedocs-sphinx-search==0.1.0
+   sphinx==4.2.0
+   sphinx_rtd_theme==1.0.0
+   readthedocs-sphinx-search==0.1.1
 
 Don't rely on implicit dependencies
 -----------------------------------
@@ -129,9 +129,9 @@ Some examples:
 
       # File: docs/requirements.txt
 
-      sphinx==3.4.3
-      sphinx_rtd_theme==0.5.1
-      readthedocs-sphinx-search==0.1.0rc3
+      sphinx==4.2.0
+      sphinx_rtd_theme==1.0.1
+      readthedocs-sphinx-search==0.1.1
 
    .. code-block:: yaml
       
@@ -142,10 +142,10 @@ Some examples:
         - conda-forge
         - defaults
       dependencies:
-        - sphinx==3.4.3
+        - sphinx==4.2.0
         - nbsphinx==0.8.1 
         - pip:
-          - sphinx_rtd_theme==0.5.1
+          - sphinx_rtd_theme==1.0.0
 
 ❌ Bad:
    The latest or any other already installed version will be used,
