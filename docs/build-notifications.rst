@@ -3,7 +3,7 @@ Build Notifications and Webhooks
 
 .. note::
 
-   Currently we don't send notifications nor trigger webhooks
+   Currently we don't send notifications or trigger webhooks
    on :doc:`builds from pull requests </pull-requests>`.
 
 Email notifications
@@ -20,8 +20,8 @@ Take these steps to enable build notifications using email:
 
 You should now get notified by email when your builds fail!
 
-Webhooks
---------
+Build Status Webhooks
+------------------------------
 
 Read the Docs can also send webhooks when builds are triggered, successful or failed.
 
