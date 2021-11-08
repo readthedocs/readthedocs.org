@@ -92,15 +92,15 @@ Slack
              "fields": [
                {
                  "type": "mrkdwn",
-                 "text": "*Project*: <${project.url}|${project.name}>"
+                 "text": "*Project*: <{{project.url}}|{{project.name}}>"
                },
                {
                  "type": "mrkdwn",
-                 "text": "*Version*: ${version.name} (${build.commit})"
+                 "text": "*Version*: {{version.name}} ({{build.commit}})"
                },
                {
                  "type": "mrkdwn",
-                 "text": "*Build*: <${build.url}|${build.id}>"
+                 "text": "*Build*: <{{build.url}}|{{build.id}}>"
                }
              ]
            }
@@ -122,22 +122,22 @@ Discord
      "embeds": [
        {
          "title": "Build logs",
-         "url": "${build.url}",
+         "url": "{{build.url}}",
          "color": 15258703,
          "fields": [
            {
              "name": "*Project*",
-             "value": "${project.url}",
+             "value": "{{project.url}}",
              "inline": true
            },
            {
              "name": "*Version*",
-             "value": "${version.name} (${build.commit})",
+             "value": "{{version.name}} ({{build.commit}})",
              "inline": true
            },
            {
              "name": "*Build*",
-             "value": "${build.url}"
+             "value": "{{build.url}}"
            }
          ]
        }
@@ -149,40 +149,40 @@ More information on `the Discord webhooks documentation <https://support.discord
 Variable substitutions reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``${event}``
+``{{event}}``
   Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.
 
-``${build.id}``
+``{{build.id}}``
   Build ID.
 
-``${build.commit}``
+``{{build.commit}}``
   Commit corresponding to the build, if present (otherwise ``""``).
 
-``${build.url}``
+``{{build.url}}``
   URL of the build.
 
-``${build.docsurl}``
+``{{build.docsurl}}``
   URL of the documentation corresponding to the build.
 
-``${organization.name}``
+``{{organization.name}}``
   Organization name (Commercial only).
 
-``${organization.slug}``
+``{{organization.slug}}``
   Organization slug (Commercial only).
 
-``${project.slug}``
+``{{project.slug}}``
   Project slug.
 
-``${project.name}``
+``{{project.name}}``
   Project name.
 
-``${project.url}``
+``{{project.url}}``
   URL of the project :term:`dashboard`.
 
-``${version.slug}``
+``{{version.slug}}``
   Version slug.
 
-``${version.name}``
+``{{version.name}}``
   Version name.
 
 Validating the payload
@@ -253,13 +253,13 @@ you can use this payload:
 .. code-block:: json
 
    {
-       "name": "${project.name}",
-       "slug": "${project.slug}",
+       "name": "{{project.name}}",
+       "slug": "{{project.slug}}",
        "build": {
-           "id": "${build.id}",
-           "commit": "${build.commit}",
-           "state": "${build.state}",
-           "success": "${build.success}",
-           "date": "${build.date}"
+           "id": "{{build.id}}",
+           "commit": "{{build.commit}}",
+           "state": "{{build.state}}",
+           "success": "{{build.success}}",
+           "date": "{{build.date}}"
        }
    }
