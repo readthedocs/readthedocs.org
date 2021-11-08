@@ -171,7 +171,7 @@ Variable substitutions reference
 ``{{ build.url }}``
   URL of the build, for example ``https://readthedocs.org/projects/docs/builds/15173336/``.
 
-``{{ build.docsurl }}``
+``{{ build.docs_url }}``
   URL of the documentation corresponding to the build,
   for example ``https://docs.readthedocs.io/en/latest/``.
 
