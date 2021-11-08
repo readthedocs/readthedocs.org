@@ -50,7 +50,7 @@ The default payload will look like this:
        "slug": "docs",
        "version": "latest",
        "commit": "2552bb609ca46865dc36401dee0b1865a0aee52d",
-       "build": 15173336,
+       "build": "15173336",
        "start_date": "2021-11-03T16:23:14",
        "build_url": "https://readthedocs.org/projects/docs/builds/15173336/",
        "docs_url": "https://docs.readthedocs.io/en/latest/"
