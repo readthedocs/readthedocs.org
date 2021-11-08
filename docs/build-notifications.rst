@@ -196,6 +196,9 @@ Variable substitutions reference
 ``{{ version.name }}``
   Version name.
 
+``{{ build.start_date }}``
+  Start date of the build, for example ``2021-11-03T16:23:14``.
+
 Validating the payload
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -270,7 +273,7 @@ you can use this payload:
            "id": "{{ build.id }}",
            "commit": "{{ build.commit }}",
            "state": "{{ build.state }}",
-           "success": "{{ build.success }}",
-           "date": "{{ build.date }}"
+           "success": "{{ event }}",
+           "date": "{{ build.start_date }}"
        }
    }
