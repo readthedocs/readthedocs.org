@@ -130,7 +130,7 @@ Some examples:
       # File: docs/requirements.txt
 
       sphinx==4.2.0
-      sphinx_rtd_theme==1.0.1
+      sphinx_rtd_theme==1.0.0
       readthedocs-sphinx-search==0.1.1
 
    .. code-block:: yaml
