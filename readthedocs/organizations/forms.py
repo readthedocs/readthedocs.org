@@ -131,22 +131,28 @@ class OrganizationOwnerForm(forms.ModelForm):
         model = OrganizationOwner
         fields = ['owner']
 
-    owner = forms.CharField()
+    owner = forms.CharField(label=_('Email address or username'))
 
     def __init__(self, *args, **kwargs):
         self.organization = kwargs.pop('organization', None)
         super().__init__(*args, **kwargs)
 
     def clean_owner(self):
-        """Lookup owner by username, detect collisions with existing owners."""
+        """Lookup owner by username or email, detect collisions with existing owners."""
         username = self.cleaned_data['owner']
-        owner = User.objects.filter(username=username).first()
+        owner = (
+            User.objects.filter(
+                Q(username=username) |
+                Q(emailaddress__verified=True, emailaddress__email=username)
+            )
+            .first()
+        )
         if owner is None:
             raise forms.ValidationError(
                 _('User %(username)s does not exist'),
                 params={'username': username},
             )
-        if self.organization.owners.filter(username=username).exists():
+        if self.organization.owners.filter(pk=owner.pk).exists():
             raise forms.ValidationError(
                 _('User %(username)s is already an owner'),
                 params={'username': username},
