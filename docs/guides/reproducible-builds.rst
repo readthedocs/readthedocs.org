@@ -182,5 +182,3 @@ or our Conda docs about :ref:`environment files <guides/conda:creating the \`\`e
 
    Remember to update your docs' dependencies from time to time to get new improvements and fixes.
    It also makes it easy to manage in case a version reaches its end of support date.
-
-   .. TODO: link to the supported versions policy.
