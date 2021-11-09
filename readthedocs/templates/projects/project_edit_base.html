@@ -26,7 +26,8 @@
         <li class="{% block project-integrations-active %}{% endblock %}"><a href="{% url "projects_integrations" project.slug %}">{% trans "Integrations" %}</a></li>
         <li class="{% block project-environment-variables-active %}{% endblock %}"><a href="{% url "projects_environmentvariables" project.slug %}">{% trans "Environment Variables" %}</a></li>
         <li class="{% block project-automation-rules-active %}{% endblock %}"><a href="{% url "projects_automation_rule_list" project.slug %}">{% trans "Automation Rules" %}</a></li>
-        <li class="{% block project-notifications-active %}{% endblock %}"><a href="{% url "projects_notifications" project.slug %}">{% trans "Notifications" %}</a></li>
+        <li class="{% block project-webhooks-active %}{% endblock %}"><a href="{% url "projects_webhooks" project.slug %}">{% trans "Webhooks" %}</a></li>
+        <li class="{% block project-notifications-active %}{% endblock %}"><a href="{% url "projects_notifications" project.slug %}">{% trans "Email Notifications" %}</a></li>
         <li class="{% block project-traffic-analytics-active %}{% endblock %}"><a href="{% url "projects_traffic_analytics" project.slug %}">{% trans "Traffic Analytics" %}</a></li>
         <li class="{% block project-search-analytics-active %}{% endblock %}"><a href="{% url "projects_search_analytics" project.slug %}">{% trans "Search Analytics" %}</a></li>
         {% if USE_PROMOS %}

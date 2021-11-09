@@ -39,13 +39,18 @@ from readthedocs.projects.views.private import (
     ProjectUpdate,
     ProjectUsersCreateList,
     ProjectUsersDelete,
-    ProjectVersionDeleteHTML,
     ProjectVersionCreate,
+    ProjectVersionDeleteHTML,
     ProjectVersionDetail,
     RegexAutomationRuleCreate,
     RegexAutomationRuleUpdate,
     SearchAnalytics,
     TrafficAnalyticsView,
+    WebHookCreate,
+    WebHookDelete,
+    WebHookExchangeDetail,
+    WebHookList,
+    WebHookUpdate,
 )
 
 urlpatterns = [
@@ -337,3 +342,33 @@ automation_rule_urls = [
 ]
 
 urlpatterns += automation_rule_urls
+
+webhook_urls = [
+    url(
+        r'^(?P<project_slug>[-\w]+)/webhooks/$',
+        WebHookList.as_view(),
+        name='projects_webhooks',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/webhooks/create/$',
+        WebHookCreate.as_view(),
+        name='projects_webhooks_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/edit/$',
+        WebHookUpdate.as_view(),
+        name='projects_webhooks_edit',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/delete/$',
+        WebHookDelete.as_view(),
+        name='projects_webhooks_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/webhooks/(?P<webhook_pk>[-\w]+)/exchanges/(?P<webhook_exchange_pk>[-\w]+)/$',  # noqa
+        WebHookExchangeDetail.as_view(),
+        name='projects_webhooks_exchange',
+    ),
+]
+
+urlpatterns += webhook_urls

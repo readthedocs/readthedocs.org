@@ -21,12 +21,13 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
-    HTTPHeader,
     HTMLFile,
+    HTTPHeader,
     ImportedFile,
     Project,
     ProjectRelationship,
     WebHook,
+    WebHookEvent,
 )
 from .notifications import (
     DeprecatedBuildWebhookNotification,
@@ -480,4 +481,5 @@ admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(WebHookEvent)
 admin.site.register(HTMLFile, ImportedFileAdmin)
