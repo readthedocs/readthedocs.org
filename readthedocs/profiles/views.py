@@ -1,7 +1,5 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from datetime import timedelta
-
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
 from django.conf import settings
@@ -189,9 +187,17 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
+    def _get_start_date(self):
+        """Get the date to show logs from."""
+        creation_date = self.request.user.date_joined.date()
+        start_date = timezone.now().date() - timezone.timedelta(days=self.days_limit)
+        # The max we can go back is to the creation of the user.
+        return max(start_date, creation_date)
+
     def _get_csv_data(self):
+        current_timezone = settings.TIME_ZONE
         values = [
-            ('Date', 'created'),
+            (f'Date ({current_timezone})', 'created'),
             ('User', 'log_user_username'),
             ('Project', 'log_project_slug'),
             ('Organization', 'log_organization_slug'),
@@ -199,13 +205,19 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             ('IP', 'ip'),
             ('Browser', 'browser'),
         ]
-        data = self._get_queryset().values_list(*[value for _, value in values])
-        now = timezone.now()
-        days_ago = now - timedelta(days=self.days_limit)
+        data = self.get_queryset().values_list(*[value for _, value in values])
+
+        start_date = self._get_start_date()
+        end_date = timezone.now().date()
+        date_filter = self.filter.form.cleaned_data.get('date')
+        if date_filter:
+            start_date = date_filter.start or start_date
+            end_date = date_filter.stop or end_date
+
         filename = 'readthedocs_user_security_logs_{username}_{start}_{end}.csv'.format(
             username=self.request.user.username,
-            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
-            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+            start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
         csv_data = [
             [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
@@ -222,16 +234,23 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         return context
 
     def _get_queryset(self):
+        """Return the queryset without filters."""
         user = self.request.user
-        days_ago = timezone.now() - timedelta(days=self.days_limit)
+        start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             user=user,
             action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
-            created__gte=days_ago,
+            created__gte=start_date,
         )
         return queryset
 
     def get_queryset(self):
+        """
+        Return the queryset with filters.
+
+        If you want the original queryset without filters,
+        use `_get_queryset`.
+        """
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.
         # Without executing it twice.

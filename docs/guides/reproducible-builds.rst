@@ -47,13 +47,17 @@ A configuration file with explicit dependencies looks like this:
 
    version: 2
 
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.9"
+
    # Build from the docs/ directory with Sphinx
    sphinx:
      configuration: docs/conf.py
 
    # Explicitly set the version of Python and its requirements
    python:
-     version: 3.7
      install:
        - requirements: docs/requirements.txt
 
@@ -62,9 +66,9 @@ A configuration file with explicit dependencies looks like this:
    # File: docs/requirements.txt
 
    # Defining the exact version will make sure things don't break
-   sphinx==3.4.3
-   sphinx_rtd_theme==0.5.1
-   readthedocs-sphinx-search==0.1.0
+   sphinx==4.2.0
+   sphinx_rtd_theme==1.0.0
+   readthedocs-sphinx-search==0.1.1
 
 Don't rely on implicit dependencies
 -----------------------------------
@@ -86,11 +90,15 @@ for example:
 
       version: 2
 
+      build:
+        os: "ubuntu-20.04"
+        tools:
+          python: "3.9"
+
       sphinx:
         configuration: docs/conf.py
 
       python:
-        version: 3.7
         install:
           - requirements: docs/requirements.txt
 
@@ -121,9 +129,9 @@ Some examples:
 
       # File: docs/requirements.txt
 
-      sphinx==3.4.3
-      sphinx_rtd_theme==0.5.1
-      readthedocs-sphinx-search==0.1.0rc3
+      sphinx==4.2.0
+      sphinx_rtd_theme==1.0.0
+      readthedocs-sphinx-search==0.1.1
 
    .. code-block:: yaml
       
@@ -134,10 +142,10 @@ Some examples:
         - conda-forge
         - defaults
       dependencies:
-        - sphinx==3.4.3
+        - sphinx==4.2.0
         - nbsphinx==0.8.1 
         - pip:
-          - sphinx_rtd_theme==0.5.1
+          - sphinx_rtd_theme==1.0.0
 
 ❌ Bad:
    The latest or any other already installed version will be used,
@@ -174,5 +182,3 @@ or our Conda docs about :ref:`environment files <guides/conda:creating the \`\`e
 
    Remember to update your docs' dependencies from time to time to get new improvements and fixes.
    It also makes it easy to manage in case a version reaches its end of support date.
-
-   .. TODO: link to the supported versions policy.

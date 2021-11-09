@@ -24,6 +24,11 @@ urlpatterns = [
         views.DeleteOrganization.as_view(),
         name='organization_delete',
     ),
+    url(
+        r'^(?P<slug>[\w.-]+)/security-log/$',
+        views.OrganizationSecurityLog.as_view(),
+        name='organization_security_log',
+    ),
     # Owners
     url(
         r'^(?P<slug>[\w.-]+)/owners/(?P<owner>\d+)/delete/$',
