@@ -4,7 +4,7 @@ from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
@@ -14,6 +14,7 @@ from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
@@ -667,6 +668,7 @@ class TestTags(TestCase):
         self.assertContains(response, '"/projects/pip/"')
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class TestWebhooksViews(TestCase):
 
     def setUp(self):
@@ -718,3 +720,11 @@ class TestWebhooksViews(TestCase):
             reverse('projects_webhooks_delete', args=[self.project.slug, self.webhook.pk]),
         )
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
+
+    def setUp(self):
+        super().setUp()
+        self.organization = get(Organization, owners=[self.user], projects=[self.project])
