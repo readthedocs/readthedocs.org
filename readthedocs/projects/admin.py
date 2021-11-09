@@ -1,5 +1,7 @@
 """Django administration interface for `projects.models`."""
 
+from django.db.models import Sum
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.forms import BaseInlineFormSet
@@ -143,22 +145,63 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ProjectSpamThreshold(admin.SimpleListFilter):
+
+    """Filter for projects that are potentially SPAM."""
+
+    title = 'Spam Threshold'
+    parameter_name = 'spam_threshold'
+
+    DONT_SHOW_ADS = 'dont_show_ads'
+    DENY_ON_ROBOTS = 'deny_on_robots'
+    DONT_SERVE_DOCS = 'dont_serve_docs'
+    DONT_SHOW_DASHBOARD = 'dont_show_dashboard'
+    DELETE_PROJECT = 'delete_project'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.DONT_SHOW_ADS, _("Don't show Ads")),
+            (self.DENY_ON_ROBOTS, _('Deny on robots')),
+            (self.DONT_SERVE_DOCS, _("Don't serve docs")),
+            (self.DONT_SHOW_DASHBOARD, _("Don't show dashboard")),
+            (self.DELETE_PROJECT, _('Delete project')),
+        )
+
+    def queryset(self, request, queryset):
+        queryset = queryset.annotate(spam_score=Sum('spam_rules__value'))
+        if self.value() == self.DONT_SHOW_ADS:
+            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS)
+        if self.value() == self.DENY_ON_ROBOTS:
+            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS)
+        if self.value() == self.DONT_SERVE_DOCS:
+            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS)
+        if self.value() == self.DONT_SHOW_DASHBOARD:
+            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD)
+        if self.value() == self.DELETE_PROJECT:
+            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT)
+        return queryset
+
+
 class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
-    list_filter = (
-        'repo_type',
-        'featured',
-        'privacy_level',
-        'documentation_type',
-        'programming_language',
-        'feature__feature_id',
+    list_display = ('name', 'slug', 'repo')
+
+    list_filter = tuple()
+    if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        list_filter = list_filter + (ProjectSpamThreshold,)
+
+    list_filter = list_filter + (
         ProjectOwnerBannedFilter,
+        'feature__feature_id',
+        'repo_type',
+        'privacy_level',
+        'programming_language',
+        'documentation_type',
     )
-    list_editable = ('featured',)
+
     search_fields = ('slug', 'repo')
     inlines = [
         ProjectRelationshipInline,
@@ -166,19 +209,26 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags',)
+    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
     raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
+        'run_spam_rule_checks',
         'build_default_version',
         'reindex_active_versions',
         'wipe_all_versions',
         'import_tags_from_vcs',
     ]
 
+    def matching_spam_rules(self, obj):
+        result = []
+        for spam_rule in obj.spam_rules.filter(enabled=True):
+            result.append(f'{spam_rule.spam_rule_type} ({spam_rule.value})')
+        return '\n'.join(result) or 'No matching spam rules'
+
     def feature_flags(self, obj):
-        return ', '.join([str(f.get_feature_display()) for f in obj.features])
+        return '\n'.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
@@ -187,6 +237,26 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         return view(request, queryset=queryset)
 
     send_owner_email.short_description = 'Notify project owners'
+
+    def run_spam_rule_checks(self, request, queryset):
+        """Run all the spam checks on this project."""
+        if 'readthedocsext.spamfighting' not in settings.INSTALLED_APPS:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Spam fighting Django application not installed',
+            )
+            return
+
+        from readthedocsext.spamfighting.tasks import spam_rules_check  # noqa
+        project_slugs = queryset.values_list('slug', flat=True)
+        # NOTE: convert queryset to a simple list so Celery can serialize it
+        spam_rules_check.delay(project_slugs=list(project_slugs))
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Spam check task triggered for {} projects'.format(queryset.count()),
+        )
 
     def ban_owner(self, request, queryset):
         """

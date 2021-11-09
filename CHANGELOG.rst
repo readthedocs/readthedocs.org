@@ -1,3 +1,16 @@
+Version 6.1.2
+-------------
+
+:Date: November 08, 2021
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update requirements pinning (`#8655 <https://github.com/readthedocs/readthedocs.org/pull/8655>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix GitHub permissions required (`#8654 <https://github.com/readthedocs/readthedocs.org/pull/8654>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: allow to add owners by email (`#8651 <https://github.com/readthedocs/readthedocs.org/pull/8651>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 44 (`#8645 <https://github.com/readthedocs/readthedocs.org/pull/8645>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: use thresholds to decide actions (`#8632 <https://github.com/readthedocs/readthedocs.org/pull/8632>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Document generic webhooks (`#8609 <https://github.com/readthedocs/readthedocs.org/pull/8609>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: show audit logs (`#8588 <https://github.com/readthedocs/readthedocs.org/pull/8588>`__)
+
 Version 6.1.1
 -------------
 
@@ -13,7 +26,6 @@ Version 6.1.1
 * `@davidfischer <https://github.com/davidfischer>`__: Floating ad placement for docs.readthedocs.io (`#8621 <https://github.com/readthedocs/readthedocs.org/pull/8621>`__)
 * `@stsewd <https://github.com/stsewd>`__: Audit: track downloads separately from page views (`#8619 <https://github.com/readthedocs/readthedocs.org/pull/8619>`__)
 * `@humitos <https://github.com/humitos>`__: Celery: quick hotfix to task (`#8617 <https://github.com/readthedocs/readthedocs.org/pull/8617>`__)
-* `@Jmennius <https://github.com/Jmennius>`__: Add provision_elasticsearch command (`#4216 <https://github.com/readthedocs/readthedocs.org/pull/4216>`__)
 
 Version 6.1.0
 -------------

@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang=en>
+    <head>
+        <meta charset=utf-8>
+        <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+        <link rel="stylesheet" href="{% static 'css/core.css' %}">
+        <title>Spam Project</title>
+        <style>
+         main {
+             max-width: 600px;
+             margin: 4rem auto;
+             text-align: center;
+         }
+         img {
+             width: 100%;
+             max-width: 500px;
+         }
+        </style>
+    </head>
+    <body>
+        <main>
+            <img alt="Read the Docs Logo" src={% static 'images/header-logo.png' %}>
+            <h1>Project marked as spam</h1>
+            <p>Read the Docs has marked this content as spam and is not serving it anymore.</p>
+            {# We can't use url templatetag here because the URL is not defined in El Proxito #}
+            <p>Please <a href="https://{{ PUBLIC_DOMAIN }}/support/">contact us</a> if you think this is a mistake.</p>
+            <p style="color: #666;">401 - Unauthorized</p>
+        </main>
+    </body>
+</html>

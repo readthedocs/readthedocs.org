@@ -176,6 +176,12 @@ class ServeDocsMixin:
             version_slug = request.host_version_slug
         return version_slug
 
+    def _spam_response(self, request, project):
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+            if is_serve_docs_denied(project):
+                return render(request, template_name='spam.html', status=401)
+
 
 class ServeRedirectMixin:
 

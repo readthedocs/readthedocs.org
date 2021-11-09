@@ -11,8 +11,9 @@
 
 {% block edit_content %}
 
-<p>
-  {% blocktrans trimmed with days_limit as days_limit %}
+<p class="help_text">
+  {% blocktrans trimmed with days_limit=days_limit docs_url='https://docs.readthedocs.io/page/security-log.html#user-security-log'%}
+  The <a href="{{ docs_url }}">user security log</a> allows you to see what has happened recently in your account.
   Showing logs from the last {{ days_limit }} days.
   {% endblocktrans %}
 </p>
@@ -20,60 +21,18 @@
 {% autopaginate object_list 15 %}
 
 <div class="module">
-  <form method="get">
-    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
-  </form>
-
-  <div class="module-list">
-    <div class="module-list-wrapper">
-      <ul>
-        {% for log in object_list %}
-        <li class="module-item">
-          {% if log.action == AuditLog.AUTHN %}
-            {% blocktrans trimmed with action=AuditLog.AUTHN%}
-            <a href="?action={{ action }}">Authenticated</a>
-            {% endblocktrans %}
-          {% elif log.action == AuditLog.AUTHN_FAILURE %}
-            {% blocktrans trimmed with action=AuditLog.AUTHN_FAILURE %}
-            <a href="?action={{ action }}">Authentication attempt</a>
-            {% endblocktrans %}
-          {% endif %}
-
-          {% trans "from" %}
-
-          <a href="?ip={{ log.ip }}" title="{{ log.browser }}">
-            <code>{{ log.ip }}</code>
-          </a>
-
-          {# If the authentication was on a doc domain. #}
-          {% if log.log_project_id %}
-            {% trans "on" %}
-            {% if log.project %}
-              <a href="{% url 'projects_detail' log.log_project_slug %}">
-                <code>{{ log.log_project_slug }}</code>
-              </a>
-            {% else %}
-              {# The original project has been deleted, don't link to it. #}
-              <code>{{ log.log_project_slug }}</code>
-            {% endif %}
-          {% endif %}
-
-          <span class="quiet right" title="{{ log.created|date:"DATETIME_FORMAT" }}">
-            {% blocktrans trimmed with log.created|timesince as date %}
-            {{ date }} ago
-            {% endblocktrans %}
-          </span>
-        </li>
-        {% empty %}
-        <li class="module-item">
-          <p class="quiet">
-          {% trans 'No authentication attempts logged yet' %}
-          </p>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="?download=true&{{ request.GET.urlencode }}">
+          {% trans "Download" %}
+        </a>
+      </li>
+    </ul>
   </div>
+
+  {% include "audit/list_logs.html" with omit_user=True %}
 </div>
 {% paginate %}
 {% endblock %}
