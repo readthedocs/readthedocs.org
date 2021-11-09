@@ -12,7 +12,6 @@ from readthedocsext.monitoring.metrics.database import (
     ConcurrencyLimitedBuildsMetric,
     RunningBuildsMetric,
 )
-from readthedocsext.monitoring.metrics.redislen import RedislenMetric
 from readthedocsext.monitoring.metrics.latency import BuildLatencyMetric
 from readthedocsext.monitoring.metrics.tasks import (
     Metrics1mTaskBase,
@@ -23,7 +22,6 @@ from readthedocsext.monitoring.metrics.tasks import (
 class CommunityMetrics1mTask(Metrics1mTaskBase):
 
     metrics = Metrics1mTaskBase.metrics + [
-        RedislenMetric(queue_name='build-large'),
         RunningBuildsMetric(builder='large'),
         ConcurrencyLimitedBuildsMetric(builder='large'),
     ]
