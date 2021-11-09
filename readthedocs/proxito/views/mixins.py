@@ -180,7 +180,7 @@ class ServeDocsMixin:
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
             if is_serve_docs_denied(project):
-                return render(request, template_name='spam.html', status=401)
+                return render(request, template_name='spam.html', status=410)
 
 
 class ServeRedirectMixin:
