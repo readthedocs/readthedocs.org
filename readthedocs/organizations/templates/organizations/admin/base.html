@@ -11,6 +11,7 @@
       <ul>
         <li class="{% block organization-admin-details %}{% endblock %}"><a href="{% url 'organization_edit' organization.slug %}">{% trans "Details" %}</a></li>
         <li class="{% block organization-admin-owners %}{% endblock %}"><a href="{% url 'organization_owners' organization.slug %}">{% trans "Owners" %}</a></li>
+        <li class="{% block organization-admin-security-log %}{% endblock %}"><a href="{% url 'organization_security_log' organization.slug %}">{% trans "Security Log" %}</a></li>
       </ul>
       <div>
         <h2>{% block edit_content_header %}{% endblock %}</h2>

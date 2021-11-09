@@ -1,0 +1,52 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Organization Security Log" %}{% endblock %}
+
+{% block organization-admin-security-log %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Organization Security Log" %} {% endblock %}
+
+{% block edit_content %}
+
+{% if not enabled %}
+  {% include 'projects/includes/feature_disabled.html' with organization=organization %}
+{% endif %}
+
+<p class="help_text">
+  {% blocktrans trimmed with docs_url='https://docs.readthedocs.io/page/security-log.html#organization-security-log' %}
+    The <a href="{{ docs_url }}">organization security log</a> allows you to see what has happened recently in your organization.
+  {% endblocktrans %}
+
+  {% if enabled %}
+    {% if days_limit and days_limit > 0 %}
+      {% blocktrans trimmed with days_limit=days_limit %}
+        Showing logs from the last {{ days_limit }} days.
+        You can upgrade your plan to increase the time period that is stored.
+      {% endblocktrans %}
+    {% else %}
+      {% trans "Showing logs from all time." %}
+    {% endif %}
+  {% endif %}
+</p>
+
+{% autopaginate object_list 15 %}
+
+<div class="module">
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="?download=true&{{ request.GET.urlencode }}">
+          {% trans "Download" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  {% include "audit/list_logs.html" with omit_user=False %}
+</div>
+{% paginate %}
+{% endblock %}
