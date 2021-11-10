@@ -49,7 +49,7 @@
 #   export AWS_SECRET_ACCESS_KEY=...
 #   export AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
 #
-#   ./compile_version_upload.sh $TOOL $VERSION
+#   ./compile_version_upload_s3.sh $TOOL $VERSION
 #
 #
 # ONE-LINE COMMAND FROM UTIL01 PRODUCTION
