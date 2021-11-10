@@ -291,6 +291,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 'Banned {} user(s)'.format(total),
             )
 
+        # Trigger the spam rules check for these projects
+        self.run_spam_rule_checks(request, queryset)
+
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
