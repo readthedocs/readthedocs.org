@@ -95,7 +95,7 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     ban_user.short_description = 'Ban user'
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')
     raw_id_fields = ('user',)

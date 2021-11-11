@@ -1,12 +1,10 @@
 from datetime import timedelta
 from unittest import mock
 
-from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
@@ -16,9 +14,10 @@ from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
@@ -667,3 +666,65 @@ class TestTags(TestCase):
         pip.tags.add('tag with space')
         response = self.client.get('/projects/tags/tag-with-space/')
         self.assertContains(response, '"/projects/pip/"')
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestWebhooksViews(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug='test', users=[self.user])
+        self.version = get(Version, slug='1.0', project=self.project)
+        self.webhook = get(WebHook, project=self.project)
+        self.client.force_login(self.user)
+
+    def test_list(self):
+        resp = self.client.get(
+            reverse('projects_webhooks', args=[self.project.slug]),
+        )
+        self.assertEqual(resp.status_code, 200)
+        queryset = resp.context['object_list']
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first(), self.webhook)
+
+    def test_create(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        resp = self.client.post(
+            reverse('projects_webhooks_create', args=[self.project.slug]),
+            data = {
+                'url': 'http://www.example.com/',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
+
+    def test_update(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_edit', args=[self.project.slug, self.webhook.pk]),
+            data = {
+                'url': 'http://www.example.com/new',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.webhook.refresh_from_db()
+        self.assertEqual(self.webhook.url, 'http://www.example.com/new')
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+    def test_delete(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_delete', args=[self.project.slug, self.webhook.pk]),
+        )
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
+
+    def setUp(self):
+        super().setUp()
+        self.organization = get(Organization, owners=[self.user], projects=[self.project])

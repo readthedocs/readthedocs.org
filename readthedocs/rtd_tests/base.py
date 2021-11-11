@@ -65,7 +65,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
     wizard_class_slug = None
     wizard_class = None
 
-    @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
+    @patch('readthedocs.core.utils.trigger_build', lambda x: None)
     def post_step(self, step, **kwargs):
         """
         Post step form data to `url`, using supplementary `kwargs`

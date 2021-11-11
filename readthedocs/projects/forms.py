@@ -1,4 +1,5 @@
 """Project forms."""
+import json
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -444,23 +445,49 @@ class EmailHookForm(forms.Form):
 
 class WebHookForm(forms.ModelForm):
 
-    """Project webhook form."""
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = WebHook
+        fields = ['project', 'url', 'events', 'payload', 'secret']
+        widgets = {
+            'events': forms.CheckboxSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
-    def save(self, commit=True):
-        self.webhook = WebHook.objects.get_or_create(
-            url=self.cleaned_data['url'],
-            project=self.project,
-        )[0]
-        self.project.webhook_notifications.add(self.webhook)
+        if self.instance and self.instance.pk:
+            # Show secret in the detail form, but as readonly.
+            self.fields['secret'].disabled = True
+        else:
+            # Don't show the secret in the creation form.
+            self.fields.pop('secret')
+            self.fields['payload'].initial = json.dumps({
+                'event': '{{ event }}',
+                'name': '{{ project.name }}',
+                'slug': '{{ project.slug }}',
+                'version': '{{ version.slug }}',
+                'commit': '{{ build.commit }}',
+                'build': '{{ build.id }}',
+                'start_date': '{{ build.start_date }}',
+                'build_url': '{{ build.url }}',
+                'docs_url': '{{ build.docs_url }}',
+            }, indent=2)
+
+    def clean_project(self):
         return self.project
 
-    class Meta:
-        model = WebHook
-        fields = ['url']
+    def clean_payload(self):
+        """Check if the payload is a valid json object and format it."""
+        payload = self.cleaned_data['payload']
+        try:
+            payload = json.loads(payload)
+            payload = json.dumps(payload, indent=2)
+        except Exception:
+            raise forms.ValidationError(_('The payload must be a valid JSON object.'))
+        return payload
 
 
 class TranslationBaseForm(forms.Form):
