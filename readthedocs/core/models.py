@@ -29,6 +29,7 @@ class UserProfile(models.Model):
         help_text=_('If unchecked, you will still see community ads.'),
         default=True,
     )
+    history = ExtraHistoricalRecords()
 
     def __str__(self):
         return (
