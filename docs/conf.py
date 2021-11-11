@@ -62,6 +62,7 @@ intersphinx_mapping = {
     'qiskit': ('https://qiskit.org/documentation/', None),
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
     'writethedocs': ('https://www.writethedocs.org/', None),
+    'jupyterbook': ('https://jupyterbook.org/', None),
 }
 hoverxref_intersphinx = [
    "sphinx",
