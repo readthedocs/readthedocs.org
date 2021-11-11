@@ -136,11 +136,36 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (self.DONT_SHOW_ADS, _("Don't show Ads")),
-            (self.DENY_ON_ROBOTS, _('Deny on robots')),
-            (self.DONT_SERVE_DOCS, _("Don't serve docs")),
-            (self.DONT_SHOW_DASHBOARD, _("Don't show dashboard")),
-            (self.DELETE_PROJECT, _('Delete project')),
+            (
+                self.DONT_SHOW_ADS,
+                _("Don't show Ads ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                ),
+            ),
+            (
+                self.DENY_ON_ROBOTS,
+                _('Deny on robots ({})').format(
+                    settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                ),
+            ),
+            (
+                self.DONT_SHOW_DASHBOARD,
+                _("Don't show dashboard ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                ),
+            ),
+            (
+                self.DONT_SERVE_DOCS,
+                _("Don't serve docs ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                ),
+            ),
+            (
+                self.DELETE_PROJECT,
+                _('Delete project ({})').format(
+                    settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+                ),
+            ),
         )
 
     def queryset(self, request, queryset):
