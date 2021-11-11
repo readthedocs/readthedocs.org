@@ -1,15 +1,14 @@
 """Django administration interface for `projects.models`."""
 
-from django.db.models import Sum
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
+from django.db.models import Sum
 from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
-from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
@@ -270,12 +269,10 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         total = 0
         for project in queryset:
             if project.users.count() == 1:
-                count = (
-                    UserProfile.objects.filter(
-                        user__projects=project,
-                    ).update(banned=True)
-                )  # yapf: disabled
-                total += count
+                user = project.users.first()
+                user.profile.banned = True
+                user.profile.save()
+                total += 1
             else:
                 messages.add_message(
                     request,
