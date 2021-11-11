@@ -6,14 +6,32 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
+from django_extensions.db.models import TimeStampedModel
 from simple_history import register
 
 from readthedocs.core.history import ExtraHistoricalRecords
 
 
-class UserProfile(models.Model):
+class UserProfile(TimeStampedModel):
 
     """Additional information about a User."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     user = AutoOneToOneField(
         User,
