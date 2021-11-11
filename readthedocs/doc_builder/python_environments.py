@@ -523,8 +523,10 @@ class Virtualenv(PythonEnvironment):
                 ),
             ])
 
-            # Install a non-broken docutils when we install sphinx<2, and have the feature flag enabled
-            if self.project.has_feature(Feature.DOCUTILS_017) and not self.project.has_feature(Feature.USE_SPHINX_LATEST):
+            # Install a non-broken docutils when we install sphinx<2,
+            # and have the feature flag enabled
+            if self.project.has_feature(Feature.DOCUTILS_017)
+                and not self.project.has_feature(Feature.USE_SPHINX_LATEST):
                 requirements.extend(['docutils<0.18'])
 
         cmd = copy.copy(pip_install_cmd)
