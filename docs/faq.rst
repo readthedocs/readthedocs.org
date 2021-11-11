@@ -333,3 +333,30 @@ We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
 You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 We also keep an up-to-date :doc:`changelog </changelog>`.
+
+
+How can I deploy Jupyter Book projects on Read the Docs?
+--------------------------------------------------------
+
+According to `its own documentation <https://jupyterbook.org/>`_,
+
+   Jupyter Book is an open source project for building beautiful,
+   publication-quality books and documents from computational material.
+
+Even though `Jupyter Book leverages Sphinx "for almost everything that it
+does" <https://jupyterbook.org/explain/sphinx.html#jupyter-book-is-a-distribution-of-sphinx>`_,
+it purposedly hides Sphinx ``conf.py`` files from the user,
+and instead generates them on the fly from its declarative ``_config.yml``.
+As a result, you need to follow some extra steps
+to make Jupyter Book work on Read the Docs.
+
+As described in :doc:`the official documentation <jupyterbook:publish/readthedocs>`,
+you can manually convert your Jupyter Book project to Sphinx with the following command:
+
+.. code-block:: console
+
+   $ jupyter-book config sphinx path/to/book
+
+and then commit the resulting ``conf.py`` to git.
+Alternatively, you can set up some automation that does it for every change,
+for example :ref:`using pre-commit <jupyterbook:sphinx:convert:pre-commit>`.
