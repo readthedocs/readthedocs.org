@@ -8,7 +8,10 @@ from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import ExtraSimpleHistoryAdmin
+from readthedocs.core.history import (
+    ExtraSimpleHistoryAdmin,
+    safe_update_change_reason,
+)
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
@@ -272,6 +275,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 user = project.users.first()
                 user.profile.banned = True
                 user.profile.save()
+                safe_update_change_reason(user.profile, self.get_change_reason())
                 total += 1
             else:
                 messages.add_message(
