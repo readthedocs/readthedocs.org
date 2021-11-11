@@ -37,6 +37,11 @@ which details your dependencies. See our guide on :ref:`guides/reproducible-buil
 You can also set your project documentation to install your project itself
 as a dependency.
 
+Additionally, your build may depend on extensions that require external,
+non-Python libraries to be installed. If you are using a :ref:`configuration
+file <config-file>` you can add libraries to the Ubuntu-based builder with
+``apt``.
+
 If your project or its dependencies rely on C libraries,
 see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
@@ -279,7 +284,7 @@ in the ``.readthedocs.yaml`` config file if it contains::
       - python=3.9
       - scipy
       ...
-      
+
 .. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
 
 
