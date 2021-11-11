@@ -92,31 +92,6 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
-# Turning off to support Django 1.9's requirement
-# to not import apps that aren't in INSTALLED_APPS on rtd.com
-# class ImpressionInline(admin.TabularInline):
-#     from readthedocs.donate.models import ProjectImpressions
-#     model = ProjectImpressions
-#     readonly_fields = (
-#         'date',
-#         'promo',
-#         'offers',
-#         'views',
-#         'clicks',
-#         'view_ratio',
-#         'click_ratio',
-#     )
-#     extra = 0
-#     can_delete = False
-#     max_num = 15
-
-#     def view_ratio(self, instance):
-#         return instance.view_ratio * 100
-
-#     def click_ratio(self, instance):
-#         return instance.click_ratio * 100
-
-
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
     """
