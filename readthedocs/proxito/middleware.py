@@ -257,6 +257,9 @@ class ProxitoMiddleware(MiddlewareMixin):
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
         if settings.ALLOW_PRIVATE_REPOS:
+            # We use ``CDN-Cache-Control``,
+            # to control caching at the CDN level only.
+            # Caching at the browser level is fine (``Cache-Control``).
             response['CDN-Cache-Control'] = 'private'
 
     def process_request(self, request):  # noqa
