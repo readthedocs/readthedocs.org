@@ -37,8 +37,13 @@ which details your dependencies. See our guide on :ref:`guides/reproducible-buil
 You can also set your project documentation to install your project itself
 as a dependency.
 
-If your project or its dependencies rely on C libraries,
-see :ref:`faq:I get import errors on libraries that depend on C modules`.
+Your build may depend on extensions that require additional system packages to
+be installed. If you are using a :doc:`Configuration File <config-file/v2>` you
+can :ref:`add libraries with apt <config-file/v2:build.apt_packages>` to the
+Ubuntu-based builder .
+
+If your project or its dependencies rely on C libraries that cannot be installed
+this way, see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
 
 My project requires some additional settings
@@ -60,12 +65,15 @@ I get import errors on libraries that depend on C modules
 
    Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for building your project.
-This happens with things like ``libevent``, ``mysql``, and other Python packages that depend on C libraries.
-We can't support installing random C binaries on our system, so there is another way to fix these imports.
+This happens because the build system does not have the dependencies for
+building your project, such as C libraries needed by some Python packages (e.g.
+``libevent`` or ``mysql``). For libraries that cannot be :ref:`installed via apt
+<config-file/v2:build.apt_packages>` in the builder there is another way to
+successfully build the documentation despite missing dependencies.
 
-With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking.
-If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. If
+such libraries are installed via ``setup.py``, you also will need to remove all
+the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
@@ -279,7 +287,7 @@ in the ``.readthedocs.yaml`` config file if it contains::
       - python=3.9
       - scipy
       ...
-      
+
 .. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
 
 
