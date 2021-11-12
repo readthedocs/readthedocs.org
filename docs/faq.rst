@@ -37,8 +37,8 @@ which details your dependencies. See our guide on :ref:`guides/reproducible-buil
 You can also set your project documentation to install your project itself
 as a dependency.
 
-Additionally, your build may depend on extensions that require external,
-non-Python libraries to be installed. If you are using a :ref:`configuration
+Additionally, your build may depend on extensions that require additional
+system packages to be installed. If you are using a :ref:`configuration
 file <config-file>` you can add libraries to the Ubuntu-based builder with
 ``apt``.
 
