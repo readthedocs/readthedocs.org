@@ -31,7 +31,7 @@ Pygments==2.10.0
 
 # Basic tools
 redis==4.0.0
-kombu==5.1.0
+kombu==5.2.1
 celery==5.1.2
 
 # When upgrading to 0.43.0 we should double check the ``base.html`` change
