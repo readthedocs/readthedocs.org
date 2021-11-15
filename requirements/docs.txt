@@ -16,7 +16,7 @@ git+https://github.com/readthedocs/sphinx-hoverxref@master
 sphinxemoji==0.2.0
 sphinxcontrib-httpdomain==1.8.0
 sphinx-prompt==1.4.0
-sphinx-notfound-page==0.7.1
+sphinx-notfound-page==0.8
 sphinx-autobuild==2021.3.14
 
 # Linting
