@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.core.history import safe_update_change_reason
+from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
 
@@ -39,10 +39,10 @@ class UserProfileForm(forms.ModelForm):
             user = profile.user
             user.first_name = first_name
             user.last_name = last_name
-            user.save()
             # SimpleHistoryModelForm isn't used here
             # because the model of this form is `UserProfile`, not `User`.
-            safe_update_change_reason(user, self.get_change_reason())
+            set_change_reason(user, self.get_change_reason())
+            user.save()
         return profile
 
     def get_change_reason(self):

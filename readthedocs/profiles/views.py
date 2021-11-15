@@ -28,7 +28,7 @@ from readthedocs.core.forms import (
     UserDeleteForm,
     UserProfileForm,
 )
-from readthedocs.core.history import safe_update_change_reason
+from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -86,8 +86,8 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
     def form_valid(self, form):
         user = self.get_object()
         logout(self.request)
+        set_change_reason(user, self.get_change_reason())
         user.delete()
-        safe_update_change_reason(user, 'Changed from: form')
         return super().form_valid(form)
 
     def get_form(self, data=None, files=None, **kwargs):
@@ -97,6 +97,10 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
 
     def get_success_url(self):
         return reverse('homepage')
+
+    def get_change_reason(self):
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
 
 class ProfileDetailBase(DetailView):
