@@ -65,7 +65,7 @@ pytz==2021.3
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.62.0
-regex==2021.10.23
+regex==2021.11.10
 markdown==3.3.4
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
