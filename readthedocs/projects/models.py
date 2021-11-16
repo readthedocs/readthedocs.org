@@ -1,5 +1,7 @@
 """Project models."""
 import fnmatch
+import hashlib
+import hmac
 import logging
 import os
 import re
@@ -10,14 +12,19 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
+from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -1450,7 +1457,20 @@ class HTMLFile(ImportedFile):
         return self.get_processed_json()
 
 
-class Notification(models.Model):
+class Notification(TimeStampedModel):
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
+
     project = models.ForeignKey(
         Project,
         related_name='%(class)s_notifications',
@@ -1469,14 +1489,137 @@ class EmailHook(Notification):
         return self.email
 
 
-class WebHook(Notification):
-    url = models.URLField(
-        max_length=600,
-        help_text=_('URL to send the webhook to'),
+class WebHookEvent(models.Model):
+
+    BUILD_TRIGGERED = 'build:triggered'
+    BUILD_PASSED = 'build:passed'
+    BUILD_FAILED = 'build:failed'
+
+    EVENTS = (
+        (BUILD_TRIGGERED, _('Build triggered')),
+        (BUILD_PASSED, _('Build passed')),
+        (BUILD_FAILED, _('Build failed')),
+    )
+
+    name = models.CharField(
+        max_length=256,
+        unique=True,
+        choices=EVENTS,
     )
 
     def __str__(self):
-        return self.url
+        return self.name
+
+
+class WebHook(Notification):
+
+    url = models.URLField(
+        _('URL'),
+        max_length=600,
+        help_text=_('URL to send the webhook to'),
+    )
+    secret = models.CharField(
+        help_text=_('Secret used to sign the payload of the webhook'),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    events = models.ManyToManyField(
+        WebHookEvent,
+        related_name='webhooks',
+        help_text=_('Events to subscribe'),
+    )
+    payload = models.TextField(
+        _('JSON payload'),
+        help_text=_(
+            'JSON payload to send to the webhook. '
+            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
+        ),
+        blank=True,
+        null=True,
+        max_length=25000,
+    )
+    exchanges = GenericRelation(
+        'integrations.HttpExchange',
+        related_query_name='webhook',
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = get_random_string(length=32)
+        super().save(*args, **kwargs)
+
+    def get_payload(self, version, build, event):
+        """
+        Get the final payload replacing all placeholders.
+
+        Placeholders are in the ``{{ foo }}`` or ``{{foo}}`` format.
+        """
+        if not self.payload:
+            return None
+
+        project = version.project
+        organization = project.organizations.first()
+
+        organization_name = ''
+        organization_slug = ''
+        if organization:
+            organization_slug = organization.slug
+            organization_name = organization.name
+
+        # Commit can be None, display an empty string instead.
+        commit = build.commit or ''
+        protocol = 'http' if settings.DEBUG else 'https'
+        project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
+        build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
+        build_docsurl = project.get_docs_url(
+            version_slug=version.slug,
+            external=version.is_external,
+        )
+
+        # Remove timezone and microseconds from the date,
+        # so it's more readable.
+        start_date = build.date.replace(
+            tzinfo=None,
+            microsecond=0
+        ).isoformat()
+
+        substitutions = {
+            'event': event,
+            'build.id': build.id,
+            'build.commit': commit,
+            'build.url': build_url,
+            'build.docs_url': build_docsurl,
+            'build.start_date': start_date,
+            'organization.name': organization_name,
+            'organization.slug': organization_slug,
+            'project.slug': project.slug,
+            'project.name': project.name,
+            'project.url': project_url,
+            'version.slug': version.slug,
+            'version.name': version.verbose_name,
+        }
+        payload = self.payload
+        # Small protection for DDoS.
+        max_substitutions = 99
+        for substitution, value in substitutions.items():
+            # Replace {{ foo }}.
+            payload = payload.replace(f'{{{{ {substitution} }}}}', str(value), max_substitutions)
+            # Replace {{foo}}.
+            payload = payload.replace(f'{{{{{substitution}}}}}', str(value), max_substitutions)
+        return payload
+
+    def sign_payload(self, payload):
+        """Get the signature of `payload` using HMAC-SHA1 with the webhook secret."""
+        digest = hmac.new(
+            key=self.secret.encode(),
+            msg=payload.encode(),
+            digestmod=hashlib.sha256,
+        )
+        return digest.hexdigest()
+
+    def __str__(self):
+        return f'{self.project.slug} {self.url}'
 
 
 class Domain(TimeStampedModel, models.Model):

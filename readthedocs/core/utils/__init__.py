@@ -56,10 +56,10 @@ def prepare_build(
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Feature, Project
+    from readthedocs.builds.tasks import send_build_notifications
+    from readthedocs.projects.models import Feature, Project, WebHookEvent
     from readthedocs.projects.tasks import (
         send_external_build_status,
-        send_notifications,
         update_docs_task,
     )
 
@@ -123,8 +123,12 @@ def prepare_build(
         )
 
     if build and version.type != EXTERNAL:
-        # Send Webhook notification for build triggered.
-        send_notifications.delay(version.pk, build_pk=build.pk, email=False)
+        # Send notifications for build triggered.
+        send_build_notifications.delay(
+            version_pk=version.pk,
+            build_pk=build.pk,
+            event=WebHookEvent.BUILD_TRIGGERED,
+        )
 
     options['priority'] = CELERY_HIGH
     if project.main_language_project:

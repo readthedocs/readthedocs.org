@@ -1,15 +1,14 @@
 """Django administration interface for `projects.models`."""
 
-from django.db.models import Sum
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
+from django.db.models import Sum
 from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import ExtraSimpleHistoryAdmin
-from readthedocs.core.models import UserProfile
+from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
@@ -21,12 +20,13 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
-    HTTPHeader,
     HTMLFile,
+    HTTPHeader,
     ImportedFile,
     Project,
     ProjectRelationship,
     WebHook,
+    WebHookEvent,
 )
 from .notifications import (
     DeprecatedBuildWebhookNotification,
@@ -91,31 +91,6 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
-# Turning off to support Django 1.9's requirement
-# to not import apps that aren't in INSTALLED_APPS on rtd.com
-# class ImpressionInline(admin.TabularInline):
-#     from readthedocs.donate.models import ProjectImpressions
-#     model = ProjectImpressions
-#     readonly_fields = (
-#         'date',
-#         'promo',
-#         'offers',
-#         'views',
-#         'clicks',
-#         'view_ratio',
-#         'click_ratio',
-#     )
-#     extra = 0
-#     can_delete = False
-#     max_num = 15
-
-#     def view_ratio(self, instance):
-#         return instance.view_ratio * 100
-
-#     def click_ratio(self, instance):
-#         return instance.click_ratio * 100
-
-
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
     """
@@ -160,11 +135,36 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (self.DONT_SHOW_ADS, _("Don't show Ads")),
-            (self.DENY_ON_ROBOTS, _('Deny on robots')),
-            (self.DONT_SERVE_DOCS, _("Don't serve docs")),
-            (self.DONT_SHOW_DASHBOARD, _("Don't show dashboard")),
-            (self.DELETE_PROJECT, _('Delete project')),
+            (
+                self.DONT_SHOW_ADS,
+                _("Don't show Ads ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                ),
+            ),
+            (
+                self.DENY_ON_ROBOTS,
+                _('Deny on robots ({})').format(
+                    settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                ),
+            ),
+            (
+                self.DONT_SHOW_DASHBOARD,
+                _("Don't show dashboard ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                ),
+            ),
+            (
+                self.DONT_SERVE_DOCS,
+                _("Don't serve docs ({})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                ),
+            ),
+            (
+                self.DELETE_PROJECT,
+                _('Delete project ({})').format(
+                    settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+                ),
+            ),
         )
 
     def queryset(self, request, queryset):
@@ -269,12 +269,11 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         total = 0
         for project in queryset:
             if project.users.count() == 1:
-                count = (
-                    UserProfile.objects.filter(
-                        user__projects=project,
-                    ).update(banned=True)
-                )  # yapf: disabled
-                total += count
+                user = project.users.first()
+                user.profile.banned = True
+                set_change_reason(user.profile, self.get_change_reason())
+                user.profile.save()
+                total += 1
             else:
                 messages.add_message(
                     request,
@@ -289,6 +288,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 messages.INFO,
                 'Banned {} user(s)'.format(total),
             )
+
+        # Trigger the spam rules check for these projects
+        self.run_spam_rule_checks(request, queryset)
 
     ban_owner.short_description = 'Ban project owner'
 
@@ -480,4 +482,5 @@ admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(WebHookEvent)
 admin.site.register(HTMLFile, ImportedFileAdmin)

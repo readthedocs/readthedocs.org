@@ -246,6 +246,22 @@ class ProxitoMiddleware(MiddlewareMixin):
             # See https://tools.ietf.org/html/rfc6797
             response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
 
+    def add_cache_headers(self, request, response):
+        """
+        Add Cache-Control headers.
+
+        If private projects are allowed don't cache any request at the CDN level.
+        In the future we should set this header conditionally on private/public versions,
+        and on views with/without cookies (like the footer).
+
+        See https://developers.cloudflare.com/cache/about/cdn-cache-control.
+        """
+        if settings.ALLOW_PRIVATE_REPOS:
+            # We use ``CDN-Cache-Control``,
+            # to control caching at the CDN level only.
+            # Caching at the browser level is fine (``Cache-Control``).
+            response['CDN-Cache-Control'] = 'private'
+
     def process_request(self, request):  # noqa
         skip = any(
             request.path.startswith(reverse(view))
@@ -313,6 +329,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
+        self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         return response

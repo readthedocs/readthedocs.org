@@ -1,3 +1,24 @@
+Version 6.2.0
+-------------
+
+:Date: November 16, 2021
+
+* `@rokroskar <https://github.com/rokroskar>`__: docs: update faq to mention apt for dependencies (`#8676 <https://github.com/readthedocs/readthedocs.org/pull/8676>`__)
+* `@stsewd <https://github.com/stsewd>`__: UserProfile: add time fields (`#8675 <https://github.com/readthedocs/readthedocs.org/pull/8675>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: don't use update to ban users (`#8674 <https://github.com/readthedocs/readthedocs.org/pull/8674>`__)
+* `@stsewd <https://github.com/stsewd>`__: UserProfile: add historical model (`#8673 <https://github.com/readthedocs/readthedocs.org/pull/8673>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add entry on Jupyter Book to the FAQ (`#8669 <https://github.com/readthedocs/readthedocs.org/pull/8669>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: add CDN-Cache-Control headers (`#8667 <https://github.com/readthedocs/readthedocs.org/pull/8667>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: sort admin filters and show threshold (`#8666 <https://github.com/readthedocs/readthedocs.org/pull/8666>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: remove old code (`#8665 <https://github.com/readthedocs/readthedocs.org/pull/8665>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: check for spam rules after user is banned (`#8664 <https://github.com/readthedocs/readthedocs.org/pull/8664>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: use 410 - Gone status code when blocked (`#8661 <https://github.com/readthedocs/readthedocs.org/pull/8661>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Upgrade readthedocs-sphinx-search (`#8660 <https://github.com/readthedocs/readthedocs.org/pull/8660>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 6.1.2 (`#8657 <https://github.com/readthedocs/readthedocs.org/pull/8657>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update requirements pinning (`#8655 <https://github.com/readthedocs/readthedocs.org/pull/8655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Historical records: set the change reason explicitly on the instance (`#8627 <https://github.com/readthedocs/readthedocs.org/pull/8627>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support for generic webhooks (`#8522 <https://github.com/readthedocs/readthedocs.org/pull/8522>`__)
+
 Version 6.1.2
 -------------
 
