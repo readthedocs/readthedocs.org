@@ -1,5 +1,4 @@
 import django_dynamic_fixture as fixture
-import pytest
 from django.test import override_settings
 from django.urls import reverse
 
@@ -128,3 +127,15 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cache_headers_public_projects(self):
+        r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn('CDN-Cache-Control', r)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_cache_headers_private_projects(self):
+        r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['CDN-Cache-Control'], 'private')

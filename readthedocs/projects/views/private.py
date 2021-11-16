@@ -5,7 +5,7 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import (
     Http404,
     HttpResponse,
@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, TemplateView, View
+from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
     CreateView,
@@ -40,7 +40,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
@@ -517,18 +516,10 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
 
     template_name = 'projects/project_notifications.html'
     email_form = EmailHookForm
-    webhook_form = WebHookForm
 
     def get_email_form(self):
         project = self.get_project()
         return self.email_form(
-            self.request.POST or None,
-            project=project,
-        )
-
-    def get_webhook_form(self):
-        project = self.get_project()
-        return self.webhook_form(
             self.request.POST or None,
             project=project,
         )
@@ -538,25 +529,31 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
             email_form = self.get_email_form()
             if email_form.is_valid():
                 email_form.save()
-        elif 'url' in request.POST:
-            webhook_form = self.get_webhook_form()
-            if webhook_form.is_valid():
-                webhook_form.save()
         return HttpResponseRedirect(self.get_success_url())
+
+    def _has_old_webhooks(self):
+        """
+        Check if the project has webhooks from the old implementation created.
+
+        Webhooks from the old implementation don't have a custom payload.
+        """
+        project = self.get_project()
+        return (
+            project.webhook_notifications
+            .filter(Q(payload__isnull=True) | Q(payload=''))
+            .exists()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
 
         project = self.get_project()
         emails = project.emailhook_notifications.all()
-        urls = project.webhook_notifications.all()
-
         context.update(
             {
                 'email_form': self.get_email_form(),
-                'webhook_form': self.get_webhook_form(),
                 'emails': emails,
-                'urls': urls,
+                'has_old_webhooks': self._has_old_webhooks(),
             },
         )
         return context
@@ -580,6 +577,65 @@ class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
             except WebHook.DoesNotExist:
                 raise Http404
         return HttpResponseRedirect(self.get_success_url())
+
+
+class WebHookMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = WebHook
+    lookup_url_kwarg = 'webhook_pk'
+    form_class = WebHookForm
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks',
+            args=[self.get_project().slug],
+        )
+
+
+class WebHookList(WebHookMixin, ListView):
+
+    pass
+
+
+class WebHookCreate(WebHookMixin, CreateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks_edit',
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class WebHookUpdate(WebHookMixin, UpdateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks_edit',
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class WebHookDelete(WebHookMixin, DeleteView):
+
+    http_method_names = ['post']
+
+
+class WebHookExchangeDetail(WebHookMixin, DetailView):
+
+    model = HttpExchange
+    lookup_url_kwarg = 'webhook_exchange_pk'
+    webhook_url_kwarg = 'webhook_pk'
+    template_name = 'projects/webhook_exchange_detail.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(webhook=self.get_webhook())
+
+    def get_webhook(self):
+        return get_object_or_404(
+            WebHook,
+            pk=self.kwargs[self.webhook_url_kwarg],
+            project=self.get_project(),
+        )
 
 
 class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
