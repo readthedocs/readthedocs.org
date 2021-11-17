@@ -26,7 +26,8 @@ jsonfield==3.1.0
 requests==2.26.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==6.0
+# awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
+pyyaml==5.4.1  # pyup: ignore
 Pygments==2.10.0
 
 # Basic tools
