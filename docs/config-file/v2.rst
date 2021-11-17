@@ -439,6 +439,13 @@ Configuration for Sphinx documentation
      configuration: conf.py
      fail_on_warning: true
 
+.. note::
+   If you want to pin Sphinx to a specific version,
+   use a ``requirements.txt`` or ``environment.yml`` file
+   (see :ref:`config-file/v2:requirements file` and  :ref:`config-file/v2:conda.environment`).
+   This also allows you to override :ref:`the default pinning done by Read the Docs
+   if your project was created before October 2020 <builds:external dependencies>`.
+
 sphinx.builder
 ``````````````
 
