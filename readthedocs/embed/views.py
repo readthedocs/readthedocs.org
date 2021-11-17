@@ -142,6 +142,19 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        log.info(
+            'EmbedAPI successful response. '
+            'project=%s version=%s doc=%s section=%s path=%s '
+            'url=%s referer=%s hoverxref-version=%s',
+            project=project.slug,
+            version=version.verbose_name,
+            doct=doc,
+            section=section,
+            path=path,
+            url=url,
+            referer=request.META.get('HTTP_REFERER'),
+            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+        )
         return Response(response)
 
 
