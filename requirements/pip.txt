@@ -30,7 +30,7 @@ pyyaml==6.0
 Pygments==2.10.0
 
 # Basic tools
-redis==4.0.0
+redis==3.5.3
 kombu==5.2.1
 celery==5.2.0
 
