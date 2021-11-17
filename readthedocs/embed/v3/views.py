@@ -1,9 +1,10 @@
 """Views for the EmbedAPI v3 app."""
 
-import logging
 import re
 from urllib.parse import urlparse
 import requests
+
+import structlog
 
 from selectolax.parser import HTMLParser
 
@@ -24,7 +25,7 @@ from readthedocs.embed.utils import clean_links
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class EmbedAPIBase(CachedResponseMixin, APIView):
@@ -341,6 +342,14 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             'content': content,
             'external': external,
         }
+        log.info(
+            'EmbedAPI successful response.',
+            project=self.unresolved_url.project.slug if not external else domain,
+            url=url,
+            referer=request.META.get('HTTP_REFERER'),
+            external=external,
+            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+        )
         return Response(response)
 
 
