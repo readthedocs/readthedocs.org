@@ -8,7 +8,6 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 
-from django_structlog.signals import bind_extra_request_metadata
 from rest_framework.permissions import SAFE_METHODS
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
@@ -145,16 +144,6 @@ def add_extra_historical_fields(sender, **kwargs):
     if request:
         history_instance.extra_history_ip = get_client_ip(request)
         history_instance.extra_history_browser = request.headers.get('User-Agent')
-
-
-@receiver(bind_extra_request_metadata)
-def bind_user_username(request, logger, **kwargs):
-    logger.bind(user_username=getattr(request.user, 'username', ''))
-
-
-@receiver(bind_extra_request_metadata)
-def rewrite_request(request, logger, **kwargs):
-    logger.bind(absolute_url=request.build_absolute_uri())
 
 
 signals.check_request_enabled.connect(decide_if_cors)

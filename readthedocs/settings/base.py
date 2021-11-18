@@ -1,10 +1,10 @@
 # pylint: disable=missing-docstring
 
+import logging
 import os
 import subprocess
 import socket
 
-import requests
 import structlog
 
 from celery.schedules import crontab
@@ -27,27 +27,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
-log = structlog.get_logger(__name__)
-
-def send_to_newrelic(logger, log_method, event_dict):
-
-    if 'request' in event_dict:
-        # WSGIRequest is not JSONSerializable
-        event_dict.pop('request')
-
-    # Uses the New Relic Log API
-    # https://docs.newrelic.com/docs/logs/log-management/log-api/introduction-log-api/
-    headers = {"Api-Key": ''}
-
-    # Our log message and all the event context is sent as a JSON string
-    # in the POST body
-    # https://docs.newrelic.com/docs/logs/log-management/log-api/introduction-log-api/#json-content
-    payload = {
-        "message": f"{log_method} - {event_dict['event']}",
-    }
-    payload.update(event_dict)
-    requests.post("https://log-api.newrelic.com/log/v1", json=payload, headers=headers)
-    return event_dict
+log = logging.getLogger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -271,7 +251,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
         'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
-        'django_structlog.middlewares.RequestMiddleware',
+        'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -816,6 +796,11 @@ class CommunityBaseSettings(Settings):
         'version': 1,
         'disable_existing_loggers': True,
         'formatters': {
+            'default': {
+                'format': LOG_FORMAT,
+                'datefmt': '%d/%b/%Y %H:%M:%S',
+            },
+            # structlog
             "plain_console": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processor": structlog.dev.ConsoleRenderer(),
@@ -829,7 +814,7 @@ class CommunityBaseSettings(Settings):
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'plain_console',
+                'formatter': 'default',
             },
             'debug': {
                 'level': 'DEBUG',
@@ -847,6 +832,12 @@ class CommunityBaseSettings(Settings):
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
             },
+            'django_structlog': {
+                'handlers': ['null'],
+                'level': 'INFO',
+                # Don't double log at the root logger for these.
+                'propagate': False,
+            },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
@@ -859,25 +850,6 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-    structlog.configure(
-        processors=[
-            structlog.stdlib.filter_by_level,
-            structlog.processors.TimeStamper(fmt="iso"),
-            structlog.stdlib.add_logger_name,
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.PositionalArgumentsFormatter(),
-            structlog.processors.StackInfoRenderer(),
-            structlog.processors.format_exc_info,
-            structlog.processors.UnicodeDecoder(),
-            send_to_newrelic,
-            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-        ],
-        context_class=structlog.threadlocal.wrap_dict(dict),
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        cache_logger_on_first_use=True,
-    )
-
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
