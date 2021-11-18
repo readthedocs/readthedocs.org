@@ -2,7 +2,6 @@
 
 import functools
 import json
-import logging
 import re
 
 from django.shortcuts import get_object_or_404
@@ -15,6 +14,8 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import structlog
+
 from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
@@ -25,7 +26,7 @@ from readthedocs.embed.utils import recurse_while_none, clean_links
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def escape_selector(selector):
@@ -143,11 +144,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             )
 
         log.info(
-            'EmbedAPI successful response. '
-            'project=%s version=%s doc=%s section=%s path=%s '
-            'url=%s referer=%s hoverxref-version=%s',
-            project=project.slug,
-            version=version.verbose_name,
+            'EmbedAPI successful response.',
+            project_slug=project.slug,
+            version_slug=version.slug,
             doct=doc,
             section=section,
             path=path,

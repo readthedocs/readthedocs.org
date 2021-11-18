@@ -344,7 +344,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         }
         log.info(
             'EmbedAPI successful response.',
-            project=self.unresolved_url.project.slug if not external else domain,
+            project_slug=self.unresolved_url.project.slug if not external else None,
+            domain=domain if external else None,
             url=url,
             referer=request.META.get('HTTP_REFERER'),
             external=external,
