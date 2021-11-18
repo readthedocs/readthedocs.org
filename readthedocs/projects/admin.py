@@ -138,7 +138,7 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         return (
             (
                 self.NOT_ENOUGH_SCORE,
-                _("Not enough score (1-{})").format(
+                _("Not spam (1-{})").format(
                     settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
                 ),
             ),
