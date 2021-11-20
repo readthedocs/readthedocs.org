@@ -86,7 +86,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         # Serve custom versions on external-host-domain
         if external_domain_parts == host_parts[1:]:
             try:
-                project_slug, version_slug = host_parts[0].split('--', 1)
+                project_slug, version_slug = host_parts[0].rsplit('--', 1)
                 request.external_domain = True
                 request.host_version_slug = version_slug
                 log.debug('Proxito External Version Domain: host=%s', host)
