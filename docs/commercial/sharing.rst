@@ -15,8 +15,8 @@ These methods will allow them to view specific projects or versions of a project
 Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
 
-Enabling
---------
+Enabling Sharing
+----------------
 
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
 * Click on :guilabel:`New Share`
@@ -39,8 +39,8 @@ Enabling
 
 Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
-Effects
--------
+Sharing Methods
+---------------
 
 Secret Link
 ***********

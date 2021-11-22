@@ -37,7 +37,10 @@ https://docs.example.com/projects/bar/en/latest/
 Search
 ------
 
-Projects that are configured as subprojects will share a search index with their
-parent and sibling projects. This is currently the only way to share search
-indexes between projects, we do not yet support sharing search indexes between
-arbitrary projects.
+Search on the parent project will include results from its subprojects.
+If you search on the ``v1`` version of the parent project,
+results from the ``v1`` version of its subprojects will be included,
+or from the default version for subprojects that don't have a ``v1`` version.
+
+This is currently the only way to share search results between projects,
+we do not yet support sharing search results between sibling subprojects or arbitrary projects.
