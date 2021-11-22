@@ -439,6 +439,17 @@ Configuration for Sphinx documentation
      configuration: conf.py
      fail_on_warning: true
 
+.. note::
+   If you want to pin Sphinx to a specific version,
+   use a ``requirements.txt`` or ``environment.yml`` file
+   (see :ref:`config-file/v2:requirements file` and  :ref:`config-file/v2:conda.environment`).
+   If you are using a metadata file to describe code dependencies
+   like ``setup.py``, ``pyproject.toml``, or similar,
+   you can use the ``extra_requirements`` option
+   (see :ref:`config-file/v2:packages`).
+   This also allows you to override :ref:`the default pinning done by Read the Docs
+   if your project was created before October 2020 <builds:external dependencies>`.
+
 sphinx.builder
 ``````````````
 
@@ -476,7 +487,7 @@ This means the build fails if there is a warning and exits with exit status 1.
 mkdocs
 ~~~~~~
 
-Configuration for Mkdocs documentation.
+Configuration for MkDocs documentation.
 
 .. code-block:: yaml
 
@@ -485,6 +496,17 @@ Configuration for Mkdocs documentation.
    mkdocs:
      configuration: mkdocs.yml
      fail_on_warning: false
+
+.. note::
+   If you want to pin MkDocs to a specific version,
+   use a ``requirements.txt`` or ``environment.yml`` file
+   (see :ref:`config-file/v2:requirements file` and  :ref:`config-file/v2:conda.environment`).
+   If you are using a metadata file to describe code dependencies
+   like ``setup.py``, ``pyproject.toml``, or similar,
+   you can use the ``extra_requirements`` option
+   (see :ref:`config-file/v2:packages`).
+   This also allows you to override :ref:`the default pinning done by Read the Docs
+   if your project was created before March 2021 <builds:external dependencies>`.
 
 mkdocs.configuration
 ````````````````````

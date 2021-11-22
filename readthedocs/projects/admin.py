@@ -127,6 +127,7 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
     title = 'Spam Threshold'
     parameter_name = 'spam_threshold'
 
+    NOT_ENOUGH_SCORE = 'not_enough_score'
     DONT_SHOW_ADS = 'dont_show_ads'
     DENY_ON_ROBOTS = 'deny_on_robots'
     DONT_SERVE_DOCS = 'dont_serve_docs'
@@ -136,32 +137,42 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             (
-                self.DONT_SHOW_ADS,
-                _("Don't show Ads ({})").format(
+                self.NOT_ENOUGH_SCORE,
+                _("Not spam (1-{})").format(
                     settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
                 ),
             ),
             (
-                self.DENY_ON_ROBOTS,
-                _('Deny on robots ({})').format(
+                self.DONT_SHOW_ADS,
+                _("Don't show Ads ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
                     settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
                 ),
             ),
             (
-                self.DONT_SHOW_DASHBOARD,
-                _("Don't show dashboard ({})").format(
+                self.DENY_ON_ROBOTS,
+                _('Deny on robots ({}-{})').format(
+                    settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
                     settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
                 ),
             ),
             (
-                self.DONT_SERVE_DOCS,
-                _("Don't serve docs ({})").format(
+                self.DONT_SHOW_DASHBOARD,
+                _("Don't show dashboard ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
                     settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
                 ),
             ),
             (
+                self.DONT_SERVE_DOCS,
+                _("Don't serve docs ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                    settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+                ),
+            ),
+            (
                 self.DELETE_PROJECT,
-                _('Delete project ({})').format(
+                _('Delete project (>={})').format(
                     settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
                 ),
             ),
@@ -169,16 +180,35 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         queryset = queryset.annotate(spam_score=Sum('spam_rules__value'))
+        if self.value() == self.NOT_ENOUGH_SCORE:
+            return queryset.filter(
+                spam_score__gte=1,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+            )
         if self.value() == self.DONT_SHOW_ADS:
-            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS)
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+            )
         if self.value() == self.DENY_ON_ROBOTS:
-            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS)
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+            )
         if self.value() == self.DONT_SERVE_DOCS:
-            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS)
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+            )
         if self.value() == self.DONT_SHOW_DASHBOARD:
-            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD)
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+            )
         if self.value() == self.DELETE_PROJECT:
-            return queryset.filter(spam_score__gte=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT)
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+            )
         return queryset
 
 

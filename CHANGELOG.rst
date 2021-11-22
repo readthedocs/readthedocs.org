@@ -1,3 +1,20 @@
+Version 6.2.1
+-------------
+
+:Date: November 23, 2021
+
+* `@agjohnson <https://github.com/agjohnson>`__: Fix issue with PR build hostname parsing (`#8700 <https://github.com/readthedocs/readthedocs.org/pull/8700>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix sharing titles (`#8695 <https://github.com/readthedocs/readthedocs.org/pull/8695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade celery and friends (`#8693 <https://github.com/readthedocs/readthedocs.org/pull/8693>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade pyyaml (`#8691 <https://github.com/readthedocs/readthedocs.org/pull/8691>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade redis (`#8690 <https://github.com/readthedocs/readthedocs.org/pull/8690>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: make admin filters easier to understand (`#8688 <https://github.com/readthedocs/readthedocs.org/pull/8688>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify how to pin the Sphinx version (`#8687 <https://github.com/readthedocs/readthedocs.org/pull/8687>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: fix link to docs (`#8685 <https://github.com/readthedocs/readthedocs.org/pull/8685>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update docs about search on subprojects (`#8683 <https://github.com/readthedocs/readthedocs.org/pull/8683>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8681 <https://github.com/readthedocs/readthedocs.org/pull/8681>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#8680 <https://github.com/readthedocs/readthedocs.org/pull/8680>`__)
+
 Version 6.2.0
 -------------
 
