@@ -43,3 +43,25 @@ For example, the `rich <https://rich.readthedocs.io/>`_ Python library
 to declare its library dependencies
 and installs itself on Read the Docs
 `with pip <https://github.com/willmcgugan/rich/blob/ba5d0c2c/.readthedocs.yml#L18-L19>`_.
+
+Locking your dependencies
+-------------------------
+
+With you ``pyproject.toml`` file you are free to `specify the dependency
+versions <https://python-poetry.org/docs/dependency-specification/>`_
+that are more appropriate for your project,
+either by leaving them unpinned or setting some constraints.
+However, to achieve :doc:`/guides/reproducible-builds`
+it is better that you lock your dependencies,
+so that the decision to upgrade any of them is yours.
+Poetry does this using ``poetry.lock`` files
+that contain the exact versions of all your transitive dependencies
+(that is, all the dependencies of your dependencies).
+
+The first time you run ``poetry install`` in your project directory
+`Poetry will generate a new poetry.lock
+file <https://python-poetry.org/docs/basic-usage/#installing-without-poetrylock>`_
+with the versions available at that moment.
+You can then `commit your poetry.lock to version
+control <https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control>`_
+so that Read the Docs also uses these exact dependencies.
