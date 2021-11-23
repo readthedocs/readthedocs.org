@@ -20,7 +20,7 @@ declares the build backend as follows:
    build-backend = "poetry.core.masonry.api"
 
 You will be able to install it on Read the Docs just using pip,
-using a configuration like this:
+with a configuration like this:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -47,9 +47,9 @@ and installs itself on Read the Docs
 Locking your dependencies
 -------------------------
 
-With you ``pyproject.toml`` file you are free to `specify the dependency
+With your ``pyproject.toml`` file you are free to `specify the dependency
 versions <https://python-poetry.org/docs/dependency-specification/>`_
-that are more appropriate for your project,
+that are most appropriate for your project,
 either by leaving them unpinned or setting some constraints.
 However, to achieve :doc:`/guides/reproducible-builds`
 it is better that you lock your dependencies,
