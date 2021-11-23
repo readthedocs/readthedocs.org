@@ -1,4 +1,4 @@
-import logging
+import structlog
 from functools import lru_cache, namedtuple
 from math import ceil
 
@@ -18,7 +18,7 @@ from readthedocs.search.faceted_search import PageSearch
 
 from .serializers import PageSearchSerializer, ProjectData, VersionData
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PaginatorPage:

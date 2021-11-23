@@ -1,5 +1,5 @@
 import json
-import logging
+import structlog
 from datetime import datetime, timedelta
 from io import BytesIO
 
@@ -37,7 +37,7 @@ from readthedocs.projects.models import Project, WebHookEvent
 from readthedocs.storage import build_commands_storage
 from readthedocs.worker import app
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class TaskRouter:
@@ -66,17 +66,17 @@ class TaskRouter:
     BUILD_LARGE_QUEUE = 'build:large'
 
     def route_for_task(self, task, args, kwargs, **__):
-        log.info('Executing TaskRouter. task=%s', task)
+        log.info('Executing TaskRouter.', task=task)
         if task not in (
             'readthedocs.projects.tasks.update_docs_task',
             'readthedocs.projects.tasks.sync_repository_task',
         ):
-            log.info('Skipping routing non-build task. task=%s', task)
+            log.info('Skipping routing non-build task.', task=task)
             return
 
         version = self._get_version(task, args, kwargs)
         if not version:
-            log.info('No Build/Version found. No routing task. task=%s', task)
+            log.info('No Build/Version found. No routing task.', task=task)
             return
 
         project = version.project
@@ -84,8 +84,9 @@ class TaskRouter:
         # Do not override the queue defined in the project itself
         if project.build_queue:
             log.info(
-                'Skipping routing task because project has a custom queue. project=%s queue=%s',
-                project.slug, project.build_queue,
+                'Skipping routing task because project has a custom queue.',
+                project_slug=project.slug,
+                queue=project.build_queue,
             )
             return project.build_queue
 
@@ -105,8 +106,9 @@ class TaskRouter:
                 else:
                     routing_queue = self.BUILD_LARGE_QUEUE
                 log.info(
-                    'Routing task because is a external version. project=%s queue=%s',
-                    project.slug, routing_queue,
+                    'Routing task because is a external version.',
+                    project_slug=project.slug,
+                    queue=routing_queue,
                 )
                 return routing_queue
 
@@ -115,8 +117,9 @@ class TaskRouter:
         for build in last_builds.iterator():
             if build.config.get('conda', None):
                 log.info(
-                    'Routing task because project uses conda. project=%s queue=%s',
-                    project.slug, self.BUILD_LARGE_QUEUE,
+                    'Routing task because project uses conda.',
+                    project_slug=project.slug,
+                    queue=self.BUILD_LARGE_QUEUE,
                 )
                 return self.BUILD_LARGE_QUEUE
 
@@ -129,13 +132,16 @@ class TaskRouter:
         # We do not have enough builds for this version yet
         if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
             log.info(
-                'Routing task because it does not have enough successful builds yet. '
-                'project=%s queue=%s',
-                project.slug, self.BUILD_LARGE_QUEUE,
+                'Routing task because it does not have enough successful builds yet.',
+                project_slug=project.slug,
+                queue=self.BUILD_LARGE_QUEUE,
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info('No routing task because no conditions were met. project=%s', project.slug)
+        log.info(
+            'No routing task because no conditions were met.',
+            project_slug=project.slug,
+        )
         return
 
     def _get_version(self, task, args, kwargs):
@@ -150,8 +156,8 @@ class TaskRouter:
                 version = Version.objects.get(pk=version_pk)
             except Version.DoesNotExist:
                 log.info(
-                    'Version does not exist. Routing task to default queue. version_pk=%s',
-                    version_pk,
+                    'Version does not exist. Routing task to default queue.',
+                    version_id=version_pk,
                 )
         return version
 
@@ -199,7 +205,7 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
                     cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build. build=%s', build.pk)
+                    log.warning('Truncating build command for build.', build_id=build.id)
             output = BytesIO()
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
@@ -241,13 +247,15 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
                 )
         except Exception:
             log.exception(
-                "Failed to send status: project=%s version=%s",
-                version.project.slug, version.slug,
+                "Failed to send status",
+                project_slug=version.project.slug,
+                version_slug=version.slug,
             )
         else:
             log.info(
-                "Removing external version. project=%s version=%s",
-                version.project.slug, version.slug,
+                "Removing external version.",
+                project_slug=version.project.slug,
+                version_slug=version.slug,
             )
             version.delete()
 
@@ -269,9 +277,6 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     :returns: `True` or `False` if the task succeeded.
     """
     project = Project.objects.get(pk=project_pk)
-
-    # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.builds.tasks.sync_versions_task. locals=%s', locals())
 
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
@@ -321,8 +326,9 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         # Don't interrupt the request if something goes wrong
         # in the automation rules.
         log.exception(
-            'Failed to execute automation rules for [%s]: %s',
-            project.slug, added_versions
+            'Failed to execute automation rules.',
+            project_slug=project.slug,
+            versions=added_versions,
         )
 
     # TODO: move this to an automation rule
@@ -330,11 +336,9 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     new_stable = project.get_stable_version()
     if promoted_version and new_stable and new_stable.active:
         log.info(
-            'Triggering new stable build: %(project)s:%(version)s',
-            {
-                'project': project.slug,
-                'version': new_stable.identifier,
-            }
+            'Triggering new stable build.',
+            project_slug=project.slug,
+            version_identifier=new_stable.identifier,
         )
         trigger_build(project=project, version=new_stable)
 
@@ -375,7 +379,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status. build=%s project=%s', build.pk, build.project.slug)
+    log.info('Sending build status.', build_id=build.id, project_slug=build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
@@ -408,19 +412,18 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
                 if success:
                     log.info(
-                        'Build status report sent correctly. '
-                        'project=%s build=%s status=%s commit=%s user=%s',
-                        build.project.slug,
-                        build.pk,
-                        status,
-                        commit,
-                        relation.user.username,
+                        'Build status report sent correctly.',
+                        project_slug=build.project.slug,
+                        build_id=build.id,
+                        status=status,
+                        commit=commit,
+                        user_username=relation.user.username,
                     )
                     return True
         else:
             log.warning(
-                'Project does not have a RemoteRepository. project=%s',
-                build.project.slug,
+                'Project does not have a RemoteRepository.',
+                project_slug=build.project.slug,
             )
             # Try to send build status for projects with no RemoteRepository
             for user in users:
@@ -431,13 +434,12 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                     success = service.send_build_status(build, commit, status)
                     if success:
                         log.info(
-                            'Build status report sent correctly using an user account. '
-                            'project=%s build=%s status=%s commit=%s user=%s',
-                            build.project.slug,
-                            build.pk,
-                            status,
-                            commit,
-                            user.username,
+                            'Build status report sent correctly using an user account.',
+                            project_slug=build.project.slug,
+                            build_id=build.id,
+                            status=status,
+                            commit=commit,
+                            user_username=user.username,
                         )
                         return True
 
@@ -453,8 +455,8 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
             notification.send()
 
         log.info(
-            'No social account or repository permission available. project=%s',
-            build.project.slug
+            'No social account or repository permission available.',
+            project_slug=build.project.slug,
         )
         return False
 
@@ -504,9 +506,11 @@ class BuildNotificationSender:
                     self.send_email(email)
                 except Exception:
                     log.exception(
-                        'Failed to send email notification. '
-                        'email=%s project=%s version=%s build=%s',
-                        email, self.project.slug, self.version.slug, self.build.pk,
+                        'Failed to send email notification.',
+                        email=email,
+                        project_slug=self.project.slug,
+                        version_slug=self.version.slug,
+                        build_id=self.build.id,
                     )
 
         webhooks = (
@@ -518,8 +522,11 @@ class BuildNotificationSender:
                 self.send_webhook(webhook)
             except Exception:
                 log.exception(
-                    'Failed to send webhook. webhook=%s project=%s version=%s build=%s',
-                    webhook.id, self.project.slug, self.version.slug, self.build.pk,
+                    'Failed to send webhook.',
+                    webhook_id=webhook.id,
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
+                    build_id=self.build.id,
                 )
 
     def send_email(self, email):
@@ -561,8 +568,11 @@ class BuildNotificationSender:
             )
 
         log.info(
-            'Sending email notification. email=%s project=%s version=%s build=%s',
-            email, self.project.slug, self.version.slug, self.build.id,
+            'Sending email notification.',
+            email=email,
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
+            build_id=self.build.id,
         )
         send_email(
             email,
@@ -614,8 +624,11 @@ class BuildNotificationSender:
 
         try:
             log.info(
-                'Sending webhook notification. webhook=%s project=%s version=%s build=%s',
-                webhook.pk, self.project.slug, self.version.slug, self.build.pk,
+                'Sending webhook notification.',
+                webhook_id=webhook.id,
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+                build_id=self.build.id,
             )
             response = requests.post(
                 webhook.url,
@@ -629,6 +642,7 @@ class BuildNotificationSender:
             )
         except Exception:
             log.exception(
-                'Failed to POST to webhook url. webhook=%s url=%s',
-                webhook.pk, webhook.url,
+                'Failed to POST to webhook url.',
+                webhook_id=webhook.id,
+                webhook_url=webhook.url,
             )

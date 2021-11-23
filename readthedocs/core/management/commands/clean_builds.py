@@ -2,7 +2,7 @@
 
 """Clean up stable build paths per project version."""
 
-import logging
+import structlog
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
@@ -12,7 +12,7 @@ from django.utils import timezone
 from readthedocs.builds.models import Build, Version
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -51,17 +51,18 @@ class Command(BaseCommand):
                 latest_build = version.builds.latest('date')
                 if latest_build.date > max_date:
                     log.warning(
-                        '%s is newer than %s',
-                        latest_build,
-                        max_date,
+                        'Latest build is newer.',
+                        build_id=latest_build.pk,
+                        date=latest_build.date,
+                        max_date=max_date,
                     )
                 path = version.get_build_path()
                 if path is not None:
                     log.info(
-                        'Found stale build path for %s at %s, last used on %s',
-                        version,
-                        path,
-                        latest_build.date,
+                        'Found stale build path for version at path, last used on date.',
+                        version_slug=version.slug,
+                        path=path,
+                        date=latest_build.date,
                     )
                     if not options['dryrun']:
                         version.clean_build_path()

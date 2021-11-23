@@ -1,5 +1,5 @@
 """Admin interface for SSO models."""
-import logging
+import structlog
 
 from django.contrib import admin, messages
 
@@ -9,7 +9,7 @@ from readthedocs.oauth.tasks import sync_remote_repositories
 from .models import SSODomain, SSOIntegration
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class SSOIntegrationAdmin(admin.ModelAdmin):
@@ -31,9 +31,9 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
         for ssointegration in queryset.select_related('organization'):
             members = AdminPermission.members(ssointegration.organization)
             log.info(
-                'Triggering SSO re-sync for organization. organization=%s users=%s',
-                ssointegration.organization.slug,
-                members.count(),
+                'Triggering SSO re-sync for organization.',
+                organization_slug=ssointegration.organization.slug,
+                count=members.count(),
             )
             users_count += members.count()
             for user in members:

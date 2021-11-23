@@ -233,7 +233,7 @@ def _get_doc_content(project, version, doc):
         with build_media_storage.open(file_path) as file:
             return json.load(file)
     except Exception:  # noqa
-        log.warning('Unable to read file. file_path=%s', file_path)
+        log.warning('Unable to read file.', file_path=file_path)
 
     return None
 
@@ -279,8 +279,9 @@ def parse_sphinx(content, section, url):
                 break
         except Exception:  # noqa
             log.info(
-                'Failed to query section. url=%s id=%s',
-                url, element_id,
+                'Failed to query section.',
+                url=url,
+                element_id=element_id,
             )
 
     if not query_result:

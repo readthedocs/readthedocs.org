@@ -2,13 +2,13 @@
 
 """Doc build constants."""
 
-import logging
+import structlog
 import re
 
 from django.conf import settings
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 PDF_RE = re.compile('Output written on (.*?)')
 

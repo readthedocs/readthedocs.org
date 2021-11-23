@@ -1,4 +1,4 @@
-import logging
+import structlog
 from pprint import pprint
 
 import markdown
@@ -10,7 +10,7 @@ from messages_extends import constants as message_constants
 from readthedocs.notifications import SiteNotification
 from readthedocs.notifications.backends import SiteBackend
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def contact_users(
@@ -101,8 +101,10 @@ def contact_users(
                 failed_notifications.add(user.username)
             else:
                 log.info(
-                    'Successfully set notification (%s/%s). user=%s',
-                    count, total, user,
+                    'Successfully set notification.',
+                    user_username=user.username,
+                    count=count,
+                    total=total,
                 )
                 sent_notifications.add(user.username)
 
@@ -145,7 +147,7 @@ def contact_users(
                 log.exception('Email failed to send')
                 failed_emails.update(emails)
             else:
-                log.info('Email sent (%s/%s). emails=%s', count, total, emails)
+                log.info('Email sent.', emails=emails, count=count, total=total)
                 sent_emails.update(emails)
 
     return {

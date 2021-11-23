@@ -1,13 +1,13 @@
 """Utility functions used by projects."""
 
 import csv
-import logging
+import structlog
 import os
 
 from django.conf import settings
 from django.http import StreamingHttpResponse
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 # TODO make this a classmethod of Version

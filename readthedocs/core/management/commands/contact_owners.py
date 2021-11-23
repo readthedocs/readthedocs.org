@@ -1,4 +1,4 @@
-import logging
+import structlog
 import sys
 from pathlib import Path
 from pprint import pprint
@@ -14,7 +14,7 @@ from readthedocs.projects.models import Project
 
 User = get_user_model()  # noqa
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):

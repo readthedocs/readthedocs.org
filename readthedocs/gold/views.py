@@ -3,7 +3,7 @@
 """Gold subscription views."""
 
 import json
-import logging
+import structlog
 import stripe
 
 from django.conf import settings
@@ -29,7 +29,7 @@ from .forms import GoldProjectForm, GoldSubscriptionForm
 from .models import GoldUser, LEVEL_CHOICES
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class GoldSubscription(
@@ -137,7 +137,7 @@ class GoldCreateCheckoutSession(GenericView):
             url = reverse_lazy('gold_detail')
             url = f'{schema}://{settings.PRODUCTION_DOMAIN}{url}'
             price = json.loads(request.body).get('priceId')
-            log.info('Creating Stripe Checkout Session. user=%s price=%s', user, price)
+            log.info('Creating Stripe Checkout Session.', user_username=user.username, price=price)
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=user.username,
                 customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
@@ -184,9 +184,9 @@ class GoldSubscriptionPortal(GenericView):
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
             log.exception(
-                'There was an error connecting to Stripe. user=%s stripe_customer=%s',
-                user.username,
-                stripe_customer,
+                'There was an error connecting to Stripe.',
+                user_userame=user.username,
+                stripe_customer=stripe_customer,
             )
             messages.error(
                 request,
@@ -223,7 +223,7 @@ class StripeEventView(APIView):
         try:
             event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
             if event.type not in self.EVENTS:
-                log.warning('Unhandled Stripe event. event=%s', event.type)
+                log.warning('Unhandled Stripe event.', event_type=event.type)
                 return Response({
                     'OK': False,
                     'msg': f'Unhandled event. event={event.type}'
@@ -268,18 +268,18 @@ class StripeEventView(APIView):
                 username = event.data.object.client_reference_id
                 # TODO: add user notification saying it failed
                 log.exception(
-                    'Gold User payment failed. username=%s customer=%s',
-                    username,
-                    stripe_customer,
+                    'Gold User payment failed.',
+                    user_username=username,
+                    stripe_customer=stripe_customer,
                 )
 
             elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
                 subscription = event.data.object
                 level = subscription.plan.id
                 log.info(
-                    'Gold User subscription updated. customer=%s level=%s',
-                    stripe_customer,
-                    level,
+                    'Gold User subscription updated.',
+                    stripe_customer=stripe_customer,
+                    level=level,
                 )
                 (
                     GoldUser.objects
@@ -294,9 +294,8 @@ class StripeEventView(APIView):
                     # TODO: check if the subscription was canceled, past due, etc
                     # and take the according action. Only acummulate errors on Sentry for now.
                     log.error(
-                        'GoldUser is not active anymore. '
-                        'stripe_customer=%s',
-                        stripe_customer,
+                        'GoldUser is not active anymore.',
+                        stripe_customer=stripe_customer,
                     )
         except Exception:
             log.exception('Unexpected data in Stripe Event object')
