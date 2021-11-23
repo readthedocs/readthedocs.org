@@ -69,6 +69,7 @@ class NewRelicProcessor:
         event_dict.update(output)
         return event_dict
 
+
 shared_processors = [
     structlog.processors.TimeStamper(fmt='iso'),
     structlog.stdlib.add_logger_name,
