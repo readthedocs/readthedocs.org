@@ -8,6 +8,7 @@ import structlog
 
 from celery.schedules import crontab
 
+from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
 from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
@@ -803,11 +804,23 @@ class CommunityBaseSettings(Settings):
             # structlog
             "plain_console": {
                 "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.dev.ConsoleRenderer(),
+                "processors": [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    structlog.dev.ConsoleRenderer(),
+                ],
+                # Allows to add extra data to log entries generated via ``logging`` module
+                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
+                "foreign_pre_chain": shared_processors,
             },
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
-                "processor": structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
+                "processors": [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
+                ],
+                # Allows to add extra data to log entries generated via ``logging`` module
+                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
+                "foreign_pre_chain": shared_processors,
             },
         },
         'handlers': {
