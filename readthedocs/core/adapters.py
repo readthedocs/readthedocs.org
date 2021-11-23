@@ -1,7 +1,7 @@
 """Allauth overrides."""
 
 import json
-import logging
+import structlog
 
 from allauth.account.adapter import DefaultAccountAdapter
 from django.conf import settings
@@ -11,7 +11,7 @@ from django.utils.encoding import force_text
 from readthedocs.core.utils import send_email
 from readthedocs.organizations.models import TeamMember
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -40,8 +40,8 @@ class AccountAdapter(DefaultAccountAdapter):
                 del context[key]
         if removed_keys:
             log.debug(
-                'Removed context we were unable to serialize: %s',
-                removed_keys,
+                'Removed context we were unable to serialize.',
+                removed_keys=removed_keys,
             )
 
         send_email(

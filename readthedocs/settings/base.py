@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 
-import logging
 import os
 import subprocess
 import socket
@@ -27,7 +26,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -252,6 +251,7 @@ class CommunityBaseSettings(Settings):
         'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
         'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
+        'django_structlog.middlewares.CeleryMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -621,10 +621,10 @@ class CommunityBaseSettings(Settings):
                     )
                 }
         log.info(
-            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
-            socket.gethostname(),
-            limits['memory'],
-            limits['time'],
+            'Using dynamic docker limits.',
+            hostname=socket.gethostname(),
+            memory=limits['memory'],
+            time=limits['time'],
         )
         return limits
 
@@ -814,7 +814,7 @@ class CommunityBaseSettings(Settings):
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'default',
+                'formatter': 'plain_console',
             },
             'debug': {
                 'level': 'DEBUG',

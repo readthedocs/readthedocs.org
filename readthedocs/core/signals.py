@@ -1,6 +1,6 @@
 """Signal handling for core app."""
 
-import logging
+import structlog
 
 from corsheaders import signals
 from django.conf import settings
@@ -17,7 +17,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 ALLOWED_URLS = [
     '/api/v2/footer_html',

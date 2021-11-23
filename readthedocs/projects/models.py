@@ -2,7 +2,7 @@
 import fnmatch
 import hashlib
 import hmac
-import logging
+import structlog
 import os
 import re
 from shlex import quote
@@ -62,7 +62,7 @@ from .constants import (
     MEDIA_TYPES,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def default_privacy_level():
@@ -657,8 +657,9 @@ class Project(models.Model):
 
         if '\\$' in to_convert:
             log.warning(
-                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
-                self, to_convert
+                'Unconverted variable in a project URLConf.',
+                project_slug=self.slug,
+                to_convert=to_convert,
             )
         return to_convert
 

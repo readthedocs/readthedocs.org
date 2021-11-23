@@ -1,5 +1,5 @@
 import itertools
-import logging
+import structlog
 import sys
 import textwrap
 from datetime import datetime, timedelta
@@ -17,7 +17,7 @@ from readthedocs.search.tasks import (
     switch_es_index,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -39,13 +39,13 @@ class Command(BaseCommand):
             if not objects_id:
                 break
             current += len(objects_id)
-            log.info('Total: %s', current)
+            log.info('Total.', total=current)
             data['objects_id'] = objects_id
             yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
         apply_async_kwargs = {'queue': queue}
-        log.info('Adding indexing tasks to queue %s', queue)
+        log.info('Adding indexing tasks to queue.', queue=queue)
 
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
 
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 new_index_name=new_index_name,
             )
             doc._index._name = new_index_name
-            log.info('Temporal index created: %s', new_index_name)
+            log.info('Temporal index created.', index_name=new_index_name)
 
             indexing_tasks = self._get_indexing_tasks(
                 app_label=app_label,
@@ -79,8 +79,10 @@ class Command(BaseCommand):
                 task.apply_async(**apply_async_kwargs)
 
             log.info(
-                "Tasks issued successfully. model=%s.%s items=%s",
-                app_label, model_name, str(queryset.count())
+                "Tasks issued successfully.",
+                model_name=model_name,
+                app_label=app_label,
+                items=queryset.count(),
             )
         return timestamp
 
@@ -98,8 +100,11 @@ class Command(BaseCommand):
                 new_index_name=new_index_name,
             )
             log.info(
-                "Index name changed. model=%s.%s from=%s to=%s",
-                app_label, model_name, new_index_name, index_name,
+                "Index name changed.",
+                app_label=app_label,
+                model_name=model_name,
+                new_index_name=new_index_name,
+                index_name=index_name,
             )
 
     def _reindex_from(self, days_ago, models, queue):
@@ -110,7 +115,7 @@ class Command(BaseCommand):
         models = models or functions.keys()
         for model in models:
             if model not in functions:
-                log.warning("Re-index from not available for model %s", model.__name__)
+                log.warning("Re-index from not available for model.", model_name=model.__name__)
                 continue
             functions[model](days_ago=days_ago, queue=queue)
 
@@ -133,8 +138,10 @@ class Command(BaseCommand):
             for task in indexing_tasks:
                 task.apply_async(**apply_async_kwargs)
             log.info(
-                "Tasks issued successfully. model=%s.%s items=%s",
-                app_label, model_name, str(queryset.count())
+                "Tasks issued successfully.",
+                app_label=app_label,
+                model_name=model_name,
+                items=queryset.count(),
             )
 
     def _reindex_files_from(self, days_ago, queue):
@@ -169,15 +176,19 @@ class Command(BaseCommand):
                         break
                     current += len(objects_id)
                     log.info(
-                        'Re-indexing files. version=%s:%s total=%s',
-                        project.slug, version.slug, current,
+                        'Re-indexing files.',
+                        version_slug=version.slug,
+                        project_slug=project.slug,
+                        items=current,
                     )
                     apply_async_kwargs['kwargs']['objects_id'] = objects_id
                     index_objects_to_es.apply_async(**apply_async_kwargs)
 
                 log.info(
-                    "Tasks issued successfully. version=%s:%s items=%s",
-                    project.slug, version.slug, str(current),
+                    "Tasks issued successfully.",
+                    project_slug=project.slug,
+                    version_slug=version.slug,
+                    items=current,
                 )
 
     def add_arguments(self, parser):

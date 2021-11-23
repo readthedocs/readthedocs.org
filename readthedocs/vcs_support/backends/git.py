@@ -1,6 +1,6 @@
 """Git-related utilities."""
 
-import logging
+import structlog
 import re
 
 import git
@@ -21,7 +21,7 @@ from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
@@ -261,7 +261,7 @@ class Backend(BaseVCS):
                     # blob object - use the `.object` property instead to access it
                     # This is not a real tag for us, so we skip it
                     # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped: %s', tag, exc_info=True)
+                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
                     continue
 
             versions.append(VCSVersion(self, hexsha, str(tag)))

@@ -1,6 +1,6 @@
 """Endpoint to generate footer HTML."""
 
-import logging
+import structlog
 import re
 from functools import lru_cache
 
@@ -24,7 +24,7 @@ from readthedocs.projects.version_handling import (
     parse_version_failsafe,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_version_compare_data(project, base_version=None):

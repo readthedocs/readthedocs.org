@@ -2,7 +2,7 @@
 
 """Basic tasks."""
 
-import logging
+import structlog
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -14,7 +14,7 @@ from messages_extends.models import Message as PersistentMessage
 from readthedocs.worker import app
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 EMAIL_TIME_LIMIT = 30
 
@@ -60,7 +60,7 @@ def send_email_task(
         # TypeError is raised when ``template_html`` is ``None``
         pass
     msg.send()
-    log.info('Sent email to recipient: %s', recipient)
+    log.info('Sent email to recipient.', recipient=recipient)
 
 
 @app.task(queue='web')

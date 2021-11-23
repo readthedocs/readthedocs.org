@@ -303,8 +303,6 @@ PROGRAMMING_LANGUAGES = (
     ('other', 'Other'),
 )
 
-LOG_TEMPLATE = '(Build) [%(project)s:%(version)s] %(msg)s'
-
 PROJECT_PK_REGEX = r'(?:[-\w]+)'
 PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 

@@ -1,5 +1,5 @@
 """Base classes and mixins for unit tests."""
-import logging
+import structlog
 from collections import OrderedDict
 from unittest.mock import patch
 
@@ -8,7 +8,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class RequestFactoryTestMixin:

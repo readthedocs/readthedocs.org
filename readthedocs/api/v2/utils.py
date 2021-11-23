@@ -1,7 +1,7 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
-import logging
+import structlog
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -17,7 +17,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import RegexAutomationRule, Version
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
@@ -86,9 +86,9 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             )
 
             log.info(
-                '(Sync Versions) Updated Version: [%s=%s] ',
-                version_name,
-                version_id,
+                'Re-syncing versions: version updated.',
+                version_verbose_name=version_name,
+                version_id=version_id,
             )
         else:
             # New Version
@@ -116,8 +116,9 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             latest_version.save()
     if added:
         log.info(
-            '(Sync Versions) Added Versions: versions_count=%d versions=[%s]',
-            len(added), ' '.join(itertools.islice(added, 100)),
+            'Re-syncing versions: versions added.',
+            count=len(added),
+            versions=','.join(itertools.islice(added, 100)),
         )
     return added
 
@@ -214,8 +215,7 @@ def delete_versions_from_db(project, tags_data, branches_data):
     _, deleted = to_delete_qs.delete()
     versions_count = deleted.get('builds.Version', 0)
     log.info(
-        '(Sync Versions) Deleted Versions: project=%s versions_count=%s',
-        project.slug, versions_count,
+        'Re-syncing versions: versions deleted.', project_slug=project.slug, count=versions_count,
     )
 
 

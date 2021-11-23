@@ -1,6 +1,6 @@
 """Utilities related to reading and generating indexable search content."""
 
-import logging
+import structlog
 
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
@@ -8,18 +8,19 @@ from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import HTMLFile
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def index_new_files(model, version, build):
     """Index new files from the version into the search index."""
 
+    log.bind(
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+    )
+
     if not DEDConfig.autosync_enabled():
-        log.info(
-            'Autosync disabled, skipping indexing into the search index for: %s:%s',
-            version.project.slug,
-            version.slug,
-        )
+        log.info('Autosync disabled. Skipping indexing into the search index.')
         return
 
     try:
@@ -29,11 +30,7 @@ def index_new_files(model, version, build):
             doc_obj.get_queryset()
             .filter(project=version.project, version=version, build=build)
         )
-        log.info(
-            'Indexing new objecst into search index for: %s:%s',
-            version.project.slug,
-            version.slug,
-        )
+        log.info('Indexing new objecst into search index.')
         doc_obj.update(queryset.iterator())
     except Exception:
         log.exception('Unable to index a subset of files. Continuing.')
@@ -50,21 +47,18 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     :param build_id: Build id. If isn't given, all index from `version` are deleted.
     """
 
+    log.bind(
+        project_slug=project_slug,
+        version_slug=version_slug,
+    )
+
     if not DEDConfig.autosync_enabled():
-        log.info(
-            'Autosync disabled, skipping removal from the search index for: %s:%s',
-            project_slug,
-            version_slug,
-        )
+        log.info('Autosync disabled, skipping removal from the search index.')
         return
 
     try:
         document = list(registry.get_documents(models=[model]))[0]
-        log.info(
-            'Deleting old files from search index for: %s:%s',
-            project_slug,
-            version_slug,
-        )
+        log.info('Deleting old files from search index.')
         documents = (
             document().search()
             .filter('term', project=project_slug)

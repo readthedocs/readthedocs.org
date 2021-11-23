@@ -343,8 +343,8 @@ class TestCeleryBuilding(TestCase):
             search_ignore=[],
         )
         mock_logger.warning.assert_called_with(
-            'Version not found for given kwargs. %s',
-            {'pk': 345343},
+            'Version not found for given kwargs.',
+            kwargs={'pk': 345343},
         )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')

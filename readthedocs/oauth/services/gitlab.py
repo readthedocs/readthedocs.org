@@ -1,7 +1,7 @@
 """OAuth utility functions."""
 
 import json
-import logging
+import structlog
 import re
 from urllib.parse import quote_plus, urlparse
 
@@ -21,7 +21,7 @@ from ..constants import GITLAB
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class GitLabService(Service):
@@ -147,15 +147,14 @@ class GitLabService(Service):
                             remote_repositories.append(remote_repository)
                         else:
                             log.warning(
-                                'GitLab project does not exist or user does not have '
-                                'permissions: project=%s',
-                                repo['name_with_namespace'],
+                                'GitLab project does not exist or user does not have permissions.',
+                                repository=repo['name_with_namespace'],
                             )
 
                     except Exception:
                         log.exception(
-                            'Error creating GitLab repository=%s',
-                            repo['name_with_namespace'],
+                            'Error creating GitLab repository',
+                            repository=repo['name_with_namespace'],
                         )
 
         except (TypeError, ValueError):
@@ -200,8 +199,8 @@ class GitLabService(Service):
 
             if repo.organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs',
-                    fields['name'],
+                    'Not importing because mismatched orgs',
+                    repository=fields['name'],
                 )
                 return None
 
@@ -249,9 +248,9 @@ class GitLabService(Service):
             return repo
 
         log.info(
-            'Not importing %s because mismatched type: visibility=%s',
-            fields['path_with_namespace'],
-            fields['visibility'],
+            'Not importing repository because mismatched type.',
+            repository=fields['path_with_namespace'],
+            visibility=fields['visibility'],
         )
 
     def create_organization(self, fields):
@@ -365,21 +364,20 @@ class GitLabService(Service):
                         integration.save()
 
                         log.info(
-                            'GitLab integration updated with provider data for project: %s',
-                            project,
+                            'GitLab integration updated with provider data for project.',
+                            project_slug=project.slug,
                         )
                         break
             else:
                 log.info(
-                    'GitLab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'GitLab project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
                 )
 
         except Exception:
             log.exception(
-                'GitLab webhook Listing failed for project: %s',
-                project,
+                'GitLab webhook Listing failed for project.',
+                project_slug=project.slug,
             )
 
         return integration.provider_data
@@ -429,27 +427,26 @@ class GitLabService(Service):
                 integration.provider_data = resp.json()
                 integration.save()
                 log.info(
-                    'GitLab webhook creation successful for project: %s',
-                    project,
+                    'GitLab webhook creation successful for project.',
+                    project_slug=project.slug,
                 )
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'Gitlab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'Gitlab project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
                 )
 
         except (RequestException, ValueError):
             log.exception(
-                'GitLab webhook creation failed for project: %s',
-                project,
+                'GitLab webhook creation failed for project.',
+                project_slug=project.slug,
             )
         else:
             log.error(
-                'GitLab webhook creation failed for project: %s',
-                project,
+                'GitLab webhook creation failed for project.',
+                project_slug=project.slug,
             )
 
         # Always remove secret and return False if we don't return True above
@@ -507,8 +504,8 @@ class GitLabService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitLab webhook update successful for project: %s',
-                    project,
+                    'GitLab webhook update successful for project.',
+                    project_slug=project.slug,
                 )
                 return (True, resp)
 
@@ -520,19 +517,19 @@ class GitLabService(Service):
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
             log.exception(
-                'GitLab webhook update failed for project: %s',
-                project,
+                'GitLab webhook update failed for project.',
+                project_slug=project.slug,
             )
         else:
             log.error(
-                'GitLab webhook update failed for project: %s',
-                project,
+                'GitLab webhook update failed for project.',
+                project_slug=project.slug,
             )
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug('GitLab webhook update failure response: %s', debug_data)
+            log.debug('GitLab webhook update failure response.', debug_data=debug_data)
 
         integration.remove_secret()
         return (False, resp)
@@ -589,17 +586,19 @@ class GitLabService(Service):
 
             if resp.status_code == 201:
                 log.info(
-                    "GitLab commit status created for project: %s, commit status: %s",
-                    project.slug,
-                    gitlab_build_state,
+                    "GitLab commit status created for project.",
+                    project_slug=project.slug,
+                    commit_status=gitlab_build_state,
                 )
                 return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'GitLab project does not exist or user does not have permissions: '
-                    'project=%s, user=%s, status=%s, url=%s',
-                    project.slug, self.user.username, resp.status_code, statuses_url,
+                    'GitLab project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
+                    user_username=self.user.username,
+                    http_status_code=resp.status_code,
+                    statuses_url=statuses_url,
                 )
                 return False
 
@@ -608,8 +607,8 @@ class GitLabService(Service):
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitLab commit status creation failed for project: %s',
-                project.slug,
+                'GitLab commit status creation failed for project.',
+                project_slug=project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though
@@ -622,7 +621,7 @@ class GitLabService(Service):
                 debug_data = resp
 
             log.debug(
-                'GitLab commit status creation failure response: %s',
-                debug_data,
+                'GitLab commit status creation failure response.',
+                debug_data=debug_data,
             )
             return False
