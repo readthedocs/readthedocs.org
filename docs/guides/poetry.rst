@@ -5,10 +5,10 @@ Declaring your project metadata
 -------------------------------
 
 Poetry is a :pep:`517`-compliant build backend, which means that
-`it generates your project
+`it can generate your project
 metadata <https://python-poetry.org/docs/pyproject/#poetry-and-pep-517>`_
 using a standardized interface that can be consumed directly by pip.
-Therefore, by making sure that
+To do that, first make sure that
 the ``build-system`` section of your ``pyproject.toml``
 declares the build backend as follows:
 
@@ -19,7 +19,7 @@ declares the build backend as follows:
    requires = ["poetry_core>=1.0.0"]
    build-backend = "poetry.core.masonry.api"
 
-You will be able to install it on Read the Docs just using pip,
+Then, you will be able to install it on Read the Docs just using pip,
 with a configuration like this:
 
 .. code-block:: yaml
