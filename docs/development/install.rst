@@ -152,6 +152,11 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.buildassets``
     Build all the assets and "deploy" them to the storage.
 
+``inv docker.restoredb``
+    Return to an old state of the database 
+
+    * ``--file`` to select the sql file.
+
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
