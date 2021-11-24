@@ -33,14 +33,14 @@ you may want to verify those changes locally before pushing upstream.
 
 #. create a virtual environment with Python 3.8
    (preferably the latest release, 3.8.12 at the time of writing),
-   activate it, and upgrade both pip and setuptools:
+   activate it, and upgrade pip:
 
    .. code-block:: console
 
       $ cd readthedocs.org
       $ python3.8 -m venv .venv
       $ source .venv/bin/activate
-      (.venv) $ python -m pip install -U pip setuptools
+      (.venv) $ python -m pip install -U pip
 
 #. install documentation requirements
 
