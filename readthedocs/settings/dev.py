@@ -44,7 +44,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     # 127.0.0.1 test
     # and navigate to http://test:8000
     CORS_ORIGIN_WHITELIST = (
-        'test:8000',
+        'http://test:8000',
     )
 
     # Disable auto syncing elasticsearch documents in development

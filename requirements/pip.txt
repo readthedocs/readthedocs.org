@@ -90,9 +90,7 @@ dj-pagination==2.5.0
 # Version comparison stuff
 packaging==21.3
 
-# django-cors-middleware==1.5.0 fails with
-# AttributeError: 'dict' object has no attribute 'has_header'
-django-cors-middleware==1.4.0  # pyup: ignore
+django-cors-headers==3.10.0
 
 # User agent parsing - used for analytics purposes
 user-agents==2.2.0
