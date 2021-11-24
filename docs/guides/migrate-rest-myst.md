@@ -68,8 +68,10 @@ This will create a `.md` MyST file for every `.rst` source file converted.
 ### Advanced usage of `rst2myst`
 
 The `rst2myst` accepts several flags to modify its behavior.
-All of **them _have `more` sensible_ defaults**, so you don't have to specify them
+All of them have sensible defaults, so you don't have to specify them
 unless you want to.
+
+These are a few options you might find useful:
 
 {option}``-d, --dry-run <rst-to-myst:rst2myst-convert.--dry-run>``
 : Only verify that the script would work correctly,
