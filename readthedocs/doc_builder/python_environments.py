@@ -197,7 +197,10 @@ class PythonEnvironment:
                     'install',
                     '-U',
                     'virtualenv',
-                    'setuptools',
+                    # We cap setuptools to avoid breakage of projects
+                    # relying on setup.py invokations,
+                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                    '"setuptools<58.3.0"',
                 ]
                 self.build_env.run(
                     *cmd,
