@@ -1,8 +1,15 @@
 # Migrating from reStructuredText to MyST Markdown
 
-It's been a while since Sphinx started supporting Markdown.
-First with recommonmark,
-and now with [MyST-Parser].
+Sphinx is usually associated with reStructuredText, the markup language
+{pep}`designed for the CPython project in the early '00s <287>`.
+However, for quite some time Sphinx has been compatible with Markdown as well,
+thanks to a number of extensions.
+
+The most powerful of such extensions is [MyST-Parser], which implements
+a CommonMark-compliant, extensible Markdown dialect with support for the Sphinx
+roles and directives that make it so useful. In this guide, you will find
+how you can start writing Markdown in your existing reStructuredText project,
+or migrate it completely.
 
 If, instead of migrating, you are starting a new project from scratch,
 have a look at {doc}`myst-parser:sphinx/intro`.
