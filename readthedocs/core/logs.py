@@ -1,7 +1,10 @@
+import sys
+import warnings
+
 from io import StringIO
 
 import structlog
-from structlog.dev import _pad
+from structlog.dev import _pad, plain_traceback
 
 from django_structlog.middlewares.request import RequestMiddleware
 
