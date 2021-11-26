@@ -2,24 +2,9 @@
 
 -r pip.txt
 
-# psycopg2 2.9 is not compatible with Django 2.2
-# https://github.com/readthedocs/readthedocs.org/issues/8334
-psycopg2==2.8.6  # pyup: ignore
-
+psycopg2==2.9.2
 gunicorn==20.1.0
-
-# Version 3.0.0 drops support for Django < 3.0
-# https://github.com/sebleier/django-redis-cache/#300
-# django-redis-cache==2.1.3  # pyup: ignore
-# For some reason 2.1.3 breaks with:
-#
-# @get_client(write=True)
-# def get_or_set(self, client, key, func, timeout=DEFAULT_TIMEOUT):
-#     if not callable(func):
-#         raise Exception("Must pass in a callable")
-#
-# Looks like an older version gets installed somehow
-git+https://github.com/sebleier/django-redis-cache.git@2.1.3#egg=django-redis-cache
+django-redis-cache==3.0.0
 
 #For resizing images
 pillow==8.4.0

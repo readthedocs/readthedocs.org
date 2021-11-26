@@ -212,7 +212,6 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
         if ext:
-            apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.spamfighting')

@@ -2,13 +2,9 @@
 
 -r pip.txt
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-# psycopg2 2.9 is not compatible with Django 2.2
-# https://github.com/readthedocs/readthedocs.org/issues/8334
-psycopg2-binary==2.8.6  # pyup: ignore
+psycopg2-binary==2.9.2  # pyup: ignore
 
-# Version 3.0.0 drops support for Django < 3.0
-# https://github.com/sebleier/django-redis-cache/#300
-django-redis-cache==2.1.3  # pyup: ignore
+django-redis-cache==3.0.0
 
 # For resizing images
 pillow==8.4.0
