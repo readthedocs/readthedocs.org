@@ -6,8 +6,8 @@ import structlog
 import re
 
 from django.db import models
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
@@ -124,7 +124,7 @@ class Redirect(models.Model):
                 type=self.get_redirect_type_display(),
                 from_to_url=self.get_from_to_url_display(),
             )
-        return ugettext(
+        return gettext(
             'Redirect: {}'.format(
                 self.get_redirect_type_display(),
             ),

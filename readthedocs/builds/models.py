@@ -13,8 +13,8 @@ from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import (
     CreationDateTimeField,
     ModificationDateTimeField,
@@ -188,7 +188,7 @@ class Version(TimeStampedModel):
         ordering = ['-verbose_name']
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Version {version} of {project} ({pk})'.format(
                 version=self.verbose_name,
                 project=self.project,
@@ -778,7 +778,7 @@ class Build(models.Model):
         self._config_changed = False
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Build {project} for {usernames} ({pk})'.format(
                 project=self.project,
                 usernames=' '.join(
@@ -1015,7 +1015,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     def __str__(self):
         return (
-            ugettext('Build command {pk} for build {build}')
+            gettext('Build command {pk} for build {build}')
             .format(pk=self.pk, build=self.build)
         )
 

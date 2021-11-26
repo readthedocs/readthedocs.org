@@ -240,7 +240,7 @@ class BuildViewTests(TestCase):
         build = Build.objects.filter(project__slug='pip').latest()
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r._headers['location'][1],
+            r.headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
 
@@ -293,7 +293,7 @@ class BuildViewTests(TestCase):
 
         newbuild = Build.objects.first()
         self.assertEqual(
-            r._headers['location'][1],
+            r.headers['location'][1],
             f'/projects/pip/builds/{newbuild.pk}/',
         )
         self.assertEqual(newbuild.commit, 'a1b2c3')

@@ -3,7 +3,7 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
