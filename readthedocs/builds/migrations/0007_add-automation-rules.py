@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('priority', '-modified', '-created'),
-                'manager_inheritance_from_future': True,
+                # 'manager_inheritance_from_future': True,
             },
         ),
         migrations.CreateModel(
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'proxy': True,
-                'manager_inheritance_from_future': True,
+                # 'manager_inheritance_from_future': True,
                 'indexes': [],
             },
             bases=('builds.versionautomationrule',),

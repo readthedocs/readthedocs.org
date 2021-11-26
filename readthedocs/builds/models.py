@@ -673,8 +673,9 @@ class Build(models.Model):
         blank=True,
     )
 
-    cold_storage = models.NullBooleanField(
+    cold_storage = models.BooleanField(
         _('Cold Storage'),
+        null=True,
         help_text='Build steps stored outside the database.',
     )
 

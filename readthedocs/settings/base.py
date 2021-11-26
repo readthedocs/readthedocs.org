@@ -42,6 +42,8 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = 'replace-this-please'  # noqa
     ATOMIC_REQUESTS = True
 
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
     # Debug settings
     DEBUG = True
 
