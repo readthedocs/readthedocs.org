@@ -170,7 +170,34 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
 
-        # Invalid tests
+    @override_settings(
+        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+    )
+    def test_external_version_serving_old_slugs(self):
+        """
+        Test external version serving with projects with `--` in their slug.
+
+        Some old projects may have been created with a slug containg `--`,
+        our current code doesn't allow these type of slugs.
+        """
+        fixture.get(
+            Version,
+            verbose_name='10',
+            slug='10',
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        self.project.slug = 'test--project'
+        self.project.save()
+
+        host = 'test--project--10.dev.readthedocs.build'
+        resp = self.client.get('/awesome.html', HTTP_HOST=host)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/media/external/html/test--project/10/awesome.html',
+        )
+
+    # Invalid tests
 
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
