@@ -147,7 +147,7 @@ pip:
   Latest version by default.
 
 setuptools:
-  ``58.3.0`` or older.
+  ``58.2.0`` or older.
 
 mock:
   ``1.0.1`` (could be removed in the future).
