@@ -2,13 +2,13 @@
 
 """Locking utilities."""
 import errno
-import logging
+import structlog
 import os
 import stat
 import time
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class LockTimeout(Exception):
@@ -37,47 +37,41 @@ class Lock:
 
     def __enter__(self):
         start = time.time()
+        log.bind(
+            project_slug=self.name,
+        )
         while os.path.exists(self.fpath):
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.timeout:
-                log.debug(
-                    'Lock (%s): Force unlock, old lockfile',
-                    self.name,
-                )
+                log.debug('Force unlock, old lockfile.')
                 os.remove(self.fpath)
                 break
-            log.debug('Lock (%s): Locked, waiting..', self.name)
+            log.debug('Locked, waiting...')
             time.sleep(self.polling_interval)
             timesince = time.time() - start
             if timesince > self.timeout:
-                log.debug(
-                    'Lock (%s): Force unlock, timeout reached',
-                    self.name,
-                )
+                log.debug('Force unlock, timeout reached')
                 os.remove(self.fpath)
                 break
             log.debug(
-                '%s still locked after %.2f seconds; retry for %.2f'
-                ' seconds',
-                self.name,
-                timesince,
-                self.timeout,
+                'Lock still locked after some time. Retrying in some seconds',
+                locked_time=timesince,
+                seconds=self.timeout,
             )
         open(self.fpath, 'w').close()
-        log.debug('Lock (%s): Lock acquired', self.name)
+        log.debug('Lock acquired.')
 
     def __exit__(self, exc, value, tb):
+        log.bind(project_slug=self.name)
+
         try:
-            log.debug('Lock (%s): Releasing', self.name)
+            log.debug('Releasing lock.')
             os.remove(self.fpath)
         except OSError as e:
             # We want to ignore "No such file or directory" and log any other
             # type of error.
             if e.errno != errno.ENOENT:
-                log.exception(
-                    'Lock (%s): Failed to release, ignoring...',
-                    self.name,
-                )
+                log.exception('Failed to release, ignoring...')
 
 
 class NonBlockingLock:
@@ -105,13 +99,11 @@ class NonBlockingLock:
 
     def __enter__(self):
         path_exists = os.path.exists(self.fpath)
+        log.bind(project_slug=self.name)
         if path_exists and self.max_lock_age is not None:
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.max_lock_age:
-                log.debug(
-                    'Lock (%s): Force unlock, old lockfile',
-                    self.name,
-                )
+                log.debug('Force unlock, old lockfile')
                 os.remove(self.fpath)
             else:
                 raise LockTimeout(
@@ -125,15 +117,15 @@ class NonBlockingLock:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        log.bind(project_slug=self.name)
         try:
-            log.debug('Lock (%s): Releasing', self.name)
+            log.debug('Releasing lock.')
             os.remove(self.fpath)
         except (IOError, OSError) as e:
             # We want to ignore "No such file or directory" and log any other
             # type of error.
             if e.errno != errno.ENOENT:
                 log.error(
-                    'Lock (%s): Failed to release, ignoring...',
-                    self.name,
+                    'Failed to release, ignoring...',
                     exc_info=True,
                 )

@@ -1,6 +1,6 @@
 """Project views for authenticated users."""
 
-import logging
+import structlog
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -80,7 +80,7 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
@@ -212,7 +212,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s', version.slug)
+                log.info('Removing files for version.', version_slug=version.slug)
                 tasks.clean_project_resources(
                     version.project,
                     version,
@@ -241,7 +241,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            log.info('Removing files for version %s', version.slug)
+            log.info('Removing files for version.', version_slug=version.slug)
             tasks.clean_project_resources(
                 version.project,
                 version,

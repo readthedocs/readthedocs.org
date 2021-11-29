@@ -192,9 +192,9 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "GitHub commit status created for project: %s, commit status: %s",
-            self.project.slug,
-            BUILD_STATUS_SUCCESS
+            "GitHub commit status created for project.",
+            project_slug=self.project.slug,
+            commit_status=BUILD_STATUS_SUCCESS
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -209,12 +209,11 @@ class GitHubOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.info.assert_called_with(
-            'GitHub project does not exist or user does not have '
-            'permissions: project=%s, user=%s, status=%s, url=%s',
-            self.project.slug,
-            self.user.username,
-            404,
-            'https://api.github.com/repos/pypa/pip/statuses/1234'
+            'GitHub project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
+            user_username=self.user.username,
+            http_status_code=404,
+            statuses_url='https://api.github.com/repos/pypa/pip/statuses/1234'
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -227,8 +226,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
-            'GitHub commit status creation failed for project: %s',
-            self.project.slug,
+            'GitHub commit status creation failed for project.',
+            project_slug=self.project.slug,
         )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
@@ -265,8 +264,8 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitHub webhook creation successful for project: %s",
-            self.project,
+            "GitHub webhook creation successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -282,9 +281,8 @@ class GitHubOAuthTests(TestCase):
         self.assertFalse(success)
         self.assertIsNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            'GitHub project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'GitHub project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -300,8 +298,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
-            'GitHub webhook creation failed for project: %s',
-            self.project,
+            'GitHub webhook creation failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -319,8 +317,8 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitHub webhook update successful for project: %s",
-            self.project,
+            "GitHub webhook update successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
@@ -367,8 +365,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
-            'GitHub webhook update failed for project: %s',
-            self.project,
+            'GitHub webhook update failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -402,8 +400,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
         mock_logger.info.assert_called_with(
-            'GitHub integration updated with provider data for project: %s',
-            self.project,
+            'GitHub integration updated with provider data for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -423,9 +421,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.info.assert_called_with(
-            'GitHub project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'GitHub project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -445,8 +442,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.exception.assert_called_with(
-            'GitHub webhook Listing failed for project: %s',
-            self.project,
+            'GitHub webhook Listing failed for project.',
+            project_slug=self.project.slug,
         )
 
 
@@ -700,8 +697,8 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook creation successful for project: %s",
-            self.project,
+            "Bitbucket webhook creation successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -715,9 +712,8 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.info.assert_called_with(
-            'Bitbucket project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'Bitbucket project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -730,8 +726,8 @@ class BitbucketOAuthTests(TestCase):
         )
 
         mock_logger.exception.assert_called_with(
-            'Bitbucket webhook creation failed for project: %s',
-            self.project,
+            'Bitbucket webhook creation failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -747,8 +743,8 @@ class BitbucketOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook update successful for project: %s",
-            self.project,
+            "Bitbucket webhook update successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
@@ -792,8 +788,8 @@ class BitbucketOAuthTests(TestCase):
         )
 
         mock_logger.exception.assert_called_with(
-            'Bitbucket webhook update failed for project: %s',
-            self.project,
+            'Bitbucket webhook update failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -827,8 +823,8 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, webhook_data['values'][0])
         mock_logger.info.assert_called_with(
-            'Bitbucket integration updated with provider data for project: %s',
-            self.project,
+            'Bitbucket integration updated with provider data for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -848,9 +844,8 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.info.assert_called_with(
-            'Bitbucket project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'Bitbucket project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -870,8 +865,8 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.exception.assert_called_with(
-            'Bitbucket webhook Listing failed for project: %s',
-            self.project,
+            'Bitbucket webhook Listing failed for project.',
+            project_slug=self.project.slug,
         )
 
 
@@ -1092,9 +1087,9 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "GitLab commit status created for project: %s, commit status: %s",
-            self.project.slug,
-            BUILD_STATUS_SUCCESS
+            "GitLab commit status created for project.",
+            project_slug=self.project.slug,
+            commit_status=BUILD_STATUS_SUCCESS
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1112,12 +1107,11 @@ class GitLabOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.info.assert_called_with(
-            'GitLab project does not exist or user does not have permissions: '
-            'project=%s, user=%s, status=%s, url=%s',
-            self.project.slug,
-            self.user.username,
-            404,
-            'https://gitlab.com/api/v4/projects/9999/statuses/1234',
+            'GitLab project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
+            user_username=self.user.username,
+            http_status_code=404,
+            statuses_url='https://gitlab.com/api/v4/projects/9999/statuses/1234',
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1133,8 +1127,8 @@ class GitLabOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
-            'GitLab commit status creation failed for project: %s',
-            self.project.slug,
+            'GitLab commit status creation failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1152,8 +1146,8 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitLab webhook creation successful for project: %s",
-            self.project,
+            "GitLab webhook creation successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1170,9 +1164,8 @@ class GitLabOAuthTests(TestCase):
         self.assertFalse(success)
         self.assertIsNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            'Gitlab project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'Gitlab project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1188,8 +1181,9 @@ class GitLabOAuthTests(TestCase):
 
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
-            'GitLab webhook creation failed for project: %s',
-            self.project,
+            'GitLab webhook creation failed for project.',
+            project_slug=self.project.slug
+            ,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1209,8 +1203,8 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitLab webhook update successful for project: %s",
-            self.project,
+            "GitLab webhook update successful for project.",
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
@@ -1263,8 +1257,8 @@ class GitLabOAuthTests(TestCase):
 
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
-            'GitLab webhook update failed for project: %s',
-            self.project,
+            'GitLab webhook update failed for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1298,8 +1292,8 @@ class GitLabOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, webhook_data[0])
         mock_logger.info.assert_called_with(
-            'GitLab integration updated with provider data for project: %s',
-            self.project,
+            'GitLab integration updated with provider data for project.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1319,9 +1313,8 @@ class GitLabOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.info.assert_called_with(
-            'GitLab project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project,
+            'GitLab project does not exist or user does not have permissions.',
+            project_slug=self.project.slug,
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1341,6 +1334,6 @@ class GitLabOAuthTests(TestCase):
 
         self.assertEqual(self.integration.provider_data, {})
         mock_logger.exception.assert_called_with(
-            'GitLab webhook Listing failed for project: %s',
-            self.project,
+            'GitLab webhook Listing failed for project.',
+            project_slug=self.project.slug,
         )

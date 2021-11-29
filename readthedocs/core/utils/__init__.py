@@ -2,7 +2,7 @@
 
 import datetime
 import errno
-import logging
+import structlog
 import os
 import re
 
@@ -28,7 +28,7 @@ from readthedocs.projects.constants import (
     CELERY_MEDIUM,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def prepare_build(
@@ -66,8 +66,8 @@ def prepare_build(
     build = None
     if not Project.objects.is_active(project):
         log.warning(
-            'Build not triggered because Project is not active: project=%s',
-            project.slug,
+            'Build not triggered because project is not active.',
+            project_slug=project.slug,
         )
         return (None, None)
 
@@ -108,7 +108,7 @@ def prepare_build(
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
     except ValueError:
-        log.warning('Invalid time_limit for project: %s', project.slug)
+        log.warning('Invalid time_limit for project.', project_slug=project.slug)
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
@@ -167,18 +167,21 @@ def prepare_build(
         ).count() > 1
 
     if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
-        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        log.debug(
+            'Skipping deduplication of builds. Feature not enabled.',
+            project_slug=project.slug,
+        )
         skip_build = False
 
     if skip_build:
         # TODO: we could mark the old build as duplicated, however we reset our
         # position in the queue and go back to the end of it --penalization
         log.warning(
-            'Marking build to be skipped by builder. project=%s version=%s build=%s commit=%s',
-            project.slug,
-            version.slug,
-            build.pk,
-            commit,
+            'Marking build to be skipped by builder.',
+            project_slug=project.slug,
+            version_slug=version.slug,
+            build_id=build.pk,
+            commit=commit,
         )
         build.error = DuplicatedBuildError.message
         build.status = DuplicatedBuildError.status
@@ -192,9 +195,9 @@ def prepare_build(
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
             log.warning(
-                'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
-                project.slug,
-                version.slug,
+                'Delaying tasks at trigger step due to concurrency limit.',
+                project_slug=project.slug,
+                version_slug=version.slug,
             )
             options['countdown'] = 5 * 60
             options['max_retries'] = 25
@@ -230,10 +233,10 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :rtype: tuple
     """
     log.info(
-        'Triggering build. project=%s version=%s commit=%s',
-        project.slug,
-        version.slug if version else None,
-        commit,
+        'Triggering build.',
+        project_slug=project.slug,
+        version_slug=version.slug if version else None,
+        commit=commit,
     )
     update_docs_task, build = prepare_build(
         project=project,

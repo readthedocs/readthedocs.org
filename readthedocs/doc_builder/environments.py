@@ -1,6 +1,6 @@
 """Documentation Builder Environments."""
 
-import logging
+import structlog
 import os
 import re
 import socket
@@ -23,7 +23,6 @@ from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
-from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.exceptions import (
     ProjectConfigurationError,
     RepositoryError,
@@ -51,7 +50,7 @@ from .exceptions import (
     YAMLParseError,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 __all__ = (
     'api_v2',
@@ -129,7 +128,7 @@ class BuildCommand(BuildCommandResultMixin):
 
     def run(self):
         """Set up subprocess and execute command."""
-        log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
+        log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
 
         self.start_time = datetime.utcnow()
         environment = self._environment.copy()
@@ -202,11 +201,11 @@ class BuildCommand(BuildCommandResultMixin):
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
         if output_length > allowed_length:
             log.info(
-                'Command output is too big: project=[%s] version=[%s] build=[%s] command=[%s]',  # noqa
-                self.build_env.project.slug,
-                self.build_env.version.slug,
-                self.build_env.build.get('id'),
-                self.get_command(),
+                'Command output is too big.',
+                project_slug=self.build_env.project.slug,
+                version_slug=self.build_env.version.slug,
+                build_id=self.build_env.build.get('id'),
+                command=self.get_command(),
             )
             truncated_output = sanitized[-allowed_length:]
             sanitized = (
@@ -256,10 +255,10 @@ class BuildCommand(BuildCommandResultMixin):
                     'Content-Type': encoder.content_type,
                 }
             )
-            log.debug('Post response via multipart form: %s', resp)
+            log.debug('Post response via multipart form.', response=resp)
         else:
             resp = api_v2.command.post(data)
-            log.debug('Post response via JSON encoded data: %s', resp)
+            log.debug('Post response via JSON encoded data.', response=resp)
 
 
 class DockerBuildCommand(BuildCommand):
@@ -290,10 +289,10 @@ class DockerBuildCommand(BuildCommand):
     def run(self):
         """Execute command in existing Docker container."""
         log.info(
-            "Running in container %s: '%s' [%s]",
-            self.build_env.container_id,
-            self.get_command(),
-            self.cwd,
+            "Running build command in container.",
+            container_id=self.build_env.container_id,
+            command=self.get_command(),
+            cwd=self.cwd,
         )
 
         self.start_time = datetime.utcnow()
@@ -456,12 +455,9 @@ class BaseEnvironment:
 
             if warn_only:
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug if self.project else '',
-                        'version': 'latest',
-                        'msg': msg,
-                    }
+                    msg,
+                    project_slug=self.project.slug if self.project else '',
+                    version_slug=self.version.slug if self.version else '',
                 )
             else:
                 raise BuildEnvironmentWarning(msg)
@@ -549,12 +545,9 @@ class BuildEnvironment(BaseEnvironment):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
-            LOG_TEMPLATE,
-            {
-                'project': self.project.slug if self.project else '',
-                'version': self.version.slug if self.version else '',
-                'msg': 'Build finished',
-            }
+            'Build finished',
+            project_slug=self.project.slug if self.project else '',
+            version_slug=self.version.slug if self.version else '',
         )
         return ret
 
@@ -585,12 +578,9 @@ class BuildEnvironment(BaseEnvironment):
                 self.failure = exc_value
 
             log_level_function(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug if self.project else '',
-                    'version': self.version.slug if self.version else '',
-                    'msg': exc_value,
-                },
+                msg=exc_value,
+                project_slug=self.project.slug if self.project else '',
+                version_slug=self.version.slug if self.version else '',
                 exc_info=True,
                 extra={
                     'stack': True,
@@ -698,8 +688,8 @@ class BuildEnvironment(BaseEnvironment):
             ):
                 # yapf: enable
                 log.error(
-                    'Build failed with unhandled exception: %s',
-                    str(self.failure),
+                    'Build failed with unhandled exception.',
+                    exception=str(self.failure),
                     extra={
                         'stack': True,
                         'tags': {
@@ -735,8 +725,8 @@ class BuildEnvironment(BaseEnvironment):
                 api_v2.build(self.build['id']).put(self.build)
             except HttpClientError:
                 log.exception(
-                    'Unable to update build: id=%d',
-                    self.build['id'],
+                    'Unable to update build',
+                    build_id=self.build['id'],
                 )
             except Exception:
                 log.exception('Unknown build exception')
@@ -815,16 +805,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                     raise exc
 
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': (
-                            'Removing stale container {}'.format(
-                                self.container_id,
-                            )
-                        ),
-                    }
+                    'Removing stale container.',
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    container_id=self.container_id,
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
@@ -860,33 +844,30 @@ class DockerBuildEnvironment(BuildEnvironment):
                 client.kill(self.container_id)
             except DockerNotFoundError:
                 log.info(
-                    'Container does not exists, nothing to kill. id=%s',
-                    self.container_id,
+                    'Container does not exists, nothing to kill.',
+                    container_id=self.container_id,
                 )
             except DockerAPIError:
                 log.exception(
-                    'Unable to kill container: id=%s',
-                    self.container_id,
+                    'Unable to kill container.',
+                    container_id=self.container_id,
                 )
 
             try:
-                log.info('Removing container: id=%s', self.container_id)
+                log.info('Removing container.', container_id=self.container_id)
                 client.remove_container(self.container_id)
             except DockerNotFoundError:
                 log.info(
-                    'Container does not exists, nothing to remove. id=%s',
-                    self.container_id,
+                    'Container does not exists, nothing to remove.',
+                    container_id=self.container_id,
                 )
             # Catch direct failures from Docker API or with an HTTP request.
             # These errors should not surface to the user.
             except (DockerAPIError, ConnectionError, ReadTimeout):
                 log.exception(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': "Couldn't remove container",
-                    }
+                    "Couldn't remove container",
+                    project=self.project.slug,
+                    version=self.version.slug,
                 )
             self.container = None
         except BuildEnvironmentError:
@@ -923,12 +904,9 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': "Could not connect to Docker API",
-                }
+                "Could not connect to Docker API",
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1039,9 +1017,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         client = self.get_client()
         try:
             log.info(
-                'Creating Docker container: image=%s id=%s',
-                self.container_image,
-                self.container_id,
+                'Creating Docker container.',
+                container_image=self.container_image,
+                container_id=self.container_id,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -1060,15 +1038,9 @@ class DockerBuildEnvironment(BuildEnvironment):
             client.start(container=self.container_id)
         except ConnectionError:
             log.exception(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': (
-                        'Could not connect to the Docker API, '
-                        'make sure Docker is running'
-                    ),
-                }
+                'Could not connect to the Docker API, make sure Docker is running.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1080,11 +1052,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         except DockerAPIError as e:
             log.exception(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': e.explanation,
-                }
+                e.explanation,
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             raise BuildEnvironmentCreationFailed

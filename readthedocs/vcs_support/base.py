@@ -1,5 +1,5 @@
 """Base classes for VCS backends."""
-import logging
+import structlog
 import os
 import shutil
 
@@ -7,7 +7,7 @@ from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
 from readthedocs.projects.exceptions import RepositoryError
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class VCSVersion:

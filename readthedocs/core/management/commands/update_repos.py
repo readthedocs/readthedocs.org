@@ -4,7 +4,7 @@ Custom management command to rebuild documentation for all projects.
 Invoked via ``./manage.py update_repos``.
 """
 
-import logging
+import structlog
 
 from django.core.management.base import BaseCommand
 
@@ -13,7 +13,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         if slugs:
             for slug in slugs:
                 if version == 'all':
-                    log.info('Updating all versions for %s', slug)
+                    log.info('Updating all versions.', project_slug=slug)
                     for version in Version.objects.filter(
                             project__slug=slug,
                             active=True,
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                     ):
                         trigger_build(project=version.project, version=version)
                 elif version == INTERNAL:
-                    log.info('Updating all internal versions for %s', slug)
+                    log.info('Updating all internal versions.', project_slug=slug)
                     for version in Version.internal.filter(
                             project__slug=slug,
                             active=True,
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                     ):
                         trigger_build(project=version.project, version=version)
                 elif version == EXTERNAL:
-                    log.info('Updating all external versions for %s', slug)
+                    log.info('Updating all external versions.', project_slug=slug)
                     for version in Version.external.filter(
                             project__slug=slug,
                             active=True,
@@ -72,7 +72,11 @@ class Command(BaseCommand):
                     ):
                         trigger_build(project=version.project, version=version)
                 elif version:
-                    log.info('Updating version %s for %s', version, slug)
+                    log.info(
+                        'Updating version for project.',
+                        version_slug=version.slug,
+                        project_slug=slug,
+                    )
                     for version in Version.objects.filter(
                             project__slug=slug,
                             slug=version,
@@ -80,7 +84,7 @@ class Command(BaseCommand):
                         trigger_build(project=version.project, version=version)
                 else:
                     p = Project.all_objects.get(slug=slug)
-                    log.info('Building %s', p)
+                    log.info('Building ...', project_slug=p.slug)
                     trigger_build(project=p, force=force)
         else:
             if version == 'all':
@@ -105,7 +109,7 @@ class Command(BaseCommand):
                 ):
                     trigger_build(project=version.project, version=version)
             elif version:
-                log.info('Updating version %s', version)
+                log.info('Updating version.', version_slug=version.slug)
                 for version in Version.objects.filter(
                         slug=version,
                 ):

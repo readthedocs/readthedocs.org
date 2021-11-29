@@ -1,6 +1,6 @@
 """Utility functions for use in tests."""
 
-import logging
+import structlog
 import subprocess
 import textwrap
 from os import chdir, environ, mkdir
@@ -14,7 +14,7 @@ from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_readthedocs_app_path():

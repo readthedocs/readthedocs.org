@@ -1,6 +1,6 @@
 """Views that don't require login."""
 # pylint: disable=too-many-ancestors
-import logging
+import structlog
 
 from django.db.models import F
 from django.http import HttpResponseRedirect
@@ -19,7 +19,7 @@ from readthedocs.organizations.views.base import (
 )
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):

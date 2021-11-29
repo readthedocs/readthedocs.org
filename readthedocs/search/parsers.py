@@ -1,7 +1,7 @@
 """JSON/HTML parsers for search indexing."""
 
 import itertools
-import logging
+import structlog
 import os
 import re
 from urllib.parse import urlparse
@@ -11,7 +11,7 @@ from selectolax.parser import HTMLParser
 
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BaseParser:
@@ -38,8 +38,8 @@ class BaseParser:
                 content = f.read()
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file: %s',
-                page,
+                'Unhandled exception during search processing file.',
+                page=page,
             )
         return content
 
@@ -126,7 +126,7 @@ class BaseParser:
                     'content': content,
                 }
         except Exception as e:
-            log.info('Unable to index section: %s', str(e))
+            log.info('Unable to index section', section=str(e))
 
         # Index content from h1 to h6 headers.
         for head_level in range(1, 7):
@@ -141,7 +141,7 @@ class BaseParser:
                         'content': content,
                     }
                 except Exception as e:
-                    log.info('Unable to index section: %s', str(e))
+                    log.info('Unable to index section.', section=str(e))
 
     def _get_sections(self, title, body):
         """Get the first `self.max_inner_documents` sections."""
@@ -153,8 +153,10 @@ class BaseParser:
             pass
         else:
             log.warning(
-                'Limit of inner sections exceeded. project=%s version=%s limit=%d',
-                self.project.slug, self.version.slug, self.max_inner_documents,
+                'Limit of inner sections exceeded.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+                limit=self.max_inner_documents,
             )
         return sections
 
@@ -343,8 +345,8 @@ class SphinxParser(BaseParser):
                     return self._process_fjson(fjson_path)
             except Exception:
                 log.warning(
-                    'Unhandled exception during search processing file: %s',
-                    fjson_path,
+                    'Unhandled exception during search processing file.',
+                    path=fjson_path,
                 )
 
         return {
@@ -360,7 +362,7 @@ class SphinxParser(BaseParser):
             with self.storage.open(fjson_path, mode='r') as f:
                 file_contents = f.read()
         except IOError:
-            log.info('Unable to read file: %s', fjson_path)
+            log.info('Unable to read file.', path=fjson_path)
             raise
 
         data = json.loads(file_contents)
@@ -372,29 +374,29 @@ class SphinxParser(BaseParser):
         if 'current_page_name' in data:
             path = data['current_page_name']
         else:
-            log.info('Unable to index file due to no name %s', fjson_path)
+            log.info('Unable to index file due to no name.', path=fjson_path)
 
         if 'title' in data:
             title = data['title']
             title = HTMLParser(title).text().strip()
         else:
-            log.info('Unable to index title for: %s', fjson_path)
+            log.info('Unable to index title.', path=fjson_path)
 
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
                 sections = self._get_sections(title=title, body=body.body)
             except Exception as e:
-                log.info('Unable to index sections for: %s', fjson_path)
+                log.info('Unable to index sections.', path=fjson_path)
 
             try:
                 # Create a new html object, since the previous one could have been modified.
                 body = HTMLParser(data['body'])
                 domain_data = self._generate_domains_data(body)
             except Exception as e:
-                log.info('Unable to index domains for: %s', fjson_path)
+                log.info('Unable to index domains.', path=fjson_path)
         else:
-            log.info('Unable to index content for: %s', fjson_path)
+            log.info('Unable to index content.', path=fjson_path)
 
         return {
             'path': path,
@@ -469,8 +471,10 @@ class SphinxParser(BaseParser):
                         number_of_domains += 1
                     if number_of_domains >= self.max_inner_documents:
                         log.warning(
-                            'Limit of inner domains exceeded. project=%s version=%s limit=%i',
-                            self.project.slug, self.version.slug, self.max_inner_documents,
+                            'Limit of inner domains exceeded.',
+                            project_slug=self.project.slug,
+                            version_slug=self.version.slug,
+                            limit=self.max_inner_documents,
                         )
                         break
                 except Exception:
@@ -513,7 +517,7 @@ class MkDocsParser(BaseParser):
             if content:
                 return self._process_content(page, content)
         except Exception as e:
-            log.info('Failed to index page %s, %s', page, str(e))
+            log.info('Failed to index page.', path=page, exception=str(e))
         return {
             'path': page,
             'title': '',
@@ -532,9 +536,8 @@ class MkDocsParser(BaseParser):
             sections = self._get_sections(title=title, body=body)
         else:
             log.info(
-                'Page doesn\'t look like it has valid content, skipping. '
-                'page=%s',
-                page,
+                "Page doesn't look like it has valid content, skipping.",
+                page=page,
             )
         return {
             'path': page,
@@ -557,8 +560,8 @@ class MkDocsParser(BaseParser):
                     return index_data
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file: %s',
-                page,
+                'Unhandled exception during search processing file.',
+                page=page,
             )
         return {
             'path': page,
@@ -573,7 +576,7 @@ class MkDocsParser(BaseParser):
             with self.storage.open(json_path, mode='r') as f:
                 file_contents = f.read()
         except IOError:
-            log.info('Unable to read file: %s', json_path)
+            log.info('Unable to read file.', path=json_path)
             raise
 
         data = json.loads(file_contents)

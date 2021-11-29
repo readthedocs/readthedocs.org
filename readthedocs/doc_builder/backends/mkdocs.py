@@ -4,7 +4,7 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import logging
+import structlog
 import os
 
 import yaml
@@ -16,7 +16,7 @@ from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_absolute_static_url():
@@ -59,8 +59,8 @@ class BaseMkdocs(BaseBuilder):
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
             self.DEFAULT_THEME_NAME = 'readthedocs'
             log.warning(
-                'Project using readthedocs theme as default for MkDocs: slug=%s',
-                self.project.slug,
+                'Project using readthedocs theme as default for MkDocs.',
+                project_slug=self.project.slug,
             )
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
@@ -107,9 +107,9 @@ class BaseMkdocs(BaseBuilder):
 
         except IOError:
             log.info(
-                'Creating default MkDocs config file for project: %s:%s',
-                self.project.slug,
-                self.version.slug,
+                'Creating default MkDocs config file for project.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             return {
                 'site_name': self.version.project.name,

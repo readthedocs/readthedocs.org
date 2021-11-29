@@ -1,11 +1,11 @@
-import logging
+import structlog
 
 from django.db.models import Count, F, Max
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 from django_filters import CharFilter, ChoiceFilter, FilterSet, OrderingFilter
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class VersionSortOrderingFilter(OrderingFilter):
