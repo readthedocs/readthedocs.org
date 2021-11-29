@@ -15,7 +15,7 @@ account_urls = [
         views.LoginView.as_view(),
         name='account_login',
     ),
-    re_path(  
+    re_path(
         r'^logout/',
         views.LogoutView.as_view(),
         name='account_logout',

@@ -20,4 +20,3 @@ __all__ = (
     'SiteNotification',
     'send_notification',
 )
-

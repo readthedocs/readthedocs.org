@@ -52,10 +52,11 @@ from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 health_check_urls = [
-    re_path('^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
+    re_path(
+        '^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
         HealthCheckView.as_view(),
         name='health_check',
-        ),
+    ),
 ]
 
 proxied_urls = [

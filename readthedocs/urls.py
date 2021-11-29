@@ -28,12 +28,16 @@ basic_urls = [
     ),
     re_path(r'^support/$', SupportView.as_view(), name='support'),
     # These are redirected to from the support form
-    re_path(r'^support/success/$',
+    re_path(
+        r'^support/success/$',
         TemplateView.as_view(template_name='support/success.html'),
-        name='support_success'),
-    re_path(r'^support/error/$',
+        name='support_success',
+    ),
+    re_path(
+        r'^support/error/$',
         TemplateView.as_view(template_name='support/error.html'),
-        name='support_error'),
+        name='support_error',
+    ),
 ]
 
 rtd_urls = [
