@@ -197,7 +197,10 @@ class PythonEnvironment:
                     'install',
                     '-U',
                     'virtualenv',
-                    'setuptools',
+                    # We cap setuptools to avoid breakage of projects
+                    # relying on setup.py invokations,
+                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                    'setuptools<58.3.0',
                 ]
                 self.build_env.run(
                     *cmd,
@@ -477,7 +480,7 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version, 'setuptools']
+        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
