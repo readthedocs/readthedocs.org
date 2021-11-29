@@ -1234,7 +1234,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools']
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_sphinx
@@ -1259,7 +1259,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools']
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_mkdocs
