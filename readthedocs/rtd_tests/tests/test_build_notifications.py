@@ -43,8 +43,8 @@ class BuildNotificationsTests(TestCase):
             event=WebHookEvent.BUILD_FAILED,
         )
         mock_logger.warning.assert_called_with(
-            'Version not found for given kwargs. %s',
-            {'pk': 345343},
+            'Version not found for given kwargs.',
+            kwargs={'pk': 345343},
         )
 
     def test_send_notification_none(self):

@@ -1,12 +1,13 @@
 """Signal handling for core app."""
 
-import logging
+import structlog
 
 from corsheaders import signals
 from django.conf import settings
 from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
+
 from rest_framework.permissions import SAFE_METHODS
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
@@ -16,7 +17,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 ALLOWED_URLS = [
     '/api/v2/footer_html',

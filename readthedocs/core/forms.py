@@ -1,6 +1,6 @@
 """Forms for core app."""
 
-import logging
+import structlog
 
 from django import forms
 from django.contrib.auth.models import User
@@ -11,7 +11,7 @@ from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):

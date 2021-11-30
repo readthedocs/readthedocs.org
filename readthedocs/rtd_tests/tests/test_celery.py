@@ -343,8 +343,8 @@ class TestCeleryBuilding(TestCase):
             search_ignore=[],
         )
         mock_logger.warning.assert_called_with(
-            'Version not found for given kwargs. %s',
-            {'pk': 345343},
+            'Version not found for given kwargs.',
+            kwargs={'pk': 345343},
         )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
@@ -593,7 +593,7 @@ class TestCeleryBuilding(TestCase):
                 mock.call('asdf', 'install', 'python', python_version),
                 mock.call('asdf', 'global', 'python', python_version),
                 mock.call('asdf', 'reshim', 'python', record=False),
-                mock.call('python', '-mpip', 'install', '-U', 'virtualenv', 'setuptools'),
+                mock.call('python', '-mpip', 'install', '-U', 'virtualenv', 'setuptools<58.3.0'),
                 mock.call('asdf', 'install', 'nodejs', nodejs_version),
                 mock.call('asdf', 'global', 'nodejs', nodejs_version),
                 mock.call('asdf', 'reshim', 'nodejs', record=False),

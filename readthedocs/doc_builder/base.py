@@ -1,6 +1,6 @@
 """Base classes for Builders."""
 
-import logging
+import structlog
 import os
 import shutil
 from functools import wraps
@@ -8,7 +8,7 @@ from functools import wraps
 from readthedocs.projects.models import Feature
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def restoring_chdir(fn):
@@ -73,8 +73,8 @@ class BaseBuilder:
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info('Copying %s on the local filesystem', self.type)
-            log.debug('Ignoring patterns %s', self.ignore_patterns)
+            log.info('Copying output type on the local filesystem.', output_type=self.type)
+            log.debug('Ignoring patterns.', patterns=self.ignore_patterns)
             shutil.copytree(
                 self.old_artifact_path,
                 self.target,
@@ -87,7 +87,7 @@ class BaseBuilder:
         """Clean the path where documentation will be built."""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info('Removing old artifact path: %s', self.old_artifact_path)
+            log.info('Removing old artifact path.', path=self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
