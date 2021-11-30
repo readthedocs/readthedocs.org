@@ -1,3 +1,18 @@
+Version 6.3.0
+-------------
+
+:Date: November 29, 2021
+
+* `@humitos <https://github.com/humitos>`__: Tests: run tests with Python3.8 in CircleCI (`#8718 <https://github.com/readthedocs/readthedocs.org/pull/8718>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
+* `@humitos <https://github.com/humitos>`__: requirements: add requests-oauthlib (`#8712 <https://github.com/readthedocs/readthedocs.org/pull/8712>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@humitos <https://github.com/humitos>`__: spam: fix admin filter (`#8707 <https://github.com/readthedocs/readthedocs.org/pull/8707>`__)
+* `@humitos <https://github.com/humitos>`__: oauth: sync remote repositories fix (`#8706 <https://github.com/readthedocs/readthedocs.org/pull/8706>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add guide on Poetry (`#8702 <https://github.com/readthedocs/readthedocs.org/pull/8702>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: log success requests (`#8689 <https://github.com/readthedocs/readthedocs.org/pull/8689>`__)
+
 Version 6.2.1
 -------------
 
