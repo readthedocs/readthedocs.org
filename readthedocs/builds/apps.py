@@ -1,9 +1,9 @@
-import logging
+import structlog
 
 from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Config(AppConfig):

@@ -1,12 +1,14 @@
 # pylint: disable=missing-docstring
 
-import logging
 import os
 import subprocess
 import socket
 
+import structlog
+
 from celery.schedules import crontab
 
+from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
 from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
@@ -25,7 +27,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -249,6 +251,8 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
         'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
+        'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
+        'django_structlog.middlewares.CeleryMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -618,10 +622,10 @@ class CommunityBaseSettings(Settings):
                     )
                 }
         log.info(
-            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
-            socket.gethostname(),
-            limits['memory'],
-            limits['time'],
+            'Using dynamic docker limits.',
+            hostname=socket.gethostname(),
+            memory=limits['memory'],
+            time=limits['time'],
         )
         return limits
 
@@ -797,18 +801,49 @@ class CommunityBaseSettings(Settings):
                 'format': LOG_FORMAT,
                 'datefmt': '%d/%b/%Y %H:%M:%S',
             },
+            # structlog
+            "plain_console": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processors": [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    structlog.dev.ConsoleRenderer(colors=False),
+                ],
+                # Allows to add extra data to log entries generated via ``logging`` module
+                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
+                "foreign_pre_chain": shared_processors,
+            },
+            "colored_console": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processors": [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    structlog.dev.ConsoleRenderer(colors=True),
+                ],
+                # Allows to add extra data to log entries generated via ``logging`` module
+                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
+                "foreign_pre_chain": shared_processors,
+            },
+            "key_value": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processors": [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
+                ],
+                # Allows to add extra data to log entries generated via ``logging`` module
+                # See https://www.structlog.org/en/stable/standard-library.html#rendering-using-structlog-based-formatters-within-logging
+                "foreign_pre_chain": shared_processors,
+            },
         },
         'handlers': {
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'default'
+                'formatter': 'plain_console',
             },
             'debug': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
-                'formatter': 'default',
+                'formatter': 'key_value',
             },
             'null': {
                 'class': 'logging.NullHandler',
@@ -819,6 +854,11 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
+            },
+            'django_structlog.middlewares.request': {
+                'handlers': ['null'],
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],

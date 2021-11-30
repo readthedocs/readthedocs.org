@@ -1,12 +1,12 @@
 import os
-import logging
+import structlog
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from .decorators import map_project_slug, map_subproject_slug
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 def fast_404(request, *args, **kwargs):
@@ -61,8 +61,8 @@ def _get_project_data_from_request(
             filename = os.path.join(lang_slug, version_slug, filename)
             log.warning(
                 'URL looks like versioned on a single version project.'
-                'Changing filename to match. filename=%s',
-                filename
+                'Changing filename to match.',
+                filename=filename,
             )
             lang_slug = version_slug = None
 

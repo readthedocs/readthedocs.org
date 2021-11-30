@@ -11,3 +11,6 @@ class CoreAppConfig(AppConfig):
 
     def ready(self):
         import readthedocs.core.signals  # noqa
+
+        # Import `readthedocs.core.logs` to set up structlog
+        import readthedocs.core.logs  # noqa

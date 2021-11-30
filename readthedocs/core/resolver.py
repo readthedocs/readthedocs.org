@@ -1,6 +1,6 @@
 """URL resolver for documentation."""
 
-import logging
+import structlog
 from urllib.parse import urlunparse
 
 from django.conf import settings
@@ -8,7 +8,7 @@ from django.conf import settings
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.constants import EXTERNAL
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ResolverBase:
@@ -102,7 +102,7 @@ class ResolverBase:
             )
             if '$' in url:
                 log.warning(
-                    'Unconverted variable in a resolver URLConf: url=%s', url
+                    'Unconverted variable in a resolver URLConf.', url=url,
                 )
 
         return url.format(

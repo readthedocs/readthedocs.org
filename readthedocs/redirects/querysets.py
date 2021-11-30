@@ -1,12 +1,12 @@
 """Queryset for the redirects app."""
-import logging
+import structlog
 
 from django.db import models
 from django.db.models import CharField, F, Q, Value
 
 from readthedocs.core.permissions import AdminPermission
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class RedirectQuerySet(models.QuerySet):

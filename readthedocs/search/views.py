@@ -1,6 +1,6 @@
 """Search views."""
 import collections
-import logging
+import structlog
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
@@ -21,8 +21,7 @@ from .serializers import (
     VersionData,
 )
 
-log = logging.getLogger(__name__)
-LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
+log = structlog.get_logger(__name__)
 
 UserInput = collections.namedtuple(
     'UserInput',

@@ -4,7 +4,7 @@
 
 import hashlib
 import ipaddress
-import logging
+import structlog
 
 import requests
 from django.conf import settings
@@ -13,7 +13,7 @@ from django.utils.encoding import force_bytes, force_text
 from user_agents import parse
 
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 def get_client_ip(request):
@@ -79,7 +79,7 @@ def send_to_analytics(data):
         data['ua'] = anonymize_user_agent(data['ua'])
 
     resp = None
-    log.debug('Sending data to analytics: %s', data)
+    log.debug('Sending data to analytics.', data=data)
     try:
         resp = requests.post(
             'https://www.google-analytics.com/collect',

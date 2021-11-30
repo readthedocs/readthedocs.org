@@ -77,7 +77,14 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def LOGGING(self):
         logging = super().LOGGING
+        logging['handlers']['console']['formatter'] = 'colored_console'
         logging['loggers'].update({
+            # Disable Django access requests logging (e.g. GET /path/to/url)
+            # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
+            'django.server': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
             # Disable S3 logging
             'boto3': {
                 'handlers': ['null'],

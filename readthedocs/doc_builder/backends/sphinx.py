@@ -5,7 +5,7 @@ Sphinx_ backend for building docs.
 """
 import codecs
 import itertools
-import logging
+import structlog
 import os
 import shutil
 import zipfile
@@ -31,7 +31,7 @@ from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BaseSphinx(BaseBuilder):
@@ -63,9 +63,9 @@ class BaseSphinx(BaseBuilder):
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
         log.info(
-            'Creating default Sphinx config file for project: %s:%s',
-            self.project.slug,
-            self.version.slug,
+            'Creating default Sphinx config file for project.',
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
         )
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
@@ -138,9 +138,9 @@ class BaseSphinx(BaseBuilder):
                 subproject_urls = self.project.get_subproject_urls()
             except ConnectionError:
                 log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
-                    'project: %s version: %s',
-                    self.project.slug, self.version.slug,
+                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
                 )
 
         build_id = self.build_env.build.get('id')
@@ -391,7 +391,7 @@ class LocalMediaBuilder(BaseSphinx):
 
     @restoring_chdir
     def move(self, **__):
-        log.info('Creating zip file from %s', self.old_artifact_path)
+        log.info('Creating zip file from path.', path=self.old_artifact_path)
         target_file = os.path.join(
             self.target,
             '{}.zip'.format(self.project.slug),

@@ -3,7 +3,7 @@
 import hashlib
 import hmac
 import json
-import logging
+import structlog
 import re
 
 from django.shortcuts import get_object_or_404
@@ -29,7 +29,7 @@ from readthedocs.core.views.hooks import (
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Feature, Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
@@ -86,8 +86,9 @@ class WebhookMixin:
             raise NotFound('Project not found')
         if not self.is_payload_valid():
             log.warning(
-                'Invalid payload for project: %s and integration: %s',
-                project_slug, self.integration_type
+                'Invalid payload for project and integration.',
+                project_slug=project_slug,
+                integration_type=self.integration_type,
             )
             return Response(
                 {'detail': self.invalid_payload_msg},
@@ -184,9 +185,9 @@ class WebhookMixin:
         to_build, not_building = build_branches(project, branches)
         if not_building:
             log.info(
-                'Skipping project branches: project=%s branches=%s',
-                project,
-                branches,
+                'Skipping project branches.',
+                project_slug=project.slug,
+                branches=branches,
             )
         triggered = bool(to_build)
         return {
@@ -338,8 +339,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
+                'Skipping payload signature validation.',
+                project_slug=self.project.slug,
             )
             return True
         if not signature:
@@ -405,7 +406,11 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
-            log.info('Triggered sync_versions: project=%s event=%s', self.project, event)
+            log.info(
+                'Triggered sync_versions.',
+                project_slug=self.project.slug,
+                webhook_event=event,
+            )
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
@@ -441,7 +446,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
-            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
+            log.info('Triggered sync_versions.', project_slug=self.project.slug, events=events)
             return self.sync_versions_response(self.project)
 
         # Trigger a build for all branches in the push
@@ -512,8 +517,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
+                'Skipping payload signature validation.',
+                project_slug=self.project.slug,
             )
             return True
         if not token:
@@ -554,8 +559,12 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
-                log.info('Triggered sync_versions: project=%s before=%s after=%s',
-                         self.project, before, after)
+                log.info(
+                    'Triggered sync_versions.',
+                    project_slug=self.project.slug,
+                    before=before,
+                    after=after,
+                )
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
@@ -652,8 +661,11 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
-                log.info('Triggered sync_versions: project=%s event=%s',
-                         self.project, event)
+                log.info(
+                    'Triggered sync_versions.',
+                    project_slug=self.project.slug,
+                    webhook_event=event,
+                )
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')

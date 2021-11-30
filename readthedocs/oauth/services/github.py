@@ -1,7 +1,7 @@
 """OAuth utility functions."""
 
 import json
-import logging
+import structlog
 import re
 
 from allauth.socialaccount.models import SocialToken
@@ -23,7 +23,7 @@ from ..constants import GITHUB
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class GitHubService(Service):
@@ -119,8 +119,8 @@ class GitHubService(Service):
             # creation of the ``RemoteRepositoryRelation``.
             if repo.organization and organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs',
-                    fields['name'],
+                    'Not importing repository because mismatched orgs.',
+                    repository=fields['name'],
                 )
                 return None
 
@@ -160,8 +160,8 @@ class GitHubService(Service):
             return repo
 
         log.debug(
-            'Not importing %s because mismatched type',
-            fields['name'],
+            'Not importing repository because mismatched type.',
+            repository=fields['name'],
         )
 
     def create_organization(self, fields):
@@ -267,21 +267,20 @@ class GitHubService(Service):
                         integration.save()
 
                         log.info(
-                            'GitHub integration updated with provider data for project: %s',
-                            project,
+                            'GitHub integration updated with provider data for project.',
+                            project_slug=project.slug,
                         )
                         break
             else:
                 log.info(
-                    'GitHub project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'GitHub project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
                 )
 
         except Exception:
             log.exception(
-                'GitHub webhook Listing failed for project: %s',
-                project,
+                'GitHub webhook Listing failed for project.',
+                project_slug=project.slug,
             )
 
         return integration.provider_data
@@ -327,16 +326,15 @@ class GitHubService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitHub webhook creation successful for project: %s',
-                    project,
+                    'GitHub webhook creation successful for project.',
+                    project_slug=project.slug,
                 )
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'GitHub project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'GitHub project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
                 )
 
             # All other status codes will flow to the `else` clause below
@@ -344,13 +342,13 @@ class GitHubService(Service):
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitHub webhook creation failed for project: %s',
-                project,
+                'GitHub webhook creation failed for project.',
+                project_slug=project.slug,
             )
         else:
             log.error(
-                'GitHub webhook creation failed for project: %s',
-                project,
+                'GitHub webhook creation failed for project.',
+                project_slug=project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though
@@ -359,8 +357,8 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'GitHub webhook creation failure response: %s',
-                debug_data,
+                'GitHub webhook creation failure response.',
+                debug_data=debug_data,
             )
 
         # Always remove the secret and return False if we don't return True above
@@ -406,8 +404,8 @@ class GitHubService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitHub webhook update successful for project: %s',
-                    project,
+                    'GitHub webhook update successful for project.',
+                    project_slug=project.slug,
                 )
                 return (True, resp)
 
@@ -419,21 +417,21 @@ class GitHubService(Service):
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
             log.exception(
-                'GitHub webhook update failed for project: %s',
-                project,
+                'GitHub webhook update failed for project.',
+                project_slug=project.slug,
             )
         else:
             log.error(
-                'GitHub webhook update failed for project: %s',
-                project,
+                'GitHub webhook update failed for project.',
+                project_slug=project.slug,
             )
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'GitHub webhook update failure response: %s',
-                debug_data,
+                'GitHub webhook update failure response.',
+                debug_data=debug_data,
             )
 
         integration.remove_secret()
@@ -486,36 +484,35 @@ class GitHubService(Service):
             )
             if resp.status_code == 201:
                 log.info(
-                    "GitHub commit status created for project: %s, commit status: %s",
-                    project.slug,
-                    github_build_state,
+                    "GitHub commit status created for project.",
+                    project_slug=project.slug,
+                    commit_status=github_build_state,
                 )
                 return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'GitHub project does not exist or user does not have '
-                    'permissions: project=%s, user=%s, status=%s, url=%s',
-                    project.slug,
-                    self.user.username,
-                    resp.status_code,
-                    statuses_url,
+                    'GitHub project does not exist or user does not have permissions.',
+                    project_slug=project.slug,
+                    user_username=self.user.username,
+                    http_status_code=resp.status_code,
+                    statuses_url=statuses_url,
                 )
                 return False
 
             log.warning(
-                'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
-                project.slug,
-                self.user,
-                resp.status_code
+                'Unknown GitHub status API response.',
+                project_slug=project.slug,
+                user_username=self.user.username,
+                htttp_status_code=resp.status_code,
             )
             return False
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitHub commit status creation failed for project: %s',
-                project.slug,
+                'GitHub commit status creation failed for project.',
+                project_slug=project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though
@@ -528,8 +525,8 @@ class GitHubService(Service):
                 debug_data = resp
 
             log.debug(
-                'GitHub commit status creation failure response: %s',
-                debug_data,
+                'GitHub commit status creation failure response.',
+                debug_data=debug_data,
             )
             return False
 
