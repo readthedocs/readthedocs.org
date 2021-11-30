@@ -106,7 +106,7 @@ in their documentation.
 
 [reST definition lists]: https://docutils.sourceforge.io/docs/user/rst/quickref.html#definition-lists
 
-## reStructuredText syntax not yet supported by MyST
+## Writing reStructuredText syntax within MyST
 
 There is a small chance that `rst2myst` does not properly understand a piece of reST syntax,
 either because there is a bug in the tool
