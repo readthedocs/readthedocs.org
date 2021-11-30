@@ -5,16 +5,15 @@ Sphinx is usually associated with reStructuredText, the markup language
 However, for quite some time Sphinx has been compatible with Markdown as well,
 thanks to a number of extensions.
 
-The most powerful of such extensions is [MyST-Parser], which implements
-a CommonMark-compliant, extensible Markdown dialect with support for the Sphinx
-roles and directives that make it so useful. In this guide, you will find
+The most powerful of such extensions is {doc}`MyST-Parser <myst-parser:index>`,
+which implements a CommonMark-compliant, extensible Markdown dialect
+with support for the Sphinx roles and directives that make it so useful.
+In this guide, you will find
 how you can start writing Markdown in your existing reStructuredText project,
 or migrate it completely.
 
 If, instead of migrating, you are starting a new project from scratch,
 have a look at {doc}`myst-parser:sphinx/intro`.
-
-[MyST-Parser]: https://myst-parser.readthedocs.io/
 
 ## Writing your content both in reStructuredText and MyST
 
@@ -56,7 +55,7 @@ If you want to use a different suffix, you can do so by changing your
 ## Converting existing reStructuredText documentation to MyST
 
 To convert existing reST documents to MyST, you can use
-the `rst2myst` CLI script shipped by [rst-to-myst].
+the `rst2myst` CLI script shipped by {doc}`rst-to-myst:index`.
 The script supports converting the documents one by one,
 or scanning a series of directories to convert them in bulk.
 
@@ -69,8 +68,6 @@ $ rst2myst convert docs/**/*.rst  # Convert every .rst file under the docs direc
 ```
 
 This will create a `.md` MyST file for every `.rst` source file converted.
-
-[rst-to-myst]: https://rst-to-myst.readthedocs.io/
 
 ### Advanced usage of `rst2myst`
 
