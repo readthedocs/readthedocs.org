@@ -1,7 +1,7 @@
 """Models for the builds app."""
 
 import datetime
-import logging
+import structlog
 import os.path
 import re
 from functools import partial
@@ -88,7 +88,7 @@ from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.storage import build_environment_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Version(TimeStampedModel):
@@ -318,7 +318,7 @@ class Version(TimeStampedModel):
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
-        log.info('Removing files for version %s', self.slug)
+        log.info('Removing files for version.', version_slug=self.slug)
         tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
@@ -422,7 +422,7 @@ class Version(TimeStampedModel):
         try:
             path = self.get_build_path()
             if path is not None:
-                log.debug('Removing build path %s for %s', path, self)
+                log.debug('Removing build path for project.', path=path, project_slug=self.slug)
                 rmtree(path)
         except OSError:
             log.exception('Build path cleanup failed')
@@ -1302,11 +1302,12 @@ class RegexAutomationRule(VersionAutomationRule):
             return bool(match), match
         except TimeoutError:
             log.warning(
-                'Timeout while parsing regex. pattern=%s, input=%s',
-                match_arg, version.verbose_name,
+                'Timeout while parsing regex.',
+                pattern=match_arg,
+                version_slug=version.slug,
             )
         except Exception as e:
-            log.info('Error parsing regex: %s', e)
+            log.exception('Error parsing regex.', exc_info=True)
         return False, None
 
     def get_edit_url(self):

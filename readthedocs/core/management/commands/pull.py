@@ -2,7 +2,7 @@
 
 """Trigger build for project slug."""
 
-import logging
+import structlog
 
 from django.core.management.base import LabelCommand
 
@@ -10,7 +10,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects import tasks, utils
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Command(LabelCommand):

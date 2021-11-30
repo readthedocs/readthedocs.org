@@ -5,7 +5,7 @@ Including the main homepage, documentation and header rendering,
 and server errors.
 """
 
-import logging
+import structlog
 
 from django.conf import settings
 from django.http import Http404, JsonResponse
@@ -17,7 +17,7 @@ from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class NoProjectException(Exception):

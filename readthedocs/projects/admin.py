@@ -193,16 +193,16 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         if self.value() == self.DENY_ON_ROBOTS:
             return queryset.filter(
                 spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
-                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
             )
         if self.value() == self.DONT_SERVE_DOCS:
             return queryset.filter(
-                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
-                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
             )
         if self.value() == self.DONT_SHOW_DASHBOARD:
             return queryset.filter(
-                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
                 spam_score__lt=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
             )
         if self.value() == self.DELETE_PROJECT:

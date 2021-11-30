@@ -1,5 +1,5 @@
 """Mix-in classes for project views."""
-import logging
+import structlog
 from datetime import timedelta
 from functools import lru_cache
 
@@ -12,7 +12,7 @@ from django.utils import timezone
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ProjectOnboardMixin:
@@ -89,11 +89,9 @@ class ProjectSpamMixin:
     """Protects POST views from spammers."""
 
     def post(self, request, *args, **kwargs):
+        log.bind(user_username=request.user.username)
         if request.user.profile.banned:
-            log.info(
-                'Rejecting project POST from shadowbanned user %s',
-                request.user,
-            )
+            log.info('Rejecting project POST from shadowbanned user.')
             return HttpResponseRedirect(self.get_failure_url())
         try:
             return super().post(request, *args, **kwargs)
@@ -104,12 +102,9 @@ class ProjectSpamMixin:
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()
-                log.info(
-                    'Spam detected from new user, shadowbanned user %s',
-                    request.user,
-                )
+                log.info('Spam detected from new user, shadowbanned user.')
             else:
-                log.info('Spam detected from user %s', request.user)
+                log.info('Spam detected from user.')
             return HttpResponseRedirect(self.get_failure_url())
 
     def get_failure_url(self):

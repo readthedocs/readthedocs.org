@@ -2,7 +2,7 @@
 
 import hashlib
 import json
-import logging
+import structlog
 import mimetypes
 import operator
 import os
@@ -42,8 +42,8 @@ from readthedocs.storage import build_media_storage
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin
 
-log = logging.getLogger(__name__)
-search_log = logging.getLogger(__name__ + '.search')
+log = structlog.get_logger(__name__)
+search_log = structlog.get_logger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
 
 

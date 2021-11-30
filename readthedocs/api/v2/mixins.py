@@ -1,6 +1,6 @@
-import logging
+import structlog
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class CachedResponseMixin:

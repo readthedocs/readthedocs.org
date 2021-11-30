@@ -1,6 +1,6 @@
 """Endpoints relating to task/job status, etc."""
 
-import logging
+import structlog
 
 from django.urls import reverse
 from redis import ConnectionError
@@ -12,7 +12,7 @@ from readthedocs.core.utils.tasks import TaskNoPermission, get_public_task_data
 from readthedocs.oauth import tasks
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 SUCCESS_STATES = ('SUCCESS',)
 FAILURE_STATES = (

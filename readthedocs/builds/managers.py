@@ -1,6 +1,6 @@
 """Build and Version class model Managers."""
 
-import logging
+import structlog
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -18,7 +18,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.querysets import VersionQuerySet
 from readthedocs.core.utils.extend import get_override_class
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 __all__ = ['VersionManager']
@@ -78,7 +78,7 @@ class VersionManager(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs. %s', kwargs)
+            log.warning('Version not found for given kwargs.', kwargs=kwargs)
 
 
 class InternalVersionManager(VersionManager):

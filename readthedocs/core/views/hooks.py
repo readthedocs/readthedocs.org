@@ -1,13 +1,13 @@
 """Views pertaining to builds."""
 
-import logging
+import structlog
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def _build_version(project, slug, already_built=()):
@@ -25,14 +25,14 @@ def _build_version(project, slug, already_built=()):
     version = project.versions.filter(active=True, slug=slug).first()
     if version and slug not in already_built:
         log.info(
-            '(Version build) Building %s:%s',
-            project.slug,
-            version.slug,
+            'Building.',
+            project_slug=project.slug,
+            version_slug=version.slug,
         )
         trigger_build(project=project, version=version, force=True)
         return slug
 
-    log.info('(Version build) Not Building %s', slug)
+    log.info('Not building.', version_slug=slug)
     return None
 
 
@@ -51,9 +51,9 @@ def build_branches(project, branch_list):
 
         for version in versions:
             log.info(
-                '(Branch Build) Processing %s:%s',
-                project.slug,
-                version.slug,
+                'Processing.',
+                project_slug=project.slug,
+                version_slug=version.slug,
             )
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
@@ -78,8 +78,8 @@ def trigger_sync_versions(project):
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Sync not triggered because Project is not active: project=%s',
-            project.slug,
+            'Sync not triggered because project is not active.',
+            project_slug=project.slug,
         )
         return None
 
@@ -91,11 +91,11 @@ def trigger_sync_versions(project):
             ).first()
         )
         if not version:
-            log.info('Unable to sync from %s version', version_identifier)
+            log.info('Unable to sync from version.', version_identifier=version_identifier)
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
-            log.info('Skipping sync versions for project: project=%s', project.slug)
+            log.info('Skipping sync versions for project.', project_slug=project.slug)
             return None
 
         options = {}
@@ -104,9 +104,9 @@ def trigger_sync_versions(project):
             options['queue'] = project.build_queue
 
         log.info(
-            'Triggering sync repository. project=%s version=%s',
-            version.project.slug,
-            version.slug,
+            'Triggering sync repository.',
+            project_slug=version.project.slug,
+            version_slug=version.slug,
         )
         sync_repository_task.apply_async(
             (version.pk,),
@@ -138,8 +138,9 @@ def get_or_create_external_version(project, identifier, verbose_name):
 
     if created:
         log.info(
-            'External version created. project=%s version=%s',
-            project.slug, external_version.slug,
+            'External version created.',
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
@@ -149,8 +150,9 @@ def get_or_create_external_version(project, identifier, verbose_name):
         external_version.save()
 
         log.info(
-            'External version updated: project=%s version=%s',
-            project.slug, external_version.slug,
+            'External version updated.',
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
     return external_version
 
@@ -178,8 +180,9 @@ def deactivate_external_version(project, identifier, verbose_name):
         external_version.active = False
         external_version.save()
         log.info(
-            'External version marked as inactive. project=%s version=%s',
-            project.slug, external_version.slug,
+            'External version marked as inactive.',
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
         return external_version.verbose_name
     return None
@@ -197,9 +200,9 @@ def build_external_version(project, version, commit):
 
     # Build External version
     log.info(
-        '(External Version build) Building %s:%s',
-        project.slug,
-        version.slug,
+        'Building external version',
+        project_slug=project.slug,
+        version_slug=version.slug,
     )
     trigger_build(project=project, version=version, commit=commit, force=True)
 

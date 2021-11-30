@@ -7,7 +7,6 @@ rebuilding documentation.
 
 import datetime
 import json
-import logging
 import os
 import shutil
 import signal
@@ -24,6 +23,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
+
+import structlog
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
@@ -70,11 +71,10 @@ from readthedocs.storage import build_environment_storage, build_media_storage
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
-from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import HTMLFile, ImportedFile, Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class CachedEnvironmentMixin:
@@ -89,22 +89,16 @@ class CachedEnvironmentMixin:
 
         msg = 'Checking for cached environment'
         log.debug(
-            LOG_TEMPLATE,
-            {
-                'project': self.project.slug,
-                'version': self.version.slug,
-                'msg': msg,
-            }
+            msg,
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
         )
         if build_environment_storage.exists(filename):
             msg = 'Pulling down cached environment from storage'
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
+                msg,
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             remote_fd = build_environment_storage.open(filename, mode='rb')
             with tarfile.open(fileobj=remote_fd) as tar:
@@ -142,12 +136,9 @@ class CachedEnvironmentMixin:
         with open(tmp_filename, 'rb') as fd:
             msg = 'Pushing up cached environment to storage'
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
+                msg,
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             build_environment_storage.save(
                 self.version.get_storage_environment_cache_path(),
@@ -204,17 +195,11 @@ class SyncRepositoryMixin:
             )
 
         # Get the actual code on disk
-        msg = 'Checking out version {slug}: {identifier}'.format(
-            slug=self.version.slug,
-            identifier=self.version.identifier,
-        )
         log.info(
-            LOG_TEMPLATE,
-            {
-                'project': self.project.slug,
-                'version': self.version.slug,
-                'msg': msg,
-            }
+            'Checking out version.',
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
+            version_identifier=self.version.identifier,
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
@@ -241,7 +226,7 @@ class SyncRepositoryMixin:
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.
             branches, tags = version_repo.lsremote
-            log.info('Remote versions: branches=%s tags=%s', branches, tags)
+            log.info('Remote versions.', branches=branches, tags=tags)
 
         branches_data = []
         tags_data = []
@@ -377,9 +362,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 environment=self.get_vcs_env_vars(),
             )
             log.info(
-                'Running sync_repository_task: project=%s version=%s',
-                self.project.slug,
-                self.version.slug,
+                'Running sync_repository_task.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
 
             with environment:
@@ -398,9 +383,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             log.warning('There was an error with the repository', exc_info=True)
         except vcs_support_utils.LockTimeout:
             log.info(
-                'Lock still active: project=%s version=%s',
-                self.project.slug,
-                self.version.slug,
+                'Lock still active.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
         except Exception:
             # Catch unhandled errors when syncing
@@ -430,10 +415,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 not version_repo.supports_lsremote,
                 not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
-            log.info('Syncing repository via full clone. project=%s', self.project.slug)
+            log.info('Syncing repository via full clone.', project_slug=self.project.slug)
             self.sync_repo(environment)
         else:
-            log.info('Syncing repository via remote listing. project=%s', self.project.slug)
+            log.info('Syncing repository via remote listing.', project_slug=self.project.slug)
             self.sync_versions(version_repo)
 
 
@@ -548,11 +533,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.build.get('status') == DuplicatedBuildError.status:
                 log.warning(
-                    'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
-                    self.project.slug,
-                    self.version.slug,
-                    build_pk,
-                    self.commit,
+                    'NOOP: build is marked as duplicated.',
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
+                    build_id=build_pk,
+                    commit=self.commit,
                 )
                 return True
 
@@ -566,19 +551,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     )
                 except Exception:
                     log.exception(
-                        'Error while hitting/parsing API for concurrent limit checks from builder. '
-                        'project=%s version=%s',
-                        self.project.slug,
-                        self.version.slug,
+                        'Error while hitting/parsing API for concurrent limit checks from builder.',
+                        project_slug=self.project.slug,
+                        version_slug=self.version.slug,
                     )
                     concurrency_limit_reached = False
                     max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
                 if concurrency_limit_reached:
                     log.warning(
-                        'Delaying tasks due to concurrency limit. project=%s version=%s',
-                        self.project.slug,
-                        self.version.slug,
+                        'Delaying tasks due to concurrency limit.',
+                        project_slug=self.project.slug,
+                        version_slug=self.version.slug,
                     )
 
                     # This is done automatically on the environment context, but
@@ -699,16 +683,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.additional_vcs_operations(environment)
 
         if environment.failure or self.config is None:
-            msg = 'Failing build because of setup failure: {}'.format(
-                environment.failure,
-            )
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
+                'Failing build because of setup failure.',
+                failure=environment.failure,
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
 
             # Send notification to users only if the build didn't fail because
@@ -772,12 +751,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     self.config.python_interpreter in ('conda', 'mamba'),
             ]):
                 log.info(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': 'Using conda',
-                    }
+                    'Using conda',
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
                 )
                 python_env_cls = Conda
             self.python_env = python_env_cls(
@@ -869,12 +845,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     status=BUILD_STATUS_FAILURE
                 )
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': msg,
-                    }
+                    msg,
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
                 )
 
         build_complete.send(sender=Build, build=self.build_env.build)
@@ -933,12 +906,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             )
 
         log.info(
-            LOG_TEMPLATE,
-            {
-                'project': self.project.slug,
-                'version': self.version.slug,
-                'msg': 'Updating docs from VCS',
-            }
+            'Updating docs from VCS',
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
         )
         try:
             self.sync_repo(environment)
@@ -1044,12 +1014,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         :param epub: whether to save ePub output
         """
         log.info(
-            LOG_TEMPLATE,
-            {
-                'project': self.version.project.slug,
-                'version': self.version.slug,
-                'msg': 'Writing build artifacts to media storage',
-            },
+            'Writing build artifacts to media storage',
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
         )
 
         types_to_copy = []
@@ -1090,12 +1057,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version_type=self.version.type,
             )
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.version.project.slug,
-                    'version': self.version.slug,
-                    'msg': f'Writing {media_type} to media storage - {to_path}',
-                },
+                'Writing to media storage.',
+                media_type=media_type,
+                to_path=to_path,
+                project_slug=self.version.project.slug,
+                version_slug=self.version.slug,
             )
             try:
                 build_media_storage.sync_directory(from_path, to_path)
@@ -1103,12 +1069,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
                 log.exception(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.version.project.slug,
-                        'version': self.version.slug,
-                        'msg': f'Error copying {from_path} to storage (not failing build)',
-                    },
+                    'Error copying to storage (not failing build)',
+                    from_path=from_path,
+                    to_path=to_path,
+                    project_slug=self.version.project.slug,
+                    version_slug=self.version.slug,
                 )
 
         for media_type in types_to_delete:
@@ -1119,12 +1084,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version_type=self.version.type,
             )
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.version.project.slug,
-                    'version': self.version.slug,
-                    'msg': f'Deleting {media_type} from media storage - {media_path}',
-                },
+                'Deleting from media storage',
+                media_type=media_type,
+                media_path=media_path,
+                project_slug=self.version.project.slug,
+                version_slug=self.version.slug,
             )
             try:
                 build_media_storage.delete_directory(media_path)
@@ -1132,12 +1096,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
                 log.exception(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.version.project.slug,
-                        'version': self.version.slug,
-                        'msg': f'Error deleting {media_path} from storage (not failing build)',
-                    },
+                    'Error deleting from storage (not failing build)',
+                    media_path=media_path,
+                    project_slug=self.version.project.slug,
+                    version_slug=self.version.slug,
                 )
 
     def update_app_instances(
@@ -1163,8 +1125,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 })
         except HttpClientError:
             log.exception(
-                'Updating version failed, skipping file sync: version=%s',
-                self.version,
+                'Updating version failed, skipping file sync.',
+                version_slug=self.version.slug,
             )
 
         # Index search data
@@ -1365,28 +1327,20 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
     project = version.project
 
     # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.projects.tasks.fileify. locals=%s', locals())
+    log.info('Running readthedocs.projects.tasks.fileify.', locals=locals())
 
     if not commit:
         log.warning(
-            LOG_TEMPLATE,
-            {
-                'project': project.slug,
-                'version': version.slug,
-                'msg': (
-                    'Search index not being built because no commit information'
-                ),
-            },
+            'Search index not being built because no commit information',
+            project_slug=project.slug,
+            version_slug=version.slug,
         )
         return
 
     log.info(
-        LOG_TEMPLATE,
-        {
-            'project': version.project.slug,
-            'version': version.slug,
-            'msg': 'Creating ImportedFiles',
-        },
+        'Creating ImportedFiles',
+        project_slug=version.project.slug,
+        version_slug=version.slug,
     )
     try:
         _create_imported_files(
@@ -1456,7 +1410,7 @@ def _create_intersphinx_data(version, commit, build):
         config = MockConfig()
 
         def warn(self, msg):
-            log.warning('Sphinx MockApp: %s', msg)
+            log.warning('Sphinx MockApp.', msg=msg)
 
     # Re-create all objects from the new build of the version
     object_file_url = build_media_storage.url(object_file)
@@ -1484,10 +1438,10 @@ def _create_intersphinx_data(version, commit, build):
                 display_name = einfo[3]
             except Exception:
                 log.exception(
-                    'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
-                    version.project.slug,
-                    version.slug,
-                    f'{domain}->{name}',
+                    'Error while getting sphinx domain information. Skipping...',
+                    project_slug=version.project.slug,
+                    version_slug=version.slug,
+                    sphinx_domain='{domain}->{name}',
                 )
                 continue
 
@@ -1508,11 +1462,11 @@ def _create_intersphinx_data(version, commit, build):
 
             if not html_file:
                 log.debug(
-                    '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
-                    version.project,
-                    version,
-                    build,
-                    doc_name
+                    'HTMLFile object not found.',
+                    project_slug=version.project.slug,
+                    version_slug=version.slug,
+                    build_id=build,
+                    doc_name=doc_name
                 )
 
                 # Don't create Sphinx Domain objects
@@ -1548,8 +1502,8 @@ def clean_build(version_pk):
         not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
     ):
         log.info(
-            'Skipping build files deletetion for version: %s',
-            version_pk,
+            'Skipping build files deletetion for version.',
+            version_id=version_pk,
         )
         return False
     # NOTE: we are skipping the deletion of the `artifacts` dir
@@ -1563,10 +1517,10 @@ def clean_build(version_pk):
     )
     try:
         with version.project.repo_nonblockinglock(version):
-            log.info('Removing: %s', del_dirs)
+            log.info('Removing directories.', directories=del_dirs)
             remove_dirs(del_dirs)
     except vcs_support_utils.LockTimeout:
-        log.info('Another task is running. Not removing: %s', del_dirs)
+        log.info('Another task is running. Not removing...', directories=del_dirs)
     else:
         return True
 
@@ -1681,7 +1635,7 @@ def remove_dirs(paths):
     :param paths: list containing PATHs where file is on disk
     """
     for path in paths:
-        log.info('Removing %s', path)
+        log.info('Removing directory.', path=path)
         shutil.rmtree(path, ignore_errors=True)
 
 
@@ -1693,7 +1647,7 @@ def remove_build_storage_paths(paths):
     :param paths: list of paths in build media storage to delete
     """
     for storage_path in paths:
-        log.info('Removing %s from media storage', storage_path)
+        log.info('Removing path from media storage.', path=storage_path)
         build_media_storage.delete_directory(storage_path)
 
 
@@ -1785,8 +1739,8 @@ def finish_inactive_builds():
         builds_finished += 1
 
     log.info(
-        'Builds marked as "Terminated due inactivity": %s',
-        builds_finished,
+        'Builds marked as "Terminated due inactivity".',
+        count=builds_finished,
     )
 
 
