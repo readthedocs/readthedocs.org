@@ -238,6 +238,7 @@ class GitHubService(Service):
 
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
+        log.bind(project_slug=project.slug)
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
@@ -268,19 +269,16 @@ class GitHubService(Service):
 
                         log.info(
                             'GitHub integration updated with provider data for project.',
-                            project_slug=project.slug,
                         )
                         break
             else:
                 log.info(
                     'GitHub project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
                 )
 
         except Exception:
             log.exception(
                 'GitHub webhook Listing failed for project.',
-                project_slug=project.slug,
             )
 
         return integration.provider_data
@@ -297,6 +295,7 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
+        log.bind(project_slug=project.slug)
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         if not integration:
@@ -325,31 +324,20 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'GitHub webhook creation successful for project.',
-                    project_slug=project.slug,
-                )
+                log.info('GitHub webhook creation successful for project.')
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'GitHub project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
-                )
-
-            # All other status codes will flow to the `else` clause below
+                log.info('GitHub project does not exist or user does not have permissions.')
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception(
-                'GitHub webhook creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('GitHub webhook creation failed for project.')
+        # TODO: I think this "else" clause here is executed when the `try` did
+        # not raise an exception. So we should probably delete it since it's
+        # calling log.error when there was no error.
         else:
-            log.error(
-                'GitHub webhook creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.error('GitHub webhook creation failed for project.')
             # Response data should always be JSON, still try to log if not
             # though
             try:
@@ -383,6 +371,7 @@ class GitHubService(Service):
         resp = None
 
         provider_data = self.get_provider_data(project, integration)
+        log.bind(project_slug=project.slug)
 
         # Handle the case where we don't have a proper provider_data set
         # This happens with a user-managed webhook previously
@@ -403,10 +392,7 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'GitHub webhook update successful for project.',
-                    project_slug=project.slug,
-                )
+                log.info('GitHub webhook update successful for project.')
                 return (True, resp)
 
             # GitHub returns 404 when the webhook doesn't exist. In this case,
@@ -416,15 +402,10 @@ class GitHubService(Service):
 
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
-            log.exception(
-                'GitHub webhook update failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('GitHub webhook update failed for project.')
+        # TODO: "else" clause could be removed, I think
         else:
-            log.error(
-                'GitHub webhook update failed for project.',
-                project_slug=project.slug,
-            )
+            log.error('GitHub webhook update failed for project.')
             try:
                 debug_data = resp.json()
             except ValueError:
@@ -460,6 +441,7 @@ class GitHubService(Service):
         description = SELECT_BUILD_STATUS[state]['description']
 
         target_url = build.get_full_url()
+        statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
 
         if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
@@ -473,47 +455,34 @@ class GitHubService(Service):
             'context': context,
         }
 
+        log.bind(
+            project_slug=project.slug,
+            commit_status=github_build_state,
+            user_username=self.user.username,
+            statuses_url=statuses_url,
+        )
         resp = None
-
         try:
-            statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
             resp = session.post(
                 statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
+            log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info(
-                    "GitHub commit status created for project.",
-                    project_slug=project.slug,
-                    commit_status=github_build_state,
-                )
+                log.info("GitHub commit status created for project.")
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'GitHub project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
-                    user_username=self.user.username,
-                    http_status_code=resp.status_code,
-                    statuses_url=statuses_url,
-                )
+                log.info('GitHub project does not exist or user does not have permissions.')
                 return False
 
-            log.warning(
-                'Unknown GitHub status API response.',
-                project_slug=project.slug,
-                user_username=self.user.username,
-                htttp_status_code=resp.status_code,
-            )
+            log.warning('Unknown GitHub status API response.')
             return False
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception(
-                'GitHub commit status creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('GitHub commit status creation failed for project.')
             # Response data should always be JSON, still try to log if not
             # though
             if resp is not None:
