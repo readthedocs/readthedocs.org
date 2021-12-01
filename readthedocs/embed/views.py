@@ -147,7 +147,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             'EmbedAPI successful response.',
             project_slug=project.slug,
             version_slug=version.slug,
-            doct=doc,
+            doc=doc,
             section=section,
             path=path,
             url=url,
