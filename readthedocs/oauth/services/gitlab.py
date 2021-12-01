@@ -335,6 +335,7 @@ class GitLabService(Service):
             return None
 
         session = self.get_session()
+        log.bind(project_slug=project.slug)
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
@@ -365,20 +366,13 @@ class GitLabService(Service):
 
                         log.info(
                             'GitLab integration updated with provider data for project.',
-                            project_slug=project.slug,
                         )
                         break
             else:
-                log.info(
-                    'GitLab project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
-                )
+                log.info('GitLab project does not exist or user does not have permissions.')
 
         except Exception:
-            log.exception(
-                'GitLab webhook Listing failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('GitLab webhook Listing failed for project.')
 
         return integration.provider_data
 
@@ -411,6 +405,7 @@ class GitLabService(Service):
             integration.remove_secret()
             return (False, resp)
 
+        log.bind(project_slug=project.slug)
         data = self.get_webhook_data(repo_id, project, integration)
         session = self.get_session()
         try:
@@ -426,28 +421,14 @@ class GitLabService(Service):
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
                 integration.save()
-                log.info(
-                    'GitLab webhook creation successful for project.',
-                    project_slug=project.slug,
-                )
+                log.info('GitLab webhook creation successful for project.')
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'Gitlab project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
-                )
+                log.info('Gitlab project does not exist or user does not have permissions.')
 
-        except (RequestException, ValueError):
-            log.exception(
-                'GitLab webhook creation failed for project.',
-                project_slug=project.slug,
-            )
-        else:
-            log.error(
-                'GitLab webhook creation failed for project.',
-                project_slug=project.slug,
-            )
+        except Exception:
+            log.warning('GitLab webhook creation failed for project.')
 
         # Always remove secret and return False if we don't return True above
         integration.remove_secret()
@@ -487,6 +468,7 @@ class GitLabService(Service):
 
         data = self.get_webhook_data(repo_id, project, integration)
 
+        log.bind(project_slug=project.slug)
         try:
             hook_id = provider_data.get('id')
             resp = session.put(
@@ -503,10 +485,7 @@ class GitLabService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'GitLab webhook update successful for project.',
-                    project_slug=project.slug,
-                )
+                log.info('GitLab webhook update successful for project.')
                 return (True, resp)
 
             # GitLab returns 404 when the webhook doesn't exist. In this case,
@@ -514,17 +493,8 @@ class GitLabService(Service):
             if resp.status_code == 404:
                 return self.setup_webhook(project, integration)
 
-        # Catch exceptions with request or deserializing JSON
-        except (AttributeError, RequestException, ValueError):
-            log.exception(
-                'GitLab webhook update failed for project.',
-                project_slug=project.slug,
-            )
-        else:
-            log.error(
-                'GitLab webhook update failed for project.',
-                project_slug=project.slug,
-            )
+        except Exception:
+            log.warning('GitLab webhook update failed for project.')
             try:
                 debug_data = resp.json()
             except ValueError:
@@ -576,6 +546,12 @@ class GitLabService(Service):
         }
         url = self.adapter.provider_base_url
 
+        log.bind(
+            project_slug=project.slug,
+            commit_status=gitlab_build_state,
+            user_username=self.user.username,
+            statuses_url=statuses_url,
+        )
         try:
             statuses_url = f'{url}/api/v4/projects/{repo_id}/statuses/{commit}'
             resp = session.post(
@@ -584,32 +560,20 @@ class GitLabService(Service):
                 headers={'content-type': 'application/json'},
             )
 
+            log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info(
-                    "GitLab commit status created for project.",
-                    project_slug=project.slug,
-                    commit_status=gitlab_build_state,
-                )
+                log.info("GitLab commit status created for project.")
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'GitLab project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
-                    user_username=self.user.username,
-                    http_status_code=resp.status_code,
-                    statuses_url=statuses_url,
-                )
+                log.info('GitLab project does not exist or user does not have permissions.')
                 return False
 
             return False
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception(
-                'GitLab commit status creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('GitLab commit status creation failed for project.')
             # Response data should always be JSON, still try to log if not
             # though
             if resp is not None:
