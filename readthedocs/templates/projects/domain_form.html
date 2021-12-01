@@ -27,14 +27,19 @@
   {% endif %}
 
   {% if domain.domainssl %}
-    {# This references optional code to get the SSL certificate status #}
+   {# This references optional code that handles certificates for custom domains. #}
+
+    <p class="helptext">
+      {% blocktrans trimmed with cname_target=domain.domainssl.cname_target %}
+        To configure this domain add a CNAME record in your DNS pointing
+        your custom domain to <code>{{ cname_target }}</code>.
+      {% endblocktrans %}
+    </p>
+
     <p>
       <strong>{% trans 'SSL certificate status' %}: </strong>
       <span>{{ domain.domainssl.status }}</span>
     </p>
-    {% if domain.domainssl.status == 'pending_validation' %}
-      <p class="help_text"><small>{% trans 'Did you setup a CNAME record in DNS pointing at "readthedocs.io"?' %}</small></p>
-    {% endif %}
   {% endif %}
 
   {% if domain %}
