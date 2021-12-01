@@ -269,6 +269,7 @@ class BitbucketService(Service):
             ),
         )
 
+        log.bind(project_slug=project.slug)
         try:
             resp = session.get(
                 (
@@ -287,19 +288,16 @@ class BitbucketService(Service):
 
                         log.info(
                             'Bitbucket integration updated with provider data for project.',
-                            project_slug=project.slug,
                         )
                         break
             else:
                 log.info(
                     'Bitbucket project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
                 )
 
         except Exception:
             log.exception(
                 'Bitbucket webhook Listing failed for project.',
-                project_slug=project.slug,
             )
 
         return integration.provider_data
@@ -317,6 +315,7 @@ class BitbucketService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
+        log.bind(project_slug=project.slug)
 
         if not integration:
             integration, _ = Integration.objects.get_or_create(
@@ -340,27 +339,19 @@ class BitbucketService(Service):
                 integration.save()
                 log.info(
                     'Bitbucket webhook creation successful for project.',
-                    project_slug=project.slug,
                 )
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'Bitbucket project does not exist or user does not have permissions.',
-                    project_slug=project.slug,
                 )
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception(
-                'Bitbucket webhook creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('Bitbucket webhook creation failed for project.')
         else:
-            log.error(
-                'Bitbucket webhook creation failed for project.',
-                project_slug=project.slug,
-            )
+            log.error('Bitbucket webhook creation failed for project.')
             try:
                 log.debug(
                     'Bitbucket webhook creation failure response.',
@@ -382,6 +373,7 @@ class BitbucketService(Service):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
+        log.bind(project_slug=project.slug)
         provider_data = self.get_provider_data(project, integration)
 
         # Handle the case where we don't have a proper provider_data set
@@ -405,10 +397,7 @@ class BitbucketService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'Bitbucket webhook update successful for project.',
-                    project_slug=project.slug,
-                )
+                log.info('Bitbucket webhook update successful for project.')
                 return (True, resp)
 
             # Bitbucket returns 404 when the webhook doesn't exist. In this
@@ -418,15 +407,9 @@ class BitbucketService(Service):
 
         # Catch exceptions with request or deserializing JSON
         except (KeyError, RequestException, TypeError, ValueError):
-            log.exception(
-                'Bitbucket webhook update failed for project.',
-                project_slug=project.slug,
-            )
+            log.exception('Bitbucket webhook update failed for project.')
         else:
-            log.error(
-                'Bitbucket webhook update failed for project.',
-                project_slug=project.slug,
-            )
+            log.error('Bitbucket webhook update failed for project.')
             # Response data should always be JSON, still try to log if not though
             try:
                 debug_data = resp.json()
