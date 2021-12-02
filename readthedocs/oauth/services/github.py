@@ -314,7 +314,7 @@ class GitHubService(Service):
         resp = None
         try:
             resp = session.post(
-                url
+                url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
