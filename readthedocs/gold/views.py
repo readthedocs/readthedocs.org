@@ -238,7 +238,7 @@ class StripeEventView(APIView):
                     # Gold Membership
                     user = User.objects.get(username=username)
                     subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-                    log.bind(gold_level=subscription.plan.id)
+                    log.bind(stripe_plan=subscription.plan.id)
                     log.info('Gold Membership subscrpition.')
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
@@ -281,7 +281,7 @@ class StripeEventView(APIView):
                 level = subscription.plan.id
                 log.info(
                     'Gold User subscription updated.',
-                    gold_level=level,
+                    stripe_plan=level,
                 )
                 (
                     GoldUser.objects
