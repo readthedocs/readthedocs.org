@@ -330,17 +330,17 @@ class GitHubService(Service):
 
             if resp.status_code in [401, 403, 404]:
                 log.warning('GitHub project does not exist or user does not have permissions.')
-                return (False, resp)
+            else:
+                # Unknown response from GitHub
+                try:
+                    debug_data = resp.json()
+                except ValueError:
+                    debug_data = resp.content
+                log.warning(
+                    'GitHub webhook creation failed for project. Unknown response from GitHub.',
+                    debug_data=debug_data,
+                )
 
-            # Unknown response from GitHub
-            try:
-                debug_data = resp.json()
-            except ValueError:
-                debug_data = resp.content
-            log.warning(
-                'GitHub webhook creation failed for project. Unknown response from GitHub.',
-                debug_data=debug_data,
-            )
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception('GitHub webhook creation failed for project.')
