@@ -239,7 +239,7 @@ class StripeEventView(APIView):
                     user = User.objects.get(username=username)
                     subscription = stripe.Subscription.retrieve(event.data.object.subscription)
                     log.bind(stripe_plan=subscription.plan.id)
-                    log.info('Gold Membership subscrpition.')
+                    log.info('Gold Membership subscription.')
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
                         stripe_id=stripe_customer,
