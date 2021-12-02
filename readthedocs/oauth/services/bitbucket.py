@@ -257,6 +257,7 @@ class BitbucketService(Service):
 
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
+        url = f'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
@@ -269,14 +270,13 @@ class BitbucketService(Service):
             ),
         )
 
-        log.bind(project_slug=project.slug)
+        log.bind(
+            project_slug=project.slug,
+            integration_id=integration.pk,
+            url=url,
+        )
         try:
-            resp = session.get(
-                (
-                    'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
-            )
+            resp = session.get(url)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
@@ -315,8 +315,7 @@ class BitbucketService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        log.bind(project_slug=project.slug)
-
+        url = f'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
         if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
@@ -324,12 +323,15 @@ class BitbucketService(Service):
             )
         data = self.get_webhook_data(project, integration)
         resp = None
+        log.bind(
+            project_slug=project.slug,
+            integration_id=integration.pk,
+            url=url,
+        )
+
         try:
             resp = session.post(
-                (
-                    'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
+                url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
@@ -346,19 +348,19 @@ class BitbucketService(Service):
                 log.info(
                     'Bitbucket project does not exist or user does not have permissions.',
                 )
+            else:
+                try:
+                    debug_data = resp.json()
+                except ValueError:
+                    debug_data = resp.content
+                log.warning(
+                    'Bitbucket webhook creation failed.',
+                    debug_data=debug_data,
+                )
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception('Bitbucket webhook creation failed for project.')
-        else:
-            log.error('Bitbucket webhook creation failed for project.')
-            try:
-                log.debug(
-                    'Bitbucket webhook creation failure response.',
-                    response=resp.json(),
-                )
-            except ValueError:
-                pass
 
         return (False, resp)
 
@@ -405,19 +407,18 @@ class BitbucketService(Service):
             if resp.status_code == 404:
                 return self.setup_webhook(project, integration)
 
-        # Catch exceptions with request or deserializing JSON
-        except (KeyError, RequestException, TypeError, ValueError):
-            log.exception('Bitbucket webhook update failed for project.')
-        else:
-            log.error('Bitbucket webhook update failed for project.')
             # Response data should always be JSON, still try to log if not though
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug(
-                'Bitbucket webhook update failure response.',
+            log.error(
+                'Bitbucket webhook update failed.',
                 debug_data=debug_data,
             )
+
+        # Catch exceptions with request or deserializing JSON
+        except (KeyError, RequestException, TypeError, ValueError):
+            log.exception('Bitbucket webhook update failed for project.')
 
         return (False, resp)
