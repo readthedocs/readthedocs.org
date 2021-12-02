@@ -238,7 +238,12 @@ class GitHubService(Service):
 
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        log.bind(project_slug=project.slug)
+        url = f'https://api.github.com/repos/{owner}/{repo}/hooks'
+        log.bind(
+            url=url,
+            project_slug=project.slug,
+            integration_id=integration.pk,
+        )
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
@@ -252,13 +257,7 @@ class GitHubService(Service):
         )
 
         try:
-            resp = session.get(
-                (
-                    'https://api.github.com/repos/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
-            )
-
+            resp = session.get(url)
             if resp.status_code == 200:
                 recv_data = resp.json()
 
@@ -272,14 +271,13 @@ class GitHubService(Service):
                         )
                         break
             else:
-                log.info(
+                log.warning(
                     'GitHub project does not exist or user does not have permissions.',
+                    https_status_code=resp.status_code,
                 )
 
         except Exception:
-            log.exception(
-                'GitHub webhook Listing failed for project.',
-            )
+            log.exception('GitHub webhook Listing failed for project.')
 
         return integration.provider_data
 
@@ -295,7 +293,6 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        log.bind(project_slug=project.slug)
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         if not integration:
@@ -308,16 +305,20 @@ class GitHubService(Service):
             integration.recreate_secret()
 
         data = self.get_webhook_data(project, integration)
+        url = f'https://api.github.com/repos/{owner}/{repo}/hooks'
+        log.bind(
+            url=url,
+            project_slug=project.slug,
+            integration_id=integration.pk,
+        )
         resp = None
         try:
             resp = session.post(
-                (
-                    'https://api.github.com/repos/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
+                url
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+            log.bind(http_status_code=resp.status_code)
 
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
@@ -328,26 +329,21 @@ class GitHubService(Service):
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.info('GitHub project does not exist or user does not have permissions.')
+                log.warning('GitHub project does not exist or user does not have permissions.')
+                return (False, resp)
 
-        # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
-            log.exception('GitHub webhook creation failed for project.')
-        # TODO: I think this "else" clause here is executed when the `try` did
-        # not raise an exception. So we should probably delete it since it's
-        # calling log.error when there was no error.
-        else:
-            log.error('GitHub webhook creation failed for project.')
-            # Response data should always be JSON, still try to log if not
-            # though
+            # Unknown response from GitHub
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug(
-                'GitHub webhook creation failure response.',
+            log.warning(
+                'GitHub webhook creation failed for project. Unknown response from GitHub.',
                 debug_data=debug_data,
             )
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.exception('GitHub webhook creation failed for project.')
 
         # Always remove the secret and return False if we don't return True above
         integration.remove_secret()
@@ -371,7 +367,12 @@ class GitHubService(Service):
         resp = None
 
         provider_data = self.get_provider_data(project, integration)
-        log.bind(project_slug=project.slug)
+        url = provider_data.get('url')
+        log.bind(
+            url=url,
+            project_slug=project.slug,
+            integration_id=integration.pk,
+        )
 
         # Handle the case where we don't have a proper provider_data set
         # This happens with a user-managed webhook previously
@@ -379,13 +380,12 @@ class GitHubService(Service):
             return self.setup_webhook(project, integration)
 
         try:
-            url = provider_data.get('url')
-
             resp = session.patch(
                 url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+            log.bind(http_status_code=resp.status_code)
 
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
@@ -400,20 +400,19 @@ class GitHubService(Service):
             if resp.status_code == 404:
                 return self.setup_webhook(project, integration)
 
-        # Catch exceptions with request or deserializing JSON
-        except (AttributeError, RequestException, ValueError):
-            log.exception('GitHub webhook update failed for project.')
-        # TODO: "else" clause could be removed, I think
-        else:
-            log.error('GitHub webhook update failed for project.')
+            # Unknown response from GitHub
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug(
-                'GitHub webhook update failure response.',
+            log.warning(
+                'GitHub webhook update failed. Unknown response from GitHub',
                 debug_data=debug_data,
             )
+
+        # Catch exceptions with request or deserializing JSON
+        except (AttributeError, RequestException, ValueError):
+            log.exception('GitHub webhook update failed for project.')
 
         integration.remove_secret()
         return (False, resp)
@@ -477,27 +476,20 @@ class GitHubService(Service):
                 log.info('GitHub project does not exist or user does not have permissions.')
                 return False
 
-            log.warning('Unknown GitHub status API response.')
-            return False
+            try:
+                debug_data = resp.json()
+            except ValueError:
+                debug_data = resp.content
+            log.warning(
+                'GitHub commit status creation failed. Unknown GitHub response.',
+                debug_data=debug_data,
+            )
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception('GitHub commit status creation failed for project.')
-            # Response data should always be JSON, still try to log if not
-            # though
-            if resp is not None:
-                try:
-                    debug_data = resp.json()
-                except ValueError:
-                    debug_data = resp.content
-            else:
-                debug_data = resp
 
-            log.debug(
-                'GitHub commit status creation failure response.',
-                debug_data=debug_data,
-            )
-            return False
+        return False
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
