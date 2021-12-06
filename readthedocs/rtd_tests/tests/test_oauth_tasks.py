@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter,
@@ -7,12 +9,13 @@ from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
-from unittest import mock
-from unittest.mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.oauth.tasks import sync_remote_repositories, sync_remote_repositories_organizations
+from readthedocs.oauth.tasks import (
+    sync_remote_repositories,
+    sync_remote_repositories_organizations,
+)
 from readthedocs.organizations.models import Organization, OrganizationOwner
 from readthedocs.projects.models import Project
 from readthedocs.sso.models import SSOIntegration
@@ -86,9 +89,9 @@ class SyncRemoteRepositoriesTests(TestCase):
             organization=organization,
         )
         sync_remote_repositories_organizations(organization_slugs=[organization.slug])
-        mock_sync_remote_repositories.delay.assert_called_once()
-        mock_sync_remote_repositories.delay.assert_has_calls(
-            [mock.call(self.user.pk, countdown=0)],
+        mock_sync_remote_repositories.apply_async.assert_called_once_with(
+            args=[self.user.pk],
+            countdown=0,
         )
 
     @patch('readthedocs.oauth.tasks.sync_remote_repositories')
@@ -106,7 +109,7 @@ class SyncRemoteRepositoriesTests(TestCase):
         )
 
         sync_remote_repositories_organizations()
-        mock_sync_remote_repositories.delay.assert_called_once()
-        mock_sync_remote_repositories.delay.assert_has_calls(
-            [mock.call(self.user.pk, countdown=0)],
+        mock_sync_remote_repositories.apply_async.assert_called_once_with(
+            args=[self.user.pk],
+            countdown=0,
         )
