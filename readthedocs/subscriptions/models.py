@@ -1,3 +1,5 @@
+"""Subscription models."""
+
 from datetime import timedelta
 
 from django.db import models
@@ -8,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
-from readthedocsinc.subscriptions.managers import (
+from readthedocs.subscriptions.managers import (
     PlanFeatureManager,
     SubscriptionManager,
 )
@@ -65,7 +67,8 @@ class Plan(models.Model):
     def __str__(self):
         return f"{self.name} ({self.stripe_id})"
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
@@ -233,7 +236,8 @@ class Subscription(models.Model):
                 self.organization.pub_date + timedelta(days=self.plan.trial)
             )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if self.trial_end_date is None:
             self.trial_end_date = self.default_trial_end_date()
         super().save(*args, **kwargs)

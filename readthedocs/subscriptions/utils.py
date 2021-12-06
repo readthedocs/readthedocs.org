@@ -1,3 +1,5 @@
+"""Utilities to interact with subscriptions and stripe."""
+
 import structlog
 
 import stripe
@@ -43,8 +45,8 @@ def get_or_create_stripe_customer(organization):
         log.info('Retrieving existing stripe customer.')
         stripe_customer = stripe.Customer.retrieve(organization.stripe_id)
         return stripe_customer
-    except InvalidRequestError as e:
-        if e.code == 'resource_missing':
+    except InvalidRequestError as exc:
+        if exc.code == 'resource_missing':
             log.info('Invalid stripe customer, creating new one.')
             return create_stripe_customer(organization)
         log.exception('Error while retrieving stripe customer.')

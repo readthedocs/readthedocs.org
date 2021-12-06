@@ -1,3 +1,5 @@
+"""Admin interface for subscription models."""
+
 from datetime import timedelta
 
 from django.contrib import admin
@@ -6,7 +8,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from readthedocs.core.history import ExtraSimpleHistoryAdmin
-from readthedocsinc.subscriptions.models import Plan, PlanFeature, Subscription
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 
 class PlanFeatureInline(admin.TabularInline):
@@ -33,6 +35,8 @@ class PlanFeatureAdmin(admin.ModelAdmin):
 
 
 class SubscriptionDateFilter(admin.SimpleListFilter):
+
+    """Filter for the status of the subscriptions related to their date."""
 
     title = 'subscription date'
     parameter_name = 'subscription_date'
@@ -79,6 +83,7 @@ class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
     readonly_fields = ('stripe_subscription',)
     search_fields = ('organization__name', 'stripe_id')
 
+    # pylint: disable=no-self-use
     def stripe_subscription(self, obj):
         if obj.stripe_id:
             return format_html(

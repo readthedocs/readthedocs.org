@@ -1,12 +1,14 @@
-import structlog
+"""Subscriptions managers."""
+
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 from readthedocs.core.history import set_change_reason
-from readthedocsinc.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import get_or_create_stripe_customer
 
 log = structlog.get_logger(__name__)
 
@@ -30,7 +32,7 @@ class SubscriptionManager(models.Manager):
         if hasattr(organization, 'subscription'):
             return organization.subscription
 
-        from readthedocsinc.subscriptions.models import Plan
+        from readthedocs.subscriptions.models import Plan
         plan = Plan.objects.filter(slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG).first()
         # This should happen only on development.
         if not plan:
@@ -125,7 +127,7 @@ class SubscriptionManager(models.Manager):
         # Try our best to match a plan that is not custom. This mostly just
         # updates the UI now that we're using the Stripe Portal. A miss here
         # just won't update the UI, but this shouldn't happen for most users.
-        from readthedocsinc.subscriptions.models import Plan
+        from readthedocs.subscriptions.models import Plan
         try:
             plan = (
                 Plan.objects
@@ -189,6 +191,9 @@ class SubscriptionManager(models.Manager):
 
 class PlanFeatureManager(models.Manager):
 
+    """Model manager for PlanFeature."""
+
+    # pylint: disable=redefined-builtin
     def get_feature(self, obj, type):
         """
         Get feature `type` for `obj`.
