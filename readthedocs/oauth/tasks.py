@@ -93,8 +93,8 @@ def sync_remote_repositories_organizations(organization_slugs=None):
         )
         for user in members:
             n_task += 1
-            sync_remote_repositories.delay(
-                user.pk,
+            sync_remote_repositories.apply_async(
+                args=[user.pk],
                 # delay the task by 0, 5, 10, 15, ... seconds
                 countdown=n_task * 5,
             )
