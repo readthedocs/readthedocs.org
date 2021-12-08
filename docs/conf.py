@@ -33,7 +33,7 @@ docsets = {
         'project': 'Read the Docs user documentation',
     },
     'dev': {
-        'project': 'Read the Docs development documentation',
+        'project': 'Read the Docs developer documentation',
     },
 }
 docset = os.environ.get('RTD_DOCSET', 'user')
