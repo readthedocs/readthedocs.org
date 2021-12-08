@@ -219,12 +219,6 @@ Learn about Read the Docs, the project and the company,
 and find out how you can get involved and contribute to the development and success
 of Read the Docs and the larger software documentation ecosystem.
 
-* **Getting involved with Read the Docs**:
-  :doc:`Contributing <contribute>` |
-  :doc:`Development installation </development/install>` |
-  :doc:`roadmap` |
-  :doc:`Code of conduct <code-of-conduct>`
-
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
@@ -249,17 +243,15 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Privacy policy <privacy-policy>` |
   :doc:`Data processing agreement <legal/dpa/index>`
 
+* **Getting involved with Read the Docs**:
+  :doc:`Developer Documentation <rtd-dev:index>` |
+  :doc:`/gsoc`
+
 
 .. toctree::
    :maxdepth: 1
    :hidden:
    :caption: About Read the Docs
-
-   contribute
-   development/index
-   roadmap
-   gsoc
-   code-of-conduct
 
    security
    dmca/index
@@ -277,3 +269,6 @@ of Read the Docs and the larger software documentation ecosystem.
    commercial/index
 
    legal/index
+
+   Developer Documentation <https://dev.readthedocs.io>
+   gsoc

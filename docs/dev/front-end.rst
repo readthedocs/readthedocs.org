@@ -55,7 +55,7 @@ in.
 Getting Started
 ---------------
 
-You will need to follow our :doc:`guide to install a development Read the Docs instance </development/install>` first.
+You will need to follow our :doc:`guide to install a development Read the Docs instance </install>` first.
 
 The sources for our bundles are found in the per-application path
 ``static-src``, which has the same directory structure as ``static``. Files in

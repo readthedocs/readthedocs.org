@@ -82,7 +82,7 @@ Read the Docs cares deeply about our customers and our community.
 As part of that commitment,
 all of the source code for Read the Docs is open source.
 This means there's no vendor lock-in,
-and you are welcome to :doc:`contribute </contribute>` the features you want or run your own instance.
+and you are welcome to :doc:`contribute <rtd-dev:contribute>` the features you want or run your own instance.
 
 Our bootstrapped company is owned and controlled by the founders,
 and fully funded by our customers and advertisers.

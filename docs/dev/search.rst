@@ -9,7 +9,7 @@ Currently we are using `Elasticsearch 6.3`_.
 Local Development Configuration
 -------------------------------
 
-Elasticsearch is installed and run as part of the :doc:`development installation guide </development/install>`.
+Elasticsearch is installed and run as part of the :doc:`development installation guide </install>`.
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
