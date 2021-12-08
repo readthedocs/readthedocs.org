@@ -101,7 +101,7 @@ Major Contributors
 `The code that powers the Read the Docs platform <https://github.com/readthedocs/readthedocs.org/>`_,
 as well as many other related projects in `our GitHub organization <https://github.com/readthedocs>`_,
 are :doc:`open source </open-source-philosophy>`, and therefore
-:doc:`anybody can contribute </contribute>`.
+:doc:`anybody can contribute <rtd-dev:contribute>`.
 
 Our platform code has `over a hundred
 contributors <https://github.com/readthedocs/readthedocs.org/graphs/contributors>`_,

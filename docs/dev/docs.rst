@@ -3,7 +3,8 @@ Building and Contributing to Documentation
 
 As one might expect,
 the documentation for Read the Docs is built using Sphinx and hosted on Read the Docs.
-The docs are kept in the ``docs/`` directory at the top of the source tree.
+The docs are kept in the ``docs/`` directory at the top of the source tree,
+and are divided into developer and user-facing documentation.
 
 Contributing through the Github UI
 ----------------------------------
@@ -51,10 +52,19 @@ you may want to verify those changes locally before pushing upstream.
 
 #. build the documents
 
+   To build the user-facing documentation:
+
    .. code-block:: console
 
       (.venv) $ cd docs
       (.venv) $ make livehtml
+
+   To build the developer documentation:
+
+   .. code-block:: console
+
+      (.venv) $ cd docs
+      (.venv) $ RTD_DOCSET=dev make livehtml
 
 #. the documents will be available at http://127.0.0.1:4444/ and will rebuild each time you edit and save a file.
 

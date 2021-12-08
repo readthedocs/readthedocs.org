@@ -96,7 +96,7 @@ intersphinx_mapping = {
     'jupyterbook': ('https://jupyterbook.org/', None),
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
     'rst-to-myst': ('https://rst-to-myst.readthedocs.io/en/stable/', None),
-    'rtd-user': ('https://docs.readthedocs.io/en/stable/', None),
+    'rtd': ('https://docs.readthedocs.io/en/stable/', None),
     'rtd-dev': ('https://dev.readthedocs.io/en/stable/', None),
 }
 myst_enable_extensions = [
@@ -132,7 +132,7 @@ locale_dirs = [
 gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = ['_static', f'{docset}/_static']
 html_css_files = ['css/custom.css', 'css/sphinx_prompt_css.css']
 html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]

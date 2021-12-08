@@ -40,7 +40,7 @@ Bug Reports
 
 If you have an issue with the actual functioning of the site,
 you can file bug reports on our `GitHub issue tracker`_.
-You can also :doc:`contribute </contribute>` to Read the Docs,
+You can also :doc:`contribute <rtd-dev:contribute>` to Read the Docs,
 as the code is open source.
 
 Priority Support

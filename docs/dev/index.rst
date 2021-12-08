@@ -1,22 +1,30 @@
-Developer documentation
------------------------
+Read the Docs developer documentation
+=====================================
 
-These are guides and helpful documentation to running your own local version of Read the Docs
-for development or taking the open source Read the Docs codebase for your own custom installation.
+Documentation for running your own local version of Read the Docs for development,
+or taking the open source Read the Docs codebase for your own custom installation.
 
 .. toctree::
+   :caption: General
    :maxdepth: 1
 
-   architecture
+   contribute
+   code-of-conduct
+   issue-labels
+   roadmap
+   design/index
+
+.. toctree::
+   :caption: Development
+   :maxdepth: 1
+
    install
    design
    docs
    front-end
    i18n
-   issue-labels
-   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
    search
    search-integration
    settings
    tests
-   design/index
+   architecture

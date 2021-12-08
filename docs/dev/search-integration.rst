@@ -1,7 +1,7 @@
 Server Side Search Integration
 ==============================
 
-Read the Docs provides :doc:`server side search (SSS) </server-side-search>`
+Read the Docs provides :doc:`server side search (SSS) <rtd:server-side-search>`
 in replace of the default search engine of your site.
 To accomplish this, Read the Docs parses the content directly from your HTML pages [*]_.
 
@@ -309,7 +309,7 @@ Supporting more themes and static site generators
 -------------------------------------------------
 
 Currently, Read the Docs supports building documentation from
-:doc:`Sphinx </intro/getting-started-with-sphinx>` and :doc:`MkDocs </intro/getting-started-with-mkdocs>`.
+:doc:`Sphinx <rtd:intro/getting-started-with-sphinx>` and :doc:`MkDocs <rtd:intro/getting-started-with-mkdocs>`.
 All themes that follow these conventions should work as expected.
 If you think other generators or other conventions should be supported,
 or content that should be ignored or have an especial treatment,
