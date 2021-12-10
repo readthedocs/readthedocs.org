@@ -8,9 +8,9 @@ EthicalAds
 Read the Docs is a large, free web service.
 There is one proven business model to support this kind of site: **Advertising**.
 We are building the advertising model we want to exist,
-and we're calling it **Ethical Ads**.
+and we're calling it **EthicalAds**.
 
-**Ethical Ads respect users while providing value to advertisers.**
+**EthicalAds respect users while providing value to advertisers.**
 We don't track you, sell your data, or anything else.
 We simply show ads to users, based on the content of the pages you look at.
 We also give 10% of our ad space to :ref:`community projects <advertising/ethical-advertising:Community Ads>`,
