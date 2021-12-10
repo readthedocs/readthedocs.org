@@ -1,6 +1,6 @@
 """Documentation Builder Environments."""
 
-import structlog
+import io
 import os
 import re
 import socket
@@ -9,6 +9,7 @@ import sys
 import uuid
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from docker import APIClient
@@ -194,6 +195,20 @@ class BuildCommand(BuildCommandResultMixin):
         except (TypeError, AttributeError):
             sanitized = None
 
+        # Simulate `print()` rendering of the string, to remove carriage return
+        # overwriting for progress bars and the like. This rewinds to the last
+        # `\n` on each `\r`, simulating returning to the beginning of the
+        # terminal line, and `\n` seeks to the end of the file, like normal.
+        text_rendered = io.StringIO()
+        for char in sanitized:
+            if char == "\r":
+                text_rendered.seek(text_rendered.getvalue().rfind("\n") + 1)
+                continue
+            elif char == "\n":
+                text_rendered.seek(len(text_rendered.getvalue()))
+            text_rendered.write(char)
+        sanitized = text_rendered.getvalue()
+
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
         output_length = len(output) if output else 0
         # Left some extra space for the rest of the request data
@@ -306,6 +321,7 @@ class DockerBuildCommand(BuildCommand):
                 workdir=self.cwd,
                 stdout=True,
                 stderr=True,
+                tty=True,
             )
 
             cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
