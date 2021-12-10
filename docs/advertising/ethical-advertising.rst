@@ -1,5 +1,5 @@
-Ethical Ads
-===========
+EthicalAds
+==========
 
 .. meta::
    :description lang=en: To fund Read the Docs, we built an ad platform that doesn't track users and respects their privacy.
