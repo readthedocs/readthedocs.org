@@ -977,6 +977,15 @@ class DockerBuildEnvironment(BuildEnvironment):
         if self.container:
             return self.container.get('Id')
 
+    @property
+    def conda_version(self):
+        """Return conda version if exists."""
+        try:
+            version = subprocess.run(["conda", "--version"], capture_output=True, text=True)
+            return version.stdout
+        except Exception:
+            return "conda environment is not set"
+
     def container_state(self):
         """Get container state."""
         client = self.get_client()
@@ -1020,6 +1029,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
+                conda_version=self.conda_version,
+                image_hash=self.image_hash,
             )
             self.container = client.create_container(
                 image=self.container_image,
