@@ -14,12 +14,12 @@ and don't do creepy behavioral targeting.
 
 Advertising is the single largest source of funding for Read the Docs.
 To keep our operations sustainable, we ask that you either
-:ref:`allow our Ethical Ads <advertising/ad-blocking:Allowing Ethical Ads>`
+:ref:`allow our EthicalAds <advertising/ad-blocking:Allowing EthicalAds>`
 or :ref:`go ad-free <advertising/ad-blocking:Going ad-free>`.
 
 
-Allowing Ethical Ads
---------------------
+Allowing EthicalAds
+-------------------
 
 If you use AdBlock or AdBlockPlus
 and you allow `acceptable ads`_ or `privacy-friendly acceptable ads`_
