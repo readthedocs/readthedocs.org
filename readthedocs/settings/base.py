@@ -559,7 +559,7 @@ class CommunityBaseSettings(Settings):
                 '3.10': '3.10.0',
                 'pypy3.7': 'pypy3.7-7.3.5',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.1-5',
+                'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
                 '14': '14.17.6',
