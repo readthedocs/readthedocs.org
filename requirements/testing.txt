@@ -11,7 +11,7 @@ pytest-cov==3.0.0
 apipkg==2.1.0
 execnet==1.9.0
 
-Mercurial==5.9.3
+Mercurial==6.0
 
 yamale==2.2.0  # pyup: <3.0
 pytest-mock==3.6.1
