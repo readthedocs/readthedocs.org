@@ -550,8 +550,8 @@ class BuildEnvironment(BaseEnvironment):
             project_slug=self.project.slug if self.project else '',
             version_slug=self.version.slug if self.version else '',
             # TODO: add organization_slug here
-            success=self.build.get('success'),
-            length=self.build.get('length'),
+            success=self.build.get('success') if self.build else '',
+            length=self.build.get('length') if self.build else '',
         )
         return ret
 
