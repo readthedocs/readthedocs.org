@@ -58,13 +58,29 @@ Next, you will need to enable one of the extensions, as follows:
 Finally, you can include the notebook in any *toctree*.
 For example, add this to your root document:
 
-.. code-block:: rest
+.. tabs::
 
-   .. toctree::
-      :maxdepth: 2
-      :caption: Contents:
+   .. tab:: reStructuredText
 
-      notebooks/Example 1
+      .. code-block:: rst
+
+         .. toctree::
+            :maxdepth: 2
+            :caption: Contents:
+
+            notebooks/Example 1
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         ```{toctree}
+         ---
+         maxdepth: 2
+         caption: Contents:
+         ---
+         notebooks/Example 1
+         ```
 
 The notebook will render as any other HTML page in your documentation
 after doing ``make html``.
@@ -255,14 +271,29 @@ For example, this reST markup would create a thumbnail gallery
 with generic images as thumbnails,
 thanks to the Sphinx-Gallery default style:
 
-.. code-block:: rest
+.. tabs::
 
-   Thumbnails gallery
-   ==================
+   .. tab:: reStructuredText
 
-   .. nbgallery::
-      notebooks/Example 1
-      notebooks/Example 2
+      .. code-block:: rst
+
+         Thumbnails gallery
+         ==================
+
+         .. nbgallery::
+            notebooks/Example 1
+            notebooks/Example 2
+
+   .. tab:: MyST (Markdown)
+
+      .. code-block:: md
+
+         # Thumbnails gallery
+
+         ```{nbgallery}
+         notebooks/Example 1
+         notebooks/Example 2
+         ```
 
 .. figure:: /_static/images/guides/thumbnail-gallery.png
    :width: 80%

@@ -16,3 +16,4 @@ and :doc:`/intro/getting-started-with-mkdocs`.
    cross-referencing-with-sphinx
    intersphinx
    jupyter
+   migrate-rest-myst

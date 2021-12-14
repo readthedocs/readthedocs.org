@@ -195,12 +195,12 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
                 spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
                 spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
             )
-        if self.value() == self.DONT_SERVE_DOCS:
+        if self.value() == self.DONT_SHOW_DASHBOARD:
             return queryset.filter(
                 spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
                 spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
             )
-        if self.value() == self.DONT_SHOW_DASHBOARD:
+        if self.value() == self.DONT_SERVE_DOCS:
             return queryset.filter(
                 spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
                 spam_score__lt=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
@@ -318,9 +318,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 messages.INFO,
                 'Banned {} user(s)'.format(total),
             )
-
-        # Trigger the spam rules check for these projects
-        self.run_spam_rule_checks(request, queryset)
 
     ban_owner.short_description = 'Ban project owner'
 

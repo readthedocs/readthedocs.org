@@ -546,8 +546,12 @@ class BuildEnvironment(BaseEnvironment):
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
             'Build finished',
+            # TODO: move all of these attributes to ``log.bind`` if possible
             project_slug=self.project.slug if self.project else '',
             version_slug=self.version.slug if self.version else '',
+            # TODO: add organization_slug here
+            success=self.build.get('success') if self.build else '',
+            length=self.build.get('length') if self.build else '',
         )
         return ret
 

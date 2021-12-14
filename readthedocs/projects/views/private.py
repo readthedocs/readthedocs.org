@@ -780,6 +780,16 @@ class DomainCreateBase(DomainMixin, CreateView):
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
 
+    def get_success_url(self):
+        """Redirect to the edit view so users can follow the next steps."""
+        return reverse(
+            'projects_domains_edit',
+            args=[
+                self.get_project().slug,
+                self.object.pk,
+            ],
+        )
+
 
 class DomainCreate(SettingsOverrideObject):
 

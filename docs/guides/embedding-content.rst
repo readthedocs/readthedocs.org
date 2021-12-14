@@ -79,17 +79,33 @@ and show a modal when the user clicks in a "Help" link.
     To avoid that, you can manually define Sphinx references above the sections you don't want to break.
     For example,
 
-    .. code-block:: rst
-       :emphasize-lines: 3
+    .. tabs::
 
-       .. in your .rst document file
+       .. tab:: reStructuredText
 
-       .. _unbreakable-section-reference:
+          .. code-block:: rst
+             :emphasize-lines: 3
 
-       Creating an automation rule
-       ---------------------------
+             .. in your .rst document file
 
-       This is the text of the section.
+             .. _unbreakable-section-reference:
+
+             Creating an automation rule
+             ---------------------------
+
+             This is the text of the section.
+
+       .. tab:: MyST (Markdown)
+
+          .. code-block:: md
+             :emphasize-lines: 3
+
+             .. in your .md document file
+
+             (unbreakable-section-reference)=
+             ## Creating an automation rule
+
+             This is the text of the section.
 
     To link to the section "Creating an automation rule" you can send ``section=unbreakable-section-reference``.
     If you change the title it won't break the embedded content because the label for that title will still be ``unbreakable-section-reference``.

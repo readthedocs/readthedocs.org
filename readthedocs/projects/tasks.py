@@ -1326,9 +1326,6 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         return
     project = version.project
 
-    # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.projects.tasks.fileify.', locals=locals())
-
     if not commit:
         log.warning(
             'Search index not being built because no commit information',
