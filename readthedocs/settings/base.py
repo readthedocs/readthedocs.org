@@ -825,6 +825,7 @@ class CommunityBaseSettings(Settings):
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
+                    structlog.processors.TimeStamper(fmt='iso'),
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                     structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
                 ],

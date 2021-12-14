@@ -389,9 +389,14 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         )
         path = build_media_storage.join(storage_path, 'robots.txt')
 
+        log.bind(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
         if build_media_storage.exists(path):
             url = build_media_storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
+            log.info('Serving custom robots.txt file.')
             return self._serve_docs(
                 request,
                 final_project=project,
