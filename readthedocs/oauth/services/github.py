@@ -367,9 +367,7 @@ class GitHubService(Service):
         resp = None
 
         provider_data = self.get_provider_data(project, integration)
-        url = provider_data.get('url')
         log.bind(
-            url=url,
             project_slug=project.slug,
             integration_id=integration.pk,
         )
@@ -380,12 +378,16 @@ class GitHubService(Service):
             return self.setup_webhook(project, integration)
 
         try:
+            url = provider_data.get('url')
             resp = session.patch(
                 url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
-            log.bind(http_status_code=resp.status_code)
+            log.bind(
+                http_status_code=resp.status_code,
+                url=url,
+            )
 
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:

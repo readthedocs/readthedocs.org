@@ -509,6 +509,8 @@ class GitLabService(Service):
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
+            except Exception:
+                debug_data = None
             log.exception(
                 'GitLab webhook update failed.',
                 debug_data=debug_data,
