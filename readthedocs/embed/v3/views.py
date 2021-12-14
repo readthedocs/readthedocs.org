@@ -346,6 +346,8 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             'EmbedAPI successful response.',
             project_slug=self.unresolved_url.project.slug if not external else None,
             domain=domain if external else None,
+            doctool=doctool,
+            doctoolversion=doctoolversion,
             url=url,
             referer=request.META.get('HTTP_REFERER'),
             external=external,

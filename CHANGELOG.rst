@@ -1,3 +1,32 @@
+Version 6.3.1
+-------------
+
+:Date: December 14, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Explicit settings for some tests (`#8759 <https://github.com/readthedocs/readthedocs.org/pull/8759>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't run spam rules check after ban action (`#8756 <https://github.com/readthedocs/readthedocs.org/pull/8756>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add MyST Markdown examples everywhere (`#8752 <https://github.com/readthedocs/readthedocs.org/pull/8752>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update mambaforge to latest version (`#8749 <https://github.com/readthedocs/readthedocs.org/pull/8749>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update django (`#8748 <https://github.com/readthedocs/readthedocs.org/pull/8748>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Remove sphinx-doc.org from external domains (`#8747 <https://github.com/readthedocs/readthedocs.org/pull/8747>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix call to sync_remote_repositories (`#8742 <https://github.com/readthedocs/readthedocs.org/pull/8742>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#8740 <https://github.com/readthedocs/readthedocs.org/pull/8740>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: contact link on template (`#8739 <https://github.com/readthedocs/readthedocs.org/pull/8739>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: fix admin filter (`#8738 <https://github.com/readthedocs/readthedocs.org/pull/8738>`__)
+* `@stsewd <https://github.com/stsewd>`__: Always clear cache after each test (`#8737 <https://github.com/readthedocs/readthedocs.org/pull/8737>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: tweaks and minor improvements (`#8736 <https://github.com/readthedocs/readthedocs.org/pull/8736>`__)
+* `@humitos <https://github.com/humitos>`__: Logs: typo on keyname (`#8734 <https://github.com/readthedocs/readthedocs.org/pull/8734>`__)
+* `@humitos <https://github.com/humitos>`__: Log: use structlog-sentry to send logs to Sentry (`#8732 <https://github.com/readthedocs/readthedocs.org/pull/8732>`__)
+* `@humitos <https://github.com/humitos>`__: docs: use Python 3.8 to build our docs (`#8731 <https://github.com/readthedocs/readthedocs.org/pull/8731>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 6.3.0 (`#8730 <https://github.com/readthedocs/readthedocs.org/pull/8730>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom Domain: make cname_target configurable (`#8728 <https://github.com/readthedocs/readthedocs.org/pull/8728>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add guide to migrate from reST to MyST (`#8714 <https://github.com/readthedocs/readthedocs.org/pull/8714>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: log success requests (`#8689 <https://github.com/readthedocs/readthedocs.org/pull/8689>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
+
 Version 6.3.0
 -------------
 

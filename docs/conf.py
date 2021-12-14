@@ -35,6 +35,7 @@ extensions = [
     'hoverxref.extension',
     'sphinx_search.extension',
     'sphinxemoji.sphinxemoji',
+    'myst_parser',
 ]
 
 templates_path = ['_templates']
@@ -63,7 +64,12 @@ intersphinx_mapping = {
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
     'writethedocs': ('https://www.writethedocs.org/', None),
     'jupyterbook': ('https://jupyterbook.org/', None),
+    'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
+    'rst-to-myst': ('https://rst-to-myst.readthedocs.io/en/stable/', None),
 }
+myst_enable_extensions = [
+    "deflist",
+]
 hoverxref_intersphinx = [
    "sphinx",
    "pip",
