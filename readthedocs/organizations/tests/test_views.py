@@ -12,6 +12,7 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.audit.models import AuditLog
+from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import (
     Organization,
     Team,
@@ -34,11 +35,54 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.project = get(Project)
         self.organization = get(
             Organization,
+            name='test-org',
+            slug='test-org',
             owners=[self.owner],
             projects=[self.project],
         )
         self.team = get(Team, organization=self.organization)
         self.client.force_login(self.owner)
+
+    def test_update(self):
+        org_slug = self.organization.slug
+        resp = self.client.post(
+            reverse('organization_edit', args=[self.organization.slug]),
+            data={
+                'name': 'New name',
+                'email': 'dev@example.com',
+                'description': 'Description',
+                'url': 'https://readthedocs.org',
+            }
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.organization.refresh_from_db()
+        self.assertEqual(self.organization.name, 'New name')
+        self.assertEqual(self.organization.email, 'dev@example.com')
+        self.assertEqual(self.organization.url, 'https://readthedocs.org')
+        self.assertEqual(self.organization.description, 'Description')
+        # The slug hasn't changed.
+        self.assertEqual(self.organization.slug, org_slug)
+
+    def test_change_name(self):
+        """
+        Changing the name of the organization won't change the slug.
+
+        So changing it to something that will generate an existing slug
+        shouldn't matter.
+        """
+        new_name = 'Test Org'
+        org_slug = self.organization.slug
+        self.assertNotEqual(new_name, self.organization.name)
+        self.assertEqual(slugify(new_name), org_slug)
+
+        resp = self.client.post(
+            reverse('organization_edit', args=[self.organization.slug]),
+            data={'name': new_name},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.organization.refresh_from_db()
+        self.assertEqual(self.organization.name, new_name)
+        self.assertEqual(self.organization.slug, org_slug)
 
     def test_delete(self):
         """Delete organization on post."""
@@ -58,7 +102,7 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
                         .exists())
 
     def test_add_owner(self):
-        url = reverse('organization_owner_add', args=[self.organization])
+        url = reverse('organization_owner_add', args=[self.organization.slug])
         user = get(User, username='test-user', email='test-user@example.com')
         user.emailaddress_set.create(email=user.email, verified=False)
 

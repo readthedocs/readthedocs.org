@@ -559,7 +559,7 @@ class CommunityBaseSettings(Settings):
                 '3.10': '3.10.0',
                 'pypy3.7': 'pypy3.7-7.3.5',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.1-5',
+                'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
                 '14': '14.17.6',
@@ -825,6 +825,7 @@ class CommunityBaseSettings(Settings):
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
+                    structlog.processors.TimeStamper(fmt='iso'),
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                     structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
                 ],
@@ -881,7 +882,6 @@ class CommunityBaseSettings(Settings):
         r'docs\.python\.org',
         r'docs\.scipy\.org',
         r'docs\.sympy\.org',
-        r'www.sphinx-doc.org',
         r'numpy\.org',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10

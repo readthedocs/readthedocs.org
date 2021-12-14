@@ -661,8 +661,9 @@ class TestBadges(TestCase):
 
 
 class TestTags(TestCase):
+
     def test_project_filtering_work_with_tags_with_space_in_name(self):
-        pip = get(Project, slug='pip')
+        pip = get(Project, slug='pip', privacy_level=PUBLIC)
         pip.tags.add('tag with space')
         response = self.client.get('/projects/tags/tag-with-space/')
         self.assertContains(response, '"/projects/pip/"')
