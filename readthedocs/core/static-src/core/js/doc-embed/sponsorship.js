@@ -29,6 +29,8 @@ function inject_ads_client() {
 function create_ad_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
+    var style_name;
+    var ad_type = "readthedocs-sidebar";
     var element;
     var offset;
 
@@ -51,7 +53,8 @@ function create_ad_placement() {
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        class_name = 'ethical-rtd ethical-dark-theme';
+        style_name = 'stickybox';
+        ad_type = 'image';
     } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
@@ -78,8 +81,9 @@ function create_ad_placement() {
         return $('<div />')
             .attr("id", "rtd-sidebar")
             .attr("data-ea-publisher", "readthedocs")
-            .attr("data-ea-type", "readthedocs-sidebar")
+            .attr("data-ea-type", ad_type)
             .attr("data-ea-manual", "true")
+            .attr("data-ea-style", style_name)
             .addClass(class_name)
             .appendTo(selector);
     }
