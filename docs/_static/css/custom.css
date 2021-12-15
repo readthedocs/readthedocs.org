@@ -5,7 +5,7 @@
 }
 
 
-/* RTD docs ad placement in the lower right */
+/* Center the RTD placement when not wide enough to float */
 #rtd-stickybox-container {
   text-align: center;
 }
