@@ -58,7 +58,12 @@ from .mixins import (
     UpdateChangeReasonMixin,
     UpdateMixin,
 )
-from .permissions import CommonPermissions, IsProjectAdmin
+from .permissions import (
+    CommonPermissions,
+    IsOrganizationAdminMember,
+    IsProjectAdmin,
+    UserOrganizationsListing,
+)
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -393,7 +398,7 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
         serializer.save()
 
 
-class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
+class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
                                OrganizationQuerySetMixin,
                                ReadOnlyModelViewSet):
 
@@ -402,7 +407,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-
+    permission_classes = [UserOrganizationsListing | IsOrganizationAdminMember]
     permit_list_expands = [
         'projects',
         'teams',
@@ -422,11 +427,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return super().get_queryset()
 
 
-class OrganizationsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsViewSetBase
-
-
-class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
+class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
                                        OrganizationQuerySetMixin,
                                        ReadOnlyModelViewSet):
 
@@ -435,6 +436,7 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsProjectAdmin]
     permit_list_expands = [
         'organization',
         'organization.teams',
@@ -442,10 +444,6 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
 
     def get_view_name(self):
         return f'Organizations Projects {self.suffix}'
-
-
-class OrganizationsProjectsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsProjectsViewSetBase
 
 
 class RemoteRepositoryViewSet(
