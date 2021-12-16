@@ -191,6 +191,14 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
 
         return False
 
+    def is_admin_member(self, user, organization):
+        return (
+            Project.objects
+            .for_admin_user(user=user)
+            .filter(organizations__in=[organization])
+            .exists()
+        )
+
     def admin_organizations(self, user):
         return Organization.objects.for_admin_user(user=user)
 
