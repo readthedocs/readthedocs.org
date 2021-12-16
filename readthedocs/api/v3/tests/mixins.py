@@ -101,6 +101,7 @@ class APIEndpointMixin(TestCase):
         self.others_token = fixture.get(Token, key='other', user=self.other)
         self.others_project = fixture.get(
             Project,
+            id=2,
             slug='others-project',
             related_projects=[],
             main_language_project=None,
