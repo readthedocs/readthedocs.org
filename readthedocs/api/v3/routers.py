@@ -6,16 +6,16 @@ class DocsAPIRootView(APIRootView):
 
     # Overridden only to add documentation for BrowsableAPIRenderer.
 
+    # noqa
     """
-    Read the Docs APIv3 root endpoint.
+    Each request requires an `Authorization` HTTP header with `Token <your-token>`,
+    find the token in [your account](/accounts/tokens/).
 
-    The API is browsable by sending the header ``Authorization: Token <token>`` on each request. You can find your Token at [https://readthedocs.org/accounts/tokens/](https://readthedocs.org/accounts/tokens/).
-
-    Read its full documentation at [https://docs.readthedocs.io/page/api/v3.html](https://docs.readthedocs.io/page/api/v3.html).
-    """  # noqa
+    Read the full documentation at <https://docs.readthedocs.io/page/api/v3.html>.
+    """
 
     def get_view_name(self):
-        return 'Read the Docs APIv3'
+        return 'Read the Docs API v3'
 
 
 class DefaultRouterWithNesting(NestedRouterMixin, DefaultRouter):
