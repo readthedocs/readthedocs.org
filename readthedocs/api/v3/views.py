@@ -436,7 +436,7 @@ class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsProjectAdmin]
+    permission_classes = [IsOrganizationAdminMember]
     permit_list_expands = [
         'organization',
         'organization.teams',
