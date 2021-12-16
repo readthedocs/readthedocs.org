@@ -398,9 +398,12 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
         serializer.save()
 
 
-class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
-                               OrganizationQuerySetMixin,
-                               ReadOnlyModelViewSet):
+class OrganizationsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ReadOnlyModelViewSet,
+):
 
     model = Organization
     lookup_field = 'slug'
@@ -427,9 +430,12 @@ class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
         return super().get_queryset()
 
 
-class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
-                                       OrganizationQuerySetMixin,
-                                       ReadOnlyModelViewSet):
+class OrganizationsProjectsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ReadOnlyModelViewSet
+):
 
     model = Project
     lookup_field = 'slug'
