@@ -9,7 +9,7 @@ django-polymorphic==3.1.0
 django-autoslug==1.9.8
 django-simple-history==3.0.0
 
-djangorestframework==3.13.0
+djangorestframework==3.13.1
 
 # For intersphinx during builds
 Sphinx==4.3.1
