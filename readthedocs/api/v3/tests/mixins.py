@@ -22,6 +22,7 @@ from readthedocs.redirects.models import Redirect
     PRODUCTION_DOMAIN='readthedocs.org',
     USE_SUBDOMAIN=True,
     RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
+    RTD_ALLOW_ORGANIZATIONS=False,
 )
 class APIEndpointMixin(TestCase):
 
