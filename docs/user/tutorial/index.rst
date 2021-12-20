@@ -682,7 +682,7 @@ and Read the Docs:
 - Do you want to join a global community of fellow `documentarians <writethedocs:documentarians>`?
   Check out `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.
-- Do you want to :doc:`contribute to Read the Docs </contribute>`?
-  We greatly appreciate it! Check out :doc:`/development/docs`.
+- Do you want to contribute to Read the Docs?
+  We greatly appreciate it! Check out :doc:`rtd-dev:contribute`.
 
 Happy documenting!

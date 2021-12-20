@@ -16,7 +16,7 @@ We have built something that we expect to last a long time,
 and we are able to make decisions based only on the best interest of our community and customers.
 
 All of the source code for Read the Docs is open source.
-You are welcome to :doc:`contribute </contribute>` the features you want or run your own instance.
+You are welcome to :doc:`contribute <rtd-dev:contribute>` the features you want or run your own instance.
 We should note that we generally only support our hosted versions as a matter of :doc:`our philosophy </open-source-philosophy>`.
 
 We owe a great deal to the open source community that we are a part of,
