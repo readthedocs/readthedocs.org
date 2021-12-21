@@ -19,23 +19,6 @@ from readthedocs.builds.storage import BuildMediaStorageMixin
 from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
-class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
-
-    """An AWS S3 Storage backend for build artifacts."""
-
-    bucket_name = getattr(settings, 'S3_MEDIA_STORAGE_BUCKET', None)
-    override_hostname = getattr(settings, 'S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME', None)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if not self.bucket_name:
-            raise ImproperlyConfigured(
-                'AWS S3 not configured correctly. '
-                'Ensure S3_MEDIA_STORAGE_BUCKET is defined.',
-            )
-
-
 class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
 
     """An AWS S3 Storage backend for build commands."""
