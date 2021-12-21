@@ -5,6 +5,7 @@ Things to know:
 * the Command wrappers encapsulate the bytes and expose unicode
 """
 import hashlib
+from itertools import zip_longest
 import json
 import os
 import tempfile
@@ -1210,8 +1211,9 @@ class TestPythonEnvironment(TestCase):
         with each element of args.
         """
         args_mock, _ = call
-        for arg, arg_mock in zip(args, args_mock):
+        for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
+                self.assertIsNotNone(arg_mock)
                 self.assertTrue(arg_mock.startswith(arg))
 
     @patch('readthedocs.projects.models.Project.checkout_path')
