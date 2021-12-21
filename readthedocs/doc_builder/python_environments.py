@@ -526,6 +526,10 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
+            # If this flag is present,
+            # we need to cap setuptools again.
+            # See https://github.com/readthedocs/readthedocs.org/issues/8775
+            requirements.append('setuptools<58.3.0')
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
