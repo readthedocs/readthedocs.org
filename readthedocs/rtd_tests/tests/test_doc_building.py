@@ -5,6 +5,7 @@ Things to know:
 * the Command wrappers encapsulate the bytes and expose unicode
 """
 import hashlib
+from itertools import zip_longest
 import json
 import os
 import tempfile
@@ -1210,8 +1211,9 @@ class TestPythonEnvironment(TestCase):
         with each element of args.
         """
         args_mock, _ = call
-        for arg, arg_mock in zip(args, args_mock):
+        for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
+                self.assertIsNotNone(arg_mock)
                 self.assertTrue(arg_mock.startswith(arg))
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1239,6 +1241,44 @@ class TestPythonEnvironment(TestCase):
 
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
+        self.assertArgsStartsWith(args, calls[1])
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx_system_packages_caps_setuptools(self, checkout_path, load_config):
+        config_data = {
+            'python': {
+                'use_system_site_packages': True,
+            },
+        }
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version_sphinx)
+
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+            config=config,
+        )
+        python_env.install_core_requirements()
+        requirements_sphinx = [
+            'commonmark',
+            'recommonmark',
+            'sphinx',
+            'sphinx-rtd-theme',
+            'readthedocs-sphinx-ext',
+            'setuptools<58.3.0',
+        ]
+
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
+        calls = self.build_env_mock.run.call_args_list
+
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        self.assertArgsStartsWith(core_args, calls[0])
+
+        requirements = self.base_requirements + requirements_sphinx
+        args = self.pip_install_args + ['-I'] + requirements
         self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
