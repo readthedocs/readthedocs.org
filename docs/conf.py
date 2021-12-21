@@ -97,7 +97,7 @@ intersphinx_mapping = {
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
     'rst-to-myst': ('https://rst-to-myst.readthedocs.io/en/stable/', None),
     'rtd': ('https://docs.readthedocs.io/en/stable/', None),
-    'rtd-dev': ('https://dev.readthedocs.io/en/stable/', None),
+    'rtd-dev': ('https://dev.readthedocs.io/en/latest/', None),
 }
 myst_enable_extensions = [
     "deflist",
