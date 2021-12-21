@@ -9,10 +9,10 @@ django_polymorphic==3.1.0
 django-autoslug==1.9.8
 django-simple-history==3.0.0
 
-djangorestframework==3.13.0
+djangorestframework==3.13.1
 
 # For intersphinx during builds
-Sphinx==4.3.1
+Sphinx==4.3.2
 
 # Filtering for the REST API
 django-filter==21.1
@@ -48,7 +48,7 @@ requests-oauthlib==1.3.0
 GitPython==3.1.18  # pyup: ignore
 
 # Search
-elasticsearch==7.16.0  # pyup: <8.0.0
+elasticsearch==7.16.1  # pyup: <8.0.0
 elasticsearch-dsl==7.4.0  # pyup: <8.0
 django-elasticsearch-dsl==7.2.1  # pyup: <8.0
 selectolax==0.3.6
@@ -115,7 +115,7 @@ git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c0
 
 
 # Required only in development and linting
-django-debug-toolbar==3.2.3
+django-debug-toolbar==3.2.4
 
 # For enabling content-security-policy
 django-csp==3.7
@@ -123,4 +123,4 @@ django-csp==3.7
 django-permissions-policy==4.5.0
 
 django-structlog==2.2.0
-structlog==21.4.0
+structlog==21.5.0
