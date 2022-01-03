@@ -28,7 +28,7 @@ requests-toolbelt==0.9.1
 slumber==0.7.1
 # awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
 pyyaml==5.4.1  # pyup: ignore
-Pygments==2.10.0
+Pygments==2.11.1
 
 # Basic tools
 redis==4.1.0
