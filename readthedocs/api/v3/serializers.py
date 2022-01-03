@@ -532,7 +532,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     .. note::
 
        When using organizations, projects don't have the concept of users.
-       But we have organization.users.
+       But we have organization.owners.
     """
 
     homepage = serializers.SerializerMethodField()
@@ -544,9 +544,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-
-    if not settings.RTD_ALLOW_ORGANIZATIONS:
-        users = UserSerializer(many=True)
+    users = serializers.SerializerMethodField()
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -576,13 +574,11 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
-            # 'users',
             # 'active_versions',
 
             '_links',
+            'users',
         ]
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            fields.append('users')
 
         expandable_fields = {
             # NOTE: this has to be a Model method, can't be a
@@ -611,6 +607,17 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
         return obj.project_url or None
+
+    def get_users(self, obj):
+        """
+        Conditionally return the users of the project.
+
+        If the project belongs to an organization,
+        it doesn't have owners (users), but teams and organization owners.
+        """
+        if obj.organizations.first():
+            return None
+        return UserSerializer(obj.users, many=True).data
 
     def get_translation_of(self, obj):
         if obj.main_language_project:
