@@ -225,6 +225,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     list_filter = list_filter + (
         ProjectOwnerBannedFilter,
+        'is_spam',
         'feature__feature_id',
         'repo_type',
         'privacy_level',
