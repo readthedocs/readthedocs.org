@@ -8,7 +8,7 @@ You can use these variables in your own Sphinx theme as well.
 More information can be found on `Sphinx documentation`_.
 
 .. _`our Sphinx theme`: https://sphinx-rtd-theme.readthedocs.io/
-.. _`Sphinx documentation`: http://www.sphinx-doc.org/en/master/configuration.html#confval-html_context
+.. _`Sphinx documentation`: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_context
 
 GitHub
 ------
