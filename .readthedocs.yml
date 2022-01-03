@@ -16,11 +16,6 @@ build:
     python: "3.8"
 
 search:
-  ignore:
-    # Internal documentation
-    - development/design/*
-    - search.html
-    - 404.html
   ranking:
     # Deprecated content
     api/v1.html: -1
