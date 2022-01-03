@@ -544,7 +544,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-    users = serializers.SerializerMethodField()
+    users = UserSerializer(many=True)
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -604,20 +604,14 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             ),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            self.fields.pop('users', None)
+
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
         return obj.project_url or None
-
-    def get_users(self, obj):
-        """
-        Conditionally return the users of the project.
-
-        If the project belongs to an organization,
-        it doesn't have owners (users), but teams and organization owners.
-        """
-        if obj.organizations.first():
-            return None
-        return UserSerializer(obj.users, many=True).data
 
     def get_translation_of(self, obj):
         if obj.main_language_project:
