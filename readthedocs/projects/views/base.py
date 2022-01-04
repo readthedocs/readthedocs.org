@@ -1,15 +1,12 @@
 """Mix-in classes for project views."""
 import structlog
-from datetime import timedelta
 from functools import lru_cache
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.utils import timezone
 
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -86,26 +83,17 @@ class ProjectAdminMixin:
 
 class ProjectSpamMixin:
 
-    """Protects POST views from spammers."""
+    """
+    Protects views for spammy projects.
 
-    def post(self, request, *args, **kwargs):
-        log.bind(user_username=request.user.username)
-        if request.user.profile.banned:
-            log.info('Rejecting project POST from shadowbanned user.')
-            return HttpResponseRedirect(self.get_failure_url())
-        try:
-            return super().post(request, *args, **kwargs)
-        except ProjectSpamError:
-            date_maturity = timezone.now() - timedelta(
-                days=settings.USER_MATURITY_DAYS
-            )
-            if request.user.date_joined > date_maturity:
-                request.user.profile.banned = True
-                request.user.profile.save()
-                log.info('Spam detected from new user, shadowbanned user.')
-            else:
-                log.info('Spam detected from user.')
-            return HttpResponseRedirect(self.get_failure_url())
+    It shows a ``Project marked as spam`` page and return 410 GONE if the
+    project's dashboard is denied.
+    """
 
-    def get_failure_url(self):
-        return reverse('homepage')
+    def get(self, request, *args, **kwargs):
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_show_dashboard_denied  # noqa
+            if is_show_dashboard_denied(self.get_project()):
+                return render(request, template_name='spam.html', status=410)
+
+        return super().get(request, *args, **kwargs)

@@ -40,7 +40,7 @@ from readthedocs.proxito.views.utils import _get_project_data_from_request
 from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
-from .base import ProjectOnboardMixin
+from .base import ProjectOnboardMixin, ProjectSpamMixin
 
 log = structlog.get_logger(__name__)
 search_log = structlog.get_logger(__name__ + '.search')
@@ -87,8 +87,13 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailViewBase(ProjectRelationListMixin, BuildTriggerMixin,
-                            ProjectOnboardMixin, DetailView):
+class ProjectDetailViewBase(
+        ProjectSpamMixin,
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView,
+):
 
     """Display project onboard steps."""
 

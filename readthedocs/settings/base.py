@@ -170,7 +170,6 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             'corsheaders',
-            'textclassifier',
             'annoying',
             'django_extensions',
             'crispy_forms',
