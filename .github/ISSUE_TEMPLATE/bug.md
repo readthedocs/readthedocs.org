@@ -1,6 +1,10 @@
 ---
 name: Bug report
 about: Report some incorrect or unexpected behavior
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 ## Details
