@@ -5,7 +5,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import gettext_lazy as _
 from django_dynamic_fixture import get
-from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
@@ -16,7 +15,6 @@ from readthedocs.projects.constants import (
     REPO_TYPE_HG,
     SPHINX,
 )
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
@@ -35,20 +33,6 @@ from readthedocs.projects.models import (
 
 
 class TestProjectForms(TestCase):
-
-    @mock.patch.object(ClassifierValidator, '__call__')
-    def test_form_spam(self, mocked_validator):
-        """Form description field fails spam validation."""
-        mocked_validator.side_effect = ProjectSpamError
-
-        data = {
-            'description': 'foo',
-            'documentation_type': 'sphinx',
-            'language': 'en',
-        }
-        form = ProjectExtraForm(data)
-        with self.assertRaises(ProjectSpamError):
-            form.is_valid()
 
     def test_import_repo_url(self):
         """Validate different type of repository URLs on importing a Project."""
