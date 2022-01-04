@@ -23,7 +23,7 @@ Contributing to development
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:doc:`installation guide </development/install>`. After that is done we
+:doc:`installation guide </install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -38,7 +38,8 @@ They are simply things that are explained.
 If you still didn't find something to work on, search for the `Sprintable`_ label.
 Those tickets are meant to be standalone and can be worked on ad-hoc.
 
-You can read all of our :doc:`/development/index` to understand more the development of Read the Docs. When contributing code, then please follow the standard Contribution Guidelines set forth at `contribution-guide.org`_.
+You can read all of our :doc:`/index` to understand more the development of Read the Docs.
+When contributing code, then please follow the standard Contribution Guidelines set forth at `contribution-guide.org`_.
 
 .. _Feature: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _Improvement: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
@@ -54,7 +55,7 @@ Contributing to documentation
 Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.io (likely the website you are currently reading).
 
 There are guidelines around writing and formatting documentation for the project.
-For full details, including how to build it, see :doc:`/development/docs`.
+For full details, including how to build it, see :doc:`/docs`.
 
 
 Triaging tickets
@@ -196,7 +197,7 @@ few more at hand to further categorize issues.
     handled during a sprint. They are very focused and encapsulated.
 
 For a full list of available labels and their meanings, see
-:doc:`/development/issue-labels`.
+:doc:`/issue-labels`.
 
 Helpful links for triaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

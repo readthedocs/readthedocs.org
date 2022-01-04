@@ -18,9 +18,9 @@ This is a GSoC'19 project.
 
 The final result may look something like this:
 
-.. figure:: ../../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
+.. figure:: /_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
     :align: center
-    :target: ../../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
+    :target: /_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
 
     Short demo
 

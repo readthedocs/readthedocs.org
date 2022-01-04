@@ -1,7 +1,7 @@
 Changelog
 =========
 
-.. include:: ../CHANGELOG.rst
+.. include:: ../../CHANGELOG.rst
 
 Previous releases
 -----------------

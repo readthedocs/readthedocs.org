@@ -199,21 +199,21 @@ debugging currently.
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These are optional steps to setup the :doc:`connected accounts </connected-accounts>`
+These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
 (GitHub, GitLab, and BitBucket) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.
 
 However, because these services will not be able to connect back to your local development instance,
-:doc:`incoming webhooks </integrations>` will not function correctly.
+:doc:`incoming webhooks <rtd:integrations>` will not function correctly.
 For some services, the webhooks will fail to be added when the repository is imported.
 For others, the webhook will simply fail to connect when there are new commits to the repository.
 
-.. figure:: ../_static/images/development/bitbucket-oauth-setup.png
+.. figure:: /_static/images/development/bitbucket-oauth-setup.png
     :align: center
     :figwidth: 80%
-    :target: ../_static/images/development/bitbucket-oauth-setup.png
+    :target: /_static/images/development/bitbucket-oauth-setup.png
 
     Configuring an OAuth consumer for local development on Bitbucket
 
