@@ -23,7 +23,7 @@ and remove some quirkiness that makes it hard to maintain and difficult to use.
 Current implementation
 ----------------------
 
-The current implementation of the API is partially documented in :doc:`/guides/embedding-content`.
+The current implementation of the API is partially documented in :doc:`rtd:guides/embedding-content`.
 It has some known problems:
 
 * There are different ways of querying the API: ``?url=`` (generic) and ``?doc=`` (relies on Sphinx's specific concept)

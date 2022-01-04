@@ -5,9 +5,6 @@ Read the Docs uses :doc:`/server-side-search` to power our search.
 This guide explains how to add a "search as you type" feature to your documentation,
 and how to use advanced query syntax to get more accurate results.
 
-You can find information on the search architecture and how we index documents in our
-:doc:`Search </development/search>` docs.
-
 .. contents:: Table of contents
    :local:
    :backlinks: none
