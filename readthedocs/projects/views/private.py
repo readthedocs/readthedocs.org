@@ -284,7 +284,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._set_initial_dict()
 
         log.bind(user_username=request.user.username)
