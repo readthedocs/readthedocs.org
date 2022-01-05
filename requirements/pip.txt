@@ -30,14 +30,17 @@ slumber==0.7.1
 pyyaml==5.4.1  # pyup: ignore
 Pygments==2.10.0
 
-# Basic tools
-
 # Downgrade redis to 3.5.3 (latest 3.x release) because pip raises this error:
 # django-redis-cache 2.1.3 depends on redis<4.0
 redis==3.5.3  # pyup: ignore
 
-kombu==5.2.2
-celery==5.2.2
+# Pin celery and kombu because it produces an error
+# File "/home/docs/lib/python3.8/site-packages/celery/app/trace.py", line 361, in build_tracer
+#     push_request = request_stack.push
+# AttributeError: 'NoneType' object has no attribute 'push'
+# See https://github.com/celery/celery/discussions/7172
+kombu==5.1.0  # pyup: ignore
+celery==5.1.2  # pyup: ignore
 
 # When upgrading to 0.43.0 we should double check the ``base.html`` change
 # described in the changelog. In previous versions, the allauth app included a
