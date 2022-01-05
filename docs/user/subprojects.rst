@@ -21,6 +21,11 @@ Adding a Subproject
 In the admin dashboard for your project, select "Subprojects" from the menu.
 From this page you can add a subproject by typing in the project slug.
 
+Subproject aliases
+~~~~~~~~~~~~~~~~~~
+
+You can use an alias for the subproject when it is created. This allows you to override the URL that is used to access it, giving more configurability to how you want to structure your projects. 
+
 Sharing a Custom Domain
 -----------------------
 
