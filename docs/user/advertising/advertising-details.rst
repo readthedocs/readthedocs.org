@@ -123,7 +123,7 @@ These steps apply both to analytics collected by Read the Docs and when
 
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
 * Read the Docs instructs Google to anonymize IP addresses sent to them.
-* The cookies set by GA expire in 30 days rather than the default 2 years.
+* The cookie set by GA is a session (non-persistent) cookie rather than the default 2 years.
 * Project maintainers can completely disable analytics on their own projects.
   Follow the steps in :ref:`analytics:Disabling Google Analytics on your project`.
 

@@ -1,18 +1,14 @@
 """Public project views."""
 
 import hashlib
-import json
 import structlog
 import mimetypes
-import operator
 import os
 from collections import OrderedDict
 from urllib.parse import urlparse
 
-import requests
 from django.conf import settings
 from django.contrib import messages
-from django.core.cache import cache
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -453,91 +449,5 @@ def project_versions(request, project_slug):
             'is_project_admin': AdminPermission.is_admin(request.user, project),
             'max_inactive_versions': max_inactive_versions,
             'total_inactive_versions_count': total_inactive_versions_count,
-        },
-    )
-
-
-def project_analytics(request, project_slug):
-    """Have a analytics API placeholder."""
-    project = get_object_or_404(
-        Project.objects.public(request.user),
-        slug=project_slug,
-    )
-    analytics_cache = cache.get('analytics:%s' % project_slug)
-    if analytics_cache:
-        analytics = json.loads(analytics_cache)
-    else:
-        try:
-            resp = requests.get(
-                '{host}/api/v1/index/1/heatmap/'.format(
-                    host=settings.GROK_API_HOST,
-                ),
-                params={'project': project.slug, 'days': 7, 'compare': True},
-            )
-            analytics = resp.json()
-            cache.set('analytics:%s' % project_slug, resp.content, 1800)
-        except requests.exceptions.RequestException:
-            analytics = None
-
-    if analytics:
-        page_list = list(
-            reversed(
-                sorted(
-                    list(analytics['page'].items()),
-                    key=operator.itemgetter(1),
-                ),
-            ),
-        )
-        version_list = list(
-            reversed(
-                sorted(
-                    list(analytics['version'].items()),
-                    key=operator.itemgetter(1),
-                ),
-            ),
-        )
-    else:
-        page_list = []
-        version_list = []
-
-    full = request.GET.get('full')
-    if not full:
-        page_list = page_list[:20]
-        version_list = version_list[:20]
-
-    return render(
-        request,
-        'projects/project_analytics.html',
-        {
-            'project': project,
-            'analytics': analytics,
-            'page_list': page_list,
-            'version_list': version_list,
-            'full': full,
-        },
-    )
-
-
-def project_embed(request, project_slug):
-    """Have a content API placeholder."""
-    project = get_object_or_404(
-        Project.objects.public(request.user),
-        slug=project_slug,
-    )
-    version = project.versions.get(slug=LATEST)
-    files = version.imported_files.filter(
-        name__endswith='.html',
-    ).order_by('path')
-
-    return render(
-        request,
-        'projects/project_embed.html',
-        {
-            'project': project,
-            'files': files,
-            'settings': {
-                'PUBLIC_API_URL': settings.PUBLIC_API_URL,
-                'URI': request.build_absolute_uri(location='/').rstrip('/'),
-            },
         },
     )

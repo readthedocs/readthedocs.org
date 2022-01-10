@@ -592,25 +592,21 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                 {
                     'many': True,
                 }
-            )
+            ),
+            'organization': (
+                'readthedocs.api.v3.serializers.OrganizationSerializer',
+                # NOTE: we cannot have a Project with multiple organizations.
+                {'source': 'organizations.first'},
+            ),
+            'teams': (
+                serializers.SlugRelatedField,
+                {
+                    'slug_field': 'slug',
+                    'many': True,
+                    'read_only': True,
+                },
+            ),
         }
-
-        if settings.RTD_ALLOW_ORGANIZATIONS:
-            expandable_fields.update({
-                'organization': (
-                    'readthedocs.api.v3.serializers.OrganizationSerializer',
-                    # NOTE: we cannot have a Project with multiple organizations.
-                    {'source': 'organizations.first'},
-                ),
-                'teams': (
-                    serializers.SlugRelatedField,
-                    {
-                        'slug_field': 'slug',
-                        'many': True,
-                        'read_only': True,
-                    },
-                ),
-            })
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

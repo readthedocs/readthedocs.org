@@ -143,7 +143,7 @@ The next page will ask you to fill some details about your Read the Docs project
 Name
   The name of the project. It has to be unique across all the service,
   so it is better if you prepend your username,
-  for example ``astrojuanlu-rtd-tutorial``.
+  for example ``{username}-rtd-tutorial``.
 
 Repository URL
   The URL that contains the sources. Leave the automatically filled value.

@@ -54,15 +54,6 @@ urlpatterns = [
         name='project_badge',
     ),
     re_path(
-        (
-            r'^(?P<project_slug>{project_slug})/tools/embed/$'.format(
-                **pattern_opts
-            )
-        ),
-        public.project_embed,
-        name='project_embed',
-    ),
-    re_path(
         r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
         ProjectSearchView.as_view(),
         name='elastic_project_search',

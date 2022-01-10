@@ -196,6 +196,7 @@ class CommunityBaseSettings(Settings):
 
             'readthedocs.gold',
             'readthedocs.payments',
+            'readthedocs.subscriptions',
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
@@ -680,7 +681,6 @@ class CommunityBaseSettings(Settings):
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
-    GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
     RTD_ALLOW_ORGANIZATIONS = False
 

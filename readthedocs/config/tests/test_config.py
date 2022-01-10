@@ -1604,25 +1604,23 @@ class TestBuildConfigV2:
         build.validate()
         assert build.python.use_system_site_packages is False
 
-    def test_python_system_packages_respects_default(self):
+    def test_python_system_packages_dont_respects_default(self):
         build = self.get_build_config(
             {},
             {'defaults': {'use_system_packages': True}},
         )
         build.validate()
-        assert build.python.use_system_site_packages is True
+        assert build.python.use_system_site_packages is False
 
     def test_python_system_packages_priority_over_default(self):
         build = self.get_build_config(
             {'python': {'system_packages': False}},
-            {'defaults': {'use_system_packages': True}},
         )
         build.validate()
         assert build.python.use_system_site_packages is False
 
         build = self.get_build_config(
             {'python': {'system_packages': True}},
-            {'defaults': {'use_system_packages': False}},
         )
         build.validate()
         assert build.python.use_system_site_packages is True

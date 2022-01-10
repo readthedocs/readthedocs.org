@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
@@ -17,7 +17,7 @@ class UserProjectsListing(BasePermission):
             return True
 
 
-class PublicDetailPrivateListing(IsAuthenticated):
+class PublicDetailPrivateListing(BasePermission):
 
     """
     Permission class for our custom use case.
