@@ -194,6 +194,7 @@ class CommunityBaseSettings(Settings):
 
             'readthedocs.gold',
             'readthedocs.payments',
+            'readthedocs.subscriptions',
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
