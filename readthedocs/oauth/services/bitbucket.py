@@ -82,17 +82,17 @@ class BitbucketService(Service):
         return remote_repositories
 
     def sync_organizations(self):
-        """Sync Bitbucket teams (our RemoteOrganization) and team repositories."""
+        """Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories."""
         remote_organizations = []
         remote_repositories = []
 
         try:
-            teams = self.paginate(
-                'https://api.bitbucket.org/2.0/teams/?role=member',
+            workspaces = self.paginate(
+                'https://api.bitbucket.org/2.0/workspaces/?role=member',
             )
-            for team in teams:
-                remote_organization = self.create_organization(team)
-                repos = self.paginate(team['links']['repositories']['href'])
+            for workspace in workspaces:
+                remote_organization = self.create_organization(workspace)
+                repos = self.paginate(workspace['links']['repositories']['href'])
 
                 remote_organizations.append(remote_organization)
 
@@ -106,7 +106,7 @@ class BitbucketService(Service):
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
             raise SyncServiceError(
-                'Could not sync your Bitbucket team repositories, '
+                'Could not sync your Bitbucket workspace repositories, '
                 'try reconnecting your account',
             )
 
@@ -200,15 +200,12 @@ class BitbucketService(Service):
             self.user, self.account
         )
 
-        organization.slug = fields.get('username')
-        organization.name = fields.get('display_name')
-        organization.email = fields.get('email')
+        organization.slug = fields.get('slug')
+        organization.name = fields.get('name')
+        organization.url = fields['links']['html']['href']
         organization.avatar_url = fields['links']['avatar']['href']
-
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
-
-        organization.url = fields['links']['html']['href']
 
         organization.save()
 
