@@ -767,6 +767,38 @@ class TestLoadConfigV2:
         assert '--system-site-packages' in args
         assert config.python.use_system_site_packages
 
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_system_packages_project_overrides(self, run, checkout_path, tmpdir):
+
+        # Define `project.use_system_packages` as if it was marked in the Advanced settings.
+        self.version.project.use_system_packages = True
+        self.version.project.save()
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                # Do not define `system_packages: True` in the config file.
+                'python': {},
+            },
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config,
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.setup_base()
+
+        args, kwargs = run.call_args
+
+        assert '--system-site-packages' not in args
+        assert not config.python.use_system_site_packages
+
     @pytest.mark.parametrize(
         'value,result',
         [
