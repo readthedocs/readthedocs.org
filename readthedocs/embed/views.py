@@ -2,7 +2,6 @@
 
 import functools
 import json
-import logging
 import re
 
 from django.shortcuts import get_object_or_404
@@ -15,6 +14,8 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import structlog
+
 from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
@@ -25,7 +26,7 @@ from readthedocs.embed.utils import recurse_while_none, clean_links
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def escape_selector(selector):
@@ -142,6 +143,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        log.info(
+            'EmbedAPI successful response.',
+            project_slug=project.slug,
+            version_slug=version.slug,
+            doc=doc,
+            section=section,
+            path=path,
+            url=url,
+            referer=request.META.get('HTTP_REFERER'),
+            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+        )
         return Response(response)
 
 
@@ -221,7 +233,7 @@ def _get_doc_content(project, version, doc):
         with build_media_storage.open(file_path) as file:
             return json.load(file)
     except Exception:  # noqa
-        log.warning('Unable to read file. file_path=%s', file_path)
+        log.warning('Unable to read file.', file_path=file_path)
 
     return None
 
@@ -267,8 +279,9 @@ def parse_sphinx(content, section, url):
                 break
         except Exception:  # noqa
             log.info(
-                'Failed to query section. url=%s id=%s',
-                url, element_id,
+                'Failed to query section.',
+                url=url,
+                element_id=element_id,
             )
 
     if not query_result:

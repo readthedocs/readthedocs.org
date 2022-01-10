@@ -1,7 +1,7 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import logging
+import structlog
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -40,7 +40,7 @@ from ..utils import (
     RemoteProjectPagination,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
@@ -269,8 +269,8 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
                     data['commands'] = json.loads(json_resp)
                 except Exception:
                     log.exception(
-                        'Failed to read build data from storage. path=%s.',
-                        storage_path,
+                        'Failed to read build data from storage.',
+                        path=storage_path,
                     )
         return Response(data)
 

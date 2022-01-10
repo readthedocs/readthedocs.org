@@ -2,7 +2,7 @@
 
 import hashlib
 import json
-import logging
+import structlog
 import mimetypes
 import operator
 import os
@@ -40,10 +40,10 @@ from readthedocs.proxito.views.utils import _get_project_data_from_request
 from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
-from .base import ProjectOnboardMixin
+from .base import ProjectOnboardMixin, ProjectSpamMixin
 
-log = logging.getLogger(__name__)
-search_log = logging.getLogger(__name__ + '.search')
+log = structlog.get_logger(__name__)
+search_log = structlog.get_logger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
@@ -87,8 +87,13 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailViewBase(ProjectRelationListMixin, BuildTriggerMixin,
-                            ProjectOnboardMixin, DetailView):
+class ProjectDetailViewBase(
+        ProjectSpamMixin,
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView,
+):
 
     """Display project onboard steps."""
 

@@ -1,4 +1,4 @@
-import logging
+import structlog
 from functools import partial
 
 from django import forms
@@ -8,7 +8,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def set_change_reason(instance, reason):
@@ -46,8 +46,8 @@ def safe_update_change_reason(instance, reason):
         update_change_reason(instance=instance, reason=reason)
     except Exception:
         log.exception(
-            'An error occurred while updating the change reason of the instance: obj=%s',
-            instance,
+            'An error occurred while updating the change reason of the instance.',
+            instance=instance,
         )
 
 

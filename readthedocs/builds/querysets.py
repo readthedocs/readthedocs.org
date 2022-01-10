@@ -1,6 +1,6 @@
 """Build and Version QuerySet classes."""
 import datetime
-import logging
+import structlog
 
 from django.db import models
 from django.db.models import Q
@@ -16,7 +16,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 __all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
@@ -231,10 +231,10 @@ class BuildQuerySet(models.QuerySet):
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
-            'Concurrent builds. project=%s running=%s max=%s',
-            project.slug,
-            concurrent,
-            max_concurrent,
+            'Concurrent builds.',
+            project_slug=project.slug,
+            concurent=concurrent,
+            max_concurrent=max_concurrent,
         )
         if concurrent >= max_concurrent:
             limit_reached = True

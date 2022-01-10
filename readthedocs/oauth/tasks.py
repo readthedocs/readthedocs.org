@@ -1,6 +1,6 @@
 """Tasks for OAuth services."""
 
-import logging
+import structlog
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from readthedocs.worker import app
 from .services import registry
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 @PublicTask.permission_check(user_id_matches)
@@ -31,9 +31,6 @@ def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
-
-    # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.oauth.tasks.sync_remote_repositories. locals=%s', locals())
 
     failed_services = set()
     for service_cls in registry:
@@ -67,33 +64,34 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     if organization_slugs:
         query = Organization.objects.filter(slug__in=organization_slugs)
         log.info(
-            'Triggering SSO re-sync for organizations. slugs=%s count=%s',
-            organization_slugs,
-            query.count(),
+            'Triggering SSO re-sync for organizations.',
+            organization_slugs=organization_slugs,
+            count=query.count(),
         )
     else:
-        query = (
+        organization_ids = (
             SSOIntegration.objects
             .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
             .values_list('organization', flat=True)
         )
+        query = Organization.objects.filter(id__in=organization_ids)
         log.info(
-            'Triggering SSO re-sync for all organizations. count=%s',
-            query.count(),
+            'Triggering SSO re-sync for all organizations.',
+            count=query.count(),
         )
 
     n_task = -1
     for organization in query:
         members = AdminPermission.members(organization)
         log.info(
-            'Triggering SSO re-sync for organization. organization=%s users=%s',
-            organization.slug,
-            members.count(),
+            'Triggering SSO re-sync for organization.',
+            organization_slug=organization.slug,
+            count=members.count(),
         )
         for user in members:
             n_task += 1
-            sync_remote_repositories.delay(
-                user.pk,
+            sync_remote_repositories.apply_async(
+                args=[user.pk],
                 # delay the task by 0, 5, 10, 15, ... seconds
                 countdown=n_task * 5,
             )

@@ -1,6 +1,6 @@
 """Project views for authenticated users."""
 
-import logging
+import structlog
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -73,14 +73,14 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.utils import get_csv_file
-from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
@@ -143,7 +143,7 @@ class ProjectMixin(PrivateViewMixin):
         return self.model.objects.for_admin_user(self.request.user)
 
 
-class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectUpdate(ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
     success_message = _('Project settings updated')
@@ -153,7 +153,7 @@ class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
     success_message = _('Project settings updated')
@@ -212,7 +212,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s', version.slug)
+                log.info('Removing files for version.', version_slug=version.slug)
                 tasks.clean_project_resources(
                     version.project,
                     version,
@@ -241,7 +241,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            log.info('Removing files for version %s', version.slug)
+            log.info('Removing files for version.', version_slug=version.slug)
             tasks.clean_project_resources(
                 version.project,
                 version,
@@ -253,10 +253,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ImportWizardView(
-        ProjectImportMixin, ProjectSpamMixin, PrivateViewMixin,
-        SessionWizardView,
-):
+class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     """
     Project import wizard.
@@ -287,10 +284,17 @@ class ImportWizardView(
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         self._set_initial_dict()
+
+        log.bind(user_username=request.user.username)
+
+        if request.user.profile.banned:
+            log.info('Rejecting project POST from shadowbanned user.')
+            return HttpResponseRedirect(reverse('homepage'))
+
         # The storage is reset after everything is done.
-        return super().post(*args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
@@ -779,6 +783,16 @@ class DomainCreateBase(DomainMixin, CreateView):
         if self._is_enabled(project):
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
+
+    def get_success_url(self):
+        """Redirect to the edit view so users can follow the next steps."""
+        return reverse(
+            'projects_domains_edit',
+            args=[
+                self.get_project().slug,
+                self.object.pk,
+            ],
+        )
 
 
 class DomainCreate(SettingsOverrideObject):

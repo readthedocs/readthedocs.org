@@ -1,4 +1,4 @@
-import logging
+import structlog
 from unittest import mock
 
 from django.contrib.auth.models import User
@@ -10,7 +10,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 @mock.patch('readthedocs.projects.tasks.clean_build', new=mock.MagicMock)
@@ -32,9 +32,10 @@ class PrivacyTests(TestCase):
     ):
         self.client.login(username='eric', password='test')
         log.info(
-            'Making kong with privacy: %s and version privacy: %s',
-            privacy_level,
-            version_privacy_level,
+            'Changing project privacy level.',
+            project_slug='django-kong',
+            project_privacy_level=privacy_level,
+            version_privacy_level=version_privacy_level,
         )
         # Create project via project form, simulate import wizard without magic
         form = UpdateProjectForm(

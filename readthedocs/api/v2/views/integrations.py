@@ -3,7 +3,7 @@
 import hashlib
 import hmac
 import json
-import logging
+import structlog
 import re
 
 from django.shortcuts import get_object_or_404
@@ -29,7 +29,7 @@ from readthedocs.core.views.hooks import (
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Feature, Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
@@ -68,6 +68,12 @@ class WebhookMixin:
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
         self.request = request
+
+        log.bind(
+            project_slug=project_slug,
+            integration_type=self.integration_type,
+        )
+
         # WARNING: this is a hack to allow us access to `request.body` later.
         # Due to a limitation of DRF, we can't access `request.body`
         # after accessing `request.data`.
@@ -85,10 +91,7 @@ class WebhookMixin:
         except Project.DoesNotExist:
             raise NotFound('Project not found')
         if not self.is_payload_valid():
-            log.warning(
-                'Invalid payload for project: %s and integration: %s',
-                project_slug, self.integration_type
-            )
+            log.warning('Invalid payload for project and integration.')
             return Response(
                 {'detail': self.invalid_payload_msg},
                 status=HTTP_400_BAD_REQUEST,
@@ -184,9 +187,8 @@ class WebhookMixin:
         to_build, not_building = build_branches(project, branches)
         if not_building:
             log.info(
-                'Skipping project branches: project=%s branches=%s',
-                project,
-                branches,
+                'Skipping project branches.',
+                branches=branches,
             )
         triggered = bool(to_build)
         return {
@@ -337,10 +339,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
         if not secret:
-            log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
-            )
+            log.debug('Skipping payload signature validation.')
             return True
         if not signature:
             return False
@@ -396,6 +395,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         created = self.data.get('created', False)
         deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
+        log.bind(webhook_event=event)
         webhook_github.send(
             Project,
             project=self.project,
@@ -405,7 +405,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
-            log.info('Triggered sync_versions: project=%s event=%s', self.project, event)
+            log.info('Triggered sync_versions.')
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
@@ -441,7 +441,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
-            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
+            log.info(
+                'Triggered sync_versions.',
+                integration_events=events,
+            )
             return self.sync_versions_response(self.project)
 
         # Trigger a build for all branches in the push
@@ -511,10 +514,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         token = self.request.META.get(GITLAB_TOKEN_HEADER)
         secret = self.get_integration().secret
         if not secret:
-            log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
-            )
+            log.debug('Skipping payload signature validation.')
             return True
         if not token:
             return False
@@ -541,6 +541,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
         action = self.data.get('object_attributes', {}).get('action', None)
+        log.bind(webhook_event=event)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -554,8 +555,11 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
-                log.info('Triggered sync_versions: project=%s before=%s after=%s',
-                         self.project, before, after)
+                log.info(
+                    'Triggered sync_versions.',
+                    before=before,
+                    after=after,
+                )
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
@@ -629,6 +633,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         attribute (null if it is a creation).
         """
         event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        log.bind(webhook_event=event)
         webhook_bitbucket.send(
             Project,
             project=self.project,
@@ -652,8 +657,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
-                log.info('Triggered sync_versions: project=%s event=%s',
-                         self.project, event)
+                log.info('Triggered sync_versions.')
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')

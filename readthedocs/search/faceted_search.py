@@ -1,4 +1,4 @@
-import logging
+import structlog
 import re
 
 from django.conf import settings
@@ -18,7 +18,7 @@ from elasticsearch_dsl.query import (
 
 from readthedocs.search.documents import PageDocument, ProjectDocument
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 ALL_FACETS = ['project', 'version', 'role_name', 'language']
 

@@ -1,9 +1,10 @@
 """Views for the EmbedAPI v3 app."""
 
-import logging
 import re
 from urllib.parse import urlparse
 import requests
+
+import structlog
 
 from selectolax.parser import HTMLParser
 
@@ -24,7 +25,7 @@ from readthedocs.embed.utils import clean_links
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class EmbedAPIBase(CachedResponseMixin, APIView):
@@ -65,7 +66,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         cache_key = f'embed-api-{url}'
         cached_response = cache.get(cache_key)
         if cached_response:
-            log.debug('Cached response. url=%s', url)
+            log.debug('Cached response.', url=url)
             return cached_response
 
         response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
@@ -102,7 +103,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
                 return fd.read()
         except Exception:  # noqa
-            log.warning('Unable to read file. file_path=%s', file_path)
+            log.warning('Unable to read file.', file_path=file_path)
 
         return None
 
@@ -247,7 +248,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 if re.match(allowed_domain, domain):
                     break
             else:
-                log.info('Domain not allowed. domain=%s url=%s', domain, url)
+                log.info('Domain not allowed.', domain=domain, url=url)
                 return Response(
                     {
                         'error': (
@@ -263,7 +264,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
-                log.warning('Too many requests for this domain. domain=%s', domain)
+                log.warning('Too many requests for this domain.', domain=domain)
                 return Response(
                     {
                         'error': (
@@ -288,7 +289,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 doctoolversion,
             )
         except requests.exceptions.TooManyRedirects:
-            log.exception('Too many redirects. url=%s', url)
+            log.exception('Too many redirects.', url=url)
             return Response(
                 {
                     'error': (
@@ -303,7 +304,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:  # noqa
-            log.exception('There was an error reading the URL requested. url=%s', url)
+            log.exception('There was an error reading the URL requested.', url=url)
             return Response(
                 {
                     'error': (
@@ -315,7 +316,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             )
 
         if not content_requested:
-            log.warning('Identifier not found. url=%s fragment=%s', url, fragment)
+            log.warning('Identifier not found.', url=url, fragment=fragment)
             return Response(
                 {
                     'error': (
@@ -341,6 +342,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             'content': content,
             'external': external,
         }
+        log.info(
+            'EmbedAPI successful response.',
+            project_slug=self.unresolved_url.project.slug if not external else None,
+            domain=domain if external else None,
+            doctool=doctool,
+            doctoolversion=doctoolversion,
+            url=url,
+            referer=request.META.get('HTTP_REFERER'),
+            external=external,
+            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+        )
         return Response(response)
 
 

@@ -1,3 +1,90 @@
+Version 6.3.2
+-------------
+
+:Date: January 04, 2022
+
+* `@cagatay-y <https://github.com/cagatay-y>`__: Fix broken link in edit-source-links-sphinx.rst (`#8788 <https://github.com/readthedocs/readthedocs.org/pull/8788>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 52 (`#8787 <https://github.com/readthedocs/readthedocs.org/pull/8787>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Cap setuptools even if installed packages are ignored (`#8777 <https://github.com/readthedocs/readthedocs.org/pull/8777>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 51 (`#8776 <https://github.com/readthedocs/readthedocs.org/pull/8776>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Follow up to dev docs split (`#8774 <https://github.com/readthedocs/readthedocs.org/pull/8774>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: improve message when using the API on the browser (`#8768 <https://github.com/readthedocs/readthedocs.org/pull/8768>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: don't include subproject_of on subprojects (`#8767 <https://github.com/readthedocs/readthedocs.org/pull/8767>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use ad client stickybox feature on RTD's own docs (`#8766 <https://github.com/readthedocs/readthedocs.org/pull/8766>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: explicitly test with RTD_ALLOW_ORGANIZATIONS=False (`#8765 <https://github.com/readthedocs/readthedocs.org/pull/8765>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update tasks.py (`#8764 <https://github.com/readthedocs/readthedocs.org/pull/8764>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 6.3.1 (`#8763 <https://github.com/readthedocs/readthedocs.org/pull/8763>`__)
+* `@humitos <https://github.com/humitos>`__: Update `common/` to latest version (`#8761 <https://github.com/readthedocs/readthedocs.org/pull/8761>`__)
+* `@stsewd <https://github.com/stsewd>`__: Skip slug check when editing an organization (`#8760 <https://github.com/readthedocs/readthedocs.org/pull/8760>`__)
+* `@stsewd <https://github.com/stsewd>`__: Explicit settings for some tests (`#8759 <https://github.com/readthedocs/readthedocs.org/pull/8759>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix EA branding in docs (`#8758 <https://github.com/readthedocs/readthedocs.org/pull/8758>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 50 (`#8757 <https://github.com/readthedocs/readthedocs.org/pull/8757>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add MyST Markdown examples everywhere (`#8752 <https://github.com/readthedocs/readthedocs.org/pull/8752>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: split user and dev docs (`#8751 <https://github.com/readthedocs/readthedocs.org/pull/8751>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: tweaks and minor improvements (`#8736 <https://github.com/readthedocs/readthedocs.org/pull/8736>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit: test models (`#8495 <https://github.com/readthedocs/readthedocs.org/pull/8495>`__)
+
+Version 6.3.1
+-------------
+
+:Date: December 14, 2021
+
+* `@stsewd <https://github.com/stsewd>`__: Explicit settings for some tests (`#8759 <https://github.com/readthedocs/readthedocs.org/pull/8759>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't run spam rules check after ban action (`#8756 <https://github.com/readthedocs/readthedocs.org/pull/8756>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add MyST Markdown examples everywhere (`#8752 <https://github.com/readthedocs/readthedocs.org/pull/8752>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Update mambaforge to latest version (`#8749 <https://github.com/readthedocs/readthedocs.org/pull/8749>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update django (`#8748 <https://github.com/readthedocs/readthedocs.org/pull/8748>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Remove sphinx-doc.org from external domains (`#8747 <https://github.com/readthedocs/readthedocs.org/pull/8747>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix call to sync_remote_repositories (`#8742 <https://github.com/readthedocs/readthedocs.org/pull/8742>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#8740 <https://github.com/readthedocs/readthedocs.org/pull/8740>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: contact link on template (`#8739 <https://github.com/readthedocs/readthedocs.org/pull/8739>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: fix admin filter (`#8738 <https://github.com/readthedocs/readthedocs.org/pull/8738>`__)
+* `@stsewd <https://github.com/stsewd>`__: Always clear cache after each test (`#8737 <https://github.com/readthedocs/readthedocs.org/pull/8737>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: tweaks and minor improvements (`#8736 <https://github.com/readthedocs/readthedocs.org/pull/8736>`__)
+* `@humitos <https://github.com/humitos>`__: Logs: typo on keyname (`#8734 <https://github.com/readthedocs/readthedocs.org/pull/8734>`__)
+* `@humitos <https://github.com/humitos>`__: Log: use structlog-sentry to send logs to Sentry (`#8732 <https://github.com/readthedocs/readthedocs.org/pull/8732>`__)
+* `@humitos <https://github.com/humitos>`__: docs: use Python 3.8 to build our docs (`#8731 <https://github.com/readthedocs/readthedocs.org/pull/8731>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 6.3.0 (`#8730 <https://github.com/readthedocs/readthedocs.org/pull/8730>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom Domain: make cname_target configurable (`#8728 <https://github.com/readthedocs/readthedocs.org/pull/8728>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add guide to migrate from reST to MyST (`#8714 <https://github.com/readthedocs/readthedocs.org/pull/8714>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: log success requests (`#8689 <https://github.com/readthedocs/readthedocs.org/pull/8689>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
+
+Version 6.3.0
+-------------
+
+:Date: November 29, 2021
+
+* `@humitos <https://github.com/humitos>`__: Tests: run tests with Python3.8 in CircleCI (`#8718 <https://github.com/readthedocs/readthedocs.org/pull/8718>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test external serving for projects with `--` in slug (`#8716 <https://github.com/readthedocs/readthedocs.org/pull/8716>`__)
+* `@humitos <https://github.com/humitos>`__: requirements: add requests-oauthlib (`#8712 <https://github.com/readthedocs/readthedocs.org/pull/8712>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Avoid future breakage of `setup.py` invokations (`#8711 <https://github.com/readthedocs/readthedocs.org/pull/8711>`__)
+* `@humitos <https://github.com/humitos>`__: spam: fix admin filter (`#8707 <https://github.com/readthedocs/readthedocs.org/pull/8707>`__)
+* `@humitos <https://github.com/humitos>`__: oauth: sync remote repositories fix (`#8706 <https://github.com/readthedocs/readthedocs.org/pull/8706>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Add guide on Poetry (`#8702 <https://github.com/readthedocs/readthedocs.org/pull/8702>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: log success requests (`#8689 <https://github.com/readthedocs/readthedocs.org/pull/8689>`__)
+
+Version 6.2.1
+-------------
+
+:Date: November 23, 2021
+
+* `@agjohnson <https://github.com/agjohnson>`__: Fix issue with PR build hostname parsing (`#8700 <https://github.com/readthedocs/readthedocs.org/pull/8700>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix sharing titles (`#8695 <https://github.com/readthedocs/readthedocs.org/pull/8695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade celery and friends (`#8693 <https://github.com/readthedocs/readthedocs.org/pull/8693>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade pyyaml (`#8691 <https://github.com/readthedocs/readthedocs.org/pull/8691>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downgrade redis (`#8690 <https://github.com/readthedocs/readthedocs.org/pull/8690>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: make admin filters easier to understand (`#8688 <https://github.com/readthedocs/readthedocs.org/pull/8688>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Clarify how to pin the Sphinx version (`#8687 <https://github.com/readthedocs/readthedocs.org/pull/8687>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: fix link to docs (`#8685 <https://github.com/readthedocs/readthedocs.org/pull/8685>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update docs about search on subprojects (`#8683 <https://github.com/readthedocs/readthedocs.org/pull/8683>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#8681 <https://github.com/readthedocs/readthedocs.org/pull/8681>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#8680 <https://github.com/readthedocs/readthedocs.org/pull/8680>`__)
+
 Version 6.2.0
 -------------
 

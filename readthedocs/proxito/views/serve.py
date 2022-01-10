@@ -1,7 +1,7 @@
 """Views for doc serving."""
 
 import itertools
-import logging
+import structlog
 from urllib.parse import urlparse
 
 from readthedocs.core.resolver import resolve_path
@@ -26,7 +26,7 @@ from .decorators import map_project_slug
 from .mixins import ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
@@ -78,10 +78,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.debug(
-            'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
-            final_project.slug, subproject_slug, lang_slug, version_slug, filename
+        log.bind(
+            project_slug=final_project.slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
         )
+        log.debug('Serving docs.')
 
         # Verify if the project is marked as spam and return a 401 in that case
         spam_response = self._spam_response(request, final_project)
@@ -123,8 +127,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 self.version_type != EXTERNAL,
         ]):
             log.warning(
-                'Invalid URL for project with versions. url=%s, project=%s',
-                filename, final_project.slug
+                'Invalid URL for project with versions.',
+                filename=filename,
             )
             raise Http404('Invalid URL for project with versions')
 
@@ -195,7 +199,8 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         # pylint: disable=too-many-locals
-        log.info('Executing 404 handler. proxito_path=%s', proxito_path)
+        log.bind(proxito_path=proxito_path)
+        log.debug('Executing 404 handler.')
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
@@ -214,6 +219,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
+        log.bind(
+            project_slug=final_project.slug,
+            version_slug=version_slug,
+        )
+
         storage_root_path = final_project.get_storage_path(
             type_='html',
             version_slug=version_slug,
@@ -227,19 +237,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 storage_root_path,
                 f'{filename}/{tryfile}'.lstrip('/'),
             )
-            log.debug(
-                'Trying index filename: project=%s version=%s, file=%s',
-                final_project.slug,
-                version_slug,
-                storage_filename_path,
-            )
+            log.debug('Trying index filename.')
             if build_media_storage.exists(storage_filename_path):
-                log.info(
-                    'Redirecting to index file: project=%s version=%s, storage_path=%s',
-                    final_project.slug,
-                    version_slug,
-                    storage_filename_path,
-                )
+                log.info('Redirecting to index file.')
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
@@ -327,9 +327,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 if build_media_storage.exists(storage_filename_path):
                     log.info(
-                        'Serving custom 404.html page: [project: %s] [version: %s]',
-                        final_project.slug,
-                        version_slug_404,
+                        'Serving custom 404.html page.',
+                        version_slug_404=version_slug_404,
+                        storage_filename_path=storage_filename_path,
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
@@ -389,9 +389,14 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         )
         path = build_media_storage.join(storage_path, 'robots.txt')
 
+        log.bind(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
         if build_media_storage.exists(path):
             url = build_media_storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
+            log.info('Serving custom robots.txt file.')
             return self._serve_docs(
                 request,
                 final_project=project,

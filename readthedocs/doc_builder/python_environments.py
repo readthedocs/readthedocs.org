@@ -5,7 +5,7 @@ import copy
 import hashlib
 import itertools
 import json
-import logging
+import structlog
 import os
 import shutil
 import tarfile
@@ -21,11 +21,10 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
 from readthedocs.storage import build_tools_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PythonEnvironment:
@@ -51,12 +50,9 @@ class PythonEnvironment:
         )
         if os.path.exists(build_dir):
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': 'Removing existing build directory',
-                }
+                'Removing existing build directory',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             shutil.rmtree(build_dir)
 
@@ -65,12 +61,9 @@ class PythonEnvironment:
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': 'Removing existing venv directory',
-                }
+                'Removing existing venv directory',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             shutil.rmtree(venv_dir)
 
@@ -131,11 +124,11 @@ class PythonEnvironment:
                     )
             else:
                 log.debug(
-                    'Cached version for tool not found. os=%s tool=%s version=% filename=%s',
-                    self.config.build.os,
-                    tool,
-                    full_version,
-                    tool_path,
+                    'Cached version for tool not found.',
+                    os=self.config.build.os,
+                    tool=tool,
+                    full_version=full_version,
+                    tool_path=tool_path,
                 )
                 # If the tool version selected is not available from the
                 # cache we compile it at build time
@@ -197,7 +190,10 @@ class PythonEnvironment:
                     'install',
                     '-U',
                     'virtualenv',
-                    'setuptools',
+                    # We cap setuptools to avoid breakage of projects
+                    # relying on setup.py invokations,
+                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                    'setuptools<58.3.0',
                 ]
                 self.build_env.run(
                     *cmd,
@@ -477,7 +473,7 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version, 'setuptools']
+        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
@@ -530,6 +526,10 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
+            # If this flag is present,
+            # we need to cap setuptools again.
+            # See https://github.com/readthedocs/readthedocs.org/issues/8775
+            requirements.append('setuptools<58.3.0')
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
@@ -677,12 +677,9 @@ class Conda(PythonEnvironment):
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
             log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': 'Removing existing conda directory',
-                },
+                'Removing existing conda directory',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             shutil.rmtree(version_path)
 

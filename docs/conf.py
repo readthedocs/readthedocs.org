@@ -1,3 +1,16 @@
+"""
+Shared Sphinx configuration.
+
+Each docset corresponds to a directory containing several rst/md files,
+sharing this same conf.py file. To build a docset an environment variable
+is used, ``RTD_DOCSET``, values given in the settings are relative to this
+conf.py file, if you want to give a different value for a docset, use the
+``docsets`` dictionary, or if you want to extend the current value,
+use f'{docset}/setting' as value on the setting, for example::
+
+    html_static_path = ['_static', f'{docset}/_static']
+"""
+
 import os
 import sys
 from configparser import RawConfigParser
@@ -12,6 +25,24 @@ from django.utils import timezone
 
 import django
 django.setup()
+
+
+# Set here the variables you want for each docset.
+docsets = {
+    'user': {
+        'project': 'Read the Docs user documentation',
+    },
+    'dev': {
+        'project': 'Read the Docs developer documentation',
+    },
+}
+docset = os.environ.get('RTD_DOCSET', 'user')
+if docset not in docsets:
+    print(f'Invalid RTD_DOCSET value: "{docset}"')
+    exit(1)
+
+for k, v in docsets[docset].items():
+    locals()[k] = v
 
 
 def get_version():
@@ -35,12 +66,12 @@ extensions = [
     'hoverxref.extension',
     'sphinx_search.extension',
     'sphinxemoji.sphinxemoji',
+    'myst_parser',
 ]
 
 templates_path = ['_templates']
 
 master_doc = 'index'
-project = 'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
@@ -63,7 +94,14 @@ intersphinx_mapping = {
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
     'writethedocs': ('https://www.writethedocs.org/', None),
     'jupyterbook': ('https://jupyterbook.org/', None),
+    'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
+    'rst-to-myst': ('https://rst-to-myst.readthedocs.io/en/stable/', None),
+    'rtd': ('https://docs.readthedocs.io/en/stable/', None),
+    'rtd-dev': ('https://dev.readthedocs.io/en/latest/', None),
 }
+myst_enable_extensions = [
+    "deflist",
+]
 hoverxref_intersphinx = [
    "sphinx",
    "pip",
@@ -89,13 +127,13 @@ exclude_patterns = [
 language = 'en'
 
 locale_dirs = [
-    'locale/',
+    f'{docset}/locale/',
 ]
 gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
-html_css_files = ['css/custom.css']
+html_static_path = ['_static', f'{docset}/_static']
+html_css_files = ['css/custom.css', 'css/sphinx_prompt_css.css']
 html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
@@ -156,4 +194,4 @@ linkcheck_ignore = [
 
 
 def setup(app):
-    app.add_css_file('css/sphinx_prompt_css.css')
+    app.srcdir += '/' + docset

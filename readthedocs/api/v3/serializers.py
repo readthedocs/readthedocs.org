@@ -524,7 +524,7 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
-class ProjectSerializerBase(FlexFieldsModelSerializer):
+class ProjectSerializer(FlexFieldsModelSerializer):
 
     """
     Project serializer.
@@ -592,25 +592,21 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
                 {
                     'many': True,
                 }
-            )
+            ),
+            'organization': (
+                'readthedocs.api.v3.serializers.OrganizationSerializer',
+                # NOTE: we cannot have a Project with multiple organizations.
+                {'source': 'organizations.first'},
+            ),
+            'teams': (
+                serializers.SlugRelatedField,
+                {
+                    'slug_field': 'slug',
+                    'many': True,
+                    'read_only': True,
+                },
+            ),
         }
-
-        if settings.RTD_ALLOW_ORGANIZATIONS:
-            expandable_fields.update({
-                'organization': (
-                    'readthedocs.api.v3.serializers.OrganizationSerializer',
-                    # NOTE: we cannot have a Project with multiple organizations.
-                    {'source': 'organizations.first'},
-                ),
-                'teams': (
-                    serializers.SlugRelatedField,
-                    {
-                        'slug_field': 'slug',
-                        'many': True,
-                        'read_only': True,
-                    },
-                ),
-            })
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
@@ -625,13 +621,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
-
-
-# FIXME: this override isn't needed, but tests will fail if removed.
-# We may have been relying on a weird behavior of using this class
-# as a base class of another.
-class ProjectSerializer(SettingsOverrideObject):
-    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
