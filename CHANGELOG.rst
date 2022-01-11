@@ -1,3 +1,23 @@
+Version 6.3.3
+-------------
+
+:Date: January 10, 2022
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 02 (`#8804 <https://github.com/readthedocs/readthedocs.org/pull/8804>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Remove explicit username from tutorial (`#8803 <https://github.com/readthedocs/readthedocs.org/pull/8803>`__)
+* `@humitos <https://github.com/humitos>`__: Bitbucket: update to match latest API changes (`#8801 <https://github.com/readthedocs/readthedocs.org/pull/8801>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: downgrade celery (`#8796 <https://github.com/readthedocs/readthedocs.org/pull/8796>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: downgrade redis to 3.5.3 (`#8795 <https://github.com/readthedocs/readthedocs.org/pull/8795>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: remove old/outdated code (`#8793 <https://github.com/readthedocs/readthedocs.org/pull/8793>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: deny dashboard on spammy projects (`#8792 <https://github.com/readthedocs/readthedocs.org/pull/8792>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention subproject aliases (`#8785 <https://github.com/readthedocs/readthedocs.org/pull/8785>`__)
+* `@humitos <https://github.com/humitos>`__: Config file: system_site_packages overwritten from project's setting (`#8783 <https://github.com/readthedocs/readthedocs.org/pull/8783>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Make commercial docs more visible (`#8780 <https://github.com/readthedocs/readthedocs.org/pull/8780>`__)
+* `@humitos <https://github.com/humitos>`__: Spam: allow to mark a project as (non)spam manually (`#8779 <https://github.com/readthedocs/readthedocs.org/pull/8779>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: less overrides (`#8770 <https://github.com/readthedocs/readthedocs.org/pull/8770>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move subscription models (`#8746 <https://github.com/readthedocs/readthedocs.org/pull/8746>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Make the analytics cookie a session cookie (`#8694 <https://github.com/readthedocs/readthedocs.org/pull/8694>`__)
+
 Version 6.3.2
 -------------
 
