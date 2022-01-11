@@ -22,6 +22,6 @@ gunicorn==20.1.0
 git+https://github.com/sebleier/django-redis-cache.git@2.1.3#egg=django-redis-cache
 
 #For resizing images
-pillow==8.4.0
+pillow==9.0.0
 
 structlog-sentry==1.4.0

@@ -47,6 +47,7 @@ jobs:
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs
+      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:

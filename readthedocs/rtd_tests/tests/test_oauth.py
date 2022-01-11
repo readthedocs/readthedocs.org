@@ -567,34 +567,39 @@ class BitbucketOAuthTests(TestCase):
         }
 
         self.team_response_data = {
-            'username': 'teamsinspace',
-            'website': None,
-            'display_name': 'Teams In Space',
+            'slug': 'teamsinspace',
+            'name': 'Teams In Space',
             'uuid': '{61fc5cf6-d054-47d2-b4a9-061ccf858379}',
             'links': {
                 'self': {
-                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace',
+                    'href': 'https://api.bitbucket.org/2.0/workspaces/teamsinspace',
                 },
                 'repositories': {
                     'href': 'https://api.bitbucket.org/2.0/repositories/teamsinspace',
                 },
                 'html': {'href': 'https://bitbucket.org/teamsinspace'},
-                'followers': {
-                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/followers',
-                },
                 'avatar': {
                     'href': 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png',
                 },
                 'members': {
-                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/members',
+                    'href': 'https://api.bitbucket.org/2.0/workspaces/teamsinspace/members',
                 },
-                'following': {
-                    'href': 'https://api.bitbucket.org/2.0/teams/teamsinspace/following',
+                'owners': {
+                    'href': 'https://api.bitbucket.org/2.0/workspaces/teamsinspace/members?q=permission%3D%22owner%22',
+                },
+                'hooks': {
+                    'href': 'https://api.bitbucket.org/2.0/workspaces/teamsinspace/hooks',
+                },
+                'snippets': {
+                    'href': 'https://api.bitbucket.org/2.0/snippets/teamsinspace/',
+                },
+                'projects': {
+                    'href': 'https://api.bitbucket.org/2.0/workspaces/teamsinspace/projects',
                 },
             },
             'created_on': '2014-04-08T00:00:14.070969+00:00',
-            'location': None,
-            'type': 'team',
+            'type': 'workspace',
+            'is_private': True,
         }
 
     def test_make_project_pass(self):
