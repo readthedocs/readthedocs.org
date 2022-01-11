@@ -43,6 +43,7 @@ class APIEndpointMixin(TestCase):
         # objects (like a Project for translations/subprojects)
         self.project = fixture.get(
             Project,
+            id=1,
             pub_date=self.created,
             modified_date=self.modified,
             description='Project description',

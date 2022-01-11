@@ -170,7 +170,6 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             'corsheaders',
-            'textclassifier',
             'annoying',
             'django_extensions',
             'crispy_forms',
@@ -195,6 +194,7 @@ class CommunityBaseSettings(Settings):
 
             'readthedocs.gold',
             'readthedocs.payments',
+            'readthedocs.subscriptions',
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
@@ -680,7 +680,6 @@ class CommunityBaseSettings(Settings):
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
-    GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
     RTD_ALLOW_ORGANIZATIONS = False
 
@@ -894,3 +893,4 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD = 300
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
+    RTD_SPAM_MAX_SCORE = 9999

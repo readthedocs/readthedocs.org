@@ -4,10 +4,15 @@ from urllib.parse import urlparse
 from celery import chain
 from django.shortcuts import get_object_or_404
 
+import structlog
+
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import project_import
+
+
+log = structlog.get_logger(__name__)
 
 
 class ProjectRelationMixin:
@@ -116,6 +121,12 @@ class ProjectImportMixin:
         project.users.add(request.user)
         for tag in tags:
             project.tags.add(tag)
+
+        log.info(
+            'Project imported.',
+            project_slug=project.slug,
+            user_username=request.user.username,
+        )
 
         # TODO: this signal could be removed, or used for sync task
         project_import.send(sender=project, request=request)
