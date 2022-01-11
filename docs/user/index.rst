@@ -211,6 +211,25 @@ out of your documentation and Read the Docs.
 
    api/index
 
+Read the Docs for Business
+--------------------------
+
+Read the Docs has a commercial offering with improved support and additional features.
+
+* **Read the Docs for Business**:
+  :doc:`Organizations <commercial/organizations>` |
+  :doc:`Single Sign On <commercial/single-sign-on>` |
+  :doc:`Project Privacy Level <commercial/privacy-level>` |
+  :doc:`Sharing externally <commercial/sharing>`
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Read the Docs for Business
+   :glob:
+
+   commercial/*
 
 The Read the Docs project and organization
 ------------------------------------------
@@ -234,9 +253,6 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Financial and material support**:
   :doc:`advertising/index` |
   :doc:`Sponsors <sponsors>`
-
-* **Read the Docs for Business**:
-  :doc:`Support and additional features <commercial/index>`
 
 * **Legal documents**:
   :doc:`Terms of service <terms-of-service>` |
@@ -265,8 +281,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
    advertising/index
    sponsors
-
-   commercial/index
 
    legal/index
 

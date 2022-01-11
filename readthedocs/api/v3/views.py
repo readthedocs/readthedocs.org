@@ -120,6 +120,8 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         'active_versions',
         'active_versions.last_build',
         'active_versions.last_build.config',
+        'organization',
+        'teams',
     ]
 
     def get_view_name(self):
