@@ -287,14 +287,14 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._set_initial_dict()
 
-        log.bind(user_username=request.user.username)
+        log.bind(user_username=self.request.user.username)
 
-        if request.user.profile.banned:
+        if self.request.user.profile.banned:
             log.info('Rejecting project POST from shadowbanned user.')
             return HttpResponseRedirect(reverse('homepage'))
 
         # The storage is reset after everything is done.
-        return super().post(request, *args, **kwargs)
+        return super().post(*args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
