@@ -65,7 +65,7 @@ You can fix this by deleting the page index:
 
 .. note::
 
-   You'll need to :ref:`reindex the projects <development/search:indexing into elasticsearch>` after this.
+   You'll need to :ref:`reindex the projects <search:indexing into elasticsearch>` after this.
 
 
 How we index documentations
