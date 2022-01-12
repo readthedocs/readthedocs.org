@@ -475,6 +475,10 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
 
     def validate_name(self, value):
         potential_slug = slugify(value)
+        if not potential_slug:
+            raise serializers.ValidationError(
+                _('Invalid project name "{0}": no slug generated.').format(value),
+            )
         if Project.objects.filter(slug=potential_slug).exists():
             raise serializers.ValidationError(
                 _('Project with slug "{0}" already exists.').format(potential_slug),
