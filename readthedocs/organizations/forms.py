@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify

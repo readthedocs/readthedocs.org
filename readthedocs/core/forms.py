@@ -5,7 +5,7 @@ import structlog
 from django import forms
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import set_change_reason
 

@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
@@ -284,18 +284,17 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    # pylint: disable=arguments-differ
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._set_initial_dict()
 
-        log.bind(user_username=request.user.username)
+        log.bind(user_username=self.request.user.username)
 
-        if request.user.profile.banned:
+        if self.request.user.profile.banned:
             log.info('Rejecting project POST from shadowbanned user.')
             return HttpResponseRedirect(reverse('homepage'))
 
         # The storage is reset after everything is done.
-        return super().post(request, *args, **kwargs)
+        return super().post(*args, **kwargs)
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""

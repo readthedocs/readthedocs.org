@@ -4,7 +4,7 @@ import structlog
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches

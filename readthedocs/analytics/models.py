@@ -5,7 +5,7 @@ import datetime
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project

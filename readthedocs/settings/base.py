@@ -42,6 +42,8 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = 'replace-this-please'  # noqa
     ATOMIC_REQUESTS = True
 
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
     # Debug settings
     DEBUG = True
 
@@ -212,7 +214,6 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
         if ext:
-            apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.spamfighting')
