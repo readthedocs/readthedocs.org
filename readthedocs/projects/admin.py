@@ -34,7 +34,7 @@ from .notifications import (
     ResourceUsageNotification,
 )
 from .tag_utils import import_tags
-from .tasks import clean_project_resources
+from .tasks.utils import clean_project_resources
 
 
 class ProjectSendNotificationView(SendNotificationView):

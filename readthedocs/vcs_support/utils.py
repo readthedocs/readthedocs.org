@@ -5,6 +5,7 @@ import errno
 import structlog
 import os
 import stat
+import sys
 import time
 
 
@@ -96,6 +97,14 @@ class NonBlockingLock:
         )
         self.max_lock_age = max_lock_age
         self.name = project.slug
+
+    # TODO: migrate these to regular methods instead.
+    # Alias to use them as functions
+    def acquire_lock(self):
+        return self.__enter__()
+
+    def release_lock(self):
+        return self.__exit__(*sys.exc_info())
 
     def __enter__(self):
         path_exists = os.path.exists(self.fpath)

@@ -856,6 +856,11 @@ class CommunityBaseSettings(Settings):
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
             },
+            'docker.utils.config': {
+                'handlers': ['null'],
+                # Don't double log at the root logger for these.
+                'propagate': False,
+            },
             'django_structlog.middlewares.request': {
                 'handlers': ['null'],
                 # Don't double log at the root logger for these.

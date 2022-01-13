@@ -5,7 +5,7 @@ import structlog
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.tasks import sync_repository_task
+# from readthedocs.projects.tasks import sync_repository_task
 
 log = structlog.get_logger(__name__)
 

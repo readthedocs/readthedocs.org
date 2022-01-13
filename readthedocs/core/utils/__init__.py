@@ -58,10 +58,8 @@ def prepare_build(
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Feature, Project, WebHookEvent
-    from readthedocs.projects.tasks import (
-        send_external_build_status,
-        update_docs_task,
-    )
+    from readthedocs.projects.tasks.utils import send_external_build_status
+    from readthedocs.projects.tasks.builds import update_docs_task
 
     build = None
     if not Project.objects.is_active(project):
@@ -118,8 +116,10 @@ def prepare_build(
     if build and commit:
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
-            version_type=version.type, build_pk=build.id,
-            commit=commit, status=BUILD_STATUS_PENDING
+            version_type=version.type,
+            build_pk=build.id,
+            commit=commit,
+            status=BUILD_STATUS_PENDING
         )
 
     if build and version.type != EXTERNAL:
