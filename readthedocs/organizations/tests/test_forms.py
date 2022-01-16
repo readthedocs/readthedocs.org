@@ -120,6 +120,24 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
 
 class OrganizationSignupTest(OrganizationTestCase):
 
+    def test_create_organization_with_empy_slug(self):
+        data = {
+            'name': '往事',
+            'email': 'test@example.org',
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertEqual('Invalid organization name: no slug generated', form.errors['name'][0])
+
+    def test_create_organization_with_big_name(self):
+        data = {
+            'name': 'a' * 33,
+            'email': 'test@example.org',
+        }
+        form = forms.OrganizationSignupForm(data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn('at most 32 characters', form.errors['name'][0])
+
     def test_create_organization_with_existent_slug(self):
         data = {
             'name': 'mozilla',

@@ -1,0 +1,71 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Webhooks" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-webhooks-active %}active{% endblock %}
+
+{% block project_edit_content_header %}{% trans "Webhooks" %}{% endblock %}
+
+{% block project_edit_content %}
+
+  <p class="help_text">
+    {% blocktrans trimmed with docs_url="https://docs.readthedocs.io/page/build-notifications.html#build-status-webhooks" %}
+      We’ll send a <code>POST</code> request to the URL with the JSON payload below on the selected events.
+      Check <a href="{{ docs_url }}">our docs</a> for more information.
+    {% endblocktrans %}
+  </p>
+
+  {# If the webhook was created from the old implementation, it doesn't have a custom payload. #}
+  {% if object.pk and not object.payload %}
+  <p class="help_text">
+    {% blocktrans trimmed with docs_url="https://docs.readthedocs.io/page/build-notifications.html#legacy-webhooks" %}
+    This webhook was created from our old implementation and doesn't have a custom payload.
+    Check <a href="{{ docs_url }}">our docs</a> for the payload description or edit the payload to set a custom one.
+    {% endblocktrans %}
+  </p>
+  {% endif %}
+
+  <form
+      method="post"
+      class="form-wide"
+      action=".">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans "Save" %}">
+  </form>
+
+  {% if object.pk %}
+  <form method="post" action="{% url 'projects_webhooks_delete' project.slug object.pk %}">
+    {% csrf_token %}
+    <input type="submit" value="{% trans "Delete" %}">
+  </form>
+
+  <h3>{% trans "Recent Activity" %}</h3>
+
+  <div class="module-list-wrapper httpexchanges">
+    <ul>
+      {% for exchange in object.exchanges.all %}
+        <li class="module-item">
+          <span class="status status-{% if exchange.failed %}fail{% else %}pass{% endif %}">{{ exchange.status_code }}</span>
+          <a href="{% url 'projects_webhooks_exchange' project_slug=project.slug webhook_pk=object.pk webhook_exchange_pk=exchange.pk %}">
+            {% blocktrans trimmed with date=exchange.date|timesince %}
+              {{ date }} ago
+            {% endblocktrans %}
+          </a>
+        </li>
+      {% empty %}
+        <li class="module-item">
+          <span class="quiet">
+            {% trans 'There is no recent activity' %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+{% endblock %}

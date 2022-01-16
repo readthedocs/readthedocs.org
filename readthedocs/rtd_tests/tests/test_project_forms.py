@@ -3,9 +3,8 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_dynamic_fixture import get
-from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
@@ -16,7 +15,6 @@ from readthedocs.projects.constants import (
     REPO_TYPE_HG,
     SPHINX,
 )
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
@@ -27,24 +25,14 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     WebHookForm,
 )
-from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    WebHookEvent,
+)
 
 
 class TestProjectForms(TestCase):
-
-    @mock.patch.object(ClassifierValidator, '__call__')
-    def test_form_spam(self, mocked_validator):
-        """Form description field fails spam validation."""
-        mocked_validator.side_effect = ProjectSpamError
-
-        data = {
-            'description': 'foo',
-            'documentation_type': 'sphinx',
-            'language': 'en',
-        }
-        form = ProjectExtraForm(data)
-        with self.assertRaises(ProjectSpamError):
-            form.is_valid()
 
     def test_import_repo_url(self):
         """Validate different type of repository URLs on importing a Project."""
@@ -288,6 +276,7 @@ class TestProjectAdvancedForm(TestCase):
                 'documentation_type': SPHINX,
                 'python_interpreter': 'python3',
                 'privacy_level': PRIVATE,
+                'external_builds_privacy_level': PRIVATE,
             },
             instance=self.project,
         )
@@ -664,7 +653,7 @@ class TestTranslationForms(TestCase):
         self.assertTrue(form.is_valid())
 
 
-class TestNotificationForm(TestCase):
+class TestWebhookForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
@@ -673,7 +662,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': 'http://www.example.com/'
+            'url': 'http://www.example.com/',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -681,7 +672,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
 
         data = {
-            'url': 'https://www.example.com/'
+            'url': 'https://www.example.com/',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_PASSED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -692,7 +685,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': ''
+            'url': '',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
@@ -700,12 +695,40 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': 'wrong-url'
+            'url': 'wrong-url',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form.errors, {'url': ['Enter a valid URL.']})
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'https://example.com/webhook/',
+            'payload': '{wrong json object}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'payload': ['The payload must be a valid JSON object.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'https://example.com/webhook/',
+            'payload': '{}',
+            'events': [],
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'events': ['This field is required.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+class TestNotificationForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
 
     def test_emailhookform(self):
         self.assertEqual(self.project.emailhook_notifications.all().count(), 0)

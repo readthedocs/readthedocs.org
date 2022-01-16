@@ -1,8 +1,13 @@
+import itertools
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework.authtoken.models import Token
+
+from readthedocs.audit.models import AuditLog
+from readthedocs.projects.models import Project
 
 
 class ProfileViewsTest(TestCase):
@@ -134,3 +139,88 @@ class ProfileViewsTest(TestCase):
         resp = self.client.post(reverse('profiles_tokens_delete'))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+    def test_list_security_logs(self):
+        project = get(Project, users=[self.user], slug='project')
+        another_project = get(Project, users=[self.user], slug='another-project')
+        another_user = get(User)
+
+        actions = [
+            AuditLog.AUTHN,
+            AuditLog.AUTHN_FAILURE,
+            AuditLog.LOGOUT,
+            AuditLog.PAGEVIEW,
+        ]
+        ips = [
+            '10.10.10.1',
+            '10.10.10.2',
+        ]
+        users = [self.user, another_user]
+        AuditLog.objects.all().delete()
+        for action, ip, user in itertools.product(actions, ips, users):
+            get(
+                AuditLog,
+                user=user,
+                action=action,
+                ip=ip,
+            )
+            get(
+                AuditLog,
+                user=user,
+                action=action,
+                project=project,
+                ip=ip,
+            )
+            get(
+                AuditLog,
+                user=user,
+                action=action,
+                project=another_project,
+                ip=ip,
+            )
+
+        self.assertEqual(AuditLog.objects.count(), 48)
+
+        # Show logs from the current user
+        # and for authn/authn_failure events only.
+        resp = self.client.get(reverse('profiles_security_log'))
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 12)
+
+        # Show logs filtered by project.
+        resp = self.client.get(reverse('profiles_security_log') + '?project=project')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 4)
+
+        # Show logs filtered by IP.
+        resp = self.client.get(reverse('profiles_security_log') + '?ip=10.10.10.2')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 6)
+
+        # Show logs filtered by action.
+        resp = self.client.get(reverse('profiles_security_log') + '?action=authentication')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 6)
+
+        # Show logs filtered by action.
+        resp = self.client.get(reverse('profiles_security_log') + '?action=authentication-failure')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 6)
+
+        # Show logs filtered by invalid values.
+        for filter in ['ip', 'project']:
+            resp = self.client.get(reverse('profiles_security_log') + f'?{filter}=invalid')
+            self.assertEqual(resp.status_code, 200)
+            auditlogs = resp.context_data['object_list']
+            self.assertEqual(auditlogs.count(), 0, filter)
+
+        # If action isn't a valid value, the filter is just ignored.
+        resp = self.client.get(reverse('profiles_security_log') + '?action=invalid')
+        self.assertEqual(resp.status_code, 200)
+        auditlogs = resp.context_data['object_list']
+        self.assertEqual(auditlogs.count(), 12)

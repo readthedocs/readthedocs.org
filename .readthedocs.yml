@@ -1,18 +1,21 @@
 version: 2
+
 formats: all
+
 sphinx:
   configuration: docs/conf.py
+
 python:
   install:
     - requirements: requirements/pip.txt
     - requirements: requirements/docs.txt
 
+build:
+  os: ubuntu-20.04
+  tools:
+    python: "3.8"
+
 search:
-  ignore:
-    # Internal documentation
-    - development/design/*
-    - search.html
-    - 404.html
   ranking:
     # Deprecated content
     api/v1.html: -1

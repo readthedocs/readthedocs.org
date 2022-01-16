@@ -5,6 +5,7 @@ Things to know:
 * the Command wrappers encapsulate the bytes and expose unicode
 """
 import hashlib
+from itertools import zip_longest
 import json
 import os
 import tempfile
@@ -1024,7 +1025,7 @@ class TestBuildCommand(TestCase):
         env = {'FOOBAR': 'foobar', 'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
         for key in list(env.keys()):
-            self.assertEqual(cmd.environment[key], env[key])
+            self.assertEqual(cmd._environment[key], env[key])
 
     def test_result(self):
         """Test result of output using unix true/false commands."""
@@ -1210,8 +1211,9 @@ class TestPythonEnvironment(TestCase):
         with each element of args.
         """
         args_mock, _ = call
-        for arg, arg_mock in zip(args, args_mock):
+        for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
+                self.assertIsNotNone(arg_mock)
                 self.assertTrue(arg_mock.startswith(arg))
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1234,11 +1236,49 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools']
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
+        self.assertArgsStartsWith(args, calls[1])
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx_system_packages_caps_setuptools(self, checkout_path, load_config):
+        config_data = {
+            'python': {
+                'use_system_site_packages': True,
+            },
+        }
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version_sphinx)
+
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+            config=config,
+        )
+        python_env.install_core_requirements()
+        requirements_sphinx = [
+            'commonmark',
+            'recommonmark',
+            'sphinx',
+            'sphinx-rtd-theme',
+            'readthedocs-sphinx-ext',
+            'setuptools<58.3.0',
+        ]
+
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
+        calls = self.build_env_mock.run.call_args_list
+
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        self.assertArgsStartsWith(core_args, calls[0])
+
+        requirements = self.base_requirements + requirements_sphinx
+        args = self.pip_install_args + ['-I'] + requirements
         self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1259,7 +1299,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools']
+        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_mkdocs
@@ -1501,7 +1541,7 @@ class AutoWipeEnvironmentBase:
                 'hash': 'a1b2c3',
             },
             'python': {
-                'version': 2.7,
+                'version': '2.7',
             },
             'env_vars_hash': env_vars_hash
         }
@@ -1638,7 +1678,7 @@ class AutoWipeEnvironmentBase:
         m.update(env_var_str.encode('utf-8'))
         env_vars_hash = m.hexdigest()
 
-        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": 3.5}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
+        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": "3.5"}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)

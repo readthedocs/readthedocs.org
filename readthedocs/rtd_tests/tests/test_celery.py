@@ -6,6 +6,7 @@ from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
@@ -342,8 +343,8 @@ class TestCeleryBuilding(TestCase):
             search_ignore=[],
         )
         mock_logger.warning.assert_called_with(
-            'Version not found for given kwargs. %s',
-            {'pk': 345343},
+            'Version not found for given kwargs.',
+            kwargs={'pk': 345343},
         )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
@@ -352,7 +353,8 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         social_account = get(SocialAccount, user=self.eric, provider='gitlab')
-        remote_repo = get(RemoteRepository, project=self.project)
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,
             remote_repository=remote_repo,
@@ -417,7 +419,8 @@ class TestCeleryBuilding(TestCase):
         self.project.save()
 
         social_account = get(SocialAccount, user=self.eric, provider='gitlab')
-        remote_repo = get(RemoteRepository, project=self.project)
+        remote_repo = get(RemoteRepository)
+        remote_repo.projects.add(self.project)
         get(
             RemoteRepositoryRelation,
             remote_repository=remote_repo,
@@ -538,4 +541,161 @@ class TestCeleryBuilding(TestCase):
                 'cmatrix',
                 user='root:root',
             )
+        )
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch.object(BuildEnvironment, 'run')
+    @patch('readthedocs.doc_builder.config.load_config')
+    def test_build_tools(self, load_config, build_run):
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.10',
+                        'nodejs': '16',
+                        'rust': '1.55',
+                        'golang': '1.17',
+                    },
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_config.return_value = config
+
+        version = self.project.versions.first()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo):
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+        self.assertEqual(build_run.call_count, 14)
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+        nodejs_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16']
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['rust']['1.55']
+        golang_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['golang']['1.17']
+        self.assertEqual(
+            build_run.call_args_list,
+            [
+                mock.call('asdf', 'install', 'python', python_version),
+                mock.call('asdf', 'global', 'python', python_version),
+                mock.call('asdf', 'reshim', 'python', record=False),
+                mock.call('python', '-mpip', 'install', '-U', 'virtualenv', 'setuptools<58.3.0'),
+                mock.call('asdf', 'install', 'nodejs', nodejs_version),
+                mock.call('asdf', 'global', 'nodejs', nodejs_version),
+                mock.call('asdf', 'reshim', 'nodejs', record=False),
+                mock.call('asdf', 'install', 'rust', rust_version),
+                mock.call('asdf', 'global', 'rust', rust_version),
+                mock.call('asdf', 'reshim', 'rust', record=False),
+                mock.call('asdf', 'install', 'golang', golang_version),
+                mock.call('asdf', 'global', 'golang', golang_version),
+                mock.call('asdf', 'reshim', 'golang', record=False),
+                mock.ANY,
+            ],
+        )
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.doc_builder.python_environments.tarfile')
+    @patch('readthedocs.doc_builder.python_environments.build_tools_storage')
+    @patch.object(BuildEnvironment, 'run')
+    @patch('readthedocs.doc_builder.config.load_config')
+    def test_build_tools_cached(self, load_config, build_run, build_tools_storage, tarfile):
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.10',
+                        'nodejs': '16',
+                        'rust': '1.55',
+                        'golang': '1.17',
+                    },
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_config.return_value = config
+
+        build_tools_storage.open.return_value = b''
+        build_tools_storage.exists.return_value = True
+        tarfile.open.return_value.__enter__.return_value.extract_all.return_value = None
+
+        version = self.project.versions.first()
+        build = get(
+            Build,
+            project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo):
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+        self.assertEqual(build_run.call_count, 13)
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+        nodejs_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16']
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['rust']['1.55']
+        golang_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['golang']['1.17']
+        self.assertEqual(
+            # NOTE: casting the first argument as `list()` shows a better diff
+            # explaining where the problem is
+            list(build_run.call_args_list),
+            [
+                mock.call(
+                    'mv',
+                    # Use mock.ANY here because path differs when ran locally
+                    # and on CircleCI
+                    mock.ANY,
+                    f'/home/docs/.asdf/installs/python/{python_version}',
+                    record=False,
+                ),
+                mock.call('asdf', 'global', 'python', python_version),
+                mock.call('asdf', 'reshim', 'python', record=False),
+                mock.call(
+                    'mv',
+                    mock.ANY,
+                    f'/home/docs/.asdf/installs/nodejs/{nodejs_version}',
+                    record=False,
+                ),
+                mock.call('asdf', 'global', 'nodejs', nodejs_version),
+                mock.call('asdf', 'reshim', 'nodejs', record=False),
+                mock.call(
+                    'mv',
+                    mock.ANY,
+                    f'/home/docs/.asdf/installs/rust/{rust_version}',
+                    record=False,
+                ),
+                mock.call('asdf', 'global', 'rust', rust_version),
+                mock.call('asdf', 'reshim', 'rust', record=False),
+                mock.call(
+                    'mv',
+                    mock.ANY,
+                    f'/home/docs/.asdf/installs/golang/{golang_version}',
+                    record=False,
+                ),
+                mock.call('asdf', 'global', 'golang', golang_version),
+                mock.call('asdf', 'reshim', 'golang', record=False),
+                mock.ANY,
+            ],
         )

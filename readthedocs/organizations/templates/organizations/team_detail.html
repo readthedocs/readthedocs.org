@@ -1,0 +1,64 @@
+{% extends "organizations/base_team.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block admin-bar %}
+  {% if request.user|org_owner:team %}
+    <div class="row">
+      <div class="admin-bar">
+        <ul>
+          <li>
+            <a href="{% url "organization_team_edit" team.organization.slug team.slug %}" class="admin-button admin-button-settings">
+              {% trans "Edit Team" %}
+            </a>
+          </li>
+          <li>
+            <a href="{% url "organization_team_project_edit" team.organization.slug team.slug %}" class="admin-button admin-button-project">
+              {% trans "Manage Projects" %}
+            </a>
+          </li>
+          <li>
+            <a href="{% url "organization_team_member_add" organization.slug team.slug %}" class="admin-button admin-button-primary admin-button-invite">
+              {% trans "Invite Member" %}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+  <!-- BEGIN team detail -->
+  <div class="row">
+    <div class="col col-bisect">
+
+      <div class="module team-member-list">
+        <h3>{% trans "Members" %}</h3>
+
+        {% include "organizations/includes/team_member_list.html" with members=team_members %}
+      </div>
+
+    </div>
+    <div class="col col-bisect">
+
+      <div class="module team-project-list">
+        <h3>{% trans "Projects" %}</h3>
+
+        <div class="module-list">
+          <div class="module-list-wrapper">
+            <ul>
+              {% include "core/project_list.html" with omit=profile.user show_users=False project_list=projects %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END team detail -->
+
+{% endblock %}

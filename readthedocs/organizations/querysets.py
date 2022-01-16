@@ -19,9 +19,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
             Q(owners__in=[user]) | Q(teams__members__in=[user]),
         ).distinct()
 
-    def for_admin_user(self, user, include_all=False):
-        if user.is_superuser and include_all:
-            return self.all()
+    def for_admin_user(self, user):
         return self.filter(owners__in=[user],).distinct()
 
     def created_days_ago(self, days, field='pub_date'):

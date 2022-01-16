@@ -1254,7 +1254,7 @@ class TestStableVersion(TestCase):
             self.pip.get_stable_version().identifier,
         )
 
-        # There arent others stable slugs like stable_a
+        # There aren't others stable slugs like stable_a
         other_stable = self.pip.versions.filter(
             slug__startswith='stable_',
         )
@@ -1338,7 +1338,7 @@ class TestStableVersion(TestCase):
             'origin/stable',
             self.pip.get_stable_version().identifier,
         )
-        # There arent others stable slugs like stable_a
+        # There aren't others stable slugs like stable_a
         other_stable = self.pip.versions.filter(
             slug__startswith='stable_',
         )
@@ -1431,7 +1431,7 @@ class TestLatestVersion(TestCase):
             version_latest.identifier,
         )
 
-        # There arent others latest slugs like latest_a
+        # There aren't others latest slugs like latest_a
         other_latest = self.pip.versions.filter(
             slug__startswith='latest_',
         )
@@ -1484,7 +1484,7 @@ class TestLatestVersion(TestCase):
             version_latest.identifier,
         )
 
-        # There arent others latest slugs like latest_a
+        # There aren't others latest slugs like latest_a
         other_latest = self.pip.versions.filter(
             slug__startswith='latest_',
         )

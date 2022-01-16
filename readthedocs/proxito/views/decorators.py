@@ -1,11 +1,11 @@
-import logging
+import structlog
 from functools import wraps
 
 from django.http import Http404
 
 from readthedocs.projects.models import Project, ProjectRelationship
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 def map_subproject_slug(view_func):
@@ -40,8 +40,9 @@ def map_subproject_slug(view_func):
                     subproject = rel.child
                 else:
                     log.warning(
-                        'The slug is not subproject of project. subproject_slug=%s project_slug=%s',
-                        subproject_slug, kwargs['project'].slug
+                        'The slug is not subproject of project.',
+                        subproject_slug=subproject_slug,
+                        project_slug=kwargs['project'].slug,
                     )
                     raise Http404('Invalid subproject slug')
         return view_func(request, subproject=subproject, *args, **kwargs)
@@ -67,8 +68,8 @@ def map_project_slug(view_func):
             if not project_slug:
                 project_slug = getattr(request, 'host_project_slug', None)
                 log.debug(
-                    'Inserting project slug from request slug=[%s]',
-                    project_slug
+                    'Inserting project slug from request.',
+                    project_slug=project_slug,
                 )
             try:
                 project = Project.objects.get(slug=project_slug)

@@ -1,17 +1,12 @@
 """Build and Version class model Managers."""
 
-import logging
+import structlog
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from polymorphic.managers import PolymorphicManager
 
-from readthedocs.core.utils.extend import (
-    SettingsOverrideObject,
-    get_override_class,
-)
-
-from .constants import (
+from readthedocs.builds.constants import (
     BRANCH,
     EXTERNAL,
     LATEST,
@@ -20,16 +15,16 @@ from .constants import (
     STABLE_VERBOSE_NAME,
     TAG,
 )
-from .querysets import BuildQuerySet, VersionQuerySet
+from readthedocs.builds.querysets import VersionQuerySet
+from readthedocs.core.utils.extend import get_override_class
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 __all__ = ['VersionManager']
 
 
-class VersionManagerBase(models.Manager):
+class VersionManager(models.Manager):
 
     """
     Version manager for manager only queries.
@@ -83,10 +78,10 @@ class VersionManagerBase(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs. %s', kwargs)
+            log.warning('Version not found for given kwargs.', kwargs=kwargs)
 
 
-class InternalVersionManagerBase(VersionManagerBase):
+class InternalVersionManager(VersionManager):
 
     """
     Version manager that only includes internal version.
@@ -99,7 +94,7 @@ class InternalVersionManagerBase(VersionManagerBase):
         return super().get_queryset().exclude(type=EXTERNAL)
 
 
-class ExternalVersionManagerBase(VersionManagerBase):
+class ExternalVersionManager(VersionManager):
 
     """
     Version manager that only includes external version.
@@ -111,40 +106,7 @@ class ExternalVersionManagerBase(VersionManagerBase):
         return super().get_queryset().filter(type=EXTERNAL)
 
 
-class VersionManager(SettingsOverrideObject):
-    _default_class = VersionManagerBase
-    _override_setting = 'VERSION_MANAGER'
-
-
-class InternalVersionManager(SettingsOverrideObject):
-    _default_class = InternalVersionManagerBase
-
-
-class ExternalVersionManager(SettingsOverrideObject):
-    _default_class = ExternalVersionManagerBase
-
-
-class BuildManagerBase(models.Manager):
-
-    """
-    Build manager for manager only queries.
-
-    For creating different Managers.
-    """
-
-    @classmethod
-    def from_queryset(cls, queryset_class, class_name=None):
-        # This is overridden because :py:meth:`models.Manager.from_queryset`
-        # uses `inspect` to retrieve the class methods, and the proxy class has
-        # no direct members.
-        queryset_class = get_override_class(
-            BuildQuerySet,
-            BuildQuerySet._default_class,  # pylint: disable=protected-access
-        )
-        return super().from_queryset(queryset_class, class_name)
-
-
-class InternalBuildManagerBase(BuildManagerBase):
+class InternalBuildManager(models.Manager):
 
     """
     Build manager that only includes internal version builds.
@@ -157,7 +119,7 @@ class InternalBuildManagerBase(BuildManagerBase):
         return super().get_queryset().exclude(version__type=EXTERNAL)
 
 
-class ExternalBuildManagerBase(BuildManagerBase):
+class ExternalBuildManager(models.Manager):
 
     """
     Build manager that only includes external version builds.
@@ -169,22 +131,10 @@ class ExternalBuildManagerBase(BuildManagerBase):
         return super().get_queryset().filter(version__type=EXTERNAL)
 
 
-class BuildManager(SettingsOverrideObject):
-    _default_class = BuildManagerBase
-
-
-class InternalBuildManager(SettingsOverrideObject):
-    _default_class = InternalBuildManagerBase
-
-
-class ExternalBuildManager(SettingsOverrideObject):
-    _default_class = ExternalBuildManagerBase
-
-
 class VersionAutomationRuleManager(PolymorphicManager):
 
     """
-    Mananger for VersionAutomationRule.
+    Manager for VersionAutomationRule.
 
     .. note::
 

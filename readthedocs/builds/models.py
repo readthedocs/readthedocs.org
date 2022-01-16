@@ -1,9 +1,10 @@
 """Models for the builds app."""
 
 import datetime
-import logging
+import structlog
 import os.path
 import re
+from functools import partial
 from shutil import rmtree
 
 import regex
@@ -12,8 +13,8 @@ from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import (
     CreationDateTimeField,
     ModificationDateTimeField,
@@ -45,7 +46,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.managers import (
     AutomationRuleMatchManager,
-    BuildManager,
     ExternalBuildManager,
     ExternalVersionManager,
     InternalBuildManager,
@@ -88,7 +88,7 @@ from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.storage import build_environment_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Version(TimeStampedModel):
@@ -179,16 +179,16 @@ class Version(TimeStampedModel):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
+    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Version {version} of {project} ({pk})'.format(
                 version=self.verbose_name,
                 project=self.project,
@@ -318,7 +318,7 @@ class Version(TimeStampedModel):
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
-        log.info('Removing files for version %s', self.slug)
+        log.info('Removing files for version.', version_slug=self.slug)
         tasks.clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
@@ -422,7 +422,7 @@ class Version(TimeStampedModel):
         try:
             path = self.get_build_path()
             if path is not None:
-                log.debug('Removing build path %s for %s', path, self)
+                log.debug('Removing build path for project.', path=path, project_slug=self.slug)
                 rmtree(path)
         except OSError:
             log.exception('Build path cleanup failed')
@@ -673,13 +673,14 @@ class Build(models.Model):
         blank=True,
     )
 
-    cold_storage = models.NullBooleanField(
+    cold_storage = models.BooleanField(
         _('Cold Storage'),
+        null=True,
         help_text='Build steps stored outside the database.',
     )
 
     # Managers
-    objects = BuildManager.from_queryset(BuildQuerySet)()
+    objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
@@ -777,7 +778,7 @@ class Build(models.Model):
         self._config_changed = False
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Build {project} for {usernames} ({pk})'.format(
                 project=self.project,
                 usernames=' '.join(
@@ -909,6 +910,26 @@ class Build(models.Model):
         return type == EXTERNAL
 
     @property
+    def can_rebuild(self):
+        """
+        Check if external build can be rebuilt.
+
+        Rebuild can be done only if the build is external,
+        build version is active and
+        it's the latest build for the version.
+        see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969
+        """
+        if self.is_external:
+            is_latest_build = (
+                self == Build.objects.filter(
+                    project=self.project,
+                    version=self.version
+                ).only('id').first()
+            )
+            return self.version and self.version.active and is_latest_build
+        return False
+
+    @property
     def external_version_name(self):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
@@ -928,7 +949,7 @@ class Build(models.Model):
         """
         Reset the build so it can be re-used when re-trying.
 
-        Dates and states are usually overriden by the build,
+        Dates and states are usually overridden by the build,
         we care more about deleting the commands.
         """
         self.state = BUILD_STATE_TRIGGERED
@@ -994,7 +1015,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     def __str__(self):
         return (
-            ugettext('Build command {pk} for build {build}')
+            gettext('Build command {pk} for build {build}')
             .format(pk=self.pk, build=self.build)
         )
 
@@ -1186,7 +1207,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             )
             expression = F('priority') + 1
 
-        # Put an imposible priority to avoid
+        # Put an impossible priority to avoid
         # the unique constraint (project, priority)
         # while updating.
         self.priority = total + 99
@@ -1269,7 +1290,7 @@ class RegexAutomationRule(VersionAutomationRule):
            arg to avoid ReDoS.
 
            We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writting this code.
+           but there isn't a stable library at the time of writing this code.
         """
         try:
             match = regex.search(
@@ -1282,11 +1303,12 @@ class RegexAutomationRule(VersionAutomationRule):
             return bool(match), match
         except TimeoutError:
             log.warning(
-                'Timeout while parsing regex. pattern=%s, input=%s',
-                match_arg, version.verbose_name,
+                'Timeout while parsing regex.',
+                pattern=match_arg,
+                version_slug=version.slug,
             )
         except Exception as e:
-            log.info('Error parsing regex: %s', e)
+            log.exception('Error parsing regex.', exc_info=True)
         return False, None
 
     def get_edit_url(self):

@@ -3,10 +3,10 @@ version: 2.1
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.8'
         environment:
           TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
         name: search
         environment:
           discovery.type: single-node
@@ -15,11 +15,21 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user tox
-      - run: tox -e py36,codecov
+      - run: tox -e py38,codecov
+
+  tests-embedapi:
+    docker:
+      - image: 'cimg/python:3.8'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user tox
+      - run: tox -c tox.embedapi.ini
 
   checks:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.8'
         environment:
           NODE_VERSION: 10.17.0
     steps:
@@ -37,6 +47,7 @@ jobs:
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs
+      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:
@@ -45,3 +56,4 @@ workflows:
     jobs:
       - checks
       - tests
+      - tests-embedapi

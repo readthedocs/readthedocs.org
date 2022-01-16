@@ -4,8 +4,9 @@
 
 from django.urls import reverse
 from django.http import HttpRequest
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
+from readthedocs.core.permissions import AdminPermission
 
 from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.constants import REQUIREMENT
@@ -50,8 +51,8 @@ class DeprecatedViewNotification(Notification):
         :type projects: [:py:class:`Project`]
         """
         for project in projects:
-            # Send one notification to each owner of the project
-            for user in project.users.all():
+            # Send one notification to each admin of the project
+            for user in AdminPermission.admins(project):
                 notification = cls(
                     context_object=project,
                     request=HttpRequest(),

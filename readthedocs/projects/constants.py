@@ -7,7 +7,7 @@ theme names and repository types.
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 SPHINX = 'sphinx'
 MKDOCS = 'mkdocs'
@@ -302,8 +302,6 @@ PROGRAMMING_LANGUAGES = (
     ('haskell', 'Haskell'),
     ('other', 'Other'),
 )
-
-LOG_TEMPLATE = '(Build) [%(project)s:%(version)s] %(msg)s'
 
 PROJECT_PK_REGEX = r'(?:[-\w]+)'
 PROJECT_SLUG_REGEX = r'(?:[-\w]+)'

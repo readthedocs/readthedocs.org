@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter,
@@ -7,12 +9,16 @@ from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
-from unittest.mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.oauth.tasks import sync_remote_repositories
+from readthedocs.oauth.tasks import (
+    sync_remote_repositories,
+    sync_remote_repositories_organizations,
+)
+from readthedocs.organizations.models import Organization, OrganizationOwner
 from readthedocs.projects.models import Project
+from readthedocs.sso.models import SSOIntegration
 
 
 class SyncRemoteRepositoriesTests(TestCase):
@@ -73,3 +79,37 @@ class SyncRemoteRepositoriesTests(TestCase):
         sync_bb.assert_called_once()
         sync_gl.assert_called_once()
         sync_gh.assert_called_once()
+
+    @patch('readthedocs.oauth.tasks.sync_remote_repositories')
+    def test_sync_remote_repository_organizations_slugs(self, mock_sync_remote_repositories):
+        organization = get(Organization)
+        get(
+            OrganizationOwner,
+            owner=self.user,
+            organization=organization,
+        )
+        sync_remote_repositories_organizations(organization_slugs=[organization.slug])
+        mock_sync_remote_repositories.apply_async.assert_called_once_with(
+            args=[self.user.pk],
+            countdown=0,
+        )
+
+    @patch('readthedocs.oauth.tasks.sync_remote_repositories')
+    def test_sync_remote_repository_organizations_without_slugs(self, mock_sync_remote_repositories):
+        organization = get(Organization)
+        get(
+            SSOIntegration,
+            provider=SSOIntegration.PROVIDER_ALLAUTH,
+            organization=organization,
+        )
+        get(
+            OrganizationOwner,
+            owner=self.user,
+            organization=organization,
+        )
+
+        sync_remote_repositories_organizations()
+        mock_sync_remote_repositories.apply_async.assert_called_once_with(
+            args=[self.user.pk],
+            countdown=0,
+        )

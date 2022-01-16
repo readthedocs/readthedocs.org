@@ -1,6 +1,6 @@
 """Views for builds app."""
 
-import logging
+import structlog
 import textwrap
 from urllib.parse import urlparse
 
@@ -21,7 +21,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BuildBase:
@@ -81,11 +81,11 @@ class BuildTriggerMixin:
             if build_to_retrigger:
                 commit_to_retrigger = build_to_retrigger.commit
                 log.info(
-                    'Re-triggering build. project=%s version=%s commit=%s build=%s',
-                    project.slug,
-                    version.slug,
-                    build_to_retrigger.commit,
-                    build_to_retrigger.pk
+                    'Re-triggering build.',
+                    project_slug=project.slug,
+                    version_slug=version.slug,
+                    build_commit=build_to_retrigger.commit,
+                    build_id=build_to_retrigger.pk,
                 )
         else:
             # Use generic query when triggering a normal build
@@ -153,12 +153,6 @@ class BuildDetail(BuildBase, DetailView):
         context['project'] = self.project
 
         build = self.get_object()
-        context['is_latest_build'] = (
-            build == Build.objects.filter(
-                project=build.project,
-                version=build.version,
-            ).first()
-        )
 
         if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic

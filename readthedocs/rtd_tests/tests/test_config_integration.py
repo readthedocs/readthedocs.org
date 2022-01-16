@@ -99,7 +99,7 @@ class LoadConfigTests(TestCase):
                 ],
                 'use_system_packages': self.project.use_system_packages,
                 'requirements_file': self.project.requirements_file,
-                'python_version': 3,
+                'python_version': '3',
                 'sphinx_configuration': mock.ANY,
                 'build_image': 'readthedocs/build:1.0',
                 'doctype': self.project.documentation_type,
@@ -114,7 +114,7 @@ class LoadConfigTests(TestCase):
                 path=mock.ANY,
                 env_config=expected_env_config,
         )
-        self.assertEqual(config.python.version, 3)
+        self.assertEqual(config.python.version, '3')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_2_0(self, load_config):
@@ -124,7 +124,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5],
+            ['2', '2.7', '3', '3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -135,14 +135,14 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+            ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.version, 3)
+        self.assertEqual(config.python.version, '3')
         self.assertEqual(config.python_interpreter, 'python3.7')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -152,7 +152,7 @@ class LoadConfigTests(TestCase):
         self.project.python_interpreter = 'python3'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.version, 3)
+        self.assertEqual(config.python.version, '3')
         self.assertEqual(config.python_interpreter, 'python3.5')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -163,8 +163,18 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.version, 3.5)
+        self.assertEqual(config.python.version, '3.5')
         self.assertEqual(config.python_interpreter, 'python3.5')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_python_set_python_310_version_in_config(self, load_config):
+        load_config.side_effect = create_load({
+            'build': {'image': 'testing'},
+            'python': {'version': '3.10'},
+        })
+        config = load_yaml_config(self.version)
+        self.assertEqual(config.python.version, '3.10')
+        self.assertEqual(config.python_interpreter, 'python3.10')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_invalid_version_in_config(self, load_config):
@@ -523,8 +533,8 @@ class TestLoadConfigV2:
         self.project.save()
 
         config = self.get_update_docs_task().config
-        assert config.python.version == 3
-        assert config.python_full_version == 3.7
+        assert config.python.version == '3'
+        assert config.python_full_version == '3.7'
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_requirements(self, run, checkout_path, tmpdir):
@@ -756,6 +766,38 @@ class TestLoadConfigV2:
 
         assert '--system-site-packages' in args
         assert config.python.use_system_site_packages
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_system_packages_project_overrides(self, run, checkout_path, tmpdir):
+
+        # Define `project.use_system_packages` as if it was marked in the Advanced settings.
+        self.version.project.use_system_packages = True
+        self.version.project.save()
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                # Do not define `system_packages: True` in the config file.
+                'python': {},
+            },
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config,
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.setup_base()
+
+        args, kwargs = run.call_args
+
+        assert '--system-site-packages' not in args
+        assert not config.python.use_system_site_packages
 
     @pytest.mark.parametrize(
         'value,result',

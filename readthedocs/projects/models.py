@@ -1,7 +1,8 @@
 """Project models."""
-
 import fnmatch
-import logging
+import hashlib
+import hmac
+import structlog
 import os
 import re
 from shlex import quote
@@ -11,20 +12,26 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
+from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
@@ -34,7 +41,6 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
-    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -56,7 +62,12 @@ from .constants import (
     MEDIA_TYPES,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
+
+
+def default_privacy_level():
+    """Wrapper around the setting, so the level is dynamically included in the migration."""
+    return settings.DEFAULT_PRIVACY_LEVEL
 
 
 class ProjectRelationship(models.Model):
@@ -213,10 +224,22 @@ class Project(models.Model):
         ),
     )
 
+    # External versions
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+    )
+    external_builds_privacy_level = models.CharField(
+        _('Privacy level of Pull Requests'),
+        max_length=20,
+        # TODO: remove after migration
+        null=True,
+        choices=constants.PRIVACY_CHOICES,
+        default=default_privacy_level,
+        help_text=_(
+            'Should builds from pull requests be public?',
+        ),
     )
 
     # Project features
@@ -282,6 +305,11 @@ class Project(models.Model):
         _('Ad-free'),
         default=False,
         help_text='If checked, do not show advertising for this project',
+    )
+    is_spam = models.NullBooleanField(
+        _('Is spam?'),
+        default=None,
+        help_text=_('Manually marked as (not) spam'),
     )
     show_version_warning = models.BooleanField(
         _('Show version warning'),
@@ -420,8 +448,16 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
+    history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
-    all_objects = models.Manager()
+
+    remote_repository = models.ForeignKey(
+        'oauth.RemoteRepository',
+        on_delete=models.SET_NULL,
+        related_name='projects',
+        null=True,
+        blank=True,
+    )
 
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
@@ -433,8 +469,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -628,8 +662,9 @@ class Project(models.Model):
 
         if '\\$' in to_convert:
             log.warning(
-                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
-                self, to_convert
+                'Unconverted variable in a project URLConf.',
+                project_slug=self.slug,
+                to_convert=to_convert,
             )
         return to_convert
 
@@ -1162,7 +1197,7 @@ class Project(models.Model):
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
-        subproject, __ = ProjectRelationship.objects.get_or_create(
+        subproject, _ = ProjectRelationship.objects.get_or_create(
             parent=self,
             child=child,
             alias=alias,
@@ -1230,6 +1265,10 @@ class Project(models.Model):
         if self.ad_free or self.gold_owners.exists():
             return False
 
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_show_ads_denied  # noqa
+            return not is_show_ads_denied(self)
+
         return True
 
     def environment_variables(self, *, public_only=True):
@@ -1259,30 +1298,31 @@ class Project(models.Model):
                 _('Subproject nesting is not supported'),
             )
 
-    def is_valid_as_subproject(self, parent, error_class):
+    def get_subproject_candidates(self, user):
         """
-        Checks if the project can be a subproject.
+        Get a queryset of projects that would be valid as a subproject for this project.
 
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
+        This excludes:
+
+        - The project itself
+        - Projects that are already a subproject of another project
+        - Projects that are a superproject.
+
+        If the project belongs to an organization,
+        we only allow projects under the same organization as subprojects,
+        otherwise only projects that don't belong to an organization.
+
+        Both projects need to share the same owner/admin.
         """
-        # Check the child project is not a subproject already
-        if self.superprojects.exists():
-            raise error_class(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if self.subprojects.exists():
-            raise error_class(
-                _('Child is already a superproject'),
-            )
-
-        # Check the parent and child are not the same project
-        if parent.slug == self.slug:
-            raise error_class(
-                _('Project can not be subproject of itself'),
-            )
+        organization = self.organizations.first()
+        queryset = (
+            Project.objects.for_admin_user(user)
+            .filter(organizations=organization)
+            .exclude(subprojects__isnull=False)
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.pk)
+        )
+        return queryset
 
 
 class APIProject(Project):
@@ -1409,7 +1449,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
+    objects = HTMLFileManager()
 
     def get_processed_json(self):
         parser_class = (
@@ -1423,7 +1463,20 @@ class HTMLFile(ImportedFile):
         return self.get_processed_json()
 
 
-class Notification(models.Model):
+class Notification(TimeStampedModel):
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
+
     project = models.ForeignKey(
         Project,
         related_name='%(class)s_notifications',
@@ -1442,14 +1495,137 @@ class EmailHook(Notification):
         return self.email
 
 
-class WebHook(Notification):
-    url = models.URLField(
-        max_length=600,
-        help_text=_('URL to send the webhook to'),
+class WebHookEvent(models.Model):
+
+    BUILD_TRIGGERED = 'build:triggered'
+    BUILD_PASSED = 'build:passed'
+    BUILD_FAILED = 'build:failed'
+
+    EVENTS = (
+        (BUILD_TRIGGERED, _('Build triggered')),
+        (BUILD_PASSED, _('Build passed')),
+        (BUILD_FAILED, _('Build failed')),
+    )
+
+    name = models.CharField(
+        max_length=256,
+        unique=True,
+        choices=EVENTS,
     )
 
     def __str__(self):
-        return self.url
+        return self.name
+
+
+class WebHook(Notification):
+
+    url = models.URLField(
+        _('URL'),
+        max_length=600,
+        help_text=_('URL to send the webhook to'),
+    )
+    secret = models.CharField(
+        help_text=_('Secret used to sign the payload of the webhook'),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    events = models.ManyToManyField(
+        WebHookEvent,
+        related_name='webhooks',
+        help_text=_('Events to subscribe'),
+    )
+    payload = models.TextField(
+        _('JSON payload'),
+        help_text=_(
+            'JSON payload to send to the webhook. '
+            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
+        ),
+        blank=True,
+        null=True,
+        max_length=25000,
+    )
+    exchanges = GenericRelation(
+        'integrations.HttpExchange',
+        related_query_name='webhook',
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = get_random_string(length=32)
+        super().save(*args, **kwargs)
+
+    def get_payload(self, version, build, event):
+        """
+        Get the final payload replacing all placeholders.
+
+        Placeholders are in the ``{{ foo }}`` or ``{{foo}}`` format.
+        """
+        if not self.payload:
+            return None
+
+        project = version.project
+        organization = project.organizations.first()
+
+        organization_name = ''
+        organization_slug = ''
+        if organization:
+            organization_slug = organization.slug
+            organization_name = organization.name
+
+        # Commit can be None, display an empty string instead.
+        commit = build.commit or ''
+        protocol = 'http' if settings.DEBUG else 'https'
+        project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
+        build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
+        build_docsurl = project.get_docs_url(
+            version_slug=version.slug,
+            external=version.is_external,
+        )
+
+        # Remove timezone and microseconds from the date,
+        # so it's more readable.
+        start_date = build.date.replace(
+            tzinfo=None,
+            microsecond=0
+        ).isoformat()
+
+        substitutions = {
+            'event': event,
+            'build.id': build.id,
+            'build.commit': commit,
+            'build.url': build_url,
+            'build.docs_url': build_docsurl,
+            'build.start_date': start_date,
+            'organization.name': organization_name,
+            'organization.slug': organization_slug,
+            'project.slug': project.slug,
+            'project.name': project.name,
+            'project.url': project_url,
+            'version.slug': version.slug,
+            'version.name': version.verbose_name,
+        }
+        payload = self.payload
+        # Small protection for DDoS.
+        max_substitutions = 99
+        for substitution, value in substitutions.items():
+            # Replace {{ foo }}.
+            payload = payload.replace(f'{{{{ {substitution} }}}}', str(value), max_substitutions)
+            # Replace {{foo}}.
+            payload = payload.replace(f'{{{{{substitution}}}}}', str(value), max_substitutions)
+        return payload
+
+    def sign_payload(self, payload):
+        """Get the signature of `payload` using HMAC-SHA1 with the webhook secret."""
+        digest = hmac.new(
+            key=self.secret.encode(),
+            msg=payload.encode(),
+            digestmod=hashlib.sha256,
+        )
+        return digest.hexdigest()
+
+    def __str__(self):
+        return f'{self.project.slug} {self.url}'
 
 
 class Domain(TimeStampedModel, models.Model):
@@ -1547,6 +1723,47 @@ class Domain(TimeStampedModel, models.Model):
         super().save(*args, **kwargs)
 
 
+class HTTPHeader(TimeStampedModel, models.Model):
+
+    """
+    Define a HTTP header for a user Domain.
+
+    All the HTTPHeader(s) associated with the domain are added in the response
+    from El Proxito.
+
+    NOTE: the available headers are hardcoded in the NGINX configuration for
+    now (see ``dockerfile/nginx/proxito.conf``) until we figure it out a way to
+    expose them all without hardcoding them.
+    """
+
+    HEADERS_CHOICES = (
+        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
+        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
+        ('content_security_policy', 'Content-Security-Policy'),
+        ('feature_policy', 'Feature-Policy'),
+        ('permissions_policy', 'Permissions-Policy'),
+        ('referrer_policy', 'Referrer-Policy'),
+        ('x_frame_options', 'X-Frame-Options'),
+    )
+
+    domain = models.ForeignKey(
+        Domain,
+        related_name='http_headers',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(
+        max_length=128,
+        choices=HEADERS_CHOICES,
+    )
+    value = models.CharField(max_length=256)
+    only_if_secure_request = models.BooleanField(
+        help_text='Only set this header if the request is secure (HTTPS)',
+    )
+
+    def __str__(self):
+        return f"HttpHeader: {self.name} on {self.domain.domain}"
+
+
 class Feature(models.Model):
 
     """
@@ -1578,13 +1795,14 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    UPDATE_CA_CERTIFICATES = 'update_ca_certificates'
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     SKIP_SYNC_VERSIONS = 'skip_sync_versions'
 
-    # Dependecies related features
+    # Dependencies related features
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
@@ -1661,6 +1879,10 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
+        (
+            UPDATE_CA_CERTIFICATES,
+            _('Update ca-certificates Ubuntu package before VCS clone'),
+        ),
 
         # Versions sync related features
         (
@@ -1676,7 +1898,7 @@ class Feature(models.Model):
             _('Skip sync versions task'),
         ),
 
-        # Dependecies related features
+        # Dependencies related features
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (USE_NEW_PIP_RESOLVER, _('Use new pip resolver')),
         (
