@@ -980,16 +980,9 @@ class DockerBuildEnvironment(BuildEnvironment):
     @property
     def conda_version(self):
         """Return conda version if exists."""
-        try:
-            version = subprocess.run(
-                ["conda", "--version"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            return version.stdout
-        except Exception:
-            return "conda environment is not set"
+        cmd = DockerBuildCommand(['conda', '--version'], shell=True)
+        cmd.run()
+        return "conda environment is not set" if cmd.exit_code else cmd.output
 
     def container_state(self):
         """Get container state."""
