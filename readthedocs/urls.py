@@ -68,6 +68,16 @@ organization_urls = [
         r'^organizations/',
         include('readthedocs.organizations.urls.public'),
     ),
+    re_path(
+        r'^organizations/(?P<slug>[\w.-]+)/subscription/',
+        include('readthedocs.subscriptions.urls'),
+    ),
+    # NOTE: This is overridden in .com to serve a real pricing page.
+    re_path(
+        r'^pricing/',
+        RedirectView.as_view(url='https://readthedocs.org/sustainability/'),
+        name='pricing',
+    ),
 ]
 
 
