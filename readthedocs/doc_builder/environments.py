@@ -502,15 +502,12 @@ class BuildEnvironment(BaseEnvironment):
 
     * The build is not done and needs an additional build step to follow
     * The build failed and we should always report this change
-    * The build was successful and ``update_on_success`` is ``True``
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param update_on_success: update the build object via API if the build was
-                              successful
     """
 
     # These exceptions are considered ERROR from a Build perspective (the build
@@ -536,18 +533,12 @@ class BuildEnvironment(BaseEnvironment):
             config=None,
             record=True,
             environment=None,
-            update_on_success=True,
-            start_time=None,
     ):
         super().__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
         self.record = record
-        self.update_on_success = update_on_success
-
-        # NOTE: start time can be computed from `before_start` and `finished` in celery handlers
-        self.start_time = start_time or datetime.utcnow()
 
     # TODO: remove these methods, we are not using LocalEnvironment anymore
     # def __enter__(self):

@@ -8,7 +8,6 @@ rebuilding documentation.
 import datetime
 import json
 import os
-import shutil
 import signal
 import socket
 import tarfile
@@ -32,6 +31,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -168,7 +168,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             project=self.project,
             version=self.version,
             record=False,
-            update_on_success=False,
             environment=self.get_vcs_env_vars(),
         )
 
@@ -295,12 +294,8 @@ class UpdateDocsTask(BuildTaskBase, SyncRepositoryMixin, Task):
             version=self.version,
             build=self.build,
             record=self,
-            update_on_success=False,
             environment=self.get_vcs_env_vars(),
         )
-
-        # NOTE: find the start time from the celery task itself
-        self.build_start_time = environment.start_time
 
         # Environment used for code checkout & initial configuration reading
         with environment:
@@ -331,12 +326,6 @@ class UpdateDocsTask(BuildTaskBase, SyncRepositoryMixin, Task):
             build=self.build,
             record=self.record,
             environment=self.get_build_env_vars(),
-
-            # NOTE: I think this is used only to calculate the length of the
-            # build --we can use the Celery's task start time instead
-
-            # Pass ``start_time`` here to not reset the timer
-            start_time=self.build_start_time,
         )
 
         # Environment used for building code, usually with Docker

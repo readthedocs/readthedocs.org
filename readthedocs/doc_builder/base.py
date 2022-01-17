@@ -85,6 +85,7 @@ class BaseBuilder:
 
     def clean(self, **__):
         """Clean the path where documentation will be built."""
+        # NOTE: this shouldn't be needed. We are always CLEAN_AFTER_BUILD now
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
             log.info('Removing old artifact path.', path=self.old_artifact_path)

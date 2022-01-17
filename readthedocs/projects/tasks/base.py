@@ -8,6 +8,7 @@ from celery.worker.request import Request
 from celery.exceptions import SoftTimeLimitExceeded
 
 from django.conf import settings
+from django.utils import timezone
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, BUILD_STATUS_SUCCESS
 from readthedocs.builds.models import Build
@@ -147,9 +148,11 @@ class BuildTaskBase:
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
-        # NOTE: save all the attributes to do a clean up when finish
+        # NOTE: save all the attributes to do a clean up when finish.
+        # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
         self._attributes = list(self.__dict__.keys()) + ['_attributes']
 
+        self.start_time = timezone.now()
         self.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
             # TODO: delete LocalBuildEnvironment since it's not supported
@@ -166,6 +169,10 @@ class BuildTaskBase:
         self.build = self.get_build(build_pk)
         self.version = self.get_version(version_pk)
         self.project = self.version.project
+
+        # Clean the build paths completely to avoid conflicts with previous run
+        # (e.g. cleanup task failed for some reason)
+        clean_build(self.version.pk)
 
         log.bind(
             # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
@@ -196,10 +203,6 @@ class BuildTaskBase:
         # exceptions may require access to the ``environment`` variable to
         # update the context (hiting the API to set the build status)
 
-        # NOTE: find where this exception is defined
-        # if exc is HardTimeLimitExceeded:
-        #     log.warning('Build killed because timeout.')
-
         if isinstance(exc, ConfigError):
             self.build['error'] = str(
                 YAMLParseError(
@@ -208,14 +211,15 @@ class BuildTaskBase:
                     ),
                 ),
             )
-        elif isinstance(exc, ProjectBuildsSkippedError):
+        # TODO: review all our exceptions and make sure they have a `message`
+        # or `get_default_message` that does not receive arguments. If we need
+        # to build the error message manually (e.g. requires `build_id`), we
+        # have to handle it as a particular case
+        elif hasattr(exc, 'message') and exc.message is not None:
             # TODO: test if `on_failure` is called when it's an expected
             # exception (e.g. defined in `throws=`). I would expect that this
             # method is not called.
-            log.info('ProjectBuildsSkippedError exception')
-        elif isinstance(exc, BuildEnvironmentError):
-            # TODO: if the exceptions are known we can just copy the message here
-            self.build['error'] = exc.msg
+            self.build['error'] = exc.message
         else:
             log.exception('Build failed with unhandled exception.')
             self.build['error'] = str(
@@ -246,11 +250,8 @@ class BuildTaskBase:
                 status=BUILD_STATUS_FAILURE,
             )
 
-
         # Update build object
         self.build['success'] = False
-        if hasattr(exc, 'status_code'):
-            self.build['exit_code'] = exc.status_code
 
     def on_success(self, retval, task_id, args, kwargs):
         build_id = self.build.get('id')
@@ -321,25 +322,24 @@ class BuildTaskBase:
 
         # Update build object
         self.build['success'] = True
-        # self.build['exit_code'] = max([
-        #     cmd.exit_code for cmd in self.builds['commands']
-        # ])
 
+        # NOTE: we can probably remove the ``exit_code`` at build level, I
+        # don't think we are using it
+        self.build['exit_code'] = max([
+            cmd.exit_code for cmd in self.build_env.commands
+        ])
+
+        # NOTE: I don't think we are using these fields either
+        # self.build['setup'] = self.build['setup_error'] = ''
+        # self.build['output'] = self.build['error'] = ''
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         pass
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object
-        self.build['setup'] = self.build['setup_error'] = ''
-        self.build['output'] = self.build['error'] = ''
         self.build['builder'] = socket.gethostname()
-
-        # from celery.contrib import rdb; rdb.set_trace()
-
-
-        # TODO: get the start time from the task itself
-        # self.build['length'] = self.request.start_time
+        self.build['length'] = (timezone.now() - self.start_time).seconds
 
         self.update_build(BUILD_STATE_FINISHED)
 
@@ -348,6 +348,7 @@ class BuildTaskBase:
         clean_build(self.version.pk)
 
         # HACK: cleanup all the attributes set by the task under `self`
+        # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
         for attribute in list(self.__dict__.keys()):
             if attribute not in self._attributes:
                 del self.__dict__[attribute]
@@ -364,4 +365,7 @@ class BuildTaskBase:
             try:
                 api_v2.build(self.build['id']).patch(self.build)
             except Exception:
+                # NOTE: I think we should fail the build if we cannot update it
+                # at this point otherwise, the data will be inconsistent and we
+                # may be serving "new docs" but saying the "build have failed"
                 log.exception('Unable to update build')

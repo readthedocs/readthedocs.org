@@ -156,37 +156,19 @@ def _create_intersphinx_data(version, commit, build):
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
-    try:
-        version = SyncRepositoryMixin.get_version(version_pk)
-    except Exception:
-        log.exception('Error while fetching the version from the api')
-        return False
-    if (
-        not settings.RTD_CLEAN_AFTER_BUILD and
-        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
-    ):
-        log.info(
-            'Skipping build files deletetion for version.',
-            version_id=version_pk,
-        )
-        return False
-    # NOTE: we are skipping the deletion of the `artifacts` dir
-    # because we are syncing the servers with an async task.
+    version = SyncRepositoryMixin.get_version(version_pk)
+
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda', 'artifacts')
     ]
     del_dirs.append(
         os.path.join(version.project.doc_path, '.cache')
     )
-    try:
-        with version.project.repo_nonblockinglock(version):
-            log.info('Removing directories.', directories=del_dirs)
-            remove_dirs(del_dirs)
-    except LockTimeout:
-        log.info('Another task is running. Not removing...', directories=del_dirs)
-    else:
-        return True
+
+    log.info('Removing directories.', directories=del_dirs)
+    for path in del_dirs:
+        shutil.rmtree(path, ignore_errors=True)
 
 
 def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
@@ -248,21 +230,6 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
     )
 
 
-@app.task()
-def remove_dirs(paths):
-    """
-    Remove artifacts from servers.
-
-    This is mainly a wrapper around shutil.rmtree so that we can remove things across
-    every instance of a type of server (eg. all builds or all webs).
-
-    :param paths: list containing PATHs where file is on disk
-    """
-    for path in paths:
-        log.info('Removing directory.', path=path)
-        shutil.rmtree(path, ignore_errors=True)
-
-
 @app.task(queue='web')
 def remove_build_storage_paths(paths):
     """
@@ -270,8 +237,8 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
+    log.info('Removing path from media storage.', paths=paths)
     for storage_path in paths:
-        log.info('Removing path from media storage.', path=storage_path)
         build_media_storage.delete_directory(storage_path)
 
 
