@@ -91,7 +91,7 @@ class TestVersionForm(TestCase):
         self.assertEqual(version.privacy_level, PRIVATE)
 
     @mock.patch('readthedocs.builds.forms.trigger_build', mock.MagicMock())
-    @mock.patch('readthedocs.projects.tasks.utils.clean_project_resources')
+    @mock.patch('readthedocs.projects.views.private.clean_project_resources')
     def test_resources_are_deleted_when_version_is_inactive(self, clean_project_resources):
         version = get(
             Version,

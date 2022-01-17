@@ -1086,8 +1086,7 @@ class TestPythonEnvironment(TestCase):
             'pip',
             'install',
             '--upgrade',
-            '--cache-dir',
-            mock.ANY,  # cache path
+            '--no-cache-dir',
         ]
 
     def assertArgsStartsWith(self, args, call):
@@ -1228,8 +1227,7 @@ class TestPythonEnvironment(TestCase):
             'pip',
             'install',
             '--exists-action=w',
-            '--cache-dir',
-            mock.ANY,  # cache path
+            '--no-cache-dir',
             '-r',
             'requirements_file',
         ]
@@ -1301,8 +1299,7 @@ class TestPythonEnvironment(TestCase):
             'pip',
             'install',
             '-U',
-            '--cache-dir',
-            mock.ANY,  # cache path
+            '--no-cache-dir',
         ]
         args_pip.extend(pip_requirements)
 
@@ -1342,8 +1339,7 @@ class TestPythonEnvironment(TestCase):
             'pip',
             'install',
             '-U',
-            '--cache-dir',
-            mock.ANY,  # cache path
+            '--no-cache-dir',
         ]
         args_pip.extend(pip_requirements)
 

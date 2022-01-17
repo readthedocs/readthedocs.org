@@ -27,6 +27,8 @@ from readthedocs.rtd_tests.tests.test_config_integration import create_load
 from ..mocks.environment import EnvironmentMockGroup
 
 
+# NOTE: this class is the most important one from this file. It's the one that
+# make usage of the `LocalBuildEnvironment` and emulate triggering a build.
 class BuildEnvironmentTests(TestCase):
 
     def setUp(self):

@@ -27,10 +27,10 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
-from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.builds import sync_repository_task
+from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
+from readthedocs.projects.tasks.search import fileify
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -40,7 +40,10 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-@override_settings(DOCKER_ENABLED=False)
+# NOTE: most of these tests need to be re-written making usage of the new
+# Celery handlers. These are exactly the tests we are interested in making them
+# work properly (e.g. send notifications after build, handle unexpected
+# exceptions, etc)
 class TestCeleryBuilding(TestCase):
 
     """
@@ -74,16 +77,9 @@ class TestCeleryBuilding(TestCase):
         shutil.rmtree(self.repo)
         super().tearDown()
 
-    def test_remove_dirs(self):
-        directory = mkdtemp()
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay((directory,))
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
     def test_update_docs(self):
         version = self.project.versions.first()
         build = get(
@@ -91,7 +87,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -99,10 +95,9 @@ class TestCeleryBuilding(TestCase):
             )
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs')
     def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
@@ -112,7 +107,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -120,10 +115,9 @@ class TestCeleryBuilding(TestCase):
             )
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs')
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
@@ -133,7 +127,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -141,10 +135,10 @@ class TestCeleryBuilding(TestCase):
             )
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.send_notifications')
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs')
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
 
@@ -155,7 +149,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo):
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -165,11 +159,10 @@ class TestCeleryBuilding(TestCase):
         mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch('readthedocs.projects.tasks.utils.clean_build')
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs')
     def test_clean_build_after_update_docs(self, build_docs, clean_build):
         version = self.project.versions.first()
         build = get(
@@ -177,7 +170,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -187,7 +180,7 @@ class TestCeleryBuilding(TestCase):
         clean_build.assert_called_with(version.pk)
 
     @patch('readthedocs.projects.tasks.utils.clean_build')
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.run_setup')
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.run_setup')
     def test_clean_build_after_failure_in_update_docs(self, run_setup, clean_build):
         run_setup.side_effect = Exception()
         version = self.project.versions.first()
@@ -196,7 +189,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo):
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -204,8 +197,8 @@ class TestCeleryBuilding(TestCase):
             )
         clean_build.assert_called_with(version.pk)
 
-    @patch('readthedocs.projects.tasks.api_v2')
-    @patch('readthedocs.projects.tasks.SyncRepositoryMixin.get_version')
+    @patch('readthedocs.projects.tasks.mixins.api_v2')
+    @patch('readthedocs.projects.tasks.mixins.SyncRepositoryMixin.get_version')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_sync_repository(self, checkout_path, get_version, api_v2):
         # Create dir where to clone the repo
@@ -216,14 +209,14 @@ class TestCeleryBuilding(TestCase):
         version = self.project.versions.get(slug=LATEST)
         get_version.return_value = version
 
-        result = tasks.sync_repository_task(version.pk)
+        result = sync_repository_task(version.pk)
         self.assertTrue(result)
 
     @patch('readthedocs.projects.tasks.utils.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            result = tasks.sync_repository_task.delay(version.pk)
+            result = sync_repository_task.delay(version.pk)
         self.assertTrue(result.successful())
         clean_build.assert_called_with(version.pk)
 
@@ -233,7 +226,7 @@ class TestCeleryBuilding(TestCase):
         run_syn_repository.side_effect = Exception()
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            result = tasks.sync_repository_task.delay(version.pk)
+            result = sync_repository_task.delay(version.pk)
         clean_build.assert_called_with(version.pk)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -266,9 +259,8 @@ class TestCeleryBuilding(TestCase):
         sync_repository_task(version_id=version.pk)
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
-    @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_check_duplicate_reserved_version_stable(self, checkout_path, api_v2):
+    def test_check_duplicate_reserved_version_stable(self, checkout_path):
         create_git_branch(self.repo, 'stable')
         create_git_tag(self.repo, 'stable')
 
@@ -278,9 +270,9 @@ class TestCeleryBuilding(TestCase):
         checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
-        sync_repository = self.get_update_docs_task(version)
         with self.assertRaises(RepositoryError) as e:
-            sync_repository.sync_repo(sync_repository.build_env)
+            sync_repository = sync_repository_task(version_id=version.pk)
+
         self.assertEqual(
             str(e.exception),
             RepositoryError.DUPLICATED_RESERVED_VERSIONS,
@@ -295,11 +287,9 @@ class TestCeleryBuilding(TestCase):
 
         version = self.project.versions.get(slug=LATEST)
 
-        sync_repository = self.get_update_docs_task(version)
-
         self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 0)
 
-        sync_repository.sync_repo(sync_repository.build_env)
+        sync_repository_task(version_id=version.pk)
 
         self.assertEqual(self.project.versions.filter(slug__startswith='no-reserved').count(), 2)
 
@@ -334,7 +324,7 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(
+        fileify(
             version_pk=345343,
             commit=None,
             build=1,
@@ -478,9 +468,9 @@ class TestCeleryBuilding(TestCase):
         send_build_status.assert_not_called()
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch.object(BuildEnvironment, 'run')
     @patch('readthedocs.doc_builder.config.load_config')
     def test_install_apt_packages(self, load_config, run):
@@ -507,7 +497,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo):
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -542,8 +532,8 @@ class TestCeleryBuilding(TestCase):
             )
         )
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch.object(BuildEnvironment, 'run')
     @patch('readthedocs.doc_builder.config.load_config')
     def test_build_tools(self, load_config, build_run):
@@ -573,7 +563,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo):
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
@@ -606,8 +596,8 @@ class TestCeleryBuilding(TestCase):
             ],
         )
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch('readthedocs.doc_builder.python_environments.tarfile')
     @patch('readthedocs.doc_builder.python_environments.build_tools_storage')
     @patch.object(BuildEnvironment, 'run')
@@ -643,7 +633,7 @@ class TestCeleryBuilding(TestCase):
             version=version,
         )
         with mock_api(self.repo):
-            result = tasks.update_docs_task.delay(
+            result = update_docs_task.delay(
                 version.pk,
                 build_pk=build.pk,
                 record=False,
