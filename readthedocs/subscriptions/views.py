@@ -64,6 +64,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
         url = self.request.build_absolute_uri(self.get_success_url())
         organization = self.get_organization()
+        # pylint: disable=broad-except
         try:
             stripe_customer = get_or_create_stripe_customer(organization)
             checkout_session = stripe.checkout.Session.create(

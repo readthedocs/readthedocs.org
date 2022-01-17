@@ -41,6 +41,7 @@ def update_billing_information(sender, instance, created, **kwargs):
 
     organization = instance
     log.bind(organization_slug=organization.slug)
+    # pylint: disable=broad-except
     try:
         s_customer = stripe.Customer.retrieve(organization.stripe_id)
         if s_customer.email != organization.email:
