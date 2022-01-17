@@ -10,9 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from vanilla import DetailView, GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.models import Plan, Subscription
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
-from readthedocsinc.subscriptions.forms import PlanForm
 
 log = structlog.get_logger(__name__)
 

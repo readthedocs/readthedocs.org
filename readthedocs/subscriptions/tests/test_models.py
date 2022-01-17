@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import django_dynamic_fixture as fixture
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django_dynamic_fixture.ddf import BadDataError
 from stripe import Subscription as StripeSubscription
@@ -10,6 +10,7 @@ from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.models import Plan, Subscription
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class SubscriptionTests(TestCase):
 
     def setUp(self):

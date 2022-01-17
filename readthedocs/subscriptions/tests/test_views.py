@@ -4,7 +4,7 @@ import requests_mock
 import stripe
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
@@ -12,6 +12,7 @@ from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.models import Plan, Subscription
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class SubscriptionViewTests(TestCase):
 
     """Subscription view tests."""

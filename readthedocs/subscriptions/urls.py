@@ -1,6 +1,6 @@
 from django.conf.urls import re_path
 
-from readthedocsinc.subscriptions.views import (
+from readthedocs.subscriptions.views import (
     DetailSubscription,
     StripeCustomerPortal,
 )
