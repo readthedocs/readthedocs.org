@@ -176,7 +176,7 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
-    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.utils.clean_build')
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs')
     def test_clean_build_after_update_docs(self, build_docs, clean_build):
         version = self.project.versions.first()
@@ -194,7 +194,7 @@ class TestCeleryBuilding(TestCase):
         self.assertTrue(result.successful())
         clean_build.assert_called_with(version.pk)
 
-    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.utils.clean_build')
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.run_setup')
     def test_clean_build_after_failure_in_update_docs(self, run_setup, clean_build):
         run_setup.side_effect = Exception()
@@ -227,7 +227,7 @@ class TestCeleryBuilding(TestCase):
         result = tasks.sync_repository_task(version.pk)
         self.assertTrue(result)
 
-    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.utils.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
@@ -236,7 +236,7 @@ class TestCeleryBuilding(TestCase):
         clean_build.assert_called_with(version.pk)
 
     @patch('readthedocs.projects.tasks.SyncRepositoryTaskStep.run')
-    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.utils.clean_build')
     def test_clean_build_after_failure_in_sync_repository(self, clean_build, run_syn_repository):
         run_syn_repository.side_effect = Exception()
         version = self.project.versions.get(slug=LATEST)
