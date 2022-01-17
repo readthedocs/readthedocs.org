@@ -73,8 +73,6 @@ class TestLocalBuildEnvironment(TestCase):
         with build_env:
             build_env.run('echo', 'test')
         self.assertTrue(self.mocks.process.communicate.called)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, 'This is okay')
 
@@ -124,8 +122,6 @@ class TestLocalBuildEnvironment(TestCase):
         with build_env:
             build_env.run('echo', 'test', record=False)
         self.assertTrue(self.mocks.process.communicate.called)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 0)
 
         # api() is not called anymore, we use api_v2 instead
@@ -163,8 +159,6 @@ class TestLocalBuildEnvironment(TestCase):
         with build_env:
             build_env.run('echo', 'test', record_as_success=True)
         self.assertTrue(self.mocks.process.communicate.called)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, 'This is okay')
 
@@ -196,41 +190,6 @@ class TestLocalBuildEnvironment(TestCase):
             'exit_code': 0,
         })
 
-    def test_incremental_state_update_with_no_update(self):
-        """Build updates to a non-finished state when update_on_success=True."""
-        build_envs = [
-            LocalBuildEnvironment(
-                version=self.version,
-                project=self.project,
-                build={'id': DUMMY_BUILD_ID},
-            ),
-            LocalBuildEnvironment(
-                version=self.version,
-                project=self.project,
-                build={'id': DUMMY_BUILD_ID},
-                update_on_success=False,
-            ),
-        ]
-
-        for build_env in build_envs:
-            with build_env:
-                build_env.update_build(BUILD_STATE_CLONING)
-                self.mocks.mocks['api_v2.build']().put.assert_called_with({
-                    'id': DUMMY_BUILD_ID,
-                    'version': self.version.pk,
-                    'project': self.project.pk,
-                    'setup_error': '',
-                    'length': mock.ANY,
-                    'error': '',
-                    'setup': '',
-                    'output': '',
-                    'state': BUILD_STATE_CLONING,
-                    'builder': mock.ANY,
-                })
-            self.assertIsNone(build_env.failure)
-        # The build failed before executing any command
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-
     def test_failing_execution(self):
         """Build in failing state."""
         self.mocks.configure_mock(
@@ -250,8 +209,6 @@ class TestLocalBuildEnvironment(TestCase):
             build_env.run('echo', 'test')
             self.fail('This should be unreachable')
         self.assertTrue(self.mocks.process.communicate.called)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.failed)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, 'This is not okay')
 
@@ -296,8 +253,6 @@ class TestLocalBuildEnvironment(TestCase):
 
         self.assertFalse(self.mocks.process.communicate.called)
         self.assertEqual(len(build_env.commands), 0)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -330,8 +285,6 @@ class TestLocalBuildEnvironment(TestCase):
             raise ValueError('uncaught')
 
         self.assertFalse(self.mocks.process.communicate.called)
-        self.assertTrue(build_env.done)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -394,8 +347,6 @@ class TestDockerBuildEnvironment(TestCase):
         with build_env:
             pass
 
-        self.assertTrue(build_env.successful)
-
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # No commands were executed
@@ -408,59 +359,6 @@ class TestDockerBuildEnvironment(TestCase):
             'setup_error': '',
             'length': 0,
             'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_environment_successful_build_without_update(self):
-        """A successful build exits cleanly and doesn't update build."""
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-            update_on_success=False,
-        )
-
-        with build_env:
-            pass
-
-        self.assertTrue(build_env.successful)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
-
-    def test_environment_failed_build_without_update_but_with_error(self):
-        """A failed build exits cleanly and doesn't update build."""
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-            update_on_success=False,
-        )
-
-        with build_env:
-            raise BuildEnvironmentError('Test')
-
-        self.assertFalse(build_env.successful)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': 0,
-            'error': 'Test',
             'setup': '',
             'output': '',
             'state': 'finished',
@@ -572,7 +470,6 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.assertEqual(build_env.commands[0].exit_code, -1)
         self.assertEqual(build_env.commands[0].error, None)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -711,7 +608,6 @@ class TestDockerBuildEnvironment(TestCase):
         self.assertEqual(build_env.commands[0].exit_code, 1)
         self.assertEqual(build_env.commands[0].output, 'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -770,7 +666,6 @@ class TestDockerBuildEnvironment(TestCase):
             stdout=True,
         )
         self.assertEqual(len(build_env.commands), 0)
-        self.assertFalse(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -820,7 +715,6 @@ class TestDockerBuildEnvironment(TestCase):
         self.assertEqual(build_env.commands[0].exit_code, 0)
         self.assertEqual(build_env.commands[0].output, 'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
-        self.assertFalse(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -877,8 +771,6 @@ class TestDockerBuildEnvironment(TestCase):
         self.mocks.docker_client.kill.assert_called_with(
             'build-123-project-6-pip',
         )
-        self.assertTrue(build_env.successful)
-
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was saved
@@ -929,12 +821,7 @@ class TestDockerBuildEnvironment(TestCase):
                 build_env.run('echo', 'test', cwd='/tmp')
 
         self.assertRaises(BuildEnvironmentError, _inner)
-        self.assertEqual(
-            str(build_env.failure),
-            'A build environment is currently running for this version',
-        )
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 0)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -982,9 +869,7 @@ class TestDockerBuildEnvironment(TestCase):
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
-        self.assertEqual(str(build_env.failure), 'Build exited due to time out')
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
-        self.assertTrue(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)

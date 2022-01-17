@@ -248,7 +248,6 @@ class BuildEnvironmentTests(TestCase):
         with build_env:
             task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 6)
-        self.assertTrue(build_env.failed)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_pdf_latex_not_failure(self, load_config):
@@ -300,7 +299,6 @@ class BuildEnvironmentTests(TestCase):
         with build_env:
             task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 6)
-        self.assertTrue(build_env.successful)
 
     @mock.patch('readthedocs.projects.tasks.api_v2')
     @mock.patch('readthedocs.doc_builder.config.load_config')
