@@ -138,48 +138,50 @@ class BuildCommand(BuildCommandResultMixin):
             output = self.output.encode('utf-8')
         return '\n'.join([self.get_command(), output])
 
-    # NOTE: it uses `subprocess.Popen` to run commands, which is not supported anymore
-    # def run(self):
-    #     """Set up subprocess and execute command."""
-    #     log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
+    # TODO: remove this `run` method. We are using it on tests, so we need to
+    # find a way to change this. NOTE: it uses `subprocess.Popen` to run
+    # commands, which is not supported anymore
+    def run(self):
+        """Set up subprocess and execute command."""
+        log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
 
-    #     self.start_time = datetime.utcnow()
-    #     environment = self._environment.copy()
-    #     if 'DJANGO_SETTINGS_MODULE' in environment:
-    #         del environment['DJANGO_SETTINGS_MODULE']
-    #     if 'PYTHONPATH' in environment:
-    #         del environment['PYTHONPATH']
+        self.start_time = datetime.utcnow()
+        environment = self._environment.copy()
+        if 'DJANGO_SETTINGS_MODULE' in environment:
+            del environment['DJANGO_SETTINGS_MODULE']
+        if 'PYTHONPATH' in environment:
+            del environment['PYTHONPATH']
 
-    #     # Always copy the PATH from the host into the environment
-    #     env_paths = os.environ.get('PATH', '').split(':')
-    #     if self.bin_path is not None:
-    #         env_paths.insert(0, self.bin_path)
-    #     environment['PATH'] = ':'.join(env_paths)
+        # Always copy the PATH from the host into the environment
+        env_paths = os.environ.get('PATH', '').split(':')
+        if self.bin_path is not None:
+            env_paths.insert(0, self.bin_path)
+        environment['PATH'] = ':'.join(env_paths)
 
-    #     try:
-    #         # When using ``shell=True`` the command should be flatten
-    #         command = self.command
-    #         if self.shell:
-    #             command = self.get_command()
+        try:
+            # When using ``shell=True`` the command should be flatten
+            command = self.command
+            if self.shell:
+                command = self.get_command()
 
-    #         proc = subprocess.Popen(
-    #             command,
-    #             shell=self.shell,
-    #             cwd=self.cwd,
-    #             stdin=None,
-    #             stdout=subprocess.PIPE,
-    #             stderr=subprocess.STDOUT,
-    #             env=environment,
-    #         )
-    #         cmd_stdout, cmd_stderr = proc.communicate()
-    #         self.output = self.sanitize_output(cmd_stdout)
-    #         self.error = self.sanitize_output(cmd_stderr)
-    #         self.exit_code = proc.returncode
-    #     except OSError:
-    #         log.exception("Operating system error.")
-    #         self.exit_code = -1
-    #     finally:
-    #         self.end_time = datetime.utcnow()
+            proc = subprocess.Popen(
+                command,
+                shell=self.shell,
+                cwd=self.cwd,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=environment,
+            )
+            cmd_stdout, cmd_stderr = proc.communicate()
+            self.output = self.sanitize_output(cmd_stdout)
+            self.error = self.sanitize_output(cmd_stderr)
+            self.exit_code = proc.returncode
+        except OSError:
+            log.exception("Operating system error.")
+            self.exit_code = -1
+        finally:
+            self.end_time = datetime.utcnow()
 
     def sanitize_output(self, output):
         r"""
@@ -540,9 +542,13 @@ class BuildEnvironment(BaseEnvironment):
         self.config = config
         self.record = record
 
-    # TODO: remove these methods, we are not using LocalEnvironment anymore
-    # def __enter__(self):
-    #     return self
+    # TODO: remove these methods, we are not using LocalEnvironment anymore. We
+    # need to find a way for tests to not require this anymore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        return
 
     # def __exit__(self, exc_type, exc_value, tb):
     #     ret = self.handle_exception(exc_type, exc_value, tb)
