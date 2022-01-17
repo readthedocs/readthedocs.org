@@ -1,3 +1,5 @@
+"""Subscriptions forms."""
+
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _

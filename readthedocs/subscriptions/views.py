@@ -1,3 +1,5 @@
+"""Subscriptions views."""
+
 from functools import lru_cache
 
 import stripe
@@ -19,6 +21,8 @@ log = structlog.get_logger(__name__)
 
 class DetailSubscription(OrganizationMixin, DetailView):
 
+    """Detail for the subscription of a organization."""
+
     model = Subscription
     form_class = PlanForm
     template_name = 'subscriptions/subscription_detail.html'
@@ -37,6 +41,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 
+    # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
         form = self.get_form(data=request.POST, files=request.FILES)
         if not form.is_valid():
@@ -121,7 +126,9 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
             args=[self.get_organization().slug],
         )
 
+    # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
+        """Redirect the user to the Stripe billing portal."""
         organization = self.get_organization()
         stripe_customer = organization.stripe_id
         return_url = request.build_absolute_uri(self.get_success_url())

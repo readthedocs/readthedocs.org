@@ -1,3 +1,5 @@
+"""Subscriptions signals."""
+
 import stripe
 import structlog
 from django.db.models.signals import post_save, pre_delete
@@ -10,6 +12,7 @@ from readthedocs.subscriptions.models import Subscription
 log = structlog.get_logger(__name__)
 
 
+# pylint: disable=unused-argument
 @receiver(pre_delete, sender=Subscription)
 def remove_stripe_subscription(sender, instance, using, **kwargs):
     """Remove Stripe subscription on Subscription delete."""
@@ -29,6 +32,7 @@ def remove_stripe_subscription(sender, instance, using, **kwargs):
         )
 
 
+# pylint: disable=unused-argument
 @receiver(post_save, sender=Organization)
 def update_billing_information(sender, instance, created, **kwargs):
     """Update billing email information."""
@@ -48,6 +52,7 @@ def update_billing_information(sender, instance, created, **kwargs):
         log.exception('Unknown error when updating Organization billing email on Stripe.')
 
 
+# pylint: disable=unused-argument
 @receiver(pre_delete, sender=Organization)
 def remove_subscription(sender, instance, using, **kwargs):
     """
