@@ -375,6 +375,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     reindex_active_versions.short_description = 'Reindex active versions to ES'
 
+    # TODO: rename method to mention "indexes" on its name
     def wipe_all_versions(self, request, queryset):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()

@@ -9,7 +9,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.urls import core_urls
 from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import GlobalSearchView
@@ -132,7 +131,6 @@ groups = [
     project_urls,
     organization_urls,
     api_urls,
-    core_urls,
     i18n_urls,
 ]
 
