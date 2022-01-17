@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from messages_extends.models import Message
 
@@ -30,6 +30,7 @@ from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
+from readthedocs.projects.tasks.builds import sync_repository_task
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -39,6 +40,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
+@override_settings(DOCKER_ENABLED=False)
 class TestCeleryBuilding(TestCase):
 
     """
@@ -61,22 +63,12 @@ class TestCeleryBuilding(TestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
+        self.version = self.project.versions.get(slug=LATEST)
 
-    def get_update_docs_task(self, version):
-        build_env = LocalBuildEnvironment(
-            version.project, version, record=False,
-        )
-
-        update_docs = tasks.UpdateDocsTaskStep(
-            build_env=build_env,
-            project=version.project,
-            version=version,
-            build={
-                'id': 99,
-                'state': BUILD_STATE_TRIGGERED,
-            },
-        )
-        return update_docs
+        # Mock calls to API to return the objects we need
+        mock.patch('readthedocs.projects.tasks.mixins.SyncRepositoryMixin.get_version', return_value=self.version).start()
+        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.get_project', return_value=self.project).start()
+        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.get_build', return_value={'id': 99, 'state': BUILD_STATE_TRIGGERED}).start()
 
     def tearDown(self):
         shutil.rmtree(self.repo)
@@ -246,6 +238,12 @@ class TestCeleryBuilding(TestCase):
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_check_duplicate_reserved_version_latest(self, checkout_path):
+        # NOTE: these kind of tests should be split into unit-test that test
+        # the `SyncRepositoryMixin.validate_duplicate_reserved_versions` login
+        # and another integration test that checks that function is called by
+        # `sync_repository_task`. Otherwise, we need a lot of overhead
+        # requiring "build environment" and executing real git commands on
+        # tests :/
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
 
@@ -255,16 +253,17 @@ class TestCeleryBuilding(TestCase):
         checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
-        sync_repository = self.get_update_docs_task(version)
         with self.assertRaises(RepositoryError) as e:
-            sync_repository.sync_repo(sync_repository.build_env)
+            sync_repository = sync_repository_task(version_id=version.pk)
+
         self.assertEqual(
             str(e.exception),
             RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         delete_git_branch(self.repo, 'latest')
-        sync_repository.sync_repo(sync_repository.build_env)
+
+        sync_repository_task(version_id=version.pk)
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
     @patch('readthedocs.projects.tasks.api_v2')
