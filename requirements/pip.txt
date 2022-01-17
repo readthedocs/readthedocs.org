@@ -57,7 +57,7 @@ GitPython==3.1.18  # pyup: ignore
 # Search
 elasticsearch==7.16.3  # pyup: <8.0.0
 elasticsearch-dsl==7.4.0  # pyup: <8.0
-django-elasticsearch-dsl==7.2.1  # pyup: <8.0
+django-elasticsearch-dsl==7.2.2  # pyup: <8.0
 selectolax==0.3.6
 
 # embed
