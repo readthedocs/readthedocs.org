@@ -6,7 +6,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import send_external_build_status
+from readthedocs.projects.tasks.utils import send_external_build_status
 
 
 class SendBuildStatusTests(TestCase):

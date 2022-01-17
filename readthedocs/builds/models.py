@@ -317,9 +317,9 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
+        from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
-        tasks.clean_project_resources(self.project, self)
+        clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property

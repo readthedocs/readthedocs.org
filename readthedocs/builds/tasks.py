@@ -68,7 +68,7 @@ class TaskRouter:
     def route_for_task(self, task, args, kwargs, **__):
         log.info('Executing TaskRouter.', task=task)
         if task not in (
-            'readthedocs.projects.tasks.update_docs_task',
+            'readthedocs.projects.tasks.builds.update_docs_task',
             'readthedocs.projects.tasks.sync_repository_task',
         ):
             log.info('Skipping routing non-build task.', task=task)
@@ -146,7 +146,7 @@ class TaskRouter:
 
     def _get_version(self, task, args, kwargs):
         tasks = [
-            'readthedocs.projects.tasks.update_docs_task',
+            'readthedocs.projects.tasks.builds.update_docs_task',
             'readthedocs.projects.tasks.sync_repository_task',
         ]
         version = None

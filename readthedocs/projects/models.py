@@ -492,7 +492,7 @@ class Project(models.Model):
             log.exception('Error creating default branches')
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects.tasks import clean_project_resources
+        from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove extra resources
         clean_project_resources(self)

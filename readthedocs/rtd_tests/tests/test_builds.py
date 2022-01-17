@@ -843,7 +843,7 @@ class BuildModelTests(TestCase):
         self.assertTrue(latest_external_build.can_rebuild)
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task')
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
 class DeDuplicateBuildTests(TestCase):
 
     def setUp(self):

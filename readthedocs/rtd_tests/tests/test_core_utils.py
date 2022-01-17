@@ -24,7 +24,7 @@ class CoreUtilTests(TestCase):
         self.project = get(Project, container_time_limit=None, main_language_project=None)
         self.version = get(Version, project=self.project)
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_skipped_project(self, update_docs_task):
         self.project.skip = True
         self.project.save()
@@ -36,7 +36,7 @@ class CoreUtilTests(TestCase):
         self.assertFalse(update_docs_task.signature.called)
         self.assertFalse(update_docs_task.signature().apply_async.called)
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_when_version_not_provided_default_version_exist(self, update_docs_task):
         self.assertFalse(Version.objects.filter(slug='test-default-version').exists())
 
@@ -64,7 +64,7 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_when_version_not_provided_default_version_doesnt_exist(self, update_docs_task):
 
         trigger_build(project=self.project)
@@ -88,7 +88,7 @@ class CoreUtilTests(TestCase):
         )
 
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_custom_queue(self, update_docs):
         """Use a custom queue when routing the task."""
         self.project.build_queue = 'build03'
@@ -113,7 +113,7 @@ class CoreUtilTests(TestCase):
         )
 
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_time_limit(self, update_docs):
         """Pass of time limit."""
         trigger_build(project=self.project, version=self.version)
@@ -137,7 +137,7 @@ class CoreUtilTests(TestCase):
         )
 
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_invalid_time_limit(self, update_docs):
         """Time limit as string."""
         self.project.container_time_limit = '200s'
@@ -161,7 +161,7 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_rounded_time_limit(self, update_docs):
         """Time limit should round down."""
         self.project.container_time_limit = 3
@@ -185,7 +185,7 @@ class CoreUtilTests(TestCase):
         )
 
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_max_concurrency_reached(self, update_docs):
         get(
             Feature,
@@ -227,7 +227,7 @@ class CoreUtilTests(TestCase):
         build = self.project.builds.first()
         self.assertEqual(build.error, BuildMaxConcurrencyError.message.format(limit=max_concurrent_builds))
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_external_build_low_priority(self, update_docs):
         """Time limit should round down."""
         self.version.type = 'external'
@@ -250,7 +250,7 @@ class CoreUtilTests(TestCase):
             immutable=True,
         )
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_build_translation_medium_priority(self, update_docs):
         """Time limit should round down."""
         self.project.main_language_project = get(Project, slug='main')
