@@ -69,6 +69,9 @@ class BaseVCS:
 
         # TODO: always pass an explicit environment
         # This is only used in tests #6546
+        #
+        # TODO: we should not allow ``environment=None`` and always use the
+        # environment defined by the settings
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
         self.environment = environment or LocalBuildEnvironment(record=False)
 

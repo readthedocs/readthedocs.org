@@ -452,6 +452,8 @@ class UpdateDocsTask(BuildTaskBase, SyncRepositoryMixin, Task):
 
         return env
 
+    # NOTE: this can be just updated on `self.build['']` and sent once the
+    # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
         api_v2.project(self.project.pk).patch(

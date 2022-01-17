@@ -119,17 +119,29 @@ class BuildCommand(BuildCommandResultMixin):
         self.record_as_success = record_as_success
         self.exit_code = None
 
-        log.bind(
-            project_slug=self.build_env.project.slug,
-            version_slug=self.build_env.version.slug,
-        )
+        # NOTE: `self.build_env` is not available when instantiating this class
+        # from hacky tests. `Project.vcs_repo` allows not passing an
+        # environment, which makes all the commands to fail, because there is
+        # no environment to run them.
+        #
+        # Maybe this ``BuildCommand`` should not accept `build_env=None` since
+        # it doesn't make sense.
+        if self.build_env:
 
-        # NOTE: `self.build_env.build` is not available when using this class
-        # from `sync_repository_task` since it's not associated to any build
-        if self.build_env.build:
-            log.bind(
-                build_id=self.build_env.build.get('id'),
-            )
+            # When using `project.vcs_repo` on tests we are passing `environment=False`.
+            # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
+            if self.build_env.project and self.build_env.version:
+                log.bind(
+                    project_slug=self.build_env.project.slug,
+                    version_slug=self.build_env.version.slug,
+                )
+
+            # NOTE: `self.build_env.build` is not available when using this class
+            # from `sync_repository_task` since it's not associated to any build
+            if self.build_env.build:
+                log.bind(
+                    build_id=self.build_env.build.get('id'),
+                )
 
     def __str__(self):
         # TODO do we want to expose the full command here?
