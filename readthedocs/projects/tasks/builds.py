@@ -42,6 +42,10 @@ from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.environments import (
+    DockerBuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildMaxConcurrencyError,
@@ -105,6 +109,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
         # NOTE: save all the attributes to do a clean up when finish
         self._attributes = list(self.__dict__.keys()) + ['_attributes']
+
+        self.environment_class = DockerBuildEnvironment
+        if not settings.DOCKER_ENABLE:
+            # TODO: delete LocalBuildEnvironment since it's not supported
+            # anymore and we are not using it
+            self.environment_class = LocalBuildEnvironment
 
         version_id = kwargs.get('version_id')
 
