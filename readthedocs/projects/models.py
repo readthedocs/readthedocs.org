@@ -772,11 +772,6 @@ class Project(models.Model):
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    @property
-    def pip_cache_path(self):
-        """Path to pip cache."""
-        return os.path.join(self.doc_path, '.cache', 'pip')
-
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project."""
         doc_base = self.checkout_path(version)
