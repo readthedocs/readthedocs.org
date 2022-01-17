@@ -5,6 +5,8 @@ from tempfile import mkdtemp
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -44,6 +46,7 @@ from readthedocs.rtd_tests.utils import (
 # Celery handlers. These are exactly the tests we are interested in making them
 # work properly (e.g. send notifications after build, handle unexpected
 # exceptions, etc)
+@pytest.mark.skip
 class TestCeleryBuilding(TestCase):
 
     """
