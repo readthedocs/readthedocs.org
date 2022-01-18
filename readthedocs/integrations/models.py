@@ -114,16 +114,20 @@ class HttpExchangeManager(models.Manager):
         return obj
 
     def delete_limit(self, related_object, limit=10):
+        # If the related_object is an instance of Integration,
+        # it could be a proxy model, so we force it to always be the "real" model.
         if isinstance(related_object, Integration):
-            queryset = self.filter(integrations=related_object)
+            model = Integration
         else:
-            queryset = self.filter(
-                content_type=ContentType.objects.get(
-                    app_label=related_object._meta.app_label,  # pylint: disable=protected-access
-                    model=related_object._meta.model_name,  # pylint: disable=protected-access
-                ),
-                object_id=related_object.pk,
-            )
+            model = related_object
+
+        queryset = self.filter(
+            content_type=ContentType.objects.get(
+                app_label=model._meta.app_label,  # pylint: disable=protected-access
+                model=model._meta.model_name,  # pylint: disable=protected-access
+            ),
+            object_id=related_object.pk,
+        )
         for exchange in queryset[limit:]:
             exchange.delete()
 
