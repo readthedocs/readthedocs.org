@@ -3,7 +3,6 @@
 import structlog
 import os
 import re
-import socket
 import subprocess
 import sys
 import uuid
@@ -17,7 +16,6 @@ from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
-from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
@@ -51,15 +49,6 @@ from .exceptions import (
 )
 
 log = structlog.get_logger(__name__)
-
-__all__ = (
-    'api_v2',
-    'BuildCommand',
-    'DockerBuildCommand',
-    'LocalEnvironment',
-    'LocalBuildEnvironment',
-    'DockerBuildEnvironment',
-)
 
 
 class BuildCommand(BuildCommandResultMixin):

@@ -964,28 +964,6 @@ class Build(models.Model):
         self.save()
 
 
-# NOTE: I wasn't able to make it work
-class APIBuild(Build):
-
-    class Meta:
-        proxy = True
-
-    def __init__(self, *args, **kwargs):
-        import pdb; pdb.set_trace()
-        self.project = kwargs.pop('project')
-        # These fields only exist on the API return, not on the model, so we'll
-        # remove them to avoid throwing exceptions due to unexpected fields
-        for key in ['commands', 'project', 'version', 'docs_url', 'docs_url', 'state_display', 'commit_url', 'project_slug']:
-            try:
-                del kwargs[key]
-            except KeyError:
-                pass
-        super().__init__(*args, **kwargs)
-
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        return 0
-
-
 class BuildCommandResultMixin:
 
     """
