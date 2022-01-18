@@ -3,7 +3,7 @@ from functools import partial
 
 from django import forms
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 from simple_history.models import HistoricalRecords
 from simple_history.utils import update_change_reason

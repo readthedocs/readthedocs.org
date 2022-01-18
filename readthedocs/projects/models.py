@@ -19,7 +19,7 @@ from django.db.models import Prefetch
 from django.urls import re_path, reverse
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import defaults
 from django_extensions.db.fields import (
     CreationDateTimeField,

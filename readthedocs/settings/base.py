@@ -42,6 +42,8 @@ class CommunityBaseSettings(Settings):
     SECRET_KEY = 'replace-this-please'  # noqa
     ATOMIC_REQUESTS = True
 
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
     # Debug settings
     DEBUG = True
 
@@ -212,7 +214,6 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
         if ext:
-            apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.spamfighting')
@@ -681,7 +682,10 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     ALLOW_ADMIN = True
+
+    # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
+    ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG = 'trial-v2-monthly'
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']
