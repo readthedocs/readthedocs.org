@@ -16,8 +16,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
-                'subproject_slash': None,
                 'filename': '',
             },
         )
@@ -28,7 +26,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
                 'lang_slug': 'en',
                 'version_slug': 'latest',
                 'filename': '',
@@ -41,7 +38,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
                 'lang_slug': 'en',
                 'version_slug': 'latest',
                 'filename': 'foo.html',
@@ -104,8 +100,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slash': None,
-                'subproject_slug': None,
                 'filename': 'some/path/index.html',
             },
         )

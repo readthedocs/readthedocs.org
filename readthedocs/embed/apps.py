@@ -4,5 +4,5 @@ from django.apps import AppConfig
 
 
 class EmbedConfig(AppConfig):
-    name = 'embed'
+    name = 'readthedocs.embed'
     verbose_name = "Embedded API"

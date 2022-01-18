@@ -1,0 +1,106 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n gravatar %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{% trans "Organization Subscription" %}{% endblock %}
+
+{% block organization-admin-subscription %}active{% endblock %}
+
+{% block edit_content_header %}Subscription{% endblock %}
+
+{% block edit_content %}
+  <div>
+    {% if subscription.status == 'trialing' %}
+      <ul class="notifications">
+        <li class="notification notification-info">
+          {% url 'pricing' as pricing_url %}
+          {% blocktrans trimmed with pricing_url=pricing_url %}
+          You are currently on a trial. 
+          Please choose a <a href="{{ pricing_url }}">paid plan</a> that fits your organization
+          prior to the end of your trial.
+          Upgrade your account by clicking on <strong>Manage Subscription</strong> below.
+          {% endblocktrans %}
+        </li>
+      </ul>
+    {% endif %}
+
+    {% if subscription and subscription.plan and subscription.status != 'canceled' and organization.stripe_id %}
+    <dl>
+      <dt>{% trans "Plan" %}:</dt>
+      <dd>
+        <span class="subscription-plan-name">
+          {{ subscription.plan.name }}
+        </span>
+        <span class="subscription-plan-price">
+          (${{ subscription.plan.price }} {% trans "per month" %})
+        </span>
+      </dd>
+
+      {% if subscription.plan.features.exists %}
+      <dt>{% trans "Plan Features:" %}</dt>
+      <dd>
+        {% for feature in subscription.plan.features.all %}
+          <span class="subscription-plan-{{ feature.feature_type }}" style="display: block;">
+            {{ feature.description_display }}
+          </span>
+        {% endfor %}
+      </dd>
+      {% endif %}
+
+      {% if subscription.start_date %}
+        <dt>{% trans "Signed up" %}:</dt>
+        <dd>
+          {{ subscription.start_date|timesince }} {% trans "ago" %}
+        </dd>
+      {% endif %}
+
+      <dt>{% trans "Subscription Status" %}:</dt>
+      <dd>
+        {{ subscription.get_status_display }}
+      </dd>
+
+      {% if not subscription.is_trial_ended %}
+        <dt>{% trans "Trial ends" %}:</dt>
+        <dd>
+          {{ subscription.trial_end_date|date:"SHORT_DATE_FORMAT" }}
+        </dd>
+      {% elif subscription.end_date %}
+        <dt>{% trans "Subscription ends" %}:</dt>
+        <dd>
+            {{ subscription.end_date|date:"SHORT_DATE_FORMAT" }}
+        </dd>
+      {% endif %}
+    </dl>
+
+    <form method="post" action="{% url "stripe_customer_portal" organization.slug %}">
+      {% csrf_token %}
+      <button>
+        <span>
+          {% trans "Manage Subscription" %}
+        </span>
+      </button>
+      <span class="helptext">
+        {% trans "Use the button above to see past invoices, change your plan, and update your billing information." %}
+      </span>
+    </form>
+
+    {% else %}
+      {# Allow users to create a new subscription if the current one was canceled. #}
+      <p class="help_text">
+        {% url 'pricing' as pricing_url %}
+        {% blocktrans trimmed with pricing_url=pricing_url %}
+        <strong>You don't currently have an active subscription</strong>.
+        You must create a subscription for a <a href="{{ pricing_url }}">paid plan</a> that fits your organization to continue using Read the Docs for Business.
+        {% endblocktrans %}
+      </p>
+      <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input id="submit" type="submit" value="{% trans "Create Subscription" %}" />
+      </form>
+    {% endif %}
+
+ </div>
+{% endblock %}

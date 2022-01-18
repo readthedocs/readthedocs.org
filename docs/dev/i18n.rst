@@ -185,12 +185,12 @@ Strings in Python are more complex for two reasons:
 #. We need to make sure we're always using Unicode strings and the
    Unicode-friendly versions of the functions.
 
-#. If you use the :func:`~django.utils.translation.ugettext` function in the
+#. If you use the :func:`~django.utils.translation.gettext` function in the
    wrong place, the string may end up in the wrong locale!
 
 Here's how you might localize a string in a view::
 
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import gettext as _
 
     def my_view(request):
         if request.user.is_superuser:
@@ -224,7 +224,7 @@ If you need to use plurals, import the
 Lazily Translated Strings
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use :func:`~django.utils.translation.ugettext` or
+You can use :func:`~django.utils.translation.gettext` or
 :func:`~django.utils.translation.ungettext` only in views or functions called
 from views. If the function will be evaluated when the module is loaded, then
 the string may end up in English or the locale of the last request!
@@ -232,12 +232,12 @@ the string may end up in English or the locale of the last request!
 Examples include strings in module-level code, arguments to functions in class
 definitions, strings in functions called from outside the context of a view. To
 internationalize these strings, you need to use the ``_lazy`` versions of the
-above methods, :func:`~django.utils.translation.ugettext_lazy` and
+above methods, :func:`~django.utils.translation.gettext_lazy` and
 :func:`~django.utils.translation.ungettext_lazy`. The result doesn't get
 translated until it is evaluated as a string, for example by being output or
 passed to ``unicode()``::
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 
     class UserProfileForm(forms.ModelForm):
         first_name = CharField(label=_('First name'), required=False)

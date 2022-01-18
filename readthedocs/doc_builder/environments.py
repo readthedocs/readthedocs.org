@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException

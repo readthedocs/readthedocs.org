@@ -188,7 +188,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Use a private method to get this
             # TODO: In Django 3.2 this has been upgraded to a top-level method
             # pylint: disable=protected-access
-            response_headers = [header.lower() for header in response._headers.keys()]
+            response_headers = [header.lower() for header in response.headers.keys()]
             for http_header in request.domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(

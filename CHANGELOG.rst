@@ -1,3 +1,26 @@
+Version 7.0.0
+-------------
+
+This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**. 
+
+:Date: January 17, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: move views  (`#8816 <https://github.com/readthedocs/readthedocs.org/pull/8816>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#8808 <https://github.com/readthedocs/readthedocs.org/pull/8808>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 6.3.3 (`#8806 <https://github.com/readthedocs/readthedocs.org/pull/8806>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix linting issue on project private view (`#8805 <https://github.com/readthedocs/readthedocs.org/pull/8805>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 02 (`#8804 <https://github.com/readthedocs/readthedocs.org/pull/8804>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Remove explicit username from tutorial (`#8803 <https://github.com/readthedocs/readthedocs.org/pull/8803>`__)
+* `@humitos <https://github.com/humitos>`__: Bitbucket: update to match latest API changes (`#8801 <https://github.com/readthedocs/readthedocs.org/pull/8801>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: remove old/outdated code (`#8793 <https://github.com/readthedocs/readthedocs.org/pull/8793>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: check if the name generates a valid slug (`#8791 <https://github.com/readthedocs/readthedocs.org/pull/8791>`__)
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Make commercial docs more visible (`#8780 <https://github.com/readthedocs/readthedocs.org/pull/8780>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: less overrides (`#8770 <https://github.com/readthedocs/readthedocs.org/pull/8770>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move subscription models (`#8746 <https://github.com/readthedocs/readthedocs.org/pull/8746>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: minimal upgrade to Django3 (`#8717 <https://github.com/readthedocs/readthedocs.org/pull/8717>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Make the analytics cookie a session cookie (`#8694 <https://github.com/readthedocs/readthedocs.org/pull/8694>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to rebuild a specific build (`#6995 <https://github.com/readthedocs/readthedocs.org/pull/6995>`__)
+
 Version 6.3.3
 -------------
 

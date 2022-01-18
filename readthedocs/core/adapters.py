@@ -6,7 +6,7 @@ import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from readthedocs.core.utils import send_email
 from readthedocs.organizations.models import TeamMember
@@ -19,7 +19,7 @@ class AccountAdapter(DefaultAccountAdapter):
     """Customize Allauth emails to match our current patterns."""
 
     def format_email_subject(self, subject):
-        return force_text(subject)
+        return force_str(subject)
 
     def send_mail(self, template_prefix, email, context):
         subject = render_to_string(
