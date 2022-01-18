@@ -172,7 +172,7 @@ class BuildTaskBase:
 
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
-        clean_build(self.version.pk)
+        clean_build(self.version)
 
         log.bind(
             # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
@@ -345,7 +345,7 @@ class BuildTaskBase:
 
         build_complete.send(sender=Build, build=self.build)
 
-        clean_build(self.version.pk)
+        clean_build(self.version)
 
         # HACK: cleanup all the attributes set by the task under `self`
         # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation

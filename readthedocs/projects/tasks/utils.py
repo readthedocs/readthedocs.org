@@ -154,10 +154,8 @@ def _create_intersphinx_data(version, commit, build):
             )
 
 
-def clean_build(version_pk):
+def clean_build(version):
     """Clean the files used in the build of the given version."""
-    version = SyncRepositoryMixin.get_version(version_pk)
-
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'envs', 'conda', 'artifacts')

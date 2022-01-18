@@ -158,7 +158,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         pass
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        clean_build(self.version.pk)
+        clean_build(self.version)
 
         # unlock repository directory
         self.project.repo_nonblockinglock(version=self.version).release_lock()
