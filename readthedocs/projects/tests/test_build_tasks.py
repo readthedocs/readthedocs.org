@@ -351,11 +351,11 @@ class CeleryBuildTest(TestCase):
         }
 
         build_media_storage.sync_directory.assert_has_calls([
-            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx', 'html/project/latest'),
-            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_search', 'json/project/latest'),
-            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_localmedia', 'htmlzip/project/latest'),
-            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_pdf', 'pdf/project/latest'),
-            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_epub', 'epub/project/latest'),
+            mock.call(mock.ANY, 'html/project/latest'),
+            mock.call(mock.ANY, 'json/project/latest'),
+            mock.call(mock.ANY, 'htmlzip/project/latest'),
+            mock.call(mock.ANY, 'pdf/project/latest'),
+            mock.call(mock.ANY, 'epub/project/latest'),
         ])
         # TODO: find a directory to remove here :)
         # build_media_storage.delete_directory
@@ -451,12 +451,12 @@ class CeleryBuildTest(TestCase):
             mock.call(
                 'python3.7',
                 '-mvirtualenv',
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest',
+                mock.ANY,
                 bin_path=None,
                 cwd=None,
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'pip',
                 'install',
@@ -464,11 +464,11 @@ class CeleryBuildTest(TestCase):
                 '--no-cache-dir',
                 'pip',
                 'setuptools<58.3.0',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'pip',
                 'install',
@@ -482,7 +482,7 @@ class CeleryBuildTest(TestCase):
                 'sphinx<2',
                 'sphinx-rtd-theme<0.5',
                 'readthedocs-sphinx-ext<2.2',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
             mock.call(
@@ -491,7 +491,7 @@ class CeleryBuildTest(TestCase):
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'sphinx',
                 '-T',
@@ -505,10 +505,10 @@ class CeleryBuildTest(TestCase):
                 '.',
                 '_build/html',
                 cwd='/tmp/readthedocs-tests/git-repository',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'sphinx',
                 '-T',
@@ -521,10 +521,10 @@ class CeleryBuildTest(TestCase):
                 '.',
                 '_build/localmedia',
                 cwd='/tmp/readthedocs-tests/git-repository',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'sphinx',
                 '-b',
@@ -535,13 +535,13 @@ class CeleryBuildTest(TestCase):
                 '.',
                 '_build/latex',
                 cwd='/tmp/readthedocs-tests/git-repository',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-c',
                 '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
                 escape_command=False,
                 shell=True,
@@ -551,11 +551,11 @@ class CeleryBuildTest(TestCase):
                 'mv',
                 '-f',
                 'output.file',
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_pdf/project.pdf',
+                mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
             mock.call(
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                mock.ANY,
                 '-m',
                 'sphinx',
                 '-T',
@@ -568,13 +568,13 @@ class CeleryBuildTest(TestCase):
                 '.',
                 '_build/epub',
                 cwd='/tmp/readthedocs-tests/git-repository',
-                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                bin_path=mock.ANY,
             ),
             mock.call(
                 'mv',
                 '-f',
                 'output.file',
-                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_epub/project.epub',
+                mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             )
         ])
