@@ -53,8 +53,13 @@ function create_ad_placement() {
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        style_name = 'stickybox';
-        ad_type = 'image';
+        if (Math.random() <= 0.1) {
+          // Use the stickybox placement 10% of the time during rollout
+          style_name = 'stickybox';
+          ad_type = 'image';
+        } else {
+          class_name = 'ethical-rtd ethical-dark-theme';
+        }
     } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
