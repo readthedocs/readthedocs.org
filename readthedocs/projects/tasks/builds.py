@@ -74,7 +74,7 @@ from ..signals import (
 )
 
 from .mixins import SyncRepositoryMixin
-from .utils import clean_build, BuildRequest
+from .utils import clean_build, BuildRequest, send_external_build_status
 from .search import fileify
 
 log = structlog.get_logger(__name__)
@@ -150,12 +150,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         else:
             # Catch unhandled errors when syncing
             log.exception('An unhandled exception was raised during VCS syncing.')
-
-    def on_sucess(self, retval, task_id, args, kwargs):
-        pass
-
-    def on_retry(self, exc, task_id, args, kwargs, einfo):
-        pass
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.version)
@@ -334,13 +328,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         version_pk = kwargs.get('version_pk')
         build_pk = kwargs.get('build_pk')
 
-        self.commit = kwargs.get('commit')
         self.record = kwargs.get('record')
         self.force = kwargs.get('force')
 
         self.build = self.get_build(build_pk)
         self.version = self.get_version(version_pk)
         self.project = self.version.project
+
+        # NOTE: why are we passing the commit via an argument? shouldn't it be
+        # included in the `build` object returned by the API?
+        # self.commit = kwargs.get('commit')
+        #
+        # Also note there are builds that are triggered without a commit
+        # because they just build the latest commit for that version
+        self.commit = self.build.get('commit')
 
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
@@ -417,6 +418,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
 
         # NOTE: why we wouldn't have `self.commit` here?
+        # This attribute is set in line 700 when we get it after clonning the repository
         if self.commit:
             send_external_build_status(
                 version_type=self.version.type,
@@ -451,8 +453,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # HTML are built successfully.
         if html:
             try:
-                version = api_v2.version(self.version.pk)
-                version.patch({
+                api_v2.version(self.version.pk).patch({
                     'built': True,
                     'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
@@ -460,6 +461,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'has_htmlzip': localmedia,
                 })
             except HttpClientError:
+                # NOTE: I think we should fail the build if we cannot update
+                # the version at this point. Otherwise, we will have inconsistent data
                 log.exception(
                     'Updating version failed, skipping file sync.',
                 )
@@ -499,16 +502,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # NOTE: we can probably remove the ``exit_code`` at build level, I
         # don't think we are using it
-        self.build['exit_code'] = max([
-            cmd.exit_code for cmd in self.build_env.commands
-        ])
+        # self.build['exit_code'] = max([
+        #     cmd.exit_code for cmd in self.build_env.commands
+        # ])
 
         # NOTE: I don't think we are using these fields either
         # self.build['setup'] = self.build['setup_error'] = ''
         # self.build['output'] = self.build['error'] = ''
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
-        pass
+        log.warning('Retrying this task.')
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object

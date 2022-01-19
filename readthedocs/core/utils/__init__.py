@@ -79,6 +79,8 @@ def prepare_build(
         'commit': commit,
     }
 
+    # NOTE: we should remove the `record` attribute from here. We always want
+    # to record the commands.
     if record:
         build = Build.objects.create(
             project=project,

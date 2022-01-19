@@ -193,6 +193,7 @@ class CeleryBuildTest(TestCase):
         )
 
     def _trigger_update_docs_task(self):
+        # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
         return update_docs_task.delay(
             self.version.pk,
             build_pk=self.build.pk,
