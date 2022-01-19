@@ -81,7 +81,7 @@ class BaseBuilder:
                 ignore=shutil.ignore_patterns(*self.ignore_patterns),
             )
         else:
-            log.warning('Not moving docs, because the build dir is unknown.')
+            log.warning('Not moving docs because the build dir is unknown.')
 
     def clean(self, **__):
         """Clean the path where documentation will be built."""
