@@ -8,6 +8,8 @@ from unittest import mock
 
 from django.conf import settings
 
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+
 
 class BuildEnvironmentMocker:
 
@@ -127,6 +129,7 @@ class BuildEnvironmentMocker:
                     'repo_type': self.project.repo_type,
                 },
                 'downloads': [],
+                'type': self.version.type,
             },
             headers=headers,
         )
@@ -140,6 +143,8 @@ class BuildEnvironmentMocker:
             f'{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/',
             json={
                 'id': self.build.pk,
+                'state': BUILD_STATE_TRIGGERED,
+                'commit': self.build.commit,
             },
             headers=headers,
         )
