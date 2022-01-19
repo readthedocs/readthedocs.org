@@ -427,7 +427,7 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
-        'every-week-delete-old-personal-audit-logs': {
+        'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
             'schedule': crontab(day_of_week='wednesday', hour=7, minute=0),
             'options': {'queue': 'web'},
