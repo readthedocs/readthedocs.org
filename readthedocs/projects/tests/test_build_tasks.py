@@ -197,7 +197,7 @@ class CeleryBuildTest(TestCase):
         mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
         mocker.start()
 
-        update_docs_task(
+        update_docs_task.delay(
             self.version.pk,
             build_pk=self.build.pk,
 
@@ -275,8 +275,6 @@ class CeleryBuildTest(TestCase):
                 cwd='/tmp/readthedocs-tests/git-repository',
                 bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
             ),
-            # I don't know what is this
-            mock.ANY,  #  call().successful.__bool__()
             mock.call(
                 '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
                 '-m',
@@ -317,8 +315,6 @@ class CeleryBuildTest(TestCase):
                 shell=True,
                 record=False,
             ),
-            # Not sure what this is
-            mock.ANY,  # mock.call().exit_code.__eq__(0),
             mock.call(
                 'mv',
                 '-f',

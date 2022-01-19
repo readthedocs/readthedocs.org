@@ -52,6 +52,7 @@ class BuildEnvironmentMocker:
 
         self.patches['builder.pdf.LatexBuildCommand.run'] = mock.patch(
             'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run',
+            return_value=mock.MagicMock(output='stdout', successful=True)
         )
         # self.patches['builder.pdf.LatexBuildCommand.output'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.output',
@@ -65,6 +66,9 @@ class BuildEnvironmentMocker:
             'readthedocs.doc_builder.backends.sphinx.os.path.getmtime',
             return_value=1,
         )
+        # NOTE: this is a problem, because it does not execute
+        # `run_command_class` which does other extra stuffs, like appending the
+        # commands to `environment.commands` which is used later
         self.patches['environment.run_command_class'] = mock.patch(
             'readthedocs.projects.tasks.builds.LocalBuildEnvironment.run_command_class',
             return_value=mock.MagicMock(output='stdout', successful=True)
@@ -104,7 +108,8 @@ class BuildEnvironmentMocker:
 
     def _mock_environment(self):
         self.patches['environment.run'] = mock.patch(
-            'readthedocs.projects.tasks.builds.LocalBuildEnvironment.run'
+            'readthedocs.projects.tasks.builds.LocalBuildEnvironment.run',
+            return_value=mock.MagicMock(successful=True)
         )
 
     def _mock_api(self):
@@ -124,6 +129,11 @@ class BuildEnvironmentMocker:
                 'downloads': [],
             },
             headers=headers,
+        )
+
+        self.requestsmock.patch(
+            f'{settings.SLUMBER_API_HOST}/api/v2/version/{self.version.pk}/',
+            status_code=201,
         )
 
         self.requestsmock.get(
@@ -165,4 +175,9 @@ class BuildEnvironmentMocker:
                 ]
             },
             headers=headers,
+        )
+
+        self.requestsmock.patch(
+            f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/',
+            status_code=201,
         )
