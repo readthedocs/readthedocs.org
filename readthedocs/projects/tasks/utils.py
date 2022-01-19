@@ -5,6 +5,7 @@ import shutil
 
 from fnmatch import fnmatch
 
+from celery.worker.request import Request
 import structlog
 from sphinx.ext import intersphinx
 
@@ -15,15 +16,11 @@ from django.utils import timezone
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
-from readthedocs.projects.models import HTMLFile, ImportedFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_media_storage
-from readthedocs.vcs_support.utils import LockTimeout
 from readthedocs.worker import app
-
-from .mixins import SyncRepositoryMixin
-
 
 log = structlog.get_logger(__name__)
 
@@ -338,3 +335,20 @@ def send_external_build_status(version_type, build_pk, commit, status):
     if version_type == EXTERNAL:
         # call the task that actually send the build status.
         send_build_status.delay(build_pk, commit, status)
+
+
+class BuildRequest(Request):
+
+    def on_timeout(self, soft, timeout):
+        super().on_timeout(soft, timeout)
+        log.bind(
+            task_name=self.task.name,
+            project_slug=self.task.args.project_slug,
+            build_id=self.task.args.build_id,
+            timeout=timeout,
+            soft=soft,
+        )
+        if soft:
+            log.warning('Build is taking too much time. Risk to be killed soon.')
+        else:
+            log.warning('A timeout was enforced for task.')
