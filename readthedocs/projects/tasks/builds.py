@@ -142,7 +142,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 'Lock still active. Retrying this task with countdown delay...',
                 countdown=countdown,
             )
-            self.task.retry(
+            self.retry(
                 exc=exc,
                 throw=False,
                 countdown=countdown,
