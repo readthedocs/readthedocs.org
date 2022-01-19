@@ -9,7 +9,11 @@ import django_dynamic_fixture as fixture
 
 import requests_mock
 
-from readthedocs.builds.constants import BUILD_STATUS_FAILURE, BUILD_STATE_FINISHED
+from readthedocs.builds.constants import (
+    BUILD_STATUS_FAILURE,
+    BUILD_STATE_FINISHED,
+    BUILD_STATUS_SUCCESS,
+)
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
@@ -203,6 +207,157 @@ class CeleryBuildTest(TestCase):
             force=True,
             record=True,
         )
+
+    @mock.patch('readthedocs.projects.tasks.builds.fileify')
+    @mock.patch('readthedocs.projects.tasks.builds.build_media_storage')
+    @mock.patch('readthedocs.projects.tasks.builds.build_complete')
+    @mock.patch('readthedocs.projects.tasks.builds.send_external_build_status')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
+    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
+    def test_successful_build(self, requestsmock, clean_build, send_notifications, send_external_build_status, build_complete, build_media_storage, fileify):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        self._trigger_update_docs_task()
+
+        # It has to be called twice, ``before_start`` and ``after_return``
+        clean_build.assert_has_calls([
+            mock.call(mock.ANY),  # the argument is an APIVersion
+            mock.call(mock.ANY)
+        ])
+
+        send_notifications.assert_called_once_with(
+            self.version.pk,
+            self.build.pk,
+            event=WebHookEvent.BUILD_PASSED,
+        )
+
+        send_external_build_status.assert_called_once_with(
+            version_type=self.version.type,
+            build_pk=self.build.pk,
+            commit=self.build.commit,
+            status=BUILD_STATUS_SUCCESS,
+        )
+
+        build_complete.send.assert_called_once_with(
+            sender=Build,
+            build=mock.ANY,
+        )
+
+        fileify.delay.assert_called_once_with(
+            version_pk=self.version.pk,
+            commit=self.build.commit,
+            build=self.build.pk,
+            search_ranking=mock.ANY,
+            search_ignore=mock.ANY,
+        )
+
+        # Update build state: clonning
+        assert requestsmock.request_history[3].json() == {
+            'id': 1,
+            'state': 'cloning',
+            'commit': 'a1b2c3',
+        }
+
+        # Save config object data (using default values)
+        assert requestsmock.request_history[4].json() == {
+            'config': {
+                'version': '1',
+                'formats': [
+                    'htmlzip',
+                    'epub',
+                    'pdf',
+                ],
+                'python': {
+                    'version': '3',
+                    'install': [{'requirements': None}],
+                    'use_system_site_packages': False,
+                },
+                'conda': None,
+                'build': {
+                    'image': 'readthedocs/build:latest',
+                    'apt_packages': [],
+                },
+                'doctype': 'sphinx',
+                'sphinx': {
+                    'builder': 'sphinx',
+                    'configuration': None,
+                    'fail_on_warning': False,
+                },
+                'mkdocs': {
+                    'configuration': None,
+                    'fail_on_warning': False,
+                },
+                'submodules': {
+                    'include': 'all',
+                    'exclude': [],
+                    'recursive': True,
+                },
+                'search': {
+                    'ranking': {},
+                    'ignore': [],
+                },
+            },
+        }
+        # Update build state: installing
+        assert requestsmock.request_history[5].json() == {
+            'id': 1,
+            'state': 'installing',
+            'commit': 'a1b2c3',
+            'config': mock.ANY,
+        }
+        # Update build state: building
+        assert requestsmock.request_history[6].json() == {
+            'id': 1,
+            'state': 'building',
+            'commit': 'a1b2c3',
+            'config': mock.ANY,
+        }
+        # Pass active versions to build context
+        assert (
+            requestsmock.request_history[7].path == '/api/v2/project/1/active_versions/'
+        )
+        # Update build state: uploading
+        assert requestsmock.request_history[9].json() == {
+            'id': 1,
+            'state': 'uploading',
+            'commit': 'a1b2c3',
+            'config': mock.ANY,
+        }
+        # Update version state
+        assert requestsmock.request_history[10]._request.method == 'PATCH'
+        assert requestsmock.request_history[10].path == '/api/v2/version/1/'
+        assert requestsmock.request_history[10].json() == {
+            'built': True,
+            'documentation_type': 'sphinx',
+            'has_pdf': True,
+            'has_epub': True,
+            'has_htmlzip': True,
+        }
+        # Set project has valid clone
+        assert requestsmock.request_history[11]._request.method == 'PATCH'
+        assert requestsmock.request_history[11].path == '/api/v2/project/1/'
+        assert requestsmock.request_history[11].json() == {'has_valid_clone': True}
+        # Update build state: finished, success and builder
+        assert requestsmock.request_history[12].json() == {
+            'id': 1,
+            'state': 'finished',
+            'commit': 'a1b2c3',
+            'config': mock.ANY,
+            'builder': mock.ANY,
+            'length': mock.ANY,
+            'success': True,
+        }
+
+        build_media_storage.sync_directory.assert_has_calls([
+            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx', 'html/project/latest'),
+            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_search', 'json/project/latest'),
+            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_localmedia', 'htmlzip/project/latest'),
+            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_pdf', 'pdf/project/latest'),
+            mock.call('/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_epub', 'epub/project/latest'),
+        ])
+        # TODO: find a directory to remove here :)
+        # build_media_storage.delete_directory
 
     @mock.patch('readthedocs.projects.tasks.builds.build_complete')
     @mock.patch('readthedocs.projects.tasks.builds.send_external_build_status')
