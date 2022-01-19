@@ -391,6 +391,10 @@ class LocalMediaBuilder(BaseSphinx):
 
     @restoring_chdir
     def move(self, **__):
+        if not os.path.exists(self.old_artifact_path):
+            log.warning('Not moving localmedia because the build dir is unknown.')
+            return
+
         log.info('Creating zip file from path.', path=self.old_artifact_path)
         target_file = os.path.join(
             self.target,
