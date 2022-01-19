@@ -85,7 +85,7 @@ class BuildEnvironmentMocker:
         # TODO: improve this
         self._counter = 0
         self.project_repository_path = '/tmp/readthedocs-tests/git-repository'
-        shutil.rmtree(self.project_repository_path)
+        shutil.rmtree(self.project_repository_path, ignore_errors=True)
         os.makedirs(self.project_repository_path)
         mock.patch('readthedocs.projects.models.Project.checkout_path', return_value=self.project_repository_path).start()
 
