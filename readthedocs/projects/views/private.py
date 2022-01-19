@@ -634,6 +634,7 @@ class WebHookExchangeDetail(WebHookMixin, DetailView):
     def get_queryset(self):
         # NOTE: We are explicitly using the id instead of the the object
         # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
         return self.model.objects.filter(webhook__id=self.get_webhook().id)
 
     def get_webhook(self):
@@ -920,6 +921,7 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
     def get_queryset(self):
         # NOTE: We are explicitly using the id instead of the the object
         # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
         return self.model.objects.filter(integrations__id=self.get_integration().id)
 
     def get_object(self):
