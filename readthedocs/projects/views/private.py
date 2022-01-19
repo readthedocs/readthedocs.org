@@ -632,7 +632,10 @@ class WebHookExchangeDetail(WebHookMixin, DetailView):
     template_name = 'projects/webhook_exchange_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.filter(webhook=self.get_webhook())
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(webhook__id=self.get_webhook().id)
 
     def get_webhook(self):
         return get_object_or_404(
@@ -916,7 +919,10 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
     template_name = 'projects/integration_exchange_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.filter(integrations=self.get_integration())
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(integrations__id=self.get_integration().id)
 
     def get_object(self):
         return DetailView.get_object(self)
