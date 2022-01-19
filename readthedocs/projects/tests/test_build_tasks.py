@@ -15,6 +15,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
 )
 from readthedocs.builds.models import Build
+from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task
@@ -576,4 +577,168 @@ class CeleryBuildTest(TestCase):
                 '/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_epub/project.epub',
                 cwd='/tmp/readthedocs-tests/git-repository',
             )
+        ])
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_install_apt_packages(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'apt_packages': [
+                        'clangd',
+                        'cmatrix',
+                    ],
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                'apt-get',
+                'update',
+                '--assume-yes',
+                '--quiet',
+                user='root:root',
+            ),
+            mock.call(
+                'apt-get',
+                'install',
+                '--assume-yes',
+                '--quiet',
+                '--',
+                'clangd',
+                'cmatrix',
+                user='root:root',
+            )
+        ])
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_build_tools(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.10',
+                        'nodejs': '16',
+                        'rust': '1.55',
+                        'golang': '1.17',
+                    },
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+        nodejs_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16']
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['rust']['1.55']
+        golang_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['golang']['1.17']
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call('asdf', 'install', 'python', python_version),
+            mock.call('asdf', 'global', 'python', python_version),
+            mock.call('asdf', 'reshim', 'python', record=False),
+            mock.call('python', '-mpip', 'install', '-U', 'virtualenv', 'setuptools<58.3.0'),
+            mock.call('asdf', 'install', 'nodejs', nodejs_version),
+            mock.call('asdf', 'global', 'nodejs', nodejs_version),
+            mock.call('asdf', 'reshim', 'nodejs', record=False),
+            mock.call('asdf', 'install', 'rust', rust_version),
+            mock.call('asdf', 'global', 'rust', rust_version),
+            mock.call('asdf', 'reshim', 'rust', record=False),
+            mock.call('asdf', 'install', 'golang', golang_version),
+            mock.call('asdf', 'global', 'golang', golang_version),
+            mock.call('asdf', 'reshim', 'golang', record=False),
+            mock.ANY,
+        ])
+
+    @mock.patch('readthedocs.doc_builder.python_environments.tarfile')
+    @mock.patch('readthedocs.doc_builder.python_environments.build_tools_storage')
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_build_tools_cached(self, requestsmock, load_yaml_config, build_tools_storage, tarfile):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        config = BuildConfigV2(
+            {},
+            {
+                'version': 2,
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.10',
+                        'nodejs': '16',
+                        'rust': '1.55',
+                        'golang': '1.17',
+                    },
+                },
+            },
+            source_file='readthedocs.yml',
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        build_tools_storage.open.return_value = b''
+        build_tools_storage.exists.return_value = True
+        tarfile.open.return_value.__enter__.return_value.extract_all.return_value = None
+
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+        nodejs_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16']
+        rust_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['rust']['1.55']
+        golang_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['golang']['1.17']
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                'mv',
+                # Use mock.ANY here because path differs when ran locally
+                # and on CircleCI
+                mock.ANY,
+                f'/home/docs/.asdf/installs/python/{python_version}',
+                record=False,
+            ),
+            mock.call('asdf', 'global', 'python', python_version),
+            mock.call('asdf', 'reshim', 'python', record=False),
+            mock.call(
+                'mv',
+                mock.ANY,
+                f'/home/docs/.asdf/installs/nodejs/{nodejs_version}',
+                record=False,
+            ),
+            mock.call('asdf', 'global', 'nodejs', nodejs_version),
+            mock.call('asdf', 'reshim', 'nodejs', record=False),
+            mock.call(
+                'mv',
+                mock.ANY,
+                f'/home/docs/.asdf/installs/rust/{rust_version}',
+                record=False,
+            ),
+            mock.call('asdf', 'global', 'rust', rust_version),
+            mock.call('asdf', 'reshim', 'rust', record=False),
+            mock.call(
+                'mv',
+                mock.ANY,
+                f'/home/docs/.asdf/installs/golang/{golang_version}',
+                record=False,
+            ),
+            mock.call('asdf', 'global', 'golang', golang_version),
+            mock.call('asdf', 'reshim', 'golang', record=False),
+            mock.ANY,
         ])

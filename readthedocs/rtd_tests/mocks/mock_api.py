@@ -91,7 +91,6 @@ class MockApi:
 def mock_api(repo):
     api_mock = MockApi(repo)
     with mock.patch('readthedocs.api.v2.client.api', api_mock), \
-            mock.patch('readthedocs.projects.tasks.base.api_v2', api_mock), \
             mock.patch('readthedocs.projects.tasks.builds.api_v2', api_mock), \
             mock.patch('readthedocs.projects.tasks.mixins.api_v2', api_mock), \
             mock.patch('readthedocs.doc_builder.environments.api_v2', api_mock):
