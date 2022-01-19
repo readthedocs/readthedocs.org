@@ -7,9 +7,13 @@ from django.test import TestCase
 from django.utils import timezone
 import django_dynamic_fixture as fixture
 
+import requests_mock
+
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import EnvironmentVariable, Project
-from readthedocs.projects.tasks.builds import UpdateDocsTask
+from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task
+
+from .mockers import BuildEnvironmentMocker
 
 
 # NOTE: some of these tests where moved from `rtd_tests/test_builds.py` and
@@ -149,3 +153,200 @@ class BuildTaskTests(TestCase):
             ),
         })
         self.assertEqual(task.get_build_env_vars(), env)
+
+
+# NOTE: these are most of the tests coming from `rtd_tests/test_celery.py`
+#
+# Move them to the previous class, since, in theory are related to the build
+# process and should mock most of it just to check the integrations.
+@requests_mock.Mocker()
+class CeleryBuildTest(TestCase):
+
+    # - handle unexpected exception at `run_setup`
+    # - handle unexpected exception at `run_build`
+    # - version locked does not send notification
+    # - `clean_build` is called before/after task
+    # - `clean_build` is called after even if the build fails
+    # - `clean_build` is called after `sync_repository_task`
+    # - `clean_build` is called after `sync_repository_task` even if it fails
+    # - check duplicate reserved versions -requires integration (called by our task) and unit-test (raise expecetd exception). This is for `latest`, `stable` and `non-reserverd` (regular) versions
+    # - public task exception (not related with the build process)
+    # - test we call `send_build_status` with (and without) remote repository associated to the project
+    # - test we don't call `send_build_status` if no remote repository nor account is associated
+    # - (same that previous for gitlab, but not for bitbucket :) )
+    # - assert we call `apt-get install` when using `build.apt_packages` config file
+    # - assert we call `asdf install python` and more when using `build.tools` in config file
+    # - assert we call only `asdf global python` if it's cached in the bucket
+
+    def setUp(self):
+        self.project = fixture.get(
+            Project,
+            slug='project',
+            enable_epub_build=True,
+            enable_pdf_build=True,
+        )
+        self.version = self.project.versions.get(slug='latest')
+        self.build = fixture.get(
+            Build,
+            version=self.version,
+        )
+
+    def test_build_commands_executed(self, requestsmock):
+        # NOTE: I didn't find a way to use the same ``requestsmock`` object for
+        # all the tests and be able to put it on the setUp/tearDown
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        update_docs_task(
+            self.version.pk,
+            build_pk=self.build.pk,
+
+            # TODO: are these really required or can be completely removed from
+            # our code?
+            force=True,
+            record=True,
+        )
+
+        mocker.mocks['git.Backend.run'].assert_has_calls([
+            mock.call('git', 'clone', '--no-single-branch', '--depth', '50', '', '.'),
+            mock.call('git', 'checkout', '--force', 'master'),
+            mock.call('git', 'clean', '-d', '-f', '-f'),
+            mock.call('git', 'rev-parse', 'HEAD', record=False),
+            mock.call('git', 'rev-parse', 'HEAD', record=False),
+        ])
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                'python3.7',
+                '-mvirtualenv',
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest',
+                bin_path=None,
+                cwd=None,
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--no-cache-dir',
+                'pip',
+                'setuptools<58.3.0',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                cwd='/tmp/readthedocs-tests/git-repository',
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--no-cache-dir',
+                'mock==1.0.1',
+                'pillow==5.4.1',
+                'alabaster>=0.7,<0.8,!=0.7.5',
+                'commonmark==0.8.1',
+                'recommonmark==0.5.0',
+                'sphinx<2',
+                'sphinx-rtd-theme<0.5',
+                'readthedocs-sphinx-ext<2.2',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                cwd='/tmp/readthedocs-tests/git-repository',
+            ),
+            mock.call(
+                'cat',
+                'conf.py',
+                cwd='/tmp/readthedocs-tests/git-repository',
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'sphinx',
+                '-T',
+                '-E',
+                '-b',
+                'readthedocs',
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/html',
+                cwd='/tmp/readthedocs-tests/git-repository',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+            ),
+            # I don't know what is this
+            mock.ANY,  #  call().successful.__bool__()
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'sphinx',
+                '-T',
+                '-b',
+                'readthedocssinglehtmllocalmedia',
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/localmedia',
+                cwd='/tmp/readthedocs-tests/git-repository',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'sphinx',
+                '-b',
+                'latex',
+                '-D',
+                'language=en',
+                '-d', '_build/doctrees',
+                '.',
+                '_build/latex',
+                cwd='/tmp/readthedocs-tests/git-repository',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-c',
+                '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+                cwd='/tmp/readthedocs-tests/git-repository',
+                escape_command=False,
+                shell=True,
+                record=False,
+            ),
+            # Not sure what this is
+            mock.ANY,  # mock.call().exit_code.__eq__(0),
+            mock.call(
+                'mv',
+                '-f',
+                'output.file',
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_pdf/project.pdf',
+                cwd='/tmp/readthedocs-tests/git-repository',
+            ),
+            mock.call(
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin/python',
+                '-m',
+                'sphinx',
+                '-T',
+                '-b',
+                'epub',
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/epub',
+                cwd='/tmp/readthedocs-tests/git-repository',
+                bin_path='/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest/bin',
+            ),
+            mock.call(
+                'mv',
+                '-f',
+                'output.file',
+                '/usr/src/app/checkouts/readthedocs.org/user_builds/project/artifacts/latest/sphinx_epub/project.epub',
+                cwd='/tmp/readthedocs-tests/git-repository',
+            )
+        ])

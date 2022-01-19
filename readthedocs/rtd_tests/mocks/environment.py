@@ -3,6 +3,7 @@
 from unittest import mock
 
 
+# TODO: this file is probably replaced by ``BuildEnvironmentMocker``
 class EnvironmentMockGroup:
 
     """Mock out necessary environment pieces."""

@@ -7,6 +7,8 @@ from unittest import mock
 
 # Mock tastypi API.
 
+# TODO: this file can be completely removed. It's overwritten by the new BuildEnvironmentMocker
+
 
 class ProjectData:
     def get(self):

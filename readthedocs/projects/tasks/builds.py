@@ -320,8 +320,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
-        # import pdb; pdb.set_trace()
-
         # NOTE: save all the attributes to do a clean up when finish.
         # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
         self._attributes = list(self.__dict__.keys()) + ['_attributes']
