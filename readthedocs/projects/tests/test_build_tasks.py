@@ -944,6 +944,180 @@ class BuildTaskTests(TestCase):
         ])
 
 
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_python_install_setuptools(self, requestsmock, load_yaml_config):
+        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        self.mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'method': 'setuptools',
+                    }],
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                './setup.py',
+                'install',
+                '--force',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            )
+        ])
+
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_python_install_pip(self, requestsmock, load_yaml_config):
+        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        self.mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'method': 'pip',
+                    }],
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
+                '--no-cache-dir',
+                '.',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            )
+        ])
+
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_python_install_pip_extras(self, requestsmock, load_yaml_config):
+        # FIXME: the test passes but in the logs there is an error related to
+        # `backends/sphinx.py` not finding a file.
+        #
+        # TypeError('expected str, bytes or os.PathLike object, not NoneType')
+        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        self.mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'method': 'pip',
+                        'extra_requirements': ['docs'],
+                    }],
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
+                '--no-cache-dir',
+                '.[docs]',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            )
+        ])
+
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_python_install_pip_several_options(self, requestsmock, load_yaml_config):
+        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        self.mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'python': {
+                    'install': [
+                        {
+                            'path': '.',
+                            'method': 'pip',
+                            'extra_requirements': ['docs'],
+                        },
+                        {
+                            'path': 'two',
+                            'method': 'setuptools',
+                        },
+                        {
+                            'requirements': 'three.txt',
+                        },
+                    ],
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
+                '--no-cache-dir',
+                '.[docs]',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            ),
+            mock.call(
+                mock.ANY,
+                'two/setup.py',
+                'install',
+                '--force',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            ),
+            mock.call(
+                mock.ANY,
+                '-m',
+                'pip',
+                'install',
+                '--exists-action=w',
+                '--no-cache-dir',
+                '-r',
+                'three.txt',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            ),
+        ])
+
+
 @requests_mock.Mocker()
 class BuildTaskExceptionHandler(TestCase):
 
