@@ -1,14 +1,12 @@
 import shutil
 import os
-import tempfile
-from collections import namedtuple
 
-import requests_mock
 from unittest import mock
 
 from django.conf import settings
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.projects.constants import MKDOCS
 
 
 class BuildEnvironmentMocker:
@@ -29,6 +27,8 @@ class BuildEnvironmentMocker:
         self._mock_artifact_builders()
         self._mock_storage()
 
+        # Save the mock instances to be able to check them later from inside
+        # each test case.
         for k, p in self.patches.items():
             self.mocks[k] = p.start()
 
@@ -76,6 +76,25 @@ class BuildEnvironmentMocker:
             'readthedocs.projects.tasks.builds.LocalBuildEnvironment.run_command_class',
             return_value=mock.MagicMock(output='stdout', successful=True)
         )
+
+
+        # TODO: find a way to not mock this one and mock `open()` used inside
+        # it instead to make the mock more granularly and be able to execute
+        # the `append_conf` normally.
+        self.patches['builder.html.mkdocs.MkdocsHTML.append_conf'] = mock.patch(
+            'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.append_conf',
+        )
+        self.patches['builder.html.mkdocs.MkdocsHTML.get_final_doctype'] = mock.patch(
+            'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.get_final_doctype',
+            return_value=MKDOCS,
+        )
+        # self.patches['builder.html.mkdocs.yaml_dump_safely'] = mock.patch(
+        #     'readthedocs.doc_builder.backends.mkdocs.yaml_dump_safely',
+        # )
+        # self.patches['builder.html.mkdocs.open'] = mock.patch(
+        #     'readthedocs.doc_builder.backends.mkdocs.builtins.open',
+        #     mock.mock_open(read_data='file content'),
+        # )
 
     def _mock_git_repository(self):
         self.patches['git.Backend.run'] = mock.patch(

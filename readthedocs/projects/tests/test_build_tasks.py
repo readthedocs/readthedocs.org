@@ -806,6 +806,40 @@ class BuildTaskTests(TestCase):
             mock.call('mamba', 'install', '--yes', '--quiet', '--name', 'latest', 'mock', 'pillow', 'sphinx', 'sphinx_rtd_theme', cwd=mock.ANY),
         ])
 
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_mkdocs_fail_on_warning(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'mkdocs': {
+                    'configuration': 'docs/mkdocs.yaml',
+                    'fail_on_warning': True,
+                    },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'mkdocs',
+                'build',
+                '--clean',
+                '--site-dir',
+                '_build/html',
+                '--config-file',
+                'docs/mkdocs.yaml',
+                '--strict',  # fail on warning flag
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            )
+        ])
+
 
 
 @requests_mock.Mocker()
