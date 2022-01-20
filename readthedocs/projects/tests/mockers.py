@@ -139,6 +139,27 @@ class BuildEnvironmentMocker:
             side_effect=_repo_exists_side_effect,
         )
 
+
+        # Make a the backend to return 3 submodules when asked
+        self.patches['git.Backend.submodules'] = mock.patch(
+            'readthedocs.vcs_support.backends.git.Backend.submodules',
+            new_callable=mock.PropertyMock,
+            return_value=[
+                mock.Mock(
+                    path='one',
+                    url='https://github.com/submodule/one',
+                ),
+                mock.Mock(
+                    path='two',
+                    url='https://github.com/submodule/two',
+                ),
+                mock.Mock(
+                    path='three',
+                    url='https://github.com/submodule/three',
+                ),
+            ],
+        )
+
     def _mock_environment(self):
         # NOTE: by mocking `.run` we are not calling `.run_command_class`,
         # where some magic happens (passing environment variables, for

@@ -15,7 +15,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
 )
 from readthedocs.builds.models import Build
-from readthedocs.config import ConfigError
+from readthedocs.config import ConfigError, ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
@@ -1063,6 +1063,71 @@ class TestBuildTask:
                 bin_path=mock.ANY,
             ),
         ])
+
+    @pytest.mark.parametrize(
+        'value,expected', [
+            (ALL, ['one', 'two', 'three']),
+            (['one', 'two'], ['one', 'two']),
+        ],
+    )
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_submodules_include(self, load_yaml_config, value, expected):
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'submodules': {
+                    'include': value,
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['git.Backend.run'].assert_has_calls([
+            mock.call('git', 'submodule', 'sync'),
+            mock.call('git', 'submodule', 'update', '--init', '--force', *expected),
+        ])
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_submodules_exclude(self, load_yaml_config):
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'submodules': {
+                    'exclude': ['one'],
+                    'recursive': True
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['git.Backend.run'].assert_has_calls([
+            mock.call('git', 'submodule', 'sync'),
+            mock.call('git', 'submodule', 'update', '--init', '--force', '--recursive', 'two', 'three'),
+        ])
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_submodules_exclude_all(self, load_yaml_config):
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'submodules': {
+                    'exclude': ALL,
+                    'recursive': True
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        # TODO: how do we do a assert_not_has_calls?
+        # mock.call('git', 'submodule', 'sync'),
+        # mock.call('git', 'submodule', 'update', '--init', '--force', 'one', 'two', 'three'),
+
+        for call in self.mocker.mocks['git.Backend.run'].mock_calls:
+            if 'submodule' in call.args:
+                assert False, 'git submodule command found'
 
 
 class BuildTaskExceptionHandler(TestCase):
