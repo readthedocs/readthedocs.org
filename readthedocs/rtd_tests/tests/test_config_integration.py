@@ -401,78 +401,80 @@ class TestLoadConfigV2:
     #     assert update_docs.config.version == '2'
 
     # NOTE: this should be handled at on_failure
-    def test_report_using_invalid_version(self, checkout_path, tmpdir):
-        checkout_path.return_value = str(tmpdir)
-        self.create_config_file(tmpdir, {'version': 12})
-        with pytest.raises(InvalidConfig) as exinfo:
-            self.get_update_docs_task()
-        assert exinfo.value.key == 'version'
+    # def test_report_using_invalid_version(self, checkout_path, tmpdir):
+    #     checkout_path.return_value = str(tmpdir)
+    #     self.create_config_file(tmpdir, {'version': 12})
+    #     with pytest.raises(InvalidConfig) as exinfo:
+    #         self.get_update_docs_task()
+    #     assert exinfo.value.key == 'version'
 
-    @pytest.mark.parametrize('config', [{}, {'formats': []}])
-    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
-    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
-    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
-    def test_build_formats_default_empty(
-            self, append_conf, html_build, checkout_path, config, tmpdir,
-    ):
-        """
-        The default value for formats is [], which means no extra
-        formats are build.
-        """
-        mock.patch('readthedocs.doc_builder.environments.BuildEnvironment.record_command', return_value=None).start()
-        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.execute', return_value=None).start()
-        # mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.run_build', return_value=None).start()
-        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.update_build', return_value=None).start()
+    # NOTE: done in test_build_tasks.py
+    #
+    # @pytest.mark.parametrize('config', [{}, {'formats': []}])
+    # @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    # @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    # @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    # def test_build_formats_default_empty(
+    #         self, append_conf, html_build, checkout_path, config, tmpdir,
+    # ):
+    #     """
+    #     The default value for formats is [], which means no extra
+    #     formats are build.
+    #     """
+    #     mock.patch('readthedocs.doc_builder.environments.BuildEnvironment.record_command', return_value=None).start()
+    #     mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.execute', return_value=None).start()
+    #     # mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.run_build', return_value=None).start()
+    #     mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.update_build', return_value=None).start()
 
-        checkout_path.return_value = str(tmpdir)
+    #     checkout_path.return_value = str(tmpdir)
 
-        # NOTE: why are we creating a config file on this? I'd like to remove
-        # all this extra overhead and just handle the "file" in memory
-        self.create_config_file(tmpdir, config)
+    #     # NOTE: why are we creating a config file on this? I'd like to remove
+    #     # all this extra overhead and just handle the "file" in memory
+    #     self.create_config_file(tmpdir, config)
 
-        update_docs = self.get_update_docs_task()
-        # python_env = Virtualenv(
-        #     version=self.version,
-        #     build_env=update_docs.build_env,
-        #     config=update_docs.config,
-        # )
-        # update_docs.python_env = python_env
-        outcomes = update_docs.build_docs()
+    #     update_docs = self.get_update_docs_task()
+    #     # python_env = Virtualenv(
+    #     #     version=self.version,
+    #     #     build_env=update_docs.build_env,
+    #     #     config=update_docs.config,
+    #     # )
+    #     # update_docs.python_env = python_env
+    #     outcomes = update_docs.build_docs()
 
-        # No extra formats were triggered
-        assert outcomes['html']
-        assert not outcomes['localmedia']
-        assert not outcomes['pdf']
-        assert not outcomes['epub']
+    #     # No extra formats were triggered
+    #     assert outcomes['html']
+    #     assert not outcomes['localmedia']
+    #     assert not outcomes['pdf']
+    #     assert not outcomes['epub']
 
-    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
-    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
-    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
-    def test_build_formats_only_pdf(
-            self, append_conf, html_build, build_docs_class,
-            checkout_path, tmpdir,
-    ):
-        """Only the pdf format is build."""
-        checkout_path.return_value = str(tmpdir)
-        self.create_config_file(tmpdir, {'formats': ['pdf']})
+    # @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    # @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
+    # @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    # @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    # def test_build_formats_only_pdf(
+    #         self, append_conf, html_build, build_docs_class,
+    #         checkout_path, tmpdir,
+    # ):
+    #     """Only the pdf format is build."""
+    #     checkout_path.return_value = str(tmpdir)
+    #     self.create_config_file(tmpdir, {'formats': ['pdf']})
 
-        update_docs = self.get_update_docs_task()
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=update_docs.build_env,
-            config=update_docs.config,
-        )
-        update_docs.python_env = python_env
+    #     update_docs = self.get_update_docs_task()
+    #     python_env = Virtualenv(
+    #         version=self.version,
+    #         build_env=update_docs.build_env,
+    #         config=update_docs.config,
+    #     )
+    #     update_docs.python_env = python_env
 
-        outcomes = update_docs.build_docs()
+    #     outcomes = update_docs.build_docs()
 
-        # Only pdf extra format was triggered
-        assert outcomes['html']
-        build_docs_class.assert_called_with('sphinx_pdf')
-        assert outcomes['pdf']
-        assert not outcomes['localmedia']
-        assert not outcomes['epub']
+    #     # Only pdf extra format was triggered
+    #     assert outcomes['html']
+    #     build_docs_class.assert_called_with('sphinx_pdf')
+    #     assert outcomes['pdf']
+    #     assert not outcomes['localmedia']
+    #     assert not outcomes['epub']
 
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
@@ -504,26 +506,26 @@ class TestLoadConfigV2:
         assert not outcomes['localmedia']
         assert not outcomes['epub']
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock())
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock())
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.failed', new_callable=PropertyMock)
-    def test_conda_environment(self, build_failed, checkout_path, tmpdir):
-        build_failed.return_value = False
-        checkout_path.return_value = str(tmpdir)
-        conda_file = 'environmemt.yml'
-        apply_fs(tmpdir, {conda_file: ''})
-        base_path = self.create_config_file(
-            tmpdir,
-            {
-                'conda': {'environment': conda_file},
-            },
-        )
+    # @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock())
+    # @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock())
+    # @patch('readthedocs.doc_builder.environments.BuildEnvironment.failed', new_callable=PropertyMock)
+    # def test_conda_environment(self, build_failed, checkout_path, tmpdir):
+    #     build_failed.return_value = False
+    #     checkout_path.return_value = str(tmpdir)
+    #     conda_file = 'environmemt.yml'
+    #     apply_fs(tmpdir, {conda_file: ''})
+    #     base_path = self.create_config_file(
+    #         tmpdir,
+    #         {
+    #             'conda': {'environment': conda_file},
+    #         },
+    #     )
 
-        update_docs = self.get_update_docs_task()
-        update_docs.run_build(record=False)
+    #     update_docs = self.get_update_docs_task()
+    #     update_docs.run_build(record=False)
 
-        assert update_docs.config.conda.environment == conda_file
-        assert isinstance(update_docs.python_env, Conda)
+    #     assert update_docs.config.conda.environment == conda_file
+    #     assert isinstance(update_docs.python_env, Conda)
 
     # NOTE: this should only be tested where it happens, not as an integration test
     # https://github.com/readthedocs/readthedocs.org/blob/6f8ca144810cd3725cc62e092b09b2b1eaa7180c/readthedocs/doc_builder/config.py#L26
@@ -573,39 +575,39 @@ class TestLoadConfigV2:
     #     assert config.python.version == '3'
     #     assert config.python_full_version == '3.7'
 
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
-    def test_python_install_requirements(self, run, checkout_path, tmpdir):
-        checkout_path.return_value = str(tmpdir)
-        requirements_file = 'requirements.txt'
-        apply_fs(tmpdir, {requirements_file: ''})
-        base_path = self.create_config_file(
-            tmpdir,
-            {
-                'python': {
-                    'install': [{
-                        'requirements': requirements_file,
-                    }],
-                },
-            },
-        )
+    # @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    # def test_python_install_requirements(self, run, checkout_path, tmpdir):
+    #     checkout_path.return_value = str(tmpdir)
+    #     requirements_file = 'requirements.txt'
+    #     apply_fs(tmpdir, {requirements_file: ''})
+    #     base_path = self.create_config_file(
+    #         tmpdir,
+    #         {
+    #             'python': {
+    #                 'install': [{
+    #                     'requirements': requirements_file,
+    #                 }],
+    #             },
+    #         },
+    #     )
 
-        update_docs = self.get_update_docs_task()
-        config = update_docs.config
+    #     update_docs = self.get_update_docs_task()
+    #     config = update_docs.config
 
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=update_docs.build_env,
-            config=config,
-        )
-        update_docs.python_env = python_env
-        update_docs.python_env.install_requirements()
+    #     python_env = Virtualenv(
+    #         version=self.version,
+    #         build_env=update_docs.build_env,
+    #         config=config,
+    #     )
+    #     update_docs.python_env = python_env
+    #     update_docs.python_env.install_requirements()
 
-        args, kwargs = run.call_args
-        install = config.python.install
+    #     args, kwargs = run.call_args
+    #     install = config.python.install
 
-        assert len(install) == 1
-        assert install[0].requirements == requirements_file
-        assert requirements_file in args
+    #     assert len(install) == 1
+    #     assert install[0].requirements == requirements_file
+    #     assert requirements_file in args
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_setuptools(self, run, checkout_path, tmpdir):

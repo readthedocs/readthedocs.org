@@ -644,6 +644,8 @@ class Conda(PythonEnvironment):
         self.build_env.run(
             *cmd,
             cwd=self.checkout_path,
+            # TODO: on tests I found that we are not passing ``bin_path`` here
+            # for some reason.
         )
 
         # Install requirements via ``pip install``

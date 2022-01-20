@@ -27,6 +27,7 @@ class BuildEnvironmentMocker:
         self._mock_environment()
         self._mock_git_repository()
         self._mock_artifact_builders()
+        self._mock_storage()
 
         for k, p in self.patches.items():
             self.mocks[k] = p.start()
@@ -109,9 +110,24 @@ class BuildEnvironmentMocker:
         )
 
     def _mock_environment(self):
+        # NOTE: by mocking `.run` we are not calling `.run_command_class`,
+        # where some magic happens (passing environment variables, for
+        # example). So, there are some things we cannot check with this mock
+        #
+        # It would be good to find a way to mock `BuildCommand.run` instead
         self.patches['environment.run'] = mock.patch(
             'readthedocs.projects.tasks.builds.LocalBuildEnvironment.run',
             return_value=mock.MagicMock(successful=True)
+        )
+
+        # self.patches['environment.run'] = mock.patch(
+        #     'readthedocs.doc_builder.environments.BuildCommand.run',
+        #     return_value=mock.MagicMock(successful=True)
+        # )
+
+    def _mock_storage(self):
+        self.patches['build_media_storage'] = mock.patch(
+            'readthedocs.projects.tasks.builds.build_media_storage',
         )
 
     def _mock_api(self):
