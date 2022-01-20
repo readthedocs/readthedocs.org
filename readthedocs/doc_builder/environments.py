@@ -1,5 +1,6 @@
 """Documentation Builder Environments."""
 
+import this
 import structlog
 import os
 import re
@@ -980,7 +981,8 @@ class DockerBuildEnvironment(BuildEnvironment):
     @property
     def conda_version(self):
         """Return conda version if exists."""
-        cmd = DockerBuildCommand(['conda', '--version'], shell=True)
+        
+        cmd = DockerBuildCommand(['conda', '--version'], shell=True, build_env=self)
         cmd.run()
         return "conda environment is not set" if cmd.exit_code else cmd.output
 
