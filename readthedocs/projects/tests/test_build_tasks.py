@@ -880,6 +880,63 @@ class BuildTaskTests(TestCase):
             )
         ])
 
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_system_site_packages(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'python': {
+                    'system_packages': True,
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                'python3.7',
+                '-mvirtualenv',
+                '--system-site-packages',  # expected flag
+                mock.ANY,
+                bin_path=None,
+                cwd=None,
+            ),
+        ])
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_system_site_packages_project_overrides(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                # Do not define `system_packages: True` in the config file.
+                'python': {},
+            },
+        )
+
+        # Override the setting in the Project object
+        self.project.use_system_packages = True
+        self.project.save()
+
+        self._trigger_update_docs_task()
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                'python3.7',
+                '-mvirtualenv',
+                # we don't expect this flag to be here
+                # '--system-site-packages'
+                mock.ANY,
+                bin_path=None,
+                cwd=None,
+            ),
+        ])
 
 
 @requests_mock.Mocker()
