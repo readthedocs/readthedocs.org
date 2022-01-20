@@ -88,6 +88,13 @@ class BuildEnvironmentMocker:
             'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.get_final_doctype',
             return_value=MKDOCS,
         )
+
+        # NOTE: another approach would be to make these files are in the tmpdir
+        # used for testing (see ``apply_fs`` util function)
+        self.patches['builder.html.sphinx.HtmlBuilder.append_conf'] = mock.patch(
+            'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf',
+        )
+
         # self.patches['builder.html.mkdocs.yaml_dump_safely'] = mock.patch(
         #     'readthedocs.doc_builder.backends.mkdocs.yaml_dump_safely',
         # )

@@ -807,6 +807,46 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_sphinx_fail_on_warning(self, requestsmock, load_yaml_config):
+        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
+        mocker.start()
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'sphinx': {
+                    'configuration': 'docs/conf.py',
+                    'fail_on_warning': True,
+                    },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'sphinx',
+                '-T',
+                '-E',
+                '-W',  # fail on warning flag
+                '--keep-going',  # fail on warning flag
+                '-b',
+                'readthedocs',
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/html',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            ),
+        ])
+
+
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     def test_mkdocs_fail_on_warning(self, requestsmock, load_yaml_config):
         mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
         mocker.start()
