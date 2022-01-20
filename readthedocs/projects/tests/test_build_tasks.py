@@ -25,7 +25,9 @@ from .mockers import BuildEnvironmentMocker
 
 
 @pytest.mark.django_db
-class TestBuildTask:
+class BuildEnvironmentBase:
+
+    # NOTE: `load_yaml_config` maybe be moved to the setup and assign to self.
 
     @pytest.fixture(autouse=True)
     def setup(self, requests_mock):
@@ -78,6 +80,9 @@ class TestBuildTask:
         )
         config.validate()
         return config
+
+
+class TestBuildTask(BuildEnvironmentBase):
 
     @pytest.mark.parametrize(
         'formats,build_class',
@@ -1130,48 +1135,7 @@ class TestBuildTask:
                 assert False, 'git submodule command found'
 
 
-class BuildTaskExceptionHandler(TestCase):
-
-    def setUp(self):
-        self.project = fixture.get(
-            Project,
-            slug='project',
-            enable_epub_build=True,
-            enable_pdf_build=True,
-        )
-        self.version = self.project.versions.get(slug='latest')
-        self.build = fixture.get(
-            Build,
-            version=self.version,
-            commit='a1b2c3',
-        )
-
-    def tearDown(self):
-        # Stop all the mocks on tearDown.
-        if hasattr(self, 'mocker'):
-            self.mocker.stop()
-
-    def _trigger_update_docs_task(self):
-        # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
-        return update_docs_task.delay(
-            self.version.pk,
-            build_pk=self.build.pk,
-
-            # TODO: are these really required or can be completely removed from
-            # our code?
-            force=True,
-            record=True,
-        )
-
-    def _config_file(self, config):
-        config = BuildConfigV2(
-            {},
-            config,
-            source_file='readthedocs.yaml',
-        )
-        config.validate()
-        return config
-
+class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     def test_config_file_exception(self, load_yaml_config):
