@@ -42,6 +42,9 @@ class BuildTaskTests(TestCase):
     @mock.patch.object(UpdateDocsTask, 'build_docs_html' , mock.MagicMock())
     @mock.patch.object(UpdateDocsTask, 'build_docs_class')
     def test_build_respects_formats_sphinx(self, build_docs_class):
+        # NOTE: I don't like this idea of instantiating the task directly and
+        # overriding the `.config` of it. I think we should call the whole task
+        # and check for PATCH API call
         task = UpdateDocsTask()
         task.project = self.project
         task.version = self.version
@@ -409,28 +412,6 @@ class CeleryBuildTest(TestCase):
             'state': 'finished',
             'success': False,
         }
-
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.execute')
-    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
-    def test_clean_build_called_when_build_fails(self, requestsmock, clean_build, execute):
-        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        mocker.start()
-
-        execute.side_effect = Exception('Force and exception here.')
-        self._trigger_update_docs_task()
-
-    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
-    def test_clean_build_called(self, requestsmock, clean_build):
-        mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        mocker.start()
-
-        self._trigger_update_docs_task()
-
-        # It has to be called twice, ``before_start`` and ``after_return``
-        clean_build.assert_has_calls([
-            mock.call(mock.ANY),  # the argument is an APIVersion
-            mock.call(mock.ANY)
-        ])
 
     def test_build_commands_executed(self, requestsmock):
         # NOTE: I didn't find a way to use the same ``requestsmock`` object for

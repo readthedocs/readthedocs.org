@@ -1,25 +1,15 @@
-"""
-Things to know:
-
-* raw subprocess calls like .communicate expects bytes
-* the Command wrappers encapsulate the bytes and expose unicode
-"""
-import hashlib
 from itertools import zip_longest
-import json
 import os
 import tempfile
 import uuid
 from unittest import mock
-from unittest.mock import Mock, PropertyMock, mock_open, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
-from docker.errors import DockerException
 
-from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
@@ -30,7 +20,7 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -48,7 +38,6 @@ SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 @pytest.mark.skip
 class TestLocalBuildEnvironment(TestCase):
 
-    """Test execution and exception handling in environment."""
     fixtures = ['test_data', 'eric']
 
     def setUp(self):
@@ -61,55 +50,8 @@ class TestLocalBuildEnvironment(TestCase):
     def tearDown(self):
         self.mocks.stop()
 
-    def test_normal_execution(self):
-        """Normal build in passing state."""
-        self.mocks.configure_mock(
-            'process', {
-                'communicate.return_value': (b'This is okay', ''),
-            },
-        )
-        type(self.mocks.process).returncode = PropertyMock(return_value=0)
-
-        build_env = LocalBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            build_env.run('echo', 'test')
-        self.assertTrue(self.mocks.process.communicate.called)
-        self.assertEqual(len(build_env.commands), 1)
-        self.assertEqual(build_env.commands[0].output, 'This is okay')
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was saved
-        command = build_env.commands[0]
-        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
-            'build': DUMMY_BUILD_ID,
-            'command': command.get_command(),
-            'description': command.description,
-            'output': command.output,
-            'exit_code': 0,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': True,
-            'project': self.project.pk,
-            'setup_error': '',
-            'length': mock.ANY,
-            'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-            'exit_code': 0,
-        })
-
+    # NOTE: this test should be a unit-test for BuildCommand instead of an
+    # integration test that goes through the whole environment.
     def test_command_not_recorded(self):
         """Normal build in passing state with no command recorded."""
         self.mocks.configure_mock(
@@ -198,126 +140,6 @@ class TestLocalBuildEnvironment(TestCase):
             'exit_code': 0,
         })
 
-    def test_failing_execution(self):
-        """Build in failing state."""
-        self.mocks.configure_mock(
-            'process', {
-                'communicate.return_value': (b'This is not okay', ''),
-            },
-        )
-        type(self.mocks.process).returncode = PropertyMock(return_value=1)
-
-        build_env = LocalBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            build_env.run('echo', 'test')
-            self.fail('This should be unreachable')
-        self.assertTrue(self.mocks.process.communicate.called)
-        self.assertEqual(len(build_env.commands), 1)
-        self.assertEqual(build_env.commands[0].output, 'This is not okay')
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was saved
-        command = build_env.commands[0]
-        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
-            'build': DUMMY_BUILD_ID,
-            'command': command.get_command(),
-            'description': command.description,
-            'output': command.output,
-            'exit_code': 1,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'length': mock.ANY,
-            'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-            'exit_code': 1,
-        })
-
-    def test_failing_execution_with_caught_exception(self):
-        """Build in failing state with BuildEnvironmentError exception."""
-        build_env = LocalBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            raise BuildEnvironmentError('Foobar')
-
-        self.assertFalse(self.mocks.process.communicate.called)
-        self.assertEqual(len(build_env.commands), 0)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The build failed before executing any command
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'length': mock.ANY,
-            'error': 'Foobar',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-            'exit_code': 1,
-        })
-
-    def test_failing_execution_with_unexpected_exception(self):
-        """Build in failing state with exception from code."""
-        build_env = LocalBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            raise ValueError('uncaught')
-
-        self.assertFalse(self.mocks.process.communicate.called)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The build failed before executing any command
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'length': mock.ANY,
-            'error': (
-                'There was a problem with Read the Docs while building your '
-                'documentation. Please try again later. However, if this '
-                'problem persists, please report this to us with your '
-                'build id (123).'
-            ),
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-
 # TODO: most of these tests need to be re-written to make usage of the Celery
 # handlers properly to check success/failure
 @pytest.mark.skip
@@ -346,309 +168,6 @@ class TestDockerBuildEnvironment(TestCase):
             build={'id': DUMMY_BUILD_ID},
         )
         self.assertEqual(docker.container_id, 'build-123-project-6-pip')
-
-    # NOTE: This is managed by Celery handlers now (`.on_success`). This test
-    # needs to be updated acordingly.
-    def test_environment_successful_build(self):
-        """A successful build exits cleanly and reports the build output."""
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            pass
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': True,
-            'project': self.project.pk,
-            'setup_error': '',
-            'length': 0,
-            'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_connection_failure(self):
-        """Connection failure on to docker socket should raise exception."""
-        self.mocks.configure_mock('docker', {'side_effect': DockerException})
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        def _inner():
-            with build_env:
-                self.fail('Should not hit this')
-
-        self.assertRaises(BuildEnvironmentError, _inner)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': 0,
-            'error': (
-                'There was a problem with Read the Docs while building your '
-                'documentation. Please try again later. However, if this '
-                'problem persists, please report this to us with your '
-                'build id (123).'
-            ),
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_api_failure(self):
-        """Failing API error response from docker should raise exception."""
-        response = Mock(status_code=500, reason='Because')
-        self.mocks.configure_mock(
-            'docker_client', {
-                'create_container.side_effect': DockerAPIError(
-                    'Failure creating container', response,
-                    'Failure creating container',
-                ),
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        def _inner():
-            with build_env:
-                self.fail('Should not hit this')
-
-        self.assertRaises(BuildEnvironmentError, _inner)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': mock.ANY,
-            'error': 'Build environment creation failed',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_api_failure_on_docker_memory_limit(self):
-        """Docker exec_create raised memory issue on `exec`"""
-        response = Mock(status_code=500, reason='Internal Server Error')
-        self.mocks.configure_mock(
-            'docker_client', {
-                'exec_create.side_effect': DockerAPIError(
-                    'Failure creating container', response,
-                    'Failure creating container',
-                ),
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            build_env.run('echo test', cwd='/tmp')
-
-        self.assertEqual(build_env.commands[0].exit_code, -1)
-        self.assertEqual(build_env.commands[0].error, None)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was saved
-        command = build_env.commands[0]
-        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
-            'build': DUMMY_BUILD_ID,
-            'command': command.get_command(),
-            'description': command.description,
-            'output': command.output,
-            'exit_code': -1,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': -1,
-            'length': mock.ANY,
-            'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_api_failure_on_error_in_exit(self):
-        response = Mock(status_code=500, reason='Internal Server Error')
-        self.mocks.configure_mock(
-            'docker_client', {
-                'kill.side_effect': BuildEnvironmentError('Failed'),
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            pass
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': 0,
-            'error': 'Failed',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_api_failure_returns_previous_error_on_error_in_exit(self):
-        """
-        Treat previously raised errors with more priority.
-
-        Don't report a connection problem to Docker on cleanup if we have a more
-        usable error to show the user.
-        """
-        response = Mock(status_code=500, reason='Internal Server Error')
-        self.mocks.configure_mock(
-            'docker_client', {
-                'kill.side_effect': BuildEnvironmentError('Outer failed'),
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            raise BuildEnvironmentError('Inner failed')
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # No commands were executed
-        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': 0,
-            'error': 'Inner failed',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_command_execution(self):
-        """Command execution through Docker."""
-        self.mocks.configure_mock(
-            'docker_client', {
-                'exec_create.return_value': {'Id': b'container-foobar'},
-                'exec_start.return_value': b'This is the return',
-                'exec_inspect.return_value': {'ExitCode': 1},
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-
-        with build_env:
-            build_env.run('echo test', cwd='/tmp')
-
-        self.mocks.docker_client.exec_create.assert_called_with(
-            container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'echo\\ test'",
-            workdir='/tmp',
-            environment=mock.ANY,
-            user='docs:docs',
-            stderr=True,
-            stdout=True,
-        )
-        self.assertEqual(build_env.commands[0].exit_code, 1)
-        self.assertEqual(build_env.commands[0].output, 'This is the return')
-        self.assertEqual(build_env.commands[0].error, None)
-
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was saved
-        command = build_env.commands[0]
-        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
-            'build': DUMMY_BUILD_ID,
-            'command': command.get_command(),
-            'description': command.description,
-            'output': command.output,
-            'exit_code': 1,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'success': False,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 1,
-            'length': 0,
-            'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
 
     def test_command_not_recorded(self):
         """Command execution through Docker without record the command."""
@@ -915,6 +434,11 @@ class TestDockerBuildEnvironment(TestCase):
         })
 
 
+# NOTE: these tests should be migrated to not use `LocalBuildEnvironment`
+# behind the scenes and mock the execution of the command itself by using
+# `DockerBuildEnvironment`.
+#
+# They should be merged with the following test suite `TestDockerBuildCommand`.
 @override_settings(RTD_DOCKER_WORKDIR='/tmp/')
 class TestBuildCommand(TestCase):
 
