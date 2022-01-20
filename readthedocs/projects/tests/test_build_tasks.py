@@ -7,7 +7,6 @@ from django.test import TestCase
 from django.utils import timezone
 import django_dynamic_fixture as fixture
 
-import requests_mock
 import pytest
 
 from readthedocs.builds.constants import (
@@ -25,10 +24,14 @@ from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task
 from .mockers import BuildEnvironmentMocker
 
 
-@requests_mock.Mocker()
-class BuildTaskTests(TestCase):
+@pytest.mark.django_db
+class TestBuildTask:
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self, requests_mock):
+        # Save the reference to query it from inside the test
+        self.requests_mock = requests_mock
+
         self.project = fixture.get(
             Project,
             slug='project',
@@ -42,10 +45,18 @@ class BuildTaskTests(TestCase):
             commit='a1b2c3',
         )
 
-    def tearDown(self):
-        # Stop all the mocks on tearDown.
-        if hasattr(self, 'mocker'):
-            self.mocker.stop()
+        self.mocker = BuildEnvironmentMocker(
+            self.project,
+            self.version,
+            self.build,
+            self.requests_mock,
+        )
+        self.mocker.start()
+
+        yield
+
+        # tearDown
+        self.mocker.stop()
 
     def _trigger_update_docs_task(self):
         # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
@@ -80,11 +91,8 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    @pytest.mark.skip(reason='it seems we can not mix parametrize and mock.patch')
-    def test_build_respects_formats_sphinx(self, requestsmock, formats, build_class, build_docs_html, build_docs_class, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    @pytest.mark.skip
+    def test_build_respects_formats_sphinx(self, build_docs_html, build_docs_class, load_yaml_config, formats, build_class):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
             'formats': formats,
@@ -100,10 +108,7 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_build_respects_formats_mkdocs(self, requestsmock, build_docs_html, build_docs_class, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_build_respects_formats_mkdocs(self, build_docs_html, build_docs_class, load_yaml_config):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
             'mkdocs': {
@@ -121,10 +126,7 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     @pytest.mark.skip()
     # NOTE: find a way to test we are passing all the environment variables to all the commands
-    def test_get_env_vars_default(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_get_env_vars_default(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
         })
@@ -170,10 +172,7 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.projects.tasks.builds.send_external_build_status')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
-    def test_successful_build(self, requestsmock, clean_build, send_notifications, send_external_build_status, build_complete, fileify):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_successful_build(self, clean_build, send_notifications, send_external_build_status, build_complete, fileify):
         self._trigger_update_docs_task()
 
         # It has to be called twice, ``before_start`` and ``after_return``
@@ -211,14 +210,14 @@ class BuildTaskTests(TestCase):
         # TODO: assert the verb and the path for each API call as well
 
         # Update build state: clonning
-        assert requestsmock.request_history[3].json() == {
+        assert self.requests_mock.request_history[3].json() == {
             'id': 1,
             'state': 'cloning',
             'commit': 'a1b2c3',
         }
 
         # Save config object data (using default values)
-        assert requestsmock.request_history[4].json() == {
+        assert self.requests_mock.request_history[4].json() == {
             'config': {
                 'version': '1',
                 'formats': [
@@ -258,14 +257,14 @@ class BuildTaskTests(TestCase):
             },
         }
         # Update build state: installing
-        assert requestsmock.request_history[5].json() == {
+        assert self.requests_mock.request_history[5].json() == {
             'id': 1,
             'state': 'installing',
             'commit': 'a1b2c3',
             'config': mock.ANY,
         }
         # Update build state: building
-        assert requestsmock.request_history[6].json() == {
+        assert self.requests_mock.request_history[6].json() == {
             'id': 1,
             'state': 'building',
             'commit': 'a1b2c3',
@@ -273,19 +272,19 @@ class BuildTaskTests(TestCase):
         }
         # Pass active versions to build context
         assert (
-            requestsmock.request_history[7].path == '/api/v2/project/1/active_versions/'
+            self.requests_mock.request_history[7].path == '/api/v2/project/1/active_versions/'
         )
         # Update build state: uploading
-        assert requestsmock.request_history[9].json() == {
+        assert self.requests_mock.request_history[9].json() == {
             'id': 1,
             'state': 'uploading',
             'commit': 'a1b2c3',
             'config': mock.ANY,
         }
         # Update version state
-        assert requestsmock.request_history[10]._request.method == 'PATCH'
-        assert requestsmock.request_history[10].path == '/api/v2/version/1/'
-        assert requestsmock.request_history[10].json() == {
+        assert self.requests_mock.request_history[10]._request.method == 'PATCH'
+        assert self.requests_mock.request_history[10].path == '/api/v2/version/1/'
+        assert self.requests_mock.request_history[10].json() == {
             'built': True,
             'documentation_type': 'sphinx',
             'has_pdf': True,
@@ -293,11 +292,11 @@ class BuildTaskTests(TestCase):
             'has_htmlzip': True,
         }
         # Set project has valid clone
-        assert requestsmock.request_history[11]._request.method == 'PATCH'
-        assert requestsmock.request_history[11].path == '/api/v2/project/1/'
-        assert requestsmock.request_history[11].json() == {'has_valid_clone': True}
+        assert self.requests_mock.request_history[11]._request.method == 'PATCH'
+        assert self.requests_mock.request_history[11].path == '/api/v2/project/1/'
+        assert self.requests_mock.request_history[11].json() == {'has_valid_clone': True}
         # Update build state: finished, success and builder
-        assert requestsmock.request_history[12].json() == {
+        assert self.requests_mock.request_history[12].json() == {
             'id': 1,
             'state': 'finished',
             'commit': 'a1b2c3',
@@ -322,10 +321,7 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.execute')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
-    def test_failed_build(self, requestsmock, clean_build, send_notifications, execute, send_external_build_status, build_complete):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_failed_build(self, clean_build, send_notifications, execute, send_external_build_status, build_complete):
         execute.side_effect = Exception('Force and exception here.')
         self._trigger_update_docs_task()
 
@@ -355,7 +351,7 @@ class BuildTaskTests(TestCase):
         )
 
         # Test we are updating the DB by calling the API with the updated build object
-        api_request = requestsmock.request_history[-1]  # the last one should be the PATCH for the build
+        api_request = self.requests_mock.request_history[-1]  # the last one should be the PATCH for the build
         assert api_request._request.method == 'PATCH'
         assert api_request.json() == {
             'builder': mock.ANY,
@@ -367,19 +363,15 @@ class BuildTaskTests(TestCase):
             'success': False,
         }
 
-    def test_build_commands_executed(self, requestsmock):
+    def test_build_commands_executed(self):
         # NOTE: I didn't find a way to use the same ``requestsmock`` object for
         # all the tests and be able to put it on the setUp/tearDown
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
         self._trigger_update_docs_task()
 
         self.mocker.mocks['git.Backend.run'].assert_has_calls([
             mock.call('git', 'clone', '--no-single-branch', '--depth', '50', '', '.'),
             mock.call('git', 'checkout', '--force', 'a1b2c3'),
             mock.call('git', 'clean', '-d', '-f', '-f'),
-            mock.call('git', 'rev-parse', 'HEAD', record=False),
         ])
 
         self.mocker.mocks['environment.run'].assert_has_calls([
@@ -515,18 +507,12 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_use_config_file(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_use_config_file(self, load_yaml_config):
         self._trigger_update_docs_task()
         load_yaml_config.assert_called_once()
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_install_apt_packages(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_install_apt_packages(self, load_yaml_config):
         config = BuildConfigV2(
             {},
             {
@@ -566,10 +552,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_build_tools(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_build_tools(self, load_yaml_config):
         config = BuildConfigV2(
             {},
             {
@@ -615,10 +598,7 @@ class BuildTaskTests(TestCase):
     @mock.patch('readthedocs.doc_builder.python_environments.tarfile')
     @mock.patch('readthedocs.doc_builder.python_environments.build_tools_storage')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_build_tools_cached(self, requestsmock, load_yaml_config, build_tools_storage, tarfile):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_build_tools_cached(self, load_yaml_config, build_tools_storage, tarfile):
         config = BuildConfigV2(
             {},
             {
@@ -687,10 +667,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_requirements_from_config_file_installed(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_requirements_from_config_file_installed(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -726,10 +703,7 @@ class BuildTaskTests(TestCase):
     # TODO: migrate test_system_packages
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_conda_config_calls_conda_command(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_conda_config_calls_conda_command(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -782,10 +756,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_python_mamba_commands(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_python_mamba_commands(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -812,10 +783,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_sphinx_fail_on_warning(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_sphinx_fail_on_warning(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -852,10 +820,7 @@ class BuildTaskTests(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_mkdocs_fail_on_warning(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_mkdocs_fail_on_warning(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -886,10 +851,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_system_site_packages(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_system_site_packages(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -913,10 +875,7 @@ class BuildTaskTests(TestCase):
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_system_site_packages_project_overrides(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_system_site_packages_project_overrides(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -945,10 +904,7 @@ class BuildTaskTests(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_python_install_setuptools(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_python_install_setuptools(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -976,10 +932,7 @@ class BuildTaskTests(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_python_install_pip(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_python_install_pip(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -1012,14 +965,11 @@ class BuildTaskTests(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_python_install_pip_extras(self, requestsmock, load_yaml_config):
+    def test_python_install_pip_extras(self, load_yaml_config):
         # FIXME: the test passes but in the logs there is an error related to
         # `backends/sphinx.py` not finding a file.
         #
         # TypeError('expected str, bytes or os.PathLike object, not NoneType')
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -1053,10 +1003,7 @@ class BuildTaskTests(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_python_install_pip_several_options(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_python_install_pip_several_options(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
                 'version': 2,
@@ -1118,7 +1065,6 @@ class BuildTaskTests(TestCase):
         ])
 
 
-@requests_mock.Mocker()
 class BuildTaskExceptionHandler(TestCase):
 
     def setUp(self):
@@ -1163,10 +1109,7 @@ class BuildTaskExceptionHandler(TestCase):
 
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
-    def test_config_file_exception(self, requestsmock, load_yaml_config):
-        self.mocker = BuildEnvironmentMocker(self.project, self.version, self.build, requestsmock)
-        self.mocker.start()
-
+    def test_config_file_exception(self, load_yaml_config):
         load_yaml_config.side_effect = ConfigError(
             code='invalid',
             message='Invalid version in config file.'
@@ -1176,9 +1119,9 @@ class BuildTaskExceptionHandler(TestCase):
         # This is a known exceptions. We hit the API saving the correct error
         # in the Build object. In this case, the "error message" coming from
         # the exception will be shown to the user
-        assert requestsmock.request_history[-1]._request.method == 'PATCH'
-        assert requestsmock.request_history[-1].path == '/api/v2/build/1/'
-        assert requestsmock.request_history[-1].json() == {
+        assert self.requests_mock.request_history[-1]._request.method == 'PATCH'
+        assert self.requests_mock.request_history[-1].path == '/api/v2/build/1/'
+        assert self.requests_mock.request_history[-1].json() == {
             'id': 1,
             'state': 'finished',
             'commit': 'a1b2c3',
