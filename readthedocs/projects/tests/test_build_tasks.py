@@ -1135,6 +1135,50 @@ class TestBuildTask(BuildEnvironmentBase):
                 assert False, 'git submodule command found'
 
 
+    @pytest.mark.parametrize(
+        'value,command',
+        [
+            ('html', 'readthedocs'),
+            ('htmldir', 'readthedocsdirhtml'),
+            ('dirhtml', 'readthedocsdirhtml'),
+            ('singlehtml', 'readthedocssinglehtml'),
+        ],
+    )
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_sphinx_builder(self, load_yaml_config, value, command):
+        load_yaml_config.return_value = self._config_file(
+            {
+                'version': 2,
+                'sphinx': {
+                    'builder': value,
+                    'configuration': 'docs/conf.py',
+                },
+            },
+        )
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks['environment.run'].assert_has_calls([
+            mock.call(
+                mock.ANY,
+                '-m',
+                'sphinx',
+                '-T',
+                '-E',
+                '-b',
+                command,
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/html',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            ),
+        ])
+
+
 class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
