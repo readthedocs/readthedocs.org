@@ -33,7 +33,7 @@ class BuildEnvironmentMocker:
             self.mocks[k] = p.start()
 
     def stop(self):
-        for k, m in self.mocks.items():
+        for k, m in self.patches.items():
             m.stop()
 
     def _mock_artifact_builders(self):
@@ -114,7 +114,11 @@ class BuildEnvironmentMocker:
         self.project_repository_path = '/tmp/readthedocs-tests/git-repository'
         shutil.rmtree(self.project_repository_path, ignore_errors=True)
         os.makedirs(self.project_repository_path)
-        mock.patch('readthedocs.projects.models.Project.checkout_path', return_value=self.project_repository_path).start()
+
+        self.patches['models.Project.checkout_path'] = mock.patch(
+            'readthedocs.projects.models.Project.checkout_path',
+            return_value=self.project_repository_path,
+        )
 
         def _repo_exists_side_effect(*args, **kwargs):
             if self._counter == 0:
