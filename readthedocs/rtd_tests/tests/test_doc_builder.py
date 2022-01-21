@@ -322,7 +322,7 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = LocalBuildEnvironment(record=False)
+        self.build_env = LocalBuildEnvironment()
         self.build_env.project = self.project
         self.build_env.version = self.version
 

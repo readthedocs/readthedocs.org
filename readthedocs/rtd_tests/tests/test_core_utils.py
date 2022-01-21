@@ -51,8 +51,6 @@ class CoreUtilTests(TestCase):
 
         trigger_build(project=project_1)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -74,8 +72,6 @@ class CoreUtilTests(TestCase):
         self.assertEqual(version.slug, LATEST)
 
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -94,8 +90,6 @@ class CoreUtilTests(TestCase):
         self.project.build_queue = 'build03'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -118,8 +112,6 @@ class CoreUtilTests(TestCase):
         """Pass of time limit."""
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -143,8 +135,6 @@ class CoreUtilTests(TestCase):
         self.project.container_time_limit = '200s'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -167,8 +157,6 @@ class CoreUtilTests(TestCase):
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -205,8 +193,6 @@ class CoreUtilTests(TestCase):
 
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -233,8 +219,6 @@ class CoreUtilTests(TestCase):
         self.version.type = 'external'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
@@ -256,8 +240,6 @@ class CoreUtilTests(TestCase):
         self.project.main_language_project = get(Project, slug='main')
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'record': True,
-            'force': False,
             'build_pk': mock.ANY,
             'commit': None
         }
