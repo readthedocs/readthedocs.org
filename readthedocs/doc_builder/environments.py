@@ -69,7 +69,6 @@ class BuildCommand(BuildCommandResultMixin):
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
-    :param description: a more grokable description of the command being run
     :param kwargs: allow to subclass this class and extend it
     """
 
@@ -82,7 +81,6 @@ class BuildCommand(BuildCommandResultMixin):
             user=None,
             build_env=None,
             bin_path=None,
-            description=None,
             record_as_success=False,
             **kwargs,
     ):
@@ -101,7 +99,6 @@ class BuildCommand(BuildCommandResultMixin):
         self.end_time = None
 
         self.bin_path = bin_path
-        self.description = description or ''
         self.record_as_success = record_as_success
         self.exit_code = None
 
@@ -244,7 +241,6 @@ class BuildCommand(BuildCommandResultMixin):
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
-            'description': self.description,
             'output': self.output,
             'exit_code': self.exit_code,
             'start_time': self.start_time,
