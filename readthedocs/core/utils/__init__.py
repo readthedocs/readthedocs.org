@@ -57,7 +57,6 @@ def prepare_build(
     from readthedocs.projects.tasks.utils import send_external_build_status
     from readthedocs.projects.tasks.builds import update_docs_task
 
-    build = None
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because project is not active.',
@@ -106,7 +105,7 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    if build and commit:
+    if commit:
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
             version_type=version.type,
@@ -115,7 +114,7 @@ def prepare_build(
             status=BUILD_STATUS_PENDING
         )
 
-    if build and version.type != EXTERNAL:
+    if version.type != EXTERNAL:
         # Send notifications for build triggered.
         send_build_notifications.delay(
             version_pk=version.pk,
