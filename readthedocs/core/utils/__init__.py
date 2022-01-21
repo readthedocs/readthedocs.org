@@ -284,18 +284,3 @@ def slugify(value, *args, **kwargs):
         # DNS doesn't allow - at the beginning or end of subdomains
         value = mark_safe(value.strip('-'))
     return value
-
-
-def safe_makedirs(directory_name):
-    """
-    Safely create a directory.
-
-    Makedirs has an issue where it has a race condition around checking for a
-    directory and then creating it. This catches the exception in the case where
-    the dir already exists.
-    """
-    try:
-        os.makedirs(directory_name)
-    except OSError as e:
-        if e.errno != errno.EEXIST:  # 17, FileExistsError
-            raise
