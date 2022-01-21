@@ -177,7 +177,16 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch('readthedocs.projects.tasks.builds.send_external_build_status')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
-    def test_successful_build(self, clean_build, send_notifications, send_external_build_status, build_complete, fileify):
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_successful_build(self, load_yaml_config, clean_build, send_notifications, send_external_build_status, build_complete, fileify):
+        load_yaml_config.return_value = self._config_file({
+            'version': 2,
+            'formats': 'all',
+            'sphinx': {
+                'configuration': 'docs/conf.py',
+            },
+        })
+
         self._trigger_update_docs_task()
 
         # It has to be called twice, ``before_start`` and ``after_return``
@@ -186,6 +195,8 @@ class TestBuildTask(BuildEnvironmentBase):
             mock.call(mock.ANY)
         ])
 
+        # TODO: mock `build_tasks.send_build_notifications` instead and add
+        # another tests to check that they are not sent for EXTERNAL versions
         send_notifications.assert_called_once_with(
             self.version.pk,
             self.build.pk,
@@ -224,15 +235,11 @@ class TestBuildTask(BuildEnvironmentBase):
         # Save config object data (using default values)
         assert self.requests_mock.request_history[4].json() == {
             'config': {
-                'version': '1',
-                'formats': [
-                    'htmlzip',
-                    'epub',
-                    'pdf',
-                ],
+                'version': '2',
+                'formats': ['htmlzip', 'pdf', 'epub'],
                 'python': {
                     'version': '3',
-                    'install': [{'requirements': None}],
+                    'install': [],
                     'use_system_site_packages': False,
                 },
                 'conda': None,
@@ -243,21 +250,23 @@ class TestBuildTask(BuildEnvironmentBase):
                 'doctype': 'sphinx',
                 'sphinx': {
                     'builder': 'sphinx',
-                    'configuration': None,
+                    'configuration': 'docs/conf.py',
                     'fail_on_warning': False,
                 },
-                'mkdocs': {
-                    'configuration': None,
-                    'fail_on_warning': False,
-                },
+                'mkdocs': None,
                 'submodules': {
-                    'include': 'all',
-                    'exclude': [],
-                    'recursive': True,
+                    'include': [],
+                    'exclude': 'all',
+                    'recursive': False,
                 },
                 'search': {
                     'ranking': {},
-                    'ignore': [],
+                    'ignore': [
+                        'search.html',
+                        'search/index.html',
+                        '404.html',
+                        '404/index.html',
+                    ],
                 },
             },
         }
@@ -275,21 +284,17 @@ class TestBuildTask(BuildEnvironmentBase):
             'commit': 'a1b2c3',
             'config': mock.ANY,
         }
-        # Pass active versions to build context
-        assert (
-            self.requests_mock.request_history[7].path == '/api/v2/project/1/active_versions/'
-        )
         # Update build state: uploading
-        assert self.requests_mock.request_history[9].json() == {
+        assert self.requests_mock.request_history[7].json() == {
             'id': 1,
             'state': 'uploading',
             'commit': 'a1b2c3',
             'config': mock.ANY,
         }
         # Update version state
-        assert self.requests_mock.request_history[10]._request.method == 'PATCH'
-        assert self.requests_mock.request_history[10].path == '/api/v2/version/1/'
-        assert self.requests_mock.request_history[10].json() == {
+        assert self.requests_mock.request_history[8]._request.method == 'PATCH'
+        assert self.requests_mock.request_history[8].path == '/api/v2/version/1/'
+        assert self.requests_mock.request_history[8].json() == {
             'built': True,
             'documentation_type': 'sphinx',
             'has_pdf': True,
@@ -297,11 +302,11 @@ class TestBuildTask(BuildEnvironmentBase):
             'has_htmlzip': True,
         }
         # Set project has valid clone
-        assert self.requests_mock.request_history[11]._request.method == 'PATCH'
-        assert self.requests_mock.request_history[11].path == '/api/v2/project/1/'
-        assert self.requests_mock.request_history[11].json() == {'has_valid_clone': True}
+        assert self.requests_mock.request_history[9]._request.method == 'PATCH'
+        assert self.requests_mock.request_history[9].path == '/api/v2/project/1/'
+        assert self.requests_mock.request_history[9].json() == {'has_valid_clone': True}
         # Update build state: finished, success and builder
-        assert self.requests_mock.request_history[12].json() == {
+        assert self.requests_mock.request_history[10].json() == {
             'id': 1,
             'state': 'finished',
             'commit': 'a1b2c3',
@@ -327,7 +332,10 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
     def test_failed_build(self, clean_build, send_notifications, execute, send_external_build_status, build_complete):
+        # Force an exception from the execution of the task. We don't really
+        # care "where" it was raised: setup, build, syncing directories, etc
         execute.side_effect = Exception('Force and exception here.')
+
         self._trigger_update_docs_task()
 
 
@@ -368,9 +376,16 @@ class TestBuildTask(BuildEnvironmentBase):
             'success': False,
         }
 
-    def test_build_commands_executed(self):
-        # NOTE: I didn't find a way to use the same ``requestsmock`` object for
-        # all the tests and be able to put it on the setUp/tearDown
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_build_commands_executed(self, load_yaml_config):
+        load_yaml_config.return_value = self._config_file({
+            'version': 2,
+            'formats': 'all',
+            'sphinx': {
+                'configuration': 'docs/conf.py',
+            },
+        })
+
         self._trigger_update_docs_task()
 
         self.mocker.mocks['git.Backend.run'].assert_has_calls([
@@ -417,11 +432,15 @@ class TestBuildTask(BuildEnvironmentBase):
                 bin_path=mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
-            mock.call(
-                'cat',
-                'conf.py',
-                cwd='/tmp/readthedocs-tests/git-repository',
-            ),
+            # FIXME: shouldn't this one be present here? It's not now because
+            # we are mocking `append_conf` which is the one that triggers this
+            # command.
+            #
+            # mock.call(
+            #     'cat',
+            #     'docs/conf.py',
+            #     cwd='/tmp/readthedocs-tests/git-repository',
+            # ),
             mock.call(
                 mock.ANY,
                 '-m',
@@ -483,6 +502,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 'mv',
                 '-f',
                 'output.file',
+                # TODO: take a look at
+                # https://callee.readthedocs.io/en/latest/reference/strings.html#callee.strings.EndsWith
+                # to match `project.epub`
                 mock.ANY,
                 cwd='/tmp/readthedocs-tests/git-repository',
             ),
