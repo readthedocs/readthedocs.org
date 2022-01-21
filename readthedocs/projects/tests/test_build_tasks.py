@@ -65,10 +65,6 @@ class BuildEnvironmentBase:
         return update_docs_task.delay(
             self.version.pk,
             build_pk=self.build.pk,
-
-            # TODO: are these really required or can be completely removed from
-            # our code?
-            record=True,
         )
 
     def _config_file(self, config):

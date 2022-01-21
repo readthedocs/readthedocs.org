@@ -407,8 +407,8 @@ class BaseEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs
+            self, cls, cmd, warn_only=False,
+            record=True, record_as_success=False, **kwargs
     ):
         """
         Run command from this environment.
@@ -421,10 +421,6 @@ class BaseEnvironment:
         :param record_as_success: force command ``exit_code`` to be saved as
             ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
         """
-        if record is None:
-            # ``self.record`` only exists when called from ``*BuildEnvironment``
-            record = getattr(self, 'record', False)
-
         if not record:
             warn_only = True
 
@@ -509,7 +505,6 @@ class BuildEnvironment(BaseEnvironment):
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
-    :param record: Record status of build object
     :param environment: shell environment variables
     """
 
@@ -534,14 +529,12 @@ class BuildEnvironment(BaseEnvironment):
             version=None,
             build=None,
             config=None,
-            record=True,
             environment=None,
     ):
         super().__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
-        self.record = record
 
     # TODO: remove these methods, we are not using LocalEnvironment anymore. We
     # need to find a way for tests to not require this anymore

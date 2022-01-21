@@ -73,7 +73,7 @@ class BaseVCS:
         # TODO: we should not allow ``environment=None`` and always use the
         # environment defined by the settings
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
-        self.environment = environment or LocalBuildEnvironment(record=False)
+        self.environment = environment or LocalBuildEnvironment()
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):

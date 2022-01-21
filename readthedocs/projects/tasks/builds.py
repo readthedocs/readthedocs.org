@@ -171,7 +171,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         environment = self.environment_class(
             project=self.project,
             version=self.version,
-            record=False,
             environment=self.get_vcs_env_vars(),
         )
 
@@ -328,8 +327,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         version_pk = kwargs.get('version_pk')
         build_pk = kwargs.get('build_pk')
 
-        self.record = kwargs.get('record')
-
         self.build = self.get_build(build_pk)
         self.version = self.get_version(version_pk)
         self.project = self.version.project
@@ -352,7 +349,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             commit=self.commit,
             project_slug=self.project.slug,
             version_slug=self.version.slug,
-            record=self.record,
         )
 
         # NOTE: this is never called. I didn't find anything in the logs, so we can probably remove it
@@ -531,19 +527,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def update_build(self, state):
         self.build['state'] = state
 
-        if self.record:
-            # Attempt to stop unicode errors on build reporting
-            # for key, val in list(self.build.items()):
-            #     if isinstance(val, bytes):
-            #         self.build[key] = val.decode('utf-8', 'ignore')
+        # Attempt to stop unicode errors on build reporting
+        # for key, val in list(self.build.items()):
+        #     if isinstance(val, bytes):
+        #         self.build[key] = val.decode('utf-8', 'ignore')
 
-            try:
-                api_v2.build(self.build['id']).patch(self.build)
-            except Exception:
-                # NOTE: I think we should fail the build if we cannot update it
-                # at this point otherwise, the data will be inconsistent and we
-                # may be serving "new docs" but saying the "build have failed"
-                log.exception('Unable to update build')
+        try:
+            api_v2.build(self.build['id']).patch(self.build)
+        except Exception:
+            # NOTE: I think we should fail the build if we cannot update it
+            # at this point otherwise, the data will be inconsistent and we
+            # may be serving "new docs" but saying the "build have failed"
+            log.exception('Unable to update build')
 
     def execute(self):
         """
@@ -580,7 +575,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             project=self.project,
             version=self.version,
             build=self.build,
-            record=self,
             environment=self.get_vcs_env_vars(),
         )
 
@@ -611,7 +605,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version=self.version,
             config=self.config,
             build=self.build,
-            record=self.record,
             environment=self.get_build_env_vars(),
         )
 

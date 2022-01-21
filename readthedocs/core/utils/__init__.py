@@ -35,7 +35,6 @@ def prepare_build(
         project,
         version=None,
         commit=None,
-        record=True,
         immutable=True,
 ):
     """
@@ -47,7 +46,6 @@ def prepare_build(
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
     :param immutable: whether or not create an immutable Celery signature
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
@@ -71,23 +69,19 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
-    kwargs = {
-        'record': record,
-        'commit': commit,
-    }
+    build = Build.objects.create(
+        project=project,
+        version=version,
+        type='html',
+        state=BUILD_STATE_TRIGGERED,
+        success=True,
+        commit=commit
+    )
 
-    # NOTE: we should remove the `record` attribute from here. We always want
-    # to record the commands.
-    if record:
-        build = Build.objects.create(
-            project=project,
-            version=version,
-            type='html',
-            state=BUILD_STATE_TRIGGERED,
-            success=True,
-            commit=commit
-        )
-        kwargs['build_pk'] = build.pk
+    kwargs = {
+        'commit': commit,
+        'build_pk': build.pk,
+    }
 
     options = {}
     if project.build_queue:
@@ -216,7 +210,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None, record=True):
+def trigger_build(project, version=None, commit=None):
     """
     Trigger a Build.
 
@@ -226,7 +220,6 @@ def trigger_build(project, version=None, commit=None, record=True):
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
@@ -240,7 +233,6 @@ def trigger_build(project, version=None, commit=None, record=True):
         project=project,
         version=version,
         commit=commit,
-        record=record,
         immutable=True,
     )
 
