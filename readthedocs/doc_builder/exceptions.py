@@ -15,7 +15,7 @@ class BuildBaseException(Exception):
             'status_code',
             None,
         ) or self.status_code or 1
-        message = message or self.get_default_message()
+        self.message = message or self.message or self.get_default_message()
         super().__init__(message, **kwargs)
 
     def get_default_message(self):

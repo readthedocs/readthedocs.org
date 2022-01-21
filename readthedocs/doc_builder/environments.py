@@ -320,28 +320,23 @@ class DockerBuildCommand(BuildCommand):
             self.exit_code = cmd_ret['ExitCode']
 
             # Docker will exit with a special exit code to signify the command
-            # was killed due to memory usage, make the error code
-            # nicer. Sometimes the kernel kills the command and Docker doesn't
-            # not use the specific exit code, so we check if the word `Killed`
-            # is in the last 15 lines of the command's output
+            # was killed due to memory usage. We try to make the error code
+            # nicer here. However, sometimes the kernel kills the command and
+            # Docker does not use the specific exit code, so we check if the
+            # word `Killed` is in the last 15 lines of the command's output.
+            #
+            # NOTE: the work `Killed` could appear in the output because the
+            # command was killed by OOM or timeout so we put a generic message here.
             killed_in_output = 'Killed' in '\n'.join(
                 self.output.splitlines()[-15:],
             )
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (
                 self.exit_code == 1 and
-                # FIXME: this is wrong. If the command is killed due
-                # timeout, it will also have `Killed` in the output.
-                # Here is the main problem of the issue reported at
-                # https://github.com/readthedocs/readthedocs.org/issues/4468
-                #
-                # I think this case "Killed" in output, it's just the timeout
-                # case. However, we can update the output append to reflect
-                # both cases and avoid confusions to users.
                 killed_in_output
             ):
                 self.output += str(
                     _(
-                        '\n\nCommand killed due to excessive memory consumption\n',
+                        '\n\nCommand killed due to timeout or excessive memory consumption\n',
                     ),
                 )
         except DockerAPIError:
