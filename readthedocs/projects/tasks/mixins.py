@@ -38,15 +38,6 @@ from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
 )
-from readthedocs.doc_builder.exceptions import (
-    BuildEnvironmentError,
-    BuildMaxConcurrencyError,
-    BuildTimeoutError,
-    DuplicatedBuildError,
-    ProjectBuildsSkippedError,
-    VersionLockedError,
-    YAMLParseError,
-)
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.search.utils import index_new_files, remove_indexed_files

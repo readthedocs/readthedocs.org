@@ -6,7 +6,7 @@ from django.utils.translation import gettext_noop
 from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
 
 
-class BuildEnvironmentException(Exception):
+class BuildBaseException(Exception):
     message = None
     status_code = None
 
@@ -22,7 +22,7 @@ class BuildEnvironmentException(Exception):
         return self.message
 
 
-class BuildEnvironmentError(BuildEnvironmentException):
+class BuildAppError(BuildBaseException):
     GENERIC_WITH_BUILD_ID = gettext_noop(
         'There was a problem with Read the Docs while building your documentation. '
         'Please try again later. '
@@ -31,40 +31,50 @@ class BuildEnvironmentError(BuildEnvironmentException):
     )
 
 
-class BuildEnvironmentCreationFailed(BuildEnvironmentError):
-    message = gettext_noop('Build environment creation failed')
+class BuildUserError(BuildBaseException):
+    GENERIC = gettext_noop(
+        "One of the commmands failed. Please take a look at its output. This "
+        "doesn't look like a problem in Read the Docs application and should be "
+        "a problem that you can resolve by yourself taking a look at the build logs."
+    )
 
 
-class VersionLockedError(BuildEnvironmentError):
+# TODO: delete me and replace it by `BuildAppError` where needed
+class BuildEnvironmentError(BuildAppError):
+    GENERIC_WITH_BUILD_ID = gettext_noop(
+        'There was a problem with Read the Docs while building your documentation. '
+        'Please try again later. '
+        'However, if this problem persists, '
+        'please report this to us with your build id ({build_id}).',
+    )
+
+
+class VersionLockedError(BuildUserError):
     message = gettext_noop('Version locked, retrying in 5 minutes.')
     status_code = 423
 
 
-class ProjectBuildsSkippedError(BuildEnvironmentError):
+class ProjectBuildsSkippedError(BuildUserError):
     message = gettext_noop('Builds for this project are temporarily disabled')
 
 
-class YAMLParseError(BuildEnvironmentError):
+class YAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem in your project\'s configuration. {exception}',
     )
 
 
-class BuildTimeoutError(BuildEnvironmentError):
-    message = gettext_noop('Build exited due to time out')
-
-
-class BuildMaxConcurrencyError(BuildEnvironmentError):
+class BuildMaxConcurrencyError(BuildUserError):
     message = gettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
 
 
-class DuplicatedBuildError(BuildEnvironmentError):
+class DuplicatedBuildError(BuildUserError):
     message = gettext_noop('Duplicated build.')
     exit_code = 1
     status = BUILD_STATUS_DUPLICATED
 
 
-class MkDocsYAMLParseError(BuildEnvironmentError):
+class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
     )

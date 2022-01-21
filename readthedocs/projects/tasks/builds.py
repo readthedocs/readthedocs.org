@@ -47,9 +47,9 @@ from readthedocs.doc_builder.environments import (
     LocalBuildEnvironment,
 )
 from readthedocs.doc_builder.exceptions import (
-    BuildEnvironmentError,
+    BuildAppError,
+    BuildUserError,
     BuildMaxConcurrencyError,
-    BuildTimeoutError,
     DuplicatedBuildError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -399,25 +399,27 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     ),
                 ),
             )
-
-
-        # TODO: review all our exceptions and make sure they have a `message`
-        # or `get_default_message` (or even better `user_message`) that does
-        # not receive arguments. If we need to build the error message manually
-        # (e.g. requires `build_id`), we have to handle it as a particular case
-        elif hasattr(exc, 'message') and exc.message is not None:
-            # TODO: test if `on_failure` is called when it's an expected
-            # exception (e.g. defined in `throws=`). I would expect that this
-            # method is not called.
-            self.build['error'] = exc.message
+        # Known errors in our application code (e.g. we couldn't connect to
+        # Docker API). Report a generic message to the user.
+        elif isinstance(exc, BuildAppError):
+            self.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.build['id'],
+            )
+        # Known errors in the user's project (e.g. invalid config file, invalid
+        # repository, command failed, etc). Report the error back to the user
+        # using the `message` attribute from the exception itself. Otherwise,
+        # use a generic message.
+        elif isinstance(exc, BuildUserError):
+            if hasattr(exc, 'message') and exc.message is not None:
+                self.build['error'] = exc.message
+            else:
+                self.build['error'] = BuildUserError.GENERIC
         else:
+            # We don't know what happened in the build. Log the exception and
+            # report a generic message to the user.
             log.exception('Build failed with unhandled exception.')
-            self.build['error'] = str(
-                BuildEnvironmentError(
-                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                        build_id=self.build['id'],
-                    ),
-                ),
+            self.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.build['id'],
             )
 
         # NOTE: all the locking code may be removed, so this is not important anymore

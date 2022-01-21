@@ -37,10 +37,8 @@ from .constants import (
     DOCKER_VERSION,
 )
 from .exceptions import (
-    BuildEnvironmentCreationFailed,
-    BuildEnvironmentError,
-    BuildEnvironmentException,
-    BuildTimeoutError,
+    BuildAppError,
+    BuildUserError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -94,7 +92,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.user = user or settings.RTD_DOCKER_USER
         self._environment = environment.copy() if environment else {}
         if 'PATH' in self._environment:
-            raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
+            raise BuildAppError('\'PATH\' can\'t be set. Use bin_path')
 
         self.build_env = build_env
         self.output = None
@@ -335,6 +333,14 @@ class DockerBuildCommand(BuildCommand):
             )
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (
                 self.exit_code == 1 and
+                # FIXME: this is wrong. If the command is killed due
+                # timeout, it will also have `Killed` in the output.
+                # Here is the main problem of the issue reported at
+                # https://github.com/readthedocs/readthedocs.org/issues/4468
+                #
+                # I think this case "Killed" in output, it's just the timeout
+                # case. However, we can update the output append to reflect
+                # both cases and avoid confusions to users.
                 killed_in_output
             ):
                 self.output += str(
@@ -435,7 +441,7 @@ class BaseEnvironment:
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
-            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
+            raise BuildAppError('environment can\'t be passed in via commands.')
         kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
@@ -468,7 +474,7 @@ class BaseEnvironment:
                     version_slug=self.version.slug if self.version else '',
                 )
             else:
-                raise BuildEnvironmentError(msg)
+                raise BuildUserError(msg)
         return build_cmd
 
 
@@ -483,44 +489,17 @@ class BuildEnvironment(BaseEnvironment):
     """
     Base build environment.
 
-    Base class for wrapping command execution for build steps. This provides a
-    context for command execution and reporting, and eventually performs updates
-    on the build object itself, reporting success/failure, as well as failures
-    during the context manager enter and exit.
-
-    Any exceptions raised inside this context and handled by the eventual
-    :py:meth:`__exit__` method, specifically, inside :py:meth:`handle_exception`
-    and :py:meth:`update_build`. If the exception is a subclass of
-    :py:class:`BuildEnvironmentError`, then this error message is added to the
-    build object and is shown to the user as the top-level failure reason for
-    why the build failed. Other exceptions raise a general failure warning on
-    the build.
-
-    We only update the build through the API in one of three cases:
-
-    * The build is not done and needs an additional build step to follow
-    * The build failed and we should always report this change
+    Base class for wrapping command execution for build steps. This class is in
+    charge of raising ``BuildAppError`` for internal application errors that
+    should be communicated to the user as a general unknown error and
+    ``BuildUserError`` that will be exposed to the user with a proper message
+    for them to debug by themselves since they are _not_ a Read the Docs issue.
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param environment: shell environment variables
     """
-
-    # These exceptions are considered ERROR from a Build perspective (the build
-    # failed and can continue) but as a WARNING for the application itself (RTD
-    # code didn't failed). These exception are logged as ``WARNING`` and they
-    # are not sent to Sentry.
-    # NOTE: these exceptions need to be handled at Celery `throws=` now
-    # WARNING_EXCEPTIONS = (
-    #     VersionLockedError,
-    #     ProjectBuildsSkippedError,
-    #     YAMLParseError,
-    #     BuildTimeoutError,
-    #     MkDocsYAMLParseError,
-    #     RepositoryError,
-    #     ProjectConfigurationError,
-    # )
 
     def __init__(
             self,
@@ -656,7 +635,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         # not have a build associated
         if self.build:
             log.bind(
-                build_pk=self.build.get('id'),
+                build_id=self.build.get('id'),
             )
 
     def __enter__(self):
@@ -669,7 +648,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             state = self.container_state()
             if state is not None:
                 if state.get('Running') is True:
-                    raise BuildEnvironmentError(
+                    raise BuildAppError(
                         _(
                             'A build environment is currently '
                             'running for this version',
@@ -682,15 +661,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
-        except (DockerAPIError, ConnectionError):
-            # If there is an exception here, we swallow the exception as this
-            # was just during a sanity check anyways.
-            pass
-        # except BuildEnvironmentError:
-        #     # There may have been a problem connecting to Docker altogether, or
-        #     # some other handled exception here.
-        #     self.__exit__(*sys.exc_info())
-        #     raise
+        except (DockerAPIError, ConnectionError) as e:
+            raise BuildAppError(e.explanation)
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -760,18 +732,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException:
-            log.exception("Could not connect to Docker API")
-            # We don't raise an error here mentioning Docker, that is a
-            # technical detail that the user can't resolve on their own.
-            # Instead, give the user a generic failure
-            if self.build:
-                error = BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build.get('id'),
-                )
-            else:
-                error = 'Failed to connect to Docker API client'
-            raise BuildEnvironmentError(error)
+        except DockerException as e:
+            raise BuildAppError(e.explanation)
 
     def _get_binds(self):
         """
@@ -839,22 +801,23 @@ class DockerBuildEnvironment(BuildEnvironment):
 
         In the case of the parent command exiting before the exec commands
         finish, or in the case of OOM on the container, raise a
-        `BuildEnvironmentError` with an error message explaining the failure.
+        `BuildUserError` with an error message explaining the failure.
+        Otherwise, raise a `BuildAppError`.
         """
         if state is not None and state.get('Running') is False:
             # TODO: make sure that `state.ExitCode` grabs the exit code from
             # the `sleep ; exit` command. We've noticed that we are not
             # reporting this correctly in different opportunities
             if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
-                raise BuildEnvironmentError(
+                raise BuildUserError(
                     _('Build exited due to time out'),
                 )
             elif state.get('OOMKilled', False):
-                raise BuildEnvironmentError(
+                raise BuildUserError(
                     _('Build exited due to excessive memory consumption'),
                 )
             elif state.get('Error'):
-                raise BuildEnvironmentError(
+                raise BuildAppError(
                     (
                         _('Build exited due to unknown error: {0}')
                         .format(state.get('Error')),
@@ -885,16 +848,5 @@ class DockerBuildEnvironment(BuildEnvironment):
                 user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)
-        except ConnectionError:
-            log.exception('Could not connect to the Docker API, make sure Docker is running.')
-            # We don't raise an error here mentioning Docker, that is a
-            # technical detail that the user can't resolve on their own.
-            # Instead, give the user a generic failure
-            raise BuildEnvironmentError(
-                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build['id'],
-                ),
-            )
-        except DockerAPIError as e:
-            log.exception(e.explanation)
-            raise BuildEnvironmentCreationFailed
+        except (DockerAPIError, ConnectionError) as e:
+            raise BuildAppError(e.explanation)

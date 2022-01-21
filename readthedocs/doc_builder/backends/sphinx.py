@@ -28,7 +28,7 @@ from readthedocs.projects.utils import safe_write
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
-from ..exceptions import BuildEnvironmentError
+from ..exceptions import BuildUserError
 from ..signals import finalize_sphinx_context_data
 
 log = structlog.get_logger(__name__)
@@ -500,7 +500,7 @@ class PdfBuilder(BaseSphinx):
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
 
         if not tex_files:
-            raise BuildEnvironmentError('No TeX files were found')
+            raise BuildUserError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
         # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback

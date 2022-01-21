@@ -3,6 +3,7 @@ import structlog
 import os
 import shutil
 
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 
 
@@ -100,7 +101,7 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
-        except Exception as e:
+        except BuildUserError as e:
             # Re raise as RepositoryError to handle it properly from outside
             raise RepositoryError(str(e))
 
