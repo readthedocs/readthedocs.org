@@ -3,7 +3,6 @@ import structlog
 import os
 import shutil
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
 from readthedocs.projects.exceptions import RepositoryError
 
 
@@ -101,9 +100,8 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
-        except BuildEnvironmentWarning as e:
-            # Re raise as RepositoryError,
-            # so isn't logged as ERROR.
+        except Exception as e:
+            # Re raise as RepositoryError to handle it properly from outside
             raise RepositoryError(str(e))
 
         # Return a tuple to keep compatibility

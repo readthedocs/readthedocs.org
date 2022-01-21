@@ -64,10 +64,6 @@ class DuplicatedBuildError(BuildEnvironmentError):
     status = BUILD_STATUS_DUPLICATED
 
 
-class BuildEnvironmentWarning(BuildEnvironmentException):
-    pass
-
-
 class MkDocsYAMLParseError(BuildEnvironmentError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',

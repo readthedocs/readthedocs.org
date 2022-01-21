@@ -40,7 +40,6 @@ from .exceptions import (
     BuildEnvironmentCreationFailed,
     BuildEnvironmentError,
     BuildEnvironmentException,
-    BuildEnvironmentWarning,
     BuildTimeoutError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
@@ -469,7 +468,7 @@ class BaseEnvironment:
                     version_slug=self.version.slug if self.version else '',
                 )
             else:
-                raise BuildEnvironmentWarning(msg)
+                raise BuildEnvironmentError(msg)
         return build_cmd
 
 
