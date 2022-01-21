@@ -29,7 +29,7 @@ def _build_version(project, slug, already_built=()):
             project_slug=project.slug,
             version_slug=version.slug,
         )
-        trigger_build(project=project, version=version, force=True)
+        trigger_build(project=project, version=version)
         return slug
 
     log.info('Not building.', version_slug=slug)
@@ -204,6 +204,6 @@ def build_external_version(project, version, commit):
         project_slug=project.slug,
         version_slug=version.slug,
     )
-    trigger_build(project=project, version=version, commit=commit, force=True)
+    trigger_build(project=project, version=version, commit=commit)
 
     return version.verbose_name

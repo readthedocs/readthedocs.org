@@ -263,10 +263,9 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             '-T',
+            '-E',
             *self.sphinx_parallel_arg(),
         ]
-        if self._force:
-            build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
             build_command.extend(['-W', '--keep-going'])
         build_command.extend([

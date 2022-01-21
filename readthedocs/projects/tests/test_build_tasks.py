@@ -68,7 +68,6 @@ class BuildEnvironmentBase:
 
             # TODO: are these really required or can be completely removed from
             # our code?
-            force=True,
             record=True,
         )
 

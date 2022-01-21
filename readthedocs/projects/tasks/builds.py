@@ -329,7 +329,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         build_pk = kwargs.get('build_pk')
 
         self.record = kwargs.get('record')
-        self.force = kwargs.get('force')
 
         self.build = self.get_build(build_pk)
         self.version = self.get_version(version_pk)
@@ -353,7 +352,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             commit=self.commit,
             project_slug=self.project.slug,
             version_slug=self.version.slug,
-            force=self.force,
             record=self.record,
         )
 
@@ -548,8 +546,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 log.exception('Unable to update build')
 
     def execute(self):
-            # self, version_pk, build_pk=None, commit=None, record=True,
-            # force=False, **__
         """
         Run a documentation sync n' build.
 
@@ -937,8 +933,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             build_env=self.build_env,
             python_env=self.python_env,
         )
-        if self.force:
-            html_builder.force()
         html_builder.append_conf()
         success = html_builder.build()
         if success:

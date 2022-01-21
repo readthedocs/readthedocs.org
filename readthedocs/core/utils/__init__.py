@@ -36,7 +36,6 @@ def prepare_build(
         version=None,
         commit=None,
         record=True,
-        force=False,
         immutable=True,
 ):
     """
@@ -49,7 +48,6 @@ def prepare_build(
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
     :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
@@ -75,7 +73,6 @@ def prepare_build(
 
     kwargs = {
         'record': record,
-        'force': force,
         'commit': commit,
     }
 
@@ -219,7 +216,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None, record=True):
     """
     Trigger a Build.
 
@@ -230,7 +227,6 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
     :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
@@ -245,7 +241,6 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         version=version,
         commit=commit,
         record=record,
-        force=force,
         immutable=True,
     )
 
