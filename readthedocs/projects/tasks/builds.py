@@ -324,11 +324,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.environment_class = LocalBuildEnvironment
 
-        version_pk = kwargs.get('version_pk')
-        build_pk = kwargs.get('build_pk')
+        self.version_pk = kwargs.get('version_pk')
+        self.build_pk = kwargs.get('build_pk')
 
-        self.build = self.get_build(build_pk)
-        self.version = self.get_version(version_pk)
+        self.build = self.get_build(self.build_pk)
+        self.version = self.get_version(self.version_pk)
         self.project = self.version.project
 
         # NOTE: why are we passing the commit via an argument? shouldn't it be
@@ -370,8 +370,26 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # exceptions may require access to the ``environment`` variable to
         # update the context (hiting the API to set the build status)
 
-        log.error('exc', _type=type(exc), _dir=dir(exc), _dict=exc.__dict__)
+        # log.error('exc', _type=type(exc), _dir=dir(exc), _dict=exc.__dict__)
         # from celery.contrib import rdb; rdb.set_trace()
+
+        # TODO: Handle these kind of Docker error
+        # build_1     | ImageNotFound: 404 Client Error for http+docker://localhost/v1.41/containers/cre
+        # build_1     | ate?name=build-1812-project-256207-test-builds: Not Found ("No such image:
+        # build_1     | readthedocs/build:testing")
+        #
+        # NOTE: that this is currently reporting back to the user a specific error, which is wrong:
+        # "Build environment creation failed" --we should show a generic one
+
+        if not hasattr(self, 'build'):
+            # NOTE: use `self.build_id` (passed to the task) instead
+            # `self.build` (retrieved from the API) because it's not present,
+            # probably due the API failed on retrieve it.
+            #
+            # So, we create the `self.build` with the minimum required data.
+            self.build = {
+                'id': self.build_pk,
+            }
 
         if isinstance(exc, ConfigError):
             self.build['error'] = str(
@@ -381,10 +399,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     ),
                 ),
             )
+
+
         # TODO: review all our exceptions and make sure they have a `message`
-        # or `get_default_message` that does not receive arguments. If we need
-        # to build the error message manually (e.g. requires `build_id`), we
-        # have to handle it as a particular case
+        # or `get_default_message` (or even better `user_message`) that does
+        # not receive arguments. If we need to build the error message manually
+        # (e.g. requires `build_id`), we have to handle it as a particular case
         elif hasattr(exc, 'message') and exc.message is not None:
             # TODO: test if `on_failure` is called when it's an expected
             # exception (e.g. defined in `throws=`). I would expect that this
@@ -1019,6 +1039,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 )
 def update_docs_task(self, *args, **kwargs):
     # from celery.contrib import rdb; rdb.set_trace()
+
+    # TODO: `build_pk` is a mandatory attribute. We cannot trigger this task
+    # without a build already created in the database.
 
     # HACK: just for now while we are developing the code
     self.request.kwargs['version_pk'] = args[0]
