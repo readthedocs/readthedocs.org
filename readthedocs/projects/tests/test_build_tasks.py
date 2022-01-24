@@ -10,6 +10,7 @@ import django_dynamic_fixture as fixture
 import pytest
 
 from readthedocs.builds.constants import (
+    EXTERNAL,
     BUILD_STATUS_FAILURE,
     BUILD_STATE_FINISHED,
     BUILD_STATUS_SUCCESS,
@@ -80,30 +81,86 @@ class BuildEnvironmentBase:
 class TestBuildTask(BuildEnvironmentBase):
 
     @pytest.mark.parametrize(
-        'formats,build_class',
+        'formats,builders',
         (
-            (['pdf'], ['sphinx_pdf']),
-            (['htmlzip'], ['sphinx_singlehtmllocalmedia']),
-            (['epub'], ['sphinx_epub']),
-            (['pdf', 'htmlzip', 'epub'], ['sphinx_pdf', 'sphinx_singlehtmllocalmedia', 'sphinx_epub']),
+            (['pdf'], ['latex']),
+            (['htmlzip'], ['readthedocssinglehtmllocalmedia']),
+            (['epub'], ['epub']),
+            (['pdf', 'htmlzip', 'epub'], ['latex', 'readthedocssinglehtmllocalmedia', 'epub']),
+            ('all', ['latex', 'readthedocssinglehtmllocalmedia', 'nepub']),
         )
     )
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     @pytest.mark.skip
-    def test_build_respects_formats_sphinx(self, build_docs_html, build_docs_class, load_yaml_config, formats, build_class):
+    def test_build_sphinx_formats(self, load_yaml_config, formats, builders):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
             'formats': formats,
+            'sphinx': {
+                'configuration': 'docs/conf.py',
+            },
         })
 
         self._trigger_update_docs_task()
 
-        build_docs_html.assert_called_once()
+        self.mocker.mocks['environment.run'].assert_any_call(
+            mock.call(
+                mock.ANY,
+                '-m',
+                'sphinx',
+                '-T',
+                '-E',
+                '-b',
+                'readthedocs',
+                '-d',
+                '_build/doctrees',
+                '-D',
+                'language=en',
+                '.',
+                '_build/html',
+                cwd=mock.ANY,
+                bin_path=mock.ANY,
+            )
+        )
 
-        for klass in build_class:
-            build_docs_class.assert_called_once_with(klass)
+        for builder in builders:
+            self.mocker.mocks['environment.run'].assert_any_call(
+                mock.call(
+                    mock.ANY,
+                    '-m',
+                    'sphinx',
+                    '-T',
+                    '-E',
+                    '-b',
+                    builder,
+                    '-d',
+                    '_build/doctrees',
+                    '-D',
+                    'language=en',
+                    '.',
+                    '_build/html',
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                )
+            )
+
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
+    @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    def test_build_formats_only_html_for_external_versions(self, build_docs_html, build_docs_class, load_yaml_config):
+        load_yaml_config.return_value = self._config_file({
+            'version': 2,
+            'formats': 'all',
+        })
+
+        # Make the version external
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        self._trigger_update_docs_task()
+
+        build_docs_html.assert_called_once()  # HTML builder
+        build_docs_class.assert_not_called()  # all the other builders
 
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
     @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
@@ -480,7 +537,8 @@ class TestBuildTask(BuildEnvironmentBase):
                 'latex',
                 '-D',
                 'language=en',
-                '-d', '_build/doctrees',
+                '-d',
+                '_build/doctrees',
                 '.',
                 '_build/latex',
                 cwd='/tmp/readthedocs-tests/git-repository',
@@ -502,9 +560,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 'output.file',
                 # TODO: take a look at
                 # https://callee.readthedocs.io/en/latest/reference/strings.html#callee.strings.EndsWith
-                # to match `project.epub`
+                # to match `project.pdf`
                 mock.ANY,
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
             ),
             mock.call(
                 mock.ANY,
@@ -527,8 +585,10 @@ class TestBuildTask(BuildEnvironmentBase):
                 '-f',
                 'output.file',
                 mock.ANY,
-                cwd='/tmp/readthedocs-tests/git-repository',
-            )
+                cwd=mock.ANY,
+            ),
+            # FIXME: I think we are hitting this issue here:
+            # https://github.com/pytest-dev/pytest-mock/issues/234
         ])
 
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
