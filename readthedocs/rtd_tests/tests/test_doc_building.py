@@ -140,6 +140,7 @@ class TestLocalBuildEnvironment(TestCase):
             'exit_code': 0,
         })
 
+
 # TODO: most of these tests need to be re-written to make usage of the Celery
 # handlers properly to check success/failure
 @pytest.mark.skip
@@ -272,61 +273,6 @@ class TestDockerBuildEnvironment(TestCase):
             'exit_code': 0,
             'length': 0,
             'error': '',
-            'setup': '',
-            'output': '',
-            'state': 'finished',
-            'builder': mock.ANY,
-        })
-
-    def test_command_execution_cleanup_exception(self):
-        """Command execution through Docker, catch exception during cleanup."""
-        response = Mock(status_code=500, reason='Because')
-        self.mocks.configure_mock(
-            'docker_client', {
-                'exec_create.return_value': {'Id': b'container-foobar'},
-                'exec_start.return_value': b'This is the return',
-                'exec_inspect.return_value': {'ExitCode': 0},
-                'kill.side_effect': DockerAPIError(
-                    'Failure killing container',
-                    response,
-                    'Failure killing container',
-                ),
-            },
-        )
-
-        build_env = DockerBuildEnvironment(
-            version=self.version,
-            project=self.project,
-            build={'id': DUMMY_BUILD_ID},
-        )
-        with build_env:
-            build_env.run('echo', 'test', cwd='/tmp')
-
-        self.mocks.docker_client.kill.assert_called_with(
-            'build-123-project-6-pip',
-        )
-        # api() is not called anymore, we use api_v2 instead
-        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was saved
-        command = build_env.commands[0]
-        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
-            'build': DUMMY_BUILD_ID,
-            'command': command.get_command(),
-            'description': command.description,
-            'output': command.output,
-            'exit_code': 0,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-        self.mocks.mocks['api_v2.build']().put.assert_called_with({
-            'id': DUMMY_BUILD_ID,
-            'version': self.version.pk,
-            'error': '',
-            'success': True,
-            'project': self.project.pk,
-            'setup_error': '',
-            'exit_code': 0,
-            'length': 0,
             'setup': '',
             'output': '',
             'state': 'finished',

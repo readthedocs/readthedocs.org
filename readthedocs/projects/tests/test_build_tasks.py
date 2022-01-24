@@ -122,7 +122,6 @@ class TestBuildTask(BuildEnvironmentBase):
         build_docs_html.assert_called_once()
         build_docs_class.assert_not_called()
 
-
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     @pytest.mark.skip()
     # NOTE: find a way to test we are passing all the environment variables to all the commands
@@ -722,12 +721,6 @@ class TestBuildTask(BuildEnvironmentBase):
             ),
         ])
 
-    # TODO: migrate test_python_install_setuptools
-    # TODO: migrate test_python_install_pip
-    # TODO: migrate test_python_install_extra_requirements
-    # TODO: migrate test_python_install_several_options
-    # TODO: migrate test_system_packages
-
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
     def test_conda_config_calls_conda_command(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
@@ -740,6 +733,9 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         self._trigger_update_docs_task()
+
+        # TODO: check we are saving the `conda.environment` in the config file
+        # via the API call
 
         self.mocker.mocks['environment.run'].assert_has_calls([
             mock.call(

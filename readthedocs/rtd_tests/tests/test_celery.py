@@ -71,38 +71,9 @@ class TestCeleryBuilding(TestCase):
         self.project.users.add(self.eric)
         self.version = self.project.versions.get(slug=LATEST)
 
-        # Mock calls to API to return the objects we need
-        mock.patch('readthedocs.projects.tasks.mixins.SyncRepositoryMixin.get_version', return_value=self.version).start()
-        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.get_project', return_value=self.project).start()
-        mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.get_build', return_value={'id': 99, 'state': BUILD_STATE_TRIGGERED}).start()
-
     def tearDown(self):
         shutil.rmtree(self.repo)
         super().tearDown()
-
-    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications')
-    @patch('readthedocs.projects.tasks.builds.UpdateDocsTask.setup_vcs')
-    def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
-        mock_setup_vcs.side_effect = VersionLockedError()
-
-        version = self.project.versions.first()
-
-        build = get(
-            Build, project=self.project,
-            version=version,
-        )
-        with mock_api(self.repo):
-            result = update_docs_task.delay(
-                version.pk,
-                build_pk=build.pk,
-                record=False,
-                intersphinx=False,
-            )
-
-        mock_send_notifications.assert_not_called()
-        self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.utils.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
@@ -151,6 +122,8 @@ class TestCeleryBuilding(TestCase):
         sync_repository_task(version_id=version.pk)
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
 
+    # NOTE: tasks must not be trigger by calling them directly but using
+    # `.delay`/`.async` because otherwise the Celery handlers are not executed
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_check_duplicate_reserved_version_stable(self, checkout_path):
         create_git_branch(self.repo, 'stable')
