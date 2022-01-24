@@ -544,6 +544,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         clean_build(self.version)
 
+        log.info(
+            'Build finished.',
+            length=self.build['length'],
+            success=self.build['success']
+        )
+
         # HACK: cleanup all the attributes set by the task under `self`
         # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
         for attribute in list(self.__dict__.keys()):
