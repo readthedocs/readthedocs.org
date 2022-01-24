@@ -455,6 +455,11 @@ class BaseEnvironment:
         if build_cmd.failed:
             msg = 'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
+            # TODO: improve this error report. This is showing _the full_
+            # stdout to the user exposing it at the top of the Build Detail's
+            # page in red. It would be good to reduce the noise here and just
+            # point the user to take a look at its output from the command's
+            # output itself.
             if build_cmd.output:
                 msg += ':\n{out}'.format(out=build_cmd.output)
 
