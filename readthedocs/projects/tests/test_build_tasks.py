@@ -467,7 +467,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 'pip',
                 'setuptools<58.3.0',
                 bin_path=mock.ANY,
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
             ),
             mock.call(
                 mock.ANY,
@@ -485,7 +485,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 'sphinx-rtd-theme<0.5',
                 'readthedocs-sphinx-ext<2.2',
                 bin_path=mock.ANY,
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
             ),
             # FIXME: shouldn't this one be present here? It's not now because
             # we are mocking `append_conf` which is the one that triggers this
@@ -494,7 +494,7 @@ class TestBuildTask(BuildEnvironmentBase):
             # mock.call(
             #     'cat',
             #     'docs/conf.py',
-            #     cwd='/tmp/readthedocs-tests/git-repository',
+            #     cwd=mock.ANY,
             # ),
             mock.call(
                 mock.ANY,
@@ -510,7 +510,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 'language=en',
                 '.',
                 '_build/html',
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 bin_path=mock.ANY,
             ),
             mock.call(
@@ -518,6 +518,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 '-m',
                 'sphinx',
                 '-T',
+                '-E',
                 '-b',
                 'readthedocssinglehtmllocalmedia',
                 '-d',
@@ -526,7 +527,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 'language=en',
                 '.',
                 '_build/localmedia',
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 bin_path=mock.ANY,
             ),
             mock.call(
@@ -541,7 +542,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 '_build/doctrees',
                 '.',
                 '_build/latex',
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 bin_path=mock.ANY,
             ),
             mock.call(
@@ -549,7 +550,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 '-c',
                 '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
                 bin_path=mock.ANY,
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 escape_command=False,
                 shell=True,
                 record=False,
@@ -569,6 +570,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 '-m',
                 'sphinx',
                 '-T',
+                '-E',
                 '-b',
                 'epub',
                 '-d',
@@ -577,13 +579,16 @@ class TestBuildTask(BuildEnvironmentBase):
                 'language=en',
                 '.',
                 '_build/epub',
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 bin_path=mock.ANY,
             ),
             mock.call(
                 'mv',
                 '-f',
                 'output.file',
+                # TODO: take a look at
+                # https://callee.readthedocs.io/en/latest/reference/strings.html#callee.strings.EndsWith
+                # to match `project.epub`
                 mock.ANY,
                 cwd=mock.ANY,
             ),
@@ -776,7 +781,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 '--no-cache-dir',
                 '-r',
                 'requirements.txt',
-                cwd='/tmp/readthedocs-tests/git-repository',
+                cwd=mock.ANY,
                 bin_path=mock.ANY,
             ),
         ])
