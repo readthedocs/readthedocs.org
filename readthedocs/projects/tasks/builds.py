@@ -857,6 +857,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
     def setup_build(self):
+        self.update_build(state=BUILD_STATE_INSTALLING)
+
         self.install_system_dependencies()
         self.setup_python_environment()
 
@@ -868,8 +870,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         :param build_env: Build environment to pass commands and execution through.
         """
-        self.update_build(state=BUILD_STATE_INSTALLING)
-
         # Install all ``build.tools`` specified by the user
         if self.config.using_build_tools:
             self.python_env.install_build_tools()
