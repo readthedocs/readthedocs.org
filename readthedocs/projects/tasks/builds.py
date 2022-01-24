@@ -279,6 +279,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
         if concurrency_limit_reached:
+            # TODO: this could be handled in `on_retry` probably
             log.warning(
                 'Delaying tasks due to concurrency limit.',
                 project_slug=self.project.slug,
@@ -331,6 +332,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.version = self.get_version(self.version_pk)
         self.project = self.version.project
 
+        # Save the builder instance's name into the build object
+        self.build['builder'] = socket.gethostname()
+
         # NOTE: why are we passing the commit via an argument? shouldn't it be
         # included in the `build` object returned by the API?
         # self.commit = kwargs.get('commit')
@@ -346,6 +350,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         log.bind(
             # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
             build_id=self.build['id'],
+            builder=self.build['builder'],
             commit=self.commit,
             project_slug=self.project.slug,
             version_slug=self.version.slug,
@@ -531,7 +536,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object
-        self.build['builder'] = socket.gethostname()
         self.build['length'] = (timezone.now() - self.start_time).seconds
 
         self.update_build(BUILD_STATE_FINISHED)

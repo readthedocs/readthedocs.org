@@ -225,6 +225,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'id': 1,
             'state': 'cloning',
             'commit': 'a1b2c3',
+            'builder': mock.ANY,
         }
 
         # Save config object data (using default values)
@@ -271,6 +272,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'state': 'installing',
             'commit': 'a1b2c3',
             'config': mock.ANY,
+            'builder': mock.ANY,
         }
         # Update build state: building
         assert self.requests_mock.request_history[6].json() == {
@@ -278,6 +280,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'state': 'building',
             'commit': 'a1b2c3',
             'config': mock.ANY,
+            'builder': mock.ANY,
         }
         # Update build state: uploading
         assert self.requests_mock.request_history[7].json() == {
@@ -285,6 +288,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'state': 'uploading',
             'commit': 'a1b2c3',
             'config': mock.ANY,
+            'builder': mock.ANY,
         }
         # Update version state
         assert self.requests_mock.request_history[8]._request.method == 'PATCH'
