@@ -539,7 +539,7 @@ class TestDockerBuildCommand(TestCase):
         type(cmd.build_env).container_id = PropertyMock(return_value='foo')
         cmd.run()
         self.assertIn(
-            'Command killed due to excessive memory consumption\n',
+            'Command killed due to timeout or excessive memory consumption\n',
             str(cmd.output),
         )
 
