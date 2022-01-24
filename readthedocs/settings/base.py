@@ -682,7 +682,10 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     ALLOW_ADMIN = True
+
+    # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
+    ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG = 'trial-v2-monthly'
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']

@@ -79,7 +79,7 @@ class UnresolverBase:
             # We need to add the index.html to find this actual file
             filename += 'index.html'
 
-        log.info(
+        log.debug(
             'Unresolver parsed.',
             project_slug=final_project.slug,
             lang_slug=lang_slug,
