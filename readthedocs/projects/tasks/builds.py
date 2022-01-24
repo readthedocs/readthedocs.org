@@ -204,9 +204,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     """
     The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported, we created
-    it or a webhook is received. Then it will sync the repository and build the
-    html docs if needed.
+    It handles all of the logic around whether a project is imported, was
+    created or a webhook is received. Then it will sync the repository and
+    build all the documentation formats and upload them to the storage.
     """
 
     name = __name__ + '.update_docs_task'
@@ -234,6 +234,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     Request = BuildRequest
 
+    # TODO:
     # 1. raise Reject(requeue=False) on duplicated builds
     # 2. use a global `task_cls` (https://docs.celeryproject.org/en/latest/userguide/tasks.html#app-wide-usage) to logs actions
     # 3. use CELERY_IMPORTS to register the tasks (https://docs.celeryproject.org/en/latest/userguide/configuration.html#std-setting-imports)
@@ -321,17 +322,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Save the builder instance's name into the build object
         self.build['builder'] = socket.gethostname()
 
-        # NOTE: why are we passing the commit via an argument? shouldn't it be
-        # included in the `build` object returned by the API?
-        # self.commit = kwargs.get('commit')
-        #
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
         self.commit = self.build.get('commit')
-
-        # Clean the build paths completely to avoid conflicts with previous run
-        # (e.g. cleanup task failed for some reason)
-        clean_build(self.version)
 
         log.bind(
             # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
@@ -341,6 +334,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
+
+        # Clean the build paths completely to avoid conflicts with previous run
+        # (e.g. cleanup task failed for some reason)
+        clean_build(self.version)
 
         # NOTE: this is never called. I didn't find anything in the logs, so we can probably remove it
         self._setup_sigterm()
@@ -374,6 +371,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 'id': self.build_pk,
             }
 
+        # TODO: handle this `ConfigError` as a `BuildUserError` in the
+        # following block
         if isinstance(exc, ConfigError):
             self.build['error'] = str(
                 YAMLParseError(
@@ -417,7 +416,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
 
         # NOTE: why we wouldn't have `self.commit` here?
-        # This attribute is set in line 700 when we get it after clonning the repository
+        # This attribute is set when we get it after clonning the repository
+        #
+        # Oh, I think this is to differentiate a task triggered with
+        # `Build.commit` than a one triggered just with the `Version` to build
+        # the _latest_ commit of it
         if self.commit:
             send_external_build_status(
                 version_type=self.version.type,
@@ -430,8 +433,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.build['success'] = False
 
     def on_success(self, retval, task_id, args, kwargs):
-        build_id = self.build.get('id')
-
         html = self.outcomes['html']
         search = self.outcomes['search']
         localmedia = self.outcomes['localmedia']
@@ -547,25 +548,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception('Unable to update build')
 
     def execute(self):
-        """
-        Run a documentation sync n' build.
-
-        This is fully wrapped in exception handling to account for a number of
-        failure cases. We first run a few commands in a build environment,
-        but do not report on environment success. This avoids a flicker on the
-        build output page where the build is marked as finished in between the
-        checkout steps and the build steps.
-
-        Unhandled exceptions raise a generic user facing error, which directs
-        the user to bug us. It is therefore a benefit to have as few unhandled
-        errors as possible.
-
-        :param version_pk int: Project Version id
-        :param build_pk int: Build id (if None, commands are not recorded)
-        :param commit: commit sha of the version required for sending build status reports
-        :param record bool: record a build object in the database
-        :param force bool: force Sphinx build
-        """
         self.run_setup()
         self.run_build()
 
@@ -576,6 +558,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         1. Create a Docker container with the default image
         2. Clone the repository's code and submodules
         3. Save the `config` object into the database
+        4. Update VCS submodules
         """
         environment = self.environment_class(
             project=self.project,
@@ -602,10 +585,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_repo.update_submodules(self.config)
 
     def run_build(self):
-        """
-        Build the docs in an environment.
-
-        """
+        """Build the docs in an environment."""
         self.build_env = self.environment_class(
             project=self.project,
             version=self.version,
@@ -631,12 +611,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             # TODO: check if `before_build` and `after_build` are still useful
             # (maybe in commercial?)
+            #
+            # I didn't find they are used anywhere, we should probably remove them
             before_build.send(
                 sender=self.version,
                 environment=self.build_env,
             )
+
             self.setup_build()
             self.build_docs()
+
             after_build.send(
                 sender=self.version,
             )
