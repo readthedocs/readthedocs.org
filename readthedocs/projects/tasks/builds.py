@@ -96,13 +96,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     name = __name__ + '.sync_repository_task'
     max_retries = 5
     default_retry_delay = 7 * 60
-    # throws = [
-    #     LockTimeout,
-    #     RepositoryError,
-    # ]
-
-    # NOTE: not use the base task because it differs from the "update docs task" considerably
-    # base = BuildTaskBase
 
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
@@ -163,11 +156,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 del self.__dict__[attribute]
 
     def execute(self):
-
-        # import datetime
-        # if datetime.datetime.now().minute == 41:
-        #     raise LockTimeout
-
         environment = self.environment_class(
             project=self.project,
             version=self.version,
@@ -205,8 +193,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def sync_repository_task(self, version_id=None):
-    # from celery.contrib import rdb; rdb.set_trace()
-
     # NOTE: `before_start` is new on Celery 5.2.x, but we are using 5.1.x currently.
     self.before_start(self.request.id, self.request.args, self.request.kwargs)
 
@@ -370,14 +356,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             api_v2.build(self.build['id']).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        # Take a proper action based on the ``exc``. For example, if
-        # ``vcs_support_utils.LockTimeout`` retry the task. Note that some
-        # exceptions may require access to the ``environment`` variable to
-        # update the context (hiting the API to set the build status)
-
-        # log.error('exc', _type=type(exc), _dir=dir(exc), _dict=exc.__dict__)
-        # from celery.contrib import rdb; rdb.set_trace()
-
         # TODO: Handle these kind of Docker error
         # build_1     | ImageNotFound: 404 Client Error for http+docker://localhost/v1.41/containers/cre
         # build_1     | ate?name=build-1812-project-256207-test-builds: Not Found ("No such image:
@@ -497,9 +475,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             search_ignore=self.config.search.ignore,
         )
 
-        # send build status to github
-        # send webhook notification
-        # emit django signal for build success
         if not self.project.has_valid_clone:
             self.set_valid_clone()
 
@@ -509,7 +484,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             event=WebHookEvent.BUILD_PASSED,
         )
 
-        # NOTE: why we wouldn't have `self.commit` here?
         if self.commit:
             send_external_build_status(
                 version_type=self.version.type,
@@ -1050,8 +1024,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def update_docs_task(self, *args, **kwargs):
-    # from celery.contrib import rdb; rdb.set_trace()
-
     # TODO: `build_pk` is a mandatory attribute. We cannot trigger this task
     # without a build already created in the database.
 
