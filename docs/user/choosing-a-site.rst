@@ -1,25 +1,26 @@
-Choosing Between Our Two Sites
-==============================
+Choosing Between Our Two Platforms
+==================================
 
-A question our users often have is what the difference is between |org_brand| and |com_brand|.
-This page will lay out the functional and philosophical differences between the two sites,
-which should help you choose which is a better fit for your organization.
+Users often ask what the differences are between |org_brand| and |com_brand|.
 
-The features available on both platforms are the same.
-The primary difference is the audience and use cases that are supported.
+While many of our features are available on both of these platforms, there
+are some key differences between our two platforms. 
 
 Read the Docs Community
 -----------------------
 
-|org_brand| is meant for open source projects to use for documentation hosting.
-This is great for user and developer documentation for your project.
+|org_brand| is strictly for hosting open source documentation. This means that
+project documentation source, and the generated documentation, are both publicly
+accessible and licensed under a permissive license.
 
 Important points:
 
-* All documentation sites have advertising
+* Open source project hosting is always free
+* All documentation sites include advertising
 * Only supports public VCS repositories
 * All documentation is publicly accessible to the world
 * Less build time and fewer build resources (memory & CPU)
+* Email support included only for issues with our platform
 * Documentation is organized by projects
 
 You can sign up for an account at https://readthedocs.org.
@@ -27,15 +28,20 @@ You can sign up for an account at https://readthedocs.org.
 Read the Docs for Business
 --------------------------
 
-|com_brand| is meant for companies and users who have private documentation.
-It works well for product documentation as well as internal docs for your developers.
+|com_brand| is meant for companies and users who have more complex requirements
+for their documentation project. This can include commercial projects with
+private source code, projects that can only be viewed with authentication, and
+even large scale projects that are publicly available.
 
 Important points:
 
-* No advertising
+* Hosting plans require a paid subscription plan
+* There is no advertising on documentation sites
 * Allows importing private and public repositories from VCS
-* Supports private versions that only your organization or people you give access to can see
+* Supports private versions that require authentication to view
+* Supports team authentication, including SSO with Google, GitHub, GitLab, and Bitbucket
 * More build time and more build resources (memory & CPU)
+* Includes 24x5 email support, with 24x7 SLA support available
 * Documentation is organized by organization, giving more control over permissions
 
 You can sign up for an account at https://readthedocs.com.
@@ -44,4 +50,4 @@ Questions?
 ----------
 
 If you have a question about which platform would be best,
-you can email us at support@readthedocs.org.
+email us at support@readthedocs.org.
