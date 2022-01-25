@@ -4,14 +4,14 @@ Choosing Between Our Two Platforms
 Users often ask what the differences are between |org_brand| and |com_brand|.
 
 While many of our features are available on both of these platforms, there
-are some key differences between our two platforms. 
+are some key differences between our two platforms.
 
 Read the Docs Community
 -----------------------
 
-|org_brand| is strictly for hosting open source documentation. This means that
-project documentation source, and the generated documentation, are both publicly
-accessible and licensed under a permissive license.
+|org_brand| is exclusively for hosting open source documentation. We support
+open source communities by providing free documentation building and hosting
+services, for projects of all sizes.
 
 Important points:
 
