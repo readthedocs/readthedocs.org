@@ -80,8 +80,8 @@ what they stand for.
     Issues that require changes in the server infrastructure.
 
 *PR: work in progress*
-    Pull Requests that are not complete yet. A final review is not possible
-    yet, but every Pull Request is open for discussion.
+    Pull requests that are not complete yet. A final review is not possible
+    yet, but every pull request is open for discussion.
 
 *PR: hotfix*
     Pull request was applied directly to production after a release. These pull
