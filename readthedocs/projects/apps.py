@@ -18,7 +18,11 @@ class ProjectsConfig(AppConfig):
 
         # TODO: remove calling to `register_renamed_tasks` after deploy
         renamed_tasks = {
+            'readthedocs.projects.tasks.finish_inactive_builds': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'readthedocs.projects.tasks.update_docs_task': 'readthedocs.projects.tasks.builds.update_docs_task',
+            'readthedocs.projects.tasks.fileify': 'readthedocs.projects.tasks.search.fileify',
+            'readthedocs.projects.tasks.remove_build_storage_paths': 'readthedocs.projects.tasks.utils.remove_build_storage_paths',
+            'readthedocs.projects.tasks.remove_search_indexes': 'readthedocs.projects.tasks.search.remove_search_indexes',
             'readthedocs.projects.tasks.sync_repository_task': 'readthedocs.projects.tasks.builds.sync_repository_task'
         }
         register_renamed_tasks(app, renamed_tasks)
