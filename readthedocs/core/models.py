@@ -20,19 +20,6 @@ class UserProfile(TimeStampedModel):
 
     """Additional information about a User."""
 
-    # TODO: Overridden from TimeStampedModel just to allow null values,
-    # remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
-    modified = ModificationDateTimeField(
-        _('modified'),
-        null=True,
-        blank=True,
-    )
-
     user = AutoOneToOneField(
         User,
         verbose_name=_('User'),

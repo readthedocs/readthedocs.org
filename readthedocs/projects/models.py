@@ -232,8 +232,6 @@ class Project(models.Model):
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
         max_length=20,
-        # TODO: remove after migration
-        null=True,
         choices=constants.PRIVACY_CHOICES,
         default=default_privacy_level,
         help_text=_(
@@ -1392,8 +1390,6 @@ class ImportedFile(models.Model):
     ignore = models.BooleanField(
         _('Ignore this file from operations like indexing'),
         # default=False,
-        # TODO: remove after migration
-        null=True,
     )
 
     def get_absolute_url(self):
@@ -1435,19 +1431,6 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
-    # TODO: Overridden from TimeStampedModel just to allow null values,
-    # remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
-    modified = ModificationDateTimeField(
-        _('modified'),
-        null=True,
-        blank=True,
-    )
-
     project = models.ForeignKey(
         Project,
         related_name='%(class)s_notifications',
@@ -1602,14 +1585,6 @@ class WebHook(Notification):
 class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
-
-    # TODO: Overridden from TimeStampedModel just to allow null values,
-    # remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
 
     project = models.ForeignKey(
         Project,
