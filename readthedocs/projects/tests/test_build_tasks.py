@@ -19,8 +19,9 @@ from readthedocs.builds.models import Build
 from readthedocs.config import ConfigError, ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
-from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task
+from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task, sync_repository_task
 
 from .mockers import BuildEnvironmentMocker
 
@@ -1288,6 +1289,65 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         }
 
 
+class TestSyncRepositoryTask(BuildEnvironmentBase):
+
+    def _trigger_sync_repository_task(self):
+        sync_repository_task.delay(self.version.pk)
+
+    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
+    def test_clean_build_after_sync_repository(self, clean_build):
+        self._trigger_sync_repository_task()
+        clean_build.assert_called_once()
+
+    @mock.patch('readthedocs.projects.tasks.builds.SyncRepositoryTask.execute')
+    @mock.patch('readthedocs.projects.tasks.builds.clean_build')
+    def test_clean_build_after_failure_in_sync_repository(self, clean_build, execute):
+        execute.side_effect = Exception('Something weird happen')
+
+        self._trigger_sync_repository_task()
+        clean_build.assert_called_once()
+
+    @pytest.mark.parametrize(
+        'verbose_name',
+        [
+            'stable',
+            'latest',
+        ],
+    )
+    @mock.patch('readthedocs.projects.tasks.builds.SyncRepositoryTask.on_failure')
+    def test_check_duplicate_reserved_version_latest(self, on_failure, verbose_name):
+        # `repository.tags` and `repository.branch` both will return a tag/branch named `latest/stable`
+        with mock.patch(
+                'readthedocs.vcs_support.backends.git.Backend.branches',
+                new_callable=mock.PropertyMock,
+                return_value=[
+                    mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
+                ],
+        ):
+            with mock.patch(
+                    'readthedocs.vcs_support.backends.git.Backend.tags',
+                    new_callable=mock.PropertyMock,
+                    return_value=[
+                        mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
+                    ],
+            ):
+                self._trigger_sync_repository_task()
+
+        on_failure.assert_called_once_with(
+            # This argument is the exception we are intereste, but I don't know
+            # how to assert it here. It's checked in the following assert.
+            mock.ANY,
+            mock.ANY,
+            [self.version.pk],
+            {},
+            mock.ANY,
+        )
+
+        exception = on_failure.call_args[0][0]
+        assert isinstance(exception, RepositoryError) == True
+        assert exception.message == RepositoryError.DUPLICATED_RESERVED_VERSIONS
+
+
 # - test command not recorded
 # - test command recorded as success
 # - test for docker
@@ -1301,12 +1361,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
 #   - container timeout
 
 
-# - handle unexpected exception at `run_setup`
-# - handle unexpected exception at `run_build`
-# - version locked does not send notification
-# - `clean_build` is called after `sync_repository_task`
-# - `clean_build` is called after `sync_repository_task` even if it fails
-# - check duplicate reserved versions -requires integration (called by our task) and unit-test (raise expecetd exception). This is for `latest`, `stable` and `non-reserverd` (regular) versions
 # - public task exception (not related with the build process)
 # - test we call `send_build_status` with (and without) remote repository associated to the project
 # - test we don't call `send_build_status` if no remote repository nor account is associated
