@@ -229,7 +229,13 @@ def trigger_build(project, version=None, commit=None):
         # Build was skipped
         return (None, None)
 
-    return (update_docs_task.apply_async(), build)
+    task = update_docs_task.apply_async()
+
+    # Store the task_id in the build object to be able to cancel it later.
+    build.task_id = task.id
+    build.save()
+
+    return task, build
 
 
 def send_email(

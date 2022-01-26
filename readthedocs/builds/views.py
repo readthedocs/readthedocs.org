@@ -1,5 +1,7 @@
 """Views for builds app."""
 
+import signal
+
 import structlog
 import textwrap
 from urllib.parse import urlparse
@@ -20,6 +22,12 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
+
+try:
+    from readthedocsinc.worker import app
+except ImportError:
+    from readthedocs.worker import app
+
 
 log = structlog.get_logger(__name__)
 
@@ -147,6 +155,22 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 class BuildDetail(BuildBase, DetailView):
 
     pk_url_kwarg = 'build_pk'
+
+    @method_decorator(login_required)
+    def post(self, request, project_slug, build_pk):
+        project = get_object_or_404(Project, slug=project_slug)
+        build = get_object_or_404(Build, pk=build_pk)
+
+        if not AdminPermission.is_admin(request.user, project):
+            return HttpResponseForbidden()
+
+        # NOTE: `terminate=True` is required for the child to attend our call
+        # immediately. Otherwise, it finishes the task.
+        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=True)
+
+        return HttpResponseRedirect(
+            reverse('builds_detail', args=[project.slug, build.pk]),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -59,6 +59,10 @@ class DuplicatedBuildError(BuildUserError):
     status = BUILD_STATUS_DUPLICATED
 
 
+class BuildCancelled(BuildUserError):
+    message = gettext_noop('Build cancelled by user.')
+
+
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
