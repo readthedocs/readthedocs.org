@@ -302,12 +302,6 @@ The path to the Conda environment file, relative to the root of the project.
 build
 ~~~~~
 
-.. warning::
-
-   This functionality is in beta. If you find any inconsistencies
-   or have feedback, please `open an
-   issue <https://github.com/readthedocs/readthedocs.org/issues/>`_.
-
 Configuration for the documentation build process.
 This allows you to specify the base Read the Docs image
 used to build the documentation,
