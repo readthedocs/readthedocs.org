@@ -23,7 +23,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    docs
    front-end
    i18n
-   search
+   server-side-search
    search-integration
    settings
    tests
