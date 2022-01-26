@@ -43,7 +43,7 @@ class BuildEnvironmentMocker:
         # )
 
         # TODO: would be good to patch just `.run` but doing that, we are
-        # raising a `BuildEnvironmentError('No TeX files were found')`
+        # raising a `BuildAppError('No TeX files were found')`
         # currently on the `.build` method
         #
         # self.patches['builder.pdf.run'] = mock.patch(

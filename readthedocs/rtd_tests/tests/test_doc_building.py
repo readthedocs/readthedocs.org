@@ -18,7 +18,7 @@ from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
 )
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
@@ -300,7 +300,7 @@ class TestDockerBuildEnvironment(TestCase):
             with build_env:
                 build_env.run('echo', 'test', cwd='/tmp')
 
-        self.assertRaises(BuildEnvironmentError, _inner)
+        self.assertRaises(BuildAppError, _inner)
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 0)
 
         # api() is not called anymore, we use api_v2 instead

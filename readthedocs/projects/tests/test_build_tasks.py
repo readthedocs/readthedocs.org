@@ -18,7 +18,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.config import ConfigError, ALL
 from readthedocs.config.config import BuildConfigV2
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task
 
@@ -425,7 +425,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert api_request.json() == {
             'builder': mock.ANY,
             'commit': self.build.commit,
-            'error': BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=self.build.pk),
+            'error': BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=self.build.pk),
             'id': self.build.pk,
             'length': mock.ANY,
             'state': 'finished',
@@ -1294,7 +1294,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
 #   - assert we are calling the client on create, exec, kill, etc
 #   - memory limit
 #   - container id generation
-#   - daemon connection failed (this is just BuildEnvironmentError) --no need for another test
+#   - daemon connection failed (this is just BuildAppError) --no need for another test
 #   - exception for docker API failure test (e.g. DockerAPIError)
 #   - command not recorded
 #   - command recorded as success
