@@ -18,13 +18,8 @@ from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from readthedocs.api.v2.client import api as api_v2
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
-from readthedocs.projects.exceptions import (
-    ProjectConfigurationError,
-    RepositoryError,
-)
 from readthedocs.projects.models import Feature
 
 from .constants import (
@@ -39,9 +34,6 @@ from .constants import (
 from .exceptions import (
     BuildAppError,
     BuildUserError,
-    MkDocsYAMLParseError,
-    ProjectBuildsSkippedError,
-    YAMLParseError,
 )
 
 log = structlog.get_logger(__name__)
@@ -759,18 +751,17 @@ class DockerBuildEnvironment(BuildEnvironment):
         Otherwise, raise a `BuildAppError`.
         """
         if state is not None and state.get('Running') is False:
-            # TODO: make sure that `state.ExitCode` grabs the exit code from
-            # the `sleep ; exit` command. We've noticed that we are not
-            # reporting this correctly in different opportunities
             if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
                 raise BuildUserError(
                     _('Build exited due to time out'),
                 )
-            elif state.get('OOMKilled', False):
+
+            if state.get('OOMKilled', False):
                 raise BuildUserError(
                     _('Build exited due to excessive memory consumption'),
                 )
-            elif state.get('Error'):
+
+            if state.get('Error'):
                 raise BuildAppError(
                     (
                         _('Build exited due to unknown error: {0}')

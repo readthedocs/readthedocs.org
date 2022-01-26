@@ -217,12 +217,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     Request = BuildRequest
 
-    # TODO:
-    # 1. raise Reject(requeue=False) on duplicated builds
-    # 2. use a global `task_cls` (https://docs.celeryproject.org/en/latest/userguide/tasks.html#app-wide-usage) to logs actions
-    # 3. use CELERY_IMPORTS to register the tasks (https://docs.celeryproject.org/en/latest/userguide/configuration.html#std-setting-imports)
-    # 4. use CELERY_TASK_IGNORE_RESULT=True since we are not using the result at all
-
     def _setup_sigterm(self):
         def sigterm_received(*args, **kwargs):
             log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
@@ -323,7 +317,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # (e.g. cleanup task failed for some reason)
         clean_build(self.version)
 
-        # NOTE: this is never called. I didn't find anything in the logs, so we can probably remove it
+        # NOTE: this is never called. I didn't find anything in the logs, so we
+        # can probably remove it
         self._setup_sigterm()
 
         self._check_project_disabled()
@@ -337,18 +332,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             api_v2.build(self.build['id']).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        # TODO: Handle these kind of Docker error
-        # build_1     | ImageNotFound: 404 Client Error for http+docker://localhost/v1.41/containers/cre
-        # build_1     | ate?name=build-1812-project-256207-test-builds: Not Found ("No such image:
-        # build_1     | readthedocs/build:testing")
-        #
-        # NOTE: that this is currently reporting back to the user a specific error, which is wrong:
-        # "Build environment creation failed" --we should show a generic one
-
         if not hasattr(self, 'build'):
             # NOTE: use `self.build_id` (passed to the task) instead
             # `self.build` (retrieved from the API) because it's not present,
-            # probably due the API failed on retrieve it.
+            # probably due the API failed when retrieving it.
             #
             # So, we create the `self.build` with the minimum required data.
             self.build = {
