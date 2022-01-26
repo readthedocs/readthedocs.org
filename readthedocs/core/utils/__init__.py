@@ -77,11 +77,6 @@ def prepare_build(
         commit=commit
     )
 
-    kwargs = {
-        'commit': commit,
-        'build_pk': build.pk,
-    }
-
     options = {}
     if project.build_queue:
         options['queue'] = project.build_queue
@@ -200,8 +195,13 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(version.pk,),
-            kwargs=kwargs,
+            args=(
+                version.pk,
+                build.pk,
+            ),
+            kwargs={
+                'build_commit': commit,
+            },
             options=options,
             immutable=True,
         ),

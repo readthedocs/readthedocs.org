@@ -65,7 +65,8 @@ class BuildEnvironmentBase:
         # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
         return update_docs_task.delay(
             self.version.pk,
-            build_pk=self.build.pk,
+            self.build.pk,
+            build_commit=self.build.commit,
         )
 
     def _config_file(self, config):

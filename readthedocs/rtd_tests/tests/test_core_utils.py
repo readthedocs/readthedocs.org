@@ -50,14 +50,15 @@ class CoreUtilTests(TestCase):
         self.assertEqual(default_version, 'test-default-version')
 
         trigger_build(project=project_1)
-        kwargs = {
-            'build_pk': mock.ANY,
-            'commit': None
-        }
 
         update_docs_task.signature.assert_called_with(
-            args=(version_1.pk,),
-            kwargs=kwargs,
+            args=(
+                version_1.pk,
+                mock.ANY,
+            ),
+            kwargs={
+                'build_commit': None,
+            },
             options=mock.ANY,
             immutable=True,
         )
@@ -71,14 +72,14 @@ class CoreUtilTests(TestCase):
 
         self.assertEqual(version.slug, LATEST)
 
-        kwargs = {
-            'build_pk': mock.ANY,
-            'commit': None
-        }
-
         update_docs_task.signature.assert_called_with(
-            args=(version.pk,),
-            kwargs=kwargs,
+            args=(
+                version.pk,
+                mock.ANY,
+            ),
+            kwargs={
+                'build_commit': None,
+            },
             options=mock.ANY,
             immutable=True,
         )
@@ -156,18 +157,19 @@ class CoreUtilTests(TestCase):
         """Time limit should round down."""
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
-        kwargs = {
-            'build_pk': mock.ANY,
-            'commit': None
-        }
         options = {
             'time_limit': 3,
             'soft_time_limit': 3,
             'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
-            args=(self.version.pk,),
-            kwargs=kwargs,
+            args=(
+                self.version.pk,
+                mock.ANY,
+            ),
+            kwargs={
+                'build_commit': None,
+            },
             options=options,
             immutable=True,
         )
@@ -218,18 +220,19 @@ class CoreUtilTests(TestCase):
         """Time limit should round down."""
         self.version.type = 'external'
         trigger_build(project=self.project, version=self.version)
-        kwargs = {
-            'build_pk': mock.ANY,
-            'commit': None
-        }
         options = {
             'time_limit': mock.ANY,
             'soft_time_limit': mock.ANY,
             'priority': CELERY_LOW,
         }
         update_docs.signature.assert_called_with(
-            args=(self.version.pk,),
-            kwargs=kwargs,
+            args=(
+                self.version.pk,
+                mock.ANY,
+            ),
+            kwargs={
+                'build_commit': None,
+            },
             options=options,
             immutable=True,
         )
@@ -239,18 +242,19 @@ class CoreUtilTests(TestCase):
         """Time limit should round down."""
         self.project.main_language_project = get(Project, slug='main')
         trigger_build(project=self.project, version=self.version)
-        kwargs = {
-            'build_pk': mock.ANY,
-            'commit': None
-        }
         options = {
             'time_limit': mock.ANY,
             'soft_time_limit': mock.ANY,
             'priority': CELERY_MEDIUM,
         }
         update_docs.signature.assert_called_with(
-            args=(self.version.pk,),
-            kwargs=kwargs,
+            args=(
+                self.version.pk,
+                mock.ANY,
+            ),
+            kwargs={
+                'build_commit': None,
+            },
             options=options,
             immutable=True,
         )

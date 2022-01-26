@@ -107,7 +107,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.environment_class = LocalBuildEnvironment
 
-        version_id = kwargs.get('version_id')
+        # Comes from the signature of the task and it's the only required
+        # argument
+        version_id, = args
 
         # load all data from the API required for the build
         self.version = self.get_version(version_id)
@@ -174,7 +176,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id=None):
+def sync_repository_task(self, version_id):
     # NOTE: `before_start` is new on Celery 5.2.x, but we are using 5.1.x currently.
     self.before_start(self.request.id, self.request.args, self.request.kwargs)
 
@@ -293,8 +295,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.environment_class = LocalBuildEnvironment
 
-        self.version_pk = kwargs.get('version_pk')
-        self.build_pk = kwargs.get('build_pk')
+        # Comes from the signature of the task and they are the only required
+        # arguments
+        self.version_pk, self.build_pk = args
 
         self.build = self.get_build(self.build_pk)
         self.version = self.get_version(self.version_pk)
@@ -305,13 +308,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
-        self.commit = self.build.get('commit')
+        self.build_commit = kwargs.get('build_commit')
 
         log.bind(
             # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
             build_id=self.build['id'],
             builder=self.build['builder'],
-            commit=self.commit,
+            commit=self.build_commit,
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
@@ -392,17 +395,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             event=WebHookEvent.BUILD_FAILED,
         )
 
-        # NOTE: why we wouldn't have `self.commit` here?
+        # NOTE: why we wouldn't have `self.build_commit` here?
         # This attribute is set when we get it after clonning the repository
         #
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.commit:
+        if self.build_commit:
             send_external_build_status(
                 version_type=self.version.type,
                 build_pk=self.build['id'],
-                commit=self.commit,
+                commit=self.build_commit,
                 status=BUILD_STATUS_FAILURE,
             )
 
@@ -462,11 +465,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             event=WebHookEvent.BUILD_PASSED,
         )
 
-        if self.commit:
+        if self.build_commit:
             send_external_build_status(
                 version_type=self.version.type,
                 build_pk=self.build['id'],
-                commit=self.commit,
+                commit=self.build_commit,
                 status=BUILD_STATUS_SUCCESS,
             )
 
@@ -648,7 +651,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         self.sync_repo(environment)
 
-        commit = self.commit or self.get_vcs_repo(environment).commit
+        commit = self.build_commit or self.get_vcs_repo(environment).commit
         if commit:
             self.build['commit'] = commit
 
@@ -974,13 +977,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     base=UpdateDocsTask,
     bind=True,
 )
-def update_docs_task(self, *args, **kwargs):
-    # TODO: `build_pk` is a mandatory attribute. We cannot trigger this task
-    # without a build already created in the database.
-
-    # HACK: just for now while we are developing the code
-    self.request.kwargs['version_pk'] = args[0]
-
+def update_docs_task(self, version_id, build_id, build_commit=None):
     # NOTE: `before_start` is new on Celery 5.2.x, but we are using 5.1.x currently.
     self.before_start(self.request.id, self.request.args, self.request.kwargs)
 
