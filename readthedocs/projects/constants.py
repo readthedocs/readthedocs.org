@@ -377,13 +377,6 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
 
-# Set 3 priorities, [low, medium, high] -- default is medium
-# Leave some space on each side of the set to expand if needed
-CELERY_LOW = 3
-CELERY_MEDIUM = 5
-CELERY_HIGH = 7
-
-
 # SSL statuses
 SSL_STATUS_VALID = 'valid'
 SSL_STATUS_INVALID = 'invalid'

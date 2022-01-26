@@ -10,11 +10,6 @@ from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-from readthedocs.projects.constants import (
-    CELERY_HIGH,
-    CELERY_LOW,
-    CELERY_MEDIUM,
-)
 from readthedocs.projects.models import Feature, Project
 
 
@@ -98,7 +93,6 @@ class CoreUtilTests(TestCase):
             'queue': 'build03',
             'time_limit': 720,
             'soft_time_limit': 600,
-            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -120,7 +114,6 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 720,
             'soft_time_limit': 600,
-            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -143,7 +136,6 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 720,
             'soft_time_limit': 600,
-            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -160,7 +152,6 @@ class CoreUtilTests(TestCase):
         options = {
             'time_limit': 3,
             'soft_time_limit': 3,
-            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(
@@ -204,7 +195,6 @@ class CoreUtilTests(TestCase):
             'soft_time_limit': 600,
             'countdown': 5 * 60,
             'max_retries': 25,
-            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -214,50 +204,6 @@ class CoreUtilTests(TestCase):
         )
         build = self.project.builds.first()
         self.assertEqual(build.error, BuildMaxConcurrencyError.message.format(limit=max_concurrent_builds))
-
-    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
-    def test_trigger_external_build_low_priority(self, update_docs):
-        """Time limit should round down."""
-        self.version.type = 'external'
-        trigger_build(project=self.project, version=self.version)
-        options = {
-            'time_limit': mock.ANY,
-            'soft_time_limit': mock.ANY,
-            'priority': CELERY_LOW,
-        }
-        update_docs.signature.assert_called_with(
-            args=(
-                self.version.pk,
-                mock.ANY,
-            ),
-            kwargs={
-                'build_commit': None,
-            },
-            options=options,
-            immutable=True,
-        )
-
-    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
-    def test_trigger_build_translation_medium_priority(self, update_docs):
-        """Time limit should round down."""
-        self.project.main_language_project = get(Project, slug='main')
-        trigger_build(project=self.project, version=self.version)
-        options = {
-            'time_limit': mock.ANY,
-            'soft_time_limit': mock.ANY,
-            'priority': CELERY_MEDIUM,
-        }
-        update_docs.signature.assert_called_with(
-            args=(
-                self.version.pk,
-                mock.ANY,
-            ),
-            kwargs={
-                'build_commit': None,
-            },
-            options=options,
-            immutable=True,
-        )
 
     def test_slugify(self):
         """Test additional slugify."""
