@@ -1365,6 +1365,3 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
 # - test we call `send_build_status` with (and without) remote repository associated to the project
 # - test we don't call `send_build_status` if no remote repository nor account is associated
 # - (same that previous for gitlab, but not for bitbucket :) )
-# - assert we call `apt-get install` when using `build.apt_packages` config file
-# - assert we call `asdf install python` and more when using `build.tools` in config file
-# - assert we call only `asdf global python` if it's cached in the bucket

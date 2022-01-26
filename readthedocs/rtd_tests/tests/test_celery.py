@@ -1,51 +1,23 @@
-import os
-import shutil
-from os.path import exists
-from tempfile import mkdtemp
-from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django_dynamic_fixture import get
 from messages_extends.models import Message
 
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
-    BUILD_STATE_TRIGGERED,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.config.config import BuildConfigV2
-from readthedocs.doc_builder.environments import (
-    BuildEnvironment,
-    LocalBuildEnvironment,
-)
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
-from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
-from readthedocs.projects.tasks.search import fileify
-from readthedocs.rtd_tests.mocks.mock_api import mock_api
-from readthedocs.rtd_tests.utils import (
-    create_git_branch,
-    create_git_tag,
-    delete_git_branch,
-    make_test_git,
-)
 
 
-# NOTE: most of these tests need to be re-written making usage of the new
-# Celery handlers. These are exactly the tests we are interested in making them
-# work properly (e.g. send notifications after build, handle unexpected
-# exceptions, etc)
-@pytest.mark.skip
 class TestCeleryBuilding(TestCase):
 
     """
@@ -55,25 +27,17 @@ class TestCeleryBuilding(TestCase):
     """
 
     def setUp(self):
-        repo = make_test_git()
-        self.repo = repo
         super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
             name='Test Project',
-            repo_type='git',
-            # Our top-level checkout
-            repo=repo,
         )
         self.project.users.add(self.eric)
         self.version = self.project.versions.get(slug=LATEST)
 
-    def tearDown(self):
-        shutil.rmtree(self.repo)
-        super().tearDown()
-
+    @pytest.mark.skip
     def test_check_duplicate_no_reserved_version(self):
         create_git_branch(self.repo, 'no-reserved')
         create_git_tag(self.repo, 'no-reserved')
