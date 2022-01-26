@@ -6,7 +6,7 @@ from unittest import mock
 from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
@@ -199,6 +199,10 @@ class TestDockerBuildEnvironment(TestCase):
 # `DockerBuildEnvironment`.
 #
 # They should be merged with the following test suite `TestDockerBuildCommand`.
+#
+# Also note that we require a Docker setting here for the tests to pass, but we
+# are not using Docker at all.
+@override_settings(RTD_DOCKER_WORKDIR='/tmp')
 class TestBuildCommand(TestCase):
 
     """Test build command creation."""
