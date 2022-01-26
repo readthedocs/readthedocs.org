@@ -412,21 +412,6 @@ class Version(TimeStampedModel):
         """Return the path of the cached environment tar file."""
         return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
-    def clean_build_path(self):
-        """
-        Clean build path for project version.
-
-        Ensure build path is clean for project version. Used to ensure stale
-        build checkouts for each project version are removed.
-        """
-        try:
-            path = self.get_build_path()
-            if path is not None:
-                log.debug('Removing build path for project.', path=path, project_slug=self.slug)
-                rmtree(path)
-        except OSError:
-            log.exception('Build path cleanup failed')
-
     def get_github_url(
             self,
             docroot,

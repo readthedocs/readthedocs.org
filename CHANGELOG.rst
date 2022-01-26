@@ -1,3 +1,20 @@
+Version 7.1.0
+-------------
+
+:Date: January 25, 2022
+
+* `@astrojuanlu <https://github.com/astrojuanlu>`__: Detail what URLs are expected in issue template (`#8832 <https://github.com/readthedocs/readthedocs.org/pull/8832>`__)
+* `@humitos <https://github.com/humitos>`__: Cleanup: delete unused Django management commands (`#8830 <https://github.com/readthedocs/readthedocs.org/pull/8830>`__)
+* `@simonw <https://github.com/simonw>`__: Canonical can point as stable, not just latest (`#8828 <https://github.com/readthedocs/readthedocs.org/pull/8828>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove `USE_TESTING_BUILD_IMAGE` (`#8824 <https://github.com/readthedocs/readthedocs.org/pull/8824>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use stickybox ad placement on RTD themed projects (`#8823 <https://github.com/readthedocs/readthedocs.org/pull/8823>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Quiet the Unresolver logging (`#8822 <https://github.com/readthedocs/readthedocs.org/pull/8822>`__)
+* `@stsewd <https://github.com/stsewd>`__: Workaround for HttpExchange queries casting IDs as uuid/int wrongly (`#8821 <https://github.com/readthedocs/readthedocs.org/pull/8821>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix queryset for generic models (`#8820 <https://github.com/readthedocs/readthedocs.org/pull/8820>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 7.0.0 (`#8818 <https://github.com/readthedocs/readthedocs.org/pull/8818>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 03 (`#8817 <https://github.com/readthedocs/readthedocs.org/pull/8817>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: move views  (`#8816 <https://github.com/readthedocs/readthedocs.org/pull/8816>`__)
+
 Version 7.0.0
 -------------
 
