@@ -110,7 +110,7 @@ class SyncRepositoryMixin:
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
         self.sync_versions(version_repo)
-        identifier = getattr(self, 'commit', None) or self.version.identifier
+        identifier = self.build_commit or self.version.identifier
         version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
