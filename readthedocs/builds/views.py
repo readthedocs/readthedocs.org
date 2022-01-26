@@ -16,17 +16,14 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
-from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildAppError, BuildCancelled
 from readthedocs.projects.models import Project
-
-try:
-    from readthedocsinc.worker import app
-except ImportError:
-    from readthedocs.worker import app
+from readthedocs.worker import app
 
 
 log = structlog.get_logger(__name__)
@@ -165,8 +162,23 @@ class BuildDetail(BuildBase, DetailView):
             return HttpResponseForbidden()
 
         # NOTE: `terminate=True` is required for the child to attend our call
-        # immediately. Otherwise, it finishes the task.
-        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=True)
+        # immediately when it's running the build. Otherwise, it finishes the
+        # task. However, to revoke a task that has not started yet, we don't
+        # need it.
+        if build.state == BUILD_STATE_TRIGGERED:
+            # Since the task won't be executed at all, we need to update the
+            # Build object here.
+            terminate = False
+            build.state = BUILD_STATE_FINISHED
+            build.success = False
+            build.error = BuildCancelled.message
+            build.save()
+        else:
+            # In this case, we left the update of the Build object to the task
+            # itself to be executed in the `on_failure` handler.
+            terminate = True
+
+        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
 
         return HttpResponseRedirect(
             reverse('builds_detail', args=[project.slug, build.pk]),
