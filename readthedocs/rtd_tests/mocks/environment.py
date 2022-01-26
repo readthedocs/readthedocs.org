@@ -24,9 +24,6 @@ class EnvironmentMockGroup:
             'api_versions': mock.patch(
                 'readthedocs.projects.models.Project.api_versions',
             ),
-            'non_blocking_lock': mock.patch(
-                'readthedocs.vcs_support.utils.NonBlockingLock.__enter__',
-            ),
 
             'append_conf': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf',

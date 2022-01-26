@@ -49,11 +49,6 @@ class BuildEnvironmentError(BuildAppError):
     )
 
 
-class VersionLockedError(BuildUserError):
-    message = gettext_noop('Version locked, retrying in 5 minutes.')
-    status_code = 423
-
-
 class ProjectBuildsSkippedError(BuildUserError):
     message = gettext_noop('Builds for this project are temporarily disabled')
 

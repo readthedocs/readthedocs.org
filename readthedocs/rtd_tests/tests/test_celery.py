@@ -27,7 +27,6 @@ from readthedocs.doc_builder.environments import (
     BuildEnvironment,
     LocalBuildEnvironment,
 )
-from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project

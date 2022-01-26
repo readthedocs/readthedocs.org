@@ -53,7 +53,6 @@ from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
-from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 from .constants import (
     MEDIA_TYPE_EPUB,
@@ -959,32 +958,6 @@ class Project(models.Model):
             provider = allauth_registry.by_id(service.adapter.provider_id)
             return provider.name
         return None
-
-    def repo_nonblockinglock(self, version, max_lock_age=None):
-        """
-        Return a ``NonBlockingLock`` to acquire the lock via context manager.
-
-        :param version: project's version that want to get the lock for.
-        :param max_lock_age: time (in seconds) to consider the lock's age is old
-            and grab it anyway. It default to the ``container_time_limit`` of
-            the project or the default ``DOCKER_LIMITS['time']`` or
-            ``REPO_LOCK_SECONDS`` or 30
-        """
-        if max_lock_age is None:
-            max_lock_age = (
-                self.container_time_limit or
-                DOCKER_LIMITS.get('time') or
-                settings.REPO_LOCK_SECONDS
-            )
-
-        return NonBlockingLock(
-            project=self,
-            version=version,
-            max_lock_age=max_lock_age,
-        )
-
-    def repo_lock(self, version, timeout=5, polling_interval=5):
-        return Lock(self, version, timeout, polling_interval)
 
     def find(self, filename, version):
         """

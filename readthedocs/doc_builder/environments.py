@@ -41,7 +41,6 @@ from .exceptions import (
     BuildUserError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
-    VersionLockedError,
     YAMLParseError,
 )
 
@@ -638,9 +637,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Start of environment context."""
         try:
             # Test for existing container. We remove any stale containers that
-            # are no longer running here if there is a collision. If the
-            # container is still running, this would be a failure of the version
-            # locking code, so we throw an exception.
+            # are no longer running here if there is a collision. We throw an
+            # exception
             state = self.container_state()
             if state is not None:
                 if state.get('Running') is True:

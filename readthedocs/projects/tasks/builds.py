@@ -52,7 +52,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
     ProjectBuildsSkippedError,
-    VersionLockedError,
     YAMLParseError,
 )
 from readthedocs.doc_builder.loader import get_builder_class
@@ -60,7 +59,6 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_environment_storage, build_media_storage
-from readthedocs.vcs_support.utils import LockTimeout
 from readthedocs.worker import app
 
 
@@ -120,8 +118,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.version.slug,
         )
 
-        self.project.repo_nonblockinglock(version=self.version).acquire_lock()
-
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -129,26 +125,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 'There was an error with the repository.',
                 exc_info=True,
             )
-        elif isinstance(exc, LockTimeout):
-            countdown = 120
-            log.info(
-                'Lock still active. Retrying this task with countdown delay...',
-                countdown=countdown,
-            )
-            self.retry(
-                exc=exc,
-                throw=False,
-                countdown=countdown,
-            )
         else:
             # Catch unhandled errors when syncing
             log.exception('An unhandled exception was raised during VCS syncing.')
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.version)
-
-        # unlock repository directory
-        self.project.repo_nonblockinglock(version=self.version).release_lock()
 
         # HACK: cleanup all the attributes set by the task under `self`
         for attribute in list(self.__dict__.keys()):
@@ -219,7 +201,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # Expected exceptions that will be logged as info only and not retried
     throws = (
         DuplicatedBuildError,
-        VersionLockedError,
         ProjectBuildsSkippedError,
         ConfigError,
         YAMLParseError,
@@ -403,10 +384,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
                 build_id=self.build['id'],
             )
-
-        # NOTE: all the locking code may be removed, so this is not important anymore
-        # TODO: do not send notifications on ``VersionLockedError``
-        # (vcs_support_utils.LockTimeout) since it's not a problem for the user
 
         # Send notifications for unhandled errors
         self.send_notifications(
