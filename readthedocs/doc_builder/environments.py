@@ -517,20 +517,6 @@ class BuildEnvironment(BaseEnvironment):
     def __exit__(self, exc_type, exc_value, tb):
         return
 
-    # def __exit__(self, exc_type, exc_value, tb):
-    #     ret = self.handle_exception(exc_type, exc_value, tb)
-    #     self.update_build(BUILD_STATE_FINISHED)
-    #     log.info(
-    #         'Build finished',
-    #         # TODO: move all of these attributes to ``log.bind`` if possible
-    #         project_slug=self.project.slug if self.project else '',
-    #         version_slug=self.version.slug if self.version else '',
-    #         # TODO: add organization_slug here
-    #         success=self.build.get('success') if self.build else '',
-    #         length=self.build.get('length') if self.build else '',
-    #     )
-    #     return ret
-
     def record_command(self, command):
         command.save()
 
@@ -545,32 +531,6 @@ class BuildEnvironment(BaseEnvironment):
             'build_env': self,
         })
         return super().run_command_class(*cmd, **kwargs)
-
-    # @property
-    # def successful(self):
-    #     """Build completed, without top level failures or failing commands."""
-    #     return (
-    #         self.done and self.failure is None and
-    #         all(cmd.successful for cmd in self.commands)
-    #     )
-
-    # @property
-    # def failed(self):
-    #     """Is build completed, but has top level failure or failing commands."""
-    #     return (
-    #         self.done and (
-    #             self.failure is not None or
-    #             any(cmd.failed for cmd in self.commands)
-    #         )
-    #     )
-
-    # @property
-    # def done(self):
-    #     """Is build in finished state."""
-    #     return (
-    #         self.build and
-    #         self.build['state'] == BUILD_STATE_FINISHED
-    #     )
 
 
 class LocalBuildEnvironment(BuildEnvironment):
