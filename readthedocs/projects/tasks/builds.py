@@ -473,16 +473,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Update build object
         self.build['success'] = True
 
-        # NOTE: we can probably remove the ``exit_code`` at build level, I
-        # don't think we are using it
-        # self.build['exit_code'] = max([
-        #     cmd.exit_code for cmd in self.build_env.commands
-        # ])
-
-        # NOTE: I don't think we are using these fields either
-        # self.build['setup'] = self.build['setup_error'] = ''
-        # self.build['output'] = self.build['error'] = ''
-
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         log.warning('Retrying this task.')
 

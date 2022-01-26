@@ -629,6 +629,9 @@ class Build(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
+    # TODO: remove these fields (setup, setup_error, output, error, exit_code)
+    # since they are not used anymore in the new implementation and only really
+    # old builds (>5 years ago) only were using these fields.
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
