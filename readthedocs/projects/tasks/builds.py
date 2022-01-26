@@ -959,7 +959,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         return 'sphinx' in self.config.doctype
 
 
-# TODO: rename this task to `build_task`
 @app.task(
     base=UpdateDocsTask,
     bind=True,
