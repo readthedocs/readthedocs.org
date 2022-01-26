@@ -1346,22 +1346,3 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
         exception = on_failure.call_args[0][0]
         assert isinstance(exception, RepositoryError) == True
         assert exception.message == RepositoryError.DUPLICATED_RESERVED_VERSIONS
-
-
-# - test command not recorded
-# - test command recorded as success
-# - test for docker
-#   - assert we are calling the client on create, exec, kill, etc
-#   - memory limit
-#   - container id generation
-#   - daemon connection failed (this is just BuildAppError) --no need for another test
-#   - exception for docker API failure test (e.g. DockerAPIError)
-#   - command not recorded
-#   - command recorded as success
-#   - container timeout
-
-
-# - public task exception (not related with the build process)
-# - test we call `send_build_status` with (and without) remote repository associated to the project
-# - test we don't call `send_build_status` if no remote repository nor account is associated
-# - (same that previous for gitlab, but not for bitbucket :) )
