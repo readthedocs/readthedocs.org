@@ -21,7 +21,6 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
