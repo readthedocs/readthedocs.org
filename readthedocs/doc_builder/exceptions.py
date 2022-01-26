@@ -33,9 +33,9 @@ class BuildAppError(BuildBaseException):
 
 class BuildUserError(BuildBaseException):
     GENERIC = gettext_noop(
-        "One of the commmands failed. Please take a look at its output. This "
-        "doesn't look like a problem in Read the Docs application and should be "
-        "a problem that you can resolve by yourself taking a look at the build logs."
+        "We encountered a problem with a command while building your project. "
+        "To resolve this error, double check your project configuration and installed "
+        "dependencies are correct and have not changed recently."
     )
 
 
@@ -44,8 +44,8 @@ class BuildEnvironmentError(BuildAppError):
     GENERIC_WITH_BUILD_ID = gettext_noop(
         'There was a problem with Read the Docs while building your documentation. '
         'Please try again later. '
-        'However, if this problem persists, '
-        'please report this to us with your build id ({build_id}).',
+        'If this problem persists, '
+        'report this error to us with your build id ({build_id}).',
     )
 
 
