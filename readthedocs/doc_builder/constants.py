@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Doc build constants."""
 
-import structlog
 import re
 
+import structlog
 from django.conf import settings
-
 
 log = structlog.get_logger(__name__)
 

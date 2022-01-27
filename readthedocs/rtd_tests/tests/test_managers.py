@@ -199,8 +199,8 @@ class TestInternalBuildManager(TestBuildManagerBase):
     """
     Queries using Internal Manager should only include Internal Version builds.
 
-    It will exclude pull/merge request Version builds from the queries
-    and only include BRANCH, TAG, UNKNOWN type Versions.
+    It will exclude pull/merge request Version builds from the queries and only
+    include BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def test_all(self):

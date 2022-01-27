@@ -1,17 +1,17 @@
 import json
 
-from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
+from django.db.models import Q, Subquery
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.base import SyncServiceError
-from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):
-    help = "Re-connect RemoteRepository to Project"
+    help = 'Re-connect RemoteRepository to Project'
 
     def add_arguments(self, parser):
         parser.add_argument('organization', nargs='+', type=str)
@@ -45,7 +45,9 @@ class Command(BaseCommand):
                     try:
                         service.sync()
                     except SyncServiceError:
-                        print(f'Service {service} failed while syncing. Skipping...')
+                        print(
+                            f'Service {service} failed while syncing. Skipping...'
+                        )
 
     def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []
@@ -66,7 +68,8 @@ class Command(BaseCommand):
                 # Do not connect a RemoteRepository where the User is not admin of the repository
                 continue
 
-            if not organization.users.filter(username=remote.users.first().username).exists():
+            if not organization.users.filter(username=remote.users.first().username
+                                             ).exists():
                 # Do not connect a RemoteRepository if the use does not belong to the organization
                 continue
 
@@ -87,7 +90,9 @@ class Command(BaseCommand):
                     remote.project = project
                     remote.save()
 
-                print(f'{project.slug: <40} {remote.pk: <10} {remote.html_url: <60} {remote.users.first().username: <20} {admin: <5}')  # noqa
+                print(
+                    f'{project.slug: <40} {remote.pk: <10} {remote.html_url: <60} {remote.users.first().username: <20} {admin: <5}'
+                )  # noqa
         print('Total:', len(connected_projects))
         if not no_dry_run:
             print(
@@ -107,6 +112,10 @@ class Command(BaseCommand):
                 if force_owners_social_resync:
                     self._force_owners_social_resync(organization)
 
-                self._connect_repositories(organization, no_dry_run, only_owners)
+                self._connect_repositories(
+                    organization, no_dry_run, only_owners
+                )
             except Organization.DoesNotExist:
-                print(f'Organization does not exist. organization={organization}')
+                print(
+                    f'Organization does not exist. organization={organization}'
+                )

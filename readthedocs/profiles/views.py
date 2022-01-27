@@ -194,7 +194,9 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
     def _get_start_date(self):
         """Get the date to show logs from."""
         creation_date = self.request.user.date_joined.date()
-        start_date = timezone.now().date() - timezone.timedelta(days=self.days_limit)
+        start_date = timezone.now().date() - timezone.timedelta(
+            days=self.days_limit
+        )
         # The max we can go back is to the creation of the user.
         return max(start_date, creation_date)
 
@@ -223,10 +225,9 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
             end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
+        csv_data = [[
+            timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest
+        ] for date, *rest in data]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
@@ -252,8 +253,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         """
         Return the queryset with filters.
 
-        If you want the original queryset without filters,
-        use `_get_queryset`.
+        If you want the original queryset without filters, use `_get_queryset`.
         """
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.

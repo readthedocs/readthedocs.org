@@ -1,5 +1,4 @@
 import structlog
-
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
@@ -81,12 +80,9 @@ class PageDocument(RTDDocTypeMixin, Document):
     rank = fields.IntegerField()
 
     # Searchable content
-    title = fields.TextField(
-        attr='processed_json.title',
-    )
+    title = fields.TextField(attr='processed_json.title',)
     sections = fields.NestedField(
-        attr='processed_json.sections',
-        properties={
+        attr='processed_json.sections', properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
             'content': fields.TextField(
@@ -134,37 +130,28 @@ class PageDocument(RTDDocTypeMixin, Document):
         all_domains = []
         try:
             domains_qs = html_file.sphinx_domains.exclude(
-                domain='std',
-                type__in=['doc', 'label']
+                domain='std', type__in=['doc', 'label']
             ).iterator()
 
-            all_domains = [
-                {
-                    'role_name': domain.role_name,
-                    'anchor': domain.anchor,
-                    'type_display': domain.type_display,
-                    'docstrings': html_file.processed_json.get(
-                        'domain_data', {}
-                    ).get(domain.anchor, ''),
-                    'name': domain.name,
-                }
-                for domain in domains_qs
-            ]
+            all_domains = [{
+                'role_name': domain.role_name,
+                'anchor': domain.anchor,
+                'type_display': domain.type_display,
+                'docstrings': html_file.processed_json.get('domain_data', {})
+                .get(domain.anchor, ''),
+                'name': domain.name,
+            } for domain in domains_qs]
 
             log.debug(
-                "[%s] [%s] Total domains for file %s are: %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path,
+                '[%s] [%s] Total domains for file %s are: %s',
+                html_file.project.slug, html_file.version.slug, html_file.path,
                 len(all_domains)
             )
 
         except Exception:
             log.exception(
-                "[%s] [%s] Error preparing domain data for file %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path
+                '[%s] [%s] Error preparing domain data for file %s',
+                html_file.project.slug, html_file.version.slug, html_file.path
             )
 
         return all_domains
@@ -173,8 +160,6 @@ class PageDocument(RTDDocTypeMixin, Document):
         """Don't include ignored files."""
         queryset = super().get_queryset()
         queryset = (
-            queryset
-            .exclude(ignore=True)
-            .select_related('version', 'project')
+            queryset.exclude(ignore=True).select_related('version', 'project')
         )
         return queryset

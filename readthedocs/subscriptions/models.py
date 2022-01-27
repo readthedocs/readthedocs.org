@@ -65,7 +65,7 @@ class Plan(models.Model):
         )
 
     def __str__(self):
-        return f"{self.name} ({self.stripe_id})"
+        return f'{self.name} ({self.stripe_id})'
 
     # pylint: disable=signature-differs
     def save(self, *args, **kwargs):

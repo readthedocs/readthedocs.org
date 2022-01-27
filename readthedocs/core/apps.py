@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """App configurations for core app."""
 
 from django.apps import AppConfig

@@ -21,7 +21,9 @@ urlpatterns = [
         name='projects_tag_detail',
     ),
     re_path(
-        r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
+        r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(
+            **pattern_opts
+        ),
         public.project_redirect,
         name='project_redirect',
     ),
@@ -47,7 +49,6 @@ urlpatterns = [
         ),
         public.ProjectDownloadMedia.as_view(),
     ),
-
     re_path(
         r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
         public.project_badge,

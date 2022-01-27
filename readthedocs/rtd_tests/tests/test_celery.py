@@ -241,7 +241,7 @@ class TestCeleryBuilding(TestCase):
         run_syn_repository.side_effect = Exception()
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            result = tasks.sync_repository_task.delay(version.pk)
+            tasks.sync_repository_task.delay(version.pk)
         clean_build.assert_called_with(version.pk)
 
     @patch('readthedocs.projects.models.Project.checkout_path')

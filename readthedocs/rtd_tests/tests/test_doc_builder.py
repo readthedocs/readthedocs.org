@@ -59,8 +59,8 @@ class SphinxBuilderTest(TestCase):
         """
         Test the conf_py_path that is added to the conf.py file.
 
-        This value is used from the theme and footer
-        to build the ``View`` and ``Edit`` on link.
+        This value is used from the theme and footer to build the ``View`` and
+        ``Edit`` on link.
         """
         tmp_dir = tempfile.mkdtemp()
         checkout_path.return_value = tmp_dir
@@ -234,8 +234,8 @@ class SphinxBuilderTest(TestCase):
         """
         Test for a project with multiple ``conf.py`` files.
 
-        An error should be raised to the user if we can't
-        guess the correct conf.py file.
+        An error should be raised to the user if we can't guess the correct
+        conf.py file.
         """
 
         tmp_docs_dir = py.path.local(tempfile.mkdtemp())

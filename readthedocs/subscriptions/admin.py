@@ -57,8 +57,7 @@ class SubscriptionDateFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         trial_queryset = (
             queryset.filter(
-                Q(status='trialing') |
-                Q(status__isnull=True),
+                Q(status='trialing') | Q(status__isnull=True),
             ),
         )  # yapf: disabled
         if self.value() == self.TRIALING:
@@ -76,7 +75,9 @@ class SubscriptionDateFilter(admin.SimpleListFilter):
 
 class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
     model = Subscription
-    list_display = ('organization', 'plan', 'status', 'stripe_subscription', 'trial_end_date')
+    list_display = (
+        'organization', 'plan', 'status', 'stripe_subscription', 'trial_end_date'
+    )
     list_filter = ('status', SubscriptionDateFilter, 'plan')
     list_select_related = ('organization', 'plan')
     raw_id_fields = ('organization',)
@@ -88,7 +89,9 @@ class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
         if obj.stripe_id:
             return format_html(
                 '<a href="{}" target="_blank" rel="noopener noreferrer">{}</a>',
-                "https://dashboard.stripe.com/subscriptions/{}".format(obj.stripe_id),
+                'https://dashboard.stripe.com/subscriptions/{}'.format(
+                    obj.stripe_id
+                ),
                 obj.stripe_id,
             )
         return None

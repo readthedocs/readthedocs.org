@@ -13,7 +13,7 @@ Future tags should be canonicalized because of the new tag parser in
 """
 
 from django.core.management.base import BaseCommand
-from taggit.utils import parse_tags, edit_string_for_tags
+from taggit.utils import edit_string_for_tags, parse_tags
 
 from readthedocs.projects.models import Project
 from readthedocs.projects.tag_utils import remove_unused_tags
@@ -25,7 +25,9 @@ class Command(BaseCommand):
     dry_run = False
 
     def reprocess_tags(self):
-        self.stdout.write('Reprocessing tags (lowercasing, slugifying, etc.)...')
+        self.stdout.write(
+            'Reprocessing tags (lowercasing, slugifying, etc.)...'
+        )
         project_total = Project.objects.count()
 
         # Use an iterator so the queryset isn't stored in memory
@@ -67,20 +69,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--dry-run",
-            action="store_true",
+            '--dry-run',
+            action='store_true',
             help="Don't actually perform the actions, just print output",
         )
         parser.add_argument(
-            "--remove-unused-only",
-            action="store_true",
+            '--remove-unused-only',
+            action='store_true',
             help="Don't canonicalize tags, just delete unused",
         )
 
     def handle(self, *args, **options):
-        self.dry_run = options["dry_run"]
+        self.dry_run = options['dry_run']
 
-        if not options["remove_unused_only"]:
+        if not options['remove_unused_only']:
             self.reprocess_tags()
 
         self.remove_tags_with_no_projects()

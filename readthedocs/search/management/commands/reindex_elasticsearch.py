@@ -1,9 +1,9 @@
 import itertools
-import structlog
 import sys
 import textwrap
 from datetime import datetime, timedelta
 
+import structlog
 from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
@@ -23,7 +23,9 @@ log = structlog.get_logger(__name__)
 class Command(BaseCommand):
 
     @staticmethod
-    def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
+    def _get_indexing_tasks(
+        app_label, model_name, index_name, queryset, document_class
+    ):
         chunk_size = settings.ES_TASK_CHUNK_SIZE
         qs_iterator = queryset.values_list('pk', flat=True).iterator()
 
@@ -56,7 +58,7 @@ class Command(BaseCommand):
             model_name = queryset.model.__name__
 
             index_name = doc._index._name
-            new_index_name = "{}_{}".format(index_name, timestamp)
+            new_index_name = '{}_{}'.format(index_name, timestamp)
 
             # Set and create a temporal index for indexing.
             create_new_es_index(
@@ -79,7 +81,7 @@ class Command(BaseCommand):
                 task.apply_async(**apply_async_kwargs)
 
             log.info(
-                "Tasks issued successfully.",
+                'Tasks issued successfully.',
                 model_name=model_name,
                 app_label=app_label,
                 items=queryset.count(),
@@ -92,7 +94,7 @@ class Command(BaseCommand):
             app_label = queryset.model._meta.app_label
             model_name = queryset.model.__name__
             index_name = doc._index._name
-            new_index_name = "{}_{}".format(index_name, timestamp)
+            new_index_name = '{}_{}'.format(index_name, timestamp)
             switch_es_index(
                 app_label=app_label,
                 model_name=model_name,
@@ -100,7 +102,7 @@ class Command(BaseCommand):
                 new_index_name=new_index_name,
             )
             log.info(
-                "Index name changed.",
+                'Index name changed.',
                 app_label=app_label,
                 model_name=model_name,
                 new_index_name=new_index_name,
@@ -115,7 +117,10 @@ class Command(BaseCommand):
         models = models or functions.keys()
         for model in models:
             if model not in functions:
-                log.warning("Re-index from not available for model.", model_name=model.__name__)
+                log.warning(
+                    'Re-index from not available for model.',
+                    model_name=model.__name__
+                )
                 continue
             functions[model](days_ago=days_ago, queue=queue)
 
@@ -138,7 +143,7 @@ class Command(BaseCommand):
             for task in indexing_tasks:
                 task.apply_async(**apply_async_kwargs)
             log.info(
-                "Tasks issued successfully.",
+                'Tasks issued successfully.',
                 app_label=app_label,
                 model_name=model_name,
                 items=queryset.count(),
@@ -164,10 +169,9 @@ class Command(BaseCommand):
             for version in queryset.iterator():
                 project = version.project
                 files_qs = (
-                    HTMLFile.objects
-                    .filter(version=version)
-                    .values_list('pk', flat=True)
-                    .iterator()
+                    HTMLFile.objects.filter(version=version
+                                            ).values_list('pk',
+                                                          flat=True).iterator()
                 )
                 current = 0
                 while True:
@@ -185,7 +189,7 @@ class Command(BaseCommand):
                     index_objects_to_es.apply_async(**apply_async_kwargs)
 
                 log.info(
-                    "Tasks issued successfully.",
+                    'Tasks issued successfully.',
                     project_slug=project.slug,
                     version_slug=version.slug,
                     items=current,
@@ -193,19 +197,16 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--queue',
-            dest='queue',
-            action='store',
-            required=True,
-            help="Set the celery queue name for the task."
+            '--queue', dest='queue', action='store', required=True,
+            help='Set the celery queue name for the task.'
         )
         parser.add_argument(
             '--change-index',
             dest='change_index',
             action='store',
             help=(
-                "Change the index to the new one using the given timestamp and delete the old one. "
-                "**This should be run after a re-index is completed**."
+                'Change the index to the new one using the given timestamp and delete the old one. '
+                '**This should be run after a re-index is completed**.'
             ),
         )
         parser.add_argument(
@@ -214,8 +215,8 @@ class Command(BaseCommand):
             type=int,
             action='store',
             help=(
-                "Re-index the models from the given days. "
-                "This should be run after a re-index."
+                'Re-index the models from the given days. '
+                'This should be run after a re-index.'
             ),
         )
         parser.add_argument(
@@ -224,8 +225,8 @@ class Command(BaseCommand):
             type=str,
             nargs='*',
             help=(
-                "Specify the model to be updated in elasticsearch. "
-                "The format is <app_label>.<model_name>"
+                'Specify the model to be updated in elasticsearch. '
+                'The format is <app_label>.<model_name>'
             ),
         )
 
@@ -233,13 +234,15 @@ class Command(BaseCommand):
         """
         Index models into Elasticsearch index asynchronously using celery.
 
-        You can specify model to get indexed by passing
-        `--model <app_label>.<model_name>` parameter.
-        Otherwise, it will re-index all the models
+        You can specify model to get indexed by passing `--model
+        <app_label>.<model_name>` parameter. Otherwise, it will re-index all the
+        models
         """
         models = None
         if options['models']:
-            models = [apps.get_model(model_name) for model_name in options['models']]
+            models = [
+                apps.get_model(model_name) for model_name in options['models']
+            ]
 
         queue = options['queue']
         change_index = options['change_index']
@@ -254,15 +257,17 @@ class Command(BaseCommand):
                 print('Task cancelled')
                 sys.exit(1)
             self._change_index(models=models, timestamp=timestamp)
-            print(textwrap.dedent(
-                """
+            print(
+                textwrap.dedent(
+                    """
                 Indexes had been changed.
 
                 Remember to re-index changed projects and versions with the
                 `--update-from n` argument,
                 where `n` is the number of days since the re-index.
                 """
-            ))
+                )
+            )
         elif update_from:
             print(
                 'You are about to reindex all changed objects',
@@ -281,8 +286,9 @@ class Command(BaseCommand):
                 print('Task cancelled')
                 sys.exit(1)
             timestamp = self._run_reindex_tasks(models=models, queue=queue)
-            print(textwrap.dedent(
-                f"""
+            print(
+                textwrap.dedent(
+                    f"""
                 Re-indexing tasks have been created.
                 Timestamp: {timestamp}
 
@@ -290,4 +296,5 @@ class Command(BaseCommand):
                 After they are completed run the same command with the
                 `--change-index {timestamp}` argument.
                 """
-            ))
+                )
+            )

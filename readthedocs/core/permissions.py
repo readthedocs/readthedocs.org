@@ -12,7 +12,8 @@ class AdminPermissionBase:
     @classmethod
     def projects(cls, user, admin=False, member=False):
         """
-        Return all the projects the user has access to as ``admin`` or ``member``.
+        Return all the projects the user has access to as ``admin`` or
+        ``member``.
 
         If `RTD_ALLOW_ORGANIZATIONS` is enabled
         This function takes into consideration VCS SSO and Google SSO.
@@ -48,7 +49,8 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(team.organization,
+                                           SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             # Org Admin
@@ -64,7 +66,8 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(team.organization,
+                                           SSOIntegration.PROVIDER_ALLAUTH):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
@@ -85,8 +88,8 @@ class AdminPermissionBase:
         """
         Return the owners of `obj`.
 
-        If organizations are enabled,
-        we return the owners of the project organization instead.
+        If organizations are enabled, we return the owners of the project
+        organization instead.
         """
         from readthedocs.organizations.models import Organization
         from readthedocs.projects.models import Project

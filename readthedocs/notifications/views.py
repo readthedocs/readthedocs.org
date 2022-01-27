@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django views for the notifications app."""
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
@@ -100,11 +98,11 @@ class SendNotificationView(FormView):
         return context
 
     def message_user(
-            self,
-            message,
-            level=messages.INFO,
-            extra_tags='',
-            fail_silently=False,
+        self,
+        message,
+        level=messages.INFO,
+        extra_tags='',
+        fail_silently=False,
     ):
         """
         Implementation of.

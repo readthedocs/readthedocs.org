@@ -49,10 +49,10 @@ class GitHubOAuthTests(TestCase):
         )
         self.provider_data = [
             {
-                "config": {
-                    "url": "https://example.com/webhook"
+                'config': {
+                    'url': 'https://example.com/webhook'
                 },
-                "url": "https://api.github.com/repos/test/Hello-World/hooks/12345678",
+                'url': 'https://api.github.com/repos/test/Hello-World/hooks/12345678',
             }
         ]
 
@@ -193,7 +193,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
         mock_logger.info.assert_called_with(
-            "GitHub commit status created for project.",
+            'GitHub commit status created for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -233,9 +233,8 @@ class GitHubOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
@@ -266,7 +265,7 @@ class GitHubOAuthTests(TestCase):
         self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(http_status_code=201)
         mock_logger.info.assert_called_with(
-            "GitHub webhook creation successful for project.",
+            'GitHub webhook creation successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -326,7 +325,7 @@ class GitHubOAuthTests(TestCase):
             url='https://github.com/',
         )
         mock_logger.info.assert_called_with(
-            "GitHub webhook update successful for project.",
+            'GitHub webhook update successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
@@ -391,7 +390,7 @@ class GitHubOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data[0]["config"]["url"] = rtd_webhook_url
+        webhook_data[0]['config']['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data
@@ -677,9 +676,8 @@ class BitbucketOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         data = self.repo_response_data.copy()
         data['is_private'] = False
         repo = self.service.create_repository(data, organization=self.org)
@@ -720,7 +718,7 @@ class BitbucketOAuthTests(TestCase):
             url='https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks',
         )
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook creation successful for project.",
+            'Bitbucket webhook creation successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.log')
@@ -774,7 +772,7 @@ class BitbucketOAuthTests(TestCase):
         self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(project_slug=self.project.slug)
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook update successful for project.",
+            'Bitbucket webhook update successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
@@ -839,7 +837,7 @@ class BitbucketOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data['values'][0]["url"] = rtd_webhook_url
+        webhook_data['values'][0]['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data
@@ -1106,9 +1104,8 @@ class GitLabOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         data = self.repo_response_data.copy()
         data['visibility'] = 'public'
         repo = self.service.create_repository(data, organization=self.org)
@@ -1130,7 +1127,7 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
         mock_logger.info.assert_called_with(
-            "GitLab commit status created for project.",
+            'GitLab commit status created for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1193,7 +1190,7 @@ class GitLabOAuthTests(TestCase):
             http_status_code=201,
         )
         mock_logger.info.assert_called_with(
-            "GitLab webhook creation successful for project.",
+            'GitLab webhook creation successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')
@@ -1256,7 +1253,7 @@ class GitLabOAuthTests(TestCase):
             integration_id=self.integration.pk,
         )
         mock_logger.info.assert_called_with(
-            "GitLab webhook update successful for project.",
+            'GitLab webhook update successful for project.',
         )
 
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
@@ -1334,7 +1331,7 @@ class GitLabOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data[0]["url"] = rtd_webhook_url
+        webhook_data[0]['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data

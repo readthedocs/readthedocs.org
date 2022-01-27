@@ -32,10 +32,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         # The query argument ``upgraded=true`` is used as a the callback
         # URL for stripe checkout, see `self.redirect_to_checkout`.
         if request.GET.get('upgraded') == 'true':
-            messages.success(
-                self.request,
-                _('Your plan has been upgraded!')
-            )
+            messages.success(self.request, _('Your plan has been upgraded!'))
 
         form = self.get_form()
         context = self.get_context_data(form=form)
@@ -53,8 +50,8 @@ class DetailSubscription(OrganizationMixin, DetailView):
         """
         Redirect to Stripe Checkout for users to buy a subscription.
 
-        Users can buy a new subscription if the current one
-        has been deleted after they canceled it.
+        Users can buy a new subscription if the current one has been deleted
+        after they canceled it.
         """
         subscription = self.get_object()
         if not subscription or subscription.status != 'canceled':
@@ -70,12 +67,10 @@ class DetailSubscription(OrganizationMixin, DetailView):
             checkout_session = stripe.checkout.Session.create(
                 customer=stripe_customer.id,
                 payment_method_types=['card'],
-                line_items=[
-                    {
-                        'price': plan.stripe_id,
-                        'quantity': 1,
-                    }
-                ],
+                line_items=[{
+                    'price': plan.stripe_id,
+                    'quantity': 1,
+                }],
                 mode='subscription',
                 success_url=url + '?upgraded=true',
                 cancel_url=url,
@@ -89,7 +84,9 @@ class DetailSubscription(OrganizationMixin, DetailView):
             )
             messages.error(
                 self.request,
-                _('There was an error connecting to Stripe, please try again in a few minutes.'),
+                _(
+                    'There was an error connecting to Stripe, please try again in a few minutes.'
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -98,15 +95,12 @@ class DetailSubscription(OrganizationMixin, DetailView):
         """
         Get or create a default subscription for the organization.
 
-        In case an error happened during the organization creation,
-        the organization may not have a subscription attached to it.
-        We retry the operation when the user visits the subscription page.
+        In case an error happened during the organization creation, the
+        organization may not have a subscription attached to it. We retry the
+        operation when the user visits the subscription page.
         """
         org = self.get_organization()
-        return (
-            Subscription.objects
-            .get_or_create_default_subscription(org)
-        )
+        return (Subscription.objects.get_or_create_default_subscription(org))
 
     def get_success_url(self):
         return reverse(
@@ -117,7 +111,8 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
 class StripeCustomerPortal(OrganizationMixin, GenericView):
 
-    """Create a stripe billing portal session for the user to manage their subscription."""
+    """Create a stripe billing portal session for the user to manage their
+    subscription."""
 
     http_method_names = ['post']
 
@@ -147,6 +142,8 @@ class StripeCustomerPortal(OrganizationMixin, GenericView):
             )
             messages.error(
                 request,
-                _('There was an error connecting to Stripe, please try again in a few minutes'),
+                _(
+                    'There was an error connecting to Stripe, please try again in a few minutes'
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())

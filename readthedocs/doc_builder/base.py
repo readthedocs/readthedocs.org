@@ -1,12 +1,12 @@
 """Base classes for Builders."""
 
-import structlog
 import os
 import shutil
 from functools import wraps
 
-from readthedocs.projects.models import Feature
+import structlog
 
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
 
@@ -62,7 +62,6 @@ class BaseBuilder:
 
     def append_conf(self):
         """Set custom configurations for this builder."""
-        pass
 
     def build(self):
         """Do the actual building of the documentation."""
@@ -73,7 +72,10 @@ class BaseBuilder:
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info('Copying output type on the local filesystem.', output_type=self.type)
+            log.info(
+                'Copying output type on the local filesystem.',
+                output_type=self.type
+            )
             log.debug('Ignoring patterns.', patterns=self.ignore_patterns)
             shutil.copytree(
                 self.old_artifact_path,
@@ -135,7 +137,9 @@ familiar with Read the Docs.
                 """
 
                 with open(index_filename, 'w+') as index_file:
-                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+                    index_file.write(
+                        index_text.format(dir=docs_dir, ext=extension)
+                    )
 
         return 'index'
 

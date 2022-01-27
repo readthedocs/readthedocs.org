@@ -9,7 +9,6 @@ from readthedocs.worker import app
 from .models import PageView
 from .utils import send_to_analytics
 
-
 DEFAULT_PARAMETERS = {
     'v': '1',  # analytics version (always 1)
     'aip': '1',  # anonymize IP
@@ -47,8 +46,7 @@ def analytics_pageview(url, title=None, **kwargs):
 
 @app.task(queue='web')
 def analytics_event(
-        event_category, event_action, event_label=None, event_value=None,
-        **kwargs
+    event_category, event_action, event_label=None, event_value=None, **kwargs
 ):
     """
     Send an analytics event to Google Analytics.

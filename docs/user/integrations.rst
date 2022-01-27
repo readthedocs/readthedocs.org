@@ -108,7 +108,7 @@ On Read the Docs:
 On your Gitea instance:
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
-* Create a new webhook of type "Gitea" 
+* Create a new webhook of type "Gitea"
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations` page
 * Leave the default **HTTP Method** as POST

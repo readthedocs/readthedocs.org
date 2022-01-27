@@ -1,8 +1,8 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
-import structlog
 
+import structlog
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
@@ -140,8 +140,7 @@ def _create_versions(project, type, versions):
             type=type,
             identifier=version_id,
             verbose_name=version_name,
-        )
-        for version_id, version_name in versions
+        ) for version_id, version_name in versions
     )
     added = set()
     for version in versions_objs:
@@ -172,19 +171,13 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 def _get_deleted_versions_qs(project, tags_data, branches_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [
-        version['verbose_name']
-        for version in tags_data
-    ]
-    versions_branches = [
-        version['identifier']
-        for version in branches_data
-    ]
+    versions_tags = [version['verbose_name'] for version in tags_data]
+    versions_branches = [version['identifier'] for version in branches_data]
 
     to_delete_qs = (
-        project.versions(manager=INTERNAL)
-        .exclude(uploaded=True)
-        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
+        project.versions(manager=INTERNAL
+                         ).exclude(uploaded=True
+                                   ).exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )
 
     to_delete_qs = to_delete_qs.exclude(
@@ -209,25 +202,26 @@ def delete_versions_from_db(project, tags_data, branches_data):
             project=project,
             tags_data=tags_data,
             branches_data=branches_data,
-        )
-        .exclude(active=True)
+        ).exclude(active=True)
     )
     _, deleted = to_delete_qs.delete()
     versions_count = deleted.get('builds.Version', 0)
     log.info(
-        'Re-syncing versions: versions deleted.', project_slug=project.slug, count=versions_count,
+        'Re-syncing versions: versions deleted.',
+        project_slug=project.slug,
+        count=versions_count,
     )
 
 
 def get_deleted_active_versions(project, tags_data, branches_data):
-    """Return the slug of active versions that were deleted from the repository."""
+    """Return the slug of active versions that were deleted from the
+    repository."""
     to_delete_qs = (
         _get_deleted_versions_qs(
             project=project,
             tags_data=tags_data,
             branches_data=branches_data,
-        )
-        .filter(active=True)
+        ).filter(active=True)
     )
     return set(to_delete_qs.values_list('slug', flat=True))
 

@@ -1,7 +1,6 @@
 """Organization signals."""
 
 import structlog
-
 from allauth.account.signals import user_signed_up
 from django.db.models import Count
 from django.db.models.signals import pre_delete
@@ -18,7 +17,9 @@ from readthedocs.organizations.models import (
 )
 from readthedocs.projects.models import Project
 
-from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
+from .tasks import (
+    mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -50,7 +51,9 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     - Artifacts (HTML, PDF, etc)
     """
     organization = instance
-    log.info('Removing organization completely', organization_slug=organization.slug)
+    log.info(
+        'Removing organization completely', organization_slug=organization.slug
+    )
 
     # ``Project`` has a ManyToMany relationship with ``Organization``. We need
     # to be sure that the projects we are deleting here belongs only to the

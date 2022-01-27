@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Locking utilities."""
 import errno
-import structlog
 import os
 import stat
 import time
 
+import structlog
 
 log = structlog.get_logger(__name__)
 
@@ -37,9 +35,7 @@ class Lock:
 
     def __enter__(self):
         start = time.time()
-        log.bind(
-            project_slug=self.name,
-        )
+        log.bind(project_slug=self.name,)
         while os.path.exists(self.fpath):
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.timeout:

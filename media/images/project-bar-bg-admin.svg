@@ -4,7 +4,7 @@
                 <filter id="dropshadow" height="100%">
                   <feGaussianBlur in="SourceAlpha" stdDeviation="0"/>
                     <feOffset dx="1" dy="1" result="offsetblur"/>
-                    <feMerge> 
+                    <feMerge>
                       <feMergeNode/>
                       <feMergeNode in="SourceGraphic"/>
                    </feMerge>
@@ -25,4 +25,3 @@
                 </g>
             </g>
         </svg>
-

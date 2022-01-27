@@ -39,7 +39,7 @@ class PageView(models.Model):
     date = models.DateField(default=datetime.date.today, db_index=True)
 
     class Meta:
-        unique_together = ("project", "version", "path", "date")
+        unique_together = ('project', 'version', 'path', 'date')
 
     def __str__(self):
         return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
@@ -63,12 +63,11 @@ class PageView(models.Model):
             since = timezone.now().date() - timezone.timedelta(days=30)
 
         queryset = (
-            cls.objects
-            .filter(project=project, date__gte=since)
-            .values_list('path')
-            .annotate(total_views=Sum('view_count'))
-            .values_list('path', 'total_views')
-            .order_by('-total_views')[:limit]
+            cls.objects.filter(project=project,
+                               date__gte=since).values_list('path').annotate(
+                                   total_views=Sum('view_count')
+                               ).values_list('path', 'total_views'
+                                             ).order_by('-total_views')[:limit]
         )
 
         pages = []
@@ -88,7 +87,8 @@ class PageView(models.Model):
     @classmethod
     def page_views_by_date(cls, project_slug, since=None):
         """
-        Returns the total page views count for last 30 days for a particular project.
+        Returns the total page views count for last 30 days for a particular
+        project.
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
@@ -105,7 +105,8 @@ class PageView(models.Model):
         queryset = cls.objects.filter(
             project__slug=project_slug,
             date__gte=since,
-        ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
+        ).values('date').annotate(total_views=Sum('view_count')
+                                  ).order_by('date')
 
         count_dict = dict(
             queryset.order_by('date').values_list('date', 'total_views')
@@ -113,7 +114,9 @@ class PageView(models.Model):
 
         # This fills in any dates where there is no data
         # to make sure we have a full 30 days of dates
-        count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
+        count_data = [
+            count_dict.get(date) or 0 for date in _last_30_days_iter()
+        ]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`

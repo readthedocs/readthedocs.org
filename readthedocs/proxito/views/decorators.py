@@ -1,6 +1,6 @@
-import structlog
 from functools import wraps
 
+import structlog
 from django.http import Http404
 
 from readthedocs.projects.models import Project, ProjectRelationship

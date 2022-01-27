@@ -2,14 +2,11 @@
 
 import os
 
-from invoke import task, Collection
-
-import common.tasks
 import common.dockerfiles.tasks
-
+import common.tasks
+from invoke import Collection, task
 
 ROOT_PATH = os.path.dirname(__file__)
-
 
 namespace = Collection()
 
@@ -30,10 +27,11 @@ namespace.add_collection(
     name='docker',
 )
 
+
 # Localization tasks
 @task
 def push(ctx):
-    """Rebuild and push the source language to Transifex"""
+    """Rebuild and push the source language to Transifex."""
     with ctx.cd(os.path.join(ROOT_PATH, 'readthedocs')):
         ctx.run('django-admin makemessages -l en')
         ctx.run('tx push -s')
@@ -42,7 +40,7 @@ def push(ctx):
 
 @task
 def pull(ctx):
-    """Pull the updated translations from Transifex"""
+    """Pull the updated translations from Transifex."""
     with ctx.cd(os.path.join(ROOT_PATH, 'readthedocs')):
         ctx.run('tx pull -f ')
         ctx.run('django-admin makemessages --all')
@@ -51,7 +49,7 @@ def pull(ctx):
 
 @task
 def docs(ctx, regenerate_config=False, push=False):
-    """Pull and push translations to Transifex for our docs"""
+    """Pull and push translations to Transifex for our docs."""
     with ctx.cd(os.path.join(ROOT_PATH, 'docs')):
         # Update our translations
         ctx.run('tx pull -a')
@@ -59,7 +57,9 @@ def docs(ctx, regenerate_config=False, push=False):
         if regenerate_config:
             os.remove(os.path.join(ROOT_PATH, 'docs', '.tx', 'config'))
             ctx.run('sphinx-intl create-txconfig')
-        ctx.run('sphinx-intl update-txconfig-resources --transifex-project-name readthedocs-docs')
+        ctx.run(
+            'sphinx-intl update-txconfig-resources --transifex-project-name readthedocs-docs'
+        )
         # Rebuild
         ctx.run('sphinx-intl build')
         ctx.run('make gettext')

@@ -91,11 +91,16 @@ def trigger_sync_versions(project):
             ).first()
         )
         if not version:
-            log.info('Unable to sync from version.', version_identifier=version_identifier)
+            log.info(
+                'Unable to sync from version.',
+                version_identifier=version_identifier
+            )
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
-            log.info('Skipping sync versions for project.', project_slug=project.slug)
+            log.info(
+                'Skipping sync versions for project.', project_slug=project.slug
+            )
             return None
 
         options = {}
@@ -172,9 +177,9 @@ def deactivate_external_version(project, identifier, verbose_name):
     :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
-    external_version = project.versions(manager=EXTERNAL).filter(
-        verbose_name=verbose_name, identifier=identifier
-    ).first()
+    external_version = project.versions(
+        manager=EXTERNAL
+    ).filter(verbose_name=verbose_name, identifier=identifier).first()
 
     if external_version:
         external_version.active = False
@@ -192,7 +197,8 @@ def build_external_version(project, version, commit):
     """
     Where we actually trigger builds for external versions.
 
-    All pull/merge request webhook logic should route here to call ``trigger_build``.
+    All pull/merge request webhook logic should route here to call
+    ``trigger_build``.
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True

@@ -1,6 +1,6 @@
-import structlog
 from unittest import mock
 
+import structlog
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -70,9 +70,7 @@ class PrivacyTests(TestCase):
 
     def test_private_repo(self):
         """Check that private projects don't show up in: builds, downloads,
-        detail, homepage
-
-        """
+        detail, homepage."""
         self._create_kong('private', 'private')
 
         self.client.login(username='eric', password='test')
@@ -99,9 +97,7 @@ class PrivacyTests(TestCase):
 
     def test_public_repo(self):
         """Check that public projects show up in: builds, downloads, detail,
-        homepage
-
-        """
+        homepage."""
         self._create_kong('public', 'public')
 
         self.client.login(username='eric', password='test')

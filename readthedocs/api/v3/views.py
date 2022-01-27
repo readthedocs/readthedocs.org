@@ -106,8 +106,9 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                          FlexFieldsMixin, ProjectImportMixin, UpdateChangeReasonMixin,
+class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
+                          ProjectQuerySetMixin, FlexFieldsMixin,
+                          ProjectImportMixin, UpdateChangeReasonMixin,
                           CreateModelMixin, UpdateMixin, UpdateModelMixin,
                           ReadOnlyModelViewSet):
 
@@ -178,7 +179,9 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         # Use serializer that fully render a Project
         serializer = ProjectSerializer(instance=serializer.instance)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     def perform_create(self, serializer):
         """
@@ -223,8 +226,8 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
         """
         Return correct serializer depending on the action.
 
-        For GET it returns a serializer with many fields and on POST,
-        it return a serializer to validate just a few fields.
+        For GET it returns a serializer with many fields and on POST, it return
+        a serializer to validate just a few fields.
         """
         if self.action == 'create':
             return SubprojectCreateSerializer
@@ -250,7 +253,9 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
         # Use serializer that fully render a the subproject
         serializer = SubprojectSerializer(instance=serializer.instance)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
@@ -271,8 +276,8 @@ class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
 # of ``ProjectQuerySetMixin`` to make calling ``super().get_queryset()`` work
 # properly and filter nested dependencies
 class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, UpdateMixin,
-                      UpdateModelMixin, ReadOnlyModelViewSet):
+                      FlexFieldsMixin, UpdateMixin, UpdateModelMixin,
+                      ReadOnlyModelViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -394,8 +399,7 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
 
 
 class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
-                               OrganizationQuerySetMixin,
-                               ReadOnlyModelViewSet):
+                               OrganizationQuerySetMixin, ReadOnlyModelViewSet):
 
     model = Organization
     lookup_field = 'slug'
@@ -448,30 +452,20 @@ class OrganizationsProjectsViewSet(SettingsOverrideObject):
     _default_class = OrganizationsProjectsViewSetBase
 
 
-class RemoteRepositoryViewSet(
-    APIv3Settings,
-    RemoteQuerySetMixin,
-    FlexFieldsMixin,
-    ListModelMixin,
-    GenericViewSet
-):
+class RemoteRepositoryViewSet(APIv3Settings, RemoteQuerySetMixin,
+                              FlexFieldsMixin, ListModelMixin, GenericViewSet):
     model = RemoteRepository
     serializer_class = RemoteRepositorySerializer
     filterset_class = RemoteRepositoryFilter
     queryset = RemoteRepository.objects.all()
     permission_classes = (IsAuthenticated,)
-    permit_list_expands = [
-        'remote_organization',
-        'projects'
-    ]
+    permit_list_expands = ['remote_organization', 'projects']
 
     def get_queryset(self):
         queryset = super().get_queryset().annotate(
             _admin=Exists(
                 RemoteRepositoryRelation.objects.filter(
-                    remote_repository=OuterRef('pk'),
-                    user=self.request.user,
-                    admin=True
+                    remote_repository=OuterRef('pk'), user=self.request.user, admin=True
                 )
             )
         )
@@ -485,12 +479,8 @@ class RemoteRepositoryViewSet(
         return queryset.order_by('organization__name', 'full_name').distinct()
 
 
-class RemoteOrganizationViewSet(
-    APIv3Settings,
-    RemoteQuerySetMixin,
-    ListModelMixin,
-    GenericViewSet
-):
+class RemoteOrganizationViewSet(APIv3Settings, RemoteQuerySetMixin,
+                                ListModelMixin, GenericViewSet):
     model = RemoteOrganization
     serializer_class = RemoteOrganizationSerializer
     filterset_class = RemoteOrganizationFilter

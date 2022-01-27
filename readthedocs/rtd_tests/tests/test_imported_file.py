@@ -50,7 +50,7 @@ class ImportedFileTests(TestCase):
         _sync_imported_files(version, build)
 
     def _copy_storage_dir(self):
-        """Copy the test directory (rtd_tests/files) to storage"""
+        """Copy the test directory (rtd_tests/files) to storage."""
         self.storage.copy_directory(
             self.test_dir,
             self.project.get_storage_path(

@@ -1,11 +1,9 @@
 """Mix-in classes for project views."""
-import structlog
 from functools import lru_cache
 
+import structlog
 from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import get_object_or_404, render
 
 from readthedocs.projects.models import Project
 

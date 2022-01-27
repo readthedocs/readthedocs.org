@@ -3,8 +3,8 @@ AWS S3 Storage backends.
 
 We override the backends provided by django-storages to add some small pieces
 that we need to make our project to work as we want. For example, using
-ManifestFilesMixin for static files and OverrideHostnameMixin to make it work
-in our Docker Development environment.
+ManifestFilesMixin for static files and OverrideHostnameMixin to make it work in
+our Docker Development environment.
 """
 
 # Disable abstract method because we are not overriding all the methods
@@ -19,12 +19,15 @@ from readthedocs.builds.storage import BuildMediaStorageMixin
 from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
-class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
+class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin,
+                          S3Boto3Storage):
 
     """An AWS S3 Storage backend for build artifacts."""
 
     bucket_name = getattr(settings, 'S3_MEDIA_STORAGE_BUCKET', None)
-    override_hostname = getattr(settings, 'S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME', None)
+    override_hostname = getattr(
+        settings, 'S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME', None
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,7 +55,8 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
             )
 
 
-class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage):
+class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin,
+                      S3Boto3Storage):
 
     """
     An AWS S3 Storage backend for static media.
@@ -61,7 +65,9 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
     """
 
     bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
-    override_hostname = getattr(settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None)
+    override_hostname = getattr(
+        settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +83,8 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
         self.querystring_auth = False
 
 
-class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin,
+                                S3Boto3Storage):
 
     bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET', None)
 
@@ -91,7 +98,8 @@ class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3
             )
 
 
-class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin,
+                          S3Boto3Storage):
 
     bucket_name = getattr(settings, 'S3_BUILD_TOOLS_STORAGE_BUCKET', None)
 

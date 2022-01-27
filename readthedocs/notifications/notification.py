@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-
 """Support for templating of notifications."""
 
 import structlog
-from readthedocs.core.context_processors import readthedocs_processor
-
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.loader import render_to_string
 
+from readthedocs.core.context_processors import readthedocs_processor
+
 from . import constants
 from .backends import send_notification
-
 
 log = structlog.get_logger(__name__)
 
@@ -127,13 +124,13 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self,
-            user,
-            success,
-            reason=None,
-            context_object=None,
-            request=None,
-            extra_context=None,
+        self,
+        user,
+        success,
+        reason=None,
+        context_object=None,
+        request=None,
+        extra_context=None,
     ):
         self.object = context_object
 
@@ -172,7 +169,7 @@ class SiteNotification(Notification):
                 else:
                     # log the error but not crash
                     log.error(
-                        "Notification has no key for messages",
+                        'Notification has no key for messages',
                         notification=self.__class__.__name__,
                         key=self.reason,
                         message='success' if self.success else 'failure',

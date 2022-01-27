@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Payment utility functions.
 
@@ -7,12 +5,9 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 :py:class:`readthedocs.payments.forms.StripeResourceMixin`.
 """
 
-import structlog
-
 import stripe
-
+import structlog
 from django.conf import settings
-
 
 stripe.api_key = settings.STRIPE_SECRET
 log = structlog.get_logger(__name__)

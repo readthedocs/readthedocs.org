@@ -1,8 +1,7 @@
 """Utilities to interact with subscriptions and stripe."""
 
-import structlog
-
 import stripe
+import structlog
 from stripe.error import InvalidRequestError
 
 log = structlog.get_logger(__name__)
@@ -28,10 +27,11 @@ def create_stripe_customer(organization):
 
 def get_or_create_stripe_customer(organization):
     """
-    Retrieve the stripe customer from `organization.stripe_id` or create a new one.
+    Retrieve the stripe customer from `organization.stripe_id` or create a new
+    one.
 
-    If `organization.stripe_id` is `None` or if the existing customer
-    doesn't exist in stripe, a new customer is created.
+    If `organization.stripe_id` is `None` or if the existing customer doesn't
+    exist in stripe, a new customer is created.
     """
     log.bind(
         organization_slug=organization.slug,

@@ -1,12 +1,12 @@
 """JSON/HTML parsers for search indexing."""
 
 import itertools
-import structlog
 import os
 import re
 from urllib.parse import urlparse
 
 import orjson as json
+import structlog
 from selectolax.parser import HTMLParser
 
 from readthedocs.storage import build_media_storage
@@ -47,8 +47,8 @@ class BaseParser:
         """
         Gets the title from the html page.
 
-        The title is the first section in the document,
-        falling back to the ``title`` tag.
+        The title is the first section in the document, falling back to the
+        ``title`` tag.
         """
         first_header = body.css_first('h1')
         if first_header:
@@ -92,7 +92,8 @@ class BaseParser:
         return None
 
     def _parse_content(self, content):
-        """Converts all new line characters and multiple spaces to a single space."""
+        """Converts all new line characters and multiple spaces to a single
+        space."""
         content = content.strip().split()
         content = (text.strip() for text in content)
         content = ' '.join(text for text in content if text)
@@ -240,8 +241,7 @@ class BaseParser:
                 content = next_tag.text(deep=deep)
             else:
                 content, section_found = self._parse_section_content(
-                    tag=next_tag.child,
-                    depth=depth - 1
+                    tag=next_tag.child, depth=depth - 1
                 )
 
             if content:
@@ -254,8 +254,8 @@ class BaseParser:
         """
         Check if `tag` is a code section.
 
-        Sphinx and Mkdocs codeblocks usually have a class named
-        ``highlight`` or ``highlight-{language}``.
+        Sphinx and Mkdocs codeblocks usually have a class named ``highlight`` or
+        ``highlight-{language}``.
         """
         if not tag.css_first('pre'):
             return False
@@ -276,7 +276,9 @@ class BaseParser:
         Other implementations put the line number within the code,
         inside span tags with the ``lineno`` class.
         """
-        nodes_to_be_removed = itertools.chain(tag.css('.linenos'), tag.css('.lineno'))
+        nodes_to_be_removed = itertools.chain(
+            tag.css('.linenos'), tag.css('.lineno')
+        )
         for node in nodes_to_be_removed:
             node.decompose()
 
@@ -357,7 +359,8 @@ class SphinxParser(BaseParser):
         }
 
     def _process_fjson(self, fjson_path):
-        """Reads the fjson file from storage and parses it into a structured dict."""
+        """Reads the fjson file from storage and parses it into a structured
+        dict."""
         try:
             with self.storage.open(fjson_path, mode='r') as f:
                 file_contents = f.read()
@@ -386,14 +389,14 @@ class SphinxParser(BaseParser):
             try:
                 body = HTMLParser(data['body'])
                 sections = self._get_sections(title=title, body=body.body)
-            except Exception as e:
+            except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
 
             try:
                 # Create a new html object, since the previous one could have been modified.
                 body = HTMLParser(data['body'])
                 domain_data = self._generate_domains_data(body)
-            except Exception as e:
+            except Exception:
                 log.info('Unable to index domains.', path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
@@ -409,9 +412,8 @@ class SphinxParser(BaseParser):
         """
         Removes sphinx domain nodes.
 
-        This method is overridden to remove contents that are likely
-        to be a sphinx domain (`dl` tags).
-        We already index those in another step.
+        This method is overridden to remove contents that are likely to be a
+        sphinx domain (`dl` tags). We already index those in another step.
         """
         body = super()._clean_body(body)
 
@@ -426,7 +428,8 @@ class SphinxParser(BaseParser):
 
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
-        nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
+        nodes_to_be_removed += body.css('.toctree-wrapper'
+                                        ) + body.css('.contents.local.topic')
 
         # removing all nodes in list
         for node in nodes_to_be_removed:
@@ -529,7 +532,7 @@ class MkDocsParser(BaseParser):
         """Parses the content into a structured dict."""
         html = HTMLParser(content)
         body = self._get_main_node(html)
-        title = ""
+        title = ''
         sections = []
         if body:
             title = self._get_page_title(body, html) or page
@@ -553,7 +556,9 @@ class MkDocsParser(BaseParser):
             include_file=False,
         )
         try:
-            file_path = self.storage.join(storage_path, 'search/search_index.json')
+            file_path = self.storage.join(
+                storage_path, 'search/search_index.json'
+            )
             if self.storage.exists(file_path):
                 index_data = self._process_index_file(file_path, page=page)
                 if index_data:
@@ -597,9 +602,7 @@ class MkDocsParser(BaseParser):
             if page != path:
                 continue
 
-            title = self._parse_content(
-                HTMLParser(section.get('title')).text()
-            )
+            title = self._parse_content(HTMLParser(section.get('title')).text())
             content = self._parse_content(
                 HTMLParser(section.get('text')).text()
             )

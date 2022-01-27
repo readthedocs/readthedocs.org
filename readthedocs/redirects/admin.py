@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django admin configuration for the redirects app."""
 
 from django.contrib import admin

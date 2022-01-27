@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
 """Notification tests."""
 
 
-import django_dynamic_fixture as fixture
 from unittest import mock
+
+import django_dynamic_fixture as fixture
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from messages_extends.models import Message as PersistentMessage
-from allauth.account.models import EmailAddress
 
 from readthedocs.builds.models import Build
 from readthedocs.notifications import Notification, SiteNotification

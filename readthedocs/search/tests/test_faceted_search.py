@@ -9,10 +9,11 @@ class TestPageSearch:
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_search_exact_match(self, client, project, case):
-        """Check quoted query match exact phrase with case insensitively
+        """
+        Check quoted query match exact phrase with case insensitively.
 
-        Making a query with quoted text like ``"foo bar"`` should match
-        exactly ``foo bar`` or ``Foo Bar`` etc
+        Making a query with quoted text like ``"foo bar"`` should match exactly
+        ``foo bar`` or ``Foo Bar`` etc
         """
         # `Sphinx` word is present both in `kuma` and `docs` files
         # But the phrase `Sphinx uses` is available only in kuma docs.
@@ -34,7 +35,8 @@ class TestPageSearch:
         assert results[1]['version'] == 'latest'
 
     def test_search_combined_result(self, client, project):
-        """Check search result are combined of both `AND` and `OR` operator
+        """
+        Check search result are combined of both `AND` and `OR` operator.
 
         If query is `Foo Bar` then the result should be as following order:
 

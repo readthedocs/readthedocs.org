@@ -144,11 +144,9 @@ def determine_stable_version(version_list):
     :rtype: readthedocs.builds.models.Version
     """
     versions = sort_versions(version_list)
-    versions = [
-        (version_obj, comparable)
-        for version_obj, comparable in versions
-        if not comparable.is_prerelease
-    ]
+    versions = [(version_obj, comparable)
+                for version_obj, comparable in versions
+                if not comparable.is_prerelease]
 
     if versions:
         # We take preference for tags over branches. If we don't find any tag,

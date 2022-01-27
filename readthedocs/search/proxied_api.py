@@ -1,4 +1,5 @@
 from readthedocs.core.utils.extend import SettingsOverrideObject
+
 from .api import PageSearchAPIView
 
 

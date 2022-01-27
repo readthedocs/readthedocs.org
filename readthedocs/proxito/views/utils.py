@@ -1,6 +1,6 @@
 import os
-import structlog
 
+import structlog
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -40,12 +40,12 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
 @map_project_slug
 @map_subproject_slug
 def _get_project_data_from_request(
-        request,
-        project,
-        subproject,
-        lang_slug=None,
-        version_slug=None,
-        filename='',
+    request,
+    project,
+    subproject,
+    lang_slug=None,
+    version_slug=None,
+    filename='',
 ):
     """
     Get the proper project based on the request and URL.
@@ -76,10 +76,9 @@ def _get_project_data_from_request(
 
     # Handle single version by grabbing the default version
     # We might have version_slug when we're serving a PR
-    if any([
-        not version_slug and final_project.single_version,
-        not version_slug and project.urlconf and '$version' not in project.urlconf
-    ]):
+    if any([not version_slug and final_project.single_version,
+            not version_slug and project.urlconf and
+            '$version' not in project.urlconf]):
         version_slug = final_project.get_default_version()
 
     # Automatically add the default language if it isn't defined in urlconf

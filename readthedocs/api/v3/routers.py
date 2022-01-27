@@ -7,11 +7,13 @@ class DocsAPIRootView(APIRootView):
     # Overridden only to add documentation for BrowsableAPIRenderer.
 
     # noqa
-    """
-    Each request requires an `Authorization` HTTP header with `Token <your-token>`,
-    find the token in [your account](/accounts/tokens/).
 
-    Read the full documentation at <https://docs.readthedocs.io/page/api/v3.html>.
+    """
+    Each request requires an `Authorization` HTTP header with `Token <your-
+    token>`, find the token in [your account](/accounts/tokens/).
+
+    Read the full documentation at
+    <https://docs.readthedocs.io/page/api/v3.html>.
     """
 
     def get_view_name(self):

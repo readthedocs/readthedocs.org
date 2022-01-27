@@ -6,4 +6,3 @@ source_lang = en
 [main]
 host = https://www.transifex.com
 type = PO
-

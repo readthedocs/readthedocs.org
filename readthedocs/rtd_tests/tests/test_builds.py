@@ -884,8 +884,8 @@ class DeDuplicateBuildTests(TestCase):
         """
         Trigger a build for the same commit twice.
 
-        The second build should not be marked as NOOP if the previous
-        duplicated builds are in 'finished' state.
+        The second build should not be marked as NOOP if the previous duplicated
+        builds are in 'finished' state.
         """
         self.assertEqual(Build.objects.count(), 0)
         trigger_build(self.project, self.version, commit='a1b2c3')
@@ -930,7 +930,8 @@ class DeDuplicateBuildTests(TestCase):
         Trigger a build for the same version.
 
         The second build should not be marked as NOOP because the previous build
-        for the same project and version is on 'building' state (any non 'triggered')
+        for the same project and version is on 'building' state (any non
+        'triggered')
         """
         self.assertEqual(Build.objects.count(), 0)
         trigger_build(self.project, self.version, commit=None)

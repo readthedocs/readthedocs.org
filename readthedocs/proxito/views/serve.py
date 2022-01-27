@@ -1,10 +1,9 @@
 """Views for doc serving."""
 
 import itertools
-import structlog
 from urllib.parse import urlparse
 
-from readthedocs.core.resolver import resolve_path
+import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -15,6 +14,7 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
@@ -30,12 +30,14 @@ log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
-    def get(self,
-            request,
-            project_slug=None,
-            subproject_slug=None,
-            version_slug=None,
-            filename='',
+
+    def get(
+        self,
+        request,
+        project_slug=None,
+        subproject_slug=None,
+        version_slug=None,
+        filename='',
     ):  # noqa
 
         version_slug = self.get_version_from_host(request, version_slug)
@@ -47,25 +49,28 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
-        return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+        return self.system_redirect(
+            request, final_project, lang_slug, version_slug, filename
+        )
 
 
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
-    def get(self,
-            request,
-            project_slug=None,
-            subproject_slug=None,
-            subproject_slash=None,
-            lang_slug=None,
-            version_slug=None,
-            filename='',
+    def get(
+        self,
+        request,
+        project_slug=None,
+        subproject_slug=None,
+        subproject_slash=None,
+        lang_slug=None,
+        version_slug=None,
+        filename='',
     ):  # noqa
         """
         Take the incoming parsed URL's and figure out what file to serve.
 
-        ``subproject_slash`` is used to determine if the subproject URL has a slash,
-        so that we can decide if we need to serve docs or add a /.
+        ``subproject_slash`` is used to determine if the subproject URL has a
+        slash, so that we can decide if we need to serve docs or add a /.
         """
 
         version_slug = self.get_version_from_host(request, version_slug)
@@ -95,7 +100,9 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
             try:
-                return self.canonical_redirect(request, final_project, version_slug, filename)
+                return self.canonical_redirect(
+                    request, final_project, version_slug, filename
+                )
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
                 pass
@@ -107,9 +114,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 # because it is taken from the host name
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
-                not final_project.single_version,
-        ]):
-            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+                not final_project.single_version,]):
+            return self.system_redirect(
+                request, final_project, lang_slug, version_slug, filename
+            )
 
         # Handle `/projects/subproject` URL redirection:
         # when there _is_ a subproject_slug but not a subproject_slash
@@ -117,15 +125,15 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 final_project.single_version,
                 filename == '',
                 subproject_slug,
-                not subproject_slash,
-        ]):
-            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+                not subproject_slash,]):
+            return self.system_redirect(
+                request, final_project, lang_slug, version_slug, filename
+            )
 
         if all([
-                (lang_slug is None or version_slug is None),
+            (lang_slug is None or version_slug is None),
                 not final_project.single_version,
-                self.version_type != EXTERNAL,
-        ]):
+                self.version_type != EXTERNAL,]):
             log.warning(
                 'Invalid URL for project with versions.',
                 filename=filename,
@@ -285,7 +293,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         )
         if redirect_path and http_status:
             try:
-                return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+                return self.get_redirect_response(
+                    request, redirect_path, proxito_path, http_status
+                )
             except InfiniteRedirectException:
                 # Continue with our normal 404 handling in this case
                 pass
@@ -295,16 +305,15 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # (project.get_default_version())
         doc_type = (
             Version.objects.filter(project=final_project, slug=version_slug)
-            .values_list('documentation_type', flat=True)
-            .first()
+            .values_list('documentation_type', flat=True).first()
         )
         versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
             default_version_doc_type = (
-                Version.objects.filter(project=final_project, slug=default_version_slug)
-                .values_list('documentation_type', flat=True)
-                .first()
+                Version.objects.filter(
+                    project=final_project, slug=default_version_slug
+                ).values_list('documentation_type', flat=True).first()
             )
             versions.append((default_version_slug, default_version_doc_type))
 
@@ -324,14 +333,18 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             if doc_type_404 == SPHINX_HTMLDIR:
                 tryfiles.append('404/index.html')
             for tryfile in tryfiles:
-                storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
+                storage_filename_path = build_media_storage.join(
+                    storage_root_path, tryfile
+                )
                 if build_media_storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page.',
                         version_slug_404=version_slug_404,
                         storage_filename_path=storage_filename_path,
                     )
-                    resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
+                    resp = HttpResponse(
+                        build_media_storage.open(storage_filename_path).read()
+                    )
                     resp.status_code = 404
                     return resp
 
@@ -421,8 +434,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
     def _get_hidden_paths(self, project):
         """Get the absolute paths of the public hidden versions of `project`."""
         hidden_versions = (
-            Version.internal.public(project=project)
-            .filter(hidden=True)
+            Version.internal.public(project=project).filter(hidden=True)
         )
         hidden_paths = [
             resolve_path(project, version_slug=version.slug)
@@ -460,6 +472,7 @@ class ServeSitemapXMLBase(View):
 
         :rtype: django.http.HttpResponse
         """
+
         # pylint: disable=too-many-locals
 
         def priorities_generator():
@@ -537,8 +550,9 @@ class ServeSitemapXMLBase(View):
             if project.translations.exists():
                 for translation in project.translations.all():
                     translation_versions = (
-                        Version.internal.public(project=translation
-                                                ).values_list('slug', flat=True)
+                        Version.internal.public(
+                            project=translation
+                        ).values_list('slug', flat=True)
                     )
                     if version.slug in translation_versions:
                         href = project.get_docs_url(
@@ -546,7 +560,9 @@ class ServeSitemapXMLBase(View):
                             lang_slug=translation.language,
                         )
                         element['languages'].append({
-                            'hreflang': hreflang_formatter(translation.language),
+                            'hreflang': hreflang_formatter(
+                                translation.language
+                            ),
                             'href': href,
                         })
 

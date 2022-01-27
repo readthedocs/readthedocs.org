@@ -3,9 +3,9 @@
 import hashlib
 import hmac
 import json
-import structlog
 import re
 
+import structlog
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -27,7 +27,7 @@ from readthedocs.core.views.hooks import (
     trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -199,9 +199,11 @@ class WebhookMixin:
 
     def sync_versions_response(self, project, sync=True):
         """
-        Trigger a sync and returns a response indicating if the build was triggered or not.
+        Trigger a sync and returns a response indicating if the build was
+        triggered or not.
 
-        If `sync` is False, the sync isn't triggered and a response indicating so is returned.
+        If `sync` is False, the sync isn't triggered and a response indicating
+        so is returned.
         """
         version = None
         if sync:
@@ -215,7 +217,8 @@ class WebhookMixin:
 
     def get_external_version_response(self, project):
         """
-        Trigger builds for External versions on pull/merge request events and return API response.
+        Trigger builds for External versions on pull/merge request events and
+        return API response.
 
         Return a JSON response with the following::
 
@@ -246,7 +249,8 @@ class WebhookMixin:
 
     def get_deactivated_external_version_response(self, project):
         """
-        Deactivate the external version on merge/close events and return the API response.
+        Deactivate the external version on merge/close events and return the API
+        response.
 
         Return a JSON response with the following::
 
@@ -388,7 +392,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
           a pull request review is requested or removed (``action`` will contain this data)
 
         See https://developer.github.com/v3/activity/events/types/
-
         """
         # Get event and trigger other webhook events
         action = self.data.get('action', None)
@@ -410,32 +413,27 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Handle pull request events
         if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
-            if (
-                action in
-                [
-                    GITHUB_PULL_REQUEST_OPENED,
-                    GITHUB_PULL_REQUEST_REOPENED,
-                    GITHUB_PULL_REQUEST_SYNC
-                ]
-            ):
+            if (action in [GITHUB_PULL_REQUEST_OPENED,
+                           GITHUB_PULL_REQUEST_REOPENED,
+                           GITHUB_PULL_REQUEST_SYNC]):
                 # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Delete external version when PR is closed
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(
+                    self.project
+                )
 
         # Sync versions when push event is created/deleted action
         if all([
                 event == GITHUB_PUSH,
-                (created or deleted),
-        ]):
+            (created or deleted),]):
             integration = self.get_integration()
             events = integration.provider_data.get('events', [])
             if any([
                     GITHUB_CREATE in events,
-                    GITHUB_DELETE in events,
-            ]):
+                    GITHUB_DELETE in events,]):
                 # GitHub will send PUSH **and** CREATE/DELETE events on a creation/deletion in newer
                 # webhooks. If we receive a PUSH event we need to check if the webhook doesn't
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
@@ -569,20 +567,18 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
-            if (
-                action in
-                [
-                    GITLAB_MERGE_REQUEST_OPEN,
-                    GITLAB_MERGE_REQUEST_REOPEN,
-                    GITLAB_MERGE_REQUEST_UPDATE
-                ]
-            ):
+            if (action
+                    in [GITLAB_MERGE_REQUEST_OPEN, GITLAB_MERGE_REQUEST_REOPEN,
+                        GITLAB_MERGE_REQUEST_UPDATE]):
                 # Handle open, update, reopen merge_request event.
                 return self.get_external_version_response(self.project)
 
-            if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
+            if action in [GITLAB_MERGE_REQUEST_CLOSE,
+                          GITLAB_MERGE_REQUEST_MERGE]:
                 # Handle merge and close merge_request event.
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_deactivated_external_version_response(
+                    self.project
+                )
         return None
 
     def _normalize_ref(self, ref):
@@ -743,8 +739,8 @@ class APIWebhookView(WebhookMixin, APIView):
         """
         We can't have payload validation in the generic webhook.
 
-        Since we don't know the system that would trigger the webhook.
-        We have a token for authentication.
+        Since we don't know the system that would trigger the webhook. We have a
+        token for authentication.
         """
         return True
 

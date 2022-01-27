@@ -1,9 +1,9 @@
 import json
-import structlog
 from datetime import datetime, timedelta
 from io import BytesIO
 
 import requests
+import structlog
 from celery import Task
 from django.conf import settings
 from django.urls import reverse
@@ -68,8 +68,8 @@ class TaskRouter:
     def route_for_task(self, task, args, kwargs, **__):
         log.debug('Executing TaskRouter.', task=task)
         if task not in (
-            'readthedocs.projects.tasks.update_docs_task',
-            'readthedocs.projects.tasks.sync_repository_task',
+                'readthedocs.projects.tasks.update_docs_task',
+                'readthedocs.projects.tasks.sync_repository_task',
         ):
             log.debug('Skipping routing non-build task.', task=task)
             return
@@ -95,10 +95,10 @@ class TaskRouter:
         # so that users will have the same outcome for PR's as normal builds.
         if version.type == EXTERNAL:
             last_build_for_default_version = (
-                project.builds
-                .filter(version__slug=project.get_default_version(), builder__isnull=False)
-                .order_by('-date')
-                .first()
+                project.builds.filter(
+                    version__slug=project.get_default_version(),
+                    builder__isnull=False
+                ).order_by('-date').first()
             )
             if last_build_for_default_version:
                 if 'default' in last_build_for_default_version.builder:
@@ -131,10 +131,7 @@ class TaskRouter:
                 return self.BUILD_LARGE_QUEUE
 
         successful_builds_count = (
-            version.builds
-            .filter(success=True)
-            .order_by('-date')
-            .count()
+            version.builds.filter(success=True).order_by('-date').count()
         )
         # We do not have enough builds for this version yet
         if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
@@ -211,12 +208,17 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
             for cmd in data:
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build.', build_id=build.id)
+                    cmd['output'] = '... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n' + cmd[
+                        'output']  # noqa
+                    log.warning(
+                        'Truncating build command for build.', build_id=build.id
+                    )
             output = BytesIO()
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+            filename = '{date}/{id}.json'.format(
+                date=str(build.date.date()), id=build.id
+            )
             try:
                 build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True
@@ -232,7 +234,8 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as inactive after ``days``.
 
-    The commit status is updated to link to the build page, as the docs are removed.
+    The commit status is updated to link to the build page, as the docs are
+    removed.
     """
     days_ago = datetime.now() - timedelta(days=days)
     queryset = Version.external.filter(
@@ -254,24 +257,20 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
                 )
         except Exception:
             log.exception(
-                "Failed to send status",
+                'Failed to send status',
                 project_slug=version.project.slug,
                 version_slug=version.slug,
             )
         else:
             log.info(
-                "Removing external version.",
+                'Removing external version.',
                 project_slug=version.project.slug,
                 version_slug=version.slug,
             )
             version.delete()
 
 
-@app.task(
-    max_retries=1,
-    default_retry_delay=60,
-    queue='web'
-)
+@app.task(max_retries=1, default_retry_delay=60, queue='web')
 def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
     Sync the version data in the repo (from build server) into our database.
@@ -351,21 +350,14 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 
         # Marking the tag that is considered the new stable version as
         # active and building it if it was just added.
-        if (
-            activate_new_stable and
-            promoted_version.slug in added_versions
-        ):
+        if (activate_new_stable and promoted_version.slug in added_versions):
             promoted_version.active = True
             promoted_version.save()
             trigger_build(project=project, version=promoted_version)
     return True
 
 
-@app.task(
-    max_retries=3,
-    default_retry_delay=60,
-    queue='web'
-)
+@app.task(max_retries=3, default_retry_delay=60, queue='web')
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
@@ -386,7 +378,10 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status.', build_id=build.id, project_slug=build.project.slug)
+    log.info(
+        'Sending build status.', build_id=build.id,
+        project_slug=build.project.slug
+    )
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
@@ -500,8 +495,8 @@ class BuildNotificationSender:
         """
         Send email and webhook notifications for `project` about the `build`.
 
-        Email notifications are only send for build:failed events.
-        Webhooks choose to what events they subscribe to.
+        Email notifications are only send for build:failed events. Webhooks
+        choose to what events they subscribe to.
         """
         if self.event == WebHookEvent.BUILD_FAILED:
             email_addresses = (
@@ -521,8 +516,7 @@ class BuildNotificationSender:
                     )
 
         webhooks = (
-            self.project.webhook_notifications
-            .filter(events__name=self.event)
+            self.project.webhook_notifications.filter(events__name=self.event)
         )
         for webhook in webhooks:
             try:

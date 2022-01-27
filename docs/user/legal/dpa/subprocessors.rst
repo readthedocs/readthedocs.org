@@ -36,7 +36,7 @@ Sendgrid, Inc.
 
 Google Analytics
     Website analtyics for dashboard and documentation sites.
-    
+
 Stripe Inc.
     Subscription payment provider. Data collected can include user data necessary
     to process payment transactions, however this data is not processed directly

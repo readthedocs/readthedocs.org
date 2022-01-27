@@ -1,7 +1,6 @@
 """Tasks for OAuth services."""
 
 import structlog
-
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +19,6 @@ from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
-
 
 log = structlog.get_logger(__name__)
 
@@ -44,9 +42,7 @@ def sync_remote_repositories(user_id):
             'Our access to your following accounts was revoked: {providers}. '
             'Please, reconnect them from your social account connections.'
         )
-        raise Exception(
-            msg.format(providers=', '.join(failed_services))
-        )
+        raise Exception(msg.format(providers=', '.join(failed_services)))
 
 
 @app.task(queue='web')
@@ -70,9 +66,9 @@ def sync_remote_repositories_organizations(organization_slugs=None):
         )
     else:
         organization_ids = (
-            SSOIntegration.objects
-            .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
-            .values_list('organization', flat=True)
+            SSOIntegration.objects.filter(
+                provider=SSOIntegration.PROVIDER_ALLAUTH
+            ).values_list('organization', flat=True)
         )
         query = Organization.objects.filter(id__in=organization_ids)
         log.info(

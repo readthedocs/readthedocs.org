@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
@@ -6,7 +5,6 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
@@ -197,7 +195,7 @@ class TestAdvancedForm(TestBasicsForm):
     def test_initial_params(self):
         extra_initial = {
             'description': 'An amazing project',
-            'project_url': "https://foo.bar",
+            'project_url': 'https://foo.bar',
         }
         basic_initial = {
             'name': 'foobar',

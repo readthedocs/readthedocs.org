@@ -2,12 +2,9 @@
 
 import re
 from urllib.parse import urlparse
+
 import requests
-
 import structlog
-
-from selectolax.parser import HTMLParser
-
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
@@ -17,6 +14,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selectolax.parser import HTMLParser
 
 from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.core.unresolver import unresolve
@@ -45,7 +43,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     ### Example
 
     GET https://readthedocs.org/api/v3/embed/?url=https://docs.readthedocs.io/en/latest/features.html%23full-text-search
-
     """  # noqa
 
     permission_classes = [AllowAny]
@@ -69,7 +66,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             log.debug('Cached response.', url=url)
             return cached_response
 
-        response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
+        response = requests.get(
+            url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT
+        )
         if response.ok:
             # NOTE: we use ``response.content`` to get its binary
             # representation. Then ``selectolax`` is in charge to auto-detect
@@ -107,16 +106,22 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
+    def _get_content_by_fragment(
+        self, url, fragment, external, doctool, doctoolversion
+    ):
         if external:
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
             version_slug = self.unresolved_url.version_slug
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(project, version_slug, filename)
+            page_content = self._get_page_content_from_storage(
+                project, version_slug, filename
+            )
 
-        return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
+        return self._parse_based_on_doctool(
+            page_content, fragment, doctool, doctoolversion
+        )
 
     def _find_main_node(self, html):
         main_node = html.css_first('[role=main]')
@@ -134,7 +139,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             log.info('Main node found. selector=h1')
             return first_header.parent
 
-    def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
+    def _parse_based_on_doctool(
+        self, page_content, fragment, doctool, doctoolversion
+    ):
         # pylint: disable=unused-argument
         if not page_content:
             return
@@ -159,8 +166,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             if node.tag == 'dt':
                 if any([
                         'glossary' in node.parent.attributes.get('class'),
-                        'citation' in node.parent.attributes.get('class'),
-                ]):
+                        'citation' in node.parent.attributes.get('class'),]):
                     # Sphinx HTML structure for term glossary puts the ``id`` in the
                     # ``dt`` element with the title of the term. In this case, we
                     # return the parent node which contains the definition list
@@ -217,26 +223,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         doctoolversion = request.GET.get('doctoolversion')
 
         if not url:
-            return Response(
-                {
-                    'error': (
-                        'Invalid arguments. '
-                        'Please provide "url".'
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({
+                'error': ('Invalid arguments. '
+                          'Please provide "url".')
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
             return Response(
-                {
-                    'error': (
-                        'The URL requested is malformed. '
-                        f'url={url}'
-                    )
-                },
+                {'error': ('The URL requested is malformed. '
+                           f'url={url}')},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -261,7 +258,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
             # Check rate-limit for this particular domain
             cache_key = f'embed-api-{domain}'
-            cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
+            cache.get_or_set(
+                cache_key, 0,
+                timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT
+            )
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
                 log.warning('Too many requests for this domain.', domain=domain)
@@ -304,7 +304,9 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:  # noqa
-            log.exception('There was an error reading the URL requested.', url=url)
+            log.exception(
+                'There was an error reading the URL requested.', url=url
+            )
             return Response(
                 {
                     'error': (
@@ -317,15 +319,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         if not content_requested:
             log.warning('Identifier not found.', url=url, fragment=fragment)
-            return Response(
-                {
-                    'error': (
-                        "Can't find content for section: "
-                        f"url={url} fragment={fragment}"
-                    )
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({
+                'error': (
+                    "Can't find content for section: "
+                    f'url={url} fragment={fragment}'
+                )
+            }, status=status.HTTP_404_NOT_FOUND)
 
         # Sanitize the URL before requesting it
         sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()

@@ -27,7 +27,7 @@ from readthedocs.search.utils import index_new_files, remove_indexed_files
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.usefixtures("all_projects")
+@pytest.mark.usefixtures('all_projects')
 class BaseTestDocumentSearch:
 
     def setup_method(self, method):
@@ -132,7 +132,7 @@ class BaseTestDocumentSearch:
             assert word.lower() in query.lower()
 
     def test_doc_search_filter_by_project(self, api_client):
-        """Test Doc search results are filtered according to project"""
+        """Test Doc search results are filtered according to project."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
@@ -152,7 +152,7 @@ class BaseTestDocumentSearch:
             assert res['project'] == 'docs'
 
     def test_doc_search_filter_by_version(self, api_client, project):
-        """Test Doc search result are filtered according to version"""
+        """Test Doc search result are filtered according to version."""
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
@@ -185,7 +185,7 @@ class BaseTestDocumentSearch:
         assert data[0]['project_alias'] is None
 
     def test_doc_search_pagination(self, api_client, project):
-        """Test Doc search result can be paginated"""
+        """Test Doc search result can be paginated."""
         latest_version = project.versions.all()[0]
         html_file = HTMLFile.objects.filter(version=latest_version)[0]
         title = html_file.processed_json['title']
@@ -229,12 +229,14 @@ class BaseTestDocumentSearch:
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
-        """Hitting Document Search endpoint without project and version should return 404."""
+        """Hitting Document Search endpoint without project and version should
+        return 404."""
         resp = self.get_search(api_client, {})
         assert resp.status_code == 404
 
     def test_doc_search_without_query(self, api_client, project):
-        """Hitting Document Search endpoint without a query should return error."""
+        """Hitting Document Search endpoint without a query should return
+        error."""
         resp = self.get_search(
             api_client, {'project': project.slug, 'version': project.versions.first().slug})
         assert resp.status_code == 400
@@ -242,7 +244,7 @@ class BaseTestDocumentSearch:
         assert 'q' in resp.data.keys()
 
     def test_doc_search_subprojects(self, api_client, all_projects):
-        """Test Document search return results from subprojects also"""
+        """Test Document search return results from subprojects also."""
         project = all_projects[0]
         subproject = all_projects[1]
         version = project.versions.all()[0]
@@ -274,7 +276,8 @@ class BaseTestDocumentSearch:
         assert document_link in link
 
     def test_doc_search_subprojects_default_version(self, api_client, all_projects):
-        """Return results from subprojects that match the version from the main project or fallback to its default version."""
+        """Return results from subprojects that match the version from the main
+        project or fallback to its default version."""
         project = all_projects[0]
         version = project.versions.all()[0]
 
@@ -344,7 +347,8 @@ class BaseTestDocumentSearch:
 
     @mock.patch.object(PageSearchAPIView, '_get_all_projects_data', dict)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
-        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
+        """If there is a case where `_get_all_projects` returns empty, we could
+        be querying all projects."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
@@ -360,7 +364,7 @@ class BaseTestDocumentSearch:
         assert len(data) == 0
 
     def test_doc_search_hidden_versions(self, api_client, all_projects):
-        """Test Document search return results from subprojects also"""
+        """Test Document search return results from subprojects also."""
         project = all_projects[0]
         subproject = all_projects[1]
         version = project.versions.all()[0]

@@ -43,7 +43,7 @@ Version 7.1.0
 Version 7.0.0
 -------------
 
-This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**. 
+This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**.
 
 :Date: January 17, 2022
 
@@ -251,7 +251,7 @@ Version 6.0.0
 
 This release includes the upgrade of some base dependencies:
 
-- Python version from 3.6 to 3.8 
+- Python version from 3.6 to 3.8
 - Ubuntu version from 18.04 LTS to 20.04 LTS
 
 Starting from this release, all the Read the Docs code will be tested and QAed on these versions.

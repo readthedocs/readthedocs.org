@@ -1,13 +1,11 @@
 """Signal handling for core app."""
 
 import structlog
-
 from corsheaders import signals
 from django.conf import settings
 from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
-
 from rest_framework.permissions import SAFE_METHODS
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
@@ -97,13 +95,10 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             # This is from IsAuthorizedToViewVersion,
             # we should abstract is a bit perhaps?
             is_public = (
-                Version.objects
-                .public(
+                Version.objects.public(
                     project=project,
                     only_active=False,
-                )
-                .filter(slug=version_slug)
-                .exists()
+                ).filter(slug=version_slug).exists()
             )
             # Allowing CORS on public versions,
             # since they are already public.
@@ -143,7 +138,9 @@ def add_extra_historical_fields(sender, **kwargs):
     request = getattr(HistoricalRecords.context, 'request', None)
     if request:
         history_instance.extra_history_ip = get_client_ip(request)
-        history_instance.extra_history_browser = request.headers.get('User-Agent')
+        history_instance.extra_history_browser = request.headers.get(
+            'User-Agent'
+        )
 
 
 signals.check_request_enabled.connect(decide_if_cors)

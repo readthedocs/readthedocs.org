@@ -49,4 +49,3 @@ and we want to spend it on the mission that we set out to originally support.
 If you feel strongly about installing Read the Docs internal to a company,
 we will happily link to third party resources on this topic.
 Please open an issue with a proposal if you want to take on this task.
-

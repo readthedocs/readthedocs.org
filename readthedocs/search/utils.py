@@ -1,7 +1,6 @@
 """Utilities related to reading and generating indexable search content."""
 
 import structlog
-
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
@@ -59,10 +58,7 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     try:
         document = list(registry.get_documents(models=[model]))[0]
         log.info('Deleting old files from search index.')
-        documents = (
-            document().search()
-            .filter('term', project=project_slug)
-        )
+        documents = (document().search().filter('term', project=project_slug))
         if version_slug:
             documents = documents.filter('term', version=version_slug)
         if build_id:
@@ -104,8 +100,8 @@ def _indexing_helper(html_objs_qs, wipe=False):
     """
     Helper function for reindexing and wiping indexes of projects and versions.
 
-    If ``wipe`` is set to False, html_objs are deleted from the ES index,
-    else, html_objs are indexed.
+    If ``wipe`` is set to False, html_objs are deleted from the ES index, else,
+    html_objs are indexed.
     """
     from readthedocs.search.documents import PageDocument
     from readthedocs.search.tasks import (
@@ -144,7 +140,8 @@ def _last_30_days_iter():
 
 
 def _get_last_30_days_str(date_format='%Y-%m-%d'):
-    """Returns the list of dates in string format for previous 30 days (including today)."""
+    """Returns the list of dates in string format for previous 30 days
+    (including today)."""
     last_30_days_str = [
         timezone.datetime.strftime(date, date_format)
         for date in _last_30_days_iter()

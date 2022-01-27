@@ -1,5 +1,4 @@
 import structlog
-
 from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 from django_filters import CharFilter, ChoiceFilter, FilterSet

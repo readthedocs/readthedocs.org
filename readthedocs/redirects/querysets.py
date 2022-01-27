@@ -1,6 +1,5 @@
 """Queryset for the redirects app."""
 import structlog
-
 from django.db import models
 from django.db.models import CharField, F, Q, Value
 
@@ -22,8 +21,7 @@ class RedirectQuerySet(models.QuerySet):
                     user=user,
                     admin=True,
                     member=True,
-                )
-                .values_list('pk', flat=True)
+                ).values_list('pk', flat=True)
             )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
@@ -35,7 +33,9 @@ class RedirectQuerySet(models.QuerySet):
             queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
+    def get_redirect_path_with_status(
+        self, path, full_path=None, language=None, version_slug=None
+    ):
         # add extra fields with the ``path`` and ``full_path`` to perform a
         # filter at db level instead with Python
         queryset = self.annotate(
@@ -80,7 +80,9 @@ class RedirectQuerySet(models.QuerySet):
             path__endswith='.html',
         )
 
-        queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
+        queryset = queryset.filter(
+            prefix | page | exact | sphinx_html | sphinx_htmldir
+        )
 
         # There should be one and only one redirect returned by this query. I
         # can't think in a case where there can be more at this point. I'm

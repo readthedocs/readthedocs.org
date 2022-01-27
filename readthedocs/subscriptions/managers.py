@@ -33,7 +33,9 @@ class SubscriptionManager(models.Manager):
             return organization.subscription
 
         from readthedocs.subscriptions.models import Plan
-        plan = Plan.objects.filter(slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG).first()
+        plan = Plan.objects.filter(
+            slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG
+        ).first()
         # This should happen only on development.
         if not plan:
             log.warning(
@@ -56,7 +58,9 @@ class SubscriptionManager(models.Manager):
                 datetime.fromtimestamp(int(stripe_subscription.start)),
             ),
             end_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.current_period_end)),
+                datetime.fromtimestamp(
+                    int(stripe_subscription.current_period_end)
+                ),
             ),
             trial_end_date=timezone.make_aware(
                 datetime.fromtimestamp(int(stripe_subscription.trial_end)),
@@ -65,7 +69,8 @@ class SubscriptionManager(models.Manager):
 
     def update_from_stripe(self, *, rtd_subscription, stripe_subscription):
         """
-        Update the RTD subscription object with the information of the stripe subscription.
+        Update the RTD subscription object with the information of the stripe
+        subscription.
 
         :param subscription: Subscription object to update.
         :param stripe_subscription: Stripe subscription object from API
@@ -82,9 +87,7 @@ class SubscriptionManager(models.Manager):
             start_date = timezone.make_aware(
                 datetime.fromtimestamp(start_date),
             )
-            end_date = timezone.make_aware(
-                datetime.fromtimestamp(end_date),
-            )
+            end_date = timezone.make_aware(datetime.fromtimestamp(end_date),)
         except TypeError:
             log.error(
                 'Stripe subscription invalid date.',
@@ -134,9 +137,9 @@ class SubscriptionManager(models.Manager):
                 # Exclude "custom" here, as we historically reused Stripe plan
                 # id for custom plans. We don't have a better attribute to
                 # filter on here.
-                .exclude(slug__contains='custom')
-                .exclude(name__icontains='Custom')
-                .get(stripe_id=stripe_subscription.plan.id)
+                .exclude(slug__contains='custom'
+                         ).exclude(name__icontains='Custom'
+                                   ).get(stripe_id=stripe_subscription.plan.id)
             )
             rtd_subscription.plan = plan
         except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):

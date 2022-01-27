@@ -24,9 +24,7 @@ class RemoteOrganization(TimeStampedModel):
     """
 
     users = models.ManyToManyField(
-        User,
-        verbose_name=_('Users'),
-        related_name='oauth_organizations',
+        User, verbose_name=_('Users'), related_name='oauth_organizations',
         through='RemoteOrganizationRelation'
     )
     slug = models.CharField(_('Slug'), max_length=255)
@@ -45,33 +43,30 @@ class RemoteOrganization(TimeStampedModel):
         blank=True,
     )
     # VCS provider organization id
-    remote_id = models.CharField(
-        db_index=True,
-        max_length=128
-    )
+    remote_id = models.CharField(db_index=True, max_length=128)
     vcs_provider = models.CharField(
-        _('VCS provider'),
-        choices=VCS_PROVIDER_CHOICES,
-        max_length=32
+        _('VCS provider'), choices=VCS_PROVIDER_CHOICES, max_length=32
     )
 
     objects = RemoteOrganizationQuerySet.as_manager()
 
     class Meta:
         ordering = ['name']
-        unique_together = ('remote_id', 'vcs_provider',)
+        unique_together = (
+            'remote_id',
+            'vcs_provider',
+        )
         db_table = 'oauth_remoteorganization_2020'
 
     def __str__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
 
     def get_remote_organization_relation(self, user, social_account):
-        """Return RemoteOrganizationRelation object for the remote organization."""
+        """Return RemoteOrganizationRelation object for the remote
+        organization."""
         remote_organization_relation, _ = (
             RemoteOrganizationRelation.objects.get_or_create(
-                remote_organization=self,
-                user=user,
-                account=social_account
+                remote_organization=self, user=user, account=social_account
             )
         )
         return remote_organization_relation
@@ -79,24 +74,23 @@ class RemoteOrganization(TimeStampedModel):
 
 class RemoteOrganizationRelation(TimeStampedModel):
     remote_organization = models.ForeignKey(
-        RemoteOrganization,
-        related_name='remote_organization_relations',
+        RemoteOrganization, related_name='remote_organization_relations',
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        User,
-        related_name='remote_organization_relations',
+        User, related_name='remote_organization_relations',
         on_delete=models.CASCADE
     )
     account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_organization_relations',
-        on_delete=models.CASCADE
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_organization_relations', on_delete=models.CASCADE
     )
 
     class Meta:
-        unique_together = ('remote_organization', 'account',)
+        unique_together = (
+            'remote_organization',
+            'account',
+        )
 
     def __str__(self):
         return f'{self.user.username} <-> {self.remote_organization.name}'
@@ -112,9 +106,7 @@ class RemoteRepository(TimeStampedModel):
 
     # This should now be a OneToOne
     users = models.ManyToManyField(
-        User,
-        verbose_name=_('Users'),
-        related_name='oauth_repositories',
+        User, verbose_name=_('Users'), related_name='oauth_repositories',
         through='RemoteRepositoryRelation'
     )
     organization = models.ForeignKey(
@@ -174,14 +166,9 @@ class RemoteRepository(TimeStampedModel):
         blank=True,
     )
     # VCS provider repository id
-    remote_id = models.CharField(
-        db_index=True,
-        max_length=128
-    )
+    remote_id = models.CharField(db_index=True, max_length=128)
     vcs_provider = models.CharField(
-        _('VCS provider'),
-        choices=VCS_PROVIDER_CHOICES,
-        max_length=32
+        _('VCS provider'), choices=VCS_PROVIDER_CHOICES, max_length=32
     )
 
     objects = RemoteRepositoryQuerySet.as_manager()
@@ -189,7 +176,10 @@ class RemoteRepository(TimeStampedModel):
     class Meta:
         ordering = ['full_name']
         verbose_name_plural = 'remote repositories'
-        unique_together = ('remote_id', 'vcs_provider',)
+        unique_together = (
+            'remote_id',
+            'vcs_provider',
+        )
         db_table = 'oauth_remoterepository_2020'
 
     def __str__(self):
@@ -221,9 +211,7 @@ class RemoteRepository(TimeStampedModel):
         """Return RemoteRepositoryRelation object for the remote repository."""
         remote_repository_relation, _ = (
             RemoteRepositoryRelation.objects.get_or_create(
-                remote_repository=self,
-                user=user,
-                account=social_account
+                remote_repository=self, user=user, account=social_account
             )
         )
         return remote_repository_relation
@@ -231,25 +219,24 @@ class RemoteRepository(TimeStampedModel):
 
 class RemoteRepositoryRelation(TimeStampedModel):
     remote_repository = models.ForeignKey(
-        RemoteRepository,
-        related_name='remote_repository_relations',
+        RemoteRepository, related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        User,
-        related_name='remote_repository_relations',
+        User, related_name='remote_repository_relations',
         on_delete=models.CASCADE
     )
     account = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_('Connected account'),
-        related_name='remote_repository_relations',
-        on_delete=models.CASCADE
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_repository_relations', on_delete=models.CASCADE
     )
     admin = models.BooleanField(_('Has admin privilege'), default=False)
 
     class Meta:
-        unique_together = ('remote_repository', 'account',)
+        unique_together = (
+            'remote_repository',
+            'account',
+        )
 
     def __str__(self):
         return f'{self.user.username} <-> {self.remote_repository.full_name}'

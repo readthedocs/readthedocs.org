@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration admin models."""
 
 from django import urls

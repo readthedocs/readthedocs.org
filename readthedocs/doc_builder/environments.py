@@ -1,6 +1,5 @@
 """Documentation Builder Environments."""
 
-import structlog
 import os
 import re
 import socket
@@ -9,6 +8,7 @@ import sys
 import uuid
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
@@ -88,17 +88,17 @@ class BuildCommand(BuildCommandResultMixin):
     """
 
     def __init__(
-            self,
-            command,
-            cwd=None,
-            shell=False,
-            environment=None,
-            user=None,
-            build_env=None,
-            bin_path=None,
-            description=None,
-            record_as_success=False,
-            **kwargs,
+        self,
+        command,
+        cwd=None,
+        shell=False,
+        environment=None,
+        user=None,
+        build_env=None,
+        bin_path=None,
+        description=None,
+        record_as_success=False,
+        **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -128,7 +128,9 @@ class BuildCommand(BuildCommandResultMixin):
 
     def run(self):
         """Set up subprocess and execute command."""
-        log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
+        log.info(
+            'Running build command.', command=self.get_command(), cwd=self.cwd
+        )
 
         self.start_time = datetime.utcnow()
         environment = self._environment.copy()
@@ -163,7 +165,7 @@ class BuildCommand(BuildCommandResultMixin):
             self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
-            log.exception("Operating system error.")
+            log.exception('Operating system error.')
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
@@ -244,14 +246,13 @@ class BuildCommand(BuildCommandResultMixin):
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
             # Don't use slumber directly here. Slumber tries to enforce a string,
             # which will break our multipart encoding here.
-            encoder = MultipartEncoder(
-                {key: str(value) for key, value in data.items()}
-            )
+            encoder = MultipartEncoder({
+                key: str(value)
+                for key, value in data.items()
+            })
             resource = api_v2.command
             resp = resource._store['session'].post(
-                resource._store['base_url'] + '/',
-                data=encoder,
-                headers={
+                resource._store['base_url'] + '/', data=encoder, headers={
                     'Content-Type': encoder.content_type,
                 }
             )
@@ -289,7 +290,7 @@ class DockerBuildCommand(BuildCommand):
     def run(self):
         """Execute command in existing Docker container."""
         log.info(
-            "Running build command in container.",
+            'Running build command in container.',
             container_id=self.build_env.container_id,
             command=self.get_command(),
             cwd=self.cwd,
@@ -321,10 +322,8 @@ class DockerBuildCommand(BuildCommand):
             killed_in_output = 'Killed' in '\n'.join(
                 self.output.splitlines()[-15:],
             )
-            if self.exit_code == DOCKER_OOM_EXIT_CODE or (
-                self.exit_code == 1 and
-                killed_in_output
-            ):
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and
+                                                          killed_in_output):
                 self.output += str(
                     _(
                         '\n\nCommand killed due to excessive memory consumption\n',
@@ -394,8 +393,8 @@ class BaseEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs
+        self, cls, cmd, record=None, warn_only=False, record_as_success=False,
+        **kwargs
     ):
         """
         Run command from this environment.
@@ -427,7 +426,9 @@ class BaseEnvironment:
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
-            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
+            raise BuildEnvironmentError(
+                'environment can\'t be passed in via commands.'
+            )
         kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
@@ -518,15 +519,15 @@ class BuildEnvironment(BaseEnvironment):
     )
 
     def __init__(
-            self,
-            project=None,
-            version=None,
-            build=None,
-            config=None,
-            record=True,
-            environment=None,
-            update_on_success=True,
-            start_time=None,
+        self,
+        project=None,
+        version=None,
+        build=None,
+        config=None,
+        record=True,
+        environment=None,
+        update_on_success=True,
+        start_time=None,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -633,10 +634,7 @@ class BuildEnvironment(BaseEnvironment):
     @property
     def done(self):
         """Is build in finished state."""
-        return (
-            self.build and
-            self.build['state'] == BUILD_STATE_FINISHED
-        )
+        return (self.build and self.build['state'] == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """
@@ -908,7 +906,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                "Could not connect to Docker API",
+                'Could not connect to Docker API',
                 project_slug=self.project.slug,
                 version_slug=self.version.slug,
             )

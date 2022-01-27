@@ -1,9 +1,8 @@
 """
 Serializers for the ES's search result object.
 
-.. note::
-   Some fields are re-named to make their meaning more clear.
-   They should be renamed in the ES index too.
+.. note::    Some fields are re-named to make their meaning more clear.    They
+should be renamed in the ES index too.
 """
 
 import itertools
@@ -45,7 +44,9 @@ class ProjectSearchSerializer(serializers.Serializer):
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
     description = serializers.CharField()
-    highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
+    highlights = ProjectHighlightSerializer(
+        source='meta.highlight', default=dict
+    )
 
 
 class PageHighlightSerializer(serializers.Serializer):
@@ -61,9 +62,9 @@ class PageSearchSerializer(serializers.Serializer):
     """
     Page serializer.
 
-    If ``projects_data`` is passed into the context, the serializer
-    will try to use that to generate the link before querying the database.
-    It's a dictionary mapping the project slug to a ProjectData object.
+    If ``projects_data`` is passed into the context, the serializer will try to
+    use that to generate the link before querying the database. It's a
+    dictionary mapping the project slug to a ProjectData object.
     """
 
     type = serializers.CharField(default='page', source=None, read_only=True)
@@ -80,9 +81,8 @@ class PageSearchSerializer(serializers.Serializer):
         """
         Get and cache the project data.
 
-        Try to get the data from the ``projects_data`` context,
-        and fallback to get it from the database.
-        If the result is fetched from the database,
+        Try to get the data from the ``projects_data`` context, and fallback to
+        get it from the database. If the result is fetched from the database,
         it's cached into ``projects_data``.
         """
         project_data = self.context.get('projects_data', {}).get(obj.project)
@@ -92,7 +92,9 @@ class PageSearchSerializer(serializers.Serializer):
         project = Project.objects.filter(slug=obj.project).first()
         if project:
             docs_url = project.get_docs_url(version_slug=obj.version)
-            project_alias = project.superprojects.values_list('alias', flat=True).first()
+            project_alias = project.superprojects.values_list(
+                'alias', flat=True
+            ).first()
 
             projects_data = self.context.setdefault('projects_data', {})
             version_data = VersionData(
@@ -163,8 +165,7 @@ class PageSearchSerializer(serializers.Serializer):
             reverse=True,
         )
         sorted_results = [
-            serializers[hit.type](hit).data
-            for hit in sorted_results
+            serializers[hit.type](hit).data for hit in sorted_results
         ]
         return sorted_results
 
@@ -188,7 +189,9 @@ class DomainSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     id = serializers.CharField(source='anchor')
     content = serializers.CharField(source='docstrings')
-    highlights = DomainHighlightSerializer(source='meta.highlight', default=dict)
+    highlights = DomainHighlightSerializer(
+        source='meta.highlight', default=dict
+    )
 
 
 class SectionHighlightSerializer(serializers.Serializer):
@@ -209,4 +212,6 @@ class SectionSearchSerializer(serializers.Serializer):
     id = serializers.CharField()
     title = serializers.CharField()
     content = serializers.CharField()
-    highlights = SectionHighlightSerializer(source='meta.highlight', default=dict)
+    highlights = SectionHighlightSerializer(
+        source='meta.highlight', default=dict
+    )

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """Tests For SVN."""
 
 from django.test import TestCase
-
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version

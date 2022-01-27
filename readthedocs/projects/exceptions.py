@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project exceptions."""
 
 from django.conf import settings

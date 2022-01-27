@@ -1,6 +1,5 @@
 """Utility functions for use in tests."""
 
-import structlog
 import subprocess
 import textwrap
 from os import chdir, environ, mkdir
@@ -9,6 +8,7 @@ from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
+import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
 

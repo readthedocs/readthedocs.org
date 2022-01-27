@@ -4,9 +4,9 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import structlog
 import os
 
+import structlog
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
@@ -96,13 +96,9 @@ class BaseMkdocs(BaseBuilder):
             config = yaml_load_safely(open(self.yaml_file, 'r'))
 
             if not config:
-                raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.EMPTY_CONFIG
-                )
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.EMPTY_CONFIG)
             if not isinstance(config, dict):
-                raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.CONFIG_NOT_DICT
-                )
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.CONFIG_NOT_DICT)
             return config
 
         except IOError:
@@ -170,14 +166,14 @@ class BaseMkdocs(BaseBuilder):
         ]
 
         # Only add static file if the files are not already in the list
-        user_config.setdefault('extra_javascript', []).extend(
-            [js for js in extra_javascript_list if js not in user_config.get(
-                'extra_javascript')]
-        )
-        user_config.setdefault('extra_css', []).extend(
-            [css for css in extra_css_list if css not in user_config.get(
-                'extra_css')]
-        )
+        user_config.setdefault('extra_javascript', []).extend([
+            js for js in extra_javascript_list
+            if js not in user_config.get('extra_javascript')
+        ])
+        user_config.setdefault('extra_css', []).extend([
+            css for css in extra_css_list
+            if css not in user_config.get('extra_css')
+        ])
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.
@@ -237,8 +233,7 @@ class BaseMkdocs(BaseBuilder):
             self.version.project.vcs_repo(
                 version=self.version.slug,
                 environment=self.build_env,
-            )
-            .commit,
+            ).commit,
         )
 
         # Will be available in the JavaScript as READTHEDOCS_DATA.
@@ -261,8 +256,11 @@ class BaseMkdocs(BaseBuilder):
             'user_analytics_code': analytics_code,
             'features': {
                 'docsearch_disabled': (
-                    not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
-                    or self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
+                    not self.project.has_feature(
+                        Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH
+                    ) or self.project.has_feature(
+                        Feature.DISABLE_SERVER_SIDE_SEARCH
+                    )
                 )
             },
         }
@@ -337,6 +335,7 @@ class MkdocsHTML(BaseMkdocs):
 
 
 class ProxyPythonName(yaml.YAMLObject):
+
     def __init__(self, value):
         self.value = value
 
@@ -368,15 +367,19 @@ class SafeDumper(yaml.SafeDumper):
     """
     Safe YAML dumper.
 
-    This dumper allows to avoid losing values of special tags that
-    were parsed by our safe loader.
+    This dumper allows to avoid losing values of special tags that were parsed
+    by our safe loader.
     """
 
     def represent_name(self, data):
-        return self.represent_scalar("tag:yaml.org,2002:python/name:" + data.value, "")
+        return self.represent_scalar(
+            'tag:yaml.org,2002:python/name:' + data.value, ''
+        )
 
 
-SafeLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name)
+SafeLoader.add_multi_constructor(
+    'tag:yaml.org,2002:python/name:', SafeLoader.construct_python_name
+)
 SafeLoader.add_constructor(None, SafeLoader.ignore_unknown)
 SafeDumper.add_representer(ProxyPythonName, SafeDumper.represent_name)
 
@@ -385,10 +388,9 @@ def yaml_load_safely(content):
     """
     Uses ``SafeLoader`` loader to skip unknown tags.
 
-    When a YAML contains ``!!python/name:int`` it will store the ``int``
-    suffix temporarily to be able to re-dump it later. We need this to avoid
-    executing random code, but still support these YAML files without
-    information loss.
+    When a YAML contains ``!!python/name:int`` it will store the ``int`` suffix
+    temporarily to be able to re-dump it later. We need this to avoid executing
+    random code, but still support these YAML files without information loss.
     """
     return yaml.load(content, Loader=SafeLoader)
 

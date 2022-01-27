@@ -1,9 +1,9 @@
 """OAuth utility functions."""
 
 import json
-import structlog
 import re
 
+import structlog
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
@@ -40,7 +40,9 @@ class GitHubService(Service):
         remote_repositories = []
 
         try:
-            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+            repos = self.paginate(
+                'https://api.github.com/user/repos?per_page=100'
+            )
             for repo in repos:
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
@@ -99,12 +101,10 @@ class GitHubService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
             (privacy == 'private'),
-            (fields['private'] is False and privacy == 'public'),
-        ]):
+            (fields['private'] is False and privacy == 'public'),]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['id'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
@@ -125,13 +125,12 @@ class GitHubService(Service):
                 return None
 
             if any([
-                # There is an organization associated with this repository:
-                # attach the organization to the repository
-                organization is not None,
-                # There is no organization and the repository belongs to a
-                # user: removes the organization linked to the repository
-                not organization and fields['owner']['type'] == 'User',
-            ]):
+                    # There is an organization associated with this repository:
+                    # attach the organization to the repository
+                    organization is not None,
+                    # There is no organization and the repository belongs to a
+                    # user: removes the organization linked to the repository
+                    not organization and fields['owner']['type'] == 'User',]):
                 repo.organization = organization
 
             repo.name = fields['name']
@@ -154,7 +153,8 @@ class GitHubService(Service):
 
             repo.save()
 
-            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation.admin = fields.get('permissions', {}
+                                                          ).get('admin', False)
             remote_repository_relation.save()
 
             return repo
@@ -172,12 +172,9 @@ class GitHubService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['id'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get('html_url')
         # fields['login'] contains GitHub Organization slug
@@ -246,8 +243,7 @@ class GitHubService(Service):
         )
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
+            domain=settings.PRODUCTION_DOMAIN, path=reverse(
                 'api_webhook',
                 kwargs={
                     'project_slug': project.slug,
@@ -262,7 +258,7 @@ class GitHubService(Service):
                 recv_data = resp.json()
 
                 for webhook_data in recv_data:
-                    if webhook_data["config"]["url"] == rtd_webhook_url:
+                    if webhook_data['config']['url'] == rtd_webhook_url:
                         integration.provider_data = webhook_data
                         integration.save()
 
@@ -329,7 +325,9 @@ class GitHubService(Service):
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.warning('GitHub project does not exist or user does not have permissions.')
+                log.warning(
+                    'GitHub project does not exist or user does not have permissions.'
+                )
             else:
                 # Unknown response from GitHub
                 try:
@@ -471,11 +469,13 @@ class GitHubService(Service):
             )
             log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info("GitHub commit status created for project.")
+                log.info('GitHub commit status created for project.')
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info('GitHub project does not exist or user does not have permissions.')
+                log.info(
+                    'GitHub project does not exist or user does not have permissions.'
+                )
                 return False
 
             try:

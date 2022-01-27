@@ -12,8 +12,8 @@ from readthedocsext.monitoring.metrics.database import (
     ConcurrencyLimitedBuildsMetric,
     RunningBuildsMetric,
 )
-from readthedocsext.monitoring.metrics.redislen import RedislenMetric
 from readthedocsext.monitoring.metrics.latency import BuildLatencyMetric
+from readthedocsext.monitoring.metrics.redislen import RedislenMetric
 from readthedocsext.monitoring.metrics.tasks import (
     Metrics1mTaskBase,
     Metrics5mTaskBase,

@@ -83,7 +83,7 @@ Result:
    provided by Intersphinx:
 
    .. prompt:: bash $
-      
+
       python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
 
 Intersphinx in Read the Docs
@@ -167,7 +167,7 @@ You can use it like this:
    The inventory file is by default located at ``objects.inv``, for example ``https://readthedocs-docs.readthedocs-hosted.com/en/latest/objects.inv``.
 
    .. code:: python
-      
+
       # conf.py file
 
       intersphinx_mapping = {

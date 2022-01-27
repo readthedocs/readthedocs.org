@@ -1,5 +1,4 @@
 import structlog
-
 from django.db.models import Count, F, Max
 from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
@@ -52,7 +51,10 @@ class VersionSortOrderingFilter(OrderingFilter):
             'name': {'name': F('verbose_name')},
         }
         # And copy the negative sort lookups, ``value`` might be ``['-recent']``
-        annotations.update({f'-{key}': value for (key, value) in annotations.items()})
+        annotations.update({
+            f'-{key}': value
+            for (key, value) in annotations.items()
+        })
 
         annotation = annotations.get(*value)
         return qs.annotate(**annotation).order_by(*value)

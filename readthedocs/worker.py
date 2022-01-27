@@ -4,7 +4,6 @@ import os
 
 from celery import Celery
 from django.conf import settings
-
 from django_structlog.celery.steps import DjangoStructLogInitStep
 
 

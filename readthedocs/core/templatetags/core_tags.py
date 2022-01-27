@@ -5,15 +5,12 @@ import json
 from urllib.parse import urlencode
 
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_str
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
-
 
 register = template.Library()
 
@@ -122,4 +119,5 @@ def escapejson(data, indent=None):
             data,
             cls=DjangoJSONEncoder,
             indent=indent,
-        ).translate(_json_script_escapes))
+        ).translate(_json_script_escapes)
+    )

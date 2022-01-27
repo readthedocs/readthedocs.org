@@ -4,7 +4,6 @@ import structlog
 
 from readthedocs.core.utils import send_email
 
-
 # pylint: disable=invalid-name
 log = structlog.get_logger(__name__)
 

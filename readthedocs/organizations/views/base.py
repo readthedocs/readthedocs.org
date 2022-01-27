@@ -27,10 +27,10 @@ class CheckOrganizationsEnabled:
     """
     Return 404 if organizations aren't enabled.
 
-    All organization views should inherit this class.
-    This is mainly for our tests to work,
-    adding the organization urls conditionally on readthedocs/urls.py
-    doesn't work as the file is evaluated only once, not per-test case.
+    All organization views should inherit this class. This is mainly for our
+    tests to work, adding the organization urls conditionally on
+    readthedocs/urls.py doesn't work as the file is evaluated only once, not
+    per-test case.
     """
 
     def dispatch(self, *args, **kwargs):
@@ -175,8 +175,7 @@ class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
         return (
             OrganizationOwner.objects.filter(
                 organization=self.get_organization(),
-            )
-            .prefetch_related('owner')
+            ).prefetch_related('owner')
         )
 
     def get_form(self, data=None, files=None, **kwargs):

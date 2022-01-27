@@ -23,7 +23,7 @@ Style
 -----
 
 Now you can pass the ``style`` GET argument,
-to get custom styled badges same as you would for shields.io. 
+to get custom styled badges same as you would for shields.io.
 If no argument is passed, ``flat`` is used as default.
 
 +---------------+---------------------+

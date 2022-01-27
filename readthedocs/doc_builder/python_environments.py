@@ -5,20 +5,18 @@ import copy
 import hashlib
 import itertools
 import json
-import structlog
 import os
 import shutil
 import tarfile
 
+import structlog
 import yaml
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import PIP, SETUPTOOLS, ParseError
 from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.models import Feature
@@ -143,9 +141,7 @@ class PythonEnvironment:
                     tool,
                     full_version,
                 ]
-                self.build_env.run(
-                    *cmd,
-                )
+                self.build_env.run(*cmd,)
 
             # Make the tool version chosen by the user the default one
             cmd = [
@@ -154,9 +150,7 @@ class PythonEnvironment:
                 tool,
                 full_version,
             ]
-            self.build_env.run(
-                *cmd,
-            )
+            self.build_env.run(*cmd,)
 
             # Recreate shims for this tool to make the new version
             # installed available
@@ -181,8 +175,7 @@ class PythonEnvironment:
                     # Do not install them on conda/mamba since they are not
                     # needed because the environment is managed by conda/mamba
                     # itself
-                    self.config.python_interpreter not in ('conda', 'mamba'),
-            ]):
+                    self.config.python_interpreter not in ('conda', 'mamba'),]):
                 # Install our own requirements if the version is compiled
                 cmd = [
                     'python',
@@ -195,9 +188,7 @@ class PythonEnvironment:
                     # see https://github.com/readthedocs/readthedocs.org/issues/8659
                     'setuptools<58.3.0',
                 ]
-                self.build_env.run(
-                    *cmd,
-                )
+                self.build_env.run(*cmd,)
 
     def install_requirements(self):
         """Install all requirements from the config object."""
@@ -260,14 +251,12 @@ class PythonEnvironment:
         ``CACHED_ENVIRONMENT``. In this case, there is no need to cache
         anything.
         """
-        if (
-            # Cache is going to be removed anyways
-            settings.RTD_CLEAN_AFTER_BUILD or
-            self.project.has_feature(Feature.CLEAN_AFTER_BUILD) or
-            # Cache will be pushed/pulled each time and won't be used because
-            # packages are already installed in the environment
-            self.project.has_feature(Feature.CACHED_ENVIRONMENT)
-        ):
+        if (  # Cache is going to be removed anyways
+                settings.RTD_CLEAN_AFTER_BUILD or
+                self.project.has_feature(Feature.CLEAN_AFTER_BUILD) or
+                # Cache will be pushed/pulled each time and won't be used because
+                # packages are already installed in the environment
+                self.project.has_feature(Feature.CACHED_ENVIRONMENT)):
             return [
                 '--no-cache-dir',
             ]
@@ -361,10 +350,11 @@ class PythonEnvironment:
 
     def _get_env_vars_hash(self):
         """
-        Returns the sha256 hash of all the environment variables and their values.
+        Returns the sha256 hash of all the environment variables and their
+        values.
 
-        If there are no environment variables configured for the associated project,
-        it returns sha256 hash of empty string.
+        If there are no environment variables configured for the associated
+        project, it returns sha256 hash of empty string.
         """
         m = hashlib.sha256()
 
@@ -441,9 +431,7 @@ class Virtualenv(PythonEnvironment):
             cli_args.append('--system-site-packages')
 
         # Append the positional destination argument
-        cli_args.append(
-            self.venv_path(),
-        )
+        cli_args.append(self.venv_path(),)
 
         self.build_env.run(
             self.config.python_interpreter,
@@ -701,8 +689,7 @@ class Conda(PythonEnvironment):
                 self.project.has_feature(Feature.CONDA_USES_MAMBA),
                 # the project is not using ``build.tools``,
                 # which has mamba installed via asdf.
-                not self.config.using_build_tools,
-        ]):
+                not self.config.using_build_tools,]):
             self._install_mamba()
 
         self.build_env.run(

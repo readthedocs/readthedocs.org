@@ -42,7 +42,7 @@ and **those settings live in your repository**.
 A configuration file with explicit dependencies looks like this:
 
 .. code-block:: yaml
-   
+
    # File: .readthedocs.yaml
 
    version: 2
@@ -85,7 +85,7 @@ for example:
    and its dependencies using a requirements file.
 
    .. code-block:: yaml
-      
+
       # File: .readthedocs.yaml
 
       version: 2
@@ -106,7 +106,7 @@ for example:
    Your project is relying on the default Python version and default installed dependencies.
 
    .. code-block:: yaml
-      
+
       # File: .readthedocs.yaml
 
       version: 2
@@ -134,7 +134,7 @@ Some examples:
       readthedocs-sphinx-search==0.1.1
 
    .. code-block:: yaml
-      
+
       # File: docs/environment.yaml
 
       name: docs
@@ -143,7 +143,7 @@ Some examples:
         - defaults
       dependencies:
         - sphinx==4.2.0
-        - nbsphinx==0.8.1 
+        - nbsphinx==0.8.1
         - pip:
           - sphinx_rtd_theme==1.0.0
 
@@ -160,7 +160,7 @@ Some examples:
       readthedocs-sphinx-search
 
    .. code-block:: yaml
-      
+
       # File: docs/environment.yaml
 
       name: docs

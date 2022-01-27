@@ -1,6 +1,6 @@
-import structlog
 from pathlib import Path
 
+import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
@@ -39,9 +39,10 @@ class BuildMediaStorageMixin:
         """
         Overrides Django's storage to always return the passed name (overwrite).
 
-        By default, Django will not overwrite files even if the same name is specified.
-        This changes that functionality so that the default is to use the same name and overwrite
-        rather than modify the path to not clobber files.
+        By default, Django will not overwrite files even if the same name is
+        specified. This changes that functionality so that the default is to use
+        the same name and overwrite rather than modify the path to not clobber
+        files.
         """
         return get_available_overwrite_name(name, max_length=max_length)
 
@@ -57,7 +58,9 @@ class BuildMediaStorageMixin:
         :param path: the path to the directory to remove
         """
         if path in ('', '/'):
-            raise SuspiciousFileOperation('Deleting all storage cannot be right')
+            raise SuspiciousFileOperation(
+                'Deleting all storage cannot be right'
+            )
 
         log.debug('Deleting path from media storage', path=path)
         folders, files = self.listdir(self._dirpath(path))
@@ -131,7 +134,9 @@ class BuildMediaStorageMixin:
         for filename in dest_files:
             if filename not in copied_files:
                 filepath = self.join(destination, filename)
-                log.debug('Deleting file from media storage.', filepath=filepath)
+                log.debug(
+                    'Deleting file from media storage.', filepath=filepath
+                )
                 self.delete(filepath)
 
     def join(self, directory, filepath):
@@ -139,7 +144,9 @@ class BuildMediaStorageMixin:
 
     def walk(self, top):
         if top in ('', '/'):
-            raise SuspiciousFileOperation('Iterating all storage cannot be right')
+            raise SuspiciousFileOperation(
+                'Iterating all storage cannot be right'
+            )
 
         log.debug('Walking path in media storage', path=top)
         folders, files = self.listdir(self._dirpath(top))
@@ -154,7 +161,8 @@ class BuildMediaStorageMixin:
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
 
-    """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
+    """Storage subclass that writes build artifacts in
+    PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
 
     def __init__(self, **kwargs):
         location = kwargs.pop('location', None)

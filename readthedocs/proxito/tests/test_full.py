@@ -177,8 +177,8 @@ class TestFullDocServing(BaseDocServing):
         """
         Test external version serving with projects with `--` in their slug.
 
-        Some old projects may have been created with a slug containg `--`,
-        our current code doesn't allow these type of slugs.
+        Some old projects may have been created with a slug containg `--`, our
+        current code doesn't allow these type of slugs.
         """
         fixture.get(
             Version,
@@ -246,14 +246,14 @@ class TestFullDocServing(BaseDocServing):
         response = self.client.get('/', HTTP_HOST=host)
         self.assertFalse('strict-transport-security' in response)
 
-        response = self.client.get("/", HTTP_HOST=host, secure=True)
+        response = self.client.get('/', HTTP_HOST=host, secure=True)
         self.assertFalse('strict-transport-security' in response)
 
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
             response = self.client.get('/', HTTP_HOST=host)
             self.assertFalse('strict-transport-security' in response)
 
-            response = self.client.get("/", HTTP_HOST=host, secure=True)
+            response = self.client.get('/', HTTP_HOST=host, secure=True)
             self.assertEqual(
                 response['strict-transport-security'],
                 'max-age=31536000; includeSubDomains; preload',
@@ -270,19 +270,19 @@ class TestFullDocServing(BaseDocServing):
             hsts_preload=False,
         )
 
-        response = self.client.get("/", HTTP_HOST=hostname)
+        response = self.client.get('/', HTTP_HOST=hostname)
         self.assertFalse('strict-transport-security' in response)
 
-        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
+        response = self.client.get('/', HTTP_HOST=hostname, secure=True)
         self.assertFalse('strict-transport-security' in response)
 
         domain.hsts_max_age = 3600
         domain.save()
 
-        response = self.client.get("/", HTTP_HOST=hostname)
+        response = self.client.get('/', HTTP_HOST=hostname)
         self.assertFalse('strict-transport-security' in response)
 
-        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
+        response = self.client.get('/', HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600',
@@ -292,7 +292,7 @@ class TestFullDocServing(BaseDocServing):
         domain.hsts_preload = True
         domain.save()
 
-        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
+        response = self.client.get('/', HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',

@@ -68,7 +68,9 @@ class OrganizationForm(SimpleHistoryModelForm):
 
         potential_slug = slugify(name)
         if not potential_slug:
-            raise forms.ValidationError(_('Invalid organization name: no slug generated'))
+            raise forms.ValidationError(
+                _('Invalid organization name: no slug generated')
+            )
         if Organization.objects.filter(slug=potential_slug).exists():
             raise forms.ValidationError(
                 _('Organization %(name)s already exists'),
@@ -140,14 +142,14 @@ class OrganizationOwnerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def clean_owner(self):
-        """Lookup owner by username or email, detect collisions with existing owners."""
+        """Lookup owner by username or email, detect collisions with existing
+        owners."""
         username = self.cleaned_data['owner']
         owner = (
             User.objects.filter(
                 Q(username=username) |
                 Q(emailaddress__verified=True, emailaddress__email=username)
-            )
-            .first()
+            ).first()
         )
         if owner is None:
             raise forms.ValidationError(

@@ -1,7 +1,6 @@
 """Views that don't require login."""
 # pylint: disable=too-many-ancestors
 import structlog
-
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -29,6 +28,7 @@ class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
 
 # Organization
 
+
 class DetailOrganization(OrganizationView, DetailView):
 
     """Display information about an organization."""
@@ -40,16 +40,12 @@ class DetailOrganization(OrganizationView, DetailView):
         context = super().get_context_data(**kwargs)
         org = self.get_object()
         context['projects'] = (
-            Project.objects
-            .for_user(self.request.user)
-            .filter(organizations=org)
-            .all()
+            Project.objects.for_user(self.request.user
+                                     ).filter(organizations=org).all()
         )
         context['teams'] = (
-            Team.objects
-            .member(self.request.user, organization=org)
-            .prefetch_related('organization')
-            .all()
+            Team.objects.member(self.request.user, organization=org
+                                ).prefetch_related('organization').all()
         )
         context['owners'] = org.owners.all()
         return context

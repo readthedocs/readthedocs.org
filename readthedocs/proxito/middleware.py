@@ -10,7 +10,6 @@ import sys
 from urllib.parse import urlparse
 
 import structlog
-
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -53,7 +52,10 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
         if Project.objects.filter(slug=project_slug).exists():
             request.rtdheader = True
-            log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
+            log.info(
+                'Setting project based on X_RTD_SLUG header.',
+                project_slug=project_slug
+            )
             return project_slug
 
     if public_domain in host or host == 'proxito':
@@ -63,16 +65,20 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             request.subdomain = True
             log.debug('Proxito Public Domain.', host=host)
             if Domain.objects.filter(project__slug=project_slug).filter(
-                canonical=True,
-                https=True,
+                    canonical=True,
+                    https=True,
             ).exists():
-                log.debug('Proxito Public Domain -> Canonical Domain Redirect.', host=host)
+                log.debug(
+                    'Proxito Public Domain -> Canonical Domain Redirect.',
+                    host=host
+                )
                 request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
-            elif (
-                ProjectRelationship.objects.
-                filter(child__slug=project_slug).exists()
-            ):
-                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect.', host=host)
+            elif (ProjectRelationship.objects.filter(child__slug=project_slug
+                                                     ).exists()):
+                log.debug(
+                    'Proxito Public Domain -> Subproject Main Domain Redirect.',
+                    host=host
+                )
                 request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
             return project_slug
 
@@ -95,7 +101,8 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             except ValueError:
                 log.warning('Weird variation on our hostname.', host=host)
                 return render(
-                    request, 'core/dns-404.html', context={'host': host}, status=400
+                    request, 'core/dns-404.html', context={'host': host},
+                    status=400
                 )
 
     # Serve CNAMEs
@@ -188,7 +195,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Use a private method to get this
             # TODO: In Django 3.2 this has been upgraded to a top-level method
             # pylint: disable=protected-access
-            response_headers = [header.lower() for header in response.headers.keys()]
+            response_headers = [
+                header.lower() for header in response.headers.keys()
+            ]
             for http_header in request.domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
@@ -245,7 +254,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         if hsts_header_values:
             # See https://tools.ietf.org/html/rfc6797
-            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+            response['Strict-Transport-Security'] = '; '.join(
+                hsts_header_values
+            )
 
     def add_cache_headers(self, request, response):
         """
@@ -265,15 +276,11 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     def process_request(self, request):  # noqa
         skip = any(
-            request.path.startswith(reverse(view))
-            for view in self.skip_views
+            request.path.startswith(reverse(view)) for view in self.skip_views
         )
-        if (
-            skip
-            or not settings.USE_SUBDOMAIN
-            or 'localhost' in request.get_host()
-            or 'testserver' in request.get_host()
-        ):
+        if (skip or not settings.USE_SUBDOMAIN or
+                'localhost' in request.get_host() or
+                'testserver' in request.get_host()):
             log.debug('Not processing Proxito middleware')
             return None
 
@@ -322,7 +329,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
             # Stop Django from caching URLs
             # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
+            project_timestamp = project.modified_date.strftime(
+                '%Y%m%d.%H%M%S%f'
+            )
             url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
 
             log.info(

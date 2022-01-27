@@ -25,10 +25,7 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
     version.active = True
     version.save()
     if not version.built:
-        trigger_build(
-            project=version.project,
-            version=version
-        )
+        trigger_build(project=version.project, version=version)
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
@@ -56,13 +53,17 @@ def hide_version(version, match_result, action_arg, *args, **kwargs):
         activate_version(version, match_result, action_arg)
 
 
-def set_public_privacy_level(version, match_result, action_arg, *args, **kwargs):
+def set_public_privacy_level(
+    version, match_result, action_arg, *args, **kwargs
+):
     """Sets the privacy_level of the version to public."""
     version.privacy_level = PUBLIC
     version.save()
 
 
-def set_private_privacy_level(version, match_result, action_arg, *args, **kwargs):
+def set_private_privacy_level(
+    version, match_result, action_arg, *args, **kwargs
+):
     """Sets the privacy_level of the version to private."""
     version.privacy_level = PRIVATE
     version.save()
@@ -72,7 +73,7 @@ def delete_version(version, match_result, action_arg, *args, **kwargs):
     """Delete a version if isn't marked as the default version."""
     if version.project.default_version == version.slug:
         log.info(
-            "Skipping deleting default version.",
+            'Skipping deleting default version.',
             project_slug=version.project.slug,
             version_slug=version.slug,
         )

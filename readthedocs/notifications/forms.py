@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """HTML forms for sending notifications."""
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -31,10 +29,8 @@ class SendNotificationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.notification_classes = kwargs.pop('notification_classes', [])
         super().__init__(*args, **kwargs)
-        self.fields['source'].choices = [
-            (cls.name, cls.name)
-            for cls in self.notification_classes
-        ]
+        self.fields['source'].choices = [(cls.name, cls.name)
+                                         for cls in self.notification_classes]
 
     def clean_source(self):
         """Get the source class from the class name."""

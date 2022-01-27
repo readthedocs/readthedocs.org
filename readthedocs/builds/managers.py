@@ -1,7 +1,6 @@
 """Build and Version class model Managers."""
 
 import structlog
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from polymorphic.managers import PolymorphicManager
@@ -19,7 +18,6 @@ from readthedocs.builds.querysets import VersionQuerySet
 from readthedocs.core.utils.extend import get_override_class
 
 log = structlog.get_logger(__name__)
-
 
 __all__ = ['VersionManager']
 
@@ -86,8 +84,8 @@ class InternalVersionManager(VersionManager):
     """
     Version manager that only includes internal version.
 
-    It will exclude pull request/merge request versions from the queries
-    and only include BRANCH, TAG, UNKNOWN type Versions.
+    It will exclude pull request/merge request versions from the queries and
+    only include BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def get_queryset(self):
@@ -124,7 +122,8 @@ class ExternalBuildManager(models.Manager):
     """
     Build manager that only includes external version builds.
 
-    It will only include pull request/merge request version builds in the queries.
+    It will only include pull request/merge request version builds in the
+    queries.
     """
 
     def get_queryset(self):
@@ -144,20 +143,25 @@ class VersionAutomationRuleManager(PolymorphicManager):
     """
 
     def add_rule(
-        self, *, project, description, match_arg, version_type,
-        action, action_arg=None, predefined_match_arg=None,
+        self,
+        *,
+        project,
+        description,
+        match_arg,
+        version_type,
+        action,
+        action_arg=None,
+        predefined_match_arg=None,
     ):
         """
         Append an automation rule to `project`.
 
-        The rule is created with a priority lower than the last rule
-        in `project`.
+        The rule is created with a priority lower than the last rule in
+        `project`.
         """
         last_priority = (
-            project.automation_rules
-            .values_list('priority', flat=True)
-            .order_by('priority')
-            .last()
+            project.automation_rules.values_list('priority', flat=True
+                                                 ).order_by('priority').last()
         )
         if last_priority is None:
             priority = 0

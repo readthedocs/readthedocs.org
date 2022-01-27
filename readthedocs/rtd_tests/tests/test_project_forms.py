@@ -1,9 +1,7 @@
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import gettext_lazy as _
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
@@ -126,10 +124,8 @@ class TestProjectForms(TestCase):
         self.assertEqual(latest.identifier, 'master')
 
     def test_changing_vcs_should_not_change_latest_is_not_none(self):
-        """
-        When changing the project's VCS,
-        we should respect the custom default branch.
-        """
+        """When changing the project's VCS, we should respect the custom default
+        branch."""
         project = get(Project, repo_type=REPO_TYPE_HG, default_branch='custom')
         latest = project.versions.get(slug=LATEST)
         self.assertEqual(latest.identifier, 'custom')

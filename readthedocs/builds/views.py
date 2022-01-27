@@ -1,9 +1,9 @@
 """Views for builds app."""
 
-import structlog
 import textwrap
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -73,7 +73,7 @@ class BuildTriggerMixin:
                     request,
                     messages.ERROR,
                     "This build can't be re-triggered because it's "
-                    "not the latest build for this version.",
+                    'not the latest build for this version.',
                 )
                 return HttpResponseRedirect(request.path)
 
@@ -154,7 +154,8 @@ class BuildDetail(BuildBase, DetailView):
 
         build = self.get_object()
 
-        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
 

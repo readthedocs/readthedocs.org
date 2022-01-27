@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
 
 import os
+import textwrap
 from os.path import exists
 from tempfile import mkdtemp
-import textwrap
+from unittest.mock import Mock, patch
 
-from django.test import TestCase
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from unittest.mock import Mock, patch
+from django.test import TestCase
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version

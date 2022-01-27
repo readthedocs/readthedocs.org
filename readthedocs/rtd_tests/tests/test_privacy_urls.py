@@ -90,7 +90,8 @@ class URLAccessMixin:
 
     def _test_context(self, response):
         """
-        Allow for testing the template context rendered to verify no data leakage.
+        Allow for testing the template context rendered to verify no data
+        leakage.
 
         Usage::
 

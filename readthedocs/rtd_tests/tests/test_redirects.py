@@ -1,10 +1,8 @@
-from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 

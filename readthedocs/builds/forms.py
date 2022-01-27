@@ -43,7 +43,11 @@ class VersionForm(forms.ModelForm):
         field_sets = [
             Fieldset(
                 _('States'),
-                HTML(render_to_string('projects/project_version_states_help_text.html')),
+                HTML(
+                    render_to_string(
+                        'projects/project_version_states_help_text.html'
+                    )
+                ),
                 *self.Meta.states_fields,
             ),
         ]
@@ -59,10 +63,12 @@ class VersionForm(forms.ModelForm):
             self.fields.pop('privacy_level')
 
         field_sets.append(
-            HTML(render_to_string(
-                'projects/project_version_submit.html',
-                context={'version': self.instance},
-            ))
+            HTML(
+                render_to_string(
+                    'projects/project_version_submit.html',
+                    context={'version': self.instance},
+                )
+            )
         )
 
         self.helper = FormHelper()
@@ -97,14 +103,16 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
     match_arg = forms.CharField(
         label='Custom match',
-        help_text=_(textwrap.dedent(
-            """
+        help_text=_(
+            textwrap.dedent(
+                """
             A regular expression to match the version.
             <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
               Check the documentation for valid patterns.
             </a>
             """
-        )),
+            )
+        ),
         required=False,
     )
 
@@ -145,8 +153,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
             }
             action_choices = self.fields['action'].choices
             self.fields['action'].choices = [
-                action
-                for action in action_choices
+                action for action in action_choices
                 if action[0] not in invalid_actions
             ]
 
@@ -158,15 +165,14 @@ class RegexAutomationRuleForm(forms.ModelForm):
             self.initial['match_arg'] = self.instance.get_match_arg()
 
     def clean_match_arg(self):
-        """Check that a custom match was given if a predefined match wasn't used."""
+        """Check that a custom match was given if a predefined match wasn't
+        used."""
         match_arg = self.cleaned_data['match_arg']
         predefined_match = self.cleaned_data['predefined_match_arg']
         if predefined_match:
             match_arg = ''
         if not predefined_match and not match_arg:
-            raise forms.ValidationError(
-                _('Custom match should not be empty.'),
-            )
+            raise forms.ValidationError(_('Custom match should not be empty.'),)
 
         try:
             re.compile(match_arg)

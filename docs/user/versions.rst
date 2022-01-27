@@ -120,7 +120,7 @@ When you log in to a documentation site, you will be logged in until close your 
 To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
 This is usually located in the bottom right or bottom left, depending on the theme design.
 This will log you out from the current domain,
-but not end any other session that you have active. 
+but not end any other session that you have active.
 
 .. figure:: /_static/images/logout-button.png
    :align: center

@@ -1,8 +1,7 @@
 """Simple client to access our API with Slumber credentials."""
 
-import structlog
-
 import requests
+import structlog
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize

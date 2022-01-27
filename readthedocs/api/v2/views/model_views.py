@@ -1,8 +1,8 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import structlog
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.db.models import BooleanField, Case, Value, When
@@ -92,11 +92,11 @@ class DisableListEndpoint:
 
         # NOTE: keep list endpoint that specifies a resource
         if any([
-                self.basename == 'version' and 'project__slug' in self.request.GET,
-                self.basename == 'build'
-                and ('commit' in self.request.GET or 'project__slug' in self.request.GET),
-                self.basename == 'project' and 'slug' in self.request.GET,
-        ]):
+                self.basename == 'version' and
+                'project__slug' in self.request.GET,
+                self.basename == 'build' and
+            ('commit' in self.request.GET or 'project__slug' in self.request.GET),
+                self.basename == 'project' and 'slug' in self.request.GET,]):
             disabled = False
 
         if not disabled:
@@ -104,8 +104,7 @@ class DisableListEndpoint:
 
         return Response(
             {
-                'error': 'disabled',
-                'msg': (
+                'error': 'disabled', 'msg': (
                     'List endpoint have been disabled due to heavy resource usage. '
                     'Take into account than APIv2 is planned to be deprecated soon. '
                     'Please use APIv3: https://docs.readthedocs.io/page/api/v3.html'
@@ -127,10 +126,8 @@ class UserSelectViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         try:
-            if (
-                self.request.user.is_staff and
-                self.admin_serializer_class is not None
-            ):
+            if (self.request.user.is_staff and
+                    self.admin_serializer_class is not None):
                 return self.admin_serializer_class
         except AttributeError:
             pass
@@ -237,7 +234,9 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
     def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
         project = get_object_or_404(Project, slug=project_slug)
-        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(
+            project
+        )
         data = {
             'limit_reached': limit_reached,
             'concurrent': concurrent,
@@ -249,8 +248,8 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
         """
         Retrieves command data from storage.
 
-        This uses files from storage to get the JSON,
-        and replaces the ``commands`` part of the response data.
+        This uses files from storage to get the JSON, and replaces the
+        ``commands`` part of the response data.
         """
         if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
             return super().retrieve(*args, **kwargs)
@@ -334,11 +333,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             admin=Case(
                 When(
                     remote_repository_relations__user=self.request.user,
-                    remote_repository_relations__admin=True,
-                    then=Value(True)
-                ),
-                default=Value(False),
-                output_field=BooleanField()
+                    remote_repository_relations__admin=True, then=Value(True)
+                ), default=Value(False), output_field=BooleanField()
             )
         )
         full_name = self.request.query_params.get('full_name')

@@ -2,7 +2,7 @@ import django_filters.rest_framework as filters
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Project
 
 

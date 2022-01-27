@@ -1,8 +1,8 @@
 import copy
-import structlog
 import mimetypes
 from urllib.parse import urlparse, urlunparse
 
+import structlog
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -34,12 +34,12 @@ class ServeDocsMixin:
     version_type = INTERNAL
 
     def _serve_docs(
-            self,
-            request,
-            final_project,
-            path,
-            download=False,
-            version_slug=None,
+        self,
+        request,
+        final_project,
+        path,
+        download=False,
+        version_slug=None,
     ):
         """
         Serve documentation in the way specified by settings.
@@ -92,10 +92,11 @@ class ServeDocsMixin:
 
     def _is_audit_enabled(self, project):
         """
-        Check if the project has the audit feature enabled to track individual page views.
+        Check if the project has the audit feature enabled to track individual
+        page views.
 
-        This feature is different from page views analytics,
-        as it records every page view individually with more metadata like the user, IP, etc.
+        This feature is different from page views analytics, as it records every
+        page view individually with more metadata like the user, IP, etc.
         """
         return False
 
@@ -111,7 +112,9 @@ class ServeDocsMixin:
         # Serve from Python
         return serve(request, path, root_path)
 
-    def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
+    def _serve_docs_nginx(
+        self, request, final_project, version_slug, path, download
+    ):
         """
         Serve docs from nginx.
 
@@ -149,7 +152,9 @@ class ServeDocsMixin:
 
         if download:
             filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
+            domain = unicode_slugify(
+                final_project.subdomain().replace('.', '-')
+            )
             if final_project.is_subproject:
                 alias = final_project.alias
                 filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
@@ -164,7 +169,9 @@ class ServeDocsMixin:
     def _serve_401(self, request, project):
         res = render(request, '401.html')
         res.status_code = 401
-        log.debug('Unauthorized access to documentation.', project_slug=project.slug)
+        log.debug(
+            'Unauthorized access to documentation.', project_slug=project.slug
+        )
         return res
 
     def allowed_user(self, *args, **kwargs):
@@ -191,7 +198,9 @@ class ServeDocsMixin:
 
 class ServeRedirectMixin:
 
-    def system_redirect(self, request, final_project, lang_slug, version_slug, filename):
+    def system_redirect(
+        self, request, final_project, lang_slug, version_slug, filename
+    ):
         """
         Return a redirect that is defined by RTD instead of the user.
 
@@ -207,12 +216,17 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
-        log.info('System Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.info(
+            'System Redirect.', host=request.get_host(), from_url=filename,
+            to_url=to
+        )
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = 'system'
         return resp
 
-    def canonical_redirect(self, request, final_project, version_slug, filename):
+    def canonical_redirect(
+        self, request, final_project, version_slug, filename
+    ):
         """
         Return a redirect to the canonical domain including scheme.
 
@@ -257,12 +271,17 @@ class ServeRedirectMixin:
             )
             raise InfiniteRedirectException()
 
-        log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.info(
+            'Canonical Redirect.', host=request.get_host(), from_url=filename,
+            to_url=to
+        )
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
-    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
+    def get_redirect(
+        self, project, lang_slug, version_slug, filename, full_path
+    ):
         """
         Check for a redirect for this project that matches ``full_path``.
 
@@ -277,9 +296,12 @@ class ServeRedirectMixin:
         )
         return redirect_path, http_status
 
-    def get_redirect_response(self, request, redirect_path, proxito_path, http_status):
+    def get_redirect_response(
+        self, request, redirect_path, proxito_path, http_status
+    ):
         """
-        Build the response for the ``redirect_path``, ``proxito_path`` and its ``http_status``.
+        Build the response for the ``redirect_path``, ``proxito_path`` and its
+        ``http_status``.
 
         :returns: redirect response with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
@@ -288,7 +310,9 @@ class ServeRedirectMixin:
         schema, netloc, path, params, query, fragments = urlparse(proxito_path)
         # `proxito_path` doesn't include query params.
         query = urlparse(request.get_full_path()).query
-        new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
+        new_path = urlunparse(
+            (schema, netloc, redirect_path, params, query, fragments)
+        )
 
         # Re-use the domain and protocol used in the current request.
         # Redirects shouldn't change the domain, version or language.

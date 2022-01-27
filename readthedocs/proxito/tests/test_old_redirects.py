@@ -13,7 +13,6 @@ import django_dynamic_fixture as fixture
 import pytest
 from django.http import Http404
 from django.test.utils import override_settings
-from django.urls import reverse
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -539,9 +538,8 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 class UserRedirectCrossdomainTest(BaseDocServing):
 
     def test_redirect_prefix_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in
+        to_url."""
         fixture.get(
             Redirect,
             project=self.project, redirect_type='prefix',
@@ -569,9 +567,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         )
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in
+        to_url."""
         fixture.get(
             Redirect,
             project=self.project, redirect_type='sphinx_htmldir',
@@ -598,9 +595,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         )
 
     def test_redirect_sphinx_html_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in
+        to_url."""
         fixture.get(
             Redirect,
             project=self.project,
@@ -628,9 +624,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         )
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in ``to_url``.
-        """
+        """Avoid redirecting to an external site unless the external site is in
+        ``to_url``."""
         fixture.get(
             Redirect,
             project=self.project,
@@ -666,9 +661,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
     # ParseResult(scheme='', netloc='', path='//http://my.host/path/', params='', query='', fragment='')
     # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L78
     def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in
+        to_url."""
         fixture.get(
             Redirect,
             project=self.project,

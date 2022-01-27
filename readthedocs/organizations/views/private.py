@@ -102,7 +102,8 @@ class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, CreateView):
     success_message = _('Owner added')
 
 
-class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteView):
+class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView,
+                              DeleteView):
     success_message = _('Owner removed')
     http_method_names = ['post']
 
@@ -140,13 +141,15 @@ class EditOrganizationTeam(PrivateViewMixin, OrganizationTeamView, UpdateView):
     success_message = _('Team updated')
 
 
-class UpdateOrganizationTeamProject(PrivateViewMixin, OrganizationTeamView, UpdateView):
+class UpdateOrganizationTeamProject(PrivateViewMixin, OrganizationTeamView,
+                                    UpdateView):
     form_class = OrganizationTeamProjectForm
     success_message = _('Team projects updated')
     template_name = 'organizations/team_project_edit.html'
 
 
-class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, CreateView):
+class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
+                                CreateView):
     success_message = _('Member added to team')
     template_name = 'organizations/team_member_create.html'
 
@@ -155,7 +158,8 @@ class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, Cr
         return super().form_valid(form)
 
 
-class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, DeleteView):
+class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
+                                   DeleteView):
     success_message = _('Member removed from team')
     http_method_names = ['post']
 
@@ -170,7 +174,8 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
         return resp
 
 
-class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView):
+class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin,
+                                  ListView):
 
     """Display security logs related to this organization."""
 
@@ -210,10 +215,9 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
             start=timezone.datetime.strftime(start_date, '%Y-%m-%d'),
             end=timezone.datetime.strftime(end_date, '%Y-%m-%d'),
         )
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
+        csv_data = [[
+            timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest
+        ] for date, *rest in data]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
@@ -234,7 +238,9 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         if retention_limit in [None, -1]:
             # Unlimited.
             return creation_date
-        start_date = timezone.now().date() - timezone.timedelta(days=retention_limit)
+        start_date = timezone.now().date() - timezone.timedelta(
+            days=retention_limit
+        )
         # The max we can go back is to the creation of the organization.
         return max(start_date, creation_date)
 
@@ -260,8 +266,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         """
         Return the queryset with filters.
 
-        If you want the original queryset without filters,
-        use `_get_queryset`.
+        If you want the original queryset without filters, use `_get_queryset`.
         """
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.

@@ -21,8 +21,9 @@ DOCUMENTATION_CHOICES = (
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
-DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + ((MKDOCS_HTML, _('Mkdocs Html Pages')),)
-
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
+    (MKDOCS_HTML, _('Mkdocs Html Pages')),
+)
 
 MEDIA_TYPE_HTML = 'html'
 MEDIA_TYPE_PDF = 'pdf'
@@ -332,14 +333,10 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
-GITHUB_COMMIT_URL = (
-    'https://github.com/{user}/{repo}/'
-    'commit/{commit}'
-)
-GITHUB_PULL_REQUEST_URL = (
-    'https://github.com/{user}/{repo}/'
-    'pull/{number}'
-)
+GITHUB_COMMIT_URL = ('https://github.com/{user}/{repo}/'
+                     'commit/{commit}')
+GITHUB_PULL_REQUEST_URL = ('https://github.com/{user}/{repo}/'
+                           'pull/{number}')
 GITHUB_PULL_REQUEST_COMMIT_URL = (
     'https://github.com/{user}/{repo}/'
     'pull/{number}/commits/{commit}'
@@ -356,10 +353,8 @@ GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
-GITLAB_COMMIT_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'commit/{commit}'
-)
+GITLAB_COMMIT_URL = ('https://gitlab.com/{user}/{repo}/'
+                     'commit/{commit}')
 GITLAB_MERGE_REQUEST_COMMIT_URL = (
     'https://gitlab.com/{user}/{repo}/'
     'commit/{commit}?merge_request_iid={number}'
@@ -382,7 +377,6 @@ GITLAB_BRAND = 'GitLab'
 CELERY_LOW = 3
 CELERY_MEDIUM = 5
 CELERY_HIGH = 7
-
 
 # SSL statuses
 SSL_STATUS_VALID = 'valid'

@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010-2018, Read the Docs, Inc & contributors
 # This file is distributed under the same license as the Read the Docs package.
-# 
+#
 # Translators:
 # numerodix <numerodix@gmail.com>, 2014
 msgid ""

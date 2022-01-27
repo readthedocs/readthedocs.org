@@ -1,6 +1,6 @@
-import structlog
 from functools import partial
 
+import structlog
 from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -91,7 +91,9 @@ class ExtraFieldsHistoricalModel(models.Model):
         abstract = True
 
 
-ExtraHistoricalRecords = partial(HistoricalRecords, bases=[ExtraFieldsHistoricalModel])
+ExtraHistoricalRecords = partial(
+    HistoricalRecords, bases=[ExtraFieldsHistoricalModel]
+)
 """Helper partial to use instead of HistoricalRecords."""
 
 
@@ -139,7 +141,8 @@ class SimpleHistoryModelForm(forms.ModelForm):
 class UpdateChangeReasonPostView:
 
     """
-    Set the change_reason on the model changed through the POST method of this view.
+    Set the change_reason on the model changed through the POST method of this
+    view.
 
     Use this class for views that don't use a form, like ``DeleteView``.
     """

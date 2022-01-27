@@ -1,9 +1,9 @@
 """OAuth utility functions."""
 
 import json
-import structlog
 import re
 
+import structlog
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter,
 )
@@ -21,7 +21,6 @@ from ..models import (
     RemoteRepositoryRelation,
 )
 from .base import Service, SyncServiceError
-
 
 log = structlog.get_logger(__name__)
 
@@ -65,12 +64,9 @@ class BitbucketService(Service):
             )
             admin_repo_relations = (
                 RemoteRepositoryRelation.objects.filter(
-                    user=self.user,
-                    account=self.account,
+                    user=self.user, account=self.account,
                     remote_repository__vcs_provider=self.vcs_provider_slug,
-                    remote_repository__remote_id__in=[
-                        r['uuid'] for r in resp
-                    ]
+                    remote_repository__remote_id__in=[r['uuid'] for r in resp]
                 )
             )
             for remote_repository_relation in admin_repo_relations:
@@ -82,7 +78,8 @@ class BitbucketService(Service):
         return remote_repositories
 
     def sync_organizations(self):
-        """Sync Bitbucket workspaces(our RemoteOrganization) and workspace repositories."""
+        """Sync Bitbucket workspaces(our RemoteOrganization) and workspace
+        repositories."""
         remote_organizations = []
         remote_repositories = []
 
@@ -92,7 +89,9 @@ class BitbucketService(Service):
             )
             for workspace in workspaces:
                 remote_organization = self.create_organization(workspace)
-                repos = self.paginate(workspace['links']['repositories']['href'])
+                repos = self.paginate(
+                    workspace['links']['repositories']['href']
+                )
 
                 remote_organizations.append(remote_organization)
 
@@ -130,15 +129,11 @@ class BitbucketService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
             (privacy == 'private'),
-            (fields['is_private'] is False and privacy == 'public'),
-        ]):
+            (fields['is_private'] is False and privacy == 'public'),]):
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['uuid'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=fields['uuid'], vcs_provider=self.vcs_provider_slug
             )
-            repo.get_remote_repository_relation(
-                self.user, self.account
-            )
+            repo.get_remote_repository_relation(self.user, self.account)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -193,12 +188,9 @@ class BitbucketService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['uuid'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=fields['uuid'], vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.slug = fields.get('slug')
         organization.name = fields.get('name')
@@ -278,8 +270,8 @@ class BitbucketService(Service):
             if resp.status_code == 200:
                 recv_data = resp.json()
 
-                for webhook_data in recv_data["values"]:
-                    if webhook_data["url"] == rtd_webhook_url:
+                for webhook_data in recv_data['values']:
+                    if webhook_data['url'] == rtd_webhook_url:
                         integration.provider_data = webhook_data
                         integration.save()
 
@@ -293,9 +285,7 @@ class BitbucketService(Service):
                 )
 
         except Exception:
-            log.exception(
-                'Bitbucket webhook Listing failed for project.',
-            )
+            log.exception('Bitbucket webhook Listing failed for project.',)
 
         return integration.provider_data
 
@@ -336,9 +326,7 @@ class BitbucketService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'Bitbucket webhook creation successful for project.',
-                )
+                log.info('Bitbucket webhook creation successful for project.',)
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:

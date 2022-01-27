@@ -1,7 +1,7 @@
 """Search views."""
 import collections
-import structlog
 
+import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
@@ -42,7 +42,8 @@ class SearchViewBase(View):
     max_search_results = 50
 
     def _search(self, *, user_input, projects, use_advanced_query):
-        """Return search results and facets given a `user_input` and `projects` to filter by."""
+        """Return search results and facets given a `user_input` and `projects`
+        to filter by."""
         if not user_input.query:
             return [], {}
 
@@ -184,8 +185,8 @@ class GlobalSearchView(SearchViewBase):
         # we only search on projects the user belongs or have access to.
         if settings.ALLOW_PRIVATE_REPOS:
             projects = list(
-                Project.objects.for_user(request.user)
-                .values_list('slug', flat=True)
+                Project.objects.for_user(request.user
+                                         ).values_list('slug', flat=True)
             )
 
         # Make sure we always have projects to filter by if we allow private projects.

@@ -5,7 +5,6 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.builds.models import Version
@@ -49,7 +48,8 @@ class SearchQuery(TimeStampedModel):
     @classmethod
     def generate_queries_count_of_one_month(cls, project_slug):
         """
-        Returns the total queries performed each day of the last 30 days (including today).
+        Returns the total queries performed each day of the last 30 days
+        (including today).
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
@@ -72,14 +72,15 @@ class SearchQuery(TimeStampedModel):
         # dict containing the total number of queries
         # of each day for the past 30 days (if present in database).
         count_dict = dict(
-            qs.annotate(created_date=TruncDate('created'))
-            .values('created_date')
-            .order_by('created_date')
-            .annotate(count=Count('id'))
-            .values_list('created_date', 'count')
+            qs.annotate(created_date=TruncDate('created')
+                        ).values('created_date').order_by('created_date').annotate(
+                            count=Count('id')
+                        ).values_list('created_date', 'count')
         )
 
-        count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
+        count_data = [
+            count_dict.get(date) or 0 for date in _last_30_days_iter()
+        ]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`

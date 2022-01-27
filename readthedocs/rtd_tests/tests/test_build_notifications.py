@@ -1,13 +1,13 @@
 """Notifications sent after build is completed."""
 import hashlib
 import hmac
-from django.utils import timezone
 import json
 from unittest import mock
 
 import requests_mock
 from django.core import mail
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL

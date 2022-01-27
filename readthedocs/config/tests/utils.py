@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 def apply_fs(tmpdir, contents):
     """

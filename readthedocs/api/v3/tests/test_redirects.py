@@ -1,7 +1,8 @@
-from .mixins import APIEndpointMixin
 from django.urls import reverse
 
 from readthedocs.redirects.models import Redirect
+
+from .mixins import APIEndpointMixin
 
 
 class RedirectsEndpointTests(APIEndpointMixin):

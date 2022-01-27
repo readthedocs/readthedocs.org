@@ -1,11 +1,11 @@
 """Base classes for VCS backends."""
-import structlog
 import os
 import shutil
 
+import structlog
+
 from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
 from readthedocs.projects.exceptions import RepositoryError
-
 
 log = structlog.get_logger(__name__)
 
@@ -55,8 +55,8 @@ class BaseVCS:
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
     def __init__(
-            self, project, version_slug, environment=None,
-            verbose_name=None, version_type=None, **kwargs
+        self, project, version_slug, environment=None, verbose_name=None,
+        version_type=None, **kwargs
     ):
         self.default_branch = project.default_branch
         self.project = project

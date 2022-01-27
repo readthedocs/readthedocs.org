@@ -1,5 +1,4 @@
 # conf.py to run tests
-import sphinxcontrib.bibtex
 
 master_doc = 'index'
 extensions = [

@@ -1,18 +1,18 @@
 """Tests for search tasks."""
 
 from unittest import mock
-import pytest
 
+import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from readthedocs.search.models import SearchQuery
 from readthedocs.search import tasks
+from readthedocs.search.models import SearchQuery
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.usefixtures("all_projects")
+@pytest.mark.usefixtures('all_projects')
 class TestSearchTasks:
 
     @classmethod
@@ -23,7 +23,8 @@ class TestSearchTasks:
         cls.url = reverse('search_api')
 
     def test_search_query_recorded_when_results_not_zero(self, api_client):
-        """Test if search query is recorded in a database when a search is made."""
+        """Test if search query is recorded in a database when a search is
+        made."""
 
         assert (
             SearchQuery.objects.all().count() == 0

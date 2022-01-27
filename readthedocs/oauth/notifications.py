@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT

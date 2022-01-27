@@ -1,8 +1,8 @@
 """Allauth overrides."""
 
 import json
-import structlog
 
+import structlog
 from allauth.account.adapter import DefaultAccountAdapter
 from django.conf import settings
 from django.template.loader import render_to_string

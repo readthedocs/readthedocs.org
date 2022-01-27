@@ -6,7 +6,6 @@ from django.test import TestCase
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 
-
 files_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'files')
 
 
@@ -20,7 +19,8 @@ class TestBuildMediaStorage(TestCase):
 
     def assertFileTree(self, source, tree):
         """
-        Recursively check that ``source`` from storage has the same file tree as ``tree``.
+        Recursively check that ``source`` from storage has the same file tree as
+        ``tree``.
 
         :param source: source path in storage
         :param tree: a list of strings representing files

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Gold subscription forms."""
 
 from django import forms

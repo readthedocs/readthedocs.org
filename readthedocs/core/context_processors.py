@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Template context processors for core app."""
 
 from django.conf import settings

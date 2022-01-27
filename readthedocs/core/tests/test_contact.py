@@ -15,7 +15,7 @@ class TestContactUsers(TestCase):
         self.user = get(User, username='test', email='one@test.com')
         self.user_two = get(User, username='test2', email='two@test.com')
         self.user_three = get(User, username='test3', email='three@test.com')
-    
+
     @mock.patch('readthedocs.core.utils.contact.send_mail')
     @mock.patch.object(SiteBackend, 'send')
     def test_contact_users_dryrun(self, send_notification, send_mail):

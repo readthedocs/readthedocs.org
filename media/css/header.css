@@ -4,8 +4,8 @@
 /* header */
 
 #rtfd-header { font: 16px/20px "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; height: 50px; min-width: 780px; background: url(../images/header-bg.png) bottom left repeat-x #465158; overflow: hidden; text-align: left; border-bottom: 1px solid #000; }
-#rtfd-header ul { margin: 0; padding: 0; list-style: none; } 
-#rtfd-header ul li { margin: 0; padding: 0; list-style: none; } 
+#rtfd-header ul { margin: 0; padding: 0; list-style: none; }
+#rtfd-header ul li { margin: 0; padding: 0; list-style: none; }
 
   /* header title */
   .rtfd-header-title { position: relative; margin: 0; padding: 0; height: 50px; width: 180px; }
@@ -40,4 +40,3 @@
 .ui-autocomplete { background: #fff; text-align: left; border: 1px solid #bfbfbf; }
 .ui-state-hover { background: #eee; }
 .ui-menu-item a { display: block; padding: 3px 10px; }
-

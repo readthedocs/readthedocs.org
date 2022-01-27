@@ -21,9 +21,13 @@ def remove_stripe_subscription(sender, instance, using, **kwargs):
         log.bind(organization_slug=subscription.organization.slug)
         if subscription.stripe_id and subscription.organization.stripe_id:
             log.info('Removing organization Stripe subscription.')
-            cancel_subscription(subscription.organization.stripe_id, subscription.stripe_id)
+            cancel_subscription(
+                subscription.organization.stripe_id, subscription.stripe_id
+            )
         else:
-            log.exception("Can't remove Stripe subscription. Organization didn't have ID.")
+            log.exception(
+                "Can't remove Stripe subscription. Organization didn't have ID."
+            )
 
     except Organization.DoesNotExist:
         log.exception(
@@ -48,9 +52,13 @@ def update_billing_information(sender, instance, created, **kwargs):
             s_customer.email = organization.email
             s_customer.save()
     except stripe.error.StripeError:
-        log.exception('Unable to update the Organization billing email on Stripe.')
+        log.exception(
+            'Unable to update the Organization billing email on Stripe.'
+        )
     except Exception:
-        log.exception('Unknown error when updating Organization billing email on Stripe.')
+        log.exception(
+            'Unknown error when updating Organization billing email on Stripe.'
+        )
 
 
 # pylint: disable=unused-argument

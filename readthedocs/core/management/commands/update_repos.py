@@ -5,7 +5,6 @@ Invoked via ``./manage.py update_repos``.
 """
 
 import structlog
-
 from django.core.management.base import BaseCommand
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
@@ -56,7 +55,9 @@ class Command(BaseCommand):
                     ):
                         trigger_build(project=version.project, version=version)
                 elif version == INTERNAL:
-                    log.info('Updating all internal versions.', project_slug=slug)
+                    log.info(
+                        'Updating all internal versions.', project_slug=slug
+                    )
                     for version in Version.internal.filter(
                             project__slug=slug,
                             active=True,
@@ -64,7 +65,9 @@ class Command(BaseCommand):
                     ):
                         trigger_build(project=version.project, version=version)
                 elif version == EXTERNAL:
-                    log.info('Updating all external versions.', project_slug=slug)
+                    log.info(
+                        'Updating all external versions.', project_slug=slug
+                    )
                     for version in Version.external.filter(
                             project__slug=slug,
                             active=True,
@@ -110,9 +113,7 @@ class Command(BaseCommand):
                     trigger_build(project=version.project, version=version)
             elif version:
                 log.info('Updating version.', version_slug=version.slug)
-                for version in Version.objects.filter(
-                        slug=version,
-                ):
+                for version in Version.objects.filter(slug=version,):
                     trigger_build(project=version.project, version=version)
 
             else:

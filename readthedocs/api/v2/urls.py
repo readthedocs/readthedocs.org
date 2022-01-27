@@ -24,7 +24,6 @@ from .views.model_views import (
     VersionViewSet,
 )
 
-
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, basename='build')
 router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
@@ -53,7 +52,9 @@ urlpatterns = [
 
 function_urls = [
     re_path(r'docurl/', core_views.docurl, name='docurl'),
-    re_path(r'footer_html/', footer_views.FooterHTML.as_view(), name='footer_html'),
+    re_path(
+        r'footer_html/', footer_views.FooterHTML.as_view(), name='footer_html'
+    ),
 ]
 
 task_urls = [
@@ -112,7 +113,10 @@ urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
 urlpatterns += [
-    re_path(r'^webhook/stripe/', StripeEventView.as_view(), name='api_webhook_stripe'),
+    re_path(
+        r'^webhook/stripe/', StripeEventView.as_view(),
+        name='api_webhook_stripe'
+    ),
 ]
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:

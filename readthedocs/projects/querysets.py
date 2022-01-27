@@ -33,14 +33,22 @@ class ProjectQuerySetBase(models.QuerySet):
         - Projects where both are member
         - Public projects from `user`
         """
-        viewer_projects = self._add_user_projects(self.none(), viewer, admin=True, member=True)
-        owner_projects = self._add_user_projects(self.none(), user, admin=True, member=True)
-        owner_public_projects = owner_projects.filter(privacy_level=constants.PUBLIC)
+        viewer_projects = self._add_user_projects(
+            self.none(), viewer, admin=True, member=True
+        )
+        owner_projects = self._add_user_projects(
+            self.none(), user, admin=True, member=True
+        )
+        owner_public_projects = owner_projects.filter(
+            privacy_level=constants.PUBLIC
+        )
         queryset = (viewer_projects & owner_projects) | owner_public_projects
         return queryset.distinct()
 
     def for_admin_user(self, user):
-        queryset = self._add_user_projects(self.none(), user, admin=True, member=False)
+        queryset = self._add_user_projects(
+            self.none(), user, admin=True, member=False
+        )
         return queryset.distinct()
 
     def public(self, user=None):
@@ -59,7 +67,9 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def for_user(self, user):
         """Return all projects that an user belongs to."""
-        queryset = self._add_user_projects(self.none(), user, admin=True, member=True)
+        queryset = self._add_user_projects(
+            self.none(), user, admin=True, member=True
+        )
         return queryset.distinct()
 
     def is_active(self, project):
@@ -80,11 +90,8 @@ class ProjectQuerySetBase(models.QuerySet):
         """
         any_owner_banned = any(u.profile.banned for u in project.users.all())
         organization = project.organizations.first()
-        if (
-            project.skip
-            or any_owner_banned
-            or (organization and organization.disabled)
-        ):
+        if (project.skip or any_owner_banned or
+            (organization and organization.disabled)):
             return False
 
         return True
@@ -111,8 +118,7 @@ class ProjectQuerySetBase(models.QuerySet):
             max_concurrent_organization = organization.max_concurrent_builds
 
         return (
-            project.max_concurrent_builds or
-            max_concurrent_organization or
+            project.max_concurrent_builds or max_concurrent_organization or
             settings.RTD_MAX_CONCURRENT_BUILDS
         )
 
@@ -173,8 +179,7 @@ class RelatedProjectQuerySet(models.QuerySet):
                     user=user,
                     admin=True,
                     member=True,
-                )
-                .values_list('pk', flat=True)
+                ).values_list('pk', flat=True)
             )
             kwargs = {f'{self.project_field}__in': projects_pk}
             user_queryset = self.filter(**kwargs)

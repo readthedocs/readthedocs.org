@@ -7,15 +7,14 @@ with it in the database, and generating a redirect response.
 These are not used directly as views; they are instead included into 404
 handlers, so that redirects only take effect if no other view matches.
 """
-import structlog
 import re
 from urllib.parse import urlparse, urlunparse
 
-from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
+import structlog
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 
 from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project
-
 
 log = structlog.get_logger(__name__)
 
@@ -57,7 +56,8 @@ def project_and_path_from_request(request, path):
 
 def language_and_version_from_path(path):
     match = re.match(
-        r'^/(?P<language>%s)/(?P<version_slug>[^/]+)(?P<path>/.*)$' % LANGUAGES_REGEX,
+        r'^/(?P<language>%s)/(?P<version_slug>[^/]+)(?P<path>/.*)$' %
+        LANGUAGES_REGEX,
         path,
     )
     if match:
@@ -84,7 +84,8 @@ def get_redirect_response(request, full_path):
         language, version_slug, path = language_and_version_from_path(path)
 
     path, http_status = project.redirects.get_redirect_path_with_status(
-        path=path, full_path=full_path, language=language, version_slug=version_slug
+        path=path, full_path=full_path, language=language,
+        version_slug=version_slug
     )
 
     if path is None:

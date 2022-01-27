@@ -5,11 +5,11 @@ Things to know:
 * the Command wrappers encapsulate the bytes and expose unicode
 """
 import hashlib
-from itertools import zip_longest
 import json
 import os
 import tempfile
 import uuid
+from itertools import zip_longest
 from unittest import mock
 from unittest.mock import Mock, PropertyMock, mock_open, patch
 
@@ -1206,10 +1206,8 @@ class TestPythonEnvironment(TestCase):
         ]
 
     def assertArgsStartsWith(self, args, call):
-        """
-        Assert that each element of args of the mock start
-        with each element of args.
-        """
+        """Assert that each element of args of the mock start with each element
+        of args."""
         args_mock, _ = call
         for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
@@ -1309,8 +1307,8 @@ class TestPythonEnvironment(TestCase):
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_user_requirements(self, checkout_path):
         """
-        If a projects does not specify a requirements file,
-        RTD will choose one automatically.
+        If a projects does not specify a requirements file, RTD will choose one
+        automatically.
 
         First by searching under the docs/ directory and then under the root.
         The files can be named as:

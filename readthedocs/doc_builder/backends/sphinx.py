@@ -5,13 +5,13 @@ Sphinx_ backend for building docs.
 """
 import codecs
 import itertools
-import structlog
 import os
 import shutil
 import zipfile
 from glob import glob
 from pathlib import Path
 
+import structlog
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
@@ -130,9 +130,7 @@ class BaseSphinx(BaseBuilder):
                 versions = self.project.api_versions()
                 if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
                     versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
+                        v for v in versions if v.privacy_level == PUBLIC
                     ]
                 downloads = api.version(self.version.pk).get()['downloads']
                 subproject_urls = self.project.get_subproject_urls()
@@ -164,8 +162,7 @@ class BaseSphinx(BaseBuilder):
             self.project.vcs_repo(
                 version=self.version.slug,
                 environment=self.build_env,
-            )
-            .commit
+            ).commit
         )
 
         data = {
@@ -209,7 +206,9 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
-            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
+            'docsearch_disabled': self.project.has_feature(
+                Feature.DISABLE_SERVER_SIDE_SEARCH
+            ),
         }
 
         finalize_sphinx_context_data.send(

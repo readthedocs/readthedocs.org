@@ -310,7 +310,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
 
     def test_add_member_by_email_on_org_with_members(self):
         """
-        Add member by email in organization with members already
+        Add member by email in organization with members already.
 
         If there is at least one ``TeamMember.invite=None`` the invitation
         should be sent anyways instead of failing with a form validation "An

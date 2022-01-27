@@ -1,16 +1,16 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
 import json
+
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
 from polymorphic.admin import (
     PolymorphicChildModelAdmin,
     PolymorphicParentModelAdmin,
 )
-
 from pygments import highlight
-from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import JsonLexer
 
 from readthedocs.builds.models import (
     Build,
@@ -42,7 +42,7 @@ def _pretty_config(instance):
     response = highlight(response, JsonLexer(), formatter)
 
     # Get the stylesheet
-    style = "<style>" + formatter.get_style_defs() + "</style><br>"
+    style = '<style>' + formatter.get_style_defs() + '</style><br>'
 
     # Safe the output
     return mark_safe(style + response)
@@ -74,15 +74,8 @@ class BuildAdmin(admin.ModelAdmin):
         'length',
     )
     list_display = (
-        'id',
-        'project_slug',
-        'version_slug',
-        'success',
-        'type',
-        'state',
-        'date',
-        'builder',
-        'length'
+        'id', 'project_slug', 'version_slug', 'success', 'type', 'state',
+        'date', 'builder', 'length'
     )
     list_filter = ('type', 'state', 'success')
     list_select_related = ('project', 'version')
@@ -118,7 +111,10 @@ class VersionAdmin(admin.ModelAdmin):
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
+    actions = [
+        'build_version', 'reindex_version', 'wipe_version',
+        'wipe_selected_versions'
+    ]
 
     def project_slug(self, obj):
         return obj.project.slug
@@ -127,12 +123,10 @@ class VersionAdmin(admin.ModelAdmin):
         """Wipes the selected versions."""
         for version in queryset:
             wipe_version_via_slugs(
-                version_slug=version.slug,
-                project_slug=version.project.slug
+                version_slug=version.slug, project_slug=version.project.slug
             )
             self.message_user(
-                request,
-                'Wiped {}.'.format(version.slug),
+                request, 'Wiped {}.'.format(version.slug),
                 level=messages.SUCCESS
             )
 
@@ -163,7 +157,9 @@ class VersionAdmin(admin.ModelAdmin):
         """Reindexes all selected versions to ES."""
         html_objs_qs = []
         for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
+            html_objs = HTMLFile.objects.filter(
+                project=version.project, version=version
+            )
 
             if html_objs.exists():
                 html_objs_qs.append(html_objs)
@@ -172,9 +168,7 @@ class VersionAdmin(admin.ModelAdmin):
             _indexing_helper(html_objs_qs, wipe=False)
 
         self.message_user(
-            request,
-            'Task initiated successfully.',
-            messages.SUCCESS
+            request, 'Task initiated successfully.', messages.SUCCESS
         )
 
     reindex_version.short_description = 'Reindex version to ES'
@@ -183,7 +177,9 @@ class VersionAdmin(admin.ModelAdmin):
         """Wipe selected versions from ES."""
         html_objs_qs = []
         for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
+            html_objs = HTMLFile.objects.filter(
+                project=version.project, version=version
+            )
 
             if html_objs.exists():
                 html_objs_qs.append(html_objs)

@@ -53,7 +53,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.assertEqual(request.canonicalize, 'https')
 
     def test_canonical_cname_redirect(self):
-        """Requests to the public domain URL should redirect to the custom domain if the domain is canonical/https."""
+        """Requests to the public domain URL should redirect to the custom
+        domain if the domain is canonical/https."""
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
@@ -74,7 +75,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.assertEqual(request.canonicalize, 'canonical-cname')
 
     def test_subproject_redirect(self):
-        """Requests to a subproject should redirect to the domain of the main project."""
+        """Requests to a subproject should redirect to the domain of the main
+        project."""
         subproject = get(
             Project,
             name='subproject',
@@ -112,7 +114,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
     def test_canonical_cname_redirect_public_domain(self):
-        """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
+        """Requests to a custom domain should redirect to the public domain or
+        canonical domain if not canonical."""
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 

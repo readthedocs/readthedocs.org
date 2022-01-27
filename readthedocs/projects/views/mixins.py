@@ -1,16 +1,14 @@
 """Mixin classes for project views."""
 from urllib.parse import urlparse
 
+import structlog
 from celery import chain
 from django.shortcuts import get_object_or_404
-
-import structlog
 
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import project_import
-
 
 log = structlog.get_logger(__name__)
 
@@ -67,9 +65,9 @@ class ProjectRelationListMixin:
         """
         Get a tuple of subprojects and its absolute URls.
 
-        All subprojects share the domain from the parent,
-        so instead of resolving the domain and path for each subproject,
-        we resolve only the path of each one.
+        All subprojects share the domain from the parent, so instead of
+        resolving the domain and path for each subproject, we resolve only the
+        path of each one.
         """
         subprojects_and_urls = []
 
@@ -87,12 +85,10 @@ class ProjectRelationListMixin:
             parsed_subproject_domain = parsed_main_domain._replace(
                 path=subproject_path,
             )
-            subprojects_and_urls.append(
-                (
-                    subproject,
-                    parsed_subproject_domain.geturl(),
-                )
-            )
+            subprojects_and_urls.append((
+                subproject,
+                parsed_subproject_domain.geturl(),
+            ))
         return subprojects_and_urls
 
 

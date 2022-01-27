@@ -1,4 +1,3 @@
-import json
 from unittest import mock
 
 from django.conf import settings
@@ -14,7 +13,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.organizations.models import Organization, OrganizationOwner
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -222,13 +220,11 @@ class TestSyncVersions(TestCase):
         )
 
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
-        """
-        The user creates a tag named ``stable`` on an existing repo,
-        when syncing the versions, the RTD's ``stable`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the tag is deleted on the user repository, the RTD's ``stable``
-        is back (set to machine=True).
-        """
+        """The user creates a tag named ``stable`` on an existing repo, when
+        syncing the versions, the RTD's ``stable`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the tag is
+        deleted on the user repository, the RTD's ``stable`` is back (set to
+        machine=True)."""
         version8 = Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -307,13 +303,11 @@ class TestSyncVersions(TestCase):
         self.assertTrue(current_stable.machine)
 
     def test_machine_attr_when_user_define_stable_tag_and_delete_it_new_project(self):
-        """
-        The user imports a new project with a tag named ``stable``,
-        when syncing the versions, the RTD's ``stable`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the tag is deleted on the user repository, the RTD's ``stable``
-        is back (set to machine=True).
-        """
+        """The user imports a new project with a tag named ``stable``, when
+        syncing the versions, the RTD's ``stable`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the tag is
+        deleted on the user repository, the RTD's ``stable`` is back (set to
+        machine=True)."""
         # There isn't a stable version yet
         self.pip.versions.exclude(slug='master').delete()
         current_stable = self.pip.get_stable_version()
@@ -383,13 +377,11 @@ class TestSyncVersions(TestCase):
         self.assertTrue(current_stable.machine)
 
     def test_machine_attr_when_user_define_stable_branch_and_delete_it(self):
-        """
-        The user creates a branch named ``stable`` on an existing repo,
-        when syncing the versions, the RTD's ``stable`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the branch is deleted on the user repository, the RTD's ``stable``
-        is back (set to machine=True).
-        """
+        """The user creates a branch named ``stable`` on an existing repo, when
+        syncing the versions, the RTD's ``stable`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the branch
+        is deleted on the user repository, the RTD's ``stable`` is back (set to
+        machine=True)."""
         # Project with just branches
         self.pip.versions.filter(type=TAG).delete()
         Version.objects.create(
@@ -594,9 +586,9 @@ class TestSyncVersions(TestCase):
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
         """The user creates a branch named ``latest`` on an existing repo, when
         syncing the versions, the RTD's ``latest`` is lost (set to
-                                                            machine=False) and doesn't update automatically anymore, when the branch
+        machine=False) and doesn't update automatically anymore, when the branch
         is deleted on the user repository, the RTD's ``latest`` is back (set to
-                                                                         machine=True)."""
+        machine=True)."""
         branches_data = [
             {
                 'identifier': 'origin/master',

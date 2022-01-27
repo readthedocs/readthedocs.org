@@ -10,7 +10,12 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.urls import core_urls
-from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    do_not_track,
+    server_error_500,
+)
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import GlobalSearchView
 
@@ -58,7 +63,6 @@ project_urls = [
     re_path(r'^projects/', include('readthedocs.projects.urls.public')),
 ]
 
-
 organization_urls = [
     re_path(
         r'^organizations/',
@@ -80,11 +84,12 @@ organization_urls = [
     ),
 ]
 
-
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
+    re_path(
+        r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'
+    ),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
@@ -150,11 +155,8 @@ if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported
     groups.append(dnt_urls)
 
-
 if settings.READ_THE_DOCS_EXTENSIONS:
-    groups.append([
-        re_path(r'^', include('readthedocsext.urls'))
-    ])
+    groups.append([re_path(r'^', include('readthedocsext.urls'))])
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)

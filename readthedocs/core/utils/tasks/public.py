@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Celery tasks with publicly viewable status."""
 
 from celery import Task, states
 from django.conf import settings
 
 from .retrieve import TaskNotFound, get_task_data
-
 
 __all__ = (
     'PublicTask',
