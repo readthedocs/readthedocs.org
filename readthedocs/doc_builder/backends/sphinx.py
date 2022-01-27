@@ -355,7 +355,7 @@ class HtmlBuilder(BaseSphinx):
         if os.path.exists(json_path):
             if os.path.exists(json_path_target):
                 shutil.rmtree(json_path_target)
-            log.info('Copying json on the local filesystem')
+            log.debug('Copying json on the local filesystem')
             shutil.copytree(
                 json_path,
                 json_path_target,
@@ -391,7 +391,7 @@ class LocalMediaBuilder(BaseSphinx):
 
     @restoring_chdir
     def move(self, **__):
-        log.info('Creating zip file from path.', path=self.old_artifact_path)
+        log.debug('Creating zip file from path.', path=self.old_artifact_path)
         target_file = os.path.join(
             self.target,
             '{}.zip'.format(self.project.slug),

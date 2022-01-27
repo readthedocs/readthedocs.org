@@ -379,7 +379,14 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status.', build_id=build.id, project_slug=build.project.slug)
+    log.bind(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        commit=commit,
+        status=status,
+    )
+
+    log.debug('Sending build status.')
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
@@ -411,20 +418,13 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 )
 
                 if success:
-                    log.info(
+                    log.debug(
                         'Build status report sent correctly.',
-                        project_slug=build.project.slug,
-                        build_id=build.id,
-                        status=status,
-                        commit=commit,
                         user_username=relation.user.username,
                     )
                     return True
         else:
-            log.warning(
-                'Project does not have a RemoteRepository.',
-                project_slug=build.project.slug,
-            )
+            log.warning('Project does not have a RemoteRepository.')
             # Try to send build status for projects with no RemoteRepository
             for user in users:
                 services = service_class.for_user(user)
@@ -433,12 +433,8 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 for service in services:
                     success = service.send_build_status(build, commit, status)
                     if success:
-                        log.info(
+                        log.debug(
                             'Build status report sent correctly using an user account.',
-                            project_slug=build.project.slug,
-                            build_id=build.id,
-                            status=status,
-                            commit=commit,
                             user_username=user.username,
                         )
                         return True
@@ -454,10 +450,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
             )
             notification.send()
 
-        log.info(
-            'No social account or repository permission available.',
-            project_slug=build.project.slug,
-        )
+        log.info('No social account or repository permission available.')
         return False
 
 
