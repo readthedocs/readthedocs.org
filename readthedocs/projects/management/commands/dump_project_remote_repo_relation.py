@@ -9,25 +9,18 @@ from readthedocs.projects.models import Project
 
 
 class Command(BaseCommand):
-    help = "Dump Project and RemoteRepository Relationship in JSON format"
+    help = 'Dump Project and RemoteRepository Relationship in JSON format'
 
     def handle(self, *args, **options):
         data = []
 
-        users = User.objects.filter(
-            oauth_repositories__project=OuterRef("pk")
-        )
+        users = User.objects.filter(oauth_repositories__project=OuterRef('pk'))
 
         queryset = Project.objects.filter(
             remote_repository__isnull=False,
-        ).annotate(
-            username=Subquery(users.values("username")[:1])
-        ).values_list(
-            'id',
-            'slug',
-            'remote_repository__json',
-            'remote_repository__html_url',
-            'username'
+        ).annotate(username=Subquery(users.values('username')[:1])).values_list(
+            'id', 'slug', 'remote_repository__json',
+            'remote_repository__html_url', 'username'
         ).distinct()
 
         for project_id, slug, remote_repo_json, url, username in queryset.iterator():
@@ -59,5 +52,6 @@ class Command(BaseCommand):
                 )
 
         # Dump the data to a json file
-        with open(f'project-remote-repo-dump-{timezone.now():%Y-%m-%d-%H:%M}.json', 'w') as f:
+        with open(f'project-remote-repo-dump-{timezone.now():%Y-%m-%d-%H:%M}.json',
+                  'w') as f:
             f.write(json.dumps(data))

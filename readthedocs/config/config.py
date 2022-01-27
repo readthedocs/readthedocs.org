@@ -128,15 +128,12 @@ class InvalidConfig(ConfigError):
         """
         Display keys in a more friendly format.
 
-        Indexes are displayed like ``n``,
-        but users may be more familiar with the ``[n]`` syntax.
-        For example ``python.install.0.requirements``
-        is changed to `python.install[0].requirements`.
+        Indexes are displayed like ``n``, but users may be more familiar with
+        the ``[n]`` syntax. For example ``python.install.0.requirements`` is
+        changed to `python.install[0].requirements`.
         """
         return re.sub(
-            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
-            r'\1[\2]\3',
-            self.key
+            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$', r'\1[\2]\3', self.key
         )
 
 
@@ -818,7 +815,8 @@ class BuildConfigV2(BuildConfigBase):
     def validate_apt_packages(self):
         apt_packages = []
         with self.catch_validation_error('build.apt_packages'):
-            raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
+            raw_packages = self._raw_config.get('build',
+                                                {}).get('apt_packages', [])
             validate_list(raw_packages)
             # Transform to a dict, so is easy to validate individual entries.
             self._raw_config.setdefault('build', {})['apt_packages'] = (
@@ -1191,8 +1189,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(search_ignore)
 
             final_ignore = [
-                validate_path_pattern(pattern)
-                for pattern in search_ignore
+                validate_path_pattern(pattern) for pattern in search_ignore
             ]
             search['ignore'] = final_ignore
 

@@ -1,11 +1,11 @@
 """Notifications sent after build is completed."""
 
 import json
+from unittest.mock import patch
 
 import django_dynamic_fixture as fixture
 from django.core import mail
 from django.test import TestCase
-from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version

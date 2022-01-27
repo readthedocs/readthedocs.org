@@ -21,7 +21,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none, clean_links
+from readthedocs.embed.utils import clean_links, recurse_while_none
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
@@ -107,15 +107,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             path = unresolved.filename
             section = unresolved.fragment
         elif not path and not doc:
-            return Response(
-                {
-                    'error': (
-                        'Invalid Arguments. '
-                        'Please provide "url" or "section" and "path" GET arguments.'
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({
+                'error': (
+                    'Invalid Arguments. '
+                    'Please provide "url" or "section" and "path" GET arguments.'
+                )
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Generate the docname from path
         # by removing the ``.html`` extension and trailing ``/``.
@@ -132,15 +129,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         )
 
         if not response:
-            return Response(
-                {
-                    'error': (
-                        "Can't find content for section: "
-                        f"doc={doc} path={path} section={section}"
-                    )
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({
+                'error': (
+                    "Can't find content for section: "
+                    f'doc={doc} path={path} section={section}'
+                )
+            }, status=status.HTTP_404_NOT_FOUND)
 
         return Response(response)
 
@@ -234,10 +228,7 @@ def parse_sphinx(content, section, url):
     if not content or not body or not toc:
         return (None, None, section)
 
-    headers = [
-        recurse_while_none(element)
-        for element in PQ(toc)('a')
-    ]
+    headers = [recurse_while_none(element) for element in PQ(toc)('a')]
 
     if not section and headers:
         # If no section is sent, return the content of the first one
@@ -268,7 +259,8 @@ def parse_sphinx(content, section, url):
         except Exception:  # noqa
             log.info(
                 'Failed to query section. url=%s id=%s',
-                url, element_id,
+                url,
+                element_id,
             )
 
     if not query_result:
@@ -324,10 +316,7 @@ def parse_sphinx(content, section, url):
             return obj.parent().outerHtml()
         return obj.outerHtml()
 
-    ret = [
-        dump(clean_links(obj, url))
-        for obj in query_result
-    ]
+    ret = [dump(clean_links(obj, url)) for obj in query_result]
     return ret, headers, section
 
 
@@ -351,19 +340,20 @@ def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
         body_obj = PQ(body)
         escaped_section = escape_selector(section)
         section_list = body_obj(
-            ':header:contains("{title}")'.format(title=str(escaped_section)))
+            ':header:contains("{title}")'.format(title=str(escaped_section))
+        )
         for num in range(len(section_list)):
             header2 = section_list.eq(num)
             # h2_title = h2.text().strip()
             # section_id = h2.attr('id')
-            h2_content = ""
+            h2_content = ''
             next_p = header2.next()
             while next_p:
                 if next_p[0].tag == 'h2':
                     break
                 h2_html = next_p.outerHtml()
                 if h2_html:
-                    h2_content += "\n%s\n" % h2_html
+                    h2_content += '\n%s\n' % h2_html
                 next_p = next_p.next()
             if h2_content:
                 ret.append(h2_content)

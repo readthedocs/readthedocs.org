@@ -203,8 +203,8 @@ class VersionQuerySetWithInternalManagerTest(TestVersionQuerySetWithManagerBase)
     """
     Queries using Internal Manager should only include Internal Versions.
 
-    It will exclude EXTERNAL type Versions from the queries
-    and only include BRANCH, TAG, UNKNOWN type Versions.
+    It will exclude EXTERNAL type Versions from the queries and only include
+    BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def test_all(self):

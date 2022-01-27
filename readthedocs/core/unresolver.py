@@ -13,17 +13,19 @@ from readthedocs.proxito.views.utils import _get_project_data_from_request
 log = logging.getLogger(__name__)
 
 UnresolvedObject = namedtuple(
-    'Unresolved', 'project, language_slug, version_slug, filename, fragment')
+    'Unresolved', 'project, language_slug, version_slug, filename, fragment'
+)
 
 
 class UnresolverBase:
 
     def unresolve(self, url):
         """
-        Turn a URL into the component parts that our views would use to process them.
+        Turn a URL into the component parts that our views would use to process
+        them.
 
-        This is useful for lots of places,
-        like where we want to figure out exactly what file a URL maps to.
+        This is useful for lots of places, like where we want to figure out
+        exactly what file a URL maps to.
         """
         parsed = urlparse(url)
         domain = parsed.netloc.split(':', 1)[0]
@@ -62,7 +64,9 @@ class UnresolverBase:
         )
 
         mixin = ServeDocsMixin()
-        version_slug = mixin.get_version_from_host(request, kwargs.get('version_slug'))
+        version_slug = mixin.get_version_from_host(
+            request, kwargs.get('version_slug')
+        )
 
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -84,7 +88,9 @@ class UnresolverBase:
             'project=%s lang_slug=%s version_slug=%s filename=%s',
             final_project.slug, lang_slug, version_slug, filename
         )
-        return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
+        return UnresolvedObject(
+            final_project, lang_slug, version_slug, filename, parsed.fragment
+        )
 
 
 class Unresolver(SettingsOverrideObject):

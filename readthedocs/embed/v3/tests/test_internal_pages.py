@@ -1,15 +1,12 @@
-import docutils
-import pytest
-
 from contextlib import contextmanager
-from packaging.version import Version
 from unittest import mock
 
 import django_dynamic_fixture as fixture
-
-from django.conf import settings
+import docutils
+import pytest
 from django.core.cache import cache
 from django.urls import reverse
+from packaging.version import Version
 
 from readthedocs.projects.models import Project
 

@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 from readthedocs.projects.constants import MKDOCS, SPHINX
-from readthedocs.projects.models import HTMLFile, Project, Feature
+from readthedocs.projects.models import Feature, HTMLFile, Project
 
 data_path = Path(__file__).parent.resolve() / 'data'
 

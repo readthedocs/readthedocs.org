@@ -45,7 +45,8 @@ class TestProjectSearch:
             assert proj.name != results[0]['name']
 
     def test_search_project_have_correct_language_facets(self, client, project):
-        """Test that searching project should have correct language facets in the results"""
+        """Test that searching project should have correct language facets in
+        the results."""
         # Create a project in bn and add it as a translation
         get(Project, language='bn', name=project.name)
 
@@ -131,7 +132,7 @@ class TestProjectSearch:
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.usefixtures("all_projects")
+@pytest.mark.usefixtures('all_projects')
 class TestPageSearch:
 
     @pytest.fixture(autouse=True)
@@ -338,7 +339,7 @@ class TestPageSearch:
             assert word.lower() in query.lower()
 
     def test_file_search_have_correct_project_facets(self, client, all_projects):
-        """Test that file search have correct project facets in results"""
+        """Test that file search have correct project facets in results."""
 
         # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase

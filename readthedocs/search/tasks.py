@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 
 @app.task(queue='web')
 def index_objects_to_es(
-    app_label, model_name, document_class, index_name=None, chunk=None, objects_id=None
+    app_label, model_name, document_class, index_name=None, chunk=None,
+    objects_id=None
 ):
 
     if chunk and objects_id:
@@ -49,13 +50,16 @@ def index_objects_to_es(
         document._index._name = index_name
         log.info('Replacing index name %s with %s', old_index_name, index_name)
 
-    log.info("Indexing model: %s, '%s' objects", model.__name__, queryset.count())
+    log.info(
+        "Indexing model: %s, '%s' objects", model.__name__, queryset.count()
+    )
     doc_obj.update(queryset.iterator())
 
     if index_name:
         log.info(
             'Undoing index replacement, settings %s with %s',
-            document._index._name, old_index_name,
+            document._index._name,
+            old_index_name,
         )
         document._index._name = old_index_name
 
@@ -67,12 +71,16 @@ def delete_objects_in_es(app_label, model_name, document_class, objects_id):
     doc_obj = document()
     queryset = doc_obj.get_queryset()
     queryset = queryset.filter(id__in=objects_id)
-    log.info("Deleting model: %s, '%s' objects", model.__name__, queryset.count())
+    log.info(
+        "Deleting model: %s, '%s' objects", model.__name__, queryset.count()
+    )
     try:
         # This is a common case that we should be handling a better way
         doc_obj.update(queryset.iterator(), action='delete')
     except Exception:
-        log.warning('Unable to delete a subset of files. Continuing.', exc_info=True)
+        log.warning(
+            'Unable to delete a subset of files. Continuing.', exc_info=True
+        )
 
 
 @app.task(queue='web')
@@ -107,23 +115,30 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def index_missing_objects(app_label, model_name, document_class, index_generation_time):
+def index_missing_objects(
+    app_label, model_name, document_class, index_generation_time
+):
     """
     Task to insure that none of the object is missed from indexing.
 
-    The object ids are sent to `index_objects_to_es` task for indexing.
-    While the task is running, new objects can be created/deleted in database
-    and they will not be in the tasks for indexing into ES.
-    This task will index all the objects that got into DB after the `latest_indexed` timestamp
-    to ensure that everything is in ES index.
+    The object ids are sent to `index_objects_to_es` task for indexing. While
+    the task is running, new objects can be created/deleted in database and they
+    will not be in the tasks for indexing into ES. This task will index all the
+    objects that got into DB after the `latest_indexed` timestamp to ensure that
+    everything is in ES index.
     """
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
     query_string = '{}__lte'.format(document.modified_model_field)
-    queryset = document().get_queryset().exclude(**{query_string: index_generation_time})
+    queryset = document().get_queryset().exclude(
+        **{query_string: index_generation_time}
+    )
     document().update(queryset.iterator())
 
-    log.info("Indexed %s missing objects from model: %s'", queryset.count(), model.__name__)
+    log.info(
+        "Indexed %s missing objects from model: %s'", queryset.count(),
+        model.__name__
+    )
 
     # TODO: Figure out how to remove the objects from ES index that has been deleted
 
@@ -131,32 +146,33 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
     """
-    Delete old SearchQuery objects older than ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
+    Delete old SearchQuery objects older than
+    ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
 
     This is run by celery beat every day.
     """
     retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    search_queries_qs = SearchQuery.objects.filter(
-        created__date__lt=days_ago,
-    )
+    search_queries_qs = SearchQuery.objects.filter(created__date__lt=days_ago,)
 
     if search_queries_qs.exists():
-        log.info('Deleting search queries for last 3 months. Total: %s', search_queries_qs.count())
+        log.info(
+            'Deleting search queries for last 3 months. Total: %s',
+            search_queries_qs.count()
+        )
         search_queries_qs.delete()
 
 
 @app.task(queue='web')
-def record_search_query(project_slug, version_slug, query, total_results, time_string):
+def record_search_query(
+    project_slug, version_slug, query, total_results, time_string
+):
     """Record/update a search query for analytics."""
     if not project_slug or not version_slug or not query:
         log.debug(
             'Not recording the search query. Passed arguments: '
             'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s',
-            project_slug,
-            version_slug,
-            query, total_results,
-            time_string
+            project_slug, version_slug, query, total_results, time_string
         )
         return
 
@@ -179,16 +195,15 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
             return
 
     version = (
-        Version.objects
-        .filter(slug=version_slug, project__slug=project_slug)
-        .prefetch_related('project')
-        .first()
+        Version.objects.filter(slug=version_slug, project__slug=project_slug
+                               ).prefetch_related('project').first()
     )
     if not version:
         log.debug(
             'Not recording the search query because project does not exist. '
             'project=%s version=%s',
-            project_slug, version_slug,
+            project_slug,
+            version_slug,
         )
         return
 

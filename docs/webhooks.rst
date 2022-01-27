@@ -3,7 +3,7 @@ Incoming Webhooks and Automation
 
 The primary method that Read the Docs uses to detect changes to your
 documentation and versions is through the use of *webhooks*. Webhooks are configured with
-your repository provider, such as GitHub, Bitbucket or GitLab, 
+your repository provider, such as GitHub, Bitbucket or GitLab,
 and with each change to your repository, Read the Docs is notified. When we
 receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
@@ -113,7 +113,7 @@ On Read the Docs:
 On your Gitea instance:
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
-* Create a new webhook of type "Gitea" 
+* Create a new webhook of type "Gitea"
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations` page
 * Leave the default **HTTP Method** as POST

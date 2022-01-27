@@ -1,11 +1,11 @@
-from .mixins import APIEndpointMixin
-from django.urls import reverse
-
 import django_dynamic_fixture as fixture
+from django.urls import reverse
 
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
+
+from .mixins import APIEndpointMixin
 
 
 class VersionsEndpointTests(APIEndpointMixin):

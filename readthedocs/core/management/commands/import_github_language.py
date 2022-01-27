@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Import a project's programming language from GitHub.
 
@@ -19,7 +17,6 @@ from django.core.management.base import BaseCommand
 from readthedocs.projects.constants import GITHUB_REGEXS, PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import Project
 
-
 PL_DICT = {}
 
 for slug, name in PROGRAMMING_LANGUAGES:
@@ -37,7 +34,9 @@ class Command(BaseCommand):
             print('Invalid GitHub token, exiting')
             return
 
-        for project in Project.objects.filter(programming_language__in=['none', '', 'words']).filter(repo__contains='github'):  # noqa
+        for project in Project.objects.filter(
+                programming_language__in=['none', '', 'words']
+        ).filter(repo__contains='github'):  # noqa
             user = repo = ''
             repo_url = project.repo
             for regex in GITHUB_REGEXS:

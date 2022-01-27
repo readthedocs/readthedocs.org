@@ -42,6 +42,8 @@ class CachedResponseMixin:
             if self.project_cache_tag:
                 tags.append(f'{project.slug}-{self.project_cache_tag}')
             return tags
-        except Exception as e:
-            log.debug('Error while retrieving project and version for this view.')
+        except Exception:
+            log.debug(
+                'Error while retrieving project and version for this view.'
+            )
         return []

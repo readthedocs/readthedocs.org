@@ -243,11 +243,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         field_sets = [
             Fieldset(
-                _("Global settings"),
+                _('Global settings'),
                 *per_project_settings,
             ),
             Fieldset(
-                _("Default settings"),
+                _('Default settings'),
                 HTML(help_text),
                 *self.Meta.per_version_settings,
             ),
@@ -257,12 +257,12 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         versions_choices = self.instance.versions(manager=INTERNAL).filter(
-            machine=False).values_list('verbose_name', flat=True)
+            machine=False
+        ).values_list('verbose_name', flat=True)
 
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(
-                zip(versions_choices, versions_choices)
-            ),
+            choices=[default_choice] +
+            list(zip(versions_choices, versions_choices)),
         )
 
         active_versions = self.get_all_active_versions()
@@ -289,14 +289,14 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         """
         Returns all active versions.
 
-        Returns a smartly sorted list of tuples.
-        First item of each tuple is the version's slug,
-        and the second item is version's verbose_name.
+        Returns a smartly sorted list of tuples. First item of each tuple is the
+        version's slug, and the second item is version's verbose_name.
         """
         version_qs = self.instance.all_active_versions()
         if version_qs.exists():
             version_qs = sort_version_aware(version_qs)
-            all_versions = [(version.slug, version.verbose_name) for version in version_qs]
+            all_versions = [(version.slug, version.verbose_name)
+                            for version in version_qs]
             return all_versions
         return None
 
@@ -341,10 +341,9 @@ class UpdateProjectForm(
                         msg.format(lang=language, proj=main_project.slug),
                     )
                 siblings = (
-                    main_project.translations
-                    .filter(language=language)
-                    .exclude(pk=project.pk)
-                    .exists()
+                    main_project.translations.filter(language=language
+                                                     ).exclude(pk=project.pk
+                                                               ).exists()
                 )
                 if siblings:
                     raise forms.ValidationError(
@@ -370,22 +369,23 @@ class ProjectRelationshipForm(forms.ModelForm):
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
+            self.fields['child'].queryset = Project.objects.filter(
+                pk=self.instance.child.pk
+            )
         else:
-            self.fields['child'].queryset = self.project.get_subproject_candidates(self.user)
+            self.fields['child'].queryset = self.project.get_subproject_candidates(
+                self.user
+            )
 
     def clean_parent(self):
-        self.project.is_valid_as_superproject(
-            forms.ValidationError
-        )
+        self.project.is_valid_as_superproject(forms.ValidationError)
         return self.project
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
         subproject = (
-            self.project.subprojects
-            .filter(alias=alias)
-            .exclude(id=self.instance.pk)
+            self.project.subprojects.filter(alias=alias
+                                            ).exclude(id=self.instance.pk)
         )
 
         if subproject.exists():
@@ -532,9 +532,9 @@ class TranslationBaseForm(forms.Form):
 
     def get_translation_queryset(self):
         queryset = (
-            Project.objects.for_admin_user(self.user)
-            .filter(main_language_project=None)
-            .exclude(pk=self.parent.pk)
+            Project.objects.for_admin_user(self.user).filter(
+                main_language_project=None
+            ).exclude(pk=self.parent.pk)
         )
         return queryset
 
@@ -611,14 +611,13 @@ class DomainBaseForm(forms.ModelForm):
             parsed = urlparse(f'https://{domain}')
 
         if not parsed.netloc:
-            raise forms.ValidationError(
-                f'{domain} is not a valid domain.'
-            )
+            raise forms.ValidationError(f'{domain} is not a valid domain.')
 
         domain_string = parsed.netloc
 
         # Don't allow production or public domain to be set as custom domain
-        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+        for invalid_domain in [settings.PRODUCTION_DOMAIN,
+                               settings.PUBLIC_DOMAIN]:
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(
                     f'{invalid_domain} is not a valid domain.'
@@ -630,10 +629,8 @@ class DomainBaseForm(forms.ModelForm):
         canonical = self.cleaned_data['canonical']
         pk = self.instance.pk
         has_canonical_domain = (
-            Domain.objects
-            .filter(project=self.project, canonical=True)
-            .exclude(pk=pk)
-            .exists()
+            Domain.objects.filter(project=self.project,
+                                  canonical=True).exclude(pk=pk).exists()
         )
         if canonical and has_canonical_domain:
             raise forms.ValidationError(
@@ -704,7 +701,9 @@ class FeatureForm(forms.ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['projects', 'feature_id', 'default_true', 'future_default_true']
+        fields = [
+            'projects', 'feature_id', 'default_true', 'future_default_true'
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

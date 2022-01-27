@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Gold subscription URLs."""
 
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
 
 from readthedocs.gold import views
 from readthedocs.projects.constants import PROJECT_SLUG_REGEX
-
 
 urlpatterns = [
     url(
@@ -25,7 +21,10 @@ urlpatterns = [
         views.GoldSubscriptionPortal.as_view(),
         name='gold_subscription_portal',
     ),
-    url(r'^projects/$', views.GoldProjectsListCreate.as_view(), name='gold_projects'),
+    url(
+        r'^projects/$', views.GoldProjectsListCreate.as_view(),
+        name='gold_projects'
+    ),
     url(
         (
             r'^projects/remove/(?P<project_slug>{project_slug})/$'.format(

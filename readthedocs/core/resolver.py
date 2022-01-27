@@ -5,8 +5,8 @@ from urllib.parse import urlunparse
 
 from django.conf import settings
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = logging.getLogger(__name__)
 
@@ -53,16 +53,16 @@ class ResolverBase:
     """
 
     def base_resolve_path(
-            self,
-            project_slug,
-            filename,
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subproject_slug=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
+        self,
+        project_slug,
+        filename,
+        version_slug=None,
+        language=None,
+        single_version=None,
+        subproject_slug=None,
+        subdomain=None,
+        cname=None,
+        urlconf=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
@@ -115,15 +115,15 @@ class ResolverBase:
         )
 
     def resolve_path(
-            self,
-            project,
-            filename='',
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
+        self,
+        project,
+        filename='',
+        version_slug=None,
+        language=None,
+        single_version=None,
+        subdomain=None,
+        cname=None,
+        urlconf=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -131,12 +131,13 @@ class ResolverBase:
 
         filename = self._fix_filename(project, filename)
 
-        main_project, subproject_slug = self._get_canonical_project_data(project)
+        main_project, subproject_slug = self._get_canonical_project_data(
+            project
+        )
         project_slug = main_project.slug
         cname = (
-            cname
-            or self._use_subdomain()
-            or main_project.get_canonical_custom_domain()
+            cname or self._use_subdomain() or
+            main_project.get_canonical_custom_domain()
         )
         single_version = bool(project.single_version or single_version)
 
@@ -164,8 +165,8 @@ class ResolverBase:
         return settings.PRODUCTION_DOMAIN
 
     def resolve(
-            self, project, require_https=False, filename='', query_params='',
-            external=None, **kwargs
+        self, project, require_https=False, filename='', query_params='',
+        external=None, **kwargs
     ):
         version_slug = kwargs.get('version_slug')
 
@@ -179,7 +180,9 @@ class ResolverBase:
         use_custom_domain = self._use_custom_domain(custom_domain)
 
         if external:
-            domain = self._get_external_subdomain(canonical_project, version_slug)
+            domain = self._get_external_subdomain(
+                canonical_project, version_slug
+            )
         elif use_custom_domain:
             domain = custom_domain.domain
         elif self._use_subdomain():
@@ -193,8 +196,7 @@ class ResolverBase:
             # or force it if specified
             require_https,
             # or fallback to settings
-            settings.PUBLIC_DOMAIN_USES_HTTPS and
-            settings.PUBLIC_DOMAIN and
+            settings.PUBLIC_DOMAIN_USES_HTTPS and settings.PUBLIC_DOMAIN and
             any([
                 settings.PUBLIC_DOMAIN in domain,
                 settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
@@ -202,14 +204,13 @@ class ResolverBase:
         ])
         protocol = 'https' if use_https_protocol else 'http'
 
-        path = self.resolve_path(
-            project, filename=filename, **kwargs
-        )
+        path = self.resolve_path(project, filename=filename, **kwargs)
         return urlunparse((protocol, domain, path, '', query_params, ''))
 
     def _get_canonical_project_data(self, project):
         """
-        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+        Returns a tuple with (project, subproject_slug) from the canonical
+        project of `project`.
 
         We currently support more than 2 levels of nesting subprojects and translations,
         but we only serve 2 levels to avoid sticking in the loop.
@@ -314,10 +315,9 @@ class ResolverBase:
 
     def _is_external(self, project, version_slug):
         type_ = (
-            project.versions
-            .values_list('type', flat=True)
-            .filter(slug=version_slug)
-            .first()
+            project.versions.values_list('type',
+                                         flat=True).filter(slug=version_slug
+                                                           ).first()
         )
         return type_ == EXTERNAL
 

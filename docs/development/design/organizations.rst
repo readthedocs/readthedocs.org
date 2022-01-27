@@ -27,7 +27,7 @@ How are we going to support organizations?
 ------------------------------------------
 
 Currently only users can own projects in the community site.
-With organizations this is going to change to: 
+With organizations this is going to change to:
 Users and organizations can own projects.
 
 With this, the migration process would be straightforward for the community site.

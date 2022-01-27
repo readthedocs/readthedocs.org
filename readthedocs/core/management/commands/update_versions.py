@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Rebuild documentation for all projects."""
 
 from django.core.management.base import BaseCommand

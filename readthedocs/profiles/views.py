@@ -207,10 +207,9 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
             start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
+        csv_data = [[
+            timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest
+        ] for date, *rest in data]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 

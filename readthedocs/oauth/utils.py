@@ -11,8 +11,6 @@ from readthedocs.oauth.services import (
     GitHubService,
     GitLabService,
 )
-from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -32,10 +30,9 @@ def update_webhook(project, integration, request=None):
     updated = False
     if project.remote_repository:
         remote_repository_relations = (
-            project.remote_repository.remote_repository_relations.filter(
-                account__isnull=False,
-                user=request.user
-            ).select_related('account')
+            project.remote_repository.remote_repository_relations
+            .filter(account__isnull=False,
+                    user=request.user).select_related('account')
         )
 
         for relation in remote_repository_relations:

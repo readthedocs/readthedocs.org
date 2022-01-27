@@ -167,8 +167,9 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
     """
     Mixin to define queryset permissions for ViewSet only in one place.
 
-    All APIv3 organizations' ViewSet should inherit this mixin, unless specific permissions
-    required. In that case, a specific mixin for that case should be defined.
+    All APIv3 organizations' ViewSet should inherit this mixin, unless specific
+    permissions required. In that case, a specific mixin for that case should be
+    defined.
     """
 
     def detail_objects(self, queryset, user):

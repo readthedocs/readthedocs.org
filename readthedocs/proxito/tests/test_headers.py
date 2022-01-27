@@ -1,5 +1,4 @@
 import django_dynamic_fixture as fixture
-import pytest
 from django.test import override_settings
 from django.urls import reverse
 
@@ -74,7 +73,7 @@ class ProxitoHeaderTests(BaseDocServing):
             project=self.project,
             domain=hostname,
         )
-        r = self.client.get("/en/latest/", HTTP_HOST=hostname)
+        r = self.client.get('/en/latest/', HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r['Cache-Tag'], 'project,project-latest')
         self.assertEqual(r['X-RTD-Domain'], self.domain.domain)
@@ -119,12 +118,12 @@ class ProxitoHeaderTests(BaseDocServing):
             only_if_secure_request=True,
         )
 
-        r = self.client.get("/en/latest/", HTTP_HOST=hostname)
+        r = self.client.get('/en/latest/', HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r[http_header], http_header_value)
         self.assertFalse(r.has_header(http_header_secure))
 
-        r = self.client.get("/en/latest/", HTTP_HOST=hostname, secure=True)
+        r = self.client.get('/en/latest/', HTTP_HOST=hostname, secure=True)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)

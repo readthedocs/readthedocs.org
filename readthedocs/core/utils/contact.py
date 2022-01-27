@@ -93,32 +93,33 @@ def contact_users(
                 if not dryrun:
                     backend.send(notification)
                 else:
-                    pprint(markdown.markdown(
-                        notification_template.render(Context(context))
-                    ))
+                    pprint(
+                        markdown.markdown(
+                            notification_template.render(Context(context))
+                        )
+                    )
             except Exception:
                 log.exception('Notification failed to send')
                 failed_notifications.add(user.username)
             else:
                 log.info(
                     'Successfully set notification (%s/%s). user=%s',
-                    count, total, user,
+                    count,
+                    total,
+                    user,
                 )
                 sent_notifications.add(user.username)
 
         if email_subject:
             emails = list(
-                user.emailaddress_set
-                .filter(verified=True)
-                .exclude(email=user.email)
-                .values_list('email', flat=True)
+                user.emailaddress_set.filter(verified=True).exclude(
+                    email=user.email
+                ).values_list('email', flat=True)
             )
             emails.append(user.email)
 
             # First render the markdown context.
-            email_txt_content = email_template.render(
-                Context(context)
-            )
+            email_txt_content = email_template.render(Context(context))
             email_html_content = markdown.markdown(email_txt_content)
 
             # Now render it using the base email templates.

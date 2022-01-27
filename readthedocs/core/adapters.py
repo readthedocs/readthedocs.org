@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Allauth overrides."""
 
 import json
@@ -9,7 +7,6 @@ from allauth.account.adapter import DefaultAccountAdapter
 from django.template.loader import render_to_string
 
 from readthedocs.core.utils import send_email
-
 
 try:
     from django.utils.encoding import force_text

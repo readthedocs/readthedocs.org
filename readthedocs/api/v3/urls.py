@@ -12,7 +12,6 @@ from .views import (
     VersionsViewSet,
 )
 
-
 router = DefaultRouterWithNesting()
 
 # allows /api/v3/projects/

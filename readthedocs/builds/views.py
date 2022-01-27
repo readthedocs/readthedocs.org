@@ -73,7 +73,7 @@ class BuildTriggerMixin:
                     request,
                     messages.ERROR,
                     "This build can't be re-triggered because it's "
-                    "not the latest build for this version.",
+                    'not the latest build for this version.',
                 )
                 return HttpResponseRedirect(request.path)
 
@@ -82,9 +82,7 @@ class BuildTriggerMixin:
                 commit_to_retrigger = build_to_retrigger.commit
                 log.info(
                     'Re-triggering build. project=%s version=%s commit=%s build=%s',
-                    project.slug,
-                    version.slug,
-                    build_to_retrigger.commit,
+                    project.slug, version.slug, build_to_retrigger.commit,
                     build_to_retrigger.pk
                 )
         else:
@@ -160,7 +158,8 @@ class BuildDetail(BuildBase, DetailView):
             ).first()
         )
 
-        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
 

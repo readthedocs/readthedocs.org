@@ -89,17 +89,17 @@ class BuildCommand(BuildCommandResultMixin):
     """
 
     def __init__(
-            self,
-            command,
-            cwd=None,
-            shell=False,
-            environment=None,
-            user=None,
-            build_env=None,
-            bin_path=None,
-            description=None,
-            record_as_success=False,
-            **kwargs,
+        self,
+        command,
+        cwd=None,
+        shell=False,
+        environment=None,
+        user=None,
+        build_env=None,
+        bin_path=None,
+        description=None,
+        record_as_success=False,
+        **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -164,7 +164,7 @@ class BuildCommand(BuildCommandResultMixin):
             self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
-            log.exception("Operating system error.")
+            log.exception('Operating system error.')
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
@@ -245,14 +245,13 @@ class BuildCommand(BuildCommandResultMixin):
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
             # Don't use slumber directly here. Slumber tries to enforce a string,
             # which will break our multipart encoding here.
-            encoder = MultipartEncoder(
-                {key: str(value) for key, value in data.items()}
-            )
+            encoder = MultipartEncoder({
+                key: str(value)
+                for key, value in data.items()
+            })
             resource = api_v2.command
             resp = resource._store['session'].post(
-                resource._store['base_url'] + '/',
-                data=encoder,
-                headers={
+                resource._store['base_url'] + '/', data=encoder, headers={
                     'Content-Type': encoder.content_type,
                 }
             )
@@ -322,10 +321,8 @@ class DockerBuildCommand(BuildCommand):
             killed_in_output = 'Killed' in '\n'.join(
                 self.output.splitlines()[-15:],
             )
-            if self.exit_code == DOCKER_OOM_EXIT_CODE or (
-                self.exit_code == 1 and
-                killed_in_output
-            ):
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and
+                                                          killed_in_output):
                 self.output += str(
                     _(
                         '\n\nCommand killed due to excessive memory consumption\n',
@@ -395,8 +392,8 @@ class BaseEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs
+        self, cls, cmd, record=None, warn_only=False, record_as_success=False,
+        **kwargs
     ):
         """
         Run command from this environment.
@@ -428,7 +425,9 @@ class BaseEnvironment:
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
-            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
+            raise BuildEnvironmentError(
+                'environment can\'t be passed in via commands.'
+            )
         kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
@@ -456,8 +455,7 @@ class BaseEnvironment:
 
             if warn_only:
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
+                    LOG_TEMPLATE, {
                         'project': self.project.slug if self.project else '',
                         'version': 'latest',
                         'msg': msg,
@@ -522,15 +520,15 @@ class BuildEnvironment(BaseEnvironment):
     )
 
     def __init__(
-            self,
-            project=None,
-            version=None,
-            build=None,
-            config=None,
-            record=True,
-            environment=None,
-            update_on_success=True,
-            start_time=None,
+        self,
+        project=None,
+        version=None,
+        build=None,
+        config=None,
+        record=True,
+        environment=None,
+        update_on_success=True,
+        start_time=None,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -549,8 +547,7 @@ class BuildEnvironment(BaseEnvironment):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
-            LOG_TEMPLATE,
-            {
+            LOG_TEMPLATE, {
                 'project': self.project.slug if self.project else '',
                 'version': self.version.slug if self.version else '',
                 'msg': 'Build finished',
@@ -639,10 +636,7 @@ class BuildEnvironment(BaseEnvironment):
     @property
     def done(self):
         """Is build in finished state."""
-        return (
-            self.build and
-            self.build['state'] == BUILD_STATE_FINISHED
-        )
+        return (self.build and self.build['state'] == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """
@@ -815,8 +809,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                     raise exc
 
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
+                    LOG_TEMPLATE, {
                         'project': self.project.slug,
                         'version': self.version.slug,
                         'msg': (
@@ -881,8 +874,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             # These errors should not surface to the user.
             except (DockerAPIError, ConnectionError, ReadTimeout):
                 log.exception(
-                    LOG_TEMPLATE,
-                    {
+                    LOG_TEMPLATE, {
                         'project': self.project.slug,
                         'version': self.version.slug,
                         'msg': "Couldn't remove container",
@@ -923,11 +915,10 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
-                    'msg': "Could not connect to Docker API",
+                    'msg': 'Could not connect to Docker API',
                 }
             )
             # We don't raise an error here mentioning Docker, that is a
@@ -1060,8 +1051,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             client.start(container=self.container_id)
         except ConnectionError:
             log.exception(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': (
@@ -1080,8 +1070,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         except DockerAPIError as e:
             log.exception(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': e.explanation,

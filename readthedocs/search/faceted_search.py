@@ -42,13 +42,13 @@ class RTDFacetedSearch(FacetedSearch):
     }
 
     def __init__(
-            self,
-            query=None,
-            filters=None,
-            projects=None,
-            aggregate_results=True,
-            use_advanced_query=True,
-            **kwargs,
+        self,
+        query=None,
+        filters=None,
+        projects=None,
+        aggregate_results=True,
+        use_advanced_query=True,
+        **kwargs,
     ):
         """
         Custom wrapper around FacetedSearch.
@@ -78,25 +78,20 @@ class RTDFacetedSearch(FacetedSearch):
         filters = filters or {}
 
         # We may receive invalid filters
-        valid_filters = {
-            k: v
-            for k, v in filters.items()
-            if k in self.facets
-        }
+        valid_filters = {k: v for k, v in filters.items() if k in self.facets}
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
     def _get_queries(self, *, query, fields):
         """
         Get a list of query objects according to the query.
 
-        If the query is a single term we try to match partial words and substrings
-        (available only with the DEFAULT_TO_FUZZY_SEARCH feature flag),
-        otherwise we use the SimpleQueryString query.
+        If the query is a single term we try to match partial words and
+        substrings (available only with the DEFAULT_TO_FUZZY_SEARCH feature
+        flag), otherwise we use the SimpleQueryString query.
         """
         get_queries_function = (
             self._get_single_term_queries
-            if self._is_single_term(query)
-            else self._get_text_queries
+            if self._is_single_term(query) else self._get_text_queries
         )
 
         return get_queries_function(
@@ -119,7 +114,9 @@ class RTDFacetedSearch(FacetedSearch):
         - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html  # noqa
         """
         queries = []
-        is_advanced_query = self.use_advanced_query or self._is_advanced_query(query)
+        is_advanced_query = self.use_advanced_query or self._is_advanced_query(
+            query
+        )
         for operator in self.operators:
             if is_advanced_query:
                 query_string = SimpleQueryString(
@@ -179,7 +176,7 @@ class RTDFacetedSearch(FacetedSearch):
             query=query,
             fields=fields,
             operator=operator,
-            fuzziness="AUTO:4,6",
+            fuzziness='AUTO:4,6',
             prefix_length=1,
         )
 
@@ -187,20 +184,20 @@ class RTDFacetedSearch(FacetedSearch):
         """
         Check if the query is a single term.
 
-        A query is a single term if it is a single word,
-        if it doesn't contain the syntax from a simple query string,
-        and if `self.use_advanced_query` is False.
+        A query is a single term if it is a single word, if it doesn't contain
+        the syntax from a simple query string, and if `self.use_advanced_query`
+        is False.
         """
         is_single_term = (
-            not self.use_advanced_query and
-            query and len(query.split()) <= 1 and
-            not self._is_advanced_query(query)
+            not self.use_advanced_query and query and
+            len(query.split()) <= 1 and not self._is_advanced_query(query)
         )
         return is_single_term
 
     def _is_advanced_query(self, query):
         """
-        Check if query looks like to be using the syntax from a simple query string.
+        Check if query looks like to be using the syntax from a simple query
+        string.
 
         .. note::
 
@@ -270,8 +267,7 @@ class PageSearch(RTDFacetedSearch):
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
         'role_name': NestedFacet(
-            'domains',
-            TermsFacet(field='domains.role_name')
+            'domains', TermsFacet(field='domains.role_name')
         ),
     }
     doc_types = [PageDocument]
@@ -292,15 +288,16 @@ class PageSearch(RTDFacetedSearch):
         """
         Get filter by projects query.
 
-        If it's a dict, filter by project and version,
-        if it's a list filter by project.
+        If it's a dict, filter by project and version, if it's a list filter by
+        project.
         """
         if not self.projects:
             return None
 
         if isinstance(self.projects, dict):
             versions_query = [
-                Bool(filter=[Term(project=project), Term(version=version)])
+                Bool(filter=[Term(project=project),
+                             Term(version=version)])
                 for project, version in self.projects.items()
             ]
             return Bool(should=versions_query)
@@ -312,7 +309,8 @@ class PageSearch(RTDFacetedSearch):
 
     def query(self, search, query):
         """
-        Manipulates the query to support nested queries and a custom rank for pages.
+        Manipulates the query to support nested queries and a custom rank for
+        pages.
 
         If `self.projects` was given, we use it to filter the documents that
         match the same project and version.
@@ -361,8 +359,7 @@ class PageSearch(RTDFacetedSearch):
 
         raw_fields = [
             # Remove boosting from the field
-            re.sub(r'\^.*$', '', field)
-            for field in fields
+            re.sub(r'\^.*$', '', field) for field in fields
         ]
 
         # The ``post_filter`` filter will only filter documents
@@ -374,15 +371,15 @@ class PageSearch(RTDFacetedSearch):
         # to avoid this kind of problems and have faster queries.
         role_name = self.filter_values.get('role_name')
         if path == 'domains' and role_name:
-            role_name_query = Bool(must=Terms(**{'domains.role_name': role_name}))
+            role_name_query = Bool(
+                must=Terms(**{'domains.role_name': role_name})
+            )
             bool_query = Bool(must=[role_name_query, bool_query])
 
         highlight = dict(
             self._highlight_options,
-            fields={
-                field: {}
-                for field in raw_fields
-            },
+            fields={field: {}
+                    for field in raw_fields},
         )
 
         return Nested(
@@ -445,8 +442,8 @@ class PageSearch(RTDFacetedSearch):
             return params.ranking[rank + 10] * _score;
         """
         return {
-            "script": {
-                "source": source,
-                "params": {"ranking": ranking},
+            'script': {
+                'source': source,
+                'params': {'ranking': ranking},
             },
         }

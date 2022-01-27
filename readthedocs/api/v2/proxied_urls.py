@@ -1,8 +1,8 @@
 """
 Proxied API URLs.
 
-Served from the same domain docs are served,
-so they can make use of features that require to have access to their cookies.
+Served from the same domain docs are served, so they can make use of features
+that require to have access to their cookies.
 """
 
 from django.conf.urls import url

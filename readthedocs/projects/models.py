@@ -59,7 +59,8 @@ log = logging.getLogger(__name__)
 
 
 def default_privacy_level():
-    """Wrapper around the setting, so the level is dynamically included in the migration."""
+    """Wrapper around the setting, so the level is dynamically included in the
+    migration."""
     return settings.DEFAULT_PRIVACY_LEVEL
 
 
@@ -111,8 +112,12 @@ class Project(models.Model):
     """Project model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
+    pub_date = models.DateTimeField(
+        _('Publication date'), auto_now_add=True, db_index=True
+    )
+    modified_date = models.DateTimeField(
+        _('Modified date'), auto_now=True, db_index=True
+    )
 
     # Generally from conf.py
     users = models.ManyToManyField(
@@ -221,7 +226,9 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_(
+            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>'
+        )  # noqa
     )
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
@@ -494,7 +501,8 @@ class Project(models.Model):
         """
         Return a URL for the docs.
 
-        ``external`` defaults False because we only link external versions in very specific places
+        ``external`` defaults False because we only link external versions in
+        very specific places
         """
         return resolve(
             project=self,
@@ -535,18 +543,11 @@ class Project(models.Model):
         :return: the path to an item in storage
                  (can be used with ``storage.url`` to get the URL).
         """
-        storage_paths = [
-            f'{type_}/{self.slug}'
-            for type_ in MEDIA_TYPES
-        ]
+        storage_paths = [f'{type_}/{self.slug}' for type_ in MEDIA_TYPES]
         return storage_paths
 
     def get_storage_path(
-            self,
-            type_,
-            version_slug=LATEST,
-            include_file=True,
-            version_type=None
+        self, type_, version_slug=LATEST, include_file=True, version_type=None
     ):
         """
         Get a path to a build artifact for use with Django's storage system.
@@ -602,8 +603,8 @@ class Project(models.Model):
         """
         Used for the proxied_api_host in javascript.
 
-        This needs to start with a slash at the root of the domain,
-        and end without a slash
+        This needs to start with a slash at the root of the domain, and end
+        without a slash
         """
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
@@ -632,8 +633,9 @@ class Project(models.Model):
 
         # We should standardize these names so we can loop over them easier
         to_convert = to_convert.replace(
-            '\\$version',
-            '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
+            '\\$version', '(?P<version_slug>{regex})'.format(
+                regex=pattern_opts['version_slug']
+            )
         )
         to_convert = to_convert.replace(
             '\\$language',
@@ -644,8 +646,9 @@ class Project(models.Model):
             '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
         )
         to_convert = to_convert.replace(
-            '\\$subproject',
-            '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
+            '\\$subproject', '(?P<subproject_slug>{regex})'.format(
+                regex=pattern_opts['project_slug']
+            )
         )
 
         if '\\$' in to_convert:
@@ -675,8 +678,7 @@ class Project(models.Model):
                 re_path(
                     r'{proxied_api_url}api/v2/'.format(
                         proxied_api_url=re.escape(self.proxied_api_url),
-                    ),
-                    include('readthedocs.api.v2.proxied_urls'),
+                    ), include('readthedocs.api.v2.proxied_urls'),
                     name='user_proxied_api'
                 ),
                 re_path(
@@ -685,28 +687,30 @@ class Project(models.Model):
                     r'(?P<version_slug>{version_slug})/'
                     r'(?P<type_>[-\w]+)/$'.format(
                         proxied_api_url=re.escape(self.proxied_api_url),
-                        **pattern_opts),
-                    ProjectDownloadMedia.as_view(same_domain_url=True),
+                        **pattern_opts
+                    ), ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='user_proxied_downloads'
                 ),
             ]
             docs_urls = [
                 re_path(
-                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs'
+                    '^{regex_urlconf}$'.format(
+                        regex_urlconf=self.regex_urlconf
+                    ), ServeDocs.as_view(), name='user_proxied_serve_docs'
                 ),
                 # paths for redirects at the root
                 re_path(
                     '^{proxied_api_url}$'.format(
-                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
-                    ),
-                    ServeDocs.as_view(),
+                        proxied_api_url=re.escape(
+                            self.urlconf.split('$', 1)[0]
+                        ),
+                    ), ServeDocs.as_view(),
                     name='user_proxied_serve_docs_subpath_redirect'
                 ),
                 re_path(
-                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
-                    ServeDocs.as_view(),
+                    '^(?P<filename>{regex})$'.format(
+                        regex=pattern_opts['filename_slug']
+                    ), ServeDocs.as_view(),
                     name='user_proxied_serve_docs_root_redirect'
                 ),
             ]
@@ -867,35 +871,30 @@ class Project(models.Model):
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
         storage_path = self.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version_type
+            type_=type_, version_slug=version_slug, version_type=version_type
         )
         return build_media_storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
-            MEDIA_TYPE_PDF,
-            version_slug=version_slug,
-            version_type=version_type
+            MEDIA_TYPE_PDF, version_slug=version_slug, version_type=version_type
         )
 
     def has_epub(self, version_slug=LATEST, version_type=None):
         return self.has_media(
-            MEDIA_TYPE_EPUB,
-            version_slug=version_slug,
+            MEDIA_TYPE_EPUB, version_slug=version_slug,
             version_type=version_type
         )
 
     def has_htmlzip(self, version_slug=LATEST, version_type=None):
         return self.has_media(
-            MEDIA_TYPE_HTMLZIP,
-            version_slug=version_slug,
+            MEDIA_TYPE_HTMLZIP, version_slug=version_slug,
             version_type=version_type
         )
 
     def vcs_repo(
-            self, version=LATEST, environment=None,
-            verbose_name=None, version_type=None
+        self, version=LATEST, environment=None, verbose_name=None,
+        version_type=None
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -923,12 +922,17 @@ class Project(models.Model):
         """
         Get the class used for VCS operations.
 
-        This is useful when doing operations that don't need to have the repository on disk.
+        This is useful when doing operations that don't need to have the
+        repository on disk.
         """
         return backend_cls.get(self.repo_type)
 
     def git_service_class(self):
-        """Get the service class for project. e.g: GitHubService, GitLabService."""
+        """
+        Get the service class for project.
+
+        e.g: GitHubService, GitLabService.
+        """
         from readthedocs.oauth.services import registry
 
         for service_cls in registry:
@@ -943,7 +947,11 @@ class Project(models.Model):
 
     @property
     def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        """
+        Get the provider name for project.
+
+        e.g: GitHub, GitLab, BitBucket.
+        """
         service = self.git_service_class()
         if service:
             provider = allauth_registry.by_id(service.adapter.provider_id)
@@ -962,8 +970,7 @@ class Project(models.Model):
         """
         if max_lock_age is None:
             max_lock_age = (
-                self.container_time_limit or
-                DOCKER_LIMITS.get('time') or
+                self.container_time_limit or DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
@@ -1023,7 +1030,8 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
+        for version_data in api.project(self.pk
+                                        ).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1044,20 +1052,16 @@ class Project(models.Model):
                        `Version.internal.public` queryset.
         """
         from readthedocs.builds.models import Version
-        kwargs.update(
-            {
-                'project': self,
-                'only_active': True,
-                'only_built': True,
-            },
-        )
+        kwargs.update({
+            'project': self,
+            'only_active': True,
+            'only_built': True,
+        },)
         versions = (
-            Version.internal.public(**kwargs)
-            .select_related(
+            Version.internal.public(**kwargs).select_related(
                 'project',
                 'project__main_language_project',
-            )
-            .prefetch_related(
+            ).prefetch_related(
                 Prefetch(
                     'project__superprojects',
                     ProjectRelationship.objects.all().select_related('parent'),
@@ -1099,8 +1103,8 @@ class Project(models.Model):
         # Several tags can point to the same identifier.
         # Return the stable one.
         original_stable = determine_stable_version(
-            self.versions(manager=INTERNAL)
-            .filter(identifier=current_stable.identifier)
+            self.versions(manager=INTERNAL
+                          ).filter(identifier=current_stable.identifier)
         )
         return original_stable
 
@@ -1127,8 +1131,7 @@ class Project(models.Model):
                 )
                 if identifier_updated:
                     log.info(
-                        'Update stable version: %(project)s:%(version)s',
-                        {
+                        'Update stable version: %(project)s:%(version)s', {
                             'project': self.slug,
                             'version': new_stable.identifier,
                         }
@@ -1138,8 +1141,7 @@ class Project(models.Model):
                     return new_stable
             else:
                 log.info(
-                    'Creating new stable version: %(project)s:%(version)s',
-                    {
+                    'Creating new stable version: %(project)s:%(version)s', {
                         'project': self.slug,
                         'version': new_stable.identifier,
                     }
@@ -1272,18 +1274,17 @@ class Project(models.Model):
         """
         Checks if the project can be a superproject.
 
-        This is used to handle form and serializer validations
-        if check fails returns ValidationError using to the error_class passed
+        This is used to handle form and serializer validations if check fails
+        returns ValidationError using to the error_class passed
         """
         # Check the parent project is not a subproject already
         if self.superprojects.exists():
-            raise error_class(
-                _('Subproject nesting is not supported'),
-            )
+            raise error_class(_('Subproject nesting is not supported'),)
 
     def get_subproject_candidates(self, user):
         """
-        Get a queryset of projects that would be valid as a subproject for this project.
+        Get a queryset of projects that would be valid as a subproject for this
+        project.
 
         This excludes:
 
@@ -1299,11 +1300,11 @@ class Project(models.Model):
         """
         organization = self.organizations.first()
         queryset = (
-            Project.objects.for_admin_user(user)
-            .filter(organizations=organization)
-            .exclude(subprojects__isnull=False)
-            .exclude(superprojects__isnull=False)
-            .exclude(pk=self.pk)
+            Project.objects.for_admin_user(user).filter(
+                organizations=organization
+            ).exclude(subprojects__isnull=False
+                      ).exclude(superprojects__isnull=False
+                                ).exclude(pk=self.pk)
         )
         return queryset
 
@@ -1399,7 +1400,8 @@ class ImportedFile(models.Model):
     rank = models.IntegerField(
         _('Page search rank'),
         default=0,
-        validators=[MinValueValidator(-10), MaxValueValidator(10)],
+        validators=[MinValueValidator(-10),
+                    MaxValueValidator(10)],
     )
     ignore = models.BooleanField(
         _('Ignore this file from operations like indexing'),
@@ -1542,12 +1544,14 @@ class Domain(TimeStampedModel, models.Model):
         help_text=_('Set a custom max-age (eg. 31536000) for the HSTS header')
     )
     hsts_include_subdomains = models.BooleanField(
-        default=False,
-        help_text=_('If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header')
+        default=False, help_text=_(
+            'If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header'
+        )
     )
     hsts_preload = models.BooleanField(
-        default=False,
-        help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
+        default=False, help_text=_(
+            'If hsts_max_age > 0, set the preload flag with the HSTS header'
+        )
     )
 
     objects = RelatedProjectQuerySet.as_manager()
@@ -1608,7 +1612,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
     )
 
     def __str__(self):
-        return f"HttpHeader: {self.name} on {self.domain.domain}"
+        return f'HttpHeader: {self.name} on {self.domain.domain}'
 
 
 class Feature(models.Model):
@@ -1719,7 +1723,9 @@ class Feature(models.Model):
         ),
         (
             CACHED_ENVIRONMENT,
-            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+            _(
+                'Cache the environment (virtualenv, conda, pip cache, repository) in storage'
+            ),
         ),
         (
             LIMIT_CONCURRENT_BUILDS,
@@ -1773,9 +1779,10 @@ class Feature(models.Model):
         ),
         (
             INDEX_FROM_HTML_FILES,
-            _('Index content directly from html files instead or relying in other sources'),
+            _(
+                'Index content directly from html files instead or relying in other sources'
+            ),
         ),
-
         (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
@@ -1785,7 +1792,9 @@ class Feature(models.Model):
         ),
         (
             VCS_REMOTE_LISTING,
-            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
+            _(
+                'Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'
+            ),
         ),
         (
             SPHINX_PARALLEL,
@@ -1801,7 +1810,9 @@ class Feature(models.Model):
         ),
         (
             DONT_CREATE_INDEX,
-            _('Do not create index.md or README.rst if the project does not have one.'),
+            _(
+                'Do not create index.md or README.rst if the project does not have one.'
+            ),
         ),
     )
 

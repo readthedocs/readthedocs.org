@@ -279,7 +279,7 @@ in the ``.readthedocs.yaml`` config file if it contains::
       - python=3.9
       - scipy
       ...
-      
+
 .. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
 
 

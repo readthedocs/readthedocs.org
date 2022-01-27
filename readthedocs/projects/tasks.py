@@ -94,8 +94,7 @@ class CachedEnvironmentMixin:
 
         msg = 'Checking for cached environment'
         log.debug(
-            LOG_TEMPLATE,
-            {
+            LOG_TEMPLATE, {
                 'project': self.project.slug,
                 'version': self.version.slug,
                 'msg': msg,
@@ -104,8 +103,7 @@ class CachedEnvironmentMixin:
         if build_environment_storage.exists(filename):
             msg = 'Pulling down cached environment from storage'
             log.info(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': msg,
@@ -147,8 +145,7 @@ class CachedEnvironmentMixin:
         with open(tmp_filename, 'rb') as fd:
             msg = 'Pushing up cached environment to storage'
             log.info(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': msg,
@@ -188,8 +185,7 @@ class SyncRepositoryMixin:
         All VCS commands will be executed using `environment`.
         """
         version_repo = self.project.vcs_repo(
-            version=self.version.slug,
-            environment=environment,
+            version=self.version.slug, environment=environment,
             verbose_name=self.version.verbose_name,
             version_type=self.version.type
         )
@@ -214,8 +210,7 @@ class SyncRepositoryMixin:
             identifier=self.version.identifier,
         )
         log.info(
-            LOG_TEMPLATE,
-            {
+            LOG_TEMPLATE, {
                 'project': self.project.slug,
                 'version': self.version.slug,
                 'msg': msg,
@@ -237,11 +232,8 @@ class SyncRepositoryMixin:
         """
         tags = None
         branches = None
-        if (
-            version_repo.supports_lsremote and
-            not version_repo.repo_exists() and
-            self.project.has_feature(Feature.VCS_REMOTE_LISTING)
-        ):
+        if (version_repo.supports_lsremote and not version_repo.repo_exists() and
+                self.project.has_feature(Feature.VCS_REMOTE_LISTING)):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.
@@ -251,35 +243,25 @@ class SyncRepositoryMixin:
         branches_data = []
         tags_data = []
 
-        if (
-            version_repo.supports_tags and
-            not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
-        ):
+        if (version_repo.supports_tags and
+                not self.project.has_feature(Feature.SKIP_SYNC_TAGS)):
             # Will be an empty list if we called lsremote and had no tags returned
             if tags is None:
                 tags = version_repo.tags
-            tags_data = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
-                for v in tags
-            ]
+            tags_data = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in tags]
 
-        if (
-            version_repo.supports_branches and
-            not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        ):
+        if (version_repo.supports_branches and
+                not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)):
             # Will be an empty list if we called lsremote and had no branches returned
             if branches is None:
                 branches = version_repo.branches
-            branches_data = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
-                for v in branches
-            ]
+            branches_data = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in branches]
 
         self.validate_duplicate_reserved_versions(
             tags_data=tags_data,
@@ -303,8 +285,7 @@ class SyncRepositoryMixin:
         :param data: Dict containing the versions from tags and branches
         """
         version_names = [
-            version['verbose_name']
-            for version in tags_data + branches_data
+            version['verbose_name'] for version in tags_data + branches_data
         ]
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
@@ -427,18 +408,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         """
         Update Read the Docs versions from VCS repository.
 
-        Depending if the VCS backend supports remote listing, we just list its branches/tags
-        remotely or we do a full clone and local listing of branches/tags.
+        Depending if the VCS backend supports remote listing, we just list its
+        branches/tags remotely or we do a full clone and local listing of
+        branches/tags.
         """
         version_repo = self.get_vcs_repo(environment)
         if any([
                 not version_repo.supports_lsremote,
-                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
-        ]):
-            log.info('Syncing repository via full clone. project=%s', self.project.slug)
+                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),]):
+            log.info(
+                'Syncing repository via full clone. project=%s',
+                self.project.slug
+            )
             self.sync_repo(environment)
         else:
-            log.info('Syncing repository via remote listing. project=%s', self.project.slug)
+            log.info(
+                'Syncing repository via remote listing. project=%s',
+                self.project.slug
+            )
             self.sync_versions(version_repo)
 
 
@@ -450,7 +437,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 def update_docs_task(self, version_pk, *args, **kwargs):
 
     def sigterm_received(*args, **kwargs):
-        log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+        log.warning(
+            'SIGTERM received. Waiting for build to stop gracefully after it finishes.'
+        )
 
     # Do not send the SIGTERM signal to children (pip is automatically killed when
     # receives SIGTERM and make the build to fail one command and stop build)
@@ -481,16 +470,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
     """
 
     def __init__(
-            self,
-            build_env=None,
-            python_env=None,
-            config=None,
-            force=False,
-            build=None,
-            project=None,
-            version=None,
-            commit=None,
-            task=None,
+        self,
+        build_env=None,
+        python_env=None,
+        config=None,
+        force=False,
+        build=None,
+        project=None,
+        version=None,
+        commit=None,
+        task=None,
     ):
         self.build_env = build_env
         self.python_env = python_env
@@ -514,8 +503,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, commit=None, record=True,
-            force=False, **__
+        self, version_pk, build_pk=None, commit=None, record=True, force=False,
+        **__
     ):
         """
         Run a documentation sync n' build.
@@ -563,8 +552,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 try:
-                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
-                    concurrency_limit_reached = response.get('limit_reached', False)
+                    response = api_v2.build.concurrent.get(
+                        project__slug=self.project.slug
+                    )
+                    concurrency_limit_reached = response.get(
+                        'limit_reached', False
+                    )
                     max_concurrent_builds = response.get(
                         'max_concurrent',
                         settings.RTD_MAX_CONCURRENT_BUILDS,
@@ -704,8 +697,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 environment.failure,
             )
             log.info(
-                LOG_TEMPLATE,
-                {
+                LOG_TEMPLATE, {
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': msg,
@@ -717,7 +709,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(environment.failure, VersionLockedError):
-                self.send_notifications(self.version.pk, self.build['id'], email=True)
+                self.send_notifications(
+                    self.version.pk, self.build['id'], email=True
+                )
 
             return False
 
@@ -766,11 +760,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             python_env_cls = Virtualenv
             if any([
                     self.config.conda is not None,
-                    self.config.python_interpreter in ('conda', 'mamba'),
-            ]):
+                    self.config.python_interpreter in ('conda', 'mamba'),]):
                 log.info(
-                    LOG_TEMPLATE,
-                    {
+                    LOG_TEMPLATE, {
                         'project': self.project.slug,
                         'version': self.version.slug,
                         'msg': 'Using conda',
@@ -825,41 +817,38 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         if self.build_env.failed:
             # Send Webhook and email notification for build failure.
-            self.send_notifications(self.version.pk, self.build['id'], email=True)
+            self.send_notifications(
+                self.version.pk, self.build['id'], email=True
+            )
 
             if self.commit:
                 send_external_build_status(
-                    version_type=self.version.type,
-                    build_pk=self.build['id'],
-                    commit=self.commit,
-                    status=BUILD_STATUS_FAILURE
+                    version_type=self.version.type, build_pk=self.build['id'],
+                    commit=self.commit, status=BUILD_STATUS_FAILURE
                 )
         elif self.build_env.successful:
             # Send Webhook notification for build success.
-            self.send_notifications(self.version.pk, self.build['id'], email=False)
+            self.send_notifications(
+                self.version.pk, self.build['id'], email=False
+            )
 
             # Push cached environment on success for next build
             self.push_cached_environment()
 
             if self.commit:
                 send_external_build_status(
-                    version_type=self.version.type,
-                    build_pk=self.build['id'],
-                    commit=self.commit,
-                    status=BUILD_STATUS_SUCCESS
+                    version_type=self.version.type, build_pk=self.build['id'],
+                    commit=self.commit, status=BUILD_STATUS_SUCCESS
                 )
         else:
             if self.commit:
                 msg = 'Unhandled Build Status'
                 send_external_build_status(
-                    version_type=self.version.type,
-                    build_pk=self.build['id'],
-                    commit=self.commit,
-                    status=BUILD_STATUS_FAILURE
+                    version_type=self.version.type, build_pk=self.build['id'],
+                    commit=self.commit, status=BUILD_STATUS_FAILURE
                 )
                 log.warning(
-                    LOG_TEMPLATE,
-                    {
+                    LOG_TEMPLATE, {
                         'project': self.project.slug,
                         'version': self.version.slug,
                         'msg': msg,
@@ -904,8 +893,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         environment.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
-            LOG_TEMPLATE,
-            {
+            LOG_TEMPLATE, {
                 'project': self.project.slug,
                 'version': self.version.slug,
                 'msg': 'Updating docs from VCS',
@@ -968,17 +956,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
-        env.update(self.project.environment_variables(
-            public_only=self.version.is_external
-        ))
+        env.update(
+            self.project.environment_variables(
+                public_only=self.version.is_external
+            )
+        )
 
         return env
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        api_v2.project(self.project.pk).patch(
-            {'has_valid_clone': True}
-        )
+        api_v2.project(self.project.pk).patch({'has_valid_clone': True})
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
@@ -992,13 +980,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.build['config'] = config
 
     def store_build_artifacts(
-            self,
-            environment,
-            html=False,
-            localmedia=False,
-            search=False,
-            pdf=False,
-            epub=False,
+        self,
+        environment,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
     ):
         """
         Save build artifacts to "storage" using Django's storage API.
@@ -1112,12 +1100,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 )
 
     def update_app_instances(
-            self,
-            html=False,
-            localmedia=False,
-            search=False,
-            pdf=False,
-            epub=False,
+        self,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
     ):
         """Update build artifacts and index search data."""
         # Update version if we have successfully built HTML output
@@ -1195,12 +1183,20 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         packages = self.config.build.apt_packages
         if packages:
             self.build_env.run(
-                'apt-get', 'update', '--assume-yes', '--quiet',
+                'apt-get',
+                'update',
+                '--assume-yes',
+                '--quiet',
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
             # put ``--`` to end all command arguments.
             self.build_env.run(
-                'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
+                'apt-get',
+                'install',
+                '--assume-yes',
+                '--quiet',
+                '--',
+                *packages,
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
 
@@ -1253,18 +1249,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         """
         Build search data.
 
-        .. note::
-           For MkDocs search is indexed from its ``html`` artifacts.
-           And in sphinx is run using the rtd-sphinx-extension.
+        .. note::    For MkDocs search is indexed from its ``html`` artifacts.
+        And in sphinx is run using the rtd-sphinx-extension.
         """
         return self.is_type_sphinx()
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
-        if (
-            'htmlzip' not in self.config.formats or
-            self.version.type == EXTERNAL
-        ):
+        if ('htmlzip' not in self.config.formats or
+                self.version.type == EXTERNAL):
             return False
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
@@ -1400,7 +1393,9 @@ def _create_intersphinx_data(version, commit, build):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
-    type_file = build_media_storage.join(json_storage_path, 'readthedocs-sphinx-domain-names.json')
+    type_file = build_media_storage.join(
+        json_storage_path, 'readthedocs-sphinx-domain-names.json'
+    )
     types = {}
     titles = {}
     if build_media_storage.exists(type_file):
@@ -1409,7 +1404,9 @@ def _create_intersphinx_data(version, commit, build):
             types = data['types']
             titles = data['titles']
         except Exception:
-            log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
+            log.exception(
+                'Exception parsing readthedocs-sphinx-domain-names.json'
+            )
 
     # These classes are copied from Sphinx
     # https://github.com/sphinx-doc/sphinx/blob/d79d041f4f90818e0b495523fdcc28db12783caf/sphinx/ext/intersphinx.py#L400-L403  # noqa
@@ -1469,17 +1466,16 @@ def _create_intersphinx_data(version, commit, build):
                 doc_name += 'index.html'
 
             html_file = HTMLFile.objects.filter(
-                project=version.project, version=version,
-                path=doc_name, build=build,
+                project=version.project,
+                version=version,
+                path=doc_name,
+                build=build,
             ).first()
 
             if not html_file:
                 log.debug(
                     '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
-                    version.project,
-                    version,
-                    build,
-                    doc_name
+                    version.project, version, build, doc_name
                 )
 
                 # Don't create Sphinx Domain objects
@@ -1510,10 +1506,8 @@ def clean_build(version_pk):
     except Exception:
         log.exception('Error while fetching the version from the api')
         return False
-    if (
-        not settings.RTD_CLEAN_AFTER_BUILD and
-        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
-    ):
+    if (not settings.RTD_CLEAN_AFTER_BUILD and
+            not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
@@ -1525,9 +1519,7 @@ def clean_build(version_pk):
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'envs', 'conda')
     ]
-    del_dirs.append(
-        os.path.join(version.project.doc_path, '.cache')
-    )
+    del_dirs.append(os.path.join(version.project.doc_path, '.cache'))
     try:
         with version.project.repo_nonblockinglock(version):
             log.info('Removing: %s', del_dirs)
@@ -1538,7 +1530,9 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
+def _create_imported_files(
+    *, version, commit, build, search_ranking, search_ignore
+):
     """
     Create imported files for version.
 
@@ -1620,19 +1614,17 @@ def _sync_imported_files(version, build):
     # This has to be done before deleting ImportedFiles and not with a cascade,
     # because multiple Domain's can reference a specific HTMLFile.
     (
-        SphinxDomain.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
+        SphinxDomain.objects.filter(project=version.project,
+                                    version=version).exclude(build=build
+                                                             ).delete()
     )
 
     # Delete ImportedFiles objects (including HTMLFiles)
     # from the previous build of the version.
     (
-        ImportedFile.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
+        ImportedFile.objects.filter(project=version.project,
+                                    version=version).exclude(build=build
+                                                             ).delete()
     )
 
 
@@ -1650,8 +1642,8 @@ def send_notifications(version_pk, build_pk, email=False):
 
     if email:
         for email_address in version.project.emailhook_notifications.all().values_list(
-            'email',
-            flat=True,
+                'email',
+                flat=True,
         ):
             email_notification(version, build, email_address)
 
@@ -1665,8 +1657,7 @@ def email_notification(version, build, email):
     :param email: Email recipient address
     """
     log.debug(
-        LOG_TEMPLATE,
-        {
+        LOG_TEMPLATE, {
             'project': version.project.slug,
             'version': version.slug,
             'msg': 'sending email to: %s' % email,
@@ -1736,8 +1727,7 @@ def webhook_notification(version, build, hook_url):
         },
     })
     log.debug(
-        LOG_TEMPLATE,
-        {
+        LOG_TEMPLATE, {
             'project': project.slug,
             'version': '',
             'msg': 'sending notification to: %s' % hook_url,
@@ -1745,9 +1735,7 @@ def webhook_notification(version, build, hook_url):
     )
     try:
         requests.post(
-            hook_url,
-            data=data,
-            headers={'content-type': 'application/json'}
+            hook_url, data=data, headers={'content-type': 'application/json'}
         )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
@@ -1848,8 +1836,7 @@ def finish_inactive_builds():
     redis_client = redis.Redis.from_url(settings.BROKER_URL)
 
     log.info(
-        'Builds not yet finished to check for stale. count=%s',
-        builds.count()
+        'Builds not yet finished to check for stale. count=%s', builds.count()
     )
     for build in builds:
         build_stale = True
@@ -1891,7 +1878,9 @@ def finish_inactive_builds():
                         build_stale = False
                         break
                 except Exception:
-                    log.exception('There was an error accesssing the Celery task inspect.')
+                    log.exception(
+                        'There was an error accesssing the Celery task inspect.'
+                    )
 
             if not build_stale:
                 # Continue with the following build that matches the filter
@@ -1933,7 +1922,9 @@ def finish_inactive_builds():
                         build_stale = False
                         break
                 except Exception:
-                    log.exception('There was an error accesssing the Celery task from Redis.')
+                    log.exception(
+                        'There was an error accesssing the Celery task from Redis.'
+                    )
 
             if not build_stale:
                 # Continue with the following build that matches the filter
@@ -1962,12 +1953,13 @@ def finish_inactive_builds():
 
 def send_external_build_status(version_type, build_pk, commit, status):
     """
-    Check if build is external and Send Build Status for project external versions.
+    Check if build is external and Send Build Status for project external
+    versions.
 
-     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
-     :param build_pk: Build pk
-     :param commit: commit sha of the pull/merge request
-     :param status: build status failed, pending, or success to be sent.
+    :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
+    :param build_pk: Build pk
+    :param commit: commit sha of the pull/merge request
+    :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.

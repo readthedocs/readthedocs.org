@@ -13,4 +13,6 @@ def wipe_version_via_slugs(version_slug, project_slug):
     )
 
     # Delete the cache environment from storage
-    build_environment_storage.delete(version.get_storage_environment_cache_path())
+    build_environment_storage.delete(
+        version.get_storage_environment_cache_path()
+    )

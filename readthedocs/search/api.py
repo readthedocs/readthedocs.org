@@ -26,8 +26,8 @@ class PaginatorPage:
     """
     Mimics the result from a paginator.
 
-    By using this class, we avoid having to override a lot of methods
-    of `PageNumberPagination` to make it work with the ES DSL object.
+    By using this class, we avoid having to override a lot of methods of
+    `PageNumberPagination` to make it work with the ES DSL object.
     """
 
     def __init__(self, page_number, total_pages, count):
@@ -86,11 +86,11 @@ class SearchPagination(PageNumberPagination):
         if page_number <= 0:
             msg = self.invalid_page_message.format(
                 page_number=original_page_number,
-                message=_("Invalid page"),
+                message=_('Invalid page'),
             )
             raise NotFound(msg)
 
-        start = (page_number - 1) * page_size
+        start = (page_number-1) * page_size
         end = page_number * page_size
 
         result = []
@@ -171,7 +171,7 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
         for param in missing_params:
-            errors[param] = [_("This query param is required")]
+            errors[param] = [_('This query param is required')]
         if errors:
             raise ValidationError(errors)
 
@@ -213,7 +213,9 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
                 alias=None,
                 version=VersionData(
                     slug=main_version.slug,
-                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+                    docs_url=main_project.get_docs_url(
+                        version_slug=main_version.slug
+                    ),
                 ),
             )
         }
@@ -236,7 +238,9 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
 
             if version and self._has_permission(self.request.user, version):
                 url = subproject.get_docs_url(version_slug=version.slug)
-                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
+                project_alias = subproject.superprojects.values_list(
+                    'alias', flat=True
+                ).first()
                 version_data = VersionData(
                     slug=version.slug,
                     docs_url=url,
@@ -251,15 +255,12 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
     def _get_subproject_version(self, version_slug, subproject):
         """Get a version from the subproject."""
         return (
-            Version.internal
-            .public(
+            Version.internal.public(
                 user=self.request.user,
                 project=subproject,
                 include_hidden=False,
                 only_built=True,
-            )
-            .filter(slug=version_slug)
-            .first()
+            ).filter(slug=version_slug).first()
         )
 
     def _has_permission(self, user, version):
@@ -267,8 +268,8 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         Check if `user` is authorized to access `version`.
 
         The queryset from `_get_subproject_version` already filters public
-        projects. This is mainly to be overridden in .com to make use of
-        the auth backends in the proxied API.
+        projects. This is mainly to be overridden in .com to make use of the
+        auth backends in the proxied API.
         """
         return True
 
@@ -317,7 +318,9 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
             query=query,
             projects=projects,
             aggregate_results=False,
-            use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
+            use_advanced_query=not main_project.has_feature(
+                Feature.DEFAULT_TO_FUZZY_SEARCH
+            ),
         )
         return queryset
 
@@ -336,7 +339,9 @@ class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
         """List the results using pagination."""
         queryset = self.get_queryset()
         page = self.paginator.paginate_queryset(
-            queryset, self.request, view=self,
+            queryset,
+            self.request,
+            view=self,
         )
         serializer = self.get_serializer(page, many=True)
         return self.paginator.get_paginated_response(serializer.data)

@@ -6,8 +6,8 @@ from django.contrib.auth.signals import (
     user_logged_out,
     user_login_failed,
 )
-from django.dispatch import receiver
 from django.db.models import Q
+from django.dispatch import receiver
 
 from readthedocs.audit.models import AuditLog
 
@@ -43,8 +43,7 @@ def log_login_failed(sender, credentials, request, **kwargs):
     # pylint: disable=unused-argument
     username = credentials.get('username')
     user = (
-        User.objects.filter(Q(username=username) | Q(email=username))
-        .first()
+        User.objects.filter(Q(username=username) | Q(email=username)).first()
     )
     AuditLog.objects.new(
         action=AuditLog.AUTHN_FAILURE,

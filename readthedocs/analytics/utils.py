@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utilities related to analytics."""
 
 import hashlib
@@ -12,7 +10,6 @@ from django.utils.crypto import get_random_string
 from django.utils.encoding import force_bytes, force_text
 from user_agents import parse
 
-
 log = logging.getLogger(__name__)  # noqa
 
 
@@ -20,9 +17,10 @@ def get_client_ip(request):
     """
     Gets the real client's IP address.
 
-    It returns the real IP address of the client based on ``HTTP_X_FORWARDED_FOR``
-    header. If ``HTTP_X_FORWARDED_FOR`` is not found, it returns the value of
-    ``REMOTE_ADDR`` header and returns ``None`` if both the headers are not found.
+    It returns the real IP address of the client based on
+    ``HTTP_X_FORWARDED_FOR`` header. If ``HTTP_X_FORWARDED_FOR`` is not found,
+    it returns the value of ``REMOTE_ADDR`` header and returns ``None`` if both
+    the headers are not found.
     """
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)
     if x_forwarded_for:

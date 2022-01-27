@@ -7,8 +7,8 @@ def forwards_func(apps, schema_editor):
     """
     Post migration ip field from GenericIPAddressField to CharField.
 
-    GenericIPAddressField saves the IP with ``{ip}/{range}`` format.
-    We don't need to show the range to users.
+    GenericIPAddressField saves the IP with ``{ip}/{range}`` format. We don't
+    need to show the range to users.
     """
     AuditLog = apps.get_model('audit', 'AuditLog')
     for auditlog in AuditLog.objects.all().iterator():

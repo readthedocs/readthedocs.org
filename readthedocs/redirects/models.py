@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django models for the redirects app."""
 
 import logging
@@ -13,7 +11,6 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
 from .querysets import RedirectQuerySet
-
 
 log = logging.getLogger(__name__)
 
@@ -145,7 +142,10 @@ class Redirect(models.Model):
             )
         return ''
 
-    def get_full_path(self, filename, language=None, version_slug=None, allow_crossdomain=False):
+    def get_full_path(
+        self, filename, language=None, version_slug=None,
+        allow_crossdomain=False
+    ):
         """
         Return a full path for a given filename.
 
@@ -200,7 +200,9 @@ class Redirect(models.Model):
         full_path = path
         if language and version_slug:
             # reconstruct the full path for an exact redirect
-            full_path = self.get_full_path(path, language, version_slug, allow_crossdomain=False)
+            full_path = self.get_full_path(
+                path, language, version_slug, allow_crossdomain=False
+            )
         if full_path == self.from_url:
             log.debug('Redirecting %s', self)
             return self.to_url

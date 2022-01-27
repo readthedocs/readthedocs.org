@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from io import StringIO
 
 from pytest import raises

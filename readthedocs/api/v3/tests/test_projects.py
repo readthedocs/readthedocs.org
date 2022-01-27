@@ -206,7 +206,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             'analytics_code': 'UA-XXXXXX',
             'show_version_warning': False,
             'single_version': True,
-            "external_builds_enabled": True
+            'external_builds_enabled': True
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

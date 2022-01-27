@@ -10,11 +10,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build, Version
-from readthedocs.integrations.models import (
-    GitHubWebhook,
-    GitLabWebhook,
-)
-from readthedocs.oauth.constants import GITHUB, BITBUCKET, GITLAB
+from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
+from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -52,10 +49,10 @@ class GitHubOAuthTests(TestCase):
         )
         self.provider_data = [
             {
-                "config": {
-                    "url": "https://example.com/webhook"
+                'config': {
+                    'url': 'https://example.com/webhook'
                 },
-                "url": "https://api.github.com/repos/test/Hello-World/hooks/12345678",
+                'url': 'https://api.github.com/repos/test/Hello-World/hooks/12345678',
             }
         ]
 
@@ -195,7 +192,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "GitHub commit status created for project: %s, commit status: %s",
+            'GitHub commit status created for project: %s, commit status: %s',
             self.project.slug,
             BUILD_STATUS_SUCCESS
         )
@@ -236,9 +233,8 @@ class GitHubOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         repo_json = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
@@ -268,7 +264,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitHub webhook creation successful for project: %s",
+            'GitHub webhook creation successful for project: %s',
             self.project,
         )
 
@@ -322,7 +318,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitHub webhook update successful for project: %s",
+            'GitHub webhook update successful for project: %s',
             self.project,
         )
 
@@ -391,7 +387,7 @@ class GitHubOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data[0]["config"]["url"] = rtd_webhook_url
+        webhook_data[0]['config']['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data
@@ -665,9 +661,8 @@ class BitbucketOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         data = self.repo_response_data.copy()
         data['is_private'] = False
         repo = self.service.create_repository(data, organization=self.org)
@@ -703,7 +698,7 @@ class BitbucketOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook creation successful for project: %s",
+            'Bitbucket webhook creation successful for project: %s',
             self.project,
         )
 
@@ -750,7 +745,7 @@ class BitbucketOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "Bitbucket webhook update successful for project: %s",
+            'Bitbucket webhook update successful for project: %s',
             self.project,
         )
 
@@ -816,7 +811,7 @@ class BitbucketOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data['values'][0]["url"] = rtd_webhook_url
+        webhook_data['values'][0]['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data
@@ -1063,9 +1058,8 @@ class GitLabOAuthTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
+        """Test ability to import ``public`` repositories under ``private``
+        level."""
         data = self.repo_response_data.copy()
         data['visibility'] = 'public'
         repo = self.service.create_repository(data, organization=self.org)
@@ -1086,7 +1080,7 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "GitLab commit status created for project: %s, commit status: %s",
+            'GitLab commit status created for project: %s, commit status: %s',
             self.project.slug,
             BUILD_STATUS_SUCCESS
         )
@@ -1146,7 +1140,7 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitLab webhook creation successful for project: %s",
+            'GitLab webhook creation successful for project: %s',
             self.project,
         )
 
@@ -1203,7 +1197,7 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitLab webhook update successful for project: %s",
+            'GitLab webhook update successful for project: %s',
             self.project,
         )
 
@@ -1278,7 +1272,7 @@ class GitLabOAuthTests(TestCase):
                 },
             )
         )
-        webhook_data[0]["url"] = rtd_webhook_url
+        webhook_data[0]['url'] = rtd_webhook_url
 
         session().get.return_value.status_code = 200
         session().get.return_value.json.return_value = webhook_data

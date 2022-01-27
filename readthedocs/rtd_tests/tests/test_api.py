@@ -622,11 +622,8 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_build_filter_by_commit(self):
-        """
-        Create a build with commit
-        Should return the list of builds according to the
-        commit query params
-        """
+        """Create a build with commit Should return the list of builds according
+        to the commit query params."""
         project1 = Project.objects.get(pk=1)
         project2 = Project.objects.get(pk=2)
         version1 = project1.versions.first()
@@ -914,24 +911,24 @@ class IntegrationsTests(TestCase):
         self.github_payload = {
             'ref': 'master',
         }
-        self.commit = "ec26de721c3235aad62de7213c562f8c821"
+        self.commit = 'ec26de721c3235aad62de7213c562f8c821'
         self.github_pull_request_payload = {
-            "action": "opened",
-            "number": 2,
-            "pull_request": {
-                "head": {
-                    "sha": self.commit
+            'action': 'opened',
+            'number': 2,
+            'pull_request': {
+                'head': {
+                    'sha': self.commit
                 }
             }
         }
         self.gitlab_merge_request_payload = {
-            "object_kind": GITLAB_MERGE_REQUEST,
-            "object_attributes": {
-                "iid": '2',
-                "last_commit": {
-                    "id": self.commit
+            'object_kind': GITLAB_MERGE_REQUEST,
+            'object_attributes': {
+                'iid': '2',
+                'last_commit': {
+                    'id': self.commit
                 },
-                "action": "open"
+                'action': 'open'
             },
         }
         self.gitlab_payload = {
@@ -1130,8 +1127,8 @@ class IntegrationsTests(TestCase):
         # Update the payload for `reopened` webhook event
         pull_request_number = '5'
         payload = self.github_pull_request_payload
-        payload["action"] = GITHUB_PULL_REQUEST_REOPENED
-        payload["number"] = pull_request_number
+        payload['action'] = GITHUB_PULL_REQUEST_REOPENED
+        payload['number'] = pull_request_number
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
         resp = client.post(
@@ -1175,8 +1172,8 @@ class IntegrationsTests(TestCase):
 
         # Update the payload for `synchronize` webhook event
         payload = self.github_pull_request_payload
-        payload["action"] = GITHUB_PULL_REQUEST_SYNC
-        payload["number"] = pull_request_number
+        payload['action'] = GITHUB_PULL_REQUEST_SYNC
+        payload['number'] = pull_request_number
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
         resp = client.post(
@@ -1221,9 +1218,9 @@ class IntegrationsTests(TestCase):
 
         # Update the payload for `closed` webhook event
         payload = self.github_pull_request_payload
-        payload["action"] = GITHUB_PULL_REQUEST_CLOSED
-        payload["number"] = pull_request_number
-        payload["pull_request"]["head"]["sha"] = identifier
+        payload['action'] = GITHUB_PULL_REQUEST_CLOSED
+        payload['number'] = pull_request_number
+        payload['pull_request']['head']['sha'] = identifier
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
         resp = client.post(
@@ -1248,10 +1245,10 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "number": 2,
-            "pull_request": {
-                "head": {
-                    "sha": "ec26de721c3235aad62de7213c562f8c821"
+            'number': 2,
+            'pull_request': {
+                'head': {
+                    'sha': 'ec26de721c3235aad62de7213c562f8c821'
                 }
             }
         }
@@ -1269,8 +1266,8 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "action": GITHUB_PULL_REQUEST_OPENED,
-            "number": 2,
+            'action': GITHUB_PULL_REQUEST_OPENED,
+            'number': 2,
         }
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
         resp = client.post(
@@ -1286,8 +1283,8 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "action": GITHUB_PULL_REQUEST_CLOSED,
-            "number": 2,
+            'action': GITHUB_PULL_REQUEST_CLOSED,
+            'number': 2,
         }
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
         resp = client.post(
@@ -1443,7 +1440,8 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_github_sync_on_push_event(self, trigger_build):
-        """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
+        """Sync if the webhook doesn't have the create/delete events, but we
+        receive a push event with created/deleted."""
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
@@ -1475,7 +1473,8 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.json()['versions_synced'])
 
     def test_github_dont_trigger_double_sync(self, trigger_build):
-        """Don't trigger a sync twice if the webhook has the create/delete events."""
+        """Don't trigger a sync twice if the webhook has the create/delete
+        events."""
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
@@ -1813,8 +1812,8 @@ class IntegrationsTests(TestCase):
         # Update the payload for `reopen` webhook event
         merge_request_number = '5'
         payload = self.gitlab_merge_request_payload
-        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_REOPEN
-        payload["object_attributes"]["iid"] = merge_request_number
+        payload['object_attributes']['action'] = GITLAB_MERGE_REQUEST_REOPEN
+        payload['object_attributes']['iid'] = merge_request_number
 
         resp = client.post(
             reverse(
@@ -1859,8 +1858,8 @@ class IntegrationsTests(TestCase):
 
         # Update the payload for merge request `update` webhook event
         payload = self.gitlab_merge_request_payload
-        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_UPDATE
-        payload["object_attributes"]["iid"] = merge_request_number
+        payload['object_attributes']['action'] = GITLAB_MERGE_REQUEST_UPDATE
+        payload['object_attributes']['iid'] = merge_request_number
 
         resp = client.post(
             reverse(
@@ -1906,9 +1905,9 @@ class IntegrationsTests(TestCase):
 
         # Update the payload for `closed` webhook event
         payload = self.gitlab_merge_request_payload
-        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_CLOSE
-        payload["object_attributes"]["iid"] = merge_request_number
-        payload["object_attributes"]["last_commit"]["id"] = identifier
+        payload['object_attributes']['action'] = GITLAB_MERGE_REQUEST_CLOSE
+        payload['object_attributes']['iid'] = merge_request_number
+        payload['object_attributes']['last_commit']['id'] = identifier
 
         resp = client.post(
             reverse(
@@ -1950,9 +1949,9 @@ class IntegrationsTests(TestCase):
 
         # Update the payload for `merge` webhook event
         payload = self.gitlab_merge_request_payload
-        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_MERGE
-        payload["object_attributes"]["iid"] = merge_request_number
-        payload["object_attributes"]["last_commit"]["id"] = identifier
+        payload['object_attributes']['action'] = GITLAB_MERGE_REQUEST_MERGE
+        payload['object_attributes']['iid'] = merge_request_number
+        payload['object_attributes']['last_commit']['id'] = identifier
 
         resp = client.post(
             reverse(
@@ -1978,11 +1977,11 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "object_kind": GITLAB_MERGE_REQUEST,
-            "object_attributes": {
-                "iid": 2,
-                "last_commit": {
-                    "id": self.commit
+            'object_kind': GITLAB_MERGE_REQUEST,
+            'object_attributes': {
+                'iid': 2,
+                'last_commit': {
+                    'id': self.commit
                 },
             },
         }
@@ -2002,9 +2001,9 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "object_kind": GITLAB_MERGE_REQUEST,
-            "object_attributes": {
-                "action": GITLAB_MERGE_REQUEST_CLOSE
+            'object_kind': GITLAB_MERGE_REQUEST,
+            'object_attributes': {
+                'action': GITLAB_MERGE_REQUEST_CLOSE
             },
         }
         resp = client.post(
@@ -2022,9 +2021,9 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {
-            "object_kind": GITLAB_MERGE_REQUEST,
-            "object_attributes": {
-                "action": GITLAB_MERGE_REQUEST_CLOSE
+            'object_kind': GITLAB_MERGE_REQUEST,
+            'object_attributes': {
+                'action': GITLAB_MERGE_REQUEST_CLOSE
             },
         }
 

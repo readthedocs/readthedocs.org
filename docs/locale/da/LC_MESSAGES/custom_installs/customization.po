@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
 # This file is distributed under the same license as the Read The Docs package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""

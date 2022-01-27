@@ -11,7 +11,6 @@ from django.core.exceptions import (
 )
 from django.utils.cache import patch_vary_headers
 from django.utils.http import http_date
-from django.utils.translation import ugettext_lazy as _
 
 log = logging.getLogger(__name__)
 
@@ -39,20 +38,20 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
 
     # Don't set a session cookie on these URLs unless the cookie is already set
     IGNORE_URLS = [
-        '/api/v2/footer_html', '/sustainability/view', '/sustainability/click',
+        '/api/v2/footer_html',
+        '/sustainability/view',
+        '/sustainability/click',
     ]
 
     # This is a fallback cookie for the regular session cookie
     # It is only used by clients that reject cookies with `SameSite=None`
-    cookie_name_fallback = f"{settings.SESSION_COOKIE_NAME}-samesiteunset"
+    cookie_name_fallback = f'{settings.SESSION_COOKIE_NAME}-samesiteunset'
 
     def process_request(self, request):
         for url in self.IGNORE_URLS:
-            if (
-                request.path_info.startswith(url) and
-                settings.SESSION_COOKIE_NAME not in request.COOKIES and
-                self.cookie_name_fallback not in request.COOKIES
-            ):
+            if (request.path_info.startswith(url) and
+                    settings.SESSION_COOKIE_NAME not in request.COOKIES and
+                    self.cookie_name_fallback not in request.COOKIES):
                 # Hack request.session otherwise the Authentication middleware complains.
                 request.session = SessionBase()  # create an empty session
                 return
@@ -69,11 +68,9 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
 
     def process_response(self, request, response):
         for url in self.IGNORE_URLS:
-            if (
-                request.path_info.startswith(url) and
-                settings.SESSION_COOKIE_NAME not in request.COOKIES and
-                self.cookie_name_fallback not in request.COOKIES
-            ):
+            if (request.path_info.startswith(url) and
+                    settings.SESSION_COOKIE_NAME not in request.COOKIES and
+                    self.cookie_name_fallback not in request.COOKIES):
                 return response
 
         # Most of the code below is taken directly from Django's SessionMiddleware.
@@ -89,11 +86,10 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
             # First check if we need to delete this cookie.
             # The session should be deleted only if the session is entirely empty
             # NOTE: This was changed to support both cookies
-            if (
-                settings.SESSION_COOKIE_NAME in request.COOKIES or
-                self.cookie_name_fallback in request.COOKIES
-            ) and empty:
-                for cookie_name in (settings.SESSION_COOKIE_NAME, self.cookie_name_fallback):
+            if (settings.SESSION_COOKIE_NAME in request.COOKIES or
+                    self.cookie_name_fallback in request.COOKIES) and empty:
+                for cookie_name in (settings.SESSION_COOKIE_NAME,
+                                    self.cookie_name_fallback):
                     if cookie_name in request.COOKIES:
                         response.delete_cookie(
                             cookie_name,
@@ -119,14 +115,16 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                         except UpdateError:
                             raise SuspiciousOperation(
                                 "The request's session was deleted before the "
-                                "request completed. The user may have logged "
-                                "out in a concurrent request, for example."
+                                'request completed. The user may have logged '
+                                'out in a concurrent request, for example.'
                             )
 
                         response.set_cookie(
                             settings.SESSION_COOKIE_NAME,
-                            request.session.session_key, max_age=max_age,
-                            expires=expires, domain=settings.SESSION_COOKIE_DOMAIN,
+                            request.session.session_key,
+                            max_age=max_age,
+                            expires=expires,
+                            domain=settings.SESSION_COOKIE_DOMAIN,
                             path=settings.SESSION_COOKIE_PATH,
                             secure=settings.SESSION_COOKIE_SECURE or None,
                             httponly=settings.SESSION_COOKIE_HTTPONLY or None,
@@ -138,16 +136,19 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                             # Forcibly set the session cookie to SameSite=None
                             # This isn't supported in Django<3.1
                             # https://github.com/django/django/pull/11894
-                            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"] = "None"
+                            response.cookies[settings.SESSION_COOKIE_NAME]['samesite'] = 'None'
 
                             # Set the fallback cookie in case the above cookie is rejected
                             response.set_cookie(
                                 self.cookie_name_fallback,
-                                request.session.session_key, max_age=max_age,
-                                expires=expires, domain=settings.SESSION_COOKIE_DOMAIN,
+                                request.session.session_key,
+                                max_age=max_age,
+                                expires=expires,
+                                domain=settings.SESSION_COOKIE_DOMAIN,
                                 path=settings.SESSION_COOKIE_PATH,
                                 secure=settings.SESSION_COOKIE_SECURE or None,
-                                httponly=settings.SESSION_COOKIE_HTTPONLY or None,
+                                httponly=settings.SESSION_COOKIE_HTTPONLY or
+                                None,
                                 samesite=settings.SESSION_COOKIE_SAMESITE,
                             )
         return response
@@ -183,11 +184,13 @@ class ReferrerPolicyMiddleware:
         self.get_response = get_response
 
         if not settings.SECURE_REFERRER_POLICY:
-            log.warning("SECURE_REFERRER_POLICY not set - not setting the referrer policy")
+            log.warning(
+                'SECURE_REFERRER_POLICY not set - not setting the referrer policy'
+            )
             raise MiddlewareNotUsed()
         if settings.SECURE_REFERRER_POLICY not in self.VALID_REFERRER_POLICIES:
             raise ImproperlyConfigured(
-                "settings.SECURE_REFERRER_POLICY has an illegal value."
+                'settings.SECURE_REFERRER_POLICY has an illegal value.'
             )
 
     def __call__(self, request):

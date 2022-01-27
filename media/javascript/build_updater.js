@@ -55,7 +55,7 @@
 
     BuildUpdater.prototype.getBuild = function() {
         _this = this;
-        
+
         $.get(this.buildUrl, function(data) {
             _this.render(data);
         });
@@ -134,4 +134,3 @@
 
 
 }).call(this);
-

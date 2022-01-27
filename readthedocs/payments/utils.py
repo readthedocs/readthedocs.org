@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Payment utility functions.
 
@@ -10,9 +8,7 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 import logging
 
 import stripe
-
 from django.conf import settings
-
 
 stripe.api_key = settings.STRIPE_SECRET
 log = logging.getLogger(__name__)

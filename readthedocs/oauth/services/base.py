@@ -16,15 +16,12 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 
-
 log = logging.getLogger(__name__)
 
 
 class SyncServiceError(Exception):
 
     """Error raised when a service failed to sync."""
-
-    pass
 
 
 class Service:
@@ -193,7 +190,8 @@ class Service:
 
     def sync(self):
         """
-        Sync repositories (RemoteRepository) and organizations (RemoteOrganization).
+        Sync repositories (RemoteRepository) and organizations
+        (RemoteOrganization).
 
         - creates a new RemoteRepository/Organization per new repository
         - updates fields for existing RemoteRepository/Organization
@@ -206,27 +204,25 @@ class Service:
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
         all_remote_repositories = remote_repositories + remote_repositories_organizations
-        repository_remote_ids = [r.remote_id for r in all_remote_repositories if r is not None]
+        repository_remote_ids = [
+            r.remote_id for r in all_remote_repositories if r is not None
+        ]
         (
-            self.user.remote_repository_relations
-            .exclude(
+            self.user.remote_repository_relations.exclude(
                 remote_repository__remote_id__in=repository_remote_ids,
                 remote_repository__vcs_provider=self.vcs_provider_slug
-            )
-            .filter(account=self.account)
-            .delete()
+            ).filter(account=self.account).delete()
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_remote_ids = [o.remote_id for o in remote_organizations if o is not None]
+        organization_remote_ids = [
+            o.remote_id for o in remote_organizations if o is not None
+        ]
         (
-            self.user.remote_organization_relations
-            .exclude(
+            self.user.remote_organization_relations.exclude(
                 remote_organization__remote_id__in=organization_remote_ids,
                 remote_organization__vcs_provider=self.vcs_provider_slug
-            )
-            .filter(account=self.account)
-            .delete()
+            ).filter(account=self.account).delete()
         )
 
     def create_repository(self, fields, privacy=None, organization=None):

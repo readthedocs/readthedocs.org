@@ -19,7 +19,7 @@ We support CDN's on both of our sites,
 as we talk about below.
 
 .. tabs::
-   
+
    .. tab:: |org_brand|
 
       On |org_brand|,

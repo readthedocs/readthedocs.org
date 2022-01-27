@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 from django.test.utils import override_settings

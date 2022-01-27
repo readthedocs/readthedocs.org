@@ -39,7 +39,11 @@ class Command(BaseCommand):
             # See: `ProjectAdminSerializer`
             username = os.environ['READTHEDOCS_USERNAME']
             auth = (username, os.environ['READTHEDOCS_PASSWORD'])
-            self.stdout.write('Using basic auth for user {username}'.format(username=username))
+            self.stdout.write(
+                'Using basic auth for user {username}'.format(
+                    username=username
+                )
+            )
 
         for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))
@@ -64,7 +68,11 @@ class Command(BaseCommand):
 
             try:
                 project = Project.objects.get(slug=slug)
-                self.stdout.write('Project {slug} already exists. Updating...'.format(slug=slug))
+                self.stdout.write(
+                    'Project {slug} already exists. Updating...'.format(
+                        slug=slug
+                    )
+                )
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
@@ -83,9 +91,9 @@ class Command(BaseCommand):
             for attribute in project_data:
                 if attribute not in exclude_attributes:
                     setattr(project, attribute, project_data[attribute])
-                    self.stdout.write(' - Setting {key} to {val}'.format(
-                        key=attribute,
-                        val=project_data[attribute]),
+                    self.stdout.write(
+                        ' - Setting {key} to {val}'
+                        .format(key=attribute, val=project_data[attribute]),
                     )
             project.user = user1
             project.save()

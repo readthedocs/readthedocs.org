@@ -24,7 +24,6 @@ from .views.model_views import (
     VersionViewSet,
 )
 
-
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, basename='build')
 router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
@@ -112,7 +111,10 @@ urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
 urlpatterns += [
-    url(r'^webhook/stripe/', StripeEventView.as_view(), name='api_webhook_stripe'),
+    url(
+        r'^webhook/stripe/', StripeEventView.as_view(),
+        name='api_webhook_stripe'
+    ),
 ]
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:

@@ -7,7 +7,7 @@ but we hope to write more of them over time.
 
 .. warning::
 
-   These documents may not match the final implementation, or may be out of date. 
+   These documents may not match the final implementation, or may be out of date.
 
 .. toctree::
    :maxdepth: 1

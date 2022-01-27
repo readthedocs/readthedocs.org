@@ -1,15 +1,14 @@
-from django.urls import reverse
-
-from allauth.socialaccount.models import SocialAccount
 import django_dynamic_fixture as fixture
+from allauth.socialaccount.models import SocialAccount
+from django.urls import reverse
 
 from readthedocs.oauth.constants import GITHUB
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteOrganizationRelation,
 )
-from .mixins import APIEndpointMixin
 
+from .mixins import APIEndpointMixin
 
 
 class RemoteOrganizationEndpointTests(APIEndpointMixin):
@@ -21,10 +20,10 @@ class RemoteOrganizationEndpointTests(APIEndpointMixin):
             RemoteOrganization,
             created=self.created,
             modified=self.modified,
-            avatar_url="https://avatars.githubusercontent.com/u/366329?v=4",
-            name="Read the Docs",
-            slug="readthedocs",
-            url="https://github.com/readthedocs",
+            avatar_url='https://avatars.githubusercontent.com/u/366329?v=4',
+            name='Read the Docs',
+            slug='readthedocs',
+            url='https://github.com/readthedocs',
             vcs_provider=GITHUB,
         )
         social_account = fixture.get(SocialAccount, user=self.me, provider=GITHUB)

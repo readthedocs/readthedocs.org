@@ -141,4 +141,3 @@ Currently, Read the Docs has not received any takedown requests.
 
 ..
     * :download:`Some Company, Inc <archive/2017-01-22.txt>`
-

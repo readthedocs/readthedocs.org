@@ -4,7 +4,6 @@ import logging
 
 from readthedocs.core.utils import send_email
 
-
 # pylint: disable=invalid-name
 log = logging.getLogger(__name__)
 

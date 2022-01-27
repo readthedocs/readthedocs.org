@@ -3,7 +3,6 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-
 BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
@@ -104,7 +103,6 @@ GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
 
-
 # Automation rules
 
 ALL_VERSIONS = 'all-versions'
@@ -114,7 +112,6 @@ SEMVER_VERSIONS = 'semver-versions'
 # Pattern referred from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
 SEMVER_VERSIONS_REGEX = r'^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa
-
 
 PREDEFINED_MATCH_ARGS = (
     (ALL_VERSIONS, _('Any version')),
@@ -133,6 +130,5 @@ BUILD_STATUS_CHOICES = (
     (BUILD_STATUS_NORMAL, 'Normal'),
     (BUILD_STATUS_DUPLICATED, 'Duplicated'),
 )
-
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit

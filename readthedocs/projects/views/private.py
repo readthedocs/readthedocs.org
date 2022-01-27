@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, TemplateView, View
+from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
     CreateView,
@@ -35,7 +35,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
@@ -93,7 +92,9 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context['type'] = 'file'
 
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
+            filter = ProjectListFilterSet(
+                self.request.GET, queryset=self.get_queryset()
+            )
             context['filter'] = filter
             context['project_list'] = filter.qs
             # Alternatively, dynamically override super()-derived `project_list` context_data
@@ -105,9 +106,9 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         """
         Sends a persistent error notification.
 
-        Checks if the user has a primary email or if the primary email
-        is verified or not. Sends a persistent error notification if
-        either of the condition is False.
+        Checks if the user has a primary email or if the primary email is
+        verified or not. Sends a persistent error notification if either of the
+        condition is False.
         """
         email_qs = user.emailaddress_set.filter(primary=True)
         email = email_qs.first()
@@ -166,9 +167,7 @@ class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['is_superproject'] = (
-            self.object.subprojects.all().exists()
-        )
+        context['is_superproject'] = (self.object.subprojects.all().exists())
         return context
 
     def get_success_url(self):
@@ -250,15 +249,17 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
 
 class ImportWizardView(
-        ProjectImportMixin, ProjectSpamMixin, PrivateViewMixin,
+        ProjectImportMixin,
+        ProjectSpamMixin,
+        PrivateViewMixin,
         SessionWizardView,
 ):
 
     """
     Project import wizard.
 
-    The get and post methods are overridden in order to save the initial_dict data
-    per session (since it's per class).
+    The get and post methods are overridden in order to save the initial_dict
+    data per session (since it's per class).
     """
 
     form_list = [
@@ -386,7 +387,8 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type', 'remote_repository', 'default_branch']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository',
+                    'default_branch']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
@@ -422,7 +424,8 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse('projects_subprojects', args=[self.get_project().slug])
 
 
-class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
+class ProjectRelationshipList(ProjectRelationListMixin,
+                              ProjectRelationshipMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -486,7 +489,9 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             username=username,
         )
         if self._is_last_user():
-            return HttpResponseBadRequest(_(f'{username} is the last owner, can\'t be removed'))
+            return HttpResponseBadRequest(
+                _(f'{username} is the last owner, can\'t be removed')
+            )
 
         project = self.get_project()
         project.users.remove(user)
@@ -546,14 +551,12 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
         emails = project.emailhook_notifications.all()
         urls = project.webhook_notifications.all()
 
-        context.update(
-            {
-                'email_form': self.get_email_form(),
-                'webhook_form': self.get_webhook_form(),
-                'emails': emails,
-                'urls': urls,
-            },
-        )
+        context.update({
+            'email_form': self.get_email_form(),
+            'webhook_form': self.get_webhook_form(),
+            'emails': emails,
+            'urls': urls,
+        },)
         return context
 
 
@@ -688,9 +691,7 @@ class DomainList(DomainMixin, ListViewWithForm):
 
         # Get the default docs domain
         ctx['default_domain'] = (
-            settings.PUBLIC_DOMAIN
-            if settings.USE_SUBDOMAIN
-            else settings.PRODUCTION_DOMAIN
+            settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN
         )
 
         return ctx
@@ -765,8 +766,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
         self.object = form.save()
         if self.object.has_sync:
             attach_webhook(
-                project_pk=self.get_project().pk,
-                user_pk=self.request.user.pk,
+                project_pk=self.get_project().pk, user_pk=self.request.user.pk,
                 integration=self.object
             )
         return HttpResponseRedirect(self.get_success_url())
@@ -910,8 +910,9 @@ class AutomationRuleList(AutomationRuleMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['matches'] = (
-            AutomationRuleMatch.objects
-            .filter(rule__project=self.get_project())
+            AutomationRuleMatch.objects.filter(
+                rule__project=self.get_project()
+            )
         )
         return context
 
@@ -979,21 +980,18 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         qs = SearchQuery.objects.filter(project=project)
         if qs.exists():
             qs = (
-                qs.values('query')
-                .annotate(count=Count('id'))
-                .order_by('-count', 'query')
+                qs.values('query').annotate(count=Count('id')
+                                            ).order_by('-count', 'query')
                 .values_list('query', 'count', 'total_results')
             )
 
             # only show top 100 queries
             queries = qs[:100]
 
-        context.update(
-            {
-                'queries': queries,
-                'query_count_of_1_month': query_count_of_1_month,
-            },
-        )
+        context.update({
+            'queries': queries,
+            'query_count_of_1_month': query_count_of_1_month,
+        },)
         return context
 
     def _get_csv_data(self):
@@ -1018,9 +1016,9 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 SearchQuery.objects.filter(
                     project=project,
                     created__date__gte=days_ago,
+                ).order_by('-created').values_list(
+                    *[value for _, value in values]
                 )
-                .order_by('-created')
-                .values_list(*[value for _, value in values])
             )
 
         filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
@@ -1029,10 +1027,9 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
 
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
+        csv_data = [[
+            timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest
+        ] for date, *rest in data]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
@@ -1049,7 +1046,8 @@ class SearchAnalytics(SettingsOverrideObject):
     _default_class = SearchAnalyticsBase
 
 
-class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin,
+                               TemplateView):
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
@@ -1070,15 +1068,12 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
         # Count of views for top pages over the month
         top_pages = PageView.top_viewed_pages(project, limit=25)
-        top_viewed_pages = list(zip(
-            top_pages['pages'],
-            top_pages['view_counts']
-        ))
+        top_viewed_pages = list(
+            zip(top_pages['pages'], top_pages['view_counts'])
+        )
 
         # Aggregate pageviews grouped by day
-        page_data = PageView.page_views_by_date(
-            project_slug=project.slug,
-        )
+        page_data = PageView.page_views_by_date(project_slug=project.slug,)
 
         context.update({
             'top_viewed_pages': top_viewed_pages,
@@ -1109,9 +1104,9 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
                 PageView.objects.filter(
                     project=project,
                     date__gte=days_ago,
+                ).order_by('-date').values_list(
+                    *[value for _, value in values]
                 )
-                .order_by('-date')
-                .values_list(*[value for _, value in values])
             )
 
         filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
@@ -1119,10 +1114,9 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
-        csv_data = [
-            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
-            for date, *rest in data
-        ]
+        csv_data = [[
+            timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest
+        ] for date, *rest in data]
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 

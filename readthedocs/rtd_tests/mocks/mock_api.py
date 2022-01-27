@@ -1,9 +1,7 @@
 """Mock versions of many API-related classes."""
 import json
 from contextlib import contextmanager
-
 from unittest import mock
-
 
 # Mock tastypi API.
 

@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Locking utilities."""
 import errno
 import logging
 import os
 import stat
 import time
-
 
 log = logging.getLogger(__name__)
 

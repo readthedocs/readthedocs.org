@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Gold subscription views."""
 
 import json
 import logging
-import stripe
 
+import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -14,20 +12,17 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-
-from vanilla import DetailView, FormView, GenericView
-from rest_framework.exceptions import APIException
-from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from vanilla import DetailView, FormView, GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
-from .models import GoldUser, LEVEL_CHOICES
-
+from .models import GoldUser
 
 log = logging.getLogger(__name__)
 
@@ -118,8 +113,7 @@ class GoldProjectRemove(GoldProjectsMixin, GenericView):
         gold_user = self.get_gold_user()
 
         project = get_object_or_404(
-            Project.objects.all(),
-            slug=self.kwargs.get('project_slug')
+            Project.objects.all(), slug=self.kwargs.get('project_slug')
         )
         gold_user.projects.remove(project)
 
@@ -137,17 +131,19 @@ class GoldCreateCheckoutSession(GenericView):
             url = reverse_lazy('gold_detail')
             url = f'{schema}://{settings.PRODUCTION_DOMAIN}{url}'
             price = json.loads(request.body).get('priceId')
-            log.info('Creating Stripe Checkout Session. user=%s price=%s', user, price)
+            log.info(
+                'Creating Stripe Checkout Session. user=%s price=%s', user,
+                price
+            )
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=user.username,
-                customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
+                customer_email=user.emailaddress_set.filter(verified=True).first() or
+                user.email,
                 payment_method_types=['card'],
-                line_items=[
-                    {
-                        'price': price,
-                        'quantity': 1,
-                    }
-                ],
+                line_items=[{
+                    'price': price,
+                    'quantity': 1,
+                }],
                 mode='subscription',
                 # We use the same URL to redirect the user. We only show a different notification.
                 success_url=f'{url}?subscribed=true',
@@ -157,9 +153,7 @@ class GoldCreateCheckoutSession(GenericView):
         except:  # noqa
             log.exception('There was an error connecting to Stripe.')
             return JsonResponse(
-                {
-                    'error': 'There was an error connecting to Stripe.'
-                },
+                {'error': 'There was an error connecting to Stripe.'},
                 status=500,
             )
 
@@ -175,7 +169,9 @@ class GoldSubscriptionPortal(GenericView):
         stripe_customer = user.gold.first().stripe_id
 
         scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-        return_url = f'{scheme}://{settings.PRODUCTION_DOMAIN}' + str(self.get_success_url())
+        return_url = f'{scheme}://{settings.PRODUCTION_DOMAIN}' + str(
+            self.get_success_url()
+        )
         try:
             billing_portal = stripe.billing_portal.Session.create(
                 customer=stripe_customer,
@@ -190,7 +186,9 @@ class GoldSubscriptionPortal(GenericView):
             )
             messages.error(
                 request,
-                _('There was an error connecting to Stripe, please try again in a few minutes'),
+                _(
+                    'There was an error connecting to Stripe, please try again in a few minutes'
+                ),
             )
             return HttpResponseRedirect(self.get_success_url())
 
@@ -221,12 +219,13 @@ class StripeEventView(APIView):
 
     def post(self, request, format=None):
         try:
-            event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
+            event = stripe.Event.construct_from(
+                request.data, settings.STRIPE_SECRET
+            )
             if event.type not in self.EVENTS:
                 log.warning('Unhandled Stripe event. event=%s', event.type)
                 return Response({
-                    'OK': False,
-                    'msg': f'Unhandled event. event={event.type}'
+                    'OK': False, 'msg': f'Unhandled event. event={event.type}'
                 })
 
             stripe_customer = event.data.object.customer
@@ -237,7 +236,9 @@ class StripeEventView(APIView):
                 if mode == 'subscription':
                     # Gold Membership
                     user = User.objects.get(username=username)
-                    subscription = stripe.Subscription.retrieve(event.data.object.subscription)
+                    subscription = stripe.Subscription.retrieve(
+                        event.data.object.subscription
+                    )
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
                         stripe_id=stripe_customer,
@@ -282,9 +283,7 @@ class StripeEventView(APIView):
                     level,
                 )
                 (
-                    GoldUser.objects
-                    .filter(stripe_id=stripe_customer)
-                    .update(
+                    GoldUser.objects.filter(stripe_id=stripe_customer).update(
                         level=level,
                         modified_date=timezone.now(),
                     )

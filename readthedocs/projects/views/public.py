@@ -76,8 +76,8 @@ def project_redirect(request, invalid_project_slug):
     """
     Redirect project slugs that have underscores (``_``).
 
-    Slugs with underscores are no longer allowed.
-    Underscores are replaced by ``-`` and then redirected to that URL.
+    Slugs with underscores are no longer allowed. Underscores are replaced by
+    ``-`` and then redirected to that URL.
     """
     new_project_slug = invalid_project_slug.replace('_', '-')
     new_path = request.path.replace(invalid_project_slug, new_project_slug)
@@ -185,11 +185,9 @@ class ProjectBadgeView(View):
 
         if version:
             last_build = (
-                version.builds
-                .filter(type='html', state='finished')
-                .exclude(status=BUILD_STATUS_DUPLICATED)
-                .order_by('-date')
-                .first()
+                version.builds.filter(type='html', state='finished').exclude(
+                    status=BUILD_STATUS_DUPLICATED
+                ).order_by('-date').first()
             )
             if last_build:
                 if last_build.success:
@@ -202,11 +200,11 @@ class ProjectBadgeView(View):
     def get_style(self, request):
         style = request.GET.get('style', 'flat')
         if style not in (
-            'flat',
-            'plastic',
-            'flat-square',
-            'for-the-badge',
-            'social',
+                'flat',
+                'plastic',
+                'flat-square',
+                'for-the-badge',
+                'social',
         ):
             style = 'flat'
 
@@ -249,13 +247,10 @@ class ProjectBadgeView(View):
 
         # Append a token for private versions
         privacy_level = (
-            Version.objects
-            .filter(
+            Version.objects.filter(
                 project__slug=project_slug,
                 slug=version_slug,
-            )
-            .values_list('privacy_level', flat=True)
-            .first()
+            ).values_list('privacy_level', flat=True).first()
         )
         if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
@@ -265,7 +260,7 @@ class ProjectBadgeView(View):
 
     @classmethod
     def get_project_token(cls, project_slug):
-        salt = b"readthedocs.projects.views.public.ProjectBadgeView"
+        salt = b'readthedocs.projects.views.public.ProjectBadgeView'
         hash_id = hashlib.sha256()
         hash_id.update(force_bytes(settings.SECRET_KEY))
         hash_id.update(salt)
@@ -313,13 +308,13 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
     same_domain_url = False
 
     def get(
-            self,
-            request,
-            project_slug=None,
-            type_=None,
-            version_slug=None,
-            lang_slug=None,
-            subproject_slug=None,
+        self,
+        request,
+        project_slug=None,
+        type_=None,
+        version_slug=None,
+        lang_slug=None,
+        subproject_slug=None,
     ):
         """
         Download a specific piece of media.
@@ -423,7 +418,9 @@ def project_versions(request, project_slug):
     inactive_versions = versions.filter(active=False)
     version_filter = request.GET.get('version_filter', '')
     if version_filter:
-        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
+        inactive_versions = inactive_versions.filter(
+            verbose_name__icontains=version_filter
+        )
     total_inactive_versions_count = inactive_versions.count()
     inactive_versions = inactive_versions[:max_inactive_versions]
 

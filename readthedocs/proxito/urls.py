@@ -47,15 +47,18 @@ from readthedocs.proxito.views.serve import (
     ServeRobotsTXT,
     ServeSitemapXML,
 )
-from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
+from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 health_check_urls = [
-    url('^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
+    url(
+        '^{DOC_PATH_PREFIX}health_check/$'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX
+        ),
         HealthCheckView.as_view(),
         name='health_check',
-        ),
+    ),
 ]
 
 proxied_urls = [
@@ -67,8 +70,8 @@ proxied_urls = [
             r'(?P<lang_slug>{lang_slug})/'
             r'(?P<version_slug>{version_slug})/'
             r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
@@ -82,8 +85,8 @@ proxied_urls = [
             r'(?P<lang_slug>{lang_slug})/'
             r'(?P<version_slug>{version_slug})/'
             r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',

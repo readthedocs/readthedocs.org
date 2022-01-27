@@ -6,7 +6,7 @@ from readthedocs.oauth.models import RemoteRepository
 
 
 class Command(BaseCommand):
-    help = "Load Project and RemoteRepository Relationship from JSON file"
+    help = 'Load Project and RemoteRepository Relationship from JSON file'
 
     def add_arguments(self, parser):
         # File path of the json file containing relationship data

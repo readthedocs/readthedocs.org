@@ -10,7 +10,12 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.urls import core_urls
-from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    do_not_track,
+    server_error_500,
+)
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import GlobalSearchView
 
@@ -28,12 +33,16 @@ basic_urls = [
     ),
     url(r'^support/$', SupportView.as_view(), name='support'),
     # These are redirected to from the support form
-    url(r'^support/success/$',
+    url(
+        r'^support/success/$',
         TemplateView.as_view(template_name='support/success.html'),
-        name='support_success'),
-    url(r'^support/error/$',
+        name='support_success'
+    ),
+    url(
+        r'^support/error/$',
         TemplateView.as_view(template_name='support/error.html'),
-        name='support_error'),
+        name='support_error'
+    ),
 ]
 
 rtd_urls = [
@@ -122,11 +131,8 @@ if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported
     groups.append(dnt_urls)
 
-
 if settings.READ_THE_DOCS_EXTENSIONS:
-    groups.append([
-        url(r'^', include('readthedocsext.urls'))
-    ])
+    groups.append([url(r'^', include('readthedocsext.urls'))])
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)

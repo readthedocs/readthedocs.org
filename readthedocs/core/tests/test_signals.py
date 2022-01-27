@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import django_dynamic_fixture
 import pytest
-
 from django.contrib.auth.models import User
 
 from readthedocs.projects.models import Project
@@ -11,9 +9,8 @@ from readthedocs.projects.models import Project
 class TestProjectOrganizationSignal:
 
     def test_project_get_deleted_upon_user_delete(self):
-        """If the user has Project where he is the only
-        user, upon deleting his account, the Project
-        should also get deleted."""
+        """If the user has Project where he is the only user, upon deleting his
+        account, the Project should also get deleted."""
 
         project = django_dynamic_fixture.get(Project)
         user1 = django_dynamic_fixture.get(User)
@@ -29,8 +26,8 @@ class TestProjectOrganizationSignal:
         assert not project.exists()
 
     def test_multiple_users_project_not_delete(self):
-        """Check Project which have multiple users do not
-        get deleted when any of the user delete his account."""
+        """Check Project which have multiple users do not get deleted when any
+        of the user delete his account."""
 
         project = django_dynamic_fixture.get(Project)
         user1 = django_dynamic_fixture.get(User)

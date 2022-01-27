@@ -20,10 +20,7 @@ class Base:
             setattr(self, name, kwargs[name])
 
     def as_dict(self):
-        return {
-            name: to_dict(getattr(self, name))
-            for name in self.__slots__
-        }
+        return {name: to_dict(getattr(self, name)) for name in self.__slots__}
 
 
 class Build(Base):

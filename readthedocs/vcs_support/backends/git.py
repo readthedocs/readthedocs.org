@@ -4,9 +4,9 @@ import logging
 import re
 
 import git
-from gitdb.util import hex_to_bin
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
+from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -19,7 +19,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
 
 log = logging.getLogger(__name__)
 
@@ -154,8 +153,10 @@ class Backend(BaseVCS):
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded
         # https://github.com/readthedocs/readthedocs.org/issues/6097
-        cmd = ['git', 'fetch', 'origin',
-               '--force', '--tags', '--prune', '--prune-tags']
+        cmd = [
+            'git', 'fetch', 'origin', '--force', '--tags', '--prune',
+            '--prune-tags'
+        ]
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
@@ -163,14 +164,10 @@ class Backend(BaseVCS):
         if self.verbose_name and self.version_type == EXTERNAL:
 
             if self.project.git_provider_name == GITHUB_BRAND:
-                cmd.append(
-                    GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-                )
+                cmd.append(GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name))
 
             if self.project.git_provider_name == GITLAB_BRAND:
-                cmd.append(
-                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
-                )
+                cmd.append(GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name))
 
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
@@ -206,7 +203,8 @@ class Backend(BaseVCS):
     @property
     def lsremote(self):
         """
-        Use ``git ls-remote`` to list branches and tags without cloning the repository.
+        Use ``git ls-remote`` to list branches and tags without cloning the
+        repository.
 
         :returns: tuple containing a list of branch and tags
         """

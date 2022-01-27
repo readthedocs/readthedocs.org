@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Basic tasks."""
 
 import logging
@@ -13,7 +11,6 @@ from messages_extends.models import Message as PersistentMessage
 
 from readthedocs.worker import app
 
-
 log = logging.getLogger(__name__)
 
 EMAIL_TIME_LIMIT = 30
@@ -21,8 +18,8 @@ EMAIL_TIME_LIMIT = 30
 
 @app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
 def send_email_task(
-        recipient, subject, template, template_html, context=None,
-        from_email=None, **kwargs
+    recipient, subject, template, template_html, context=None, from_email=None,
+    **kwargs
 ):
     """
     Send multipart email.
@@ -48,8 +45,7 @@ def send_email_task(
     msg = EmailMultiAlternatives(
         subject,
         get_template(template).render(context), from_email or
-        settings.DEFAULT_FROM_EMAIL,
-        [recipient], **kwargs
+        settings.DEFAULT_FROM_EMAIL, [recipient], **kwargs
     )
     try:
         msg.attach_alternative(

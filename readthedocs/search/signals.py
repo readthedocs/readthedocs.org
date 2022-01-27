@@ -4,7 +4,6 @@ import logging
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
-from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import Project
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es

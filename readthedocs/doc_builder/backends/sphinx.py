@@ -130,9 +130,7 @@ class BaseSphinx(BaseBuilder):
                 versions = self.project.api_versions()
                 if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
                     versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
+                        v for v in versions if v.privacy_level == PUBLIC
                     ]
                 downloads = api.version(self.version.pk).get()['downloads']
                 subproject_urls = self.project.get_subproject_urls()
@@ -140,7 +138,8 @@ class BaseSphinx(BaseBuilder):
                 log.exception(
                     'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
                     'project: %s version: %s',
-                    self.project.slug, self.version.slug,
+                    self.project.slug,
+                    self.version.slug,
                 )
 
         build_id = self.build_env.build.get('id')
@@ -164,8 +163,7 @@ class BaseSphinx(BaseBuilder):
             self.project.vcs_repo(
                 version=self.version.slug,
                 environment=self.build_env,
-            )
-            .commit
+            ).commit
         )
 
         data = {
@@ -209,7 +207,9 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
-            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
+            'docsearch_disabled': self.project.has_feature(
+                Feature.DISABLE_SERVER_SIDE_SEARCH
+            ),
         }
 
         finalize_sphinx_context_data.send(

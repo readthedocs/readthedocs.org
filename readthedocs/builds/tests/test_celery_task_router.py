@@ -1,7 +1,5 @@
 import django_dynamic_fixture as fixture
-from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration models for external services."""
 
 import json
@@ -284,8 +282,8 @@ class Integration(models.Model):
 
     def __str__(self):
         return (
-            _('{0} for {1}')
-            .format(self.get_integration_type_display(), self.project.name)
+            _('{0} for {1}'
+              ).format(self.get_integration_type_display(), self.project.name)
         )
 
 

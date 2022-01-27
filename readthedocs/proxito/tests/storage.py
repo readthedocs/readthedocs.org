@@ -1,6 +1,4 @@
-"""
-Helper Django Storage class to use in El Proxito tests.
-"""
+"""Helper Django Storage class to use in El Proxito tests."""
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 

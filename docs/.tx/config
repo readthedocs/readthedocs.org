@@ -426,4 +426,3 @@ file_filter = locale/<lang>/LC_MESSAGES/settings.po
 source_file = _build/locale/settings.pot
 source_lang = en
 type = PO
-

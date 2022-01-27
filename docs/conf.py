@@ -2,15 +2,16 @@ import os
 import sys
 from configparser import RawConfigParser
 
+import django
 import sphinx_rtd_theme
+from django.utils import timezone
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readthedocs.settings.dev')
 
-from django.utils import timezone
 
-import django
+
 django.setup()
 
 
@@ -50,7 +51,10 @@ exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
-    'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
+    'django': (
+        'https://docs.djangoproject.com/en/1.11/',
+        'https://docs.djangoproject.com/en/1.11/_objects/'
+    ),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'pip': ('https://pip.pypa.io/en/stable/', None),
     'nbsphinx': ('https://nbsphinx.readthedocs.io/en/0.8.6/', None),
@@ -63,22 +67,24 @@ intersphinx_mapping = {
     'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
 }
 hoverxref_intersphinx = [
-   "sphinx",
-   "pip",
-   "nbsphinx",
-   "myst-nb",
-   "ipywidgets",
-   "jupytext",
+    'sphinx',
+    'pip',
+    'nbsphinx',
+    'myst-nb',
+    'ipywidgets',
+    'jupytext',
 ]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
-    ('index', 'ReadTheDocs.tex', 'Read the Docs Documentation',
-     'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
+    (
+        'index', 'ReadTheDocs.tex', 'Read the Docs Documentation',
+        'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'
+    ),
 ]
-man_pages = [
-    ('index', 'read-the-docs', 'Read the Docs Documentation',
-     ['Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
-]
+man_pages = [(
+    'index', 'read-the-docs', 'Read the Docs Documentation',
+    ['Eric Holscher, Charlie Leifer, Bobby Grace'], 1
+)]
 
 exclude_patterns = [
     # 'api' # needed for ``make gettext`` to not die.

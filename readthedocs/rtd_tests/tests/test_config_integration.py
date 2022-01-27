@@ -1,12 +1,12 @@
 import tempfile
 from os import path
-
 from unittest import mock
+from unittest.mock import MagicMock, PropertyMock, patch
+
 import pytest
 import yaml
 from django.test import TestCase
 from django_dynamic_fixture import get
-from unittest.mock import MagicMock, PropertyMock, patch
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, EXTERNAL
 from readthedocs.builds.models import Version
@@ -57,9 +57,10 @@ def create_load(config=None):
 
 def create_config_file(config, file_name='readthedocs.yml', base_path=None):
     """
-    Creates a readthedocs configuration file with name
-    ``file_name`` in ``base_path``. If ``base_path`` is not given
-    a temporal directory is created.
+    Creates a readthedocs configuration file with name ``file_name`` in
+    ``base_path``.
+
+    If ``base_path`` is not given a temporal directory is created.
     """
     if not base_path:
         base_path = tempfile.mkdtemp()
@@ -395,10 +396,8 @@ class TestLoadConfigV2:
     def test_build_formats_default_empty(
             self, append_conf, html_build, checkout_path, config, tmpdir,
     ):
-        """
-        The default value for formats is [], which means no extra
-        formats are build.
-        """
+        """The default value for formats is [], which means no extra formats are
+        build."""
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, config)
 

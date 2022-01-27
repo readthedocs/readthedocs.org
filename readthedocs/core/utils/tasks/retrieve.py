@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """Utilities for retrieving task data."""
 
 from celery import states
 from celery.result import AsyncResult
-
 
 __all__ = ('TaskNotFound', 'get_task_data')
 

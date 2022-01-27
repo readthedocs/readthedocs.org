@@ -34,15 +34,13 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if (
-        not project.show_version_warning or
-        (base_version and base_version.is_external)
-    ):
+    if (not project.show_version_warning or
+        (base_version and base_version.is_external)):
         return {'is_highest': False}
 
     versions_qs = (
-        Version.internal.public(project=project)
-        .filter(built=True, active=True)
+        Version.internal.public(project=project
+                                ).filter(built=True, active=True)
     )
 
     # Take preferences over tags only if the project has at least one tag
@@ -220,8 +218,7 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
         )
 
         show_version_warning = (
-            project.show_version_warning and
-            not version.is_external
+            project.show_version_warning and not version.is_external
         )
 
         resp_data = {

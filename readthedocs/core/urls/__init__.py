@@ -1,11 +1,9 @@
 """URL configuration for core app."""
 
-from __future__ import absolute_import
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core import views
-
 
 core_urls = [
     # Random other stuff

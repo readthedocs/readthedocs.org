@@ -11,5 +11,5 @@ class AuditConfig(AppConfig):
     name = 'readthedocs.audit'
 
     def ready(self):
-        log.info("Importing all Signals handlers")
+        log.info('Importing all Signals handlers')
         import readthedocs.audit.signals  # noqa

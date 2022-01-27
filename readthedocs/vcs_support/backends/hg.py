@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Mercurial-related utilities."""
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion

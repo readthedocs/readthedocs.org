@@ -18,7 +18,6 @@ from readthedocs.worker import app
 
 from .services import registry
 
-
 log = logging.getLogger(__name__)
 
 
@@ -30,7 +29,10 @@ def sync_remote_repositories(user_id):
         return
 
     # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.oauth.tasks.sync_remote_repositories. locals=%s', locals())
+    log.info(
+        'Running readthedocs.oauth.tasks.sync_remote_repositories. locals=%s',
+        locals()
+    )
 
     failed_services = set()
     for service_cls in registry:
@@ -44,9 +46,7 @@ def sync_remote_repositories(user_id):
             'Our access to your following accounts was revoked: {providers}. '
             'Please, reconnect them from your social account connections.'
         )
-        raise Exception(
-            msg.format(providers=', '.join(failed_services))
-        )
+        raise Exception(msg.format(providers=', '.join(failed_services)))
 
 
 @app.task(queue='web')

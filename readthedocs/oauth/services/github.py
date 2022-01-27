@@ -40,7 +40,9 @@ class GitHubService(Service):
         remote_repositories = []
 
         try:
-            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+            repos = self.paginate(
+                'https://api.github.com/user/repos?per_page=100'
+            )
             for repo in repos:
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
@@ -99,12 +101,10 @@ class GitHubService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
             (privacy == 'private'),
-            (fields['private'] is False and privacy == 'public'),
-        ]):
+            (fields['private'] is False and privacy == 'public'),]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['id'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
@@ -125,13 +125,12 @@ class GitHubService(Service):
                 return None
 
             if any([
-                # There is an organization associated with this repository:
-                # attach the organization to the repository
-                organization is not None,
-                # There is no organization and the repository belongs to a
-                # user: removes the organization linked to the repository
-                not organization and fields['owner']['type'] == 'User',
-            ]):
+                    # There is an organization associated with this repository:
+                    # attach the organization to the repository
+                    organization is not None,
+                    # There is no organization and the repository belongs to a
+                    # user: removes the organization linked to the repository
+                    not organization and fields['owner']['type'] == 'User',]):
                 repo.organization = organization
 
             repo.name = fields['name']
@@ -154,7 +153,8 @@ class GitHubService(Service):
 
             repo.save()
 
-            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation.admin = fields.get('permissions', {}
+                                                          ).get('admin', False)
             remote_repository_relation.save()
 
             return repo
@@ -172,12 +172,9 @@ class GitHubService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['id'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get('html_url')
         # fields['login'] contains GitHub Organization slug
@@ -240,8 +237,7 @@ class GitHubService(Service):
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
+            domain=settings.PRODUCTION_DOMAIN, path=reverse(
                 'api_webhook',
                 kwargs={
                     'project_slug': project.slug,
@@ -251,18 +247,17 @@ class GitHubService(Service):
         )
 
         try:
-            resp = session.get(
-                (
-                    'https://api.github.com/repos/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
-            )
+            resp = session.get((
+                'https://api.github.com/repos/{owner}/{repo}/hooks'.format(
+                    owner=owner, repo=repo
+                )
+            ),)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
 
                 for webhook_data in recv_data:
-                    if webhook_data["config"]["url"] == rtd_webhook_url:
+                    if webhook_data['config']['url'] == rtd_webhook_url:
                         integration.provider_data = webhook_data
                         integration.save()
 
@@ -314,8 +309,9 @@ class GitHubService(Service):
         try:
             resp = session.post(
                 (
-                    'https://api.github.com/repos/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
+                    'https://api.github.com/repos/{owner}/{repo}/hooks'.format(
+                        owner=owner, repo=repo
+                    )
                 ),
                 data=data,
                 headers={'content-type': 'application/json'},
@@ -486,7 +482,7 @@ class GitHubService(Service):
             )
             if resp.status_code == 201:
                 log.info(
-                    "GitHub commit status created for project: %s, commit status: %s",
+                    'GitHub commit status created for project: %s, commit status: %s',
                     project.slug,
                     github_build_state,
                 )
@@ -505,9 +501,7 @@ class GitHubService(Service):
 
             log.warning(
                 'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
-                project.slug,
-                self.user,
-                resp.status_code
+                project.slug, self.user, resp.status_code
             )
             return False
 

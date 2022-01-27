@@ -32,12 +32,12 @@ log = logging.getLogger(__name__)
 
 
 def prepare_build(
-        project,
-        version=None,
-        commit=None,
-        record=True,
-        force=False,
-        immutable=True,
+    project,
+    version=None,
+    commit=None,
+    record=True,
+    force=False,
+    immutable=True,
 ):
     """
     Prepare a build in a Celery task for project and version.
@@ -83,12 +83,8 @@ def prepare_build(
 
     if record:
         build = Build.objects.create(
-            project=project,
-            version=version,
-            type='html',
-            state=BUILD_STATE_TRIGGERED,
-            success=True,
-            commit=commit
+            project=project, version=version, type='html',
+            state=BUILD_STATE_TRIGGERED, success=True, commit=commit
         )
         kwargs['build_pk'] = build.pk
 
@@ -118,8 +114,8 @@ def prepare_build(
     if build and commit:
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
-            version_type=version.type, build_pk=build.id,
-            commit=commit, status=BUILD_STATUS_PENDING
+            version_type=version.type, build_pk=build.id, commit=commit,
+            status=BUILD_STATUS_PENDING
         )
 
     if build and version.type != EXTERNAL:
@@ -137,8 +133,7 @@ def prepare_build(
     skip_build = False
     if commit:
         skip_build = (
-            Build.objects
-            .filter(
+            Build.objects.filter(
                 project=project,
                 version=version,
                 commit=commit,
@@ -163,7 +158,10 @@ def prepare_build(
         ).count() > 1
 
     if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
-        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        log.debug(
+            'Skipping deduplication of builds. Feature not enabled. project=%s',
+            project.slug
+        )
         skip_build = False
 
     if skip_build:
@@ -185,7 +183,9 @@ def prepare_build(
 
     # Start the build in X minutes and mark it as limited
     if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(
+            project
+        )
         if limit_reached:
             log.warning(
                 'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
@@ -248,8 +248,8 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
 
 
 def send_email(
-        recipient, subject, template, template_html, context=None, request=None,
-        from_email=None, **kwargs
+    recipient, subject, template, template_html, context=None, request=None,
+    from_email=None, **kwargs
 ):  # pylint: disable=unused-argument
     """
     Alter context passed in and call email send task.

@@ -156,9 +156,9 @@ class Version(TimeStampedModel):
         help_text=_('Level of privacy for this Version.'),
     )
     hidden = models.BooleanField(
-        _('Hidden'),
-        default=False,
-        help_text=_('Hide this version from the version (flyout) menu and search results?')
+        _('Hidden'), default=False, help_text=_(
+            'Hide this version from the version (flyout) menu and search results?'
+        )
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
@@ -172,16 +172,18 @@ class Version(TimeStampedModel):
         max_length=20,
         choices=DOCTYPE_CHOICES,
         default=SPHINX,
-        help_text=_(
-            'Type of documentation the version was built with.'
-        ),
+        help_text=_('Type of documentation the version was built with.'),
     )
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
-    internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
+    internal = InternalVersionManager.from_queryset(
+        partial(VersionQuerySet, internal_only=True)
+    )()
     # Only include EXTERNAL type Versions.
-    external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
+    external = ExternalVersionManager.from_queryset(
+        partial(VersionQuerySet, external_only=True)
+    )()
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -244,9 +246,7 @@ class Version(TimeStampedModel):
             self.builds(manager=INTERNAL).filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
-            ).order_by('-date')
-            .only('_config')
-            .first()
+            ).order_by('-date').only('_config').first()
         )
         return last_build.config
 
@@ -340,7 +340,9 @@ class Version(TimeStampedModel):
 
     @property
     def is_sphinx_type(self):
-        return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+        return self.documentation_type in {
+            SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML
+        }
 
     def get_subdomain_url(self):
         external = self.type == EXTERNAL
@@ -410,7 +412,9 @@ class Version(TimeStampedModel):
 
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
-        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
+        return build_environment_storage.join(
+            self.project.slug, f'{self.slug}.tar'
+        )
 
     def clean_build_path(self):
         """
@@ -428,11 +432,11 @@ class Version(TimeStampedModel):
             log.exception('Build path cleanup failed')
 
     def get_github_url(
-            self,
-            docroot,
-            filename,
-            source_suffix='.rst',
-            action='view',
+        self,
+        docroot,
+        filename,
+        source_suffix='.rst',
+        action='view',
     ):
         """
         Return a GitHub URL for a given filename.
@@ -476,11 +480,11 @@ class Version(TimeStampedModel):
         )
 
     def get_gitlab_url(
-            self,
-            docroot,
-            filename,
-            source_suffix='.rst',
-            action='view',
+        self,
+        docroot,
+        filename,
+        source_suffix='.rst',
+        action='view',
     ):
         repo_url = self.project.repo
         if 'gitlab' not in repo_url:
@@ -732,10 +736,9 @@ class Build(models.Model):
         """
         if self.CONFIG_KEY in self._config:
             return (
-                Build.objects
-                .only('_config')
-                .get(pk=self._config[self.CONFIG_KEY])
-                ._config
+                Build.objects.only('_config').get(
+                    pk=self._config[self.CONFIG_KEY]
+                )._config
             )
         return self._config
 
@@ -761,11 +764,8 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
-            if (
-                previous is not None
-                and self._config
-                and self._config == previous.config
-            ):
+            if (previous is not None and self._config and
+                    self._config == previous.config):
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
 
@@ -798,8 +798,7 @@ class Build(models.Model):
         """
         scheme = 'http' if settings.DEBUG else 'https'
         full_url = '{scheme}://{domain}{absolute_url}'.format(
-            scheme=scheme,
-            domain=settings.PRODUCTION_DOMAIN,
+            scheme=scheme, domain=settings.PRODUCTION_DOMAIN,
             absolute_url=self.get_absolute_url()
         )
         return full_url
@@ -839,9 +838,7 @@ class Build(models.Model):
                     return ''
 
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    number=self.get_version_name(),
+                    user=user, repo=repo, number=self.get_version_name(),
                     commit=self.commit
                 )
             if 'gitlab' in repo_url:
@@ -850,9 +847,7 @@ class Build(models.Model):
                     return ''
 
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    number=self.get_version_name(),
+                    user=user, repo=repo, number=self.get_version_name(),
                     commit=self.commit
                 )
             # TODO: Add External Version Commit URL for BitBucket.
@@ -863,9 +858,7 @@ class Build(models.Model):
                     return ''
 
                 return GITHUB_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
             if 'gitlab' in repo_url:
                 user, repo = get_gitlab_username_repo(repo_url)
@@ -873,9 +866,7 @@ class Build(models.Model):
                     return ''
 
                 return GITLAB_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
             if 'bitbucket' in repo_url:
                 user, repo = get_bitbucket_username_repo(repo_url)
@@ -883,9 +874,7 @@ class Build(models.Model):
                     return ''
 
                 return BITBUCKET_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    commit=self.commit
+                    user=user, repo=repo, commit=self.commit
                 )
 
         return None
@@ -922,14 +911,16 @@ class Build(models.Model):
         return None
 
     def using_latest_config(self):
-        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        return int(
+            self.config.get('version', '1')
+        ) == LATEST_CONFIGURATION_VERSION
 
     def reset(self):
         """
         Reset the build so it can be re-used when re-trying.
 
-        Dates and states are usually overridden by the build,
-        we care more about deleting the commands.
+        Dates and states are usually overridden by the build, we care more about
+        deleting the commands.
         """
         self.state = BUILD_STATE_TRIGGERED
         self.status = ''
@@ -994,8 +985,8 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     def __str__(self):
         return (
-            ugettext('Build command {pk} for build {build}')
-            .format(pk=self.pk, build=self.build)
+            ugettext('Build command {pk} for build {build}'
+                     ).format(pk=self.pk, build=self.build)
         )
 
     @property
@@ -1088,10 +1079,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         ordering = ('priority', '-modified', '-created')
 
     def get_match_arg(self):
-        """Get the match arg defined for `predefined_match_arg` or the match from user."""
-        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
-            self.predefined_match_arg,
-        )
+        """Get the match arg defined for `predefined_match_arg` or the match
+        from user."""
+        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(self.predefined_match_arg,)
         return match_arg or self.match_arg
 
     def run(self, version, **kwargs):
@@ -1135,8 +1125,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
                  isn't implemented or supported for this rule.
         """
         action = (
-            self.allowed_actions_on_create.get(self.action)
-            or self.allowed_actions_on_delete.get(self.action)
+            self.allowed_actions_on_create.get(self.action) or
+            self.allowed_actions_on_delete.get(self.action)
         )
         if action is None:
             raise NotImplementedError
@@ -1156,7 +1146,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         """
         total = self.project.automation_rules.count()
         current_priority = self.priority
-        new_priority = (current_priority + steps) % total
+        new_priority = (current_priority+steps) % total
 
         if current_priority == new_priority:
             return False
@@ -1165,8 +1155,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if new_priority > current_priority:
             # It was moved down
             rules = (
-                self.project.automation_rules
-                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                self.project.automation_rules.filter(
+                    priority__gt=current_priority, priority__lte=new_priority
+                )
                 # We sort the queryset in asc order
                 # to be updated in that order
                 # to avoid hitting the unique constraint (project, priority).
@@ -1176,9 +1167,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         else:
             # It was moved up
             rules = (
-                self.project.automation_rules
-                .filter(priority__lt=current_priority, priority__gte=new_priority)
-                .exclude(pk=self.pk)
+                self.project.automation_rules.filter(
+                    priority__lt=current_priority, priority__gte=new_priority
+                ).exclude(pk=self.pk)
                 # We sort the queryset in desc order
                 # to be updated in that order
                 # to avoid hitting the unique constraint (project, priority).
@@ -1210,8 +1201,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         super().delete(*args, **kwargs)
 
         rules = (
-            project.automation_rules
-            .filter(priority__gte=current_priority)
+            project.automation_rules.filter(priority__gte=current_priority)
             # We sort the queryset in asc order
             # to be updated in that order
             # to avoid hitting the unique constraint (project, priority).
@@ -1283,7 +1273,8 @@ class RegexAutomationRule(VersionAutomationRule):
         except TimeoutError:
             log.warning(
                 'Timeout while parsing regex. pattern=%s, input=%s',
-                match_arg, version.verbose_name,
+                match_arg,
+                version.verbose_name,
             )
         except Exception as e:
             log.info('Error parsing regex: %s', e)

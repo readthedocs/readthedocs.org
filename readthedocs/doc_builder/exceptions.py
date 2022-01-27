@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import ugettext_noop
+
 from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
 
 
@@ -55,7 +54,9 @@ class BuildTimeoutError(BuildEnvironmentError):
 
 
 class BuildMaxConcurrencyError(BuildEnvironmentError):
-    message = ugettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
+    message = ugettext_noop(
+        'Concurrency limit reached ({limit}), retrying in 5 minutes.'
+    )
 
 
 class DuplicatedBuildError(BuildEnvironmentError):

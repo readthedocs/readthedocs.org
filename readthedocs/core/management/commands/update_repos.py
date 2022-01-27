@@ -106,9 +106,7 @@ class Command(BaseCommand):
                     trigger_build(project=version.project, version=version)
             elif version:
                 log.info('Updating version %s', version)
-                for version in Version.objects.filter(
-                        slug=version,
-                ):
+                for version in Version.objects.filter(slug=version,):
                     trigger_build(project=version.project, version=version)
 
             else:

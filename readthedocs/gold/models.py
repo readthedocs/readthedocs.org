@@ -1,8 +1,6 @@
 """Django models for recurring donations aka Gold membership."""
 import math
-from datetime import datetime
 
-import pytz
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _

@@ -102,18 +102,14 @@ class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
     def get_project(self, obj):
         path = reverse(
-            'projects_detail',
-            kwargs={
-                'project_slug': obj.project.slug
-            }
+            'projects_detail', kwargs={'project_slug': obj.project.slug}
         )
         return self._absolute_url(path)
 
     def get_version(self, obj):
         if obj.version:
             path = reverse(
-                'project_version_detail',
-                kwargs={
+                'project_version_detail', kwargs={
                     'project_slug': obj.project.slug,
                     'version_slug': obj.version.slug
                 }
@@ -176,9 +172,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'urls',
         ]
 
-        expandable_fields = {
-            'config': (BuildConfigSerializer,)
-        }
+        expandable_fields = {'config': (BuildConfigSerializer,)}
 
     def get_finished(self, obj):
         if obj.date and obj.length:
@@ -231,16 +225,17 @@ class VersionLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class VersionDashboardURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+class VersionDashboardURLsSerializer(BaseLinksSerializer,
+                                     serializers.Serializer):
     edit = serializers.SerializerMethodField()
 
     def get_edit(self, obj):
         path = reverse(
-            'project_version_detail',
-            kwargs={
+            'project_version_detail', kwargs={
                 'project_slug': obj.project.slug,
                 'version_slug': obj.slug,
-            })
+            }
+        )
         return self._absolute_url(path)
 
 
@@ -277,11 +272,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             '_links',
         ]
 
-        expandable_fields = {
-            'last_build': (
-                BuildSerializer,
-            )
-        }
+        expandable_fields = {'last_build': (BuildSerializer,)}
 
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
@@ -363,7 +354,9 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
         return self._absolute_url(path)
 
     def get_versions(self, obj):
-        path = reverse('project_version_list', kwargs={'project_slug': obj.slug})
+        path = reverse(
+            'project_version_list', kwargs={'project_slug': obj.slug}
+        )
         return self._absolute_url(path)
 
 
@@ -477,7 +470,8 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
         potential_slug = slugify(value)
         if Project.objects.filter(slug=potential_slug).exists():
             raise serializers.ValidationError(
-                _('Project with slug "{0}" already exists.').format(potential_slug),
+                _('Project with slug "{0}" already exists.'
+                  ).format(potential_slug),
             )
         return value
 
@@ -578,7 +572,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             # they will be tried to be rendered and fail
             # 'users',
             # 'active_versions',
-
             '_links',
         ]
         if not settings.RTD_ALLOW_ORGANIZATIONS:
@@ -587,12 +580,9 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
         expandable_fields = {
             # NOTE: this has to be a Model method, can't be a
             # ``SerializerMethodField`` as far as I know
-            'active_versions': (
-                VersionSerializer,
-                {
-                    'many': True,
-                }
-            )
+            'active_versions': (VersionSerializer, {
+                'many': True,
+            })
         }
 
         if settings.RTD_ALLOW_ORGANIZATIONS:
@@ -740,9 +730,7 @@ class SubprojectDestroySerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = ProjectRelationship
-        fields = (
-            'alias',
-        )
+        fields = ('alias',)
 
 
 class RedirectLinksSerializer(BaseLinksSerializer):
@@ -776,7 +764,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
     modified = serializers.DateTimeField(source='update_dt', read_only=True)
     _links = RedirectLinksSerializer(source='*', read_only=True)
 
-    type = serializers.ChoiceField(source='redirect_type', choices=REDIRECT_TYPE_CHOICES)
+    type = serializers.ChoiceField(
+        source='redirect_type', choices=REDIRECT_TYPE_CHOICES
+    )
 
     class Meta:
         model = Redirect
@@ -862,10 +852,10 @@ class OrganizationLinksSerializer(BaseLinksSerializer):
 
     def get__self(self, obj):
         path = reverse(
-            'organizations-detail',
-            kwargs={
+            'organizations-detail', kwargs={
                 'organization_slug': obj.slug,
-            })
+            }
+        )
         return self._absolute_url(path)
 
     def get_projects(self, obj):
@@ -973,10 +963,7 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         expandable_fields = {
             'remote_organization': (
                 RemoteOrganizationSerializer, {'source': 'organization'}
-            ),
-            'projects': (
-                ProjectSerializer, {'many': True}
-            )
+            ), 'projects': (ProjectSerializer, {'many': True})
         }
 
     def is_admin(self, obj):

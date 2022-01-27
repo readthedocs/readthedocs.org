@@ -1,6 +1,7 @@
 """Embed utils."""
 
 from urllib.parse import urlparse
+
 from pyquery import PyQuery as PQ  # noqa
 
 

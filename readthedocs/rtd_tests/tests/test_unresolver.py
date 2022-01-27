@@ -1,10 +1,10 @@
-from django.test import override_settings
 import django_dynamic_fixture as fixture
 import pytest
+from django.test import override_settings
 
-from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Domain
+from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
 @override_settings(

@@ -16,13 +16,9 @@ from readthedocs.builds.constants import (
     SELECT_BUILD_STATUS,
 )
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import Project
 
 from ..constants import GITLAB
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -80,7 +76,9 @@ class GitLabService(Service):
         remote_repositories = []
         try:
             repos = self.paginate(
-                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                '{url}/api/v4/projects'.format(
+                    url=self.adapter.provider_base_url
+                ),
                 per_page=100,
                 archived=False,
                 order_by='path',
@@ -106,7 +104,9 @@ class GitLabService(Service):
 
         try:
             orgs = self.paginate(
-                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                '{url}/api/v4/groups'.format(
+                    url=self.adapter.provider_base_url
+                ),
                 per_page=100,
                 all_available=False,
                 order_by='path',
@@ -145,8 +145,7 @@ class GitLabService(Service):
                         if resp.status_code == 200:
                             repo_details = resp.json()
                             remote_repository = self.create_repository(
-                                repo_details,
-                                organization=remote_organization
+                                repo_details, organization=remote_organization
                             )
                             remote_repositories.append(remote_repository)
                         else:
@@ -195,8 +194,7 @@ class GitLabService(Service):
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['id'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
             )
             remote_repository_relation = repo.get_remote_repository_relation(
                 self.user, self.account
@@ -236,17 +234,24 @@ class GitLabService(Service):
 
             project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
 
-            project_access = fields.get('permissions', {}).get('project_access', {})
+            project_access = fields.get('permissions',
+                                        {}).get('project_access', {})
             if project_access:
-                project_access_level = project_access.get('access_level', self.PERMISSION_NO_ACCESS)
+                project_access_level = project_access.get(
+                    'access_level', self.PERMISSION_NO_ACCESS
+                )
 
             group_access = fields.get('permissions', {}).get('group_access', {})
             if group_access:
-                group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
+                group_access_level = group_access.get(
+                    'access_level', self.PERMISSION_NO_ACCESS
+                )
 
             remote_repository_relation.admin = any([
-                project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
-                group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                project_access_level
+                in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                group_access_level
+                in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
             ])
             remote_repository_relation.save()
 
@@ -266,12 +271,9 @@ class GitLabService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['id'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=fields['id'], vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.name = fields.get('name')
         organization.slug = fields.get('path')
@@ -342,8 +344,7 @@ class GitLabService(Service):
         session = self.get_session()
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
+            domain=settings.PRODUCTION_DOMAIN, path=reverse(
                 'api_webhook',
                 kwargs={
                     'project_slug': project.slug,
@@ -364,7 +365,7 @@ class GitLabService(Service):
                 recv_data = resp.json()
 
                 for webhook_data in recv_data:
-                    if webhook_data["url"] == rtd_webhook_url:
+                    if webhook_data['url'] == rtd_webhook_url:
                         integration.provider_data = webhook_data
                         integration.save()
 
@@ -593,7 +594,7 @@ class GitLabService(Service):
 
             if resp.status_code == 201:
                 log.info(
-                    "GitLab commit status created for project: %s, commit status: %s",
+                    'GitLab commit status created for project: %s, commit status: %s',
                     project.slug,
                     gitlab_build_state,
                 )
@@ -603,7 +604,10 @@ class GitLabService(Service):
                 log.info(
                     'GitLab project does not exist or user does not have permissions: '
                     'project=%s, user=%s, status=%s, url=%s',
-                    project.slug, self.user.username, resp.status_code, statuses_url,
+                    project.slug,
+                    self.user.username,
+                    resp.status_code,
+                    statuses_url,
                 )
                 return False
 

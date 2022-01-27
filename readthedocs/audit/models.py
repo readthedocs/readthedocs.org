@@ -18,13 +18,17 @@ class AuditLogManager(models.Manager):
         """
         Create an audit log for `action`.
 
-        If user or request are given,
-        other fields will be auto-populated from that information.
+        If user or request are given, other fields will be auto-populated from
+        that information.
         """
 
-        actions_requiring_user = (AuditLog.PAGEVIEW, AuditLog.AUTHN, AuditLog.LOGOUT)
+        actions_requiring_user = (
+            AuditLog.PAGEVIEW, AuditLog.AUTHN, AuditLog.LOGOUT
+        )
         if action in actions_requiring_user and (not user or not request):
-            raise TypeError(f'A user and a request is required for the {action} action.')
+            raise TypeError(
+                f'A user and a request is required for the {action} action.'
+            )
         if action == AuditLog.PAGEVIEW and 'project' not in kwargs:
             raise TypeError(f'A project is required for the {action} action.')
 
@@ -42,7 +46,8 @@ class AuditLogManager(models.Manager):
             # This is frequently on actions generated from a subdomain.
             project_slug = getattr(request, 'host_project_slug', None)
             if 'project' not in kwargs and project_slug:
-                kwargs['project'] = Project.objects.filter(slug=project_slug).first()
+                kwargs['project'] = Project.objects.filter(slug=project_slug
+                                                           ).first()
 
         return self.create(
             user=user,
@@ -56,9 +61,10 @@ class AuditLog(TimeStampedModel):
     """
     Track user actions for audit purposes.
 
-    A log can be attached to a user and/or project and organization.
-    If the user, project or organization are deleted the log will be preserved,
-    and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
+    A log can be attached to a user and/or project and organization. If the
+    user, project or organization are deleted the log will be preserved, and the
+    deleted user/project/organization can be accessed via the ``log_*``
+    attributes.
     """
 
     PAGEVIEW = 'pageview'

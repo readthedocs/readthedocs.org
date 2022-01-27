@@ -65,7 +65,7 @@ def get_csv_file(filename, csv_data):
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse(
         (writer.writerow(row) for row in csv_data),
-        content_type="text/csv",
+        content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response

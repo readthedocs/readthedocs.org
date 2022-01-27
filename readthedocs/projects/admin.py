@@ -19,8 +19,8 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
-    HTTPHeader,
     HTMLFile,
+    HTTPHeader,
     ImportedFile,
     Project,
     ProjectRelationship,
@@ -75,7 +75,7 @@ class VersionInline(admin.TabularInline):
     model = Version
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("project")
+        return super().get_queryset(request).select_related('project')
 
 
 class RedirectInline(admin.TabularInline):
@@ -166,7 +166,10 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags',)
+    readonly_fields = (
+        'pub_date',
+        'feature_flags',
+    )
     raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
@@ -252,14 +255,15 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
             if not active_versions.exists():
                 self.message_user(
-                    request,
-                    'No active versions of project {}'.format(project),
+                    request, 'No active versions of project {}'.format(project),
                     messages.ERROR
                 )
             else:
                 html_objs_qs = []
                 for version in active_versions.iterator():
-                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+                    html_objs = HTMLFile.objects.filter(
+                        project=project, version=version
+                    )
 
                     if html_objs.exists():
                         html_objs_qs.append(html_objs)
@@ -289,7 +293,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
             else:
                 html_objs_qs = []
                 for version in version_qs.iterator():
-                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+                    html_objs = HTMLFile.objects.filter(
+                        project=project, version=version
+                    )
 
                     if html_objs.exists():
                         html_objs_qs.append(html_objs)
@@ -310,14 +316,12 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
             tags = import_tags(project)
             if tags:
                 self.message_user(
-                    request,
-                    'Imported tags for {}: {}'.format(project, tags),
+                    request, 'Imported tags for {}: {}'.format(project, tags),
                     messages.SUCCESS
                 )
             else:
                 self.message_user(
-                    request,
-                    'No tags found for {}'.format(project),
+                    request, 'No tags found for {}'.format(project),
                     messages.WARNING
                 )
 
@@ -386,7 +390,9 @@ class HTTPHeaderAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
-    list_display = ('feature_id', 'project_count', 'default_true', 'future_default_true')
+    list_display = (
+        'feature_id', 'project_count', 'default_true', 'future_default_true'
+    )
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)

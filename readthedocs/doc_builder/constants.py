@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Doc build constants."""
 
 import logging
 import re
 
 from django.conf import settings
-
 
 log = logging.getLogger(__name__)
 

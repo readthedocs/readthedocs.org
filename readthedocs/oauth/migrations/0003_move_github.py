@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 import gc
 import json
 import logging
 
 from django.db import migrations
-
 
 log = logging.getLogger(__name__)
 

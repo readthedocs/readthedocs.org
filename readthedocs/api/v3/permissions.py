@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 

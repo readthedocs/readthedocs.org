@@ -1,4 +1,3 @@
-from unittest import mock
 
 import django_dynamic_fixture as fixture
 import pytest
@@ -531,7 +530,8 @@ class ResolverTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_nested_translation_of_a_subproject(self):
-        """The project is a translation, and the main translation is a subproject of a project."""
+        """The project is a translation, and the main translation is a
+        subproject of a project."""
         translation = fixture.get(
             Project,
             slug='api-es',
@@ -554,7 +554,8 @@ class ResolverTests(ResolverBase):
     @pytest.mark.xfail(reason='We do not support this for now', strict=True)
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_nested_subproject_of_a_translation(self):
-        """The project is a subproject, and the superproject is a translation of a project."""
+        """The project is a subproject, and the superproject is a translation of
+        a project."""
         project = fixture.get(
             Project,
             slug='all-docs',

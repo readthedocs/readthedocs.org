@@ -22,7 +22,6 @@ from ..models import (
 )
 from .base import Service, SyncServiceError
 
-
 log = logging.getLogger(__name__)
 
 
@@ -65,12 +64,9 @@ class BitbucketService(Service):
             )
             admin_repo_relations = (
                 RemoteRepositoryRelation.objects.filter(
-                    user=self.user,
-                    account=self.account,
+                    user=self.user, account=self.account,
                     remote_repository__vcs_provider=self.vcs_provider_slug,
-                    remote_repository__remote_id__in=[
-                        r['uuid'] for r in resp
-                    ]
+                    remote_repository__remote_id__in=[r['uuid'] for r in resp]
                 )
             )
             for remote_repository_relation in admin_repo_relations:
@@ -82,7 +78,8 @@ class BitbucketService(Service):
         return remote_repositories
 
     def sync_organizations(self):
-        """Sync Bitbucket teams (our RemoteOrganization) and team repositories."""
+        """Sync Bitbucket teams (our RemoteOrganization) and team
+        repositories."""
         remote_organizations = []
         remote_repositories = []
 
@@ -130,15 +127,11 @@ class BitbucketService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
             (privacy == 'private'),
-            (fields['is_private'] is False and privacy == 'public'),
-        ]):
+            (fields['is_private'] is False and privacy == 'public'),]):
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['uuid'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=fields['uuid'], vcs_provider=self.vcs_provider_slug
             )
-            repo.get_remote_repository_relation(
-                self.user, self.account
-            )
+            repo.get_remote_repository_relation(self.user, self.account)
 
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -193,12 +186,9 @@ class BitbucketService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['uuid'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=fields['uuid'], vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        organization.get_remote_organization_relation(self.user, self.account)
 
         organization.slug = fields.get('username')
         organization.name = fields.get('display_name')
@@ -270,18 +260,16 @@ class BitbucketService(Service):
         )
 
         try:
-            resp = session.get(
-                (
-                    'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
-                    .format(owner=owner, repo=repo)
-                ),
-            )
+            resp = session.get((
+                'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
+                .format(owner=owner, repo=repo)
+            ),)
 
             if resp.status_code == 200:
                 recv_data = resp.json()
 
-                for webhook_data in recv_data["values"]:
-                    if webhook_data["url"] == rtd_webhook_url:
+                for webhook_data in recv_data['values']:
+                    if webhook_data['url'] == rtd_webhook_url:
                         integration.provider_data = webhook_data
                         integration.save()
 

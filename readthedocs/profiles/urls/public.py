@@ -4,7 +4,6 @@ from django.conf.urls import url
 
 from readthedocs.profiles import views
 
-
 urlpatterns = [
     url(
         r'^(?P<username>[+\w@.-]+)/$',

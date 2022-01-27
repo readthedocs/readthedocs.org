@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Clean up stable build paths per project version."""
 
 import logging
@@ -10,7 +8,6 @@ from django.db.models import Max
 from django.utils import timezone
 
 from readthedocs.builds.models import Build, Version
-
 
 log = logging.getLogger(__name__)
 

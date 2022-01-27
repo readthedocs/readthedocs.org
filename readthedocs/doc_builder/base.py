@@ -7,7 +7,6 @@ from functools import wraps
 
 from readthedocs.projects.models import Feature
 
-
 log = logging.getLogger(__name__)
 
 
@@ -62,7 +61,6 @@ class BaseBuilder:
 
     def append_conf(self):
         """Set custom configurations for this builder."""
-        pass
 
     def build(self):
         """Do the actual building of the documentation."""
@@ -135,7 +133,9 @@ familiar with Read the Docs.
                 """
 
                 with open(index_filename, 'w+') as index_file:
-                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+                    index_file.write(
+                        index_text.format(dir=docs_dir, ext=extension)
+                    )
 
         return 'index'
 

@@ -18,7 +18,6 @@ from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
-
 __all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
 
 
@@ -28,7 +27,9 @@ class VersionQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def __init__(self, *args, internal_only=False, external_only=False, **kwargs):
+    def __init__(
+        self, *args, internal_only=False, external_only=False, **kwargs
+    ):
         """
         Overridden to pass extra arguments from the manager.
 
@@ -47,16 +48,18 @@ class VersionQuerySetBase(models.QuerySet):
         self.external_only = external_only
         super().__init__(*args, **kwargs)
 
-    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
-        """Add related objects from projects where `user` is an `admin` or a `member`."""
+    def _add_from_user_projects(
+        self, queryset, user, admin=False, member=False
+    ):
+        """Add related objects from projects where `user` is an `admin` or a
+        `member`."""
         if user and user.is_authenticated:
             projects_pk = (
                 AdminPermission.projects(
                     user=user,
                     admin=admin,
                     member=member,
-                )
-                .values_list('pk', flat=True)
+                ).values_list('pk', flat=True)
             )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
@@ -74,7 +77,8 @@ class VersionQuerySetBase(models.QuerySet):
                 project__external_builds_privacy_level=constants.PUBLIC,
             )
         else:
-            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+            queryset = self.filter(privacy_level=constants.PUBLIC
+                                   ).exclude(type=EXTERNAL)
             queryset |= self.filter(
                 type=EXTERNAL,
                 project__external_builds_privacy_level=constants.PUBLIC,
@@ -131,16 +135,18 @@ class BuildQuerySet(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
-        """Add related objects from projects where `user` is an `admin` or a `member`."""
+    def _add_from_user_projects(
+        self, queryset, user, admin=False, member=False
+    ):
+        """Add related objects from projects where `user` is an `admin` or a
+        `member`."""
         if user and user.is_authenticated:
             projects_pk = (
                 AdminPermission.projects(
                     user=user,
                     admin=admin,
                     member=member,
-                )
-                .values_list('pk', flat=True)
+                ).values_list('pk', flat=True)
             )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
@@ -161,8 +167,7 @@ class BuildQuerySet(models.QuerySet):
             self.filter(
                 version__privacy_level=constants.PUBLIC,
                 version__project__privacy_level=constants.PUBLIC,
-            )
-            .exclude(version__type=EXTERNAL)
+            ).exclude(version__type=EXTERNAL)
         )
         queryset |= self.filter(
             version__type=EXTERNAL,
@@ -211,7 +216,9 @@ class BuildQuerySet(models.QuerySet):
 
         if project.main_language_project:
             # Project is a translation, counts all builds of all the translations
-            query |= Q(project__main_language_project=project.main_language_project)
+            query |= Q(
+                project__main_language_project=project.main_language_project
+            )
             query |= Q(project__slug=project.main_language_project.slug)
 
         elif project.translations.exists():
@@ -225,8 +232,9 @@ class BuildQuerySet(models.QuerySet):
             query |= Q(project__in=organization.projects.all())
 
         concurrent = (
-            self.filter(query)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
+            self.filter(query).exclude(
+                state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED]
+            )
         ).distinct().count()
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
@@ -261,8 +269,7 @@ class RelatedBuildQuerySet(models.QuerySet):
                     user=user,
                     admin=True,
                     member=True,
-                )
-                .values_list('pk', flat=True)
+                ).values_list('pk', flat=True)
             )
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset

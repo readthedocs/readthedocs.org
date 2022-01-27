@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Shared model fields and defaults."""
 
 import binascii

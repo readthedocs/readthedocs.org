@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Trigger build for project slug."""
 
 import logging
@@ -8,7 +6,6 @@ from django.core.management.base import LabelCommand
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import tasks, utils
-
 
 log = logging.getLogger(__name__)
 

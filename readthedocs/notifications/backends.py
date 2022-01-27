@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Pluggable backends for the delivery of notifications.
 

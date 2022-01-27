@@ -10,7 +10,6 @@ from readthedocs.builds.constants import (
     SEMVER_VERSIONS_REGEX,
     TAG,
 )
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.projects.models import Project
 

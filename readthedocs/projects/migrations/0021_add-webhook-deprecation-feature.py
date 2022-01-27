@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 
 """Add feature for allowing access to deprecated webhook endpoints."""
 
 from django.db import migrations
-
 
 FEATURE_ID = 'allow_deprecated_webhooks'
 

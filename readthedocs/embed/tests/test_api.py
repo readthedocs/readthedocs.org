@@ -1,5 +1,4 @@
 import json
-import os
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
@@ -37,7 +36,8 @@ class BaseTestEmbedAPI:
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
 
     def get(self, client, *args, **kwargs):
-        """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
+        """Wrapper around ``client.get`` to be overridden in the proxied api
+        tests."""
         return client.get(*args, **kwargs)
 
     def _mock_open(self, content):

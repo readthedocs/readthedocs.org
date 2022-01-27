@@ -1,14 +1,7 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import (
-    BRANCH,
-    LATEST,
-    STABLE,
-    TAG,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import REPO_TYPE_GIT, REPO_TYPE_HG
 from readthedocs.projects.models import Project

@@ -26,7 +26,6 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import Project
@@ -64,8 +63,8 @@ class TaskRouter:
     def route_for_task(self, task, args, kwargs, **__):
         log.info('Executing TaskRouter. task=%s', task)
         if task not in (
-            'readthedocs.projects.tasks.update_docs_task',
-            'readthedocs.projects.tasks.sync_repository_task',
+                'readthedocs.projects.tasks.update_docs_task',
+                'readthedocs.projects.tasks.sync_repository_task',
         ):
             log.info('Skipping routing non-build task. task=%s', task)
             return
@@ -81,7 +80,8 @@ class TaskRouter:
         if project.build_queue:
             log.info(
                 'Skipping routing task because project has a custom queue. project=%s queue=%s',
-                project.slug, project.build_queue,
+                project.slug,
+                project.build_queue,
             )
             return project.build_queue
 
@@ -90,10 +90,10 @@ class TaskRouter:
         # so that users will have the same outcome for PR's as normal builds.
         if version.type == EXTERNAL:
             last_build_for_default_version = (
-                project.builds
-                .filter(version__slug=project.get_default_version(), builder__isnull=False)
-                .order_by('-date')
-                .first()
+                project.builds.filter(
+                    version__slug=project.get_default_version(),
+                    builder__isnull=False
+                ).order_by('-date').first()
             )
             if last_build_for_default_version:
                 if 'default' in last_build_for_default_version.builder:
@@ -102,7 +102,8 @@ class TaskRouter:
                     routing_queue = self.BUILD_LARGE_QUEUE
                 log.info(
                     'Routing task because is a external version. project=%s queue=%s',
-                    project.slug, routing_queue,
+                    project.slug,
+                    routing_queue,
                 )
                 return routing_queue
 
@@ -112,26 +113,28 @@ class TaskRouter:
             if build.config.get('conda', None):
                 log.info(
                     'Routing task because project uses conda. project=%s queue=%s',
-                    project.slug, self.BUILD_LARGE_QUEUE,
+                    project.slug,
+                    self.BUILD_LARGE_QUEUE,
                 )
                 return self.BUILD_LARGE_QUEUE
 
         successful_builds_count = (
-            version.builds
-            .filter(success=True)
-            .order_by('-date')
-            .count()
+            version.builds.filter(success=True).order_by('-date').count()
         )
         # We do not have enough builds for this version yet
         if successful_builds_count < self.MIN_SUCCESSFUL_BUILDS:
             log.info(
                 'Routing task because it does not have enough successful builds yet. '
                 'project=%s queue=%s',
-                project.slug, self.BUILD_LARGE_QUEUE,
+                project.slug,
+                self.BUILD_LARGE_QUEUE,
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info('No routing task because no conditions were met. project=%s', project.slug)
+        log.info(
+            'No routing task because no conditions were met. project=%s',
+            project.slug
+        )
         return
 
     def _get_version(self, task, args, kwargs):
@@ -194,12 +197,17 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
             for cmd in data:
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build. build=%s', build.pk)
+                    cmd['output'] = '... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n' + cmd[
+                        'output']  # noqa
+                    log.warning(
+                        'Truncating build command for build. build=%s', build.pk
+                    )
             output = BytesIO()
             output.write(json.dumps(data).encode('utf8'))
             output.seek(0)
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+            filename = '{date}/{id}.json'.format(
+                date=str(build.date.date()), id=build.id
+            )
             try:
                 build_commands_storage.save(name=filename, content=output)
                 build.cold_storage = True
@@ -215,7 +223,8 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
     """
     Delete external versions that have been marked as inactive after ``days``.
 
-    The commit status is updated to link to the build page, as the docs are removed.
+    The commit status is updated to link to the build page, as the docs are
+    removed.
     """
     days_ago = datetime.now() - timedelta(days=days)
     queryset = Version.external.filter(
@@ -237,22 +246,20 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
                 )
         except Exception:
             log.exception(
-                "Failed to send status: project=%s version=%s",
-                version.project.slug, version.slug,
+                'Failed to send status: project=%s version=%s',
+                version.project.slug,
+                version.slug,
             )
         else:
             log.info(
-                "Removing external version. project=%s version=%s",
-                version.project.slug, version.slug,
+                'Removing external version. project=%s version=%s',
+                version.project.slug,
+                version.slug,
             )
             version.delete()
 
 
-@app.task(
-    max_retries=1,
-    default_retry_delay=60,
-    queue='web'
-)
+@app.task(max_retries=1, default_retry_delay=60, queue='web')
 def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     """
     Sync the version data in the repo (from build server) into our database.
@@ -267,7 +274,10 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     project = Project.objects.get(pk=project_pk)
 
     # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.builds.tasks.sync_versions_task. locals=%s', locals())
+    log.info(
+        'Running readthedocs.builds.tasks.sync_versions_task. locals=%s',
+        locals()
+    )
 
     # If the currently highest non-prerelease version is active, then make
     # the new latest version active as well.
@@ -317,8 +327,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
         # Don't interrupt the request if something goes wrong
         # in the automation rules.
         log.exception(
-            'Failed to execute automation rules for [%s]: %s',
-            project.slug, added_versions
+            'Failed to execute automation rules for [%s]: %s', project.slug,
+            added_versions
         )
 
     # TODO: move this to an automation rule
@@ -326,8 +336,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     new_stable = project.get_stable_version()
     if promoted_version and new_stable and new_stable.active:
         log.info(
-            'Triggering new stable build: %(project)s:%(version)s',
-            {
+            'Triggering new stable build: %(project)s:%(version)s', {
                 'project': project.slug,
                 'version': new_stable.identifier,
             }
@@ -336,21 +345,14 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 
         # Marking the tag that is considered the new stable version as
         # active and building it if it was just added.
-        if (
-            activate_new_stable and
-            promoted_version.slug in added_versions
-        ):
+        if (activate_new_stable and promoted_version.slug in added_versions):
             promoted_version.active = True
             promoted_version.save()
             trigger_build(project=project, version=promoted_version)
     return True
 
 
-@app.task(
-    max_retries=3,
-    default_retry_delay=60,
-    queue='web'
-)
+@app.task(max_retries=3, default_retry_delay=60, queue='web')
 def send_build_status(build_pk, commit, status, link_to_build=False):
     """
     Send Build Status to Git Status API for project external versions.
@@ -371,7 +373,10 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status. build=%s project=%s', build.pk, build.project.slug)
+    log.info(
+        'Sending build status. build=%s project=%s', build.pk,
+        build.project.slug
+    )
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.

@@ -54,11 +54,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--production',
-            action='store_true',
-            dest='production',
-            default=False,
-            help=(
+            '--production', action='store_true', dest='production',
+            default=False, help=(
                 'Send the email/notification for real, '
                 'otherwise we only print the notification in the console (dryrun).'
             )
@@ -75,10 +72,7 @@ class Command(BaseCommand):
             help='Path to a file with the notification content in markdown.',
         )
         parser.add_argument(
-            '--sticky',
-            action='store_true',
-            dest='sticky',
-            default=False,
+            '--sticky', action='store_true', dest='sticky', default=False,
             help=(
                 'Make the notification sticky '
                 '(the notification stays until the user closes it)'
@@ -95,7 +89,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not options['email'] and not options['notification']:
-            print("--email or --notification is required.")
+            print('--email or --notification is required.')
             sys.exit(1)
 
         project = options['project']
@@ -112,16 +106,12 @@ class Command(BaseCommand):
             users = AdminPermission.owners(organization)
         elif settings.RTD_ALLOW_ORGANIZATIONS:
             users = (
-                User.objects
-                .filter(organizationowner__organization__disabled=False)
-                .distinct()
+                User.objects.filter(
+                    organizationowner__organization__disabled=False
+                ).distinct()
             )
         else:
-            users = (
-                User.objects
-                .filter(projects__skip=False)
-                .distinct()
-            )
+            users = (User.objects.filter(projects__skip=False).distinct())
 
         print(
             'len(owners)={} production={} email={} notification={}'.format(

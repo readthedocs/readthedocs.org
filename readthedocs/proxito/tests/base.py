@@ -1,15 +1,15 @@
 # Copied from .org
 
 
-import pytest
 import django_dynamic_fixture as fixture
+import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
 

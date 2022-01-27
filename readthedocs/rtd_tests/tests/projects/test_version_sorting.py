@@ -95,10 +95,8 @@ class SortVersionsTest(TestCase):
         )
 
     def test_sort_git_master_and_latest(self):
-        """
-        The branch named master should have a higher priority
-        than latest, ideally users should only have one of the two activated.
-        """
+        """The branch named master should have a higher priority than latest,
+        ideally users should only have one of the two activated."""
         identifiers = ['latest', 'master', '1.0', '2.0', '1.1', '1.9', '1.10']
         self.project.repo_type = REPO_TYPE_GIT
         self.project.save()
@@ -143,10 +141,8 @@ class SortVersionsTest(TestCase):
         )
 
     def test_sort_bzr_latest(self):
-        """
-        BZR doesn't have a name for "master",
-        so here master gets sorted by its ascii value.
-        """
+        """BZR doesn't have a name for "master", so here master gets sorted by
+        its ascii value."""
         identifiers = ['master', '1.0', '2.0', '1.1', '1.9', '1.10']
         self.project.repo_type = REPO_TYPE_BZR
         self.project.save()

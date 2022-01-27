@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Extensions to Django messages to support notifications to users.
 
@@ -14,8 +12,8 @@ on the site.
 .. _`django-messages-extends`: https://github.com
                                /AliLozano/django-messages-extends/
 """
-from .notification import Notification, SiteNotification
 from .backends import send_notification
+from .notification import Notification, SiteNotification
 
 __all__ = (
     'Notification',

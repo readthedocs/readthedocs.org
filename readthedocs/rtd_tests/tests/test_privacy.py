@@ -69,9 +69,7 @@ class PrivacyTests(TestCase):
 
     def test_private_repo(self):
         """Check that private projects don't show up in: builds, downloads,
-        detail, homepage
-
-        """
+        detail, homepage."""
         self._create_kong('private', 'private')
 
         self.client.login(username='eric', password='test')
@@ -98,9 +96,7 @@ class PrivacyTests(TestCase):
 
     def test_public_repo(self):
         """Check that public projects show up in: builds, downloads, detail,
-        homepage
-
-        """
+        homepage."""
         self._create_kong('public', 'public')
 
         self.client.login(username='eric', password='test')

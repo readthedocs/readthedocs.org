@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from readthedocs.core.utils.tasks import TaskNoPermission, get_public_task_data
 from readthedocs.oauth import tasks
 
-
 log = logging.getLogger(__name__)
 
 SUCCESS_STATES = ('SUCCESS',)

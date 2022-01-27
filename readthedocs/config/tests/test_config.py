@@ -1,11 +1,11 @@
 import os
-from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
 from unittest.mock import DEFAULT, patch
 
 import pytest
+from django.conf import settings
 from pytest import raises
 
 from readthedocs.config import (

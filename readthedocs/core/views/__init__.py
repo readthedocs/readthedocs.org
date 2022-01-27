@@ -1,20 +1,20 @@
 """
 Core views.
 
-Including the main homepage, documentation and header rendering,
-and server errors.
+Including the main homepage, documentation and header rendering, and server
+errors.
 """
 
 import logging
 
 from django.conf import settings
 from django.http import Http404, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import View, TemplateView
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import TemplateView, View
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
@@ -25,6 +25,7 @@ class NoProjectException(Exception):
 
 
 class HealthCheckView(View):
+
     def get(self, request, *args, **kwargs):
         return JsonResponse({'status': 200}, status=200)
 

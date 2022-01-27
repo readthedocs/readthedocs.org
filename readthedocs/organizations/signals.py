@@ -18,7 +18,9 @@ from readthedocs.organizations.models import (
 )
 from readthedocs.projects.models import Project
 
-from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
+from .tasks import (
+    mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task,
+)
 
 log = logging.getLogger(__name__)
 
