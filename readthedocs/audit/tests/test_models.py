@@ -47,3 +47,33 @@ class TestAuditModels(TestCase):
         self.assertIsNone(self.auditlog.organization)
         self.assertEqual(self.auditlog.log_organization_id, id)
         self.assertEqual(self.auditlog.log_organization_slug, slug)
+
+    def test_log_attached_to_user_only(self):
+        log = get(
+            AuditLog,
+            user=self.user,
+        )
+        self.assertEqual(log.user, self.user)
+        self.assertEqual(log.log_user_id, self.user.id)
+        self.assertEqual(log.log_user_username, self.user.username)
+
+    def test_log_attached_to_project_with_organization_only(self):
+        log = get(
+            AuditLog,
+            project=self.project,
+        )
+        self.assertEqual(log.project, self.project)
+        self.assertEqual(log.log_project_id, self.project.id)
+        self.assertEqual(log.log_project_slug, self.project.slug)
+        self.assertEqual(log.organization, self.organization)
+        self.assertEqual(log.log_organization_id, self.organization.id)
+        self.assertEqual(log.log_organization_slug, self.organization.slug)
+
+    def test_log_attached_to_organization_only(self):
+        log = get(
+            AuditLog,
+            organization=self.organization,
+        )
+        self.assertEqual(log.organization, self.organization)
+        self.assertEqual(log.log_organization_id, self.organization.id)
+        self.assertEqual(log.log_organization_slug, self.organization.slug)
