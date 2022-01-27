@@ -167,9 +167,6 @@ class DockerBaseSettings(CommunityDevSettings):
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
 
-    AWS_AUTO_CREATE_BUCKET = True
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_BUCKET_ACL = 'public-read'
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False
