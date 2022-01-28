@@ -21,7 +21,7 @@ Here is an example of what this file looks like:
      image: latest
 
    python:
-     version: 3.6
+     version: "3.6"
      setup_py_install: true
 
 
@@ -131,7 +131,7 @@ as defined here:
         image: latest
 
     python:
-        version: 3.6
+        version: "3.6"
 
 
 python
@@ -161,7 +161,7 @@ the highest supported minor version will be selected.
 .. code-block:: yaml
 
     python:
-       version: 3.5
+       version: "3.5"
 
 python.use_system_site_packages
 ```````````````````````````````
