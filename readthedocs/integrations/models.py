@@ -145,9 +145,21 @@ class HttpExchange(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
     request_headers = JSONField(_('Request headers'))
+    request_headers_json = models.JSONField(
+        _('Request headers'),
+        # Delete after deploy
+        null=True,
+        default=None,
+    )
     request_body = models.TextField(_('Request body'))
 
     response_headers = JSONField(_('Request headers'))
+    response_headers_json = models.JSONField(
+        _('Request headers'),
+        # Delete after deploy
+        null=True,
+        default=None,
+    )
     response_body = models.TextField(_('Response body'))
 
     status_code = models.IntegerField(
@@ -278,6 +290,7 @@ class Integration(models.Model):
         choices=INTEGRATIONS,
     )
     provider_data = JSONField(_('Provider data'), default=dict)
+    provider_data_json = models.JSONField(_('Provider data'), default=dict)
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',
