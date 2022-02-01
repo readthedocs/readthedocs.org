@@ -81,36 +81,36 @@ class SyncRepositoryMixin:
 
         All VCS commands will be executed using `environment`.
         """
-        version_repo = self.project.vcs_repo(
-            version=self.version.slug,
+        version_repo = self.data.project.vcs_repo(
+            version=self.data.version.slug,
             environment=environment,
-            verbose_name=self.version.verbose_name,
-            version_type=self.version.type
+            verbose_name=self.data.version.verbose_name,
+            version_type=self.data.version.type
         )
         return version_repo
 
     def sync_repo(self, environment):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
-        if not os.path.exists(self.project.doc_path):
-            os.makedirs(self.project.doc_path)
+        if not os.path.exists(self.data.project.doc_path):
+            os.makedirs(self.data.project.doc_path)
 
-        if not self.project.vcs_class():
+        if not self.data.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.project.repo_type,
+                    repo_type=self.data.project.repo_type,
                 ),
             )
 
         # Get the actual code on disk
         log.info(
             'Checking out version.',
-            version_identifier=self.version.identifier,
+            version_identifier=self.data.version.identifier,
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
         self.sync_versions(version_repo)
-        identifier = self.build_commit or self.version.identifier
+        identifier = self.data.build_commit or self.data.version.identifier
         version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
@@ -126,7 +126,7 @@ class SyncRepositoryMixin:
         if (
             version_repo.supports_lsremote and
             not version_repo.repo_exists() and
-            self.project.has_feature(Feature.VCS_REMOTE_LISTING)
+            self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
         ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
@@ -139,7 +139,7 @@ class SyncRepositoryMixin:
 
         if (
             version_repo.supports_tags and
-            not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
+            not self.data.project.has_feature(Feature.SKIP_SYNC_TAGS)
         ):
             # Will be an empty list if we called lsremote and had no tags returned
             if tags is None:
@@ -154,7 +154,7 @@ class SyncRepositoryMixin:
 
         if (
             version_repo.supports_branches and
-            not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+            not self.data.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
         ):
             # Will be an empty list if we called lsremote and had no branches returned
             if branches is None:
@@ -173,7 +173,7 @@ class SyncRepositoryMixin:
         )
 
         build_tasks.sync_versions_task.delay(
-            project_pk=self.project.pk,
+            project_pk=self.data.project.pk,
             tags_data=tags_data,
             branches_data=branches_data,
         )
@@ -210,8 +210,8 @@ class SyncRepositoryMixin:
         """Get bash environment variables specific to Read the Docs."""
         env = {
             'READTHEDOCS': 'True',
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
+            'READTHEDOCS_VERSION': self.data.version.slug,
+            'READTHEDOCS_PROJECT': self.data.project.slug,
+            'READTHEDOCS_LANGUAGE': self.data.project.language,
         }
         return env
