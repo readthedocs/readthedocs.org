@@ -1,3 +1,10 @@
+Version 7.1.2
+-------------
+
+:Date: January 31, 2022
+
+* `@humitos <https://github.com/humitos>`__: Build: pin pip as workaround (`#8865 <https://github.com/readthedocs/readthedocs.org/pull/8865>`__)
+
 Version 7.1.1
 -------------
 
