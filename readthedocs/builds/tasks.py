@@ -115,7 +115,14 @@ class TaskRouter:
         last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            if build.config.get('conda', None):
+            build_tools_python = build.config.get('build', {}).get('tools', {}).get('python', '')
+            conda = build.config.get('conda', None)
+
+            uses_conda = any([
+                conda,
+                build_tools_python.startswith('miniconda'),
+            ])
+            if uses_conda:
                 log.info(
                     'Routing task because project uses conda.',
                     project_slug=project.slug,
