@@ -10,7 +10,6 @@ in our Docker Development environment.
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
 from django.conf import settings
-from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.exceptions import ImproperlyConfigured
 from storages.backends.s3boto3 import S3Boto3Storage, S3ManifestStaticStorage
 
