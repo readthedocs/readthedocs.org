@@ -66,15 +66,15 @@ pyquery==1.4.3
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.2
 
-orjson==3.6.5
+orjson==3.6.6
 
 # Utils
 django-gravatar2==1.4.4
 pytz==2021.3
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.64.0
-regex==2021.11.10
+stripe==2.65.0
+regex==2022.1.18
 markdown==3.3.6
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
@@ -88,7 +88,7 @@ docker==5.0.3
 django-annoying==0.10.6
 django-messages-extends==0.6.2
 djangorestframework-jsonp==1.0.2
-django-taggit==2.0.0
+django-taggit==2.1.0
 dj-pagination==2.5.0
 
 # Version comparison stuff
@@ -101,18 +101,7 @@ django-cors-middleware==1.4.0  # pyup: ignore
 # User agent parsing - used for analytics purposes
 user-agents==2.2.0
 
-
-# Utilities used to upload build media to cloud storage
-# django-storages is pinned to this particular commit because it
-# supports generating URLs with other method than GET when using
-# private buckets.
-#
-# Besides, support for the corresponding AWS_BUCKET_ACL and
-# AWS_AUTO_CREATE_BUCKET settings have been removed in 1.10. We depend on this
-# in our Docker setup. We can upgrade it but we need to add a
-# `create_buckets.sh` to be called on `--init` as we used to do for Azurite
-# https://github.com/jschneier/django-storages/pull/636
-git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[boto3]==1.9.1
+django-storages==1.12.3
 
 
 # Required only in development and linting

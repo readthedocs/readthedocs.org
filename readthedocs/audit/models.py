@@ -193,8 +193,9 @@ class AuditLog(TimeStampedModel):
             organization = self.project.organizations.first()
             if organization:
                 self.organization = organization
-                self.log_organization_id = organization.id
-                self.log_organization_slug = organization.slug
+        if self.organization:
+            self.log_organization_id = self.organization.id
+            self.log_organization_slug = self.organization.slug
         super().save(**kwargs)
 
     def auth_backend_display(self):

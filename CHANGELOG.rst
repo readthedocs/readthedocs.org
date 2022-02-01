@@ -1,3 +1,21 @@
+Version 7.1.1
+-------------
+
+:Date: January 31, 2022
+
+* `@humitos <https://github.com/humitos>`__: Task router: check new config `build.tools.python` for conda (`#8855 <https://github.com/readthedocs/readthedocs.org/pull/8855>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce logs in task router (`#8854 <https://github.com/readthedocs/readthedocs.org/pull/8854>`__)
+* `@humitos <https://github.com/humitos>`__: django-storages: upgrade (`#8853 <https://github.com/readthedocs/readthedocs.org/pull/8853>`__)
+* `@humitos <https://github.com/humitos>`__: Config: remove pipfile from schema (`#8851 <https://github.com/readthedocs/readthedocs.org/pull/8851>`__)
+* `@stsewd <https://github.com/stsewd>`__: AuditLog: always fill organization id & slug (`#8846 <https://github.com/readthedocs/readthedocs.org/pull/8846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs (dev): fix server side search (`#8845 <https://github.com/readthedocs/readthedocs.org/pull/8845>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove beta warning from config file's `build` key (`#8843 <https://github.com/readthedocs/readthedocs.org/pull/8843>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix more casing issues (`#8842 <https://github.com/readthedocs/readthedocs.org/pull/8842>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update choosing a platform doc (`#8837 <https://github.com/readthedocs/readthedocs.org/pull/8837>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 04 (`#8835 <https://github.com/readthedocs/readthedocs.org/pull/8835>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: use `BooleanField(null=True)` (`#8834 <https://github.com/readthedocs/readthedocs.org/pull/8834>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix edit on links (`#8833 <https://github.com/readthedocs/readthedocs.org/pull/8833>`__)
+
 Version 7.1.0
 -------------
 

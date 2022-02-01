@@ -49,7 +49,7 @@ Existing Search Implementation
 
 We have a detailed documentation explaining the underlying architecture of our search backend
 and how we index documents to our Elasticsearch index.
-You can read about it :doc:`here <../search>`.
+You can read about it :doc:`here </server-side-search>`.
 
 
 Proposed Architecture for In-Doc Search UI

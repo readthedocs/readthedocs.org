@@ -6,7 +6,7 @@ along with Virtualenv.
 Conda support is useful for people who depend on C libraries,
 and need them installed when building their documentation.
 
-This work was funded by `Clinical Graphics`_ -- many thanks for their support of Open Source.
+This work was funded by `Clinical Graphics`_ -- many thanks for their support of open source.
 
 .. _Clinical Graphics: https://www.clinicalgraphics.com/
 
