@@ -477,7 +477,7 @@ class Virtualenv(PythonEnvironment):
             # builds failing at this step, but we should come back to this and
             # unpin pip for this case.
             # https://github.com/readthedocs/readthedocs.org/issues/8864#issuecomment-1025499598
-            negative='pip==21.3.1',
+            negative='pip<=21.3.1',
         )
         cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
         self.build_env.run(
