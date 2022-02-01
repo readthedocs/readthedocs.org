@@ -141,6 +141,12 @@ html_theme_options = {
     'logo_only': True,
     'display_version': False,
 }
+html_context = {
+    # Fix the "edit on" links.
+    # TODO: remove once we support different rtd config
+    # files per project.
+    'conf_py_path': f'/docs/{docset}/',
+}
 
 hoverxref_auto_ref = True
 hoverxref_domains = ['py']

@@ -306,9 +306,10 @@ class Project(models.Model):
         default=False,
         help_text='If checked, do not show advertising for this project',
     )
-    is_spam = models.NullBooleanField(
+    is_spam = models.BooleanField(
         _('Is spam?'),
         default=None,
+        null=True,
         help_text=_('Manually marked as (not) spam'),
     )
     show_version_warning = models.BooleanField(

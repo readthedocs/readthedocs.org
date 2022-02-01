@@ -1,13 +1,13 @@
 Read the Docs Open Source Philosophy
 -------------------------------------
 
-Read the Docs is Open Source software.
+Read the Docs is open source software.
 We have `licensed <https://github.com/readthedocs/readthedocs.org/blob/master/LICENSE>`_ the code base as MIT,
 which provides almost no restrictions on the use of the code.
 
 However,
 as a project there are things that we care about more than others.
-We built Read the Docs to support documentation in the Open Source community.
+We built Read the Docs to support documentation in the open source community.
 The code is open for people to contribute to,
 so that they may build features into https://readthedocs.org that they want.
 We also believe sharing the code openly is a valuable learning tool,
@@ -21,14 +21,14 @@ The time of the core developers of Read the Docs is limited.
 We provide official support for the following things:
 
 * Local development on the Python code base
-* Usage of https://readthedocs.org for Open Source projects
+* Usage of https://readthedocs.org for open source projects
 * Bug fixes in the code base, as it applies to running it on https://readthedocs.org
 
 Unsupported
 ~~~~~~~~~~~
 
 There are use cases that we don't support,
-because it doesn't further our goal of promoting documentation in the Open Source Community.
+because it doesn't further our goal of promoting documentation in the open source community.
 
 We do not support:
 
@@ -40,7 +40,7 @@ We do not support:
 Rationale
 ~~~~~~~~~
 
-Read the Docs was founded to improve documentation in the Open Source Community.
+Read the Docs was founded to improve documentation in the open source community.
 We fully recognize and allow the code to be used for internal installs at companies,
 but we will not spend our time supporting it.
 Our time is limited,

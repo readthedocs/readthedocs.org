@@ -62,15 +62,6 @@ Set up your environment
 
       inv docker.up  --init  # --init is only needed the first time
 
-#. add read permissions to the storage backend:
-
-   * go to http://localhost:9000/ (MinIO S3 storage backend)
-   * login as ``admin`` / ``password``
-   * click "..." next to the ``static`` bucket name and then "Edit Policy"
-   * leave "prefix" empty and click "Add" to give "Read Only" access on the ``static`` bucket
-   * click on the "+" icon on the bottom-right corner, then "Create bucket" with the name ``media``,
-     hit Enter on the keyboard, and repeat the operation above to give "Read Only" access to it
-
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
 
