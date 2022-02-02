@@ -2,6 +2,8 @@
 
 -r pip.txt
 
+urllib3==1.26.8
+
 django-dynamic-fixture==3.1.2
 pytest==6.2.5
 pytest-custom-exit-code==0.3.0
