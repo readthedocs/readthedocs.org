@@ -43,7 +43,7 @@ jobs:
           command: |
             echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
-      - run: tox -e migrations
+      - run: tox -vv -e migrations
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs
