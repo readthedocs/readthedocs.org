@@ -1,6 +1,8 @@
 # Requirements for our local docker development
 
 -r pip.txt
+-r debug.txt
+
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
 psycopg2-binary==2.9.2  # pyup: ignore
 
@@ -9,16 +11,8 @@ django-redis-cache==3.0.0
 # For resizing images
 pillow==9.0.0
 
-# local debugging tools
+# Local debugging tools
 watchdog==2.1.6
-datadiff==2.0.0
-ipdb==0.13.9
-pdbpp==0.10.3
-
-# jedi 0.18 is incompatible with ipython
-# https://github.com/ipython/ipython/issues/12740
-jedi>0.17,<0.18  # pyup: ignore
-
 # watchdog dependency
 argh==0.26.2
 
