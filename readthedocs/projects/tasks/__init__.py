@@ -50,8 +50,9 @@ def update_docs_task(self, version_pk, *args, **kwargs):
 @app.task(
     max_retries=5,
     default_retry_delay=7 * 60,
+    bind=True,
 )
-def sync_repository_task(version_pk):
+def sync_repository_task(self, version_pk):
     sync_repository_task_new.apply_async(
         args=[
             version_pk,
