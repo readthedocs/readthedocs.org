@@ -19,7 +19,7 @@ search:
   ranking:
     # Deprecated content
     api/v1.html: -1
-    config-file/v1.html: -1
+    config-file/v1.html: -5
 
     # Useful content, but not something we want most users finding
     changelog.html: -6
