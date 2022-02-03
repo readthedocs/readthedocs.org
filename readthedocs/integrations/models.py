@@ -175,6 +175,14 @@ class HttpExchange(models.Model):
     def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
+
+    # TODO: delete .save method after deploy
+    # Copy headers into new JSONField
+    def save(self, *args, **kwargs):
+        self.request_headers_json = self.request_headers
+        self.response_headers_json = self.response_headers
+        super().save(*args, **kwargs)
+
     @property
     def failed(self):
         # Assume anything that isn't 2xx level status code is an error
@@ -315,6 +323,13 @@ class Integration(models.Model):
     def remove_secret(self):
         self.secret = None
         self.save(update_fields=['secret'])
+
+    # TODO: delete .save method after deploy
+    # Copy `provider_data` into new JSONField
+    def save(self, *args, **kwargs):
+        self.provider_data_json = self.provider_data
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return (
