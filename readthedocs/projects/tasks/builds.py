@@ -79,6 +79,7 @@ log = structlog.get_logger(__name__)
 
 
 class TaskData:
+
     """
     Object to store all data related to a Celery task excecution.
 
@@ -95,7 +96,6 @@ class TaskData:
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
     """
     pass
-
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
