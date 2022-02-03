@@ -95,6 +95,7 @@ class TaskData:
 
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
     """
+
     pass
 
 
