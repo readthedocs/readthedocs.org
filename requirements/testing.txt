@@ -16,9 +16,4 @@ Mercurial==6.0.1
 yamale==2.2.0  # pyup: <3.0
 pytest-mock==3.6.1
 
-# local debugging tools
-datadiff==2.0.0
-ipdb==0.13.9
-pdbpp==0.10.3
-
 requests-mock==1.9.3
