@@ -66,17 +66,17 @@ class TaskRouter:
     BUILD_LARGE_QUEUE = 'build:large'
 
     def route_for_task(self, task, args, kwargs, **__):
-        log.info('Executing TaskRouter.', task=task)
+        log.debug('Executing TaskRouter.', task=task)
         if task not in (
             'readthedocs.projects.tasks.update_docs_task',
             'readthedocs.projects.tasks.sync_repository_task',
         ):
-            log.info('Skipping routing non-build task.', task=task)
+            log.debug('Skipping routing non-build task.', task=task)
             return
 
         version = self._get_version(task, args, kwargs)
         if not version:
-            log.info('No Build/Version found. No routing task.', task=task)
+            log.debug('No Build/Version found. No routing task.', task=task)
             return
 
         project = version.project
@@ -115,7 +115,14 @@ class TaskRouter:
         last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            if build.config.get('conda', None):
+            build_tools_python = build.config.get('build', {}).get('tools', {}).get('python', '')
+            conda = build.config.get('conda', None)
+
+            uses_conda = any([
+                conda,
+                build_tools_python.startswith('miniconda'),
+            ])
+            if uses_conda:
                 log.info(
                     'Routing task because project uses conda.',
                     project_slug=project.slug,
@@ -138,7 +145,7 @@ class TaskRouter:
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info(
+        log.debug(
             'No routing task because no conditions were met.',
             project_slug=project.slug,
         )
@@ -155,7 +162,7 @@ class TaskRouter:
             try:
                 version = Version.objects.get(pk=version_pk)
             except Version.DoesNotExist:
-                log.info(
+                log.debug(
                     'Version does not exist. Routing task to default queue.',
                     version_id=version_pk,
                 )

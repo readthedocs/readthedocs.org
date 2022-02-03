@@ -1,0 +1,4 @@
+# Useful tools during a debug session.
+datadiff==2.0.0
+ipdb==0.13.9
+pdbpp==0.10.3
