@@ -405,7 +405,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
-            log.info('Triggered sync_versions.')
+            log.debug('Triggered sync_versions.')
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
@@ -441,7 +441,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
-            log.info(
+            log.debug(
                 'Triggered sync_versions.',
                 integration_events=events,
             )
@@ -555,7 +555,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
-                log.info(
+                log.debug(
                     'Triggered sync_versions.',
                     before=before,
                     after=after,
@@ -657,7 +657,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
-                log.info('Triggered sync_versions.')
+                log.debug('Triggered sync_versions.')
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')

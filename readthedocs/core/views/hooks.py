@@ -50,7 +50,7 @@ def build_branches(project, branch_list):
         versions = project.versions_from_branch_name(branch)
 
         for version in versions:
-            log.info(
+            log.debug(
                 'Processing.',
                 project_slug=project.slug,
                 version_slug=version.slug,
@@ -103,7 +103,7 @@ def trigger_sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
-        log.info(
+        log.debug(
             'Triggering sync repository.',
             project_slug=version.project.slug,
             version_slug=version.slug,
