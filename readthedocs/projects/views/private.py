@@ -45,7 +45,6 @@ from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
-from readthedocs.projects import tasks
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     DomainForm,
@@ -72,6 +71,7 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
+from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
@@ -212,8 +212,11 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version.', version_slug=version.slug)
-                tasks.clean_project_resources(
+                log.info(
+                    'Removing files for version.',
+                    version_slug=version.slug,
+                )
+                clean_project_resources(
                     version.project,
                     version,
                 )
@@ -242,7 +245,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
             version.built = False
             version.save()
             log.info('Removing files for version.', version_slug=version.slug)
-            tasks.clean_project_resources(
+            clean_project_resources(
                 version.project,
                 version,
             )

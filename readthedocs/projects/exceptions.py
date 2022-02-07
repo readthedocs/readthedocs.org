@@ -5,10 +5,10 @@
 from django.conf import settings
 from django.utils.translation import gettext_noop as _
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildUserError
 
 
-class ProjectConfigurationError(BuildEnvironmentError):
+class ProjectConfigurationError(BuildUserError):
 
     """Error raised trying to configure a project for build."""
 
@@ -24,7 +24,7 @@ class ProjectConfigurationError(BuildEnvironmentError):
     )
 
 
-class RepositoryError(BuildEnvironmentError):
+class RepositoryError(BuildUserError):
 
     """Failure during repository operation."""
 

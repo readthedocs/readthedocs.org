@@ -24,31 +24,28 @@ class Backend(BaseVCS):
         return self.clone()
 
     def repo_exists(self):
-        retcode = self.run('bzr', 'status', record=False)[0]
-        return retcode == 0
+        try:
+            code, _, _ = self.run('bzr', 'status', record=False)
+            return code == 0
+        except RepositoryError:
+            return False
 
     def up(self):
-        retcode = self.run('bzr', 'revert')[0]
-        if retcode != 0:
-            raise RepositoryError
-        up_output = self.run('bzr', 'up')
-        if up_output[0] != 0:
-            raise RepositoryError
-        return up_output
+        self.run('bzr', 'revert')
+        return self.run('bzr', 'up')
 
     def clone(self):
         self.make_clean_working_dir()
-        retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
-        if retcode != 0:
-            raise RepositoryError
+        self.run('bzr', 'checkout', self.repo_url, '.')
 
     @property
     def tags(self):
-        retcode, stdout = self.run('bzr', 'tags', record_as_success=True)[:2]
-        # error (or no tags found)
-        if retcode != 0:
+        try:
+            code, stdout, stderr = self.run('bzr', 'tags', record_as_success=True)
+            return self.parse_tags(stdout)
+        except RepositoryError:
+            # error (or no tags found)
             return []
-        return self.parse_tags(stdout)
 
     def parse_tags(self, data):
         """
@@ -83,16 +80,19 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('bzr', 'revno')[:2]
+        _, stdout, _ = self.run('bzr', 'revno')
         return stdout.strip()
 
     def checkout(self, identifier=None):
         super().checkout()
+
         if not identifier:
             return self.up()
-        exit_code, stdout, stderr = self.run('bzr', 'switch', identifier)
-        if exit_code != 0:
+
+        try:
+            code, stdout, stderr = self.run('bzr', 'switch', identifier)
+            return code, stdout, stderr
+        except RepositoryError:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
             )
-        return exit_code, stdout, stderr
