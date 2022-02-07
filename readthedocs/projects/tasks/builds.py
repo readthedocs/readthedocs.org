@@ -78,6 +78,27 @@ from .search import fileify
 log = structlog.get_logger(__name__)
 
 
+class TaskData:
+
+    """
+    Object to store all data related to a Celery task excecution.
+
+    We use this object from inside the task to store data while we are runnig
+    the task. This is to avoid using `self.` inside the task due to its
+    limitations: it's instanciated once and that instance is re-used for all
+    the tasks ran. This could produce sharing instance state between two
+    different and unrelated tasks.
+
+    Note that *all the data* that needs to be saved in the task to share among
+    different task's method, should be stored in this object. Normally, under
+    `self.data` inside the Celery task itself.
+
+    See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
+    """
+
+    pass
+
+
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
     """
@@ -98,26 +119,26 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
-        # NOTE: save all the attributes to do a clean up when finish
-        self._attributes = list(self.__dict__.keys()) + ['_attributes']
+        # Create the object to store all the task-related data
+        self.data = TaskData()
 
-        self.environment_class = DockerBuildEnvironment
+        self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
             # TODO: delete LocalBuildEnvironment since it's not supported
             # anymore and we are not using it
-            self.environment_class = LocalBuildEnvironment
+            self.data.environment_class = LocalBuildEnvironment
 
         # Comes from the signature of the task and it's the only required
         # argument
         version_id, = args
 
         # load all data from the API required for the build
-        self.version = self.get_version(version_id)
-        self.project = self.version.project
+        self.data.version = self.get_version(version_id)
+        self.data.project = self.data.version.project
 
         log.bind(
-            project_slug=self.project.slug,
-            version_slug=self.version.slug,
+            project_slug=self.data.project.slug,
+            version_slug=self.data.version.slug,
         )
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
@@ -132,23 +153,18 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             log.exception('An unhandled exception was raised during VCS syncing.')
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        clean_build(self.version)
-
-        # HACK: cleanup all the attributes set by the task under `self`
-        for attribute in list(self.__dict__.keys()):
-            if attribute not in self._attributes:
-                del self.__dict__[attribute]
+        clean_build(self.data.version)
 
     def execute(self):
-        environment = self.environment_class(
-            project=self.project,
-            version=self.version,
+        environment = self.data.environment_class(
+            project=self.data.project,
+            version=self.data.version,
             environment=self.get_vcs_env_vars(),
         )
 
         with environment:
             before_vcs.send(
-                sender=self.version,
+                sender=self.data.version,
                 environment=environment,
             )
             self.update_versions_from_repository(environment)
@@ -163,7 +179,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         version_repo = self.get_vcs_repo(environment)
         if any([
                 not version_repo.supports_lsremote,
-                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+                not self.data.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
             log.info('Syncing repository via full clone.')
             self.sync_repo(environment)
@@ -227,7 +243,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _check_concurrency_limit(self):
         try:
-            response = api_v2.build.concurrent.get(project__slug=self.project.slug)
+            response = api_v2.build.concurrent.get(project__slug=self.data.project.slug)
             concurrency_limit_reached = response.get('limit_reached', False)
             max_concurrent_builds = response.get(
                 'max_concurrent',
@@ -236,8 +252,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         except Exception:
             log.exception(
                 'Error while hitting/parsing API for concurrent limit checks from builder.',
-                project_slug=self.project.slug,
-                version_slug=self.version.slug,
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
             )
             concurrency_limit_reached = False
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
@@ -246,13 +262,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # TODO: this could be handled in `on_retry` probably
             log.warning(
                 'Delaying tasks due to concurrency limit.',
-                project_slug=self.project.slug,
-                version_slug=self.version.slug,
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
             )
 
             # This is done automatically on the environment context, but
             # we are executing this code before creating one
-            api_v2.build(self.build['id']).patch({
+            api_v2.build(self.data.build['id']).patch({
                 'error': BuildMaxConcurrencyError.message.format(
                     limit=max_concurrent_builds,
                 ),
@@ -266,56 +282,55 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
     def _check_duplicated_build(self):
-        if self.build.get('status') == DuplicatedBuildError.status:
+        if self.data.build.get('status') == DuplicatedBuildError.status:
             log.warning('NOOP: build is marked as duplicated.')
             raise DuplicatedBuildError
 
     def _check_project_disabled(self):
-        if self.project.skip:
+        if self.data.project.skip:
             log.warning('Project build skipped.')
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
-        # NOTE: save all the attributes to do a clean up when finish.
-        # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
-        self._attributes = list(self.__dict__.keys()) + ['_attributes']
+        # Create the object to store all the task-related data
+        self.data = TaskData()
 
-        self.start_time = timezone.now()
-        self.environment_class = DockerBuildEnvironment
+        self.data.start_time = timezone.now()
+        self.data.environment_class = DockerBuildEnvironment
         if not settings.DOCKER_ENABLE:
             # TODO: delete LocalBuildEnvironment since it's not supported
             # anymore and we are not using it
-            self.environment_class = LocalBuildEnvironment
+            self.data.environment_class = LocalBuildEnvironment
 
         # Comes from the signature of the task and they are the only required
         # arguments
-        self.version_pk, self.build_pk = args
+        self.data.version_pk, self.data.build_pk = args
 
-        self.build = self.get_build(self.build_pk)
-        self.version = self.get_version(self.version_pk)
-        self.project = self.version.project
+        self.data.build = self.get_build(self.data.build_pk)
+        self.data.version = self.get_version(self.data.version_pk)
+        self.data.project = self.data.version.project
 
         # Save the builder instance's name into the build object
-        self.build['builder'] = socket.gethostname()
+        self.data.build['builder'] = socket.gethostname()
 
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
-        self.build_commit = kwargs.get('build_commit')
+        self.data.build_commit = kwargs.get('build_commit')
 
         log.bind(
-            # NOTE: ``self.build`` is just a regular dict, not an APIBuild :'(
-            build_id=self.build['id'],
-            builder=self.build['builder'],
-            commit=self.build_commit,
-            project_slug=self.project.slug,
-            version_slug=self.version.slug,
+            # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
+            build_id=self.data.build['id'],
+            builder=self.data.build['builder'],
+            commit=self.data.build_commit,
+            project_slug=self.data.project.slug,
+            version_slug=self.data.version.slug,
         )
 
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
-        clean_build(self.version)
+        clean_build(self.data.version)
 
         # NOTE: this is never called. I didn't find anything in the logs, so we
         # can probably remove it
@@ -328,24 +343,24 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _reset_build(self):
         # Reset build only if it has some commands already.
-        if self.build.get('commands'):
-            api_v2.build(self.build['id']).reset.post()
+        if self.data.build.get('commands'):
+            api_v2.build(self.data.build['id']).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        if not hasattr(self, 'build'):
-            # NOTE: use `self.build_id` (passed to the task) instead
-            # `self.build` (retrieved from the API) because it's not present,
+        if not hasattr(self.data, 'build'):
+            # NOTE: use `self.data.build_id` (passed to the task) instead
+            # `self.data.build` (retrieved from the API) because it's not present,
             # probably due the API failed when retrieving it.
             #
-            # So, we create the `self.build` with the minimum required data.
-            self.build = {
-                'id': self.build_pk,
+            # So, we create the `self.data.build` with the minimum required data.
+            self.data.build = {
+                'id': self.data.build_pk,
             }
 
         # TODO: handle this `ConfigError` as a `BuildUserError` in the
         # following block
         if isinstance(exc, ConfigError):
-            self.build['error'] = str(
+            self.data.build['error'] = str(
                 YAMLParseError(
                     YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
                         exception=str(exc),
@@ -355,8 +370,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         elif isinstance(exc, BuildAppError):
-            self.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
-                build_id=self.build['id'],
+            self.data.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.data.build['id'],
             )
         # Known errors in the user's project (e.g. invalid config file, invalid
         # repository, command failed, etc). Report the error back to the user
@@ -364,51 +379,51 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # use a generic message.
         elif isinstance(exc, BuildUserError):
             if hasattr(exc, 'message') and exc.message is not None:
-                self.build['error'] = exc.message
+                self.data.build['error'] = exc.message
             else:
-                self.build['error'] = BuildUserError.GENERIC
+                self.data.build['error'] = BuildUserError.GENERIC
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
             log.exception('Build failed with unhandled exception.')
-            self.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
-                build_id=self.build['id'],
+            self.data.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.data.build['id'],
             )
 
         # Send notifications for unhandled errors
         self.send_notifications(
-            self.version.pk,
-            self.build['id'],
+            self.data.version.pk,
+            self.data.build['id'],
             event=WebHookEvent.BUILD_FAILED,
         )
 
-        # NOTE: why we wouldn't have `self.build_commit` here?
+        # NOTE: why we wouldn't have `self.data.build_commit` here?
         # This attribute is set when we get it after clonning the repository
         #
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.build_commit:
+        if self.data.build_commit:
             send_external_build_status(
-                version_type=self.version.type,
-                build_pk=self.build['id'],
-                commit=self.build_commit,
+                version_type=self.data.version.type,
+                build_pk=self.data.build['id'],
+                commit=self.data.build_commit,
                 status=BUILD_STATUS_FAILURE,
             )
 
         # Update build object
-        self.build['success'] = False
+        self.data.build['success'] = False
 
     def on_success(self, retval, task_id, args, kwargs):
-        html = self.outcomes['html']
-        search = self.outcomes['search']
-        localmedia = self.outcomes['localmedia']
-        pdf = self.outcomes['pdf']
-        epub = self.outcomes['epub']
+        html = self.data.outcomes['html']
+        search = self.data.outcomes['search']
+        localmedia = self.data.outcomes['localmedia']
+        pdf = self.data.outcomes['pdf']
+        epub = self.data.outcomes['epub']
 
         # Store build artifacts to storage (local or cloud storage)
         self.store_build_artifacts(
-            self.build_env,
+            self.data.build_env,
             html=html,
             search=search,
             localmedia=localmedia,
@@ -420,7 +435,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # HTML are built successfully.
         if html:
             try:
-                api_v2.version(self.version.pk).patch({
+                api_v2.version(self.data.version.pk).patch({
                     'built': True,
                     'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
@@ -436,68 +451,62 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Index search data
         fileify.delay(
-            version_pk=self.version.pk,
-            commit=self.build['commit'],
-            build=self.build['id'],
-            search_ranking=self.config.search.ranking,
-            search_ignore=self.config.search.ignore,
+            version_pk=self.data.version.pk,
+            commit=self.data.build['commit'],
+            build=self.data.build['id'],
+            search_ranking=self.data.config.search.ranking,
+            search_ignore=self.data.config.search.ignore,
         )
 
-        if not self.project.has_valid_clone:
+        if not self.data.project.has_valid_clone:
             self.set_valid_clone()
 
         self.send_notifications(
-            self.version.pk,
-            self.build['id'],
+            self.data.version.pk,
+            self.data.build['id'],
             event=WebHookEvent.BUILD_PASSED,
         )
 
-        if self.build_commit:
+        if self.data.build_commit:
             send_external_build_status(
-                version_type=self.version.type,
-                build_pk=self.build['id'],
-                commit=self.build_commit,
+                version_type=self.data.version.type,
+                build_pk=self.data.build['id'],
+                commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
             )
 
         # Update build object
-        self.build['success'] = True
+        self.data.build['success'] = True
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         log.warning('Retrying this task.')
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object
-        self.build['length'] = (timezone.now() - self.start_time).seconds
+        self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         self.update_build(BUILD_STATE_FINISHED)
 
-        build_complete.send(sender=Build, build=self.build)
+        build_complete.send(sender=Build, build=self.data.build)
 
-        clean_build(self.version)
+        clean_build(self.data.version)
 
         log.info(
             'Build finished.',
-            length=self.build['length'],
-            success=self.build['success']
+            length=self.data.build['length'],
+            success=self.data.build['success']
         )
 
-        # HACK: cleanup all the attributes set by the task under `self`
-        # https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
-        for attribute in list(self.__dict__.keys()):
-            if attribute not in self._attributes:
-                del self.__dict__[attribute]
-
     def update_build(self, state):
-        self.build['state'] = state
+        self.data.build['state'] = state
 
         # Attempt to stop unicode errors on build reporting
-        # for key, val in list(self.build.items()):
+        # for key, val in list(self.data.build.items()):
         #     if isinstance(val, bytes):
-        #         self.build[key] = val.decode('utf-8', 'ignore')
+        #         self.data.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            api_v2.build(self.build['id']).patch(self.build)
+            api_v2.build(self.data.build['id']).patch(self.data.build)
         except Exception:
             # NOTE: I think we should fail the build if we cannot update it
             # at this point otherwise, the data will be inconsistent and we
@@ -517,53 +526,53 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         3. Save the `config` object into the database
         4. Update VCS submodules
         """
-        environment = self.environment_class(
-            project=self.project,
-            version=self.version,
-            build=self.build,
+        environment = self.data.environment_class(
+            project=self.data.project,
+            version=self.data.version,
+            build=self.data.build,
             environment=self.get_vcs_env_vars(),
         )
 
         # Environment used for code checkout & initial configuration reading
         with environment:
             before_vcs.send(
-                sender=self.version,
+                sender=self.data.version,
                 environment=environment,
             )
 
             self.setup_vcs(environment)
-            self.config = load_yaml_config(version=self.version)
+            self.data.config = load_yaml_config(version=self.data.version)
             self.save_build_config()
             self.update_vcs_submodules(environment)
 
     def update_vcs_submodules(self, environment):
         version_repo = self.get_vcs_repo(environment)
         if version_repo.supports_submodules:
-            version_repo.update_submodules(self.config)
+            version_repo.update_submodules(self.data.config)
 
     def run_build(self):
         """Build the docs in an environment."""
-        self.build_env = self.environment_class(
-            project=self.project,
-            version=self.version,
-            config=self.config,
-            build=self.build,
+        self.data.build_env = self.data.environment_class(
+            project=self.data.project,
+            version=self.data.version,
+            config=self.data.config,
+            build=self.data.build,
             environment=self.get_build_env_vars(),
         )
 
         # Environment used for building code, usually with Docker
-        with self.build_env:
+        with self.data.build_env:
             python_env_cls = Virtualenv
             if any([
-                    self.config.conda is not None,
-                    self.config.python_interpreter in ('conda', 'mamba'),
+                    self.data.config.conda is not None,
+                    self.data.config.python_interpreter in ('conda', 'mamba'),
             ]):
                 python_env_cls = Conda
 
-            self.python_env = python_env_cls(
-                version=self.version,
-                build_env=self.build_env,
-                config=self.config,
+            self.data.python_env = python_env_cls(
+                version=self.data.version,
+                build_env=self.data.build_env,
+                config=self.data.config,
             )
 
             # TODO: check if `before_build` and `after_build` are still useful
@@ -571,15 +580,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             #
             # I didn't find they are used anywhere, we should probably remove them
             before_build.send(
-                sender=self.version,
-                environment=self.build_env,
+                sender=self.data.version,
+                environment=self.data.build_env,
             )
 
             self.setup_build()
             self.build_docs()
 
             after_build.send(
-                sender=self.version,
+                sender=self.data.version,
             )
 
     @staticmethod
@@ -624,7 +633,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # https://community.letsencrypt.org/t/openssl-client-compatibility-changes-for-let-s-encrypt-certificates/143816
         # TODO: remove this when a newer version of ``ca-certificates`` gets
         # pre-installed in the Docker images
-        if self.project.has_feature(Feature.UPDATE_CA_CERTIFICATES):
+        if self.data.project.has_feature(Feature.UPDATE_CA_CERTIFICATES):
             environment.run(
                 'apt-get', 'update', '--assume-yes', '--quiet',
                 user=settings.RTD_DOCKER_SUPER_USER,
@@ -638,9 +647,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         self.sync_repo(environment)
 
-        commit = self.build_commit or self.get_vcs_repo(environment).commit
+        commit = self.data.build_commit or self.get_vcs_repo(environment).commit
         if commit:
-            self.build['commit'] = commit
+            self.data.build['commit'] = commit
 
     def get_build_env_vars(self):
         """Get bash environment variables used for all builder commands."""
@@ -649,23 +658,23 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # https://no-color.org/
         env['NO_COLOR'] = '1'
 
-        if self.config.conda is not None:
+        if self.data.config.conda is not None:
             env.update({
-                'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
-                'CONDA_DEFAULT_ENV': self.version.slug,
+                'CONDA_ENVS_PATH': os.path.join(self.data.project.doc_path, 'conda'),
+                'CONDA_DEFAULT_ENV': self.data.version.slug,
                 'BIN_PATH': os.path.join(
-                    self.project.doc_path,
+                    self.data.project.doc_path,
                     'conda',
-                    self.version.slug,
+                    self.data.version.slug,
                     'bin',
                 ),
             })
         else:
             env.update({
                 'BIN_PATH': os.path.join(
-                    self.project.doc_path,
+                    self.data.project.doc_path,
                     'envs',
-                    self.version.slug,
+                    self.data.version.slug,
                     'bin',
                 ),
             })
@@ -673,33 +682,33 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
-        env.update(self.project.environment_variables(
-            public_only=self.version.is_external
+        env.update(self.data.project.environment_variables(
+            public_only=self.data.version.is_external
         ))
 
         return env
 
-    # NOTE: this can be just updated on `self.build['']` and sent once the
+    # NOTE: this can be just updated on `self.data.build['']` and sent once the
     # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        api_v2.project(self.project.pk).patch(
+        api_v2.project(self.data.project.pk).patch(
             {'has_valid_clone': True}
         )
-        self.project.has_valid_clone = True
-        self.version.project.has_valid_clone = True
+        self.data.project.has_valid_clone = True
+        self.data.version.project.has_valid_clone = True
 
     # TODO: think about reducing the amount of API calls. Can we just save the
-    # `config` in memory (`self.build['config']`) and update it later (e.g.
+    # `config` in memory (`self.data.build['config']`) and update it later (e.g.
     # together with the build status)?
     def save_build_config(self):
         """Save config in the build object."""
-        pk = self.build['id']
-        config = self.config.as_dict()
+        pk = self.data.build['id']
+        config = self.data.config.as_dict()
         api_v2.build(pk).patch({
             'config': config,
         })
-        self.build['config'] = config
+        self.data.build['config'] = config
 
     def store_build_artifacts(
             self,
@@ -735,7 +744,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # HTML media
         if html:
-            types_to_copy.append(('html', self.config.doctype))
+            types_to_copy.append(('html', self.data.config.doctype))
 
         # Search media (JSON)
         if search:
@@ -757,15 +766,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             types_to_delete.append('epub')
 
         for media_type, build_type in types_to_copy:
-            from_path = self.version.project.artifact_path(
-                version=self.version.slug,
+            from_path = self.data.version.project.artifact_path(
+                version=self.data.version.slug,
                 type_=build_type,
             )
-            to_path = self.version.project.get_storage_path(
+            to_path = self.data.version.project.get_storage_path(
                 type_=media_type,
-                version_slug=self.version.slug,
+                version_slug=self.data.version.slug,
                 include_file=False,
-                version_type=self.version.type,
+                version_type=self.data.version.type,
             )
             try:
                 build_media_storage.sync_directory(from_path, to_path)
@@ -780,11 +789,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         for media_type in types_to_delete:
-            media_path = self.version.project.get_storage_path(
+            media_path = self.data.version.project.get_storage_path(
                 type_=media_type,
-                version_slug=self.version.slug,
+                version_slug=self.data.version.slug,
                 include_file=False,
-                version_type=self.version.type,
+                version_type=self.data.version.type,
             )
             try:
                 build_media_storage.delete_directory(media_path)
@@ -812,14 +821,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param build_env: Build environment to pass commands and execution through.
         """
         # Install all ``build.tools`` specified by the user
-        if self.config.using_build_tools:
-            self.python_env.install_build_tools()
+        if self.data.config.using_build_tools:
+            self.data.python_env.install_build_tools()
 
-        self.python_env.setup_base()
-        self.python_env.install_core_requirements()
-        self.python_env.install_requirements()
-        if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.python_env.list_packages_installed()
+        self.data.python_env.setup_base()
+        self.data.python_env.install_core_requirements()
+        self.data.python_env.install_requirements()
+        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.data.python_env.list_packages_installed()
 
     def install_system_dependencies(self):
         """
@@ -833,14 +842,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
            ``--quiet`` won't suppress the output,
            it would just remove the progress bar.
         """
-        packages = self.config.build.apt_packages
+        packages = self.data.config.build.apt_packages
         if packages:
-            self.build_env.run(
+            self.data.build_env.run(
                 'apt-get', 'update', '--assume-yes', '--quiet',
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
             # put ``--`` to end all command arguments.
-            self.build_env.run(
+            self.data.build_env.run(
                 'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
@@ -858,20 +867,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         self.update_build(state=BUILD_STATE_BUILDING)
 
-        self.outcomes = defaultdict(lambda: False)
-        self.outcomes['html'] = self.build_docs_html()
-        self.outcomes['search'] = self.build_docs_search()
-        self.outcomes['localmedia'] = self.build_docs_localmedia()
-        self.outcomes['pdf'] = self.build_docs_pdf()
-        self.outcomes['epub'] = self.build_docs_epub()
+        self.data.outcomes = defaultdict(lambda: False)
+        self.data.outcomes['html'] = self.build_docs_html()
+        self.data.outcomes['search'] = self.build_docs_search()
+        self.data.outcomes['localmedia'] = self.build_docs_localmedia()
+        self.data.outcomes['pdf'] = self.build_docs_pdf()
+        self.data.outcomes['epub'] = self.build_docs_epub()
 
-        return self.outcomes
+        return self.data.outcomes
 
     def build_docs_html(self):
         """Build HTML docs."""
-        html_builder = get_builder_class(self.config.doctype)(
-            build_env=self.build_env,
-            python_env=self.python_env,
+        html_builder = get_builder_class(self.data.config.doctype)(
+            build_env=self.data.build_env,
+            python_env=self.data.python_env,
         )
         html_builder.append_conf()
         success = html_builder.build()
@@ -881,9 +890,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         return success
 
     def get_final_doctype(self):
-        html_builder = get_builder_class(self.config.doctype)(
-            build_env=self.build_env,
-            python_env=self.python_env,
+        html_builder = get_builder_class(self.data.config.doctype)(
+            build_env=self.data.build_env,
+            python_env=self.data.python_env,
         )
         return html_builder.get_final_doctype()
 
@@ -900,8 +909,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
         if (
-            'htmlzip' not in self.config.formats or
-            self.version.type == EXTERNAL
+            'htmlzip' not in self.data.config.formats or
+            self.data.version.type == EXTERNAL
         ):
             return False
         # We don't generate a zip for mkdocs currently.
@@ -911,7 +920,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if 'pdf' not in self.config.formats or self.version.type == EXTERNAL:
+        if 'pdf' not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -920,7 +929,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if 'epub' not in self.config.formats or self.version.type == EXTERNAL:
+        if 'epub' not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -936,8 +945,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         process.
         """
         builder = get_builder_class(builder_class)(
-            self.build_env,
-            python_env=self.python_env,
+            self.data.build_env,
+            python_env=self.data.python_env,
         )
         success = builder.build()
         builder.move()
@@ -947,7 +956,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """Send notifications to all subscribers of `event`."""
         # Try to infer the version type if we can
         # before creating a task.
-        if not self.version or self.version.type != EXTERNAL:
+        if not self.data.version or self.data.version.type != EXTERNAL:
             build_tasks.send_build_notifications.delay(
                 version_pk=version_pk,
                 build_pk=build_pk,
@@ -956,7 +965,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
-        return 'sphinx' in self.config.doctype
+        return 'sphinx' in self.data.config.doctype
 
 
 @app.task(
