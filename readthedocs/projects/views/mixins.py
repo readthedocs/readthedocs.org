@@ -126,6 +126,7 @@ class ProjectImportMixin:
             'Project imported.',
             project_slug=project.slug,
             user_username=request.user.username,
+            tags=tags,
         )
 
         # TODO: this signal could be removed, or used for sync task

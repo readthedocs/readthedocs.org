@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
-from readthedocs.projects.tasks.utils import (
+from readthedocs.projects.tasks.search import (
     _create_imported_files,
     _create_intersphinx_data,
 )
