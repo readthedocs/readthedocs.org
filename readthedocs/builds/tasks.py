@@ -115,7 +115,13 @@ class TaskRouter:
         last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            build_tools_python = build.config.get('build', {}).get('tools', {}).get('python', {}).get('version', '')
+            build_tools_python = (
+                build.config
+                .get('build', {})
+                .get('tools', {})
+                .get('python', {})
+                .get('version', '')
+            )
             conda = build.config.get('conda', None)
 
             uses_conda = any([
