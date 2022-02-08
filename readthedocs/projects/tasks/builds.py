@@ -276,7 +276,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             })
             self.retry(
                 exc=BuildMaxConcurrencyError,
-                throw=False,
                 # We want to retry this build more times
                 max_retries=25,
             )
