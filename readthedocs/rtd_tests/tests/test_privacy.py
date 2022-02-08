@@ -13,8 +13,8 @@ from readthedocs.projects.models import Project
 log = structlog.get_logger(__name__)
 
 
-@mock.patch('readthedocs.projects.tasks.clean_build', new=mock.MagicMock)
-@mock.patch('readthedocs.projects.tasks.update_docs_task.signature', new=mock.MagicMock)
+@mock.patch('readthedocs.projects.tasks.utils.clean_build', new=mock.MagicMock)
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task.signature', new=mock.MagicMock)
 class PrivacyTests(TestCase):
 
     def setUp(self):

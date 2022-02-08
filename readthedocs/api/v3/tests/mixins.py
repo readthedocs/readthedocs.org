@@ -167,5 +167,10 @@ class APIEndpointMixin(TestCase):
 
         It's just a helper for debugging API responses.
         """
-        import datadiff
-        return super().assertDictEqual(d1, d2, datadiff.diff(d1, d2))
+        message = ''
+        try:
+            import datadiff
+            message = datadiff.diff(d1, d2)
+        except ImportError:
+            pass
+        return super().assertDictEqual(d1, d2, message)

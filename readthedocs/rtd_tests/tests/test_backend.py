@@ -4,6 +4,7 @@ import os
 from os.path import exists
 from tempfile import mkdtemp
 import textwrap
+from unittest import mock
 
 from django.test import TestCase
 import django_dynamic_fixture as fixture
@@ -25,6 +26,8 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
+# Avoid trying to save the commands via the API
+@mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
 class TestGitBackend(TestCase):
     def setUp(self):
         git_repo = make_test_git()
@@ -314,6 +317,8 @@ class TestGitBackend(TestCase):
         )
 
 
+# Avoid trying to save the commands via the API
+@mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
 class TestHgBackend(TestCase):
 
     def setUp(self):
