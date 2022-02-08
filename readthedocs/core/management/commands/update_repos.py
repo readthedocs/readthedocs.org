@@ -26,14 +26,6 @@ class Command(BaseCommand):
         parser.add_argument('--slugs', nargs='+', type=str)
 
         parser.add_argument(
-            '-f',
-            action='store_true',
-            dest='force',
-            default=False,
-            help='Force a build in sphinx',
-        )
-
-        parser.add_argument(
             '-V',
             dest='version',
             default='all',
@@ -41,7 +33,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        force = options['force']
         version = options['version']
         slugs = options.get('slugs', [])
 
@@ -85,7 +76,7 @@ class Command(BaseCommand):
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building ...', project_slug=p.slug)
-                    trigger_build(project=p, force=force)
+                    trigger_build(project=p)
         else:
             if version == 'all':
                 log.info('Updating all versions')

@@ -20,37 +20,35 @@ class Backend(BaseVCS):
         return self.clone()
 
     def repo_exists(self):
-        retcode = self.run('hg', 'status', record=False)[0]
-        return retcode == 0
+        try:
+            code, _, _ = self.run('hg', 'status', record=False)
+            return code == 0
+        except RepositoryError:
+            return False
 
     def pull(self):
-        (pull_retcode, _, _) = self.run('hg', 'pull')
-        if pull_retcode != 0:
-            raise RepositoryError
-        (update_retcode, stdout, stderr) = self.run('hg', 'update', '--clean')
-        if update_retcode != 0:
-            raise RepositoryError
-        return (update_retcode, stdout, stderr)
+        self.run('hg', 'pull')
+        code, stdout, stderr = self.run('hg', 'update', '--clean')
+        return code, stdout, stderr
 
     def clone(self):
         self.make_clean_working_dir()
         output = self.run('hg', 'clone', self.repo_url, '.')
-        if output[0] != 0:
-            raise RepositoryError
         return output
 
     @property
     def branches(self):
-        retcode, stdout = self.run(
-            'hg',
-            'branches',
-            '--quiet',
-            record_as_success=True,
-        )[:2]
-        # error (or no tags found)
-        if retcode != 0:
+        try:
+            _, stdout, _ = self.run(
+                'hg',
+                'branches',
+                '--quiet',
+                record_as_success=True,
+            )
+            return self.parse_branches(stdout)
+        except RepositoryError:
+            # error (or no tags found)
             return []
-        return self.parse_branches(stdout)
 
     def parse_branches(self, data):
         """
@@ -70,11 +68,12 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('hg', 'tags', record_as_success=True)[:2]
-        # error (or no tags found)
-        if retcode != 0:
+        try:
+            _, stdout, _ = self.run('hg', 'tags', record_as_success=True)
+            return self.parse_tags(stdout)
+        except RepositoryError:
+            # error (or no tags found)
             return []
-        return self.parse_tags(stdout)
 
     def parse_tags(self, data):
         """
@@ -115,14 +114,16 @@ class Backend(BaseVCS):
         super().checkout()
         if not identifier:
             identifier = 'tip'
-        exit_code, stdout, stderr = self.run(
-            'hg',
-            'update',
-            '--clean',
-            identifier,
-        )
-        if exit_code != 0:
+
+        try:
+            code, stdout, stderr = self.run(
+                'hg',
+                'update',
+                '--clean',
+                identifier,
+            )
+            return code, stdout, stderr
+        except RepositoryError:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
             )
-        return exit_code, stdout, stderr
