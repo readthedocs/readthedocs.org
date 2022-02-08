@@ -1,10 +1,9 @@
 """Views for doc serving."""
-
 import itertools
-import structlog
+from functools import lru_cache
 from urllib.parse import urlparse
 
-from readthedocs.core.resolver import resolve_path
+import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -13,11 +12,14 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
+from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
+from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
@@ -50,7 +52,45 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(
+        CachedResponseMixin,
+        ServeRedirectMixin,
+        ServeDocsMixin,
+        View,
+):
+
+    set_cache_control_header = True
+
+    @lru_cache(maxsize=1)
+    def _get_project(self):
+        """
+        Get the project associated to this request.
+
+        .. note::
+
+           This method should be called after
+           `_get_project_data_from_request` has been called.
+        """
+        project_slug = getattr(self.request, 'path_project_slug', None)
+        if project_slug:
+            return Project.objects.filter(slug=project_slug).first()
+        return None
+
+    @lru_cache(maxsize=1)
+    def _get_version(self):
+        """
+        Get the project associated to this request.
+
+        .. note::
+
+           This method should be called after
+           `_get_project_data_from_request` has been called.
+        """
+        version_slug = getattr(self.request, 'path_version_slug', None)
+        project = self._get_project()
+        if version_slug and project:
+            return project.versions.filter(slug=version_slug).first()
+        return None
 
     def get(self,
             request,

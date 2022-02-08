@@ -10,7 +10,6 @@ import sys
 from urllib.parse import urlparse
 
 import structlog
-
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -251,9 +250,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         """
         Add Cache-Control headers.
 
-        If private projects are allowed don't cache any request at the CDN level.
-        In the future we should set this header conditionally on private/public versions,
-        and on views with/without cookies (like the footer).
+        If privacy levels are enabled and the header isn't already present,
+        set the cache level to private.
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
@@ -261,7 +259,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             # We use ``CDN-Cache-Control``,
             # to control caching at the CDN level only.
             # Caching at the browser level is fine (``Cache-Control``).
-            response['CDN-Cache-Control'] = 'private'
+            response.headers.setdefault('CDN-Cache-Control', 'private')
 
     def process_request(self, request):  # noqa
         skip = any(
