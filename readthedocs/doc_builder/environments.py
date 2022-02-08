@@ -495,11 +495,13 @@ class BuildEnvironment(BaseEnvironment):
             build=None,
             config=None,
             environment=None,
+            record=True,
     ):
         super().__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
+        self.record = record
 
     # TODO: remove these methods, we are not using LocalEnvironment anymore. We
     # need to find a way for tests to not require this anymore
@@ -510,7 +512,8 @@ class BuildEnvironment(BaseEnvironment):
         return
 
     def record_command(self, command):
-        command.save()
+        if self.record:
+            command.save()
 
     def run(self, *cmd, **kwargs):
         kwargs.update({

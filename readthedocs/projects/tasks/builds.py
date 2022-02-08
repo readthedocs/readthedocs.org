@@ -160,6 +160,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             project=self.data.project,
             version=self.data.version,
             environment=self.get_vcs_env_vars(),
+            # Do not try to save commands on the db because they are just for
+            # sync repository
+            record=False,
         )
 
         with environment:
