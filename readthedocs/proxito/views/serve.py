@@ -1,6 +1,5 @@
 """Views for doc serving."""
 import itertools
-from functools import lru_cache
 from urllib.parse import urlparse
 
 import structlog
@@ -12,26 +11,25 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.api.v2.mixins import CachedResponseMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
 from .decorators import map_project_slug
-from .mixins import ServeDocsMixin, ServeRedirectMixin
+from .mixins import CachedView, ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)  # noqa
 
 
-class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+
     def get(self,
             request,
             project_slug=None,
@@ -49,48 +47,16 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
+
+        if self._can_be_cached(final_project):
+            # All requests from this view can be cached.
+            # This is since the final URL will check for authz.
+            self.cache_request = True
+
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(
-        CachedResponseMixin,
-        ServeRedirectMixin,
-        ServeDocsMixin,
-        View,
-):
-
-    set_cache_control_header = True
-
-    @lru_cache(maxsize=1)
-    def _get_project(self):
-        """
-        Get the project associated to this request.
-
-        .. note::
-
-           This method should be called after
-           `_get_project_data_from_request` has been called.
-        """
-        project_slug = getattr(self.request, 'path_project_slug', None)
-        if project_slug:
-            return Project.objects.filter(slug=project_slug).first()
-        return None
-
-    @lru_cache(maxsize=1)
-    def _get_version(self):
-        """
-        Get the project associated to this request.
-
-        .. note::
-
-           This method should be called after
-           `_get_project_data_from_request` has been called.
-        """
-        version_slug = getattr(self.request, 'path_version_slug', None)
-        project = self._get_project()
-        if version_slug and project:
-            return project.versions.filter(slug=version_slug).first()
-        return None
+class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -118,12 +84,22 @@ class ServeDocsBase(
             filename=filename,
         )
 
+        version = final_project.versions.filter(slug=version_slug).first()
+
+        # All public versions can be cached.
+        if (
+            self._is_cache_enabled(final_project)
+            and version and not version.is_private
+        ):
+            self.cache_request = True
+
         log.bind(
             project_slug=final_project.slug,
             subproject_slug=subproject_slug,
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
+            cache_request=self.cache_request,
         )
         log.debug('Serving docs.')
 
