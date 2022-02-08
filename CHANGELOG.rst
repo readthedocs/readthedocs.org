@@ -1,3 +1,21 @@
+Version 7.2.0
+-------------
+
+:Date: February 08, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#8897 <https://github.com/readthedocs/readthedocs.org/pull/8897>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't be so excited always in our emails :) (`#8888 <https://github.com/readthedocs/readthedocs.org/pull/8888>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: Don't install debug tools when running tests (`#8882 <https://github.com/readthedocs/readthedocs.org/pull/8882>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix issue with build task routing and config argument (`#8877 <https://github.com/readthedocs/readthedocs.org/pull/8877>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: use an internal namespace to store build task's data (`#8874 <https://github.com/readthedocs/readthedocs.org/pull/8874>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.1.2 (`#8873 <https://github.com/readthedocs/readthedocs.org/pull/8873>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.1.1 (`#8872 <https://github.com/readthedocs/readthedocs.org/pull/8872>`__)
+* `@humitos <https://github.com/humitos>`__: Build: pin pip as workaround (`#8865 <https://github.com/readthedocs/readthedocs.org/pull/8865>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce verbosity (`#8856 <https://github.com/readthedocs/readthedocs.org/pull/8856>`__)
+* `@humitos <https://github.com/humitos>`__: Task router: check new config `build.tools.python` for conda (`#8855 <https://github.com/readthedocs/readthedocs.org/pull/8855>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce logs in task router (`#8854 <https://github.com/readthedocs/readthedocs.org/pull/8854>`__)
+* `@humitos <https://github.com/humitos>`__: Build process: use Celery handlers (`#8815 <https://github.com/readthedocs/readthedocs.org/pull/8815>`__)
+
 Version 7.1.2
 -------------
 
