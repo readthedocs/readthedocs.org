@@ -67,7 +67,7 @@ def sync_repository_task(self, version_pk):
     bind=True,
 )
 def fileify(self, version_pk, commit, build, search_ranking, search_ignore):
-    fileify_new.async_apply(
+    fileify_new.apply_async(
         args=[
             version_pk,
             commit,
