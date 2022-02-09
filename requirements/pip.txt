@@ -71,7 +71,6 @@ orjson==3.6.6
 # Utils
 django-gravatar2==1.4.4
 pytz==2021.3
-Unipath==1.1
 django-kombu==0.9.4
 stripe==2.65.0
 regex==2022.1.18
