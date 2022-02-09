@@ -8,7 +8,7 @@ from readthedocs.projects.models import Project
 from .mixins import APIEndpointMixin
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_list(self):
