@@ -1,9 +1,8 @@
 import copy
-from readthedocs.projects.models import Feature
-import structlog
 import mimetypes
 from urllib.parse import urlparse, urlunparse
 
+import structlog
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -318,32 +317,3 @@ class ServeRedirectMixin:
         # Add a user-visible header to make debugging easier
         resp['X-RTD-Redirect'] = 'user'
         return resp
-
-
-class CachedView:
-
-    """
-    Allow to cache views at the CDN level when privacy levels are enabled.
-
-    Cache control header is only used when privacy levels
-    are enabled (otherwise everything is public by default).
-
-    Views that can be cached should always return the same response for all
-    users (anonymous and authenticated users) when the version attached to the
-    request isn't private.
-    """
-
-    cache_request = False
-
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        if settings.ALLOW_PRIVATE_REPOS and self._can_be_cached(request):
-            response.headers['CDN-Cache-Control'] = 'public'
-        return response
-
-    def _can_be_cached(self, request):
-        return self.cache_request
-
-    def _is_cache_enabled(self, project):
-        # TODO: check for the organization's plan.
-        return settings.ALLOW_PRIVATE_REPOS and project.has_feature(Feature.CDN_ENABLED)

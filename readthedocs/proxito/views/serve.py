@@ -48,7 +48,7 @@ class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        if self._can_be_cached(final_project):
+        if self._is_cache_enabled(final_project):
             # All requests from this view can be cached.
             # This is since the final URL will check for authz.
             self.cache_request = True
@@ -84,9 +84,8 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        version = final_project.versions.filter(slug=version_slug).first()
-
         # All public versions can be cached.
+        version = final_project.versions.filter(slug=version_slug).first()
         if (
             self._is_cache_enabled(final_project)
             and version and not version.is_private
