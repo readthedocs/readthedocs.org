@@ -13,6 +13,7 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.mixins import CachedView
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -22,7 +23,7 @@ from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
 from .decorators import map_project_slug
-from .mixins import CachedView, ServeDocsMixin, ServeRedirectMixin
+from .mixins import ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)  # noqa
@@ -110,6 +111,11 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
             try:
+                # A canonical redirect can be cached, if we don't have information
+                # about the version, since the final URL will check for authz.
+                if not version and self._is_cache_enabled(final_project):
+                    self.cache_request = True
+
                 return self.canonical_redirect(request, final_project, version_slug, filename)
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
@@ -124,6 +130,10 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
                 filename == '',
                 not final_project.single_version,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         # Handle `/projects/subproject` URL redirection:
@@ -134,6 +144,10 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
                 subproject_slug,
                 not subproject_slash,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         if all([

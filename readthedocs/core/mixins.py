@@ -1,4 +1,6 @@
 """Common mixin classes for views."""
+from functools import lru_cache
+
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from vanilla import ListView
@@ -53,13 +55,14 @@ class CachedView:
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
-        if settings.ALLOW_PRIVATE_REPOS and self._can_be_cached(request):
+        if settings.ALLOW_PRIVATE_REPOS and self.can_be_cached(request):
             response.headers['CDN-Cache-Control'] = 'public'
         return response
 
     def can_be_cached(self, request):
         return self.cache_request
 
+    @lru_cache(maxsize=1)
     def _is_cache_enabled(self, project):
         """Helper function to check if CND is enabled for a project."""
         # TODO: check for the organization's plan.
