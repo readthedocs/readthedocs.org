@@ -136,6 +136,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         self.data.version = self.get_version(version_id)
         self.data.project = self.data.version.project
 
+        # Also note there are builds that are triggered without a commit
+        # because they just build the latest commit for that version
+        self.data.build_commit = kwargs.get('build_commit')
+
         log.bind(
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
