@@ -46,7 +46,7 @@ class CachedView:
     or override the `can_be_cached` method.
 
     We use ``CDN-Cache-Control``, to control caching at the CDN level only.
-    Caching at the browser level is fine (``Cache-Control``).
+    This doesn't affect caching at the browser level (``Cache-Control``).
 
     See https://developers.cloudflare.com/cache/about/cdn-cache-control.
     """

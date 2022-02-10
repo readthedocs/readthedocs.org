@@ -254,11 +254,12 @@ class ProxitoMiddleware(MiddlewareMixin):
         set the cache level to private.
 
         We use ``CDN-Cache-Control``, to control caching at the CDN level only.
-        Caching at the browser level is fine (``Cache-Control``).
+        This doesn't affect caching at the browser level (``Cache-Control``).
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
         if settings.ALLOW_PRIVATE_REPOS:
+            # Set the key to private only if it hasn't already been set by the view.
             response.headers.setdefault('CDN-Cache-Control', 'private')
 
     def process_request(self, request):  # noqa
