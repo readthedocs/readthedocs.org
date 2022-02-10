@@ -156,6 +156,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'version': 2,
             'formats': 'all',
         })
+        build_docs_html.return_value = True
 
         # Make the version external
         self.version.type = EXTERNAL
