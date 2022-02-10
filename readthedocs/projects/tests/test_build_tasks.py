@@ -1,27 +1,29 @@
 import os
-
 from unittest import mock
 
-from django.conf import settings
-from django.test import TestCase
-from django.utils import timezone
 import django_dynamic_fixture as fixture
-
 import pytest
+from django.conf import settings
 
 from readthedocs.builds.constants import (
-    EXTERNAL,
     BUILD_STATUS_FAILURE,
-    BUILD_STATE_FINISHED,
     BUILD_STATUS_SUCCESS,
+    EXTERNAL,
 )
 from readthedocs.builds.models import Build
-from readthedocs.config import ConfigError, ALL
+from readthedocs.config import ALL, ConfigError
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
-from readthedocs.projects.tasks.builds import UpdateDocsTask, update_docs_task, sync_repository_task
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    WebHookEvent,
+)
+from readthedocs.projects.tasks.builds import (
+    sync_repository_task,
+    update_docs_task,
+)
 
 from .mockers import BuildEnvironmentMocker
 
@@ -146,9 +148,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 )
             )
 
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
     def test_build_formats_only_html_for_external_versions(self, build_docs_html, build_docs_class, load_yaml_config):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
@@ -164,9 +166,9 @@ class TestBuildTask(BuildEnvironmentBase):
         build_docs_html.assert_called_once()  # HTML builder
         build_docs_class.assert_not_called()  # all the other builders
 
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
-    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
     @mock.patch('readthedocs.projects.tasks.builds.load_yaml_config')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_class')
+    @mock.patch('readthedocs.projects.tasks.builds.UpdateDocsTask.build_docs_html')
     def test_build_respects_formats_mkdocs(self, build_docs_html, build_docs_class, load_yaml_config):
         load_yaml_config.return_value = self._config_file({
             'version': 2,
