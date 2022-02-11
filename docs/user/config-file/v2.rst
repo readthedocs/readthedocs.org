@@ -747,8 +747,8 @@ the ``apt_packages`` key described above.
 
 .. warning::
 
-   When using the new speficiation,
-   the ``build.os`` and ``python.version`` options cannot be used.
+   When using the new specification,
+   the ``build.image`` and ``python.version`` options cannot be used.
    Doing so will error the build.
 
 build (legacy)
