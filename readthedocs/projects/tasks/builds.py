@@ -31,6 +31,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_TRIGGERED,
     BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
@@ -264,25 +265,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
         if concurrency_limit_reached:
-            # TODO: this could be handled in `on_retry` probably
-            log.warning(
-                'Delaying tasks due to concurrency limit.',
-                project_slug=self.data.project.slug,
-                version_slug=self.data.version.slug,
-            )
-
-            # This is done automatically on the environment context, but
-            # we are executing this code before creating one
-            api_v2.build(self.data.build['id']).patch({
-                'error': BuildMaxConcurrencyError.message.format(
+            # By raising this exception and using ``autoretry_for``, Celery
+            # will handle this automatically calling ``on_retry``
+            raise BuildMaxConcurrencyError(
+                BuildMaxConcurrencyError.message.format(
                     limit=max_concurrent_builds,
-                ),
-                'builder': socket.gethostname(),
-            })
-            self.retry(
-                exc=BuildMaxConcurrencyError,
-                # We want to retry this build more times
-                max_retries=25,
+                )
             )
 
     def _check_duplicated_build(self):
@@ -483,7 +471,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = True
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
-        log.warning('Retrying this task.')
+        log.info('Retrying this task.')
+
+        if isinstance(exc, BuildMaxConcurrencyError):
+            log.warning(
+                'Delaying tasks due to concurrency limit.',
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+            self.data.build['error'] = exc.message
+            self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object
