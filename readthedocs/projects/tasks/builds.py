@@ -31,6 +31,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_TRIGGERED,
     BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
@@ -218,8 +219,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     autoretry_for = (
         BuildMaxConcurrencyError,
     )
-    max_retries = 5  # 5 per normal builds, 25 per concurrency limited
-    default_retry_delay = 7 * 60
+    max_retries = settings.RTD_BUILDS_MAX_RETRIES
+    default_retry_delay = settings.RTD_BUILDS_RETRY_DELAY
+    retry_backoff = False
 
     # Expected exceptions that will be logged as info only and not retried.
     # These exceptions are not sent to Sentry either because we are using
@@ -279,25 +281,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
         if concurrency_limit_reached:
-            # TODO: this could be handled in `on_retry` probably
-            log.warning(
-                'Delaying tasks due to concurrency limit.',
-                project_slug=self.data.project.slug,
-                version_slug=self.data.version.slug,
-            )
-
-            # This is done automatically on the environment context, but
-            # we are executing this code before creating one
-            api_v2.build(self.data.build['id']).patch({
-                'error': BuildMaxConcurrencyError.message.format(
+            # By raising this exception and using ``autoretry_for``, Celery
+            # will handle this automatically calling ``on_retry``
+            raise BuildMaxConcurrencyError(
+                BuildMaxConcurrencyError.message.format(
                     limit=max_concurrent_builds,
-                ),
-                'builder': socket.gethostname(),
-            })
-            self.retry(
-                exc=BuildMaxConcurrencyError,
-                # We want to retry this build more times
-                max_retries=25,
+                )
             )
 
     def _check_duplicated_build(self):
@@ -499,7 +488,25 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = True
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
-        log.warning('Retrying this task.')
+        """
+        Celery helper called when the task is retried.
+
+        This happens when any of the exceptions defined in ``autoretry_for``
+        argument is raised or when ``self.retry`` is called from inside the
+        task.
+
+        See https://docs.celeryproject.org/en/master/userguide/tasks.html#retrying
+        """
+        log.info('Retrying this task.')
+
+        if isinstance(exc, BuildMaxConcurrencyError):
+            log.warning(
+                'Delaying tasks due to concurrency limit.',
+                project_slug=self.data.project.slug,
+                version_slug=self.data.version.slug,
+            )
+            self.data.build['error'] = exc.message
+            self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         # Update build object
