@@ -80,7 +80,7 @@ markdown==3.3.6
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.3
-django-crispy-forms==1.13.0
+django-crispy-forms==1.14.0
 
 docker==5.0.3
 
