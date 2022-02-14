@@ -175,12 +175,13 @@ class HttpExchange(models.Model):
     def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
-
     # TODO: delete .save method after deploy
     # Copy headers into new JSONField
     def save(self, *args, **kwargs):
-        self.request_headers_json = self.request_headers
-        self.response_headers_json = self.response_headers
+        # NOTE: cast headers into a regular dict because Django does not know
+        # how to serialize ``requests.structures.CaseInsensitiveDict``
+        self.request_headers_json = dict(self.request_headers)
+        self.response_headers_json = dict(self.response_headers)
         super().save(*args, **kwargs)
 
     @property
@@ -329,7 +330,6 @@ class Integration(models.Model):
     def save(self, *args, **kwargs):
         self.provider_data_json = self.provider_data
         super().save(*args, **kwargs)
-
 
     def __str__(self):
         return (
