@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from readthedocs.organizations.models import Organization, OrganizationOwner
 from readthedocs.subscriptions.models import Subscription
-from readthedocsinc.subscriptions.tasks import daily_email
+from readthedocs.subscriptions.tasks import daily_email
 
 
 @mock.patch('readthedocs.notifications.backends.send_email')
