@@ -683,6 +683,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     ALLOW_ADMIN = True
+    RTD_ALL_FEATURES_ENABLED = True
 
     # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False

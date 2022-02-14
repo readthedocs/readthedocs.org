@@ -985,6 +985,7 @@ class TestAdditionalDocViews(BaseDocServing):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_ALL_FEATURES_ENABLED=True,
 )
 class TestCDNCache(BaseDocServing):
 

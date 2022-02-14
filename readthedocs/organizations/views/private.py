@@ -12,7 +12,6 @@ from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
     OrganizationTeamProjectForm,
@@ -26,6 +25,7 @@ from readthedocs.organizations.views.base import (
     OrganizationView,
 )
 from readthedocs.projects.utils import get_csv_file
+from readthedocs.subscriptions.models import PlanFeature
 
 
 # Organization views
@@ -170,12 +170,13 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
         return resp
 
 
-class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView):
+class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
 
     """Display security logs related to this organization."""
 
     model = AuditLog
     template_name = 'organizations/security_log.html'
+    feature_type = PlanFeature.TYPE_AUDIT_LOGS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -273,14 +274,16 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         )
         return self.filter.qs
 
-    def _get_retention_days_limit(self, organization):  # noqa
-        """From how many days we need to show data for this project?"""
-        return settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
+    def _is_enabled(self, organization):
+        return PlanFeature.objects.has_feature(
+            organization,
+            type=self.feature_type,
+        )
 
-    def _is_enabled(self, organization):  # noqa
-        """Should we show audit logs for this organization?"""
-        return True
-
-
-class OrganizationSecurityLog(SettingsOverrideObject):
-    _default_class = OrganizationSecurityLogBase
+    def _get_retention_days_limit(self, organization):
+        """From how many days we need to show data for this organization?"""
+        return PlanFeature.objects.get_feature_value(
+            organization,
+            type=self.feature_type,
+            default=settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+        )

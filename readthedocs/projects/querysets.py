@@ -97,6 +97,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
           - project
           - organization
+          - plan
           - default setting
 
         :param project: project to be checked
@@ -105,6 +106,8 @@ class ProjectQuerySetBase(models.QuerySet):
         :returns: number of max concurrent builds for the project
         :rtype: int
         """
+        from readthedocs.subscriptions.models import PlanFeature
+
         max_concurrent_organization = None
         organization = project.organizations.first()
         if organization:
@@ -113,7 +116,11 @@ class ProjectQuerySetBase(models.QuerySet):
         return (
             project.max_concurrent_builds or
             max_concurrent_organization or
-            settings.RTD_MAX_CONCURRENT_BUILDS
+            PlanFeature.objects.get_feature_value(
+                project,
+                type=PlanFeature.TYPE_CONCURRENT_BUILDS,
+                default=settings.RTD_MAX_CONCURRENT_BUILDS,
+            )
         )
 
     def prefetch_latest_build(self):

@@ -218,3 +218,29 @@ class PlanFeatureManager(models.Manager):
             plan__subscriptions__organization=organization,
         )
         return feature.first()
+
+    # pylint: disable=redefined-builtin
+    def get_feature_value(self, obj, type, default=None):
+        """
+        Get the value of the given feature.
+
+        Use this function instead of ``get_feature().value``
+        when you need to respect the ``RTD_ALL_FEATURES_ENABLED`` setting.
+        """
+        if not settings.RTD_ALL_FEATURES_ENABLED:
+            feature = self.get_feature(obj, type)
+            if feature:
+                return feature.value
+        return default
+
+    # pylint: disable=redefined-builtin
+    def has_feature(self, obj, type):
+        """
+        Get the value of the given feature.
+
+        Use this function instead of ``bool(get_feature())``
+        when you need to respect the ``RTD_ALL_FEATURES_ENABLED`` setting.
+        """
+        if settings.RTD_ALL_FEATURES_ENABLED:
+            return True
+        return self.get_feature(obj, type) is not None
