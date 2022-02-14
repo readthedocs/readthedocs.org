@@ -222,7 +222,7 @@ class SubprojectViewTests(TestCase):
         )
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -234,7 +234,7 @@ class BuildViewTests(TestCase):
         self.pip.save()
         self.pip.versions.update(privacy_level=PUBLIC)
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_build_redirect(self, mock):
         r = self.client.post('/projects/pip/builds/', {'version_slug': '0.8.1'})
         build = Build.objects.filter(project__slug='pip').latest()
@@ -265,7 +265,7 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_rebuild_specific_commit(self, mock):
         builds_count = Build.objects.count()
 
@@ -299,7 +299,7 @@ class BuildViewTests(TestCase):
         self.assertEqual(newbuild.commit, 'a1b2c3')
 
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_rebuild_invalid_specific_commit(self, mock):
         version = self.pip.versions.first()
         version.type = 'external'

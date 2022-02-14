@@ -316,9 +316,9 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
+        from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
-        tasks.clean_project_resources(self.project, self)
+        clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -613,6 +613,9 @@ class Build(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
+    # TODO: remove these fields (setup, setup_error, output, error, exit_code)
+    # since they are not used anymore in the new implementation and only really
+    # old builds (>5 years ago) only were using these fields.
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
@@ -762,6 +765,11 @@ class Build(models.Model):
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
+
+        # TODO: delete copying config after deploy
+        # Copy `_config` into the new `_config_json` JSONField
+        self._config_json = self._config
+
         super().save(*args, **kwargs)
         self._config_changed = False
 

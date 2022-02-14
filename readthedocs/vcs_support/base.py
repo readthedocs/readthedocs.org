@@ -3,7 +3,7 @@ import structlog
 import os
 import shutil
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 
 
@@ -69,8 +69,11 @@ class BaseVCS:
 
         # TODO: always pass an explicit environment
         # This is only used in tests #6546
+        #
+        # TODO: we should not allow ``environment=None`` and always use the
+        # environment defined by the settings
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
-        self.environment = environment or LocalBuildEnvironment(record=False)
+        self.environment = environment or LocalBuildEnvironment()
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -98,9 +101,8 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
-        except BuildEnvironmentWarning as e:
-            # Re raise as RepositoryError,
-            # so isn't logged as ERROR.
+        except BuildUserError as e:
+            # Re raise as RepositoryError to handle it properly from outside
             raise RepositoryError(str(e))
 
         # Return a tuple to keep compatibility

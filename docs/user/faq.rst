@@ -122,12 +122,6 @@ following settings::
     SLUMBER_PASSWORD = 'test'
 
 
-Deleting a stale or broken build environment
---------------------------------------------
-
-See :doc:`guides/wipe-environment`.
-
-
 How do I host multiple projects on one custom domain?
 -----------------------------------------------------
 

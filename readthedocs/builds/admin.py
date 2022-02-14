@@ -20,7 +20,6 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
 
@@ -118,29 +117,15 @@ class VersionAdmin(admin.ModelAdmin):
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
+    actions = ['build_version', 'reindex_version', 'wipe_version_indexes']
 
     def project_slug(self, obj):
         return obj.project.slug
-
-    def wipe_selected_versions(self, request, queryset):
-        """Wipes the selected versions."""
-        for version in queryset:
-            wipe_version_via_slugs(
-                version_slug=version.slug,
-                project_slug=version.project.slug
-            )
-            self.message_user(
-                request,
-                'Wiped {}.'.format(version.slug),
-                level=messages.SUCCESS
-            )
 
     def pretty_config(self, instance):
         return _pretty_config(instance)
 
     pretty_config.short_description = 'Config File'
-    wipe_selected_versions.short_description = 'Wipe selected versions'
 
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
@@ -179,7 +164,7 @@ class VersionAdmin(admin.ModelAdmin):
 
     reindex_version.short_description = 'Reindex version to ES'
 
-    def wipe_version(self, request, queryset):
+    def wipe_version_indexes(self, request, queryset):
         """Wipe selected versions from ES."""
         html_objs_qs = []
         for version in queryset.iterator():
@@ -197,7 +182,7 @@ class VersionAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
 
-    wipe_version.short_description = 'Wipe version from ES'
+    wipe_version_indexes.short_description = 'Wipe version from ES'
 
 
 @admin.register(RegexAutomationRule)

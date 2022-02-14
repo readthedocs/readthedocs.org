@@ -87,6 +87,7 @@ class SphinxBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')
+    @override_settings(DONT_HIT_API=True)
     def test_conf_py_external_version(self, checkout_path, docs_dir):
         self.version.type = EXTERNAL
         self.version.verbose_name = '123'
@@ -321,7 +322,7 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = LocalBuildEnvironment(record=False)
+        self.build_env = LocalBuildEnvironment()
         self.build_env.project = self.project
         self.build_env.version = self.version
 

@@ -42,7 +42,7 @@ def get_or_create_stripe_customer(organization):
         return create_stripe_customer(organization)
 
     try:
-        log.info('Retrieving existing stripe customer.')
+        log.debug('Retrieving existing stripe customer.')
         stripe_customer = stripe.Customer.retrieve(organization.stripe_id)
         return stripe_customer
     except InvalidRequestError as exc:

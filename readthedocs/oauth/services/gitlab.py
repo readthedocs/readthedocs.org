@@ -427,7 +427,7 @@ class GitLabService(Service):
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
                 integration.save()
-                log.info('GitLab webhook creation successful for project.')
+                log.debug('GitLab webhook creation successful for project.')
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
@@ -576,7 +576,7 @@ class GitLabService(Service):
 
             log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info("GitLab commit status created for project.")
+                log.debug("GitLab commit status created for project.")
                 return True
 
             if resp.status_code in [401, 403, 404]:
