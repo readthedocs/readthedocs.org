@@ -663,6 +663,7 @@ class Build(models.Model):
         blank=True,
     )
     _config = JSONField(_('Configuration used in the build'), default=dict)
+    _config_json = models.JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
@@ -731,6 +732,10 @@ class Build(models.Model):
         Build object (it could be stored in this object or one of the previous
         ones).
         """
+        # TODO: now that we are using a proper JSONField here, we could
+        # probably change this field to be a ForeignKey to avoid repeating the
+        # config file over and over again and re-use them to save db data as
+        # well
         if self.CONFIG_KEY in self._config:
             return (
                 Build.objects
@@ -774,6 +779,11 @@ class Build(models.Model):
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
+
+        # TODO: delete copying config after deploy
+        # Copy `_config` into the new `_config_json` JSONField
+        self._config_json = self._config
+
         super().save(*args, **kwargs)
         self._config_changed = False
 

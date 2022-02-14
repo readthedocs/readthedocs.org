@@ -167,8 +167,8 @@ class ProjectMixin(URLAccessMixin):
         # For whatever reason, fixtures hates JSONField
         self.integration_exchange = HttpExchange.objects.create(
             related_object=self.integration,
-            request_headers='{"foo": "bar"}',
-            response_headers='{"foo": "bar"}',
+            request_headers={'foo': 'bar'},
+            response_headers={'foo': 'bar'},
             status_code=200,
         )
         self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
@@ -183,8 +183,8 @@ class ProjectMixin(URLAccessMixin):
         self.webhook = get(WebHook, project=self.pip)
         self.webhook_exchange = HttpExchange.objects.create(
             related_object=self.webhook,
-            request_headers='{"foo": "bar"}',
-            response_headers='{"foo": "bar"}',
+            request_headers={'foo': 'bar'},
+            response_headers={'foo': 'bar'},
             status_code=200,
         )
         self.default_kwargs = {
