@@ -18,7 +18,7 @@ from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -154,7 +154,7 @@ class BuildDetail(BuildBase, DetailView):
 
         build = self.get_object()
 
-        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+        if build.error != BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
 

@@ -192,7 +192,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
 
@@ -265,7 +265,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub webhook creation successful for project.",
         )
 
@@ -719,7 +719,7 @@ class BitbucketOAuthTests(TestCase):
             integration_id=self.integration.pk,
             url='https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks',
         )
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "Bitbucket webhook creation successful for project.",
         )
 
@@ -1129,7 +1129,7 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitLab commit status created for project.",
         )
 
@@ -1192,7 +1192,7 @@ class GitLabOAuthTests(TestCase):
         mock_logger.bind.assert_called_with(
             http_status_code=201,
         )
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitLab webhook creation successful for project.",
         )
 

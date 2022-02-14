@@ -408,7 +408,7 @@ class CommunityBaseSettings(Settings):
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
-            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
@@ -677,7 +677,6 @@ class CommunityBaseSettings(Settings):
     ]
 
     # RTD Settings
-    REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
@@ -858,6 +857,11 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
+            },
+            'docker.utils.config': {
+                'handlers': ['null'],
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
             'django_structlog.middlewares.request': {
                 'handlers': ['null'],

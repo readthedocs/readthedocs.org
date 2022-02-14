@@ -192,7 +192,7 @@ class OrganizationOwnerTests(OrganizationTestCase):
         self.assertIn(version, Version.objects.all())
         self.assertIn(build, Build.objects.all())
 
-        with mock.patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
+        with mock.patch('readthedocs.projects.tasks.utils.clean_project_resources') as clean_project_resources:
             # Triggers a pre_delete signal that removes all leaf overs
             self.organization.delete()
             clean_project_resources.assert_has_calls([
