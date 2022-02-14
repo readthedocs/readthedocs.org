@@ -1,13 +1,12 @@
 """Models for the builds app."""
 
 import datetime
-import structlog
 import os.path
 import re
 from functools import partial
-from shutil import rmtree
 
 import regex
+import structlog
 from django.conf import settings
 from django.db import models
 from django.db.models import F
@@ -79,6 +78,7 @@ from readthedocs.projects.constants import (
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
+    PRIVATE,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
@@ -194,6 +194,18 @@ class Version(TimeStampedModel):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_private(self):
+        """
+        Check if the version is private (taking external versions into consideration).
+
+        The privacy level of an external version is given by
+        the value of ``project.external_builds_privacy_level``.
+        """
+        if self.is_external:
+            return self.project.external_builds_privacy_level == PRIVATE
+        return self.privacy_level == PRIVATE
 
     @property
     def is_external(self):
