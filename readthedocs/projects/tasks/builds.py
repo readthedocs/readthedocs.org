@@ -228,6 +228,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         YAMLParseError,
     )
 
+    # Do not send notifications on failure builds for these exceptions.
+    exceptions_without_notifications = (
+        DuplicatedBuildError,
+        ProjectBuildsSkippedError,
+    )
+
     acks_late = True
     track_started = True
 
@@ -394,11 +400,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # Send notifications for unhandled errors
-        self.send_notifications(
-            self.data.version.pk,
-            self.data.build['id'],
-            event=WebHookEvent.BUILD_FAILED,
-        )
+        if not isinstance(exc, self.exceptions_without_notifications):
+            self.send_notifications(
+                self.data.version.pk,
+                self.data.build['id'],
+                event=WebHookEvent.BUILD_FAILED,
+            )
 
         # NOTE: why we wouldn't have `self.data.build_commit` here?
         # This attribute is set when we get it after clonning the repository
