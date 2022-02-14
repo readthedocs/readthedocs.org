@@ -25,4 +25,3 @@ The main advantages of using a configuration file over the web interface are:
     :maxdepth: 3
 
     Version 2 <v2>
-    Version 1 <v1>
