@@ -1,8 +1,8 @@
 import copy
-import structlog
 import mimetypes
 from urllib.parse import urlparse, urlunparse
 
+import structlog
 from django.conf import settings
 from django.http import (
     HttpResponse,
