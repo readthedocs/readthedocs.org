@@ -217,8 +217,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     autoretry_for = (
         BuildMaxConcurrencyError,
     )
-    max_retries = 5  # 5 per normal builds, 25 per concurrency limited
-    default_retry_delay = 7 * 60
+    max_retries = settings.RTD_BUILDS_MAX_RETRIES
+    default_retry_delay = settings.RTD_BUILDS_RETRY_DELAY
+    retry_backoff = False
 
     # Expected exceptions that will be logged as info only and not retried
     throws = (
