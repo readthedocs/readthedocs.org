@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('integrations', '0008_add_new_jsonfields'),
+        ('integrations', '0009_migrate_headers_data'),
     ]
 
     operations = [
