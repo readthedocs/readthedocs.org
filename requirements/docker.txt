@@ -9,7 +9,7 @@ psycopg2-binary==2.9.2  # pyup: ignore
 django-redis-cache==3.0.0
 
 # For resizing images
-pillow==9.0.0
+pillow==9.0.1
 
 # Local debugging tools
 watchdog==2.1.6
