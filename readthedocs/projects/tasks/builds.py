@@ -471,6 +471,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = True
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
+        """
+        Celery helper called when the task is retried.
+
+        This happens when any of the exceptions defined in ``autoretry_for``
+        argument is raised or when ``self.retry`` is called from inside the
+        task.
+
+        See https://docs.celeryproject.org/en/master/userguide/tasks.html#retrying
+        """
         log.info('Retrying this task.')
 
         if isinstance(exc, BuildMaxConcurrencyError):
