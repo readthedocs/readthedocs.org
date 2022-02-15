@@ -149,7 +149,7 @@ class HttpExchange(models.Model):
         _('Request headers'),
         # Delete after deploy
         null=True,
-        default=None,
+        blank=True,
     )
     request_body = models.TextField(_('Request body'))
 
@@ -158,7 +158,7 @@ class HttpExchange(models.Model):
         _('Request headers'),
         # Delete after deploy
         null=True,
-        default=None,
+        blank=True,
     )
     response_body = models.TextField(_('Response body'))
 
@@ -299,7 +299,11 @@ class Integration(models.Model):
         choices=INTEGRATIONS,
     )
     provider_data = JSONField(_('Provider data'), default=dict)
-    provider_data_json = models.JSONField(_('Provider data'), default=dict)
+    provider_data_json = models.JSONField(
+        _('Provider data'),
+        null=True,
+        blank=True,
+    )
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',

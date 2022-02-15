@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='build',
             name='_config_json',
-            field=models.JSONField(default=dict, verbose_name='Configuration used in the build'),
+            field=models.JSONField(null=True, blank=True, verbose_name='Configuration used in the build'),
         ),
     ]
