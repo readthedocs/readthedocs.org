@@ -186,6 +186,9 @@ def prepare_build(
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
+            # Delay the start of the build for the build retry delay.
+            # We're still triggering the task, but it won't run immediately,
+            # and the user will be alerted in the UI from the Error below.
             options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
             options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
             build.error = BuildMaxConcurrencyError.message.format(
