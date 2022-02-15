@@ -19,6 +19,7 @@ from django_extensions.db.fields import (
     ModificationDateTimeField,
 )
 from django_extensions.db.models import TimeStampedModel
+from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
