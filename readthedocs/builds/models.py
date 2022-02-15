@@ -663,7 +663,11 @@ class Build(models.Model):
         blank=True,
     )
     _config = JSONField(_('Configuration used in the build'), default=dict)
-    _config_json = models.JSONField(_('Configuration used in the build'), default=dict)
+    _config_json = models.JSONField(
+        _('Configuration used in the build'),
+        null=True,
+        blank=True,
+    )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 

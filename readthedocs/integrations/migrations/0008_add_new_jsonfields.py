@@ -13,16 +13,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='httpexchange',
             name='request_headers_json',
-            field=models.JSONField(default=None, null=True, verbose_name='Request headers'),
+            field=models.JSONField(null=True, blank=True, verbose_name='Request headers'),
         ),
         migrations.AddField(
             model_name='httpexchange',
             name='response_headers_json',
-            field=models.JSONField(default=None, null=True, verbose_name='Request headers'),
+            field=models.JSONField(null=True, blank=True, verbose_name='Request headers'),
         ),
         migrations.AddField(
             model_name='integration',
             name='provider_data_json',
-            field=models.JSONField(default=dict, verbose_name='Provider data'),
+            field=models.JSONField(null=True, blank=True, verbose_name='Provider data'),
         ),
     ]
