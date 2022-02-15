@@ -21,10 +21,6 @@ drf-flex-fields==0.9.7
 drf-extensions==0.7.1
 
 django-vanilla-views==3.0.0
-
-# This module is only used on migrations. We are now using Django's official
-# JSONField. We should probably squash these migrations and remove this
-# dependency as well.
 jsonfield==3.1.0
 
 requests==2.27.1
