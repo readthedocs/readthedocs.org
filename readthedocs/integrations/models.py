@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from jsonfield import JSONField
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -143,7 +144,8 @@ class HttpExchange(models.Model):
 
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
-    request_headers = models.JSONField(
+    request_headers = JSONField(_('Request headers'))
+    request_headers_json = models.JSONField(
         _('Request headers'),
         # Delete after deploy
         null=True,
@@ -151,7 +153,8 @@ class HttpExchange(models.Model):
     )
     request_body = models.TextField(_('Request body'))
 
-    response_headers = models.JSONField(
+    response_headers = JSONField(_('Request headers'))
+    response_headers_json = models.JSONField(
         _('Request headers'),
         # Delete after deploy
         null=True,
@@ -295,7 +298,8 @@ class Integration(models.Model):
         max_length=32,
         choices=INTEGRATIONS,
     )
-    provider_data = models.JSONField(_('Provider data'), default=dict)
+    provider_data = JSONField(_('Provider data'), default=dict)
+    provider_data_json = models.JSONField(_('Provider data'), default=dict)
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',
