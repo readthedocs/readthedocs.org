@@ -150,10 +150,11 @@ class BuildRequest(Request):
 
     def on_timeout(self, soft, timeout):
         super().on_timeout(soft, timeout)
+
         log.bind(
             task_name=self.task.name,
-            project_slug=self.task.args.project_slug,
-            build_id=self.task.args.build_id,
+            project_slug=self.task.data.project.slug,
+            build_id=self.task.data.build['id'],
             timeout=timeout,
             soft=soft,
         )
