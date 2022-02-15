@@ -1,3 +1,29 @@
+Version 7.2.1
+-------------
+
+:Date: February 15, 2022
+
+* `@humitos <https://github.com/humitos>`__: Sentry: ignore logging known exceptions (`#8919 <https://github.com/readthedocs/readthedocs.org/pull/8919>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not send notifications on known failed builds (`#8918 <https://github.com/readthedocs/readthedocs.org/pull/8918>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: use `on_retry` to handle `BuildMaxConcurrencyError` (`#8917 <https://github.com/readthedocs/readthedocs.org/pull/8917>`__)
+* `@lkeegan <https://github.com/lkeegan>`__: typo fix (`#8911 <https://github.com/readthedocs/readthedocs.org/pull/8911>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#8908 <https://github.com/readthedocs/readthedocs.org/pull/8908>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Throw an exception from Celery retry() (`#8905 <https://github.com/readthedocs/readthedocs.org/pull/8905>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Reduce verbose logging on generic command failure (`#8904 <https://github.com/readthedocs/readthedocs.org/pull/8904>`__)
+* `@humitos <https://github.com/humitos>`__: Build: define missing variable (`#8903 <https://github.com/readthedocs/readthedocs.org/pull/8903>`__)
+* `@humitos <https://github.com/humitos>`__: Search: call apply_async to fix the issue (`#8900 <https://github.com/readthedocs/readthedocs.org/pull/8900>`__)
+* `@humitos <https://github.com/humitos>`__: Build: allow to not record commands on sync_repository_task (`#8899 <https://github.com/readthedocs/readthedocs.org/pull/8899>`__)
+* `@humitos <https://github.com/humitos>`__: Release 7.2.0 (`#8898 <https://github.com/readthedocs/readthedocs.org/pull/8898>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#8897 <https://github.com/readthedocs/readthedocs.org/pull/8897>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support for CDN when privacy levels are enabled (`#8896 <https://github.com/readthedocs/readthedocs.org/pull/8896>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't be so excited always in our emails :) (`#8888 <https://github.com/readthedocs/readthedocs.org/pull/8888>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: reduce visibility of Config File V1 (`#8887 <https://github.com/readthedocs/readthedocs.org/pull/8887>`__)
+* `@humitos <https://github.com/humitos>`__: Builder: unpin pip (`#8886 <https://github.com/readthedocs/readthedocs.org/pull/8886>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dependencies: remove unused packages (`#8881 <https://github.com/readthedocs/readthedocs.org/pull/8881>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: move some querysets (`#8876 <https://github.com/readthedocs/readthedocs.org/pull/8876>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: delete old JSONField and use the new ones (`#8869 <https://github.com/readthedocs/readthedocs.org/pull/8869>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: add new `django.db.models.JSONField` (`#8868 <https://github.com/readthedocs/readthedocs.org/pull/8868>`__)
+
 Version 7.2.0
 -------------
 

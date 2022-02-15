@@ -186,8 +186,8 @@ def prepare_build(
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            options['countdown'] = 5 * 60
-            options['max_retries'] = 25
+            options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
+            options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
             build.error = BuildMaxConcurrencyError.message.format(
                 limit=max_concurrent_builds,
             )

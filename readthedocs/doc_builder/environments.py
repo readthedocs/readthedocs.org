@@ -444,24 +444,21 @@ class BaseEnvironment:
             self.commands.append(build_cmd)
 
         if build_cmd.failed:
-            msg = 'Command {cmd} failed'.format(cmd=build_cmd.get_command())
-
-            # TODO: improve this error report. This is showing _the full_
-            # stdout to the user exposing it at the top of the Build Detail's
-            # page in red. It would be good to reduce the noise here and just
-            # point the user to take a look at its output from the command's
-            # output itself.
-            if build_cmd.output:
-                msg += ':\n{out}'.format(out=build_cmd.output)
-
             if warn_only:
+                msg = 'Command {cmd} failed'.format(cmd=build_cmd.get_command())
+                if build_cmd.output:
+                    msg += ':\n{out}'.format(out=build_cmd.output)
                 log.warning(
                     msg,
                     project_slug=self.project.slug if self.project else '',
                     version_slug=self.version.slug if self.version else '',
                 )
             else:
-                raise BuildUserError(msg)
+                # TODO: for now, this still outputs a generic error message
+                # that is the same across all commands. We could improve this
+                # with more granular error messages that vary by the command
+                # being run.
+                raise BuildUserError()
         return build_cmd
 
 
