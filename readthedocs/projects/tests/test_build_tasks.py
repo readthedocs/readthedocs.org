@@ -466,7 +466,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 'install',
                 '--upgrade',
                 '--no-cache-dir',
-                'pip<=21.3.1',
+                'pip',
                 'setuptools<58.3.0',
                 bin_path=mock.ANY,
                 cwd=mock.ANY,

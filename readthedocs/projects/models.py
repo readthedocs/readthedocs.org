@@ -1767,6 +1767,7 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     UPDATE_CA_CERTIFICATES = 'update_ca_certificates'
+    CDN_ENABLED = 'cdn_enabled'
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1853,6 +1854,10 @@ class Feature(models.Model):
         (
             UPDATE_CA_CERTIFICATES,
             _('Update ca-certificates Ubuntu package before VCS clone'),
+        ),
+        (
+            CDN_ENABLED,
+            _('CDN support for a project\'s public versions when privacy levels are enabled.'),
         ),
 
         # Versions sync related features

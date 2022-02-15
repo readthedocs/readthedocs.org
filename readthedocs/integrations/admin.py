@@ -93,6 +93,7 @@ class IntegrationAdmin(admin.ModelAdmin):
     search_fields = ('project__slug', 'project__name')
     readonly_fields = ['exchanges']
 
+    # TODO: review this now that we are using official Django's JSONField
     def exchanges(self, obj):
         """
         Manually make an inline-ish block.
