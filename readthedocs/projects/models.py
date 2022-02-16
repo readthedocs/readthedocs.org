@@ -1766,7 +1766,6 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    UPDATE_CA_CERTIFICATES = 'update_ca_certificates'
     CDN_ENABLED = 'cdn_enabled'
 
     # Versions sync related features
@@ -1850,10 +1849,6 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
-        ),
-        (
-            UPDATE_CA_CERTIFICATES,
-            _('Update ca-certificates Ubuntu package before VCS clone'),
         ),
         (
             CDN_ENABLED,

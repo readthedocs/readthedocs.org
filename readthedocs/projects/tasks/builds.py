@@ -561,6 +561,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version=self.data.version,
             build=self.data.build,
             environment=self.get_vcs_env_vars(),
+            # Force the ``container_image`` to use one that has the latest
+            # ca-certificate package which is compatible with Lets Encrypt
+            container_image='readthedocs/build:ubuntu-20.04',
         )
 
         # Environment used for code checkout & initial configuration reading
@@ -656,25 +659,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         This also syncs versions in the DB.
         """
         self.update_build(state=BUILD_STATE_CLONING)
-
-        # Install a newer version of ca-certificates packages because it's
-        # required for Let's Encrypt certificates
-        # https://github.com/readthedocs/readthedocs.org/issues/8555
-        # https://community.letsencrypt.org/t/openssl-client-compatibility-changes-for-let-s-encrypt-certificates/143816
-        # TODO: remove this when a newer version of ``ca-certificates`` gets
-        # pre-installed in the Docker images
-        if self.data.project.has_feature(Feature.UPDATE_CA_CERTIFICATES):
-            environment.run(
-                'apt-get', 'update', '--assume-yes', '--quiet',
-                user=settings.RTD_DOCKER_SUPER_USER,
-                record=False,
-            )
-            environment.run(
-                'apt-get', 'install', '--assume-yes', '--quiet', 'ca-certificates',
-                user=settings.RTD_DOCKER_SUPER_USER,
-                record=False,
-            )
-
         self.sync_repo(environment)
 
         commit = self.data.build_commit or self.get_vcs_repo(environment).commit
