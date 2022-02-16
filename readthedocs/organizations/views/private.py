@@ -274,16 +274,16 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         )
         return self.filter.qs
 
-    def _is_enabled(self, organization):
-        return PlanFeature.objects.has_feature(
-            organization,
-            type=self.feature_type,
-        )
-
     def _get_retention_days_limit(self, organization):
         """From how many days we need to show data for this organization?"""
         return PlanFeature.objects.get_feature_value(
             organization,
             type=self.feature_type,
             default=settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+        )
+
+    def _is_enabled(self, organization):
+        return PlanFeature.objects.has_feature(
+            organization,
+            type=self.feature_type,
         )
