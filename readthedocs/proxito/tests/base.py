@@ -1,5 +1,6 @@
 # Copied from .org
 
+from readthedocs.projects.constants import SSL_STATUS_VALID
 import django_dynamic_fixture as fixture
 import pytest
 from django.conf import settings
@@ -78,5 +79,17 @@ class BaseDocServing(TestCase):
         self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')
 
         # These can be set to canonical as needed in specific tests
-        self.domain = fixture.get(Domain, project=self.project, domain='docs1.example.com', https=True)
-        self.domain2 = fixture.get(Domain, project=self.project, domain='docs2.example.com', https=True)
+        self.domain = fixture.get(
+            Domain,
+            project=self.project,
+            domain='docs1.example.com',
+            https=True,
+            ssl_status=SSL_STATUS_VALID,
+        )
+        self.domain2 = fixture.get(
+            Domain,
+            project=self.project,
+            domain='docs2.example.com',
+            https=True,
+            ssl_status=SSL_STATUS_VALID,
+        )

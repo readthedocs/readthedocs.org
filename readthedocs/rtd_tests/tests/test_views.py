@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
@@ -331,6 +331,9 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
 
+@override_settings(
+    RTD_ALL_FEATURES_ENABLED=True,
+)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""
