@@ -3,6 +3,8 @@ Proxito
 
 Module in charge of serving documentation pages.
 
+Read the Docs core team members can view the `Proxito design doc <https://github.com/readthedocs/el-proxito/blob/master/docs/design/architecture.rst>`_
+
 CDN
 ---
 
