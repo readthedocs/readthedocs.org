@@ -19,6 +19,7 @@ from django_extensions.db.fields import (
     ModificationDateTimeField,
 )
 from django_extensions.db.models import TimeStampedModel
+from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
@@ -661,7 +662,12 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    _config = models.JSONField(_('Configuration used in the build'), default=dict)
+    _config = JSONField(_('Configuration used in the build'), default=dict)
+    _config_json = models.JSONField(
+        _('Configuration used in the build'),
+        null=True,
+        blank=True,
+    )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
