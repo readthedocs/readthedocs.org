@@ -493,6 +493,7 @@ class BuildEnvironment(BaseEnvironment):
             config=None,
             environment=None,
             record=True,
+            **kwargs,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -552,6 +553,8 @@ class DockerBuildEnvironment(BuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
+        container_image = kwargs.pop('container_image', None)
+
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
@@ -567,6 +570,16 @@ class DockerBuildEnvironment(BuildEnvironment):
         # the image overridden by the project (manually set by an admin).
         if self.project.container_image:
             self.container_image = self.project.container_image
+
+        # Override the ``container_image`` if we pass it via argument.
+        #
+        # FIXME: This is a temporal fix while we explore how to make
+        # ``ubuntu-20.04`` the default build image without breaking lot of
+        # builds. For now, we are passing
+        # ``container_image='readthedocs/build:ubuntu-20.04'`` for the setup
+        # VCS step.
+        if container_image:
+            self.container_image = container_image
 
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
