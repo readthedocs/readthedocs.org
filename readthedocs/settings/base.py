@@ -669,6 +669,7 @@ class CommunityBaseSettings(Settings):
         'accept',
         'origin',
         'authorization',
+        'x-hoverxref-version',
         'x-csrftoken'
     )
     # Additional protection to allow only idempotent methods.
