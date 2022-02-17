@@ -102,12 +102,15 @@ class HttpExchangeManager(models.Manager):
         :param related_object: Object to use for generic relationship.
         """
         request = response.request
+        # NOTE: we need to cast ``request.headers`` and ``response.headers``
+        # because it's a ``requests.structures.CaseInsensitiveDict`` which is
+        # not JSON serializable.
         obj = self.create(
             related_object=related_object,
-            request_headers=request.headers or {},
+            request_headers=dict(request.headers) or {},
             request_body=request.body or '',
             status_code=response.status_code,
-            response_headers=response.headers,
+            response_headers=dict(response.headers),
             response_body=response.text,
         )
         self.delete_limit(related_object)
