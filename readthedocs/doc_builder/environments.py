@@ -493,6 +493,7 @@ class BuildEnvironment(BaseEnvironment):
             config=None,
             environment=None,
             record=True,
+            **kwargs,
     ):
         super().__init__(project, environment)
         self.version = version
