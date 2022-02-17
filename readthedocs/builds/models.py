@@ -782,10 +782,6 @@ class Build(models.Model):
             self.version_slug = self.version.slug
             self.version_type = self.version.type
 
-        # TODO: delete copying config after deploy
-        # Copy `_config` into the new `_config_json` JSONField
-        self._config_json = self._config
-
         super().save(*args, **kwargs)
         self._config_changed = False
 
