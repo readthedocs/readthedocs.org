@@ -117,6 +117,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     name = __name__ + '.sync_repository_task'
     max_retries = 5
     default_retry_delay = 7 * 60
+    throws = (
+        RepositoryError,
+    )
 
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
