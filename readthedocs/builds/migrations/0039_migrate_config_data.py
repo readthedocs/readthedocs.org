@@ -10,7 +10,11 @@ def forwards_func(apps, schema_editor):
     Build = apps.get_model('builds', 'Build')
     step = 10000
     build_pks = Build.objects.aggregate(min_pk=Min('id'), max_pk=Max('id'))
-    for first_pk in range(build_pks['min_pk'], build_pks['max_pk'], step):
+    build_min_pk, build_max_pk = (build_pks['min_pk'], build_pks['max_pk'])
+    # Protection for tests, which have no build instances
+    if not build_min_pk and build_max_pk:
+        return
+    for first_pk in range(build_min_pk, build_max_pk, step):
         last_pk = first_pk + step
         build_update = (
             Build.objects.filter(
