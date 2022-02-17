@@ -608,21 +608,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 config=self.data.config,
             )
 
-            # TODO: check if `before_build` and `after_build` are still useful
-            # (maybe in commercial?)
-            #
-            # I didn't find they are used anywhere, we should probably remove them
-            before_build.send(
-                sender=self.data.version,
-                environment=self.data.build_env,
-            )
-
             self.setup_build()
             self.build_docs()
-
-            after_build.send(
-                sender=self.data.version,
-            )
 
     @staticmethod
     def get_project(project_pk):

@@ -48,8 +48,6 @@ from readthedocs.worker import app
 from ..models import APIProject, Feature, WebHookEvent
 from ..models import HTMLFile, ImportedFile, Project
 from ..signals import (
-    after_build,
-    before_build,
     before_vcs,
     files_changed,
 )
