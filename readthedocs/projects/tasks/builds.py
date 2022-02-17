@@ -563,7 +563,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             environment=self.get_vcs_env_vars(),
             # Force the ``container_image`` to use one that has the latest
             # ca-certificate package which is compatible with Lets Encrypt
-            container_image='readthedocs/build:ubuntu-20.04',
+            container_image=settings.RTD_DOCKER_BUILD_SETTINGS['os']['ubuntu-20.04']
         )
 
         # Environment used for code checkout & initial configuration reading
