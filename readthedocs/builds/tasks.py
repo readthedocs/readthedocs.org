@@ -1,16 +1,16 @@
 import json
-import structlog
-from datetime import datetime, timedelta
 from io import BytesIO
 
 import requests
+import structlog
 from celery import Task
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import (
     delete_versions_from_db,
     get_deleted_active_versions,
@@ -190,7 +190,7 @@ class ArchiveBuilds(Task):
 
         lock_id = '{0}-lock'.format(self.name)
         days = kwargs.get('days', 14)
-        limit = kwargs.get('limit', 5000)
+        limit = kwargs.get('limit', 2000)
         delete = kwargs.get('delete', True)
 
         with memcache_lock(lock_id, self.app.oid) as acquired:
@@ -208,23 +208,28 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
     :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
-    max_date = datetime.now() - timedelta(days=days)
+    max_date = timezone.now() - timezone.timedelta(days=days)
     queryset = Build.objects.exclude(commands__isnull=True)
     if not include_cold:
         queryset = queryset.exclude(cold_storage=True)
-    queryset = queryset.filter(date__lt=max_date)[:limit]
+
+    queryset = (
+        queryset
+        .filter(date__lt=max_date)
+        .prefetch_related('commands')
+        .only('date', 'cold_storage')
+        [:limit]
+    )
 
     for build in queryset:
-        data = BuildSerializer(build).data['commands']
-        if data:
-            for cmd in data:
+        commands = BuildCommandSerializer(build.commands, many=True).data
+        if commands:
+            for cmd in commands:
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
                     cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
                     log.warning('Truncating build command for build.', build_id=build.id)
-            output = BytesIO()
-            output.write(json.dumps(data).encode('utf8'))
-            output.seek(0)
+            output = BytesIO(json.dumps(commands).encode('utf8'))
             filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
             try:
                 build_commands_storage.save(name=filename, content=output)
@@ -243,7 +248,7 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
-    days_ago = datetime.now() - timedelta(days=days)
+    days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
         active=False,
         modified__lte=days_ago,
