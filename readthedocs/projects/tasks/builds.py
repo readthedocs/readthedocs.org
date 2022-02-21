@@ -329,6 +329,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Save the builder instance's name into the build object
         self.data.build['builder'] = socket.gethostname()
 
+        # Reset any previous build error reported to the user
+        self.data.build['error'] = ''
+
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get('build_commit')

@@ -22,11 +22,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
 )
-from readthedocs.projects.constants import (
-    CELERY_HIGH,
-    CELERY_LOW,
-    CELERY_MEDIUM,
-)
 
 log = structlog.get_logger(__name__)
 
@@ -116,14 +111,6 @@ def prepare_build(
             build_pk=build.pk,
             event=WebHookEvent.BUILD_TRIGGERED,
         )
-
-    options['priority'] = CELERY_HIGH
-    if project.main_language_project:
-        # Translations should be medium priority
-        options['priority'] = CELERY_MEDIUM
-    if version.type == EXTERNAL:
-        # External builds should be lower priority.
-        options['priority'] = CELERY_LOW
 
     skip_build = False
     if commit:
