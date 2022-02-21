@@ -8,7 +8,7 @@ pytest-custom-exit-code==0.3.0
 pytest-django==4.5.2
 pytest-cov==3.0.0
 
-Mercurial==6.0.2
+Mercurial==6.0.3
 
 yamale==2.2.0  # pyup: <3.0
 pytest-mock==3.7.0
