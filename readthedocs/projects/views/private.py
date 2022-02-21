@@ -435,10 +435,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['superproject'] = self.project.superprojects.first()
-        return ctx
+    pass
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):

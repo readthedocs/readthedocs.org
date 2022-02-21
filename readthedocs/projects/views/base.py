@@ -72,7 +72,9 @@ class ProjectAdminMixin:
     def get_context_data(self, **kwargs):
         """Add project to context data."""
         context = super().get_context_data(**kwargs)
-        context['project'] = self.get_project()
+        project = self.get_project()
+        context['project'] = project
+        context['superproject'] = project and project.superproject
         return context
 
     def get_form(self, data=None, files=None, **kwargs):
