@@ -283,6 +283,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'id': 1,
             'state': 'cloning',
             'commit': 'a1b2c3',
+            'error': '',
             'builder': mock.ANY,
         }
 
@@ -331,6 +332,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'commit': 'a1b2c3',
             'config': mock.ANY,
             'builder': mock.ANY,
+            'error': '',
         }
         # Update build state: building
         assert self.requests_mock.request_history[6].json() == {
@@ -339,6 +341,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'commit': 'a1b2c3',
             'config': mock.ANY,
             'builder': mock.ANY,
+            'error': '',
         }
         # Update build state: uploading
         assert self.requests_mock.request_history[7].json() == {
@@ -347,6 +350,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'commit': 'a1b2c3',
             'config': mock.ANY,
             'builder': mock.ANY,
+            'error': '',
         }
         # Update version state
         assert self.requests_mock.request_history[8]._request.method == 'PATCH'
@@ -371,6 +375,7 @@ class TestBuildTask(BuildEnvironmentBase):
             'builder': mock.ANY,
             'length': mock.ANY,
             'success': True,
+            'error': '',
         }
 
         self.mocker.mocks['build_media_storage'].sync_directory.assert_has_calls([
