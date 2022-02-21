@@ -738,7 +738,7 @@ class Build(models.Model):
         # probably change this field to be a ForeignKey to avoid repeating the
         # config file over and over again and re-use them to save db data as
         # well
-        if self.CONFIG_KEY in self._config:
+        if self._config and self.CONFIG_KEY in self._config:
             return (
                 Build.objects
                 .only('_config')
@@ -951,7 +951,9 @@ class Build(models.Model):
         return None
 
     def using_latest_config(self):
-        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        if self.config:
+            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        return False
 
     def reset(self):
         """
