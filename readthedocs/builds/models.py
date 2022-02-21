@@ -19,7 +19,6 @@ from django_extensions.db.fields import (
     ModificationDateTimeField,
 )
 from django_extensions.db.models import TimeStampedModel
-from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
@@ -662,8 +661,7 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    _config = JSONField(_('Configuration used in the build'), default=dict)
-    _config_json = models.JSONField(
+    _config = models.JSONField(
         _('Configuration used in the build'),
         null=True,
         blank=True,
@@ -740,7 +738,7 @@ class Build(models.Model):
         # probably change this field to be a ForeignKey to avoid repeating the
         # config file over and over again and re-use them to save db data as
         # well
-        if self.CONFIG_KEY in self._config:
+        if self._config and self.CONFIG_KEY in self._config:
             return (
                 Build.objects
                 .only('_config')
@@ -783,10 +781,6 @@ class Build(models.Model):
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
-
-        # TODO: delete copying config after deploy
-        # Copy `_config` into the new `_config_json` JSONField
-        self._config_json = self._config
 
         super().save(*args, **kwargs)
         self._config_changed = False
@@ -957,7 +951,9 @@ class Build(models.Model):
         return None
 
     def using_latest_config(self):
-        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        if self.config:
+            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        return False
 
     def reset(self):
         """
