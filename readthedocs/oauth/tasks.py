@@ -6,6 +6,7 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.core.exceptions import AppUserError
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
 from readthedocs.oauth.notifications import (
@@ -26,7 +27,7 @@ log = structlog.get_logger(__name__)
 
 
 @PublicTask.permission_check(user_id_matches)
-@app.task(queue='web', base=PublicTask)
+@app.task(queue='web', base=PublicTask, throws=(AppUserError,))
 def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:
@@ -40,12 +41,8 @@ def sync_remote_repositories(user_id):
             except SyncServiceError:
                 failed_services.add(service.provider_name)
     if failed_services:
-        msg = _(
-            'Our access to your following accounts was revoked: {providers}. '
-            'Please, reconnect them from your social account connections.'
-        )
-        raise Exception(
-            msg.format(providers=', '.join(failed_services))
+        raise AppUserError(
+            AppUserError.SOCIAL_CONNECTION_REVOKED.format(providers=', '.join(failed_services))
         )
 
 

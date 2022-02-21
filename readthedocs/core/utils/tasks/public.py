@@ -67,6 +67,9 @@ class PublicTask(Task):
 
     def __call__(self, *args, **kwargs):
         # We override __call__ to let tasks use the run method.
+        #
+        # TODO: this should probably be replaced by `on_failure` instead of
+        # overriding `__call__` here.
         error = False
         exception_raised = None
         self.set_permission_context(kwargs)
