@@ -269,7 +269,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
 
         def sigint_received(*args, **kwargs):
-            log.warning('SIGINT received. Cancelling the build running.')
+            log.warning('SIGINT received. Canceling the build running.')
             raise BuildCancelled
 
         # Do not send the SIGTERM signal to children (pip is automatically killed when

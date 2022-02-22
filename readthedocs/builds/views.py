@@ -180,7 +180,7 @@ class BuildDetail(BuildBase, DetailView):
             terminate = True
 
         log.warning(
-            'Cancelling build.',
+            'Canceling build.',
             project_slug=project.slug,
             version_slug=build.version.slug,
             build_id=build.pk,
