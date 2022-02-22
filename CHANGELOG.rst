@@ -1,3 +1,29 @@
+Version 7.3.0
+-------------
+
+:Date: February 21, 2022
+
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade gitpython because of security issue (`#8950 <https://github.com/readthedocs/readthedocs.org/pull/8950>`__)
+* `@humitos <https://github.com/humitos>`__: Test: remove verbose warnings (`#8949 <https://github.com/readthedocs/readthedocs.org/pull/8949>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Pin storages with boto3 (`#8947 <https://github.com/readthedocs/readthedocs.org/pull/8947>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix codeowners (`#8946 <https://github.com/readthedocs/readthedocs.org/pull/8946>`__)
+* `@stsewd <https://github.com/stsewd>`__: Optimize archive_builds task (`#8944 <https://github.com/readthedocs/readthedocs.org/pull/8944>`__)
+* `@humitos <https://github.com/humitos>`__: Build: reset build error before start building (`#8943 <https://github.com/readthedocs/readthedocs.org/pull/8943>`__)
+* `@humitos <https://github.com/humitos>`__: Build: comment `record=False` usage (`#8939 <https://github.com/readthedocs/readthedocs.org/pull/8939>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: use new JSON fields instead of old TextFields (`#8934 <https://github.com/readthedocs/readthedocs.org/pull/8934>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Tune build config migration (`#8931 <https://github.com/readthedocs/readthedocs.org/pull/8931>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use `ubuntu-20.04` image for setup VCS step (`#8930 <https://github.com/readthedocs/readthedocs.org/pull/8930>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: remove duplication of task names (`#8929 <https://github.com/readthedocs/readthedocs.org/pull/8929>`__)
+* `@humitos <https://github.com/humitos>`__: Sentry and Celery: do not log `RepositoryError` in Sentry (`#8928 <https://github.com/readthedocs/readthedocs.org/pull/8928>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add x-hoverxref-version to CORS (`#8927 <https://github.com/readthedocs/readthedocs.org/pull/8927>`__)
+* `@humitos <https://github.com/humitos>`__: Deploy: avoid locking the table when adding new JSON field (`#8926 <https://github.com/readthedocs/readthedocs.org/pull/8926>`__)
+* `@humitos <https://github.com/humitos>`__: Build: access valid arguments (`#8925 <https://github.com/readthedocs/readthedocs.org/pull/8925>`__)
+* `@humitos <https://github.com/humitos>`__: Comment: add comment from PR review (`#8921 <https://github.com/readthedocs/readthedocs.org/pull/8921>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move subscription tasks (`#8916 <https://github.com/readthedocs/readthedocs.org/pull/8916>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 07 (`#8915 <https://github.com/readthedocs/readthedocs.org/pull/8915>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: add top-level docs (`#8913 <https://github.com/readthedocs/readthedocs.org/pull/8913>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: remove queue priority (`#8848 <https://github.com/readthedocs/readthedocs.org/pull/8848>`__)
+
 Version 7.2.1
 -------------
 
