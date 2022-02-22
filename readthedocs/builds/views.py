@@ -179,7 +179,7 @@ class BuildDetail(BuildBase, DetailView):
             # itself to be executed in the `on_failure` handler.
             terminate = True
 
-        log.info(
+        log.warning(
             'Cancelling build.',
             project_slug=project.slug,
             version_slug=build.version.slug,
