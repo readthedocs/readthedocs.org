@@ -179,6 +179,14 @@ class BuildDetail(BuildBase, DetailView):
             # itself to be executed in the `on_failure` handler.
             terminate = True
 
+        log.info(
+            'Cancelling build.',
+            project_slug=project.slug,
+            version_slug=build.version.slug,
+            build_id=build.pk,
+            build_task_id=build.task_id,
+            terminate=terminate,
+        )
         app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
 
         return HttpResponseRedirect(
