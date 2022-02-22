@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """App configurations for core app."""
 
+import structlog
+
 from django.apps import AppConfig
+
+log = structlog.get_logger(__name__)
 
 
 class CoreAppConfig(AppConfig):
