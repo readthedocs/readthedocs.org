@@ -98,7 +98,7 @@ class TestTasks(TestCase):
         self.assertEqual(Build.objects.count(), 10)
         self.assertEqual(BuildCommandResult.objects.count(), 100)
 
-        archive_builds_task(days=5, delete=True)
+        archive_builds_task.delay(days=5, delete=True)
 
         self.assertEqual(len(build_commands_storage.save.mock_calls), 5)
         self.assertEqual(Build.objects.count(), 10)

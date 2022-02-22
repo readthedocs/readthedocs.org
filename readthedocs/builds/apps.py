@@ -12,9 +12,7 @@ class Config(AppConfig):
     verbose_name = _("Builds")
 
     def ready(self):
-        from readthedocs.builds.tasks import ArchiveBuilds
         from readthedocs.worker import app
-        app.tasks.register(ArchiveBuilds)
 
         try:
             from readthedocsext.monitoring.metrics.tasks import (
