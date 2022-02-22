@@ -172,6 +172,7 @@ class BuildDetail(BuildBase, DetailView):
             build.state = BUILD_STATE_FINISHED
             build.success = False
             build.error = BuildCancelled.message
+            build.length = 0
             build.save()
         else:
             # In this case, we left the update of the Build object to the task
