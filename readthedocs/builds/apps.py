@@ -10,3 +10,6 @@ class Config(AppConfig):
     name = 'readthedocs.builds'
     label = 'builds'
     verbose_name = _("Builds")
+
+    def ready(self):
+        import readthedocs.builds.tasks

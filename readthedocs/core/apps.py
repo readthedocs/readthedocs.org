@@ -14,3 +14,8 @@ class CoreAppConfig(AppConfig):
 
         # Import `readthedocs.core.logs` to set up structlog
         import readthedocs.core.logs  # noqa
+
+        try:
+            import readthedocsext.monitoring.metrics.tasks
+        except (ModuleNotFoundError, ImportError):
+            log.info('Metrics tasks could not be imported.')
