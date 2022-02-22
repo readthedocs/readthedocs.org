@@ -276,7 +276,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # receives SIGTERM and make the build to fail one command and stop build)
         signal.signal(signal.SIGTERM, sigterm_received)
 
-
         signal.signal(signal.SIGINT, sigint_received)
 
     def _check_concurrency_limit(self):
