@@ -431,7 +431,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 (created or deleted),
         ]):
             integration = self.get_integration()
-            events = integration.provider_data.get('events', [])
+            events = integration.provider_data.get('events', []) if integration.provider_data else []  # noqa
             if any([
                     GITHUB_CREATE in events,
                     GITHUB_DELETE in events,
