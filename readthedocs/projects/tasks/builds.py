@@ -250,6 +250,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
+        BuildCancelled,
         DuplicatedBuildError,
         ProjectBuildsSkippedError,
     )
