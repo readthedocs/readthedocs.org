@@ -22,11 +22,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
 )
-from readthedocs.projects.constants import (
-    CELERY_HIGH,
-    CELERY_LOW,
-    CELERY_MEDIUM,
-)
 
 log = structlog.get_logger(__name__)
 
@@ -117,14 +112,6 @@ def prepare_build(
             event=WebHookEvent.BUILD_TRIGGERED,
         )
 
-    options['priority'] = CELERY_HIGH
-    if project.main_language_project:
-        # Translations should be medium priority
-        options['priority'] = CELERY_MEDIUM
-    if version.type == EXTERNAL:
-        # External builds should be lower priority.
-        options['priority'] = CELERY_LOW
-
     skip_build = False
     if commit:
         skip_build = (
@@ -186,6 +173,9 @@ def prepare_build(
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
+            # Delay the start of the build for the build retry delay.
+            # We're still triggering the task, but it won't run immediately,
+            # and the user will be alerted in the UI from the Error below.
             options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
             options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
             build.error = BuildMaxConcurrencyError.message.format(

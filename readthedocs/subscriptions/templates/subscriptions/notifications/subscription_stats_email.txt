@@ -1,0 +1,18 @@
+Hi Read the Docs team,
+
+These are the stats of the past week:
+
+* Projects: {{ projects }}
+* Builds: {{ builds }}
+* Organizations: {{ organizations }}
+* Domains: {{ domains }}
+* Orgnizations to disable: {{ organizations_to_disable }}
+* Users: {{ users }}
+* Subscriptions:
+{% for subscription in subscriptions %}
+  * {{ subscription.plan__name }}/{{ subscription.status}}: {{ subscription.total_status }}
+{% endfor %}
+
+
+Regards,
+Read the Docs Team
