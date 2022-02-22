@@ -426,12 +426,14 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
-        'hourly-archive-builds': {
+        'half-hourly-archive-builds': {
             'task': 'readthedocs.builds.tasks.archive_builds',
             'schedule': crontab(minute=30),
             'options': {'queue': 'web'},
             'kwargs': {
                 'days': 1,
+                'limit': 2000,
+                'delete': True,
             },
         },
         'every-day-delete-inactive-external-versions': {
