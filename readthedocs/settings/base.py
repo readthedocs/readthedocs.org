@@ -426,7 +426,7 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
-        'half-hourly-archive-builds': {
+        'hourly-archive-builds': {
             'task': 'readthedocs.builds.tasks.archive_builds',
             'schedule': crontab(minute=30),
             'options': {'queue': 'web'},
