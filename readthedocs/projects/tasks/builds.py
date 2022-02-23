@@ -205,9 +205,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def sync_repository_task(self, version_id):
-    # NOTE: `before_start` is new on Celery 5.2.x, but we are using 5.1.x currently.
-    self.before_start(self.request.id, self.request.args, self.request.kwargs)
-
     self.execute()
 
 
@@ -993,7 +990,4 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def update_docs_task(self, version_id, build_id, build_commit=None):
-    # NOTE: `before_start` is new on Celery 5.2.x, but we are using 5.1.x currently.
-    self.before_start(self.request.id, self.request.args, self.request.kwargs)
-
     self.execute()
