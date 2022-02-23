@@ -48,6 +48,7 @@ class HttpExchangeAdmin(admin.ModelAdmin):
         'pretty_response_body',
     ]
     fields = readonly_fields
+    search_fields = ('integrations__project__slug', 'integrations__project__name')
     list_display = [
         'related_object',
         'date',
@@ -110,7 +111,7 @@ class IntegrationAdmin(admin.ModelAdmin):
         return mark_safe(
             '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
                 url,
-                'integrations',
+                'integrations__pk',
                 obj.pk,
                 obj.exchanges.count(),
             ),
