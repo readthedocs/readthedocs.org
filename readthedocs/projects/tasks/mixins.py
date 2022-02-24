@@ -125,7 +125,6 @@ class SyncRepositoryMixin:
         branches = None
         if (
             version_repo.supports_lsremote and
-            not version_repo.repo_exists() and
             self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
         ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we

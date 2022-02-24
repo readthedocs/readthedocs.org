@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Mercurial-related utilities."""
 from readthedocs.projects.exceptions import RepositoryError
@@ -15,21 +14,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        if self.repo_exists():
-            return self.pull()
-        return self.clone()
-
-    def repo_exists(self):
-        try:
-            code, _, _ = self.run('hg', 'status', record=False)
-            return code == 0
-        except RepositoryError:
-            return False
-
-    def pull(self):
-        self.run('hg', 'pull')
-        code, stdout, stderr = self.run('hg', 'update', '--clean')
-        return code, stdout, stderr
+        self.clone()
 
     def clone(self):
         self.make_clean_working_dir()

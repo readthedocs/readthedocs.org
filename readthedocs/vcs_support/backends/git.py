@@ -53,21 +53,15 @@ class Backend(BaseVCS):
             #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
-    def set_remote_url(self, url):
-        return self.run('git', 'remote', 'set-url', 'origin', url)
-
     def update(self):
         """Clone or update the repository."""
         super().update()
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            return self.fetch()
         self.make_clean_working_dir()
+        self.clone()
+
         # A fetch is always required to get external versions properly
         if self.version_type == EXTERNAL:
-            self.clone()
-            return self.fetch()
-        return self.clone()
+            self.fetch()
 
     def repo_exists(self):
         try:
@@ -283,10 +277,8 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
-            return stdout.strip()
-        return None
+        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
+        return stdout.strip()
 
     @property
     def submodules(self):
