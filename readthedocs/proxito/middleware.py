@@ -159,7 +159,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project_slug:
             cache_tags.append(project_slug)
         if version_slug:
-            cache_tags.append(f'{project_slug}-{version_slug}')
+            cache_tags.append(f'{project_slug}:{version_slug}')
 
         if cache_tags:
             response['Cache-Tag'] = ','.join(cache_tags)

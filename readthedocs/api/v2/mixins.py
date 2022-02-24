@@ -37,10 +37,10 @@ class CachedResponseMixin:
             version = self._get_version()
             tags = [
                 project.slug,
-                f'{project.slug}-{version.slug}',
+                f'{project.slug}:{version.slug}',
             ]
             if self.project_cache_tag:
-                tags.append(f'{project.slug}-{self.project_cache_tag}')
+                tags.append(f'{project.slug}:{self.project_cache_tag}')
             return tags
         except Exception as e:
             log.debug('Error while retrieving project and version for this view.')
