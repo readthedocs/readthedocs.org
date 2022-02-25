@@ -10,7 +10,6 @@ from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -41,6 +40,8 @@ class CommunityBaseSettings(Settings):
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
     ATOMIC_REQUESTS = True
+
+    DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
     # Debug settings
     DEBUG = True
@@ -123,6 +124,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
+    RTD_BUILDS_MAX_RETRIES = 25
+    RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
@@ -170,7 +173,6 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             'corsheaders',
-            'textclassifier',
             'annoying',
             'django_extensions',
             'crispy_forms',
@@ -195,6 +197,7 @@ class CommunityBaseSettings(Settings):
 
             'readthedocs.gold',
             'readthedocs.payments',
+            'readthedocs.subscriptions',
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
@@ -212,7 +215,6 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
         if ext:
-            apps.append('django_countries')
             apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.spamfighting')
@@ -397,17 +399,10 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    BROKER_TRANSPORT_OPTIONS = {
-        'queue_order_strategy': 'priority',
-        # We use 0 here because some things still put a task in the queue with no priority
-        # I don't fully understand why, but this seems to solve it.
-        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
-    }
-
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
-            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
@@ -559,7 +554,7 @@ class CommunityBaseSettings(Settings):
                 '3.10': '3.10.0',
                 'pypy3.7': 'pypy3.7-7.3.5',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.1-5',
+                'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
                 '14': '14.17.6',
@@ -666,6 +661,7 @@ class CommunityBaseSettings(Settings):
         'accept',
         'origin',
         'authorization',
+        'x-hoverxref-version',
         'x-csrftoken'
     )
     # Additional protection to allow only idempotent methods.
@@ -676,13 +672,14 @@ class CommunityBaseSettings(Settings):
     ]
 
     # RTD Settings
-    REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
-    GROK_API_HOST = 'https://api.grokthedocs.com'
     ALLOW_ADMIN = True
+
+    # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
+    ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG = 'trial-v2-monthly'
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']
@@ -825,6 +822,7 @@ class CommunityBaseSettings(Settings):
             "key_value": {
                 "()": structlog.stdlib.ProcessorFormatter,
                 "processors": [
+                    structlog.processors.TimeStamper(fmt='iso'),
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                     structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
                 ],
@@ -854,6 +852,11 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
+            },
+            'docker.utils.config': {
+                'handlers': ['null'],
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
             'django_structlog.middlewares.request': {
                 'handlers': ['null'],
@@ -893,3 +896,4 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD = 300
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
+    RTD_SPAM_MAX_SCORE = 9999

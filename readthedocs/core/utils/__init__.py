@@ -22,11 +22,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
 )
-from readthedocs.projects.constants import (
-    CELERY_HIGH,
-    CELERY_LOW,
-    CELERY_MEDIUM,
-)
 
 log = structlog.get_logger(__name__)
 
@@ -35,8 +30,6 @@ def prepare_build(
         project,
         version=None,
         commit=None,
-        record=True,
-        force=False,
         immutable=True,
 ):
     """
@@ -48,8 +41,6 @@ def prepare_build(
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
@@ -58,12 +49,9 @@ def prepare_build(
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Feature, Project, WebHookEvent
-    from readthedocs.projects.tasks import (
-        send_external_build_status,
-        update_docs_task,
-    )
+    from readthedocs.projects.tasks.utils import send_external_build_status
+    from readthedocs.projects.tasks.builds import update_docs_task
 
-    build = None
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because project is not active.',
@@ -75,22 +63,14 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
-    kwargs = {
-        'record': record,
-        'force': force,
-        'commit': commit,
-    }
-
-    if record:
-        build = Build.objects.create(
-            project=project,
-            version=version,
-            type='html',
-            state=BUILD_STATE_TRIGGERED,
-            success=True,
-            commit=commit
-        )
-        kwargs['build_pk'] = build.pk
+    build = Build.objects.create(
+        project=project,
+        version=version,
+        type='html',
+        state=BUILD_STATE_TRIGGERED,
+        success=True,
+        commit=commit
+    )
 
     options = {}
     if project.build_queue:
@@ -115,28 +95,22 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    if build and commit:
+    if commit:
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
-            version_type=version.type, build_pk=build.id,
-            commit=commit, status=BUILD_STATUS_PENDING
+            version_type=version.type,
+            build_pk=build.id,
+            commit=commit,
+            status=BUILD_STATUS_PENDING
         )
 
-    if build and version.type != EXTERNAL:
+    if version.type != EXTERNAL:
         # Send notifications for build triggered.
         send_build_notifications.delay(
             version_pk=version.pk,
             build_pk=build.pk,
             event=WebHookEvent.BUILD_TRIGGERED,
         )
-
-    options['priority'] = CELERY_HIGH
-    if project.main_language_project:
-        # Translations should be medium priority
-        options['priority'] = CELERY_MEDIUM
-    if version.type == EXTERNAL:
-        # External builds should be lower priority.
-        options['priority'] = CELERY_LOW
 
     skip_build = False
     if commit:
@@ -199,8 +173,11 @@ def prepare_build(
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            options['countdown'] = 5 * 60
-            options['max_retries'] = 25
+            # Delay the start of the build for the build retry delay.
+            # We're still triggering the task, but it won't run immediately,
+            # and the user will be alerted in the UI from the Error below.
+            options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
+            options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
             build.error = BuildMaxConcurrencyError.message.format(
                 limit=max_concurrent_builds,
             )
@@ -208,8 +185,13 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(version.pk,),
-            kwargs=kwargs,
+            args=(
+                version.pk,
+                build.pk,
+            ),
+            kwargs={
+                'build_commit': commit,
+            },
             options=options,
             immutable=True,
         ),
@@ -217,7 +199,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None):
     """
     Trigger a Build.
 
@@ -227,8 +209,6 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
@@ -242,8 +222,6 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         project=project,
         version=version,
         commit=commit,
-        record=record,
-        force=force,
         immutable=True,
     )
 
@@ -296,18 +274,3 @@ def slugify(value, *args, **kwargs):
         # DNS doesn't allow - at the beginning or end of subdomains
         value = mark_safe(value.strip('-'))
     return value
-
-
-def safe_makedirs(directory_name):
-    """
-    Safely create a directory.
-
-    Makedirs has an issue where it has a race condition around checking for a
-    directory and then creating it. This catches the exception in the case where
-    the dir already exists.
-    """
-    try:
-        os.makedirs(directory_name)
-    except OSError as e:
-        if e.errno != errno.EEXIST:  # 17, FileExistsError
-            raise

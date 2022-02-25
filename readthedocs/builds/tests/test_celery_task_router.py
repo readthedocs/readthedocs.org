@@ -29,7 +29,7 @@ class TaskRouterTests(TestCase):
 
             )
 
-        self.task = 'readthedocs.projects.tasks.update_docs_task'
+        self.task = 'readthedocs.projects.tasks.builds.update_docs_task'
         self.args = (
             self.version.pk,
         )

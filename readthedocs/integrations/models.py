@@ -11,8 +11,7 @@ from django.contrib.contenttypes.fields import (
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from jsonfield import JSONField
+from django.utils.translation import gettext_lazy as _
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -102,28 +101,35 @@ class HttpExchangeManager(models.Manager):
         :param related_object: Object to use for generic relationship.
         """
         request = response.request
+        # NOTE: we need to cast ``request.headers`` and ``response.headers``
+        # because it's a ``requests.structures.CaseInsensitiveDict`` which is
+        # not JSON serializable.
         obj = self.create(
             related_object=related_object,
-            request_headers=request.headers or {},
+            request_headers=dict(request.headers) or {},
             request_body=request.body or '',
             status_code=response.status_code,
-            response_headers=response.headers,
+            response_headers=dict(response.headers),
             response_body=response.text,
         )
         self.delete_limit(related_object)
         return obj
 
     def delete_limit(self, related_object, limit=10):
+        # If the related_object is an instance of Integration,
+        # it could be a proxy model, so we force it to always be the "real" model.
         if isinstance(related_object, Integration):
-            queryset = self.filter(integrations=related_object)
+            model = Integration
         else:
-            queryset = self.filter(
-                content_type=ContentType.objects.get(
-                    app_label=related_object._meta.app_label,  # pylint: disable=protected-access
-                    model=related_object._meta.model_name,  # pylint: disable=protected-access
-                ),
-                object_id=related_object.pk,
-            )
+            model = related_object
+
+        queryset = self.filter(
+            content_type=ContentType.objects.get(
+                app_label=model._meta.app_label,  # pylint: disable=protected-access
+                model=model._meta.model_name,  # pylint: disable=protected-access
+            ),
+            object_id=related_object.pk,
+        )
         for exchange in queryset[limit:]:
             exchange.delete()
 
@@ -140,10 +146,20 @@ class HttpExchange(models.Model):
 
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
-    request_headers = JSONField(_('Request headers'))
+    request_headers = models.JSONField(
+        _('Request headers'),
+        # Delete after deploy
+        null=True,
+        blank=True,
+    )
     request_body = models.TextField(_('Request body'))
 
-    response_headers = JSONField(_('Request headers'))
+    response_headers = models.JSONField(
+        _('Request headers'),
+        # Delete after deploy
+        null=True,
+        blank=True,
+    )
     response_body = models.TextField(_('Response body'))
 
     status_code = models.IntegerField(
@@ -273,7 +289,11 @@ class Integration(models.Model):
         max_length=32,
         choices=INTEGRATIONS,
     )
-    provider_data = JSONField(_('Provider data'), default=dict)
+    provider_data = models.JSONField(
+        _('Provider data'),
+        null=True,
+        blank=True,
+    )
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',

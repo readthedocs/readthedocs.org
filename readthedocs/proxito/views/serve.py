@@ -1,10 +1,8 @@
 """Views for doc serving."""
-
 import itertools
-import structlog
 from urllib.parse import urlparse
 
-from readthedocs.core.resolver import resolve_path
+import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -15,6 +13,8 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.mixins import CachedView
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
@@ -29,7 +29,8 @@ from .utils import _get_project_data_from_request
 log = structlog.get_logger(__name__)  # noqa
 
 
-class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+
     def get(self,
             request,
             project_slug=None,
@@ -47,10 +48,16 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
+
+        if self._is_cache_enabled(final_project):
+            # All requests from this view can be cached.
+            # This is since the final URL will check for authz.
+            self.cache_request = True
+
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -78,12 +85,21 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
+        # All public versions can be cached.
+        version = final_project.versions.filter(slug=version_slug).first()
+        if (
+            self._is_cache_enabled(final_project)
+            and version and not version.is_private
+        ):
+            self.cache_request = True
+
         log.bind(
             project_slug=final_project.slug,
             subproject_slug=subproject_slug,
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
+            cache_request=self.cache_request,
         )
         log.debug('Serving docs.')
 
@@ -95,6 +111,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
             try:
+                # A canonical redirect can be cached, if we don't have information
+                # about the version, since the final URL will check for authz.
+                if not version and self._is_cache_enabled(final_project):
+                    self.cache_request = True
+
                 return self.canonical_redirect(request, final_project, version_slug, filename)
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
@@ -109,6 +130,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 filename == '',
                 not final_project.single_version,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         # Handle `/projects/subproject` URL redirection:
@@ -119,6 +144,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 subproject_slug,
                 not subproject_slash,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         if all([
@@ -389,9 +418,14 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         )
         path = build_media_storage.join(storage_path, 'robots.txt')
 
+        log.bind(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
         if build_media_storage.exists(path):
             url = build_media_storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
+            log.info('Serving custom robots.txt file.')
             return self._serve_docs(
                 request,
                 final_project=project,

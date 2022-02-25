@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify
@@ -59,9 +59,11 @@ class OrganizationForm(SimpleHistoryModelForm):
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
-        """Raise exception on duplicate organization."""
+        """Raise exception on duplicate organization slug."""
         name = self.cleaned_data['name']
-        if self.instance and self.instance.name and name == self.instance.name:
+
+        # Skip slug validation on already created organizations.
+        if self.instance.pk:
             return name
 
         potential_slug = slugify(name)

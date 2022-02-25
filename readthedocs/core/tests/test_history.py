@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -13,6 +15,7 @@ class TestHistoricalModels(TestCase):
         self.project = get(Project, users=[self.user])
         self.client.force_login(self.user)
 
+    @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
     def test_extra_historical_fields_with_request(self):
         self.assertEqual(self.project.history.count(), 1)
         r = self.client.post(

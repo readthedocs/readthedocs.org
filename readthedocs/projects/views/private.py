@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
@@ -45,7 +45,6 @@ from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
-from readthedocs.projects import tasks
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     DomainForm,
@@ -72,8 +71,9 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
+from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
-from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
@@ -143,7 +143,7 @@ class ProjectMixin(PrivateViewMixin):
         return self.model.objects.for_admin_user(self.request.user)
 
 
-class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectUpdate(ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
     success_message = _('Project settings updated')
@@ -153,7 +153,7 @@ class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
     success_message = _('Project settings updated')
@@ -212,8 +212,11 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version.', version_slug=version.slug)
-                tasks.clean_project_resources(
+                log.info(
+                    'Removing files for version.',
+                    version_slug=version.slug,
+                )
+                clean_project_resources(
                     version.project,
                     version,
                 )
@@ -242,7 +245,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
             version.built = False
             version.save()
             log.info('Removing files for version.', version_slug=version.slug)
-            tasks.clean_project_resources(
+            clean_project_resources(
                 version.project,
                 version,
             )
@@ -253,10 +256,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ImportWizardView(
-        ProjectImportMixin, ProjectSpamMixin, PrivateViewMixin,
-        SessionWizardView,
-):
+class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     """
     Project import wizard.
@@ -287,8 +287,15 @@ class ImportWizardView(
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._set_initial_dict()
+
+        log.bind(user_username=self.request.user.username)
+
+        if self.request.user.profile.banned:
+            log.info('Rejecting project POST from shadowbanned user.')
+            return HttpResponseRedirect(reverse('homepage'))
+
         # The storage is reset after everything is done.
         return super().post(*args, **kwargs)
 
@@ -628,7 +635,10 @@ class WebHookExchangeDetail(WebHookMixin, DetailView):
     template_name = 'projects/webhook_exchange_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.filter(webhook=self.get_webhook())
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(webhook__id=self.get_webhook().id)
 
     def get_webhook(self):
         return get_object_or_404(
@@ -912,7 +922,10 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
     template_name = 'projects/integration_exchange_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.filter(integrations=self.get_integration())
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(integrations__id=self.get_integration().id)
 
     def get_object(self):
         return DetailView.get_object(self)

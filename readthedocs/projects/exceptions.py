@@ -3,12 +3,12 @@
 """Project exceptions."""
 
 from django.conf import settings
-from django.utils.translation import ugettext_noop as _
+from django.utils.translation import gettext_noop as _
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildUserError
 
 
-class ProjectConfigurationError(BuildEnvironmentError):
+class ProjectConfigurationError(BuildUserError):
 
     """Error raised trying to configure a project for build."""
 
@@ -24,7 +24,7 @@ class ProjectConfigurationError(BuildEnvironmentError):
     )
 
 
-class RepositoryError(BuildEnvironmentError):
+class RepositoryError(BuildUserError):
 
     """Failure during repository operation."""
 
@@ -51,13 +51,3 @@ class RepositoryError(BuildEnvironmentError):
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED
         return self.PRIVATE_NOT_ALLOWED
-
-
-class ProjectSpamError(Exception):
-
-    """
-    Error raised when a project field has detected spam.
-
-    This error is not raised to users, we use this for banning users in the
-    background.
-    """

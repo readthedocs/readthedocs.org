@@ -4,7 +4,7 @@ import structlog
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
@@ -31,9 +31,6 @@ def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
-
-    # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.oauth.tasks.sync_remote_repositories.', locals=locals())
 
     failed_services = set()
     for service_cls in registry:

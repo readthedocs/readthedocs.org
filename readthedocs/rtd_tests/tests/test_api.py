@@ -89,7 +89,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
         self.assertEqual(build['state_display'], 'Cloning')
-        self.assertEqual(build['config'], {})
+        self.assertIsNone(build['config'])
 
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
@@ -1006,7 +1006,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project)],
         )
 
         client.post(
@@ -1015,7 +1015,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project)],
         )
 
         client.post(
@@ -1024,7 +1024,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project)],
         )
 
     def test_github_webhook_for_tags(self, trigger_build):
@@ -1037,7 +1037,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project)],
         )
 
         client.post(
@@ -1046,7 +1046,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project)],
         )
 
         client.post(
@@ -1055,7 +1055,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project)],
         )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
@@ -1118,7 +1118,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
@@ -1150,7 +1150,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
@@ -1195,7 +1195,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         # `synchronize` webhook event updated the identifier (commit hash)
@@ -1442,6 +1442,7 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_sync_on_push_event(self, trigger_build):
         """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
         integration = Integration.objects.create(
@@ -1474,6 +1475,7 @@ class IntegrationsTests(TestCase):
         )
         self.assertTrue(resp.json()['versions_synced'])
 
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_dont_trigger_double_sync(self, trigger_build):
         """Don't trigger a sync twice if the webhook has the create/delete events."""
         integration = Integration.objects.create(
@@ -1533,7 +1535,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            force=True, version=mock.ANY, project=self.project,
+            version=mock.ANY, project=self.project,
         )
 
         trigger_build.reset_mock()
@@ -1559,7 +1561,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            force=True, version=self.version_tag, project=self.project,
+            version=self.version_tag, project=self.project,
         )
 
         trigger_build.reset_mock()
@@ -1572,7 +1574,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            force=True, version=self.version_tag, project=self.project,
+            version=self.version_tag, project=self.project,
         )
 
         trigger_build.reset_mock()
@@ -1801,7 +1803,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
@@ -1834,7 +1836,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
@@ -1880,7 +1882,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project,
+            project=self.project,
             version=external_version, commit=self.commit
         )
         # `update` webhook event updated the identifier (commit hash)
@@ -2048,7 +2050,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project)],
         )
         client.post(
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
@@ -2065,7 +2067,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project)],
         )
 
         trigger_build_call_count = trigger_build.call_count

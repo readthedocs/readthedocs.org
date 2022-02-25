@@ -2,7 +2,7 @@ import structlog
 
 from django.db.models import Count, F, Max
 from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_filters import CharFilter, ChoiceFilter, FilterSet, OrderingFilter
 
 log = structlog.get_logger(__name__)

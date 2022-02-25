@@ -27,9 +27,9 @@ ALLOWED_URLS = [
     '/api/v3/embed',
 ]
 
-webhook_github = Signal(providing_args=['project', 'data', 'event'])
-webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
-webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
+webhook_github = Signal()
+webhook_gitlab = Signal()
+webhook_bitbucket = Signal()
 
 pre_collectstatic = Signal()
 post_collectstatic = Signal()

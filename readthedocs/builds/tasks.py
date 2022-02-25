@@ -1,16 +1,16 @@
 import json
-import structlog
-from datetime import datetime, timedelta
 from io import BytesIO
 
 import requests
+import structlog
 from celery import Task
 from django.conf import settings
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import (
     delete_versions_from_db,
     get_deleted_active_versions,
@@ -66,17 +66,17 @@ class TaskRouter:
     BUILD_LARGE_QUEUE = 'build:large'
 
     def route_for_task(self, task, args, kwargs, **__):
-        log.info('Executing TaskRouter.', task=task)
+        log.debug('Executing TaskRouter.', task=task)
         if task not in (
-            'readthedocs.projects.tasks.update_docs_task',
-            'readthedocs.projects.tasks.sync_repository_task',
+            'readthedocs.projects.tasks.builds.update_docs_task',
+            'readthedocs.projects.tasks.builds.sync_repository_task',
         ):
-            log.info('Skipping routing non-build task.', task=task)
+            log.debug('Skipping routing non-build task.', task=task)
             return
 
         version = self._get_version(task, args, kwargs)
         if not version:
-            log.info('No Build/Version found. No routing task.', task=task)
+            log.debug('No Build/Version found. No routing task.', task=task)
             return
 
         project = version.project
@@ -115,7 +115,23 @@ class TaskRouter:
         last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            if build.config.get('conda', None):
+            build_tools_python = ''
+            conda = None
+            if build.config:
+                build_tools_python = (
+                    build.config
+                    .get('build', {})
+                    .get('tools', {})
+                    .get('python', {})
+                    .get('version', '')
+                )
+                conda = build.config.get('conda', None)
+
+            uses_conda = any([
+                conda,
+                build_tools_python.startswith('miniconda'),
+            ])
+            if uses_conda:
                 log.info(
                     'Routing task because project uses conda.',
                     project_slug=project.slug,
@@ -138,7 +154,7 @@ class TaskRouter:
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info(
+        log.debug(
             'No routing task because no conditions were met.',
             project_slug=project.slug,
         )
@@ -146,8 +162,8 @@ class TaskRouter:
 
     def _get_version(self, task, args, kwargs):
         tasks = [
-            'readthedocs.projects.tasks.update_docs_task',
-            'readthedocs.projects.tasks.sync_repository_task',
+            'readthedocs.projects.tasks.builds.update_docs_task',
+            'readthedocs.projects.tasks.builds.sync_repository_task',
         ]
         version = None
         if task in tasks:
@@ -155,7 +171,7 @@ class TaskRouter:
             try:
                 version = Version.objects.get(pk=version_pk)
             except Version.DoesNotExist:
-                log.info(
+                log.debug(
                     'Version does not exist. Routing task to default queue.',
                     version_id=version_pk,
                 )
@@ -174,7 +190,7 @@ class ArchiveBuilds(Task):
 
         lock_id = '{0}-lock'.format(self.name)
         days = kwargs.get('days', 14)
-        limit = kwargs.get('limit', 5000)
+        limit = kwargs.get('limit', 2000)
         delete = kwargs.get('delete', True)
 
         with memcache_lock(lock_id, self.app.oid) as acquired:
@@ -192,23 +208,28 @@ def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
     :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
-    max_date = datetime.now() - timedelta(days=days)
+    max_date = timezone.now() - timezone.timedelta(days=days)
     queryset = Build.objects.exclude(commands__isnull=True)
     if not include_cold:
         queryset = queryset.exclude(cold_storage=True)
-    queryset = queryset.filter(date__lt=max_date)[:limit]
+
+    queryset = (
+        queryset
+        .filter(date__lt=max_date)
+        .prefetch_related('commands')
+        .only('date', 'cold_storage')
+        [:limit]
+    )
 
     for build in queryset:
-        data = BuildSerializer(build).data['commands']
-        if data:
-            for cmd in data:
+        commands = BuildCommandSerializer(build.commands, many=True).data
+        if commands:
+            for cmd in commands:
                 if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
                     cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
                     cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
                     log.warning('Truncating build command for build.', build_id=build.id)
-            output = BytesIO()
-            output.write(json.dumps(data).encode('utf8'))
-            output.seek(0)
+            output = BytesIO(json.dumps(commands).encode('utf8'))
             filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
             try:
                 build_commands_storage.save(name=filename, content=output)
@@ -227,7 +248,7 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
-    days_ago = datetime.now() - timedelta(days=days)
+    days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
         active=False,
         modified__lte=days_ago,
@@ -379,7 +400,14 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
 
     provider_name = build.project.git_provider_name
 
-    log.info('Sending build status.', build_id=build.id, project_slug=build.project.slug)
+    log.bind(
+        build_id=build.pk,
+        project_slug=build.project.slug,
+        commit=commit,
+        status=status,
+    )
+
+    log.debug('Sending build status.')
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
@@ -411,20 +439,13 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 )
 
                 if success:
-                    log.info(
+                    log.debug(
                         'Build status report sent correctly.',
-                        project_slug=build.project.slug,
-                        build_id=build.id,
-                        status=status,
-                        commit=commit,
                         user_username=relation.user.username,
                     )
                     return True
         else:
-            log.warning(
-                'Project does not have a RemoteRepository.',
-                project_slug=build.project.slug,
-            )
+            log.warning('Project does not have a RemoteRepository.')
             # Try to send build status for projects with no RemoteRepository
             for user in users:
                 services = service_class.for_user(user)
@@ -433,12 +454,8 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 for service in services:
                     success = service.send_build_status(build, commit, status)
                     if success:
-                        log.info(
+                        log.debug(
                             'Build status report sent correctly using an user account.',
-                            project_slug=build.project.slug,
-                            build_id=build.id,
-                            status=status,
-                            commit=commit,
                             user_username=user.username,
                         )
                         return True
@@ -454,10 +471,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
             )
             notification.send()
 
-        log.info(
-            'No social account or repository permission available.',
-            project_slug=build.project.slug,
-        )
+        log.info('No social account or repository permission available.')
         return False
 
 
