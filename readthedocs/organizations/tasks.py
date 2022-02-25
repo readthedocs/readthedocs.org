@@ -15,7 +15,7 @@ def mark_organization_assets_not_cleaned(build_pk):
     try:
         build = Build.objects.get(pk=build_pk)
     except Build.DoesNotExist:
-        log.info("Build does not exist.", build_pk=build_pk)
+        log.debug("Build does not exist.", build_pk=build_pk)
         return
 
     organization = build.project.organizations.first()

@@ -10,6 +10,7 @@ jobs:
         name: search
         environment:
           discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
     steps:
       - checkout
       - run: git submodule sync
@@ -47,6 +48,7 @@ jobs:
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs
+      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:

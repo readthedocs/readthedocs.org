@@ -1,7 +1,7 @@
 import structlog
 
 from django.apps import AppConfig
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 log = structlog.get_logger(__name__)
 
@@ -28,4 +28,4 @@ class Config(AppConfig):
             app.tasks.register(Metrics10mTask)
             app.tasks.register(Metrics30mTask)
         except (ModuleNotFoundError, ImportError):
-            log.info('Metrics tasks could not be imported.')
+            log.warning('Metrics tasks could not be imported.')

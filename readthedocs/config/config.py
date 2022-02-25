@@ -72,6 +72,7 @@ INVALID_NAME = 'invalid-name'
 LATEST_CONFIGURATION_VERSION = 2
 
 
+# TODO: make these exception to inherit from `BuildUserError`
 class ConfigError(Exception):
 
     """Base error for the rtd configuration file."""
@@ -938,13 +939,9 @@ class BuildConfigV2(BuildConfigBase):
         ]
 
         with self.catch_validation_error('python.system_packages'):
-            system_packages = self.defaults.get(
-                'use_system_packages',
-                False,
-            )
             system_packages = self.pop_config(
                 'python.system_packages',
-                system_packages,
+                False,
             )
             python['use_system_site_packages'] = validate_bool(system_packages)
 

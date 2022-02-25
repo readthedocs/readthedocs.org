@@ -8,7 +8,7 @@ from readthedocs.projects.models import Project
 from .mixins import APIEndpointMixin
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_list(self):
@@ -166,6 +166,21 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.post(reverse('projects-list'), data)
         self.assertContains(response, 'Project with slug \\"test-project\\" already exists.', status_code=400)
+
+    def test_import_empty_slug(self):
+        data = {
+            'name': '*',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'homepage': 'http://template.readthedocs.io/',
+            'programming_language': 'py',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertContains(response, 'Invalid project name \\"*\\": no slug generated.', status_code=400)
 
     def test_import_project_with_extra_fields(self):
         data = {

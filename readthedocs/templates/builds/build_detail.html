@@ -138,17 +138,7 @@ $(document).ready(function () {
     </div>
 
     {% if request.user|is_admin:project %}
-      {% if not build.success and build.commands.count < 4 and build.version and build.version.supports_wipe %}
-        <div class="build-ideas">
-          <p>
-            {% url 'wipe_version' build.project.slug build.version.slug as wipe_url %}
-            {% blocktrans trimmed %}
-              Having trouble with your build environment?
-              Try <a href="{{ wipe_url }}">resetting it</a>.
-            {% endblocktrans %}
-          </p>
-        </div>
-      {% elif not build.success and "setup.py install" in build.commands.last.output %}
+      {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
             {% url 'projects_advanced' build.project.slug as advanced_url %}

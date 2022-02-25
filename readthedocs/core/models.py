@@ -4,8 +4,8 @@ from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import (
     CreationDateTimeField,
     ModificationDateTimeField,
@@ -51,7 +51,7 @@ class UserProfile(TimeStampedModel):
 
     def __str__(self):
         return (
-            ugettext("%(username)s's profile") %
+            gettext("%(username)s's profile") %
             {'username': self.user.username}
         )
 

@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.conf.urls import re_path
 
 from .views import EmbedAPI
 
 
 urlpatterns = [
-    url(r'', EmbedAPI.as_view(), name='embed_api'),
+    re_path(r'', EmbedAPI.as_view(), name='embed_api'),
 ]

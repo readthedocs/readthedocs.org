@@ -9,7 +9,7 @@ import structlog
 import requests
 from django.conf import settings
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_bytes, force_text
+from django.utils.encoding import force_bytes, force_str
 from user_agents import parse
 
 
@@ -47,7 +47,7 @@ def anonymize_ip_address(ip_address):
     ip_mask = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)
 
     try:
-        ip_obj = ipaddress.ip_address(force_text(ip_address))
+        ip_obj = ipaddress.ip_address(force_str(ip_address))
     except ValueError:
         return None
 
