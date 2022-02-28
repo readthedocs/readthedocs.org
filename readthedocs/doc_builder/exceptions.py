@@ -76,7 +76,7 @@ class MkDocsYAMLParseError(BuildUserError):
 
     INVALID_EXTRA_CONFIG = gettext_noop(
         'The "{config}" config from your MkDocs YAML config file has to be a '
-        'a list of relative paths.',
+        'list of relative paths.',
     )
 
     EMPTY_CONFIG = gettext_noop(
