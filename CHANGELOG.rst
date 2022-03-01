@@ -1,3 +1,25 @@
+Version 7.4.0
+-------------
+
+:Date: March 01, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix typo on exception (`#8975 <https://github.com/readthedocs/readthedocs.org/pull/8975>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: increase timeout limit for `sync_remote_repositories` task (`#8974 <https://github.com/readthedocs/readthedocs.org/pull/8974>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix a couple integration admin bugs (`#8964 <https://github.com/readthedocs/readthedocs.org/pull/8964>`__)
+* `@humitos <https://github.com/humitos>`__: Build: allow NULL when updating the config (`#8962 <https://github.com/readthedocs/readthedocs.org/pull/8962>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.3.0 (`#8957 <https://github.com/readthedocs/readthedocs.org/pull/8957>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 08 (`#8954 <https://github.com/readthedocs/readthedocs.org/pull/8954>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: upgrade to latest version (`#8952 <https://github.com/readthedocs/readthedocs.org/pull/8952>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade gitpython because of security issue (`#8950 <https://github.com/readthedocs/readthedocs.org/pull/8950>`__)
+* `@humitos <https://github.com/humitos>`__: Test: remove verbose warnings (`#8949 <https://github.com/readthedocs/readthedocs.org/pull/8949>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Pin storages with boto3 (`#8947 <https://github.com/readthedocs/readthedocs.org/pull/8947>`__)
+* `@stsewd <https://github.com/stsewd>`__: Optimize archive_builds task (`#8944 <https://github.com/readthedocs/readthedocs.org/pull/8944>`__)
+* `@humitos <https://github.com/humitos>`__: Build: reset build error before start building (`#8943 <https://github.com/readthedocs/readthedocs.org/pull/8943>`__)
+* `@humitos <https://github.com/humitos>`__: Build: comment `record=False` usage (`#8939 <https://github.com/readthedocs/readthedocs.org/pull/8939>`__)
+* `@humitos <https://github.com/humitos>`__: Django3: use new JSON fields instead of old TextFields (`#8934 <https://github.com/readthedocs/readthedocs.org/pull/8934>`__)
+* `@humitos <https://github.com/humitos>`__: Build: ability to cancel a running build from dashboard (`#8850 <https://github.com/readthedocs/readthedocs.org/pull/8850>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: remove queue priority (`#8848 <https://github.com/readthedocs/readthedocs.org/pull/8848>`__)
+
 Version 7.3.0
 -------------
 

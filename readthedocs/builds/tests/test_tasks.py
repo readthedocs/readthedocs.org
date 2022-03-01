@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django_dynamic_fixture import get
 
@@ -74,6 +74,7 @@ class TestTasks(TestCase):
         self.assertEqual(Version.external.all().count(), 2)
         self.assertFalse(Version.objects.filter(slug='external-inactive-old').exists())
 
+    @override_settings(RTD_SAVE_BUILD_COMMANDS_TO_STORAGE=True)
     @mock.patch('readthedocs.builds.tasks.build_commands_storage')
     def test_archive_builds(self, build_commands_storage):
         project = get(Project)
@@ -98,7 +99,7 @@ class TestTasks(TestCase):
         self.assertEqual(Build.objects.count(), 10)
         self.assertEqual(BuildCommandResult.objects.count(), 100)
 
-        archive_builds_task(days=5, delete=True)
+        archive_builds_task.delay(days=5, delete=True)
 
         self.assertEqual(len(build_commands_storage.save.mock_calls), 5)
         self.assertEqual(Build.objects.count(), 10)

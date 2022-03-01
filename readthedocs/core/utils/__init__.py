@@ -229,7 +229,18 @@ def trigger_build(project, version=None, commit=None):
         # Build was skipped
         return (None, None)
 
-    return (update_docs_task.apply_async(), build)
+    task = update_docs_task.apply_async()
+
+    # FIXME: I'm using `isinstance` here because I wasn't able to mock this
+    # properly when running tests and it fails when trying to save a
+    # `mock.Mock` object in the database.
+    #
+    # Store the task_id in the build object to be able to cancel it later.
+    if isinstance(task.id, (str, int)):
+        build.task_id = task.id
+        build.save()
+
+    return task, build
 
 
 def send_email(

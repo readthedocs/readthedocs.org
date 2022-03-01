@@ -59,6 +59,10 @@ class DuplicatedBuildError(BuildUserError):
     status = BUILD_STATUS_DUPLICATED
 
 
+class BuildCancelled(BuildUserError):
+    message = gettext_noop('Build cancelled by user.')
+
+
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
@@ -76,7 +80,7 @@ class MkDocsYAMLParseError(BuildUserError):
 
     INVALID_EXTRA_CONFIG = gettext_noop(
         'The "{config}" config from your MkDocs YAML config file has to be a '
-        'a list of relative paths.',
+        'list of relative paths.',
     )
 
     EMPTY_CONFIG = gettext_noop(
