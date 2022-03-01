@@ -682,6 +682,13 @@ class Build(models.Model):
         help_text='Build steps stored outside the database.',
     )
 
+    task_id = models.CharField(
+        _('Celery task id'),
+        max_length=36,
+        null=True,
+        blank=True,
+    )
+
     # Managers
     objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.

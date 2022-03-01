@@ -432,6 +432,8 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
             'kwargs': {
                 'days': 1,
+                'limit': 2000,
+                'delete': True,
             },
         },
         'every-day-delete-inactive-external-versions': {
