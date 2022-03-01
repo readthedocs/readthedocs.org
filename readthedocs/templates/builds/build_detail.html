@@ -30,6 +30,13 @@ $(document).ready(function () {
 {% block content %}
   <div class="build build-detail" id="build-detail">
 
+    {% if build.state != "finished" and request.user|is_admin:project %}
+    <form method="post" action="{% url "builds_detail" build.version.project.slug build.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Cancel build" %}">
+    </form>
+    {% endif %}
+
     <!-- Build meta data -->
     <ul class="build-meta">
       <div data-bind="visible: finished()">
