@@ -51,7 +51,7 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
             )
 
 
-class S3StaticStorage(OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage):
+class S3StaticStorage(OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage):  # pylint: disable=too-many-ancestors
 
     """
     An AWS S3 Storage backend for static media.
