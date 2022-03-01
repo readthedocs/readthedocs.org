@@ -15,6 +15,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito import constants
 
@@ -159,7 +160,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project_slug:
             cache_tags.append(project_slug)
         if version_slug:
-            cache_tags.append(f'{project_slug}-{version_slug}')
+            cache_tags.append(get_cache_tag(project_slug, version_slug))
 
         if cache_tags:
             response['Cache-Tag'] = ','.join(cache_tags)
