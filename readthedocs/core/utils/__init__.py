@@ -4,6 +4,7 @@ import datetime
 import re
 
 import structlog
+from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
