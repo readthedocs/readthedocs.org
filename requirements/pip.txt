@@ -113,7 +113,7 @@ django-debug-toolbar==3.2.4
 django-csp==3.7
 # For setting the permissions-policy security header
 # We can not upgrade to 4.8.0 because it removes `interest-cohort` feature and we are still using it.
-django-permissions-policy==4.8.0
+django-permissions-policy==4.7.0  # pyup: ignore
 
 django-structlog==2.2.0
 structlog==21.5.0
