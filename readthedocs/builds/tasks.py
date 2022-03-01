@@ -178,67 +178,61 @@ class TaskRouter:
         return version
 
 
-class ArchiveBuilds(Task):
-
-    """Task to archive old builds to cold storage."""
-
-    name = __name__ + '.archive_builds'
-
-    def run(self, *args, **kwargs):
-        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
-            return
-
-        lock_id = '{0}-lock'.format(self.name)
-        days = kwargs.get('days', 14)
-        limit = kwargs.get('limit', 2000)
-        delete = kwargs.get('delete', True)
-
-        with memcache_lock(lock_id, self.app.oid) as acquired:
-            if acquired:
-                archive_builds_task(days=days, limit=limit, delete=delete)
-            else:
-                log.warning('Archive Builds Task still locked')
+# NOTE: re-define this task to keep the old name. Delete it after deploy.
+@app.task(queue='web')
+def archive_builds(days=14, limit=200, include_cold=False, delete=False):
+    archive_builds_task.delay(days=days, limit=limit, include_cold=include_cold, delete=delete)
 
 
-def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
+@app.task(queue='web', bind=True)
+def archive_builds_task(self, days=14, limit=200, include_cold=False, delete=False):
     """
-    Find stale builds and remove build paths.
+    Task to archive old builds to cold storage.
 
     :arg days: Find builds older than `days` days.
     :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
-    max_date = timezone.now() - timezone.timedelta(days=days)
-    queryset = Build.objects.exclude(commands__isnull=True)
-    if not include_cold:
-        queryset = queryset.exclude(cold_storage=True)
+    if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+        return
 
-    queryset = (
-        queryset
-        .filter(date__lt=max_date)
-        .prefetch_related('commands')
-        .only('date', 'cold_storage')
-        [:limit]
-    )
+    lock_id = '{0}-lock'.format(self.name)
+    with memcache_lock(lock_id, self.app.oid) as acquired:
+        if not acquired:
+            log.warning('Archive Builds Task still locked')
+            return False
 
-    for build in queryset:
-        commands = BuildCommandSerializer(build.commands, many=True).data
-        if commands:
-            for cmd in commands:
-                if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
-                    cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build.', build_id=build.id)
-            output = BytesIO(json.dumps(commands).encode('utf8'))
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
-            try:
-                build_commands_storage.save(name=filename, content=output)
-                build.cold_storage = True
-                build.save()
-                if delete:
-                    build.commands.all().delete()
-            except IOError:
-                log.exception('Cold Storage save failure')
+        max_date = timezone.now() - timezone.timedelta(days=days)
+        queryset = Build.objects.exclude(commands__isnull=True)
+        if not include_cold:
+            queryset = queryset.exclude(cold_storage=True)
+
+        queryset = (
+            queryset
+            .filter(date__lt=max_date)
+            .prefetch_related('commands')
+            .only('date', 'cold_storage')
+            [:limit]
+        )
+
+        for build in queryset:
+            commands = BuildCommandSerializer(build.commands, many=True).data
+            if commands:
+                for cmd in commands:
+                    if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
+                        cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
+                        cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
+                        log.warning('Truncating build command for build.', build_id=build.id)
+                output = BytesIO(json.dumps(commands).encode('utf8'))
+                filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+                try:
+                    build_commands_storage.save(name=filename, content=output)
+                    build.cold_storage = True
+                    build.save()
+                    if delete:
+                        build.commands.all().delete()
+                except IOError:
+                    log.exception('Cold Storage save failure')
 
 
 @app.task(queue='web')
