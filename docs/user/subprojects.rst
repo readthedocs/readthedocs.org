@@ -15,7 +15,7 @@ The documentation for ``Bar`` will be available under this same path:
 
 https://foo.readthedocs.io/projects/bar/en/latest/
 
-Adding a Subproject
+Adding a subproject
 -------------------
 
 In the admin dashboard for your project, select "Subprojects" from the menu.
@@ -24,9 +24,9 @@ From this page you can add a subproject by typing in the project slug.
 Subproject aliases
 ~~~~~~~~~~~~~~~~~~
 
-You can use an alias for the subproject when it is created. This allows you to override the URL that is used to access it, giving more configurability to how you want to structure your projects. 
+You can use an alias for the subproject when it is created. This allows you to override the URL that is used to access it, giving more configurability to how you want to structure your projects.
 
-Sharing a Custom Domain
+Sharing a custom domain
 -----------------------
 
 Projects and subprojects can also be used to share a custom domain with a number
@@ -38,6 +38,18 @@ If the example project ``Foo`` was set up with a custom domain,
 ``docs.example.com``, the URLs for projects ``Foo`` and ``Bar`` would
 respectively be at: https://docs.example.com/en/latest/ and
 https://docs.example.com/projects/bar/en/latest/
+
+Custom domain on subprojects
+----------------------------
+
+Adding a custom domain to a subproject is allowed,
+but your documentation will always be served from
+the domain of the parent project.
+
+For example, if the domain of a parent project is ``https://docs.example.com``,
+and you add the ``https://subproject.example.com/`` domain to one of its subprojects,
+it will always redirect to the domain of the parent project
+``https://docs.example.com/projects/subproject/``.
 
 Search
 ------
