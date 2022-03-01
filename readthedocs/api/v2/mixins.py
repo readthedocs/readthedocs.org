@@ -1,19 +1,8 @@
 import structlog
 
+from readthedocs.core.utils import get_cache_tag
+
 log = structlog.get_logger(__name__)
-
-
-def get_cache_tag(*args):
-    """
-    Generate a cache tag from the given args.
-
-    The final tag is composed of several parts
-    that form a unique tag (like project and version slug).
-
-    All parts are separated using a character that isn't
-    allowed in slugs to avoid collitions.
-    """
-    return ':'.join(args)
 
 
 class CachedResponseMixin:
