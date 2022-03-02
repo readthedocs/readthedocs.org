@@ -427,7 +427,7 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
         },
         'quarter-archive-builds': {
-            'task': 'readthedocs.builds.tasks.archive_builds',
+            'task': 'readthedocs.builds.tasks.archive_builds_task',
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
             'kwargs': {
