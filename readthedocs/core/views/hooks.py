@@ -194,14 +194,11 @@ def deactivate_external_version(project, version_data):
     return None
 
 
-def build_external_version(project, version, version_data):
+def build_external_version(project, version):
     """
     Where we actually trigger builds for external versions.
 
     All pull/merge request webhook logic should route here to call ``trigger_build``.
-
-    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-                         instance.
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True

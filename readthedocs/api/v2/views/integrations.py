@@ -24,7 +24,7 @@ from readthedocs.core.views.hooks import (
     trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -241,7 +241,6 @@ class WebhookMixin:
         to_build = build_external_version(
             project=project,
             version=external_version,
-            version_data=version_data,
         )
 
         return {
