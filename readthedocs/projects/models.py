@@ -1,6 +1,8 @@
 """Project models."""
 import fnmatch
-import logging
+import hashlib
+import hmac
+import structlog
 import os
 import re
 from shlex import quote
@@ -10,14 +12,19 @@ from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
+from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import CreationDateTimeField
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -46,7 +53,6 @@ from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
-from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 from .constants import (
     MEDIA_TYPE_EPUB,
@@ -55,7 +61,7 @@ from .constants import (
     MEDIA_TYPES,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def default_privacy_level():
@@ -299,6 +305,12 @@ class Project(models.Model):
         default=False,
         help_text='If checked, do not show advertising for this project',
     )
+    is_spam = models.BooleanField(
+        _('Is spam?'),
+        default=None,
+        null=True,
+        help_text=_('Manually marked as (not) spam'),
+    )
     show_version_warning = models.BooleanField(
         _('Show version warning'),
         default=False,
@@ -480,7 +492,7 @@ class Project(models.Model):
             log.exception('Error creating default branches')
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects.tasks import clean_project_resources
+        from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove extra resources
         clean_project_resources(self)
@@ -650,8 +662,9 @@ class Project(models.Model):
 
         if '\\$' in to_convert:
             log.warning(
-                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
-                self, to_convert
+                'Unconverted variable in a project URLConf.',
+                project_slug=self.slug,
+                to_convert=to_convert,
             )
         return to_convert
 
@@ -758,11 +771,6 @@ class Project(models.Model):
 
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
-
-    @property
-    def pip_cache_path(self):
-        """Path to pip cache."""
-        return os.path.join(self.doc_path, '.cache', 'pip')
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project."""
@@ -893,6 +901,8 @@ class Project(models.Model):
             version_type=version_type
         )
 
+    # NOTE: if `environment=None` everything fails, because it cannot execute
+    # any command.
     def vcs_repo(
             self, version=LATEST, environment=None,
             verbose_name=None, version_type=None
@@ -949,32 +959,6 @@ class Project(models.Model):
             provider = allauth_registry.by_id(service.adapter.provider_id)
             return provider.name
         return None
-
-    def repo_nonblockinglock(self, version, max_lock_age=None):
-        """
-        Return a ``NonBlockingLock`` to acquire the lock via context manager.
-
-        :param version: project's version that want to get the lock for.
-        :param max_lock_age: time (in seconds) to consider the lock's age is old
-            and grab it anyway. It default to the ``container_time_limit`` of
-            the project or the default ``DOCKER_LIMITS['time']`` or
-            ``REPO_LOCK_SECONDS`` or 30
-        """
-        if max_lock_age is None:
-            max_lock_age = (
-                self.container_time_limit or
-                DOCKER_LIMITS.get('time') or
-                settings.REPO_LOCK_SECONDS
-            )
-
-        return NonBlockingLock(
-            project=self,
-            version=version,
-            max_lock_age=max_lock_age,
-        )
-
-    def repo_lock(self, version, timeout=5, polling_interval=5):
-        return Lock(self, version, timeout, polling_interval)
 
     def find(self, filename, version):
         """
@@ -1252,6 +1236,10 @@ class Project(models.Model):
         if self.ad_free or self.gold_owners.exists():
             return False
 
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_show_ads_denied  # noqa
+            return not is_show_ads_denied(self)
+
         return True
 
     def environment_variables(self, *, public_only=True):
@@ -1446,7 +1434,20 @@ class HTMLFile(ImportedFile):
         return self.get_processed_json()
 
 
-class Notification(models.Model):
+class Notification(TimeStampedModel):
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
+
     project = models.ForeignKey(
         Project,
         related_name='%(class)s_notifications',
@@ -1465,14 +1466,137 @@ class EmailHook(Notification):
         return self.email
 
 
-class WebHook(Notification):
-    url = models.URLField(
-        max_length=600,
-        help_text=_('URL to send the webhook to'),
+class WebHookEvent(models.Model):
+
+    BUILD_TRIGGERED = 'build:triggered'
+    BUILD_PASSED = 'build:passed'
+    BUILD_FAILED = 'build:failed'
+
+    EVENTS = (
+        (BUILD_TRIGGERED, _('Build triggered')),
+        (BUILD_PASSED, _('Build passed')),
+        (BUILD_FAILED, _('Build failed')),
+    )
+
+    name = models.CharField(
+        max_length=256,
+        unique=True,
+        choices=EVENTS,
     )
 
     def __str__(self):
-        return self.url
+        return self.name
+
+
+class WebHook(Notification):
+
+    url = models.URLField(
+        _('URL'),
+        max_length=600,
+        help_text=_('URL to send the webhook to'),
+    )
+    secret = models.CharField(
+        help_text=_('Secret used to sign the payload of the webhook'),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    events = models.ManyToManyField(
+        WebHookEvent,
+        related_name='webhooks',
+        help_text=_('Events to subscribe'),
+    )
+    payload = models.TextField(
+        _('JSON payload'),
+        help_text=_(
+            'JSON payload to send to the webhook. '
+            'Check <a href="https://docs.readthedocs.io/page/build-notifications.html#variable-substitutions-reference">the docs</a> for available substitutions.',  # noqa
+        ),
+        blank=True,
+        null=True,
+        max_length=25000,
+    )
+    exchanges = GenericRelation(
+        'integrations.HttpExchange',
+        related_query_name='webhook',
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = get_random_string(length=32)
+        super().save(*args, **kwargs)
+
+    def get_payload(self, version, build, event):
+        """
+        Get the final payload replacing all placeholders.
+
+        Placeholders are in the ``{{ foo }}`` or ``{{foo}}`` format.
+        """
+        if not self.payload:
+            return None
+
+        project = version.project
+        organization = project.organizations.first()
+
+        organization_name = ''
+        organization_slug = ''
+        if organization:
+            organization_slug = organization.slug
+            organization_name = organization.name
+
+        # Commit can be None, display an empty string instead.
+        commit = build.commit or ''
+        protocol = 'http' if settings.DEBUG else 'https'
+        project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
+        build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
+        build_docsurl = project.get_docs_url(
+            version_slug=version.slug,
+            external=version.is_external,
+        )
+
+        # Remove timezone and microseconds from the date,
+        # so it's more readable.
+        start_date = build.date.replace(
+            tzinfo=None,
+            microsecond=0
+        ).isoformat()
+
+        substitutions = {
+            'event': event,
+            'build.id': build.id,
+            'build.commit': commit,
+            'build.url': build_url,
+            'build.docs_url': build_docsurl,
+            'build.start_date': start_date,
+            'organization.name': organization_name,
+            'organization.slug': organization_slug,
+            'project.slug': project.slug,
+            'project.name': project.name,
+            'project.url': project_url,
+            'version.slug': version.slug,
+            'version.name': version.verbose_name,
+        }
+        payload = self.payload
+        # Small protection for DDoS.
+        max_substitutions = 99
+        for substitution, value in substitutions.items():
+            # Replace {{ foo }}.
+            payload = payload.replace(f'{{{{ {substitution} }}}}', str(value), max_substitutions)
+            # Replace {{foo}}.
+            payload = payload.replace(f'{{{{{substitution}}}}}', str(value), max_substitutions)
+        return payload
+
+    def sign_payload(self, payload):
+        """Get the signature of `payload` using HMAC-SHA1 with the webhook secret."""
+        digest = hmac.new(
+            key=self.secret.encode(),
+            msg=payload.encode(),
+            digestmod=hashlib.sha256,
+        )
+        return digest.hexdigest()
+
+    def __str__(self):
+        return f'{self.project.slug} {self.url}'
 
 
 class Domain(TimeStampedModel, models.Model):
@@ -1642,7 +1766,7 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    UPDATE_CA_CERTIFICATES = 'update_ca_certificates'
+    CDN_ENABLED = 'cdn_enabled'
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1727,8 +1851,8 @@ class Feature(models.Model):
             _('Limit the amount of concurrent builds'),
         ),
         (
-            UPDATE_CA_CERTIFICATES,
-            _('Update ca-certificates Ubuntu package before VCS clone'),
+            CDN_ENABLED,
+            _('CDN support for a project\'s public versions when privacy levels are enabled.'),
         ),
 
         # Versions sync related features

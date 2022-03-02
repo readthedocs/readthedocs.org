@@ -1,26 +1,24 @@
 """Models for the builds app."""
 
 import datetime
-import logging
 import os.path
 import re
 from functools import partial
-from shutil import rmtree
 
 import regex
+import structlog
 from django.conf import settings
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import (
     CreationDateTimeField,
     ModificationDateTimeField,
 )
 from django_extensions.db.models import TimeStampedModel
-from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
@@ -80,6 +78,7 @@ from readthedocs.projects.constants import (
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
+    PRIVATE,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
@@ -88,7 +87,7 @@ from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.storage import build_environment_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Version(TimeStampedModel):
@@ -188,13 +187,25 @@ class Version(TimeStampedModel):
         ordering = ['-verbose_name']
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Version {version} of {project} ({pk})'.format(
                 version=self.verbose_name,
                 project=self.project,
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_private(self):
+        """
+        Check if the version is private (taking external versions into consideration).
+
+        The privacy level of an external version is given by
+        the value of ``project.external_builds_privacy_level``.
+        """
+        if self.is_external:
+            return self.project.external_builds_privacy_level == PRIVATE
+        return self.privacy_level == PRIVATE
 
     @property
     def is_external(self):
@@ -317,9 +328,9 @@ class Version(TimeStampedModel):
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        log.info('Removing files for version %s', self.slug)
-        tasks.clean_project_resources(self.project, self)
+        from readthedocs.projects.tasks.utils import clean_project_resources
+        log.info('Removing files for version.', version_slug=self.slug)
+        clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
     @property
@@ -411,21 +422,6 @@ class Version(TimeStampedModel):
     def get_storage_environment_cache_path(self):
         """Return the path of the cached environment tar file."""
         return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
-
-    def clean_build_path(self):
-        """
-        Clean build path for project version.
-
-        Ensure build path is clean for project version. Used to ensure stale
-        build checkouts for each project version are removed.
-        """
-        try:
-            path = self.get_build_path()
-            if path is not None:
-                log.debug('Removing build path %s for %s', path, self)
-                rmtree(path)
-        except OSError:
-            log.exception('Build path cleanup failed')
 
     def get_github_url(
             self,
@@ -629,6 +625,9 @@ class Build(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True, db_index=True)
     success = models.BooleanField(_('Success'), default=True)
 
+    # TODO: remove these fields (setup, setup_error, output, error, exit_code)
+    # since they are not used anymore in the new implementation and only really
+    # old builds (>5 years ago) only were using these fields.
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
@@ -662,7 +661,11 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    _config = JSONField(_('Configuration used in the build'), default=dict)
+    _config = models.JSONField(
+        _('Configuration used in the build'),
+        null=True,
+        blank=True,
+    )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
@@ -673,9 +676,17 @@ class Build(models.Model):
         blank=True,
     )
 
-    cold_storage = models.NullBooleanField(
+    cold_storage = models.BooleanField(
         _('Cold Storage'),
+        null=True,
         help_text='Build steps stored outside the database.',
+    )
+
+    task_id = models.CharField(
+        _('Celery task id'),
+        max_length=36,
+        null=True,
+        blank=True,
     )
 
     # Managers
@@ -730,7 +741,11 @@ class Build(models.Model):
         Build object (it could be stored in this object or one of the previous
         ones).
         """
-        if self.CONFIG_KEY in self._config:
+        # TODO: now that we are using a proper JSONField here, we could
+        # probably change this field to be a ForeignKey to avoid repeating the
+        # config file over and over again and re-use them to save db data as
+        # well
+        if self._config and self.CONFIG_KEY in self._config:
             return (
                 Build.objects
                 .only('_config')
@@ -773,11 +788,12 @@ class Build(models.Model):
             self.version_name = self.version.verbose_name
             self.version_slug = self.version.slug
             self.version_type = self.version.type
+
         super().save(*args, **kwargs)
         self._config_changed = False
 
     def __str__(self):
-        return ugettext(
+        return gettext(
             'Build {project} for {usernames} ({pk})'.format(
                 project=self.project,
                 usernames=' '.join(
@@ -909,6 +925,26 @@ class Build(models.Model):
         return type == EXTERNAL
 
     @property
+    def can_rebuild(self):
+        """
+        Check if external build can be rebuilt.
+
+        Rebuild can be done only if the build is external,
+        build version is active and
+        it's the latest build for the version.
+        see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969
+        """
+        if self.is_external:
+            is_latest_build = (
+                self == Build.objects.filter(
+                    project=self.project,
+                    version=self.version
+                ).only('id').first()
+            )
+            return self.version and self.version.active and is_latest_build
+        return False
+
+    @property
     def external_version_name(self):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
@@ -922,7 +958,9 @@ class Build(models.Model):
         return None
 
     def using_latest_config(self):
-        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        if self.config:
+            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+        return False
 
     def reset(self):
         """
@@ -994,7 +1032,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     def __str__(self):
         return (
-            ugettext('Build command {pk} for build {build}')
+            gettext('Build command {pk} for build {build}')
             .format(pk=self.pk, build=self.build)
         )
 
@@ -1282,11 +1320,12 @@ class RegexAutomationRule(VersionAutomationRule):
             return bool(match), match
         except TimeoutError:
             log.warning(
-                'Timeout while parsing regex. pattern=%s, input=%s',
-                match_arg, version.verbose_name,
+                'Timeout while parsing regex.',
+                pattern=match_arg,
+                version_slug=version.slug,
             )
         except Exception as e:
-            log.info('Error parsing regex: %s', e)
+            log.exception('Error parsing regex.', exc_info=True)
         return False, None
 
     def get_edit_url(self):

@@ -1,6 +1,6 @@
 """Git-related utilities."""
 
-import logging
+import structlog
 import re
 
 import git
@@ -21,7 +21,7 @@ from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
@@ -173,8 +173,6 @@ class Backend(BaseVCS):
                 )
 
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
         return code, stdout, stderr
 
     def checkout_revision(self, revision=None):
@@ -182,12 +180,13 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout', '--force', revision)
-        if code != 0:
+        try:
+            code, out, err = self.run('git', 'checkout', '--force', revision)
+            return [code, out, err]
+        except RepositoryError:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             )
-        return [code, out, err]
 
     def clone(self):
         """Clones the repository."""
@@ -199,8 +198,6 @@ class Backend(BaseVCS):
         cmd.extend([self.repo_url, '.'])
 
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
         return code, stdout, stderr
 
     @property
@@ -214,8 +211,6 @@ class Backend(BaseVCS):
 
         self.check_working_dir()
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
 
         tags = []
         branches = []
@@ -261,7 +256,7 @@ class Backend(BaseVCS):
                     # blob object - use the `.object` property instead to access it
                     # This is not a real tag for us, so we skip it
                     # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped: %s', tag, exc_info=True)
+                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
                     continue
 
             versions.append(VCSVersion(self, hexsha, str(tag)))
@@ -308,8 +303,6 @@ class Backend(BaseVCS):
 
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
-        if code != 0:
-            return code, out, err
 
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')

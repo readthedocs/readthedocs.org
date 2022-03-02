@@ -1,4 +1,4 @@
-import logging
+import structlog
 from pathlib import Path
 
 from django.conf import settings
@@ -6,7 +6,7 @@ from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name, safe_join
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BuildMediaStorageMixin:
@@ -59,7 +59,7 @@ class BuildMediaStorageMixin:
         if path in ('', '/'):
             raise SuspiciousFileOperation('Deleting all storage cannot be right')
 
-        log.debug('Deleting directory %s from media storage', path)
+        log.debug('Deleting path from media storage', path=path)
         folders, files = self.listdir(self._dirpath(path))
         for folder_name in folders:
             if folder_name:
@@ -76,7 +76,11 @@ class BuildMediaStorageMixin:
         :param source: the source path on the local disk
         :param destination: the destination path in storage
         """
-        log.debug('Copying source directory %s to media storage at %s', source, destination)
+        log.debug(
+            'Copying source directory to media storage',
+            source=source,
+            destination=destination,
+        )
         source = Path(source)
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
@@ -101,8 +105,9 @@ class BuildMediaStorageMixin:
             raise SuspiciousFileOperation('Syncing all storage cannot be right')
 
         log.debug(
-            'Syncing to media storage. source=%s destination=%s',
-            source, destination,
+            'Syncing to media storage.',
+            source=source,
+            destination=destination,
         )
         source = Path(source)
         copied_files = set()
@@ -126,7 +131,7 @@ class BuildMediaStorageMixin:
         for filename in dest_files:
             if filename not in copied_files:
                 filepath = self.join(destination, filename)
-                log.debug('Deleting file from media storage. file=%s', filepath)
+                log.debug('Deleting file from media storage.', filepath=filepath)
                 self.delete(filepath)
 
     def join(self, directory, filepath):
@@ -136,7 +141,7 @@ class BuildMediaStorageMixin:
         if top in ('', '/'):
             raise SuspiciousFileOperation('Iterating all storage cannot be right')
 
-        log.debug('Walking %s in media storage', top)
+        log.debug('Walking path in media storage', path=top)
         folders, files = self.listdir(self._dirpath(top))
 
         yield top, folders, files

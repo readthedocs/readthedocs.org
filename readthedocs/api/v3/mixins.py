@@ -3,7 +3,10 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import safe_update_change_reason
+from readthedocs.core.history import (
+    safe_update_change_reason,
+    set_change_reason,
+)
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -38,13 +41,13 @@ class UpdateChangeReasonMixin:
         return obj
 
     def perform_update(self, serializer):
+        set_change_reason(serializer.instance, self.get_change_reason())
         obj = serializer.save()
-        safe_update_change_reason(obj, self.get_change_reason())
         return obj
 
     def perform_destroy(self, instance):
+        set_change_reason(instance, self.get_change_reason())
         super().perform_destroy(instance)
-        safe_update_change_reason(instance, self.get_change_reason())
 
 
 class NestedParentObjectMixin:

@@ -1,8 +1,8 @@
 import copy
-import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
 
+import structlog
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -24,7 +24,7 @@ from readthedocs.proxito.constants import (
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 class ServeDocsMixin:
@@ -54,7 +54,12 @@ class ServeDocsMixin:
         or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
-        self._track_pageview(final_project, path, request)
+        self._track_pageview(
+            project=final_project,
+            path=path,
+            request=request,
+            download=download,
+        )
 
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
@@ -71,14 +76,15 @@ class ServeDocsMixin:
             download=download,
         )
 
-    def _track_pageview(self, project, path, request):
+    def _track_pageview(self, project, path, request, download):
         """Create an audit log of the page view if audit is enabled."""
         # Remove any query args (like the token access from AWS).
         path_only = urlparse(path).path
         track_file = path_only.endswith(('.html', '.pdf', '.epub', '.zip'))
         if track_file and self._is_audit_enabled(project):
+            action = AuditLog.DOWNLOAD if download else AuditLog.PAGEVIEW
             AuditLog.objects.new(
-                action=AuditLog.PAGEVIEW,
+                action=action,
                 user=request.user,
                 request=request,
                 project=project,
@@ -99,7 +105,7 @@ class ServeDocsMixin:
 
         .. warning:: Don't do this in production!
         """
-        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
+        log.debug('Django serve.', path=path, project_slug=final_project.slug)
 
         root_path = build_media_storage.path('')
         # Serve from Python
@@ -119,8 +125,11 @@ class ServeDocsMixin:
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                  original_path, path, final_project.slug)
+        log.debug(
+            'Nginx serve.',
+            original_path=original_path,
+            path=path,
+        )
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -155,7 +164,7 @@ class ServeDocsMixin:
     def _serve_401(self, request, project):
         res = render(request, '401.html')
         res.status_code = 401
-        log.debug('Unauthorized access to %s documentation', project.slug)
+        log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
     def allowed_user(self, *args, **kwargs):
@@ -165,10 +174,19 @@ class ServeDocsMixin:
         # Handle external domain
         if hasattr(request, 'external_domain'):
             self.version_type = EXTERNAL
-            log.warning('Using version slug from host. url_version=%s host_version=%s',
-                        version_slug, request.host_version_slug)
+            log.warning(
+                'Using version slug from host.',
+                version_slug=version_slug,
+                host_version=request.host_version_slug,
+            )
             version_slug = request.host_version_slug
         return version_slug
+
+    def _spam_response(self, request, project):
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+            if is_serve_docs_denied(project):
+                return render(request, template_name='spam.html', status=410)
 
 
 class ServeRedirectMixin:
@@ -189,7 +207,7 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
-        log.info('System Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        log.info('System Redirect.', host=request.get_host(), from_url=filename, to_url=to)
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = 'system'
         return resp
@@ -234,12 +252,12 @@ class ServeRedirectMixin:
         if from_url == to:
             # check that we do have a response and avoid infinite redirect
             log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
-                to,
+                'Infinite Redirect: FROM URL is the same than TO URL.',
+                url=to,
             )
             raise InfiniteRedirectException()
 
-        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
@@ -277,17 +295,17 @@ class ServeRedirectMixin:
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
         log.info(
-            'Redirecting: from=%s to=%s http_status=%s',
-            request.build_absolute_uri(proxito_path),
-            new_path,
-            http_status,
+            'Redirecting...',
+            from_url=request.build_absolute_uri(proxito_path),
+            to_url=new_path,
+            http_status_code=http_status,
         )
 
         if request.build_absolute_uri(proxito_path) == new_path:
             # check that we do have a response and avoid infinite redirect
             log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
-                new_path,
+                'Infinite Redirect: FROM URL is the same than TO URL.',
+                url=new_path,
             )
             raise InfiniteRedirectException()
 

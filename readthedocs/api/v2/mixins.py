@@ -1,6 +1,8 @@
-import logging
+import structlog
 
-log = logging.getLogger(__name__)
+from readthedocs.core.utils import get_cache_tag
+
+log = structlog.get_logger(__name__)
 
 
 class CachedResponseMixin:
@@ -37,10 +39,10 @@ class CachedResponseMixin:
             version = self._get_version()
             tags = [
                 project.slug,
-                f'{project.slug}-{version.slug}',
+                get_cache_tag(project.slug, version.slug),
             ]
             if self.project_cache_tag:
-                tags.append(f'{project.slug}-{self.project_cache_tag}')
+                tags.append(get_cache_tag(project.slug, self.project_cache_tag))
             return tags
         except Exception as e:
             log.debug('Error while retrieving project and version for this view.')

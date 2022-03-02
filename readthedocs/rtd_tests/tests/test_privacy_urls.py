@@ -18,7 +18,12 @@ from readthedocs.builds.models import (
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Domain, EnvironmentVariable, Project
+from readthedocs.projects.models import (
+    Domain,
+    EnvironmentVariable,
+    Project,
+    WebHook,
+)
 from readthedocs.rtd_tests.utils import create_user
 
 
@@ -160,10 +165,10 @@ class ProjectMixin(URLAccessMixin):
         self.pip.translations.add(self.subproject)
         self.integration = get(Integration, project=self.pip, provider_data='')
         # For whatever reason, fixtures hates JSONField
-        self.webhook_exchange = HttpExchange.objects.create(
+        self.integration_exchange = HttpExchange.objects.create(
             related_object=self.integration,
-            request_headers='{"foo": "bar"}',
-            response_headers='{"foo": "bar"}',
+            request_headers={'foo': 'bar'},
+            response_headers={'foo': 'bar'},
             status_code=200,
         )
         self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
@@ -174,6 +179,13 @@ class ProjectMixin(URLAccessMixin):
             match_arg='.*',
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=BRANCH,
+        )
+        self.webhook = get(WebHook, project=self.pip)
+        self.webhook_exchange = HttpExchange.objects.create(
+            related_object=self.webhook,
+            request_headers={'foo': 'bar'},
+            response_headers={'foo': 'bar'},
+            status_code=200,
         )
         self.default_kwargs = {
             'project_slug': self.pip.slug,
@@ -186,11 +198,13 @@ class ProjectMixin(URLAccessMixin):
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
             'integration_pk': self.integration.pk,
-            'exchange_pk': self.webhook_exchange.pk,
+            'exchange_pk': self.integration_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
             'automation_rule_pk': self.automation_rule.pk,
             'steps': 1,
             'invalid_project_slug': 'invalid_slug',
+            'webhook_pk': self.webhook.pk,
+            'webhook_exchange_pk': self.webhook_exchange.pk,
         }
 
 
@@ -253,7 +267,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 # ## Private Project Testing ###
 
 
-@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -275,6 +289,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
+        '/dashboard/pip/webhooks/{webhook_id}/delete/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
@@ -282,6 +297,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
+            'webhook_id': self.webhook.id,
             'steps': 1,
         }
 
@@ -292,7 +308,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         return True
 
 
-@mock.patch('readthedocs.projects.views.private.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
@@ -318,6 +334,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
+        '/dashboard/pip/webhooks/{webhook_id}/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -328,6 +345,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
+            'webhook_id': self.webhook.id,
             'steps': 1,
         }
 

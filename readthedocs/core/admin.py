@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from messages_extends.admin import MessageAdmin
 from messages_extends.models import Message
 from rest_framework.authtoken.admin import TokenAdmin
@@ -95,7 +95,7 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     ban_user.short_description = 'Ban user'
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')
     raw_id_fields = ('user',)

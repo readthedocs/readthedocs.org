@@ -1,4 +1,5 @@
 """Project forms."""
+import json
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
@@ -9,8 +10,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
-from textclassifier.validators import ClassifierValidator
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.history import SimpleHistoryModelForm
@@ -18,7 +18,6 @@ from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
@@ -172,7 +171,6 @@ class ProjectExtraForm(ProjectForm):
         )
 
     description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
         max_length=150,
         widget=forms.Textarea,
@@ -444,23 +442,49 @@ class EmailHookForm(forms.Form):
 
 class WebHookForm(forms.ModelForm):
 
-    """Project webhook form."""
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = WebHook
+        fields = ['project', 'url', 'events', 'payload', 'secret']
+        widgets = {
+            'events': forms.CheckboxSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
-    def save(self, commit=True):
-        self.webhook = WebHook.objects.get_or_create(
-            url=self.cleaned_data['url'],
-            project=self.project,
-        )[0]
-        self.project.webhook_notifications.add(self.webhook)
+        if self.instance and self.instance.pk:
+            # Show secret in the detail form, but as readonly.
+            self.fields['secret'].disabled = True
+        else:
+            # Don't show the secret in the creation form.
+            self.fields.pop('secret')
+            self.fields['payload'].initial = json.dumps({
+                'event': '{{ event }}',
+                'name': '{{ project.name }}',
+                'slug': '{{ project.slug }}',
+                'version': '{{ version.slug }}',
+                'commit': '{{ build.commit }}',
+                'build': '{{ build.id }}',
+                'start_date': '{{ build.start_date }}',
+                'build_url': '{{ build.url }}',
+                'docs_url': '{{ build.docs_url }}',
+            }, indent=2)
+
+    def clean_project(self):
         return self.project
 
-    class Meta:
-        model = WebHook
-        fields = ['url']
+    def clean_payload(self):
+        """Check if the payload is a valid json object and format it."""
+        payload = self.cleaned_data['payload']
+        try:
+            payload = json.loads(payload)
+            payload = json.dumps(payload, indent=2)
+        except Exception:
+            raise forms.ValidationError(_('The payload must be a valid JSON object.'))
+        return payload
 
 
 class TranslationBaseForm(forms.Form):
@@ -658,7 +682,10 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta:
         model = Integration
-        exclude = ['provider_data', 'exchanges', 'secret']  # pylint: disable=modelform-uses-exclude
+        fields = [
+            'project',
+            'integration_type',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

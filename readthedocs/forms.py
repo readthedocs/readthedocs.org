@@ -1,6 +1,6 @@
 """Community site-wide form overrides."""
 
-import logging
+import structlog
 
 import requests
 
@@ -8,7 +8,7 @@ from allauth.account.forms import SignupForm
 from django.conf import settings
 from django import forms
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 class SignupFormWithNewsletter(SignupForm):
@@ -34,11 +34,11 @@ class SignupFormWithNewsletter(SignupForm):
         user = super().save(request)
 
         if self.cleaned_data.get("receive_newsletter"):
-            log.info(
-                'Subscribing user to newsletter. email=%s, user=%s',
-                self.cleaned_data["email"],
-                user.username,
+            log.bind(
+                user_email=self.cleaned_data["email"],
+                user_username=user.username,
             )
+            log.info('Subscribing user to newsletter.')
 
             url = settings.MAILERLITE_API_SUBSCRIBERS_URL
             payload = {
@@ -57,16 +57,8 @@ class SignupFormWithNewsletter(SignupForm):
                 )
                 resp.raise_for_status()
             except requests.Timeout:
-                log.warning(
-                    'Timeout subscribing user to newsletter. email=%s, user=%s',
-                    self.cleaned_data["email"],
-                    user.username,
-                )
+                log.warning('Timeout subscribing user to newsletter.')
             except Exception:  # noqa
-                log.exception(
-                    'Unknown error subscribing user to newsletter. email=%s, user=%s',
-                    self.cleaned_data["email"],
-                    user.username,
-                )
+                log.exception('Unknown error subscribing user to newsletter.')
 
         return user

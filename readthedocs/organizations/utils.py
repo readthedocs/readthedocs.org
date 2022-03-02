@@ -1,17 +1,17 @@
 """Utilities for organizations."""
 
-import logging
+import structlog
 
 from readthedocs.core.utils import send_email
 
 
 # pylint: disable=invalid-name
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def send_team_invite_email(invite, request):
     """Send an organization team invite email."""
-    log.info('Sending team invite for %s to %s', invite.team, invite.email)
+    log.info('Sending team invite.', team=invite.team, email=invite.email)
     send_email(
         invite.email,
         subject='Join your team at Read the Docs',
@@ -30,9 +30,9 @@ def send_team_invite_email(invite, request):
 def send_team_add_email(team_member, request):
     """Send an organization team add email."""
     log.info(
-        'Sending team add notification for %s to %s',
-        team_member.team,
-        team_member.member.email,
+        'Sending team add notification.',
+        team=team_member.team,
+        email=team_member.member.email,
     )
     send_email(
         team_member.member.email,

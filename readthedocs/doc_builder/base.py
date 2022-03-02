@@ -1,6 +1,6 @@
 """Base classes for Builders."""
 
-import logging
+import structlog
 import os
 import shutil
 from functools import wraps
@@ -8,7 +8,7 @@ from functools import wraps
 from readthedocs.projects.models import Feature
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def restoring_chdir(fn):
@@ -33,18 +33,15 @@ class BaseBuilder:
     directory where artifacts should be copied from.
     """
 
-    _force = False
-
     ignore_patterns = []
     old_artifact_path = None
 
-    def __init__(self, build_env, python_env, force=False):
+    def __init__(self, build_env, python_env):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
         self.config = python_env.config if python_env else None
-        self._force = force
         self.project_path = self.project.checkout_path(self.version.slug)
         self.target = self.project.artifact_path(
             version=self.version.slug,
@@ -54,11 +51,6 @@ class BaseBuilder:
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
         return self.config.doctype
-
-    def force(self, **__):
-        """An optional step to force a build even when nothing has changed."""
-        log.info('Forcing a build')
-        self._force = True
 
     def append_conf(self):
         """Set custom configurations for this builder."""
@@ -73,21 +65,22 @@ class BaseBuilder:
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info('Copying %s on the local filesystem', self.type)
-            log.debug('Ignoring patterns %s', self.ignore_patterns)
+            log.debug('Copying output type on the local filesystem.', output_type=self.type)
+            log.debug('Ignoring patterns.', patterns=self.ignore_patterns)
             shutil.copytree(
                 self.old_artifact_path,
                 self.target,
                 ignore=shutil.ignore_patterns(*self.ignore_patterns),
             )
         else:
-            log.warning('Not moving docs, because the build dir is unknown.')
+            log.warning('Not moving docs because the build dir is unknown.')
 
     def clean(self, **__):
         """Clean the path where documentation will be built."""
+        # NOTE: this shouldn't be needed. We are always CLEAN_AFTER_BUILD now
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info('Removing old artifact path: %s', self.old_artifact_path)
+            log.info('Removing old artifact path.', path=self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""

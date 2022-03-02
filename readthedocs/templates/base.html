@@ -19,10 +19,10 @@
   <!-- Google Analytics -->
   <script>
     if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
-      console.log('Respecting DNT with respect to analytics...');
+      console.debug('Respecting DNT with respect to analytics...');
     } else {
       // For more details on analytics at Read the Docs, please see:
-      // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+      // https://docs.readthedocs.io/en/stable/advertising/advertising-details.html#analytics
       (function () {
         // New Google Site Tag (gtag.js) tagging/analytics framework
         // https://developers.google.com/gtagjs
@@ -40,7 +40,7 @@
       // Setup the RTD global analytics code and send a pageview
       gtag('config', '{{ GLOBAL_ANALYTICS_CODE }}', {
         'anonymize_ip': true,
-        'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+        'cookie_expires': 0,  // Session cookie (non-persistent)
         'groups': 'rtfd'
       });
 
@@ -48,7 +48,7 @@
         // Dashboard Analytics Code
         gtag('config', '{{ DASHBOARD_ANALYTICS_CODE }}', {
           'anonymize_ip': true,
-          'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+          'cookie_expires': 0,  // Session cookie (non-persistent)
           'groups': 'dashboard'
         });
         // End Dashboard Analytics Code

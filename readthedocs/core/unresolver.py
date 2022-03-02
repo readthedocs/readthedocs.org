@@ -1,4 +1,4 @@
-import logging
+import structlog
 from collections import namedtuple
 from urllib.parse import urlparse
 
@@ -10,7 +10,7 @@ from readthedocs.proxito.middleware import map_host_to_project_slug
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 UnresolvedObject = namedtuple(
     'Unresolved', 'project, language_slug, version_slug, filename, fragment')
@@ -79,10 +79,12 @@ class UnresolverBase:
             # We need to add the index.html to find this actual file
             filename += 'index.html'
 
-        log.info(
-            'Unresolver parsed: '
-            'project=%s lang_slug=%s version_slug=%s filename=%s',
-            final_project.slug, lang_slug, version_slug, filename
+        log.debug(
+            'Unresolver parsed.',
+            project_slug=final_project.slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
         )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
 

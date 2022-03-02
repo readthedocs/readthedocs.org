@@ -5,20 +5,21 @@ This is used to take the request and map the host to the proper project slug.
 
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
-import logging
 import re
 import sys
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito import constants
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
@@ -52,7 +53,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
         if Project.objects.filter(slug=project_slug).exists():
             request.rtdheader = True
-            log.info('Setting project based on X_RTD_SLUG header: %s', project_slug)
+            log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
             return project_slug
 
     if public_domain in host or host == 'proxito':
@@ -60,24 +61,24 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if public_domain_parts == host_parts[1:]:
             project_slug = host_parts[0]
             request.subdomain = True
-            log.debug('Proxito Public Domain: host=%s', host)
+            log.debug('Proxito Public Domain.', host=host)
             if Domain.objects.filter(project__slug=project_slug).filter(
                 canonical=True,
                 https=True,
             ).exists():
-                log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
+                log.debug('Proxito Public Domain -> Canonical Domain Redirect.', host=host)
                 request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
             elif (
                 ProjectRelationship.objects.
                 filter(child__slug=project_slug).exists()
             ):
-                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect: host=%s', host)
+                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect.', host=host)
                 request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
             return project_slug
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
         # But these feel like they might be phishing, etc. so let's block them for now.
-        log.warning('Weird variation on our hostname: host=%s', host)
+        log.warning('Weird variation on our hostname.', host=host)
         return render(
             request, 'core/dns-404.html', context={'host': host}, status=400
         )
@@ -86,13 +87,13 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         # Serve custom versions on external-host-domain
         if external_domain_parts == host_parts[1:]:
             try:
-                project_slug, version_slug = host_parts[0].split('--', 1)
+                project_slug, version_slug = host_parts[0].rsplit('--', 1)
                 request.external_domain = True
                 request.host_version_slug = version_slug
-                log.debug('Proxito External Version Domain: host=%s', host)
+                log.debug('Proxito External Version Domain.', host=host)
                 return project_slug
             except ValueError:
-                log.warning('Weird variation on our hostname: host=%s', host)
+                log.warning('Weird variation on our hostname.', host=host)
                 return render(
                     request, 'core/dns-404.html', context={'host': host}, status=400
                 )
@@ -103,11 +104,11 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         project_slug = domain.project.slug
         request.cname = True
         request.domain = domain
-        log.debug('Proxito CNAME: host=%s', host)
+        log.debug('Proxito CNAME.', host=host)
 
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
-            log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
+            log.debug('Proxito CNAME HTTPS Redirect.', host=host)
             request.canonicalize = constants.REDIRECT_HTTPS
 
         # NOTE: consider redirecting non-canonical custom domains to the canonical one
@@ -116,7 +117,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         return project_slug
 
     # Some person is CNAMEing to us without configuring a domain - 404.
-    log.debug('CNAME 404: host=%s', host)
+    log.debug('CNAME 404.', host=host)
     return render(
         request, 'core/dns-404.html', context={'host': host}, status=404
     )
@@ -159,7 +160,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project_slug:
             cache_tags.append(project_slug)
         if version_slug:
-            cache_tags.append(f'{project_slug}-{version_slug}')
+            cache_tags.append(get_cache_tag(project_slug, version_slug))
 
         if cache_tags:
             response['Cache-Tag'] = ','.join(cache_tags)
@@ -187,18 +188,18 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Use a private method to get this
             # TODO: In Django 3.2 this has been upgraded to a top-level method
             # pylint: disable=protected-access
-            response_headers = [header.lower() for header in response._headers.keys()]
+            response_headers = [header.lower() for header in response.headers.keys()]
             for http_header in request.domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
-                        'Overriding an existing response HTTP header. header=%s domain=%s',
-                        http_header.name,
-                        request.domain.domain,
+                        'Overriding an existing response HTTP header.',
+                        http_header=http_header.name,
+                        domain=request.domain.domain,
                     )
                 log.info(
-                    'Adding custom response HTTP header. header=%s domain=%s',
-                    http_header.name,
-                    request.domain.domain,
+                    'Adding custom response HTTP header.',
+                    http_header=http_header.name,
+                    domain=request.domain.domain,
                 )
 
                 if http_header.only_if_secure_request and not request.is_secure():
@@ -246,6 +247,22 @@ class ProxitoMiddleware(MiddlewareMixin):
             # See https://tools.ietf.org/html/rfc6797
             response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
 
+    def add_cache_headers(self, request, response):
+        """
+        Add Cache-Control headers.
+
+        If privacy levels are enabled and the header isn't already present,
+        set the cache level to private.
+
+        We use ``CDN-Cache-Control``, to control caching at the CDN level only.
+        This doesn't affect caching at the browser level (``Cache-Control``).
+
+        See https://developers.cloudflare.com/cache/about/cdn-cache-control.
+        """
+        if settings.ALLOW_PRIVATE_REPOS:
+            # Set the key to private only if it hasn't already been set by the view.
+            response.headers.setdefault('CDN-Cache-Control', 'private')
+
     def process_request(self, request):  # noqa
         skip = any(
             request.path.startswith(reverse(view))
@@ -278,10 +295,17 @@ class ProxitoMiddleware(MiddlewareMixin):
             #   We make sure there is _always_ a single slash in front to ensure relative redirects,
             #   instead of `//` redirects which are actually alternative domains.
             final_url = '/' + final_url.lstrip('/')
-            log.info('Proxito Slash Redirect: from=%s to=%s', request.get_full_path(), final_url)
+            log.info(
+                'Proxito Slash Redirect.',
+                from_url=request.get_full_path(),
+                to_url=final_url,
+            )
             return redirect(final_url)
 
-        log.debug('Proxito Project: slug=%s', ret)
+        log.debug(
+            'Proxito Project.',
+            project_slug=ret,
+        )
 
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
@@ -302,8 +326,10 @@ class ProxitoMiddleware(MiddlewareMixin):
             url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
 
             log.info(
-                'Setting URLConf: project=%s url_key=%s urlconf=%s',
-                project, url_key, project.urlconf,
+                'Setting URLConf',
+                project_slug=project.slug,
+                url_key=url_key,
+                urlconf=project.urlconf,
             )
             if url_key not in sys.modules:
                 sys.modules[url_key] = project.proxito_urlconf
@@ -313,6 +339,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
+        self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         return response

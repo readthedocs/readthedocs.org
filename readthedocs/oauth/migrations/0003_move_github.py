@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import gc
 import json
-import logging
+import structlog
 
 from django.db import migrations
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def chunks(queryset, chunksize=1000):
@@ -50,7 +50,7 @@ def forwards_move_repos(apps, schema_editor):
         except:
             pass
         new_org.save()
-        log.info('Migrated organization: %s', org.name)
+        log.info('Migrated organization.', organization_slug=org.slug)
 
     for org in chunks(BitbucketTeam.objects.all()):
         new_org = RemoteOrganization.objects.using(db).create(
@@ -70,7 +70,7 @@ def forwards_move_repos(apps, schema_editor):
         except:
             pass
         new_org.save()
-        log.info('Migrated organization: %s', org.name)
+        log.info('Migrated organization.', organization_slug=org.slug)
 
     # Now repositories
     GithubProject = apps.get_model('oauth', 'GithubProject')
@@ -110,7 +110,7 @@ def forwards_move_repos(apps, schema_editor):
         except (SyntaxError, ValueError):
             pass
         new_repo.save()
-        log.info('Migrated project: %s', project.name)
+        log.info('Migrated project.', project_slug=project.slug)
 
     for project in chunks(BitbucketProject.objects.all()):
         new_repo = RemoteRepository.objects.using(db).create(
@@ -151,7 +151,7 @@ def forwards_move_repos(apps, schema_editor):
         except (SyntaxError, ValueError):
             pass
         new_repo.save()
-        log.info('Migrated project: %s', project.name)
+        log.info('Migrated project.', project_slug=project.slug)
 
 
 def reverse_move_repos(apps, schema_editor):

@@ -4,16 +4,34 @@ from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django_extensions.db.fields import (
+    CreationDateTimeField,
+    ModificationDateTimeField,
+)
+from django_extensions.db.models import TimeStampedModel
 from simple_history import register
 
 from readthedocs.core.history import ExtraHistoricalRecords
 
 
-class UserProfile(models.Model):
+class UserProfile(TimeStampedModel):
 
     """Additional information about a User."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _('modified'),
+        null=True,
+        blank=True,
+    )
 
     user = AutoOneToOneField(
         User,
@@ -29,10 +47,11 @@ class UserProfile(models.Model):
         help_text=_('If unchecked, you will still see community ads.'),
         default=True,
     )
+    history = ExtraHistoricalRecords()
 
     def __str__(self):
         return (
-            ugettext("%(username)s's profile") %
+            gettext("%(username)s's profile") %
             {'username': self.user.username}
         )
 

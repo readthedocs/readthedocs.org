@@ -1,12 +1,12 @@
-import logging
+import structlog
 
 from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_filters import CharFilter, ChoiceFilter, FilterSet
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BuildListFilter(FilterSet):

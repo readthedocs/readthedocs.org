@@ -1,4 +1,4 @@
-import logging
+import structlog
 import time
 
 from django.conf import settings
@@ -11,11 +11,9 @@ from django.core.exceptions import (
 )
 from django.utils.cache import patch_vary_headers
 from django.utils.http import http_date
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-log = logging.getLogger(__name__)
-
-LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
+log = structlog.get_logger(__name__)
 
 
 class ReadTheDocsSessionMiddleware(SessionMiddleware):

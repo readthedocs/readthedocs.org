@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.validators import EmailValidator
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify
@@ -59,9 +59,11 @@ class OrganizationForm(SimpleHistoryModelForm):
         super().__init__(*args, **kwargs)
 
     def clean_name(self):
-        """Raise exception on duplicate organization."""
+        """Raise exception on duplicate organization slug."""
         name = self.cleaned_data['name']
-        if self.instance and self.instance.name and name == self.instance.name:
+
+        # Skip slug validation on already created organizations.
+        if self.instance.pk:
             return name
 
         potential_slug = slugify(name)
@@ -131,22 +133,28 @@ class OrganizationOwnerForm(forms.ModelForm):
         model = OrganizationOwner
         fields = ['owner']
 
-    owner = forms.CharField()
+    owner = forms.CharField(label=_('Email address or username'))
 
     def __init__(self, *args, **kwargs):
         self.organization = kwargs.pop('organization', None)
         super().__init__(*args, **kwargs)
 
     def clean_owner(self):
-        """Lookup owner by username, detect collisions with existing owners."""
+        """Lookup owner by username or email, detect collisions with existing owners."""
         username = self.cleaned_data['owner']
-        owner = User.objects.filter(username=username).first()
+        owner = (
+            User.objects.filter(
+                Q(username=username) |
+                Q(emailaddress__verified=True, emailaddress__email=username)
+            )
+            .first()
+        )
         if owner is None:
             raise forms.ValidationError(
                 _('User %(username)s does not exist'),
                 params={'username': username},
             )
-        if self.organization.owners.filter(username=username).exists():
+        if self.organization.owners.filter(pk=owner.pk).exists():
             raise forms.ValidationError(
                 _('User %(username)s is already an owner'),
                 params={'username': username},

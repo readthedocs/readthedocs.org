@@ -1,12 +1,10 @@
 from datetime import timedelta
 from unittest import mock
 
-from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
@@ -16,17 +14,17 @@ from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
-class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
+class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
     url = '/dashboard/import/manual/'
@@ -51,7 +49,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
                               for (k, v) in list(data[key].items())})
         self.data['{}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
-    def test_profile_middleware_no_profile(self):
+    def test_not_banned_user(self):
         """User without profile and isn't banned."""
         req = self.request(method='post', path='/projects/import', data=self.data)
         req.user = get(User, profile=None)
@@ -59,18 +57,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
 
-    @mock.patch('readthedocs.projects.views.private.ProjectBasicsForm.clean')
-    def test_profile_middleware_spam(self, form):
-        """User will be banned."""
-        form.side_effect = ProjectSpamError
-        req = self.request(method='post', path='/projects/import', data=self.data)
-        req.user = get(User)
-        resp = ImportWizardView.as_view()(req)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-        self.assertTrue(req.user.profile.banned)
-
-    def test_profile_middleware_banned(self):
+    def test_banned_user(self):
         """User is banned."""
         req = self.request(method='post', path='/projects/import', data=self.data)
         req.user = get(User)
@@ -82,7 +69,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp['location'], '/')
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -194,7 +181,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertWizardFailure(resp, 'repo_type')
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
@@ -297,54 +284,6 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
-    @mock.patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam(self, mocked_validator):
-        """Don't add project on a spammy description."""
-        self.user.date_joined = timezone.now() - timedelta(days=365)
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertFalse(self.user.profile.banned)
-
-    @mock.patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam_ban_user(self, mocked_validator):
-        """Don't add spam and ban new user."""
-        self.user.date_joined = timezone.now()
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertTrue(self.user.profile.banned)
-
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class TestPublicViews(TestCase):
@@ -408,7 +347,7 @@ class TestPrivateViews(TestCase):
 
         # Mocked like this because the function is imported inside a class method
         # https://stackoverflow.com/a/22201798
-        with mock.patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
+        with mock.patch('readthedocs.projects.tasks.utils.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
@@ -526,7 +465,7 @@ class TestPrivateViews(TestCase):
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestPrivateMixins(TestCase):
 
     def setUp(self):
@@ -662,8 +601,71 @@ class TestBadges(TestCase):
 
 
 class TestTags(TestCase):
+
     def test_project_filtering_work_with_tags_with_space_in_name(self):
-        pip = get(Project, slug='pip')
+        pip = get(Project, slug='pip', privacy_level=PUBLIC)
         pip.tags.add('tag with space')
         response = self.client.get('/projects/tags/tag-with-space/')
         self.assertContains(response, '"/projects/pip/"')
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestWebhooksViews(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug='test', users=[self.user])
+        self.version = get(Version, slug='1.0', project=self.project)
+        self.webhook = get(WebHook, project=self.project)
+        self.client.force_login(self.user)
+
+    def test_list(self):
+        resp = self.client.get(
+            reverse('projects_webhooks', args=[self.project.slug]),
+        )
+        self.assertEqual(resp.status_code, 200)
+        queryset = resp.context['object_list']
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first(), self.webhook)
+
+    def test_create(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        resp = self.client.post(
+            reverse('projects_webhooks_create', args=[self.project.slug]),
+            data = {
+                'url': 'http://www.example.com/',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
+
+    def test_update(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_edit', args=[self.project.slug, self.webhook.pk]),
+            data = {
+                'url': 'http://www.example.com/new',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.webhook.refresh_from_db()
+        self.assertEqual(self.webhook.url, 'http://www.example.com/new')
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+    def test_delete(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_delete', args=[self.project.slug, self.webhook.pk]),
+        )
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
+
+    def setUp(self):
+        super().setUp()
+        self.organization = get(Organization, owners=[self.user], projects=[self.project])
