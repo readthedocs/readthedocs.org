@@ -4,24 +4,28 @@ import urllib
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
     REPO_CHOICES,
 )
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
-from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
+from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.models import Redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -173,7 +177,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
         ]
 
         expandable_fields = {
-            'config': (BuildConfigSerializer, {'source': 'config'})
+            'config': (BuildConfigSerializer,)
         }
 
     def get_finished(self, obj):
@@ -184,7 +188,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
         """
         Return ``None`` if the build is not finished.
 
-        This is needed becase ``default=True`` in the model field.
+        This is needed because ``default=True`` in the model field.
         """
         if obj.finished:
             return obj.success
@@ -275,7 +279,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
         expandable_fields = {
             'last_build': (
-                BuildSerializer, {'source': 'last_build'}
+                BuildSerializer,
             )
         }
 
@@ -471,6 +475,10 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
 
     def validate_name(self, value):
         potential_slug = slugify(value)
+        if not potential_slug:
+            raise serializers.ValidationError(
+                _('Invalid project name "{0}": no slug generated.').format(value),
+            )
         if Project.objects.filter(slug=potential_slug).exists():
             raise serializers.ValidationError(
                 _('Project with slug "{0}" already exists.').format(potential_slug),
@@ -520,7 +528,16 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
-class ProjectSerializerBase(FlexFieldsModelSerializer):
+class ProjectSerializer(FlexFieldsModelSerializer):
+
+    """
+    Project serializer.
+
+    .. note::
+
+       When using organizations, projects don't have the concept of users.
+       But we have organization.users.
+    """
 
     homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
@@ -531,7 +548,9 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-    users = UserSerializer(many=True)
+
+    if not settings.RTD_ALLOW_ORGANIZATIONS:
+        users = UserSerializer(many=True)
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -556,7 +575,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             'default_branch',
             'subproject_of',
             'translation_of',
-            'users',
             'urls',
             'tags',
 
@@ -567,17 +585,31 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
 
             '_links',
         ]
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            fields.append('users')
 
         expandable_fields = {
+            # NOTE: this has to be a Model method, can't be a
+            # ``SerializerMethodField`` as far as I know
             'active_versions': (
                 VersionSerializer,
                 {
-                    # NOTE: this has to be a Model method, can't be a
-                    # ``SerializerMethodField`` as far as I know
-                    'source': 'active_versions',
                     'many': True,
                 }
-            )
+            ),
+            'organization': (
+                'readthedocs.api.v3.serializers.OrganizationSerializer',
+                # NOTE: we cannot have a Project with multiple organizations.
+                {'source': 'organizations.first'},
+            ),
+            'teams': (
+                serializers.SlugRelatedField,
+                {
+                    'slug_field': 'slug',
+                    'many': True,
+                    'read_only': True,
+                },
+            ),
         }
 
     def get_homepage(self, obj):
@@ -593,10 +625,6 @@ class ProjectSerializerBase(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
-
-
-class ProjectSerializer(SettingsOverrideObject):
-    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
@@ -616,30 +644,16 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         ]
 
     def __init__(self, *args, **kwargs):
-        # Initialize the instance with the parent Project to be used in the
-        # serializer validation. When this Serializer is rendered as a Form in
-        # BrowsableAPIRenderer, it's not initialized with the ``parent``, so we
-        # default to ``None`` because we don't need it at that point.
-        self.parent_project = kwargs.pop('parent', None)
-
         super().__init__(*args, **kwargs)
-
+        self.parent_project = self.context['parent']
         user = self.context['request'].user
-        # TODO: Filter projects using project restrictions for subproject.
-        self.fields['child'].queryset = user.projects.all()
-
-    def validate_child(self, value):
-        # Check the user is maintainer of the child project
-        user = self.context['request'].user
-        if user not in value.users.all():
-            raise serializers.ValidationError(
-                _('You do not have permissions on the child project'),
-            )
-
-        value.is_valid_as_subproject(
-            self.parent_project, serializers.ValidationError
+        self.fields['child'].queryset = (
+            self.parent_project.get_subproject_candidates(user)
         )
-        return value
+        # Give users a better error message.
+        self.fields['child'].error_messages['does_not_exist'] = _(
+            'Project with {slug_name}={value} is not valid as subproject'
+        )
 
     def validate_alias(self, value):
         # Check there is not a subproject with this alias already
@@ -950,11 +964,11 @@ class RemoteRepositorySerializer(FlexFieldsModelSerializer):
         ]
         read_only_fields = fields
         expandable_fields = {
-            'organization': (
+            'remote_organization': (
                 RemoteOrganizationSerializer, {'source': 'organization'}
             ),
-            'project': (
-                ProjectSerializer, {'source': 'project'}
+            'projects': (
+                ProjectSerializer, {'many': True}
             )
         }
 

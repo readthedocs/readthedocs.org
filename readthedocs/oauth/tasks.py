@@ -1,11 +1,12 @@
 """Tasks for OAuth services."""
 
-import logging
+import structlog
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
 from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
@@ -13,24 +14,31 @@ from readthedocs.oauth.notifications import (
 )
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.oauth.utils import SERVICE_MAP
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 @PublicTask.permission_check(user_id_matches)
-@app.task(queue='web', base=PublicTask)
+@app.task(
+    queue='web',
+    base=PublicTask,
+    # We have experienced timeout problems on users having a lot of
+    # repositories to sync. This is usually due to users belonging to big
+    # organizations (e.g. conda-forge).
+    time_limit=900,
+    soft_time_limit=600,
+)
 def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:
         return
-
-    # TODO: remove this log once we find out what's causing OOM
-    log.info('Running readthedocs.oauth.tasks.sync_remote_repositories. locals=%s', locals())
 
     failed_services = set()
     for service_cls in registry:
@@ -47,6 +55,54 @@ def sync_remote_repositories(user_id):
         raise Exception(
             msg.format(providers=', '.join(failed_services))
         )
+
+
+@app.task(queue='web')
+def sync_remote_repositories_organizations(organization_slugs=None):
+    """
+    Re-sync users member of organizations.
+
+    It will trigger one `sync_remote_repositories` task per user.
+
+    :param organization_slugs: list containg organization's slugs to sync. If
+    not passed, all organizations with ALLAUTH SSO enabled will be synced
+
+    :type organization_slugs: list
+    """
+    if organization_slugs:
+        query = Organization.objects.filter(slug__in=organization_slugs)
+        log.info(
+            'Triggering SSO re-sync for organizations.',
+            organization_slugs=organization_slugs,
+            count=query.count(),
+        )
+    else:
+        organization_ids = (
+            SSOIntegration.objects
+            .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
+            .values_list('organization', flat=True)
+        )
+        query = Organization.objects.filter(id__in=organization_ids)
+        log.info(
+            'Triggering SSO re-sync for all organizations.',
+            count=query.count(),
+        )
+
+    n_task = -1
+    for organization in query:
+        members = AdminPermission.members(organization)
+        log.info(
+            'Triggering SSO re-sync for organization.',
+            organization_slug=organization.slug,
+            count=members.count(),
+        )
+        for user in members:
+            n_task += 1
+            sync_remote_repositories.apply_async(
+                args=[user.pk],
+                # delay the task by 0, 5, 10, 15, ... seconds
+                countdown=n_task * 5,
+            )
 
 
 @app.task(queue='web')

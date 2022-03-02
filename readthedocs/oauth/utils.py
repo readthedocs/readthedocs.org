@@ -1,9 +1,9 @@
 """Support code for OAuth, including webhook support."""
 
-import logging
+import structlog
 
 from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.services import (
@@ -14,7 +14,7 @@ from readthedocs.oauth.services import (
 from readthedocs.projects.models import Project
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 SERVICE_MAP = {
     Integration.GITHUB_WEBHOOK: GitHubService,
@@ -30,7 +30,7 @@ def update_webhook(project, integration, request=None):
         return None
 
     updated = False
-    try:
+    if project.remote_repository:
         remote_repository_relations = (
             project.remote_repository.remote_repository_relations.filter(
                 account__isnull=False,
@@ -44,8 +44,7 @@ def update_webhook(project, integration, request=None):
 
             if updated:
                 break
-
-    except Project.remote_repository.RelatedObjectDoesNotExist:
+    else:
         # The project was imported manually and doesn't have a RemoteRepository
         # attached. We do brute force over all the accounts registered for this
         # service

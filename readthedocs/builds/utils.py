@@ -1,10 +1,10 @@
 """Utilities for the builds app."""
 
-import logging
 from contextlib import contextmanager
 from time import monotonic
 
 import regex
+import structlog
 from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL
@@ -16,7 +16,7 @@ from readthedocs.projects.constants import (
     GITLAB_REGEXS,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
 
@@ -98,10 +98,11 @@ def memcache_lock(lock_id, oid):
     finally:
         # memcache delete is very slow, but we have to use it to take
         # advantage of using add() for atomic locking
-        if monotonic() < timeout_at:
+        if monotonic() < timeout_at and status:
             # don't release the lock if we exceeded the timeout
             # to lessen the chance of releasing an expired lock
-            # owned by someone else.
+            # owned by someone else
+            # also don't release the lock if we didn't acquire it
             cache.delete(lock_id)
 
 
@@ -110,9 +111,10 @@ def match_regex(pattern, text, timeout=1):
     Find a match using regex.search.
 
     .. note::
+
        We use the regex module with the timeout arg to avoid ReDoS.
        We could use a finite state machine type of regex too,
-       but there isn't a stable library at the time of writting this code.
+       but there isn't a stable library at the time of writing this code.
     """
     try:
         match = regex.search(
@@ -125,9 +127,10 @@ def match_regex(pattern, text, timeout=1):
         return match
     except TimeoutError:
         log.exception(
-            'Timeout while parsing regex. pattern=%s, input=%s',
-            pattern, text,
+            'Timeout while parsing regex.',
+            pattern=pattern,
+            input=text,
         )
-    except Exception as e:
-        log.exception('Error parsing regex: %s', e)
+    except Exception:
+        log.exception('Error parsing regex.', exc_info=True)
     return None

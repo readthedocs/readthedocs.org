@@ -1,5 +1,3 @@
-import logging
-
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -20,7 +18,6 @@ class RedirectTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        logging.disable(logging.DEBUG)
         self.client.login(username='eric', password='test')
         pip = Project.objects.get(slug='pip')
         pip.versions.create_latest()

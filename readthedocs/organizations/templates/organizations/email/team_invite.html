@@ -1,0 +1,21 @@
+{% extends 'core/email/common.html' %}
+
+{% block top-right %}
+{% endblock %}
+
+{% block salutation %}
+  <h1>
+    Join your team using Read the Docs!
+  </h1>
+{% endblock %}
+
+{% block content %}
+  <p>
+    {{ sender_full_name|default:sender_username }} has invited you to join your team at {{ organization_name|default_if_none:"your company" }}.
+    You can join them now, using following this link:
+  </p>
+
+  <p>
+   <a href="{{ uri }}{% url "organization_invite_redeem" invite_hash %}">{{ uri }}{% url "organization_invite_redeem" invite_hash %}</a>
+  </p>
+{% endblock %}

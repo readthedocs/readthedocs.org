@@ -4,8 +4,7 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import json
-import logging
+import structlog
 import os
 
 import yaml
@@ -17,8 +16,7 @@ from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_absolute_static_url():
@@ -61,8 +59,8 @@ class BaseMkdocs(BaseBuilder):
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
             self.DEFAULT_THEME_NAME = 'readthedocs'
             log.warning(
-                'Project using readthedocs theme as default for MkDocs: slug=%s',
-                self.project.slug,
+                'Project using readthedocs theme as default for MkDocs.',
+                project_slug=self.project.slug,
             )
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
@@ -109,9 +107,9 @@ class BaseMkdocs(BaseBuilder):
 
         except IOError:
             log.info(
-                'Creating default MkDocs config file for project: %s:%s',
-                self.project.slug,
-                self.version.slug,
+                'Creating default MkDocs config file for project.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             return {
                 'site_name': self.version.project.name,
@@ -235,6 +233,14 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        commit = (
+            self.version.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -248,7 +254,7 @@ class BaseMkdocs(BaseBuilder):
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'commit': commit,
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),

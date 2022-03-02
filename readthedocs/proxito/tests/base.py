@@ -1,15 +1,14 @@
 # Copied from .org
 
-
-import pytest
 import django_dynamic_fixture as fixture
+import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
 
@@ -29,6 +28,7 @@ class BaseDocServing(TestCase):
             Project,
             slug='project',
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             users=[self.eric],
             main_language_project=None,
         )
@@ -40,6 +40,7 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=None,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
         )
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(self.subproject)
@@ -49,6 +50,7 @@ class BaseDocServing(TestCase):
             slug='translation',
             users=[self.eric],
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             main_language_project=self.project,
         )
         self.translation.versions.update(privacy_level=PUBLIC)
@@ -60,6 +62,7 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=self.subproject,
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
         )
         self.subproject_translation.versions.update(privacy_level=PUBLIC)
 
@@ -69,6 +72,7 @@ class BaseDocServing(TestCase):
             slug='subproject-alias',
             users=[self.eric],
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
         )
         self.subproject_alias.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')

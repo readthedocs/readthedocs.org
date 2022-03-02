@@ -1,6 +1,5 @@
 import os
 import tempfile
-from collections import namedtuple
 from unittest import mock
 from unittest.mock import patch
 
@@ -25,6 +24,7 @@ from readthedocs.doc_builder.backends.sphinx import (
     SingleHtmlBuilder,
 )
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import PRIVATE, PUBLIC
@@ -87,6 +87,7 @@ class SphinxBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')
+    @override_settings(DONT_HIT_API=True)
     def test_conf_py_external_version(self, checkout_path, docs_dir):
         self.version.type = EXTERNAL
         self.version.verbose_name = '123'
@@ -321,7 +322,7 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = namedtuple('project', 'version')
+        self.build_env = LocalBuildEnvironment()
         self.build_env.project = self.project
         self.build_env.version = self.version
 

@@ -2,7 +2,7 @@
 
 """Support for templating of notifications."""
 
-import logging
+import structlog
 from readthedocs.core.context_processors import readthedocs_processor
 
 from django.conf import settings
@@ -15,7 +15,7 @@ from . import constants
 from .backends import send_notification
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Notification:
@@ -172,16 +172,16 @@ class SiteNotification(Notification):
                 else:
                     # log the error but not crash
                     log.error(
-                        "Notification %s has no key '%s' for %s messages",
-                        self.__class__.__name__,
-                        self.reason,
-                        'success' if self.success else 'failure',
+                        "Notification has no key for messages",
+                        notification=self.__class__.__name__,
+                        key=self.reason,
+                        message='success' if self.success else 'failure',
                     )
             else:
                 log.error(
-                    '%s.%s_message is a dictionary but no reason was provided',
-                    self.__class__.__name__,
-                    'success' if self.success else 'failure',
+                    '{message} is a dictionary but no reason was provided',
+                    notification=self.__class__.__name__,
+                    message='success' if self.success else 'failure',
                 )
         else:
             msg = message

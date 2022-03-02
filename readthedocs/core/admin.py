@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django admin interface for core models."""
 
 from datetime import timedelta
@@ -8,15 +6,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-
+from django.utils.translation import gettext_lazy as _
 from messages_extends.admin import MessageAdmin
 from messages_extends.models import Message
 from rest_framework.authtoken.admin import TokenAdmin
 
+from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
-
 
 # Monkeypatch raw_id_fields onto the TokenAdmin
 # https://www.django-rest-framework.org/api-guide/authentication/#with-django-admin
@@ -65,7 +62,7 @@ class UserProjectFilter(admin.SimpleListFilter):
             return queryset.filter(projects__builds__date__gt=recent_date)
 
 
-class UserAdminExtra(UserAdmin):
+class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
 
     """Admin configuration for User."""
 
@@ -98,7 +95,7 @@ class UserAdminExtra(UserAdmin):
     ban_user.short_description = 'Ban user'
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')
     raw_id_fields = ('user',)
