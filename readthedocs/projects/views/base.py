@@ -92,8 +92,9 @@ class ProjectSpamMixin:
 
     def get(self, request, *args, **kwargs):
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
-            # noqa
-            from readthedocsext.spamfighting.utils import is_show_dashboard_denied
+            from readthedocsext.spamfighting.utils import (  # noqa
+                is_show_dashboard_denied,
+            )
             if is_show_dashboard_denied(self.get_project()):
                 return render(request, template_name='spam.html', status=410)
 
