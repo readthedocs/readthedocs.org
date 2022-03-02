@@ -2,12 +2,12 @@
 import fnmatch
 import hashlib
 import hmac
-import structlog
 import os
 import re
 from shlex import quote
 from urllib.parse import urlparse
 
+import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
@@ -21,10 +21,7 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -54,12 +51,7 @@ from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
-    MEDIA_TYPES,
-)
+from .constants import MEDIA_TYPE_EPUB, MEDIA_TYPE_HTMLZIP, MEDIA_TYPE_PDF, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -676,9 +668,9 @@ class Project(models.Model):
         It is used for doc serving on projects that have their own ``urlconf``.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.urls import core_urls
         from readthedocs.proxito.views.serve import ServeDocs
         from readthedocs.proxito.views.utils import proxito_404_page_handler
-        from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
 

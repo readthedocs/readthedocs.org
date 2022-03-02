@@ -1,7 +1,6 @@
 """Project views for authenticated users."""
 
 import structlog
-
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
