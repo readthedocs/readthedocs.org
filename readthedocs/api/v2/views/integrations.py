@@ -333,8 +333,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 base_branch=self.data["pull_request"]["base"]["ref"],
             )
             return data
-        except KeyError:
-            raise ParseError("Invalid payload")
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def is_payload_valid(self):
         """
@@ -538,8 +539,9 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 base_branch=self.data["object_attributes"]["target_branch"],
             )
             return data
-        except KeyError:
-            raise ParseError("Invalid payload")
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def handle_webhook(self):
         """

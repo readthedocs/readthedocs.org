@@ -126,7 +126,7 @@ def get_or_create_external_version(project, version_data):
 
     :param project: Project instance
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-                         instance.
+     instance.
     :returns: External version.
     :rtype: Version
     """
@@ -167,7 +167,7 @@ def deactivate_external_version(project, version_data):
 
     :param project: Project instance
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
-                         instance.
+     instance.
     :param identifier: Commit Hash
     :param verbose_name: pull/merge request number
     :returns: verbose_name (pull/merge request number).
