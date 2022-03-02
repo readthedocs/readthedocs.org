@@ -3,17 +3,14 @@
 -r pip.txt
 
 django-dynamic-fixture==3.1.2
-pytest==6.2.5
+pytest==7.0.1
 pytest-custom-exit-code==0.3.0
 pytest-django==4.5.2
-pytest-xdist==2.5.0
 pytest-cov==3.0.0
-apipkg==2.1.0
-execnet==1.9.0
 
-Mercurial==6.0.1
+Mercurial==6.0.3
 
 yamale==2.2.0  # pyup: <3.0
-pytest-mock==3.6.1
+pytest-mock==3.7.0
 
 requests-mock==1.9.3

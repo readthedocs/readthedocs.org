@@ -72,6 +72,7 @@ INVALID_NAME = 'invalid-name'
 LATEST_CONFIGURATION_VERSION = 2
 
 
+# TODO: make these exception to inherit from `BuildUserError`
 class ConfigError(Exception):
 
     """Base error for the rtd configuration file."""

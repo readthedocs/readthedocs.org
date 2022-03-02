@@ -23,7 +23,7 @@ from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -69,7 +69,7 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp['location'], '/')
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -181,7 +181,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertWizardFailure(resp, 'repo_type')
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
@@ -347,7 +347,7 @@ class TestPrivateViews(TestCase):
 
         # Mocked like this because the function is imported inside a class method
         # https://stackoverflow.com/a/22201798
-        with mock.patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
+        with mock.patch('readthedocs.projects.tasks.utils.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
@@ -465,7 +465,7 @@ class TestPrivateViews(TestCase):
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestPrivateMixins(TestCase):
 
     def setUp(self):

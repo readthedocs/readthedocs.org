@@ -10,6 +10,7 @@ jobs:
         name: search
         environment:
           discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
     steps:
       - checkout
       - run: git submodule sync
