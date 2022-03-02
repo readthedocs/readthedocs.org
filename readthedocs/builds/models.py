@@ -13,10 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
@@ -1303,7 +1300,7 @@ class RegexAutomationRule(VersionAutomationRule):
     def match(self, version, match_arg, **kwargs):
         version_name = version.verbose_name
         if version.is_external:
-            version_data = kwargs['version_data']
+            version_data = kwargs["version_data"]
             version_name = version_data.source_branch
         result = match_regex(match_arg, version_name)
         return bool(result), result

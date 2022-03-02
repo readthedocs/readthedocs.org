@@ -1,8 +1,8 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
-import structlog
 
+import structlog
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (

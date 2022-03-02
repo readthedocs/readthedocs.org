@@ -127,10 +127,10 @@ def match_regex(pattern, text, timeout=1):
         return match
     except TimeoutError:
         log.exception(
-            'Timeout while parsing regex.',
+            "Timeout while parsing regex.",
             pattern=pattern,
             input=text,
         )
     except Exception:
-        log.exception('Error parsing regex.', exc_info=True)
+        log.exception("Error parsing regex.", exc_info=True)
     return None
