@@ -3,7 +3,6 @@ from io import BytesIO
 
 import requests
 import structlog
-from celery import Task
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -178,19 +177,12 @@ class TaskRouter:
         return version
 
 
-# NOTE: re-define this task to keep the old name. Delete it after deploy.
-@app.task(queue='web')
-def archive_builds(days=14, limit=200, include_cold=False, delete=False):
-    archive_builds_task.delay(days=days, limit=limit, include_cold=include_cold, delete=delete)
-
-
 @app.task(queue='web', bind=True)
-def archive_builds_task(self, days=14, limit=200, include_cold=False, delete=False):
+def archive_builds_task(self, days=14, limit=200, delete=False):
     """
     Task to archive old builds to cold storage.
 
     :arg days: Find builds older than `days` days.
-    :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
     if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
@@ -203,12 +195,9 @@ def archive_builds_task(self, days=14, limit=200, include_cold=False, delete=Fal
             return False
 
         max_date = timezone.now() - timezone.timedelta(days=days)
-        queryset = Build.objects.exclude(commands__isnull=True)
-        if not include_cold:
-            queryset = queryset.exclude(cold_storage=True)
-
         queryset = (
-            queryset
+            Build.objects
+            .exclude(cold_storage=True)
             .filter(date__lt=max_date)
             .prefetch_related('commands')
             .only('date', 'cold_storage')
@@ -227,12 +216,14 @@ def archive_builds_task(self, days=14, limit=200, include_cold=False, delete=Fal
                 filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
                 try:
                     build_commands_storage.save(name=filename, content=output)
-                    build.cold_storage = True
-                    build.save()
                     if delete:
                         build.commands.all().delete()
                 except IOError:
                     log.exception('Cold Storage save failure')
+                    continue
+
+            build.cold_storage = True
+            build.save()
 
 
 @app.task(queue='web')
