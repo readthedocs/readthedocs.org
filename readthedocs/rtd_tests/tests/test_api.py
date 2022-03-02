@@ -921,7 +921,7 @@ class IntegrationsTests(TestCase):
             "pull_request": {
                 "head": {
                     "sha": self.commit,
-                    "ref": 'source_branch',
+                    "ref": "source_branch",
                 },
                 "base": {
                     "ref": "master",

@@ -3,10 +3,10 @@
 import hashlib
 import hmac
 import json
-import structlog
 import re
 from functools import namedtuple
 
+import structlog
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -15,11 +15,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.core.signals import (
-    webhook_bitbucket,
-    webhook_github,
-    webhook_gitlab,
-)
+from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
     build_external_version,
@@ -57,8 +53,8 @@ BITBUCKET_PUSH = 'repo:push'
 
 
 ExternalVersionData = namedtuple(
-    'ExternalVersionData',
-    ['id', 'source_branch', 'base_branch', 'commit'],
+    "ExternalVersionData",
+    ["id", "source_branch", "base_branch", "commit"],
 )
 
 
@@ -249,9 +245,9 @@ class WebhookMixin:
         )
 
         return {
-            'build_triggered': bool(to_build),
-            'project': project.slug,
-            'versions': [to_build] if to_build else [],
+            "build_triggered": bool(to_build),
+            "project": project.slug,
+            "versions": [to_build] if to_build else [],
         }
 
     def get_deactivated_external_version_response(self, project):
@@ -332,14 +328,14 @@ class GitHubWebhookView(WebhookMixin, APIView):
         """Get Commit Sha and pull request number from payload."""
         try:
             data = ExternalVersionData(
-                id=str(self.data['number']),
-                commit=self.data['pull_request']['head']['sha'],
-                source_branch=self.data['pull_request']['head']['ref'],
-                base_branch=self.data['pull_request']['base']['ref'],
+                id=str(self.data["number"]),
+                commit=self.data["pull_request"]["head"]["sha"],
+                source_branch=self.data["pull_request"]["head"]["ref"],
+                base_branch=self.data["pull_request"]["base"]["ref"],
             )
             return data
         except KeyError:
-            raise ParseError('Invalid payload')
+            raise ParseError("Invalid payload")
 
     def is_payload_valid(self):
         """
@@ -537,14 +533,14 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """Get commit SHA and merge request number from payload."""
         try:
             data = ExternalVersionData(
-                id=str(self.data['object_attributes']['iid']),
-                commit=self.data['object_attributes']['last_commit']['id'],
-                source_branch=self.data['object_attributes']['source_branch'],
-                base_branch=self.data['object_attributes']['target_branch'],
+                id=str(self.data["object_attributes"]["iid"]),
+                commit=self.data["object_attributes"]["last_commit"]["id"],
+                source_branch=self.data["object_attributes"]["source_branch"],
+                base_branch=self.data["object_attributes"]["target_branch"],
             )
             return data
         except KeyError:
-            raise ParseError('Invalid payload')
+            raise ParseError("Invalid payload")
 
     def handle_webhook(self):
         """

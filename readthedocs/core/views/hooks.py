@@ -133,7 +133,7 @@ def get_or_create_external_version(project, version_data):
     external_version, created = project.versions.get_or_create(
         verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={'identifier': version_data.commit, 'active': True},
+        defaults={"identifier": version_data.commit, "active": True},
     )
 
     if created:
