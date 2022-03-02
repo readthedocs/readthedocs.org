@@ -1537,8 +1537,8 @@ class IntegrationsTests(TestCase):
         version_data = view.get_external_version_data()
         self.assertEqual(version_data.id, "2")
         self.assertEqual(version_data.commit, self.commit)
-        self.assertEqual(version_data.source_branch, 'source_branch')
-        self.assertEqual(version_data.base_branch, 'master')
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
@@ -2060,8 +2060,8 @@ class IntegrationsTests(TestCase):
         version_data = view.get_external_version_data()
         self.assertEqual(version_data.id, "2")
         self.assertEqual(version_data.commit, self.commit)
-        self.assertEqual(version_data.source_branch, 'source_branch')
-        self.assertEqual(version_data.base_branch, 'master')
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
