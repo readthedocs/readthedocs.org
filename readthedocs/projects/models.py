@@ -31,7 +31,6 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
