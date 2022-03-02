@@ -1013,7 +1013,7 @@ class TestCDNCache(BaseDocServing):
         for url in urls:
             resp = self.client.get(url, secure=True, HTTP_HOST=host)
             self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'project,project-latest', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest', url)
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
@@ -1055,7 +1055,7 @@ class TestCDNCache(BaseDocServing):
         for url in urls:
             resp = self.client.get(url, secure=True, HTTP_HOST=host)
             self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
-            self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject-latest', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest', url)
 
         # Page & system redirects are always cached.
         # Authz is done on the redirected URL.
@@ -1093,7 +1093,7 @@ class TestCDNCache(BaseDocServing):
         resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
-        self.assertEqual(resp.headers['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
 
     def test_cache_public_versions(self):
         self.project.versions.update(privacy_level=PUBLIC)
@@ -1109,7 +1109,7 @@ class TestCDNCache(BaseDocServing):
         resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
-        self.assertEqual(resp.headers['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
 
     def test_cache_on_private_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PRIVATE)
@@ -1129,7 +1129,7 @@ class TestCDNCache(BaseDocServing):
         )
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
-        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject-latest')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
 
     def test_cache_public_versions_subproject(self):
         self.subproject.versions.update(privacy_level=PUBLIC)
@@ -1149,4 +1149,4 @@ class TestCDNCache(BaseDocServing):
         )
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
-        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject-latest')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')

@@ -3,7 +3,7 @@ import structlog
 import os
 import shutil
 
-from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import BuildUserError, BuildCancelled
 from readthedocs.projects.exceptions import RepositoryError
 
 
@@ -101,6 +101,11 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
+        except BuildCancelled:
+            # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
+            # raise a ``RepositoryError`` then the ``on_failure`` method from
+            # Celery won't treat this problem as a ``BuildCancelled`` issue.
+            raise BuildCancelled
         except BuildUserError as e:
             # Re raise as RepositoryError to handle it properly from outside
             raise RepositoryError(str(e))
