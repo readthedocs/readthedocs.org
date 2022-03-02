@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
@@ -6,7 +5,6 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
@@ -127,7 +125,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository)
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
         socialaccount = get(SocialAccount, user=self.user)
         get(
             RemoteRepositoryRelation,
@@ -144,6 +142,7 @@ class TestBasicsForm(WizardTestCase):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
     def test_remote_repository_invalid_type(self):
         self.step_data['basics']['remote_repository'] = 'Invalid id'
@@ -264,7 +263,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertWizardFailure(resp, 'documentation_type')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository)
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
         socialaccount = get(SocialAccount, user=self.user)
         get(
             RemoteRepositoryRelation,
@@ -283,6 +282,7 @@ class TestAdvancedForm(TestBasicsForm):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
