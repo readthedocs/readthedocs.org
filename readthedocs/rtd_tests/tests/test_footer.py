@@ -23,6 +23,7 @@ class BaseTestFooterHTML:
             slug='pip',
             repo='https://github.com/rtfd/readthedocs.org',
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             main_language_project=None,
         )
         self.pip.versions.update(privacy_level=PUBLIC, built=True)

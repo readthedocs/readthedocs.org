@@ -1,10 +1,9 @@
 """Views for doc serving."""
-
 import itertools
-import logging
 from urllib.parse import urlparse
 
-from readthedocs.core.resolver import resolve_path
+import structlog
+from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -14,6 +13,8 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.mixins import CachedView
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
@@ -25,10 +26,11 @@ from .decorators import map_project_slug
 from .mixins import ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
-class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+
     def get(self,
             request,
             project_slug=None,
@@ -46,10 +48,16 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
+
+        if self._is_cache_enabled(final_project):
+            # All requests from this view can be cached.
+            # This is since the final URL will check for authz.
+            self.cache_request = True
+
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -77,14 +85,37 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.debug(
-            'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
-            final_project.slug, subproject_slug, lang_slug, version_slug, filename
+        # All public versions can be cached.
+        version = final_project.versions.filter(slug=version_slug).first()
+        if (
+            self._is_cache_enabled(final_project)
+            and version and not version.is_private
+        ):
+            self.cache_request = True
+
+        log.bind(
+            project_slug=final_project.slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+            cache_request=self.cache_request,
         )
+        log.debug('Serving docs.')
+
+        # Verify if the project is marked as spam and return a 401 in that case
+        spam_response = self._spam_response(request, final_project)
+        if spam_response:
+            return spam_response
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
             try:
+                # A canonical redirect can be cached, if we don't have information
+                # about the version, since the final URL will check for authz.
+                if not version and self._is_cache_enabled(final_project):
+                    self.cache_request = True
+
                 return self.canonical_redirect(request, final_project, version_slug, filename)
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
@@ -99,6 +130,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 filename == '',
                 not final_project.single_version,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         # Handle `/projects/subproject` URL redirection:
@@ -109,6 +144,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 subproject_slug,
                 not subproject_slash,
         ]):
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         if all([
@@ -117,8 +156,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 self.version_type != EXTERNAL,
         ]):
             log.warning(
-                'Invalid URL for project with versions. url=%s, project=%s',
-                filename, final_project.slug
+                'Invalid URL for project with versions.',
+                filename=filename,
             )
             raise Http404('Invalid URL for project with versions')
 
@@ -189,7 +228,8 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         # pylint: disable=too-many-locals
-        log.info('Executing 404 handler. proxito_path=%s', proxito_path)
+        log.bind(proxito_path=proxito_path)
+        log.debug('Executing 404 handler.')
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
@@ -208,6 +248,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
+        log.bind(
+            project_slug=final_project.slug,
+            version_slug=version_slug,
+        )
+
         storage_root_path = final_project.get_storage_path(
             type_='html',
             version_slug=version_slug,
@@ -221,19 +266,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 storage_root_path,
                 f'{filename}/{tryfile}'.lstrip('/'),
             )
-            log.debug(
-                'Trying index filename: project=%s version=%s, file=%s',
-                final_project.slug,
-                version_slug,
-                storage_filename_path,
-            )
+            log.debug('Trying index filename.')
             if build_media_storage.exists(storage_filename_path):
-                log.info(
-                    'Redirecting to index file: project=%s version=%s, storage_path=%s',
-                    final_project.slug,
-                    version_slug,
-                    storage_filename_path,
-                )
+                log.info('Redirecting to index file.')
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
@@ -321,9 +356,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 if build_media_storage.exists(storage_filename_path):
                     log.info(
-                        'Serving custom 404.html page: [project: %s] [version: %s]',
-                        final_project.slug,
-                        version_slug_404,
+                        'Serving custom 404.html page.',
+                        version_slug_404=version_slug_404,
+                        storage_filename_path=storage_filename_path,
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
@@ -347,6 +382,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
+
+        # Verify if the project is marked as spam and return a custom robots.txt
+        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+            from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
+            if is_robotstxt_denied(project):
+                return render(
+                    request,
+                    'robots.spam.txt',
+                    content_type='text/plain',
+                )
 
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
@@ -373,9 +418,14 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         )
         path = build_media_storage.join(storage_path, 'robots.txt')
 
+        log.bind(
+            project_slug=project.slug,
+            version_slug=version.slug,
+        )
         if build_media_storage.exists(path):
             url = build_media_storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
+            log.info('Serving custom robots.txt file.')
             return self._serve_docs(
                 request,
                 final_project=project,

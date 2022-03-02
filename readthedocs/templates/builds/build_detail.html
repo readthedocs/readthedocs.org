@@ -30,6 +30,13 @@ $(document).ready(function () {
 {% block content %}
   <div class="build build-detail" id="build-detail">
 
+    {% if build.state != "finished" and request.user|is_admin:project %}
+    <form method="post" action="{% url "builds_detail" build.version.project.slug build.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Cancel build" %}">
+    </form>
+    {% endif %}
+
     <!-- Build meta data -->
     <ul class="build-meta">
       <div data-bind="visible: finished()">
@@ -70,10 +77,9 @@ $(document).ready(function () {
         </li>
       </div>
 
-
-      {# Show rebuild button only if the version is external and it's the latest build for this version #}
+      {# Show rebuild button only if the version is external, active and it's the latest build for this version #}
       {# see https://github.com/readthedocs/readthedocs.org/pull/6995#issuecomment-852918969 #}
-      {% if request.user|is_admin:project and build.version.type == "external" and is_latest_build %}
+      {% if request.user|is_admin:project and build.can_rebuild %}
       <div data-bind="visible: finished()">
         <form method="post" name="rebuild_commit" action="{% url "builds_project_list" project.slug %}">
           {% csrf_token %}
@@ -139,17 +145,7 @@ $(document).ready(function () {
     </div>
 
     {% if request.user|is_admin:project %}
-      {% if not build.success and build.commands.count < 4 and build.version and build.version.supports_wipe %}
-        <div class="build-ideas">
-          <p>
-            {% url 'wipe_version' build.project.slug build.version.slug as wipe_url %}
-            {% blocktrans trimmed %}
-              Having trouble with your build environment?
-              Try <a href="{{ wipe_url }}">resetting it</a>.
-            {% endblocktrans %}
-          </p>
-        </div>
-      {% elif not build.success and "setup.py install" in build.commands.last.output %}
+      {% if not build.success and "setup.py install" in build.commands.last.output %}
         <div class="build-ideas">
           <p>
             {% url 'projects_advanced' build.project.slug as advanced_url %}
@@ -165,7 +161,7 @@ $(document).ready(function () {
           <p>
             {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
               <strong>Configure your documentation builds!</strong>
-              Adding a <a href="{{ config_file_link }}">.readthedocs.yml</a> file to your project
+              Adding a <a href="{{ config_file_link }}">.readthedocs.yaml</a> file to your project
               is the recommended way to configure your documentation builds.
               You can declare dependencies, set up submodules, and many other great features.
             {% endblocktrans %}

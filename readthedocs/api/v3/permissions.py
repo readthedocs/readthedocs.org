@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
@@ -17,7 +17,7 @@ class UserProjectsListing(BasePermission):
             return True
 
 
-class PublicDetailPrivateListing(IsAuthenticated):
+class PublicDetailPrivateListing(BasePermission):
 
     """
     Permission class for our custom use case.
@@ -79,7 +79,7 @@ class CommonPermissionsBase(BasePermission):
     Common permission class used for most APIv3 endpoints.
 
     This class should be used by ``APIv3Settings.permission_classes`` to define
-    the permissions for most APIv3 endpoints. It has to be overriden from
+    the permissions for most APIv3 endpoints. It has to be overridden from
     corporate to define proper permissions there.
     """
 

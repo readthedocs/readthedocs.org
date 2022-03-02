@@ -94,7 +94,7 @@ def validate_path_pattern(value):
     - Checks the final path is relative to the root of the site ``/``.
     """
     path = validate_string(value)
-    # Start the path with ``/`` to interprete the path as absolute to ``/``.
+    # Start the path with ``/`` to interpret the path as absolute to ``/``.
     path = '/' + path.lstrip('/')
     path = os.path.normpath(path)
     if not os.path.isabs(path):

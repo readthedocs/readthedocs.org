@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
@@ -14,7 +14,7 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class RTDDocTypeMixin:
@@ -170,16 +170,10 @@ class PageDocument(RTDDocTypeMixin, Document):
         return all_domains
 
     def get_queryset(self):
-        """
-        Ignore certain files from indexing.
-
-        - Files from external versions
-        - Ignored files
-        """
+        """Don't include ignored files."""
         queryset = super().get_queryset()
         queryset = (
             queryset
-            .internal()
             .exclude(ignore=True)
             .select_related('version', 'project')
         )

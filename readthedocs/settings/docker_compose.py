@@ -64,9 +64,27 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_CLEAN_AFTER_BUILD = True
 
     @property
+    def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
+        domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
+        domains.extend([
+            r'.*\.readthedocs\.io',
+            r'.*\.org\.readthedocs\.build',
+            r'.*\.readthedocs-hosted\.com',
+            r'.*\.com\.readthedocs\.build',
+        ])
+        return domains
+
+    @property
     def LOGGING(self):
         logging = super().LOGGING
+        logging['handlers']['console']['formatter'] = 'colored_console'
         logging['loggers'].update({
+            # Disable Django access requests logging (e.g. GET /path/to/url)
+            # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
+            'django.server': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
             # Disable S3 logging
             'boto3': {
                 'handlers': ['null'],
@@ -134,6 +152,8 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.s3_storage.S3BuildMediaStorage'
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.s3_storage.S3BuildEnvironmentStorage'
+    # Storage backend for build languages
+    RTD_BUILD_TOOLS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildToolsStorage'
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
 
@@ -142,13 +162,11 @@ class DockerBaseSettings(CommunityDevSettings):
     S3_MEDIA_STORAGE_BUCKET = 'media'
     S3_BUILD_COMMANDS_STORAGE_BUCKET = 'builds'
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
+    S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
     S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
     S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
 
-    AWS_AUTO_CREATE_BUCKET = True
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_BUCKET_ACL = 'public-read'
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False

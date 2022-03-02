@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """OAuth service models."""
 
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
-
-from allauth.socialaccount.models import SocialAccount
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.projects.constants import REPO_CHOICES
@@ -36,7 +32,12 @@ class RemoteOrganization(TimeStampedModel):
     slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
-    avatar_url = models.URLField(_('Avatar image URL'), null=True, blank=True)
+    avatar_url = models.URLField(
+        _('Avatar image URL'),
+        null=True,
+        blank=True,
+        max_length=255,
+    )
     url = models.URLField(
         _('URL to organization page'),
         max_length=200,
@@ -140,6 +141,7 @@ class RemoteRepository(TimeStampedModel):
         _('Owner avatar image URL'),
         null=True,
         blank=True,
+        max_length=255,
     )
 
     ssh_url = models.URLField(
