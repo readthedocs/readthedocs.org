@@ -2,7 +2,7 @@
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.acl.utils import get_auth_backend
@@ -193,8 +193,9 @@ class AuditLog(TimeStampedModel):
             organization = self.project.organizations.first()
             if organization:
                 self.organization = organization
-                self.log_organization_id = organization.id
-                self.log_organization_slug = organization.slug
+        if self.organization:
+            self.log_organization_id = self.organization.id
+            self.log_organization_slug = self.organization.slug
         super().save(**kwargs)
 
     def auth_backend_display(self):

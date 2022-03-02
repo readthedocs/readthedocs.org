@@ -31,7 +31,7 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_serve_headers(self):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'project')
         self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
@@ -42,7 +42,7 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_subproject_serve_headers(self):
         r = self.client.get('/projects/subproject/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'subproject,subproject-latest')
+        self.assertEqual(r['Cache-Tag'], 'subproject,subproject:latest')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'subproject')
 
@@ -75,7 +75,7 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get("/en/latest/", HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], self.domain.domain)
         self.assertEqual(r['X-RTD-Project'], self.project.slug)
         self.assertEqual(r['X-RTD-Project-Method'], 'cname')
@@ -91,7 +91,7 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest,project-rtd-footer')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest,project:rtd-footer')
 
     def test_user_domain_headers(self):
         hostname = 'docs.domain.com'

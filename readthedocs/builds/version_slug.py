@@ -25,7 +25,7 @@ import string
 from operator import truediv
 
 from django.db import models
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from slugify import slugify as unicode_slugify
 
 
@@ -205,7 +205,7 @@ class VersionSlugField(models.CharField):
         value = getattr(model_instance, self.attname)
         # We only create a new slug if none was set yet.
         if not value and add:
-            value = force_text(self.create_slug(model_instance))
+            value = force_str(self.create_slug(model_instance))
             setattr(model_instance, self.attname, value)
         return value
 

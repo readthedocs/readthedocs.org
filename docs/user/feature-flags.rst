@@ -32,8 +32,6 @@ The ``DONT_SHALLOW_CLONE`` flag is useful if your code accesses old commits duri
 e.g. python-reno release notes manager is known to do that
 (error message line would probably include one of old Git commit id's).
 
-``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
-
 ``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
 
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`

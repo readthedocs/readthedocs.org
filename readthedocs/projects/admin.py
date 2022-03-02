@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.db.models import Sum
 from django.forms import BaseInlineFormSet
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
@@ -34,7 +34,7 @@ from .notifications import (
     ResourceUsageNotification,
 )
 from .tag_utils import import_tags
-from .tasks import clean_project_resources
+from .tasks.utils import clean_project_resources
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -375,6 +375,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     reindex_active_versions.short_description = 'Reindex active versions to ES'
 
+    # TODO: rename method to mention "indexes" on its name
     def wipe_all_versions(self, request, queryset):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()

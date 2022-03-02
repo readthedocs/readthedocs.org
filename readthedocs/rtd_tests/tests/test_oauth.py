@@ -192,7 +192,7 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub commit status created for project.",
         )
 
@@ -265,7 +265,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitHub webhook creation successful for project.",
         )
 
@@ -346,7 +346,7 @@ class GitHubOAuthTests(TestCase):
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
     @mock.patch('readthedocs.oauth.services.github.GitHubService.setup_webhook')
     def test_update_webhook_no_provider_data(self, setup_webhook, session):
-        self.integration.provider_data = None
+        self.integration.provider_data = {}
         self.integration.save()
 
         session().patch.side_effect = AttributeError
@@ -719,7 +719,7 @@ class BitbucketOAuthTests(TestCase):
             integration_id=self.integration.pk,
             url='https://api.bitbucket.org/2.0/repositories/testuser/testrepo/hooks',
         )
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "Bitbucket webhook creation successful for project.",
         )
 
@@ -794,7 +794,7 @@ class BitbucketOAuthTests(TestCase):
     @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
     @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.setup_webhook')
     def test_update_webhook_no_provider_data(self, setup_webhook, session):
-        self.integration.provider_data = None
+        self.integration.provider_data = {}
         self.integration.save()
 
         session().put.side_effect = AttributeError
@@ -1129,7 +1129,7 @@ class GitLabOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.bind.assert_called_with(http_status_code=201)
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitLab commit status created for project.",
         )
 
@@ -1192,7 +1192,7 @@ class GitLabOAuthTests(TestCase):
         mock_logger.bind.assert_called_with(
             http_status_code=201,
         )
-        mock_logger.info.assert_called_with(
+        mock_logger.debug.assert_called_with(
             "GitLab webhook creation successful for project.",
         )
 
@@ -1279,7 +1279,7 @@ class GitLabOAuthTests(TestCase):
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.setup_webhook')
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
     def test_update_webhook_no_provider_data(self, repo_id, setup_webhook, session):
-        self.integration.provider_data = None
+        self.integration.provider_data = {}
         self.integration.save()
 
         repo_id.return_value = '9999'

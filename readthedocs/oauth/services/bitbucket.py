@@ -336,7 +336,7 @@ class BitbucketService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
+                log.debug(
                     'Bitbucket webhook creation successful for project.',
                 )
                 return (True, resp)

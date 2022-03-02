@@ -4,7 +4,7 @@ import structlog
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches
@@ -26,7 +26,15 @@ log = structlog.get_logger(__name__)
 
 
 @PublicTask.permission_check(user_id_matches)
-@app.task(queue='web', base=PublicTask)
+@app.task(
+    queue='web',
+    base=PublicTask,
+    # We have experienced timeout problems on users having a lot of
+    # repositories to sync. This is usually due to users belonging to big
+    # organizations (e.g. conda-forge).
+    time_limit=900,
+    soft_time_limit=600,
+)
 def sync_remote_repositories(user_id):
     user = User.objects.filter(pk=user_id).first()
     if not user:

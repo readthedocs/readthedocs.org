@@ -11,7 +11,7 @@ from django.core.exceptions import (
 )
 from django.utils.cache import patch_vary_headers
 from django.utils.http import http_date
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 log = structlog.get_logger(__name__)
 

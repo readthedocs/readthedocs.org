@@ -7,7 +7,7 @@ theme names and repository types.
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 SPHINX = 'sphinx'
 MKDOCS = 'mkdocs'
@@ -376,13 +376,6 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 # Git provider names
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
-
-# Set 3 priorities, [low, medium, high] -- default is medium
-# Leave some space on each side of the set to expand if needed
-CELERY_LOW = 3
-CELERY_MEDIUM = 5
-CELERY_HIGH = 7
-
 
 # SSL statuses
 SSL_STATUS_VALID = 'valid'

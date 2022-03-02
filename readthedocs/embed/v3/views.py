@@ -121,17 +121,17 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     def _find_main_node(self, html):
         main_node = html.css_first('[role=main]')
         if main_node:
-            log.info('Main node found. selector=[role=main]')
+            log.debug('Main node found. selector=[role=main]')
             return main_node
 
         main_node = html.css_first('main')
         if main_node:
-            log.info('Main node found. selector=main')
+            log.debug('Main node found. selector=main')
             return main_node
 
         first_header = html.body.css_first('h1')
         if first_header:
-            log.info('Main node found. selector=h1')
+            log.debug('Main node found. selector=h1')
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):

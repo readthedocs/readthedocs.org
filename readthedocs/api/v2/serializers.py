@@ -145,7 +145,7 @@ class BuildSerializer(serializers.ModelSerializer):
     commit_url = serializers.ReadOnlyField(source='get_commit_url')
     # Jsonfield needs an explicit serializer
     # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
-    config = serializers.JSONField(required=False)
+    config = serializers.JSONField(required=False, allow_null=True)
 
     class Meta:
         model = Build
