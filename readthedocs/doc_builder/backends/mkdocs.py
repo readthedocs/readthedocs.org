@@ -4,9 +4,9 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import structlog
 import os
 
+import structlog
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
@@ -149,35 +149,35 @@ class BaseMkdocs(BaseBuilder):
 
         # Set mkdocs config values
         static_url = get_absolute_static_url()
+        extra_assets = {
+            'extra_javascript': [
+                'readthedocs-data.js',
+                f'{static_url}core/js/readthedocs-doc-embed.js',
+                f'{static_url}javascript/readthedocs-analytics.js',
+            ],
+            'extra_css': [
+                f'{static_url}css/badge_only.css',
+                f'{static_url}css/readthedocs-doc-embed.css',
+            ],
+        }
 
-        for config in ('extra_css', 'extra_javascript'):
-            user_value = user_config.get(config, [])
-            if not isinstance(user_value, list):
+        for config, extras in extra_assets.items():
+            value = user_config.get(config, [])
+            if value is None:
+                value = []
+            if not isinstance(value, list):
                 raise MkDocsYAMLParseError(
                     MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
                         config=config,
                     ),
                 )
-
-        extra_javascript_list = [
-            'readthedocs-data.js',
-            '%score/js/readthedocs-doc-embed.js' % static_url,
-            '%sjavascript/readthedocs-analytics.js' % static_url,
-        ]
-        extra_css_list = [
-            '%scss/badge_only.css' % static_url,
-            '%scss/readthedocs-doc-embed.css' % static_url,
-        ]
-
-        # Only add static file if the files are not already in the list
-        user_config.setdefault('extra_javascript', []).extend(
-            [js for js in extra_javascript_list if js not in user_config.get(
-                'extra_javascript')]
-        )
-        user_config.setdefault('extra_css', []).extend(
-            [css for css in extra_css_list if css not in user_config.get(
-                'extra_css')]
-        )
+            # Add the static file only if isn't already in the list.
+            value.extend([
+                extra
+                for extra in extras
+                if extra not in value
+            ])
+            user_config[config] = value
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.
