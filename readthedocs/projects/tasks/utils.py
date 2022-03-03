@@ -6,6 +6,7 @@ import shutil
 import redis
 import structlog
 from celery.worker.request import Request
+from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -175,7 +176,7 @@ def finish_inactive_builds():
                     # ]
                     log.debug("Redis queue task.", queue=queue, body=body)
 
-                    build_pk = body[1]["build_pk"]
+                    build_pk = body[1]["build_id"]
                     if build_pk == build.pk:
                         # The build is not stale, it's queued to be executed
                         log.info(
