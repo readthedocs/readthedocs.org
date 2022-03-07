@@ -69,7 +69,7 @@ orjson==3.6.7
 django-gravatar2==1.4.4
 pytz==2021.3
 django-kombu==0.9.4
-stripe==2.66.0
+stripe==2.67.0
 regex==2022.1.18
 markdown==3.3.6
 
