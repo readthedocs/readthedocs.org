@@ -1,21 +1,8 @@
-import datetime
-import json
 import os
-import signal
-import socket
-import tarfile
-import tempfile
-from collections import Counter, defaultdict
-
-from celery.exceptions import SoftTimeLimitExceeded
-from django.conf import settings
-from django.db.models import Q
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from slumber.exceptions import HttpClientError
-from sphinx.ext import intersphinx
+from collections import Counter
 
 import structlog
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
@@ -30,30 +17,14 @@ from readthedocs.builds.constants import (
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
 )
-from readthedocs.builds.models import APIVersion, Build, Version
-from readthedocs.builds.signals import build_complete
-from readthedocs.config import ConfigError
-from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.builds.models import APIVersion
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
 )
-from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.search.utils import index_new_files, remove_indexed_files
-from readthedocs.sphinx_domains.models import SphinxDomain
-from readthedocs.storage import build_environment_storage, build_media_storage
-from readthedocs.worker import app
 
-from ..models import APIProject, Feature, WebHookEvent
-from ..models import HTMLFile, ImportedFile, Project
-from ..signals import (
-    after_build,
-    before_build,
-    before_vcs,
-    files_changed,
-)
 from ..exceptions import RepositoryError
+from ..models import Feature
 
 log = structlog.get_logger(__name__)
 
@@ -108,7 +79,10 @@ class SyncRepositoryMixin:
             version_identifier=self.data.version.identifier,
         )
         version_repo = self.get_vcs_repo(environment)
-        version_repo.update()
+
+        self.data.builder.checkout()
+        # version_repo.update()
+
         self.sync_versions(version_repo)
         identifier = self.data.build_commit or self.data.version.identifier
         version_repo.checkout(identifier)
