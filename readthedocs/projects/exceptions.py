@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Project exceptions."""
 
@@ -47,7 +46,16 @@ class RepositoryError(BuildUserError):
 
     FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')
 
-    def get_default_message(self):
+    GENERIC_ERROR = _(
+        "There was a problem with your repository. "
+        "Please, take a look at the commands' output to find out the reason.",
+    )
+
+    @property
+    def CLONE_ERROR(self):
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED
         return self.PRIVATE_NOT_ALLOWED
+
+    def get_default_message(self):
+        return self.GENERIC_ERROR
