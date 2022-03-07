@@ -70,7 +70,7 @@ django-gravatar2==1.4.4
 pytz==2021.3
 django-kombu==0.9.4
 stripe==2.67.0
-regex==2022.1.18
+regex==2022.3.2
 markdown==3.3.6
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
