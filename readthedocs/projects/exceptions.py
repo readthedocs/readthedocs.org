@@ -52,7 +52,7 @@ class RepositoryError(BuildUserError):
     )
 
     @property
-    def CLONE_ERROR(self):
+    def CLONE_ERROR(self):  # noqa: N802
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED
         return self.PRIVATE_NOT_ALLOWED
