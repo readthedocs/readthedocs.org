@@ -100,8 +100,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         RepositoryError,
     )
 
-    # TODO: adapt this task to make it work. It's currently untested.
-
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
@@ -146,13 +144,12 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         clean_build(self.data.version)
 
     def execute(self):
-        # TODO: initialize the doc builder here
-        self.data.builder = DocumentationBuilder()
-
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
-            environment=self.get_vcs_env_vars(),
+            environment={
+                "GIT_TERMINAL_PROMPT": "0",
+            },
             # Do not try to save commands on the db because they are just for
             # sync repository
             record=False,
@@ -163,26 +160,25 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 sender=self.data.version,
                 environment=environment,
             )
-            self.update_versions_from_repository(environment)
 
-    def update_versions_from_repository(self, environment):
-        """
-        Update Read the Docs versions from VCS repository.
+            vcs_repository = self.data.project.vcs_repo(
+                version=self.data.version.slug,
+                environment=environment,
+                verbose_name=self.data.version.verbose_name,
+                version_type=self.data.version.type,
+            )
+            if any(
+                [
+                    not vcs_repository.supports_lsremote,
+                    not self.data.project.has_feature(Feature.VCS_REMOTE_LISTING),
+                ]
+            ):
+                log.info("Syncing repository via full clone.")
+                vcs_repository.update()
+            else:
+                log.info("Syncing repository via remote listing.")
 
-        Depending if the VCS backend supports remote listing, we just list its branches/tags
-        remotely or we do a full clone and local listing of branches/tags.
-        """
-        version_repo = self.get_vcs_repo(environment)
-        if any([
-                not version_repo.supports_lsremote,
-                not self.data.project.has_feature(Feature.VCS_REMOTE_LISTING),
-        ]):
-            log.info('Syncing repository via full clone.')
-            self.sync_repo(environment)
-        else:
-            log.info('Syncing repository via remote listing.')
-            # TODO: needs to figure it out how to do this `sync_versions` here
-            self.sync_versions(version_repo)
+            self.sync_versions(vcs_repository)
 
 
 @app.task(
@@ -559,10 +555,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Sync tags/branches from VCS repository into Read the Docs' `Version`
         # objects in the database
-        #
-        # FIXME: review why I had to disable this for now.
-        log.error("Not triggering `sync_versions` because it's broken")
-        # self.sync_versions()
+        self.sync_versions(self.data.builder.vcs_repository)
 
         self.update_build(state=BUILD_STATE_INSTALLING)
         self.data.builder.setup_environment()
@@ -596,20 +589,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             key: val
             for key, val in build.items() if key not in private_keys
         }
-
-    # TODO: can we name this `clonning`
-    # def setup_vcs(self, environment):
-    #     """
-    #     Update the checkout of the repo to make sure it's the latest.
-
-    #     This also syncs versions in the DB.
-    #     """
-    #     self.update_build(state=BUILD_STATE_CLONING)
-    #     self.sync_repo(environment)
-
-    #     commit = self.data.build_commit or self.get_vcs_repo(environment).commit
-    #     if commit:
-    #         self.data.build['commit'] = commit
 
     # NOTE: this can be just updated on `self.data.build['']` and sent once the
     # build has finished to reduce API calls.
