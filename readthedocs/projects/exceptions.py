@@ -47,8 +47,8 @@ class RepositoryError(BuildUserError):
     FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')
 
     GENERIC_ERROR = _(
-        "There was a problem with your repository. "
-        "Please, take a look at the commands' output to find out the reason.",
+        "There was a problem cloning your repository. "
+        "Please check the command output for more information.",
     )
 
     @property
