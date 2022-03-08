@@ -5,24 +5,16 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
-import datetime
-import json
 import os
 import signal
 import socket
-import tarfile
-import tempfile
-from collections import Counter, defaultdict
-
-from celery import Task
-from django.conf import settings
-from django.db.models import Q
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from slumber.exceptions import HttpClientError
-from sphinx.ext import intersphinx
+from collections import defaultdict
 
 import structlog
+from celery import Task
+from django.conf import settings
+from django.utils import timezone
+from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
@@ -39,7 +31,7 @@ from readthedocs.builds.constants import (
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
 )
-from readthedocs.builds.models import APIVersion, Build, Version
+from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
 from readthedocs.doc_builder.config import load_yaml_config
@@ -49,34 +41,25 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import (
     BuildAppError,
-    BuildUserError,
-    BuildMaxConcurrencyError,
-    DuplicatedBuildError,
     BuildCancelled,
+    BuildMaxConcurrencyError,
+    BuildUserError,
+    DuplicatedBuildError,
+    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     YAMLParseError,
-    MkDocsYAMLParseError,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.search.utils import index_new_files, remove_indexed_files
-from readthedocs.sphinx_domains.models import SphinxDomain
-from readthedocs.storage import build_environment_storage, build_media_storage
+from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
-
-from ..exceptions import RepositoryError, ProjectConfigurationError
-from ..models import APIProject, Feature, WebHookEvent, HTMLFile, ImportedFile, Project
-from ..signals import (
-    after_build,
-    before_build,
-    before_vcs,
-    files_changed,
-)
-
+from ..exceptions import ProjectConfigurationError, RepositoryError
+from ..models import APIProject, Feature, WebHookEvent
+from ..signals import after_build, before_build, before_vcs
 from .mixins import SyncRepositoryMixin
-from .utils import clean_build, BuildRequest, send_external_build_status
 from .search import fileify
+from .utils import BuildRequest, clean_build, send_external_build_status
 
 log = structlog.get_logger(__name__)
 
@@ -99,7 +82,6 @@ class TaskData:
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
     """
 
-    pass
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
@@ -447,7 +429,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Store build artifacts to storage (local or cloud storage)
         self.store_build_artifacts(
-            self.data.build_env,
             html=html,
             search=search,
             localmedia=localmedia,
@@ -459,13 +440,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # HTML are built successfully.
         if html:
             try:
-                api_v2.version(self.data.version.pk).patch({
-                    'built': True,
-                    'documentation_type': self.get_final_doctype(),
-                    'has_pdf': pdf,
-                    'has_epub': epub,
-                    'has_htmlzip': localmedia,
-                })
+                api_v2.version(self.data.version.pk).patch(
+                    {
+                        "built": True,
+                        "documentation_type": self.data.version.documentation_type,
+                        "has_pdf": pdf,
+                        "has_epub": epub,
+                        "has_htmlzip": localmedia,
+                    }
+                )
             except HttpClientError:
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
@@ -597,7 +580,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def run_build(self):
         """Build the docs in an environment."""
-        self.data.build_env = self.data.environment_class(
+        build_env = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             config=self.data.config,
@@ -606,7 +589,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
 
         # Environment used for building code, usually with Docker
-        with self.data.build_env:
+        with build_env:
             python_env_cls = Virtualenv
             if any([
                     self.data.config.conda is not None,
@@ -614,9 +597,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             ]):
                 python_env_cls = Conda
 
-            self.data.python_env = python_env_cls(
+            python_env = python_env_cls(
                 version=self.data.version,
-                build_env=self.data.build_env,
+                build_env=build_env,
                 config=self.data.config,
             )
 
@@ -626,11 +609,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # I didn't find they are used anywhere, we should probably remove them
             before_build.send(
                 sender=self.data.version,
-                environment=self.data.build_env,
+                environment=build_env,
             )
 
-            self.setup_build()
-            self.build_docs()
+            self.setup_build(build_env, python_env)
+            self.build_docs(build_env, python_env)
 
             after_build.send(
                 sender=self.data.version,
@@ -738,7 +721,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def store_build_artifacts(
             self,
-            environment,
             html=False,
             localmedia=False,
             search=False,
@@ -832,36 +814,38 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     media_path=media_path,
                 )
 
-    def setup_build(self):
+    def setup_build(self, build_env, python_env):
         self.update_build(state=BUILD_STATE_INSTALLING)
 
-        self.install_system_dependencies()
-        self.setup_python_environment()
+        self.install_system_dependencies(build_env)
+        self.setup_python_environment(python_env)
 
-    def setup_python_environment(self):
+    def setup_python_environment(self, python_env):
         """
         Build the virtualenv and install the project into it.
 
         Always build projects with a virtualenv.
 
-        :param build_env: Build environment to pass commands and execution through.
+        :param python_env: Python environment to run commands.
         """
         # Install all ``build.tools`` specified by the user
         if self.data.config.using_build_tools:
-            self.data.python_env.install_build_tools()
+            python_env.install_build_tools()
 
-        self.data.python_env.setup_base()
-        self.data.python_env.install_core_requirements()
-        self.data.python_env.install_requirements()
+        python_env.setup_base()
+        python_env.install_core_requirements()
+        python_env.install_requirements()
         if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.data.python_env.list_packages_installed()
+            python_env.list_packages_installed()
 
-    def install_system_dependencies(self):
+    def install_system_dependencies(self, build_env):
         """
         Install apt packages from the config file.
 
         We don't allow to pass custom options or install from a path.
         The packages names are already validated when reading the config file.
+
+        :param build_env: Build environment to run commands.
 
         .. note::
 
@@ -870,17 +854,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         packages = self.data.config.build.apt_packages
         if packages:
-            self.data.build_env.run(
+            build_env.run(
                 'apt-get', 'update', '--assume-yes', '--quiet',
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
             # put ``--`` to end all command arguments.
-            self.data.build_env.run(
+            build_env.run(
                 'apt-get', 'install', '--assume-yes', '--quiet', '--', *packages,
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
 
-    def build_docs(self):
+    def build_docs(self, build_env, python_env):
         """
         Wrapper to all build functions.
 
@@ -894,33 +878,29 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(state=BUILD_STATE_BUILDING)
 
         self.data.outcomes = defaultdict(lambda: False)
-        self.data.outcomes['html'] = self.build_docs_html()
-        self.data.outcomes['search'] = self.build_docs_search()
-        self.data.outcomes['localmedia'] = self.build_docs_localmedia()
-        self.data.outcomes['pdf'] = self.build_docs_pdf()
-        self.data.outcomes['epub'] = self.build_docs_epub()
+        self.data.outcomes["html"] = self.build_docs_html(build_env, python_env)
+        self.data.outcomes["search"] = self.build_docs_search()
+        self.data.outcomes["localmedia"] = self.build_docs_localmedia(
+            build_env, python_env
+        )
+        self.data.outcomes["pdf"] = self.build_docs_pdf(build_env, python_env)
+        self.data.outcomes["epub"] = self.build_docs_epub(build_env, python_env)
 
         return self.data.outcomes
 
-    def build_docs_html(self):
+    def build_docs_html(self, build_env, python_env):
         """Build HTML docs."""
         html_builder = get_builder_class(self.data.config.doctype)(
-            build_env=self.data.build_env,
-            python_env=self.data.python_env,
+            build_env=build_env,
+            python_env=python_env,
         )
         html_builder.append_conf()
+        self.data.version.documentation_type = html_builder.get_final_doctype()
         success = html_builder.build()
         if success:
             html_builder.move()
 
         return success
-
-    def get_final_doctype(self):
-        html_builder = get_builder_class(self.data.config.doctype)(
-            build_env=self.data.build_env,
-            python_env=self.data.python_env,
-        )
-        return html_builder.get_final_doctype()
 
     def build_docs_search(self):
         """
@@ -932,7 +912,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         return self.is_type_sphinx()
 
-    def build_docs_localmedia(self):
+    def build_docs_localmedia(self, build_env, python_env):
         """Get local media files with separate build."""
         if (
             'htmlzip' not in self.data.config.formats or
@@ -941,28 +921,30 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             return False
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
-            return self.build_docs_class('sphinx_singlehtmllocalmedia')
+            return self.build_docs_class(
+                "sphinx_singlehtmllocalmedia", build_env, python_env
+            )
         return False
 
-    def build_docs_pdf(self):
+    def build_docs_pdf(self, build_env, python_env):
         """Build PDF docs."""
         if 'pdf' not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
-            return self.build_docs_class('sphinx_pdf')
+            return self.build_docs_class("sphinx_pdf", build_env, python_env)
         return False
 
-    def build_docs_epub(self):
+    def build_docs_epub(self, build_env, python_env):
         """Build ePub docs."""
         if 'epub' not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
-            return self.build_docs_class('sphinx_epub')
+            return self.build_docs_class("sphinx_epub", build_env, python_env)
         return False
 
-    def build_docs_class(self, builder_class):
+    def build_docs_class(self, builder_class, build_env, python_env):
         """
         Build docs with additional doc backends.
 
@@ -971,8 +953,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         process.
         """
         builder = get_builder_class(builder_class)(
-            self.data.build_env,
-            python_env=self.data.python_env,
+            build_env=build_env,
+            python_env=python_env,
         )
         success = builder.build()
         builder.move()
