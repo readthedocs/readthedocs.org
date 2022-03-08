@@ -7,7 +7,7 @@ with it in the database, and generating a redirect response.
 These are not used directly as views; they are instead included into 404
 handlers, so that redirects only take effect if no other view matches.
 """
-import logging
+import structlog
 import re
 from urllib.parse import urlparse, urlunparse
 
@@ -17,7 +17,7 @@ from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def project_and_path_from_request(request, path):

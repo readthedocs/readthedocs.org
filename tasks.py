@@ -12,26 +12,12 @@ ROOT_PATH = os.path.dirname(__file__)
 
 
 namespace = Collection()
-namespace.add_collection(
-    Collection(
-        common.tasks.prepare,
-        common.tasks.release,
-    ),
-    name='deploy',
-)
 
 namespace.add_collection(
     Collection(
         common.tasks.setup_labels,
     ),
     name='github',
-)
-
-namespace.add_collection(
-    Collection(
-        common.tasks.upgrade_all_packages,
-    ),
-    name='packages',
 )
 
 namespace.add_collection(

@@ -1,10 +1,9 @@
 import django_dynamic_fixture as fixture
-import pytest
 from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Domain, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -32,7 +31,7 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_serve_headers(self):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'project')
         self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
@@ -43,7 +42,7 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_subproject_serve_headers(self):
         r = self.client.get('/projects/subproject/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'subproject,subproject-latest')
+        self.assertEqual(r['Cache-Tag'], 'subproject,subproject:latest')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'subproject')
 
@@ -76,7 +75,7 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get("/en/latest/", HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], self.domain.domain)
         self.assertEqual(r['X-RTD-Project'], self.project.slug)
         self.assertEqual(r['X-RTD-Project-Method'], 'cname')
@@ -92,4 +91,51 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest,project-rtd-footer')
+        self.assertEqual(r['Cache-Tag'], 'project,project:latest,project:rtd-footer')
+
+    def test_user_domain_headers(self):
+        hostname = 'docs.domain.com'
+        self.domain = fixture.get(
+            Domain,
+            project=self.project,
+            domain=hostname,
+        )
+        http_header = 'X-My-Header'
+        http_header_secure = 'X-My-Secure-Header'
+        http_header_value = 'Header Value; Another Value;'
+        fixture.get(
+            HTTPHeader,
+            domain=self.domain,
+            name=http_header,
+            value=http_header_value,
+            only_if_secure_request=False,
+        )
+        fixture.get(
+            HTTPHeader,
+            domain=self.domain,
+            name=http_header_secure,
+            value=http_header_value,
+            only_if_secure_request=True,
+        )
+
+        r = self.client.get("/en/latest/", HTTP_HOST=hostname)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[http_header], http_header_value)
+        self.assertFalse(r.has_header(http_header_secure))
+
+        r = self.client.get("/en/latest/", HTTP_HOST=hostname, secure=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[http_header], http_header_value)
+        self.assertEqual(r[http_header_secure], http_header_value)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cache_headers_public_projects(self):
+        r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn('CDN-Cache-Control', r)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_cache_headers_private_projects(self):
+        r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r['CDN-Cache-Control'], 'private')

@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
@@ -26,10 +27,13 @@ from readthedocs.config.config import (
     CONFIG_REQUIRED,
     CONFIG_SYNTAX_INVALID,
     INVALID_KEY,
+    INVALID_NAME,
     PYTHON_INVALID,
     VERSION_INVALID,
 )
 from readthedocs.config.models import (
+    Build,
+    BuildWithTools,
     Conda,
     PythonInstall,
     PythonInstallRequirements,
@@ -340,18 +344,18 @@ class TestValidatePythonVersion:
     def test_it_defaults_to_a_valid_version(self):
         build = get_build_config({'python': {}})
         build.validate()
-        assert build.python.version == 2
+        assert build.python.version == '2'
         assert build.python_interpreter == 'python2.7'
-        assert build.python_full_version == 2.7
+        assert build.python_full_version == '2.7'
 
     def test_it_supports_other_versions(self):
         build = get_build_config(
             {'python': {'version': 3.7}},
         )
         build.validate()
-        assert build.python.version == 3.7
+        assert build.python.version == '3.7'
         assert build.python_interpreter == 'python3.7'
-        assert build.python_full_version == 3.7
+        assert build.python_full_version == '3.7'
 
     def test_it_supports_string_versions(self):
         build = get_build_config(
@@ -380,28 +384,11 @@ class TestValidatePythonVersion:
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def test_it_validates_wrong_type_right_value(self):
-        build = get_build_config(
-            {'python': {'version': '3.6'}},
-        )
-        build.validate()
-        assert build.python.version == 3.6
-        assert build.python_interpreter == 'python3.6'
-        assert build.python_full_version == 3.6
-
-        build = get_build_config(
-            {'python': {'version': '3'}},
-        )
-        build.validate()
-        assert build.python.version == 3
-        assert build.python_interpreter == 'python3.7'
-        assert build.python_full_version == 3.7
-
     def test_it_validates_env_supported_versions(self):
         build = get_build_config(
-            {'python': {'version': 3.6}},
+            {'python': {'version': '3.6'}},
             env_config={
-                'python': {'supported_versions': [3.5]},
+                'python': {'supported_versions': ['3.5']},
                 'build': {'image': 'custom'},
             },
         )
@@ -411,18 +398,18 @@ class TestValidatePythonVersion:
         assert excinfo.value.code == INVALID_CHOICE
 
         build = get_build_config(
-            {'python': {'version': 3.6}},
+            {'python': {'version': '3.6'}},
             env_config={
-                'python': {'supported_versions': [3.5, 3.6]},
+                'python': {'supported_versions': ['3.5', '3.6']},
                 'build': {'image': 'custom'},
             },
         )
         build.validate()
-        assert build.python.version == 3.6
+        assert build.python.version == '3.6'
         assert build.python_interpreter == 'python3.6'
-        assert build.python_full_version == 3.6
+        assert build.python_full_version == '3.6'
 
-    @pytest.mark.parametrize('value', [2, 3])
+    @pytest.mark.parametrize('value', ['2', '3'])
     def test_it_respects_default_value(self, value):
         defaults = {
             'python_version': value,
@@ -740,7 +727,7 @@ def test_as_dict(tmpdir):
         'version': '1',
         'formats': ['pdf'],
         'python': {
-            'version': 3.7,
+            'version': '3.7',
             'install': [{
                 'requirements': 'requirements.txt',
             }],
@@ -748,6 +735,7 @@ def test_as_dict(tmpdir):
         },
         'build': {
             'image': 'readthedocs/build:latest',
+            'apt_packages': [],
         },
         'conda': None,
         'sphinx': {
@@ -919,6 +907,8 @@ class TestBuildConfigV2:
     def test_build_image_default_value(self):
         build = self.get_build_config({})
         build.validate()
+        assert not build.using_build_tools
+        assert isinstance(build.build, Build)
         assert build.build.image == 'readthedocs/build:latest'
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
@@ -935,6 +925,149 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'build.image'
 
+    @pytest.mark.parametrize('value', ['', None, 'latest'])
+    def test_new_build_config_invalid_os(self, value):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': value,
+                    'tools': {'python': '3'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.os'
+
+    @pytest.mark.parametrize('value', ['', None, 'python', ['python', 'nodejs'], {}, {'cobol': '99'}])
+    def test_new_build_config_invalid_tools(self, value):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': value,
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.tools'
+
+    def test_new_build_config_invalid_tools_version(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '2.6'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.tools.python'
+
+    def test_new_build_config(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.9'},
+                },
+            },
+        )
+        build.validate()
+        assert build.using_build_tools
+        assert isinstance(build.build, BuildWithTools)
+        assert build.build.os == 'ubuntu-20.04'
+        assert build.build.tools['python'].version == '3.9'
+        full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
+        assert build.build.tools['python'].full_version == full_version
+        assert build.python_interpreter == 'python'
+
+    def test_new_build_config_conflict_with_build_image(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'image': 'latest',
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.9'},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.image'
+
+    def test_new_build_config_conflict_with_build_python_version(self):
+        build = self.get_build_config(
+            {
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {'python': '3.8'},
+                },
+                'python': {'version': '3.8'},
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.version'
+
+    @pytest.mark.parametrize(
+        'value',
+        [
+            [],
+            ['cmatrix'],
+            ['Mysql', 'cmatrix', 'postgresql-dev'],
+        ],
+    )
+    def test_build_apt_packages_check_valid(self, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        build.validate()
+        assert build.build.apt_packages == value
+
+    @pytest.mark.parametrize(
+        'value',
+        [3, 'string', {}],
+    )
+    def test_build_apt_packages_invalid_type(self, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'build.apt_packages'
+
+    @pytest.mark.parametrize(
+        'error_index, value',
+        [
+            (0, ['/', 'cmatrix']),
+            (1, ['cmatrix', '-q']),
+            (1, ['cmatrix', ' -q']),
+            (1, ['cmatrix', '\\-q']),
+            (1, ['cmatrix', '--quiet']),
+            (1, ['cmatrix', ' --quiet']),
+            (2, ['cmatrix', 'quiet', './package.deb']),
+            (2, ['cmatrix', 'quiet', ' ./package.deb ']),
+            (2, ['cmatrix', 'quiet', '/home/user/package.deb']),
+            (2, ['cmatrix', 'quiet', ' /home/user/package.deb']),
+            (2, ['cmatrix', 'quiet', '../package.deb']),
+            (2, ['cmatrix', 'quiet', ' ../package.deb']),
+            (1, ['one', '$two']),
+            (1, ['one', 'non-ascíí']),
+            # We don't allow regex for now.
+            (1, ['mysql', 'cmatrix$']),
+            (0, ['^mysql-*', 'cmatrix$']),
+            # We don't allow specifying versions for now.
+            (0, ['postgresql=1.2.3']),
+            # We don't allow specifying distributions for now.
+            (0, ['cmatrix/bionic']),
+        ],
+    )
+    def test_build_apt_packages_invalid_value(self, error_index, value):
+        build = self.get_build_config({'build': {'apt_packages': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == f'build.apt_packages.{error_index}'
+        assert excinfo.value.code == INVALID_NAME
+
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
     def test_python_check_invalid_types(self, value):
         build = self.get_build_config({'python': value})
@@ -945,8 +1078,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']),
-            ('stable', [2, 2.7, 3, 3.5, 3.6, 3.7]),
+            ('latest', ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5']),
+            ('stable', ['2', '2.7', '3', '3.5', '3.6', '3.7']),
         ],
     )
     def test_python_version(self, image, versions):
@@ -972,7 +1105,31 @@ class TestBuildConfigV2:
             },
         })
         build.validate()
-        assert build.python.version == 3.6
+        assert build.python.version == '3.6'
+
+    def test_python_version_accepts_number(self):
+        build = self.get_build_config({
+            'build': {
+                'image': 'latest',
+            },
+            'python': {
+                'version': 3.6,
+            },
+        })
+        build.validate()
+        assert build.python.version == '3.6'
+
+    def test_python_version_310_as_number(self):
+        build = self.get_build_config({
+            'build': {
+                'image': 'testing',
+            },
+            'python': {
+                'version': 3.10,
+            },
+        })
+        build.validate()
+        assert build.python.version == '3.10'
 
     @pytest.mark.parametrize(
         'image,versions',
@@ -998,27 +1155,27 @@ class TestBuildConfigV2:
     def test_python_version_default(self):
         build = self.get_build_config({})
         build.validate()
-        assert build.python.version == 3
+        assert build.python.version == '3'
 
     @pytest.mark.parametrize(
-        'image,default_version',
+        'image, default_version, full_version',
         [
-            ('2.0', 3.5),
-            ('4.0', 3.7),
-            ('5.0', 3.7),
-            ('latest', 3.7),
-            ('stable', 3.7),
+            ('2.0', '3', '3.5'),
+            ('4.0', '3', '3.7'),
+            ('5.0', '3', '3.7'),
+            ('latest', '3', '3.7'),
+            ('stable', '3', '3.7'),
         ],
     )
-    def test_python_version_default_from_image(self, image, default_version):
+    def test_python_version_default_from_image(self, image, default_version, full_version):
         build = self.get_build_config({
             'build': {
                 'image': image,
             },
         })
         build.validate()
-        assert build.python.version == int(default_version)  # 2 or 3
-        assert build.python_full_version == default_version
+        assert build.python.version == default_version
+        assert build.python_full_version == full_version
 
     @pytest.mark.parametrize('value', [2, 3])
     def test_python_version_overrides_default(self, value):
@@ -1027,13 +1184,13 @@ class TestBuildConfigV2:
             {'defaults': {'python_version': value}},
         )
         build.validate()
-        assert build.python.version == 3
+        assert build.python.version == '3'
 
-    @pytest.mark.parametrize('value', [2, 3, 3.6])
+    @pytest.mark.parametrize('value', ['2', '3', '3.6'])
     def test_python_version_priority_over_default(self, value):
         build = self.get_build_config(
             {'python': {'version': value}},
-            {'defaults': {'python_version': 3}},
+            {'defaults': {'python_version': '3'}},
         )
         build.validate()
         assert build.python.version == value
@@ -1447,25 +1604,23 @@ class TestBuildConfigV2:
         build.validate()
         assert build.python.use_system_site_packages is False
 
-    def test_python_system_packages_respects_default(self):
+    def test_python_system_packages_dont_respects_default(self):
         build = self.get_build_config(
             {},
             {'defaults': {'use_system_packages': True}},
         )
         build.validate()
-        assert build.python.use_system_site_packages is True
+        assert build.python.use_system_site_packages is False
 
     def test_python_system_packages_priority_over_default(self):
         build = self.get_build_config(
             {'python': {'system_packages': False}},
-            {'defaults': {'use_system_packages': True}},
         )
         build.validate()
         assert build.python.use_system_site_packages is False
 
         build = self.get_build_config(
             {'python': {'system_packages': True}},
-            {'defaults': {'use_system_packages': False}},
         )
         build.validate()
         assert build.python.use_system_site_packages is True
@@ -2051,7 +2206,7 @@ class TestBuildConfigV2:
                 'version': 2,
                 'formats': ['pdf'],
                 'python': {
-                    'version': 3.6,
+                    'version': '3.6',
                     'install': [{
                         'requirements': 'requirements.txt',
                     }],
@@ -2064,7 +2219,7 @@ class TestBuildConfigV2:
             'version': '2',
             'formats': ['pdf'],
             'python': {
-                'version': 3.6,
+                'version': '3.6',
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
@@ -2072,6 +2227,77 @@ class TestBuildConfigV2:
             },
             'build': {
                 'image': 'readthedocs/build:latest',
+                'apt_packages': [],
+            },
+            'conda': None,
+            'sphinx': {
+                'builder': 'sphinx',
+                'configuration': None,
+                'fail_on_warning': False,
+            },
+            'mkdocs': None,
+            'doctype': 'sphinx',
+            'submodules': {
+                'include': [],
+                'exclude': ALL,
+                'recursive': False,
+            },
+            'search': {
+                'ranking': {},
+                'ignore': [
+                    'search.html',
+                    'search/index.html',
+                    '404.html',
+                    '404/index.html',
+                ],
+            },
+        }
+        assert build.as_dict() == expected_dict
+
+    def test_as_dict_new_build_config(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'version': 2,
+                'formats': ['pdf'],
+                'build': {
+                    'os': 'ubuntu-20.04',
+                    'tools': {
+                        'python': '3.9',
+                        'nodejs': '16',
+                    },
+                },
+                'python': {
+                    'install': [{
+                        'requirements': 'requirements.txt',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        expected_dict = {
+            'version': '2',
+            'formats': ['pdf'],
+            'python': {
+                'version': None,
+                'install': [{
+                    'requirements': 'requirements.txt',
+                }],
+                'use_system_site_packages': False,
+            },
+            'build': {
+                'os': 'ubuntu-20.04',
+                'tools': {
+                    'python': {
+                        'version': '3.9',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9'],
+                    },
+                    'nodejs': {
+                        'version': '16',
+                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
+                    },
+                },
+                'apt_packages': [],
             },
             'conda': None,
             'sphinx': {

@@ -1,7 +1,7 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import logging
+import structlog
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -40,7 +40,7 @@ from ..utils import (
     RemoteProjectPagination,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
@@ -64,6 +64,55 @@ class PlainTextBuildRenderer(BaseRenderer):
             {'build': data},
         )
         return data.encode(self.charset)
+
+
+class DisableListEndpoint:
+
+    """
+    Helper to disable APIv2 listing endpoint.
+
+    We are disablng the listing endpoint because it could cause DOS without
+    using any type of filtering.
+
+    This class disables these endpoints except:
+
+     - version resource when passing ``?project__slug=``
+     - build resource when using ``?commit=``
+
+    All the other type of listings are disabled and return 409 CONFLICT with an
+    error message pointing the user to APIv3.
+    """
+
+    def list(self, *args, **kwargs):
+        # Using private repos will list resources the user has access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return super().list(*args, **kwargs)
+
+        disabled = True
+
+        # NOTE: keep list endpoint that specifies a resource
+        if any([
+                self.basename == 'version' and 'project__slug' in self.request.GET,
+                self.basename == 'build'
+                and ('commit' in self.request.GET or 'project__slug' in self.request.GET),
+                self.basename == 'project' and 'slug' in self.request.GET,
+        ]):
+            disabled = False
+
+        if not disabled:
+            return super().list(*args, **kwargs)
+
+        return Response(
+            {
+                'error': 'disabled',
+                'msg': (
+                    'List endpoint have been disabled due to heavy resource usage. '
+                    'Take into account than APIv2 is planned to be deprecated soon. '
+                    'Please use APIv3: https://docs.readthedocs.io/page/api/v3.html'
+                )
+            },
+            status=status.HTTP_410_GONE,
+        )
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
@@ -92,7 +141,7 @@ class UserSelectViewSet(viewsets.ModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class ProjectViewSet(UserSelectViewSet):
+class ProjectViewSet(DisableListEndpoint, UserSelectViewSet):
 
     """List, filter, etc, Projects."""
 
@@ -159,7 +208,7 @@ class ProjectViewSet(UserSelectViewSet):
         })
 
 
-class VersionViewSet(UserSelectViewSet):
+class VersionViewSet(DisableListEndpoint, UserSelectViewSet):
 
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
@@ -172,7 +221,7 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSet(UserSelectViewSet):
+class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
@@ -220,8 +269,8 @@ class BuildViewSet(UserSelectViewSet):
                     data['commands'] = json.loads(json_resp)
                 except Exception:
                     log.exception(
-                        'Failed to read build data from storage. path=%s.',
-                        storage_path,
+                        'Failed to read build data from storage.',
+                        path=storage_path,
                     )
         return Response(data)
 
@@ -237,7 +286,7 @@ class BuildViewSet(UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BuildCommandViewSet(UserSelectViewSet):
+class BuildCommandViewSet(DisableListEndpoint, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
@@ -245,7 +294,7 @@ class BuildCommandViewSet(UserSelectViewSet):
     model = BuildCommandResult
 
 
-class DomainViewSet(UserSelectViewSet):
+class DomainViewSet(DisableListEndpoint, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer

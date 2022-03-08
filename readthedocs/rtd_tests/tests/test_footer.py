@@ -7,15 +7,12 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework.test import APIRequestFactory
 
-from readthedocs.api.v2.views.footer_views import (
-    FooterHTML,
-    get_version_compare_data,
-)
+from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 
 class BaseTestFooterHTML:
@@ -26,6 +23,7 @@ class BaseTestFooterHTML:
             slug='pip',
             repo='https://github.com/rtfd/readthedocs.org',
             privacy_level=PUBLIC,
+            external_builds_privacy_level=PUBLIC,
             main_language_project=None,
         )
         self.pip.versions.update(privacy_level=PUBLIC, built=True)
@@ -427,7 +425,7 @@ class TestVersionCompareFooter(TestCase):
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 14
+    EXPECTED_QUERIES = 12
 
     def setUp(self):
         self.pip = get(
@@ -485,7 +483,6 @@ class TestFooterPerformance(TestCase):
             canonical=True,
         )
 
-        # Setting up a custom domain increases only one query.
-        with self.assertNumQueries(self.EXPECTED_QUERIES + 1):
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, HTTP_HOST=domain)
             self.assertContains(response, domain)

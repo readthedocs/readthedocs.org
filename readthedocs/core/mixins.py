@@ -1,10 +1,11 @@
 """Common mixin classes for views."""
+from functools import lru_cache
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.translation import ugettext_lazy as _
 from vanilla import ListView
 
-from readthedocs.projects.constants import PRIVACY_CHOICES, PROTECTED
+from readthedocs.projects.models import Feature
 
 
 class ListViewWithForm(ListView):
@@ -22,24 +23,47 @@ class PrivateViewMixin(LoginRequiredMixin):
     pass
 
 
-class HideProtectedLevelMixin:
+class ProxiedAPIMixin:
+
+    # DRF has BasicAuthentication and SessionAuthentication as default classes.
+    # We don't support neither in the community site.
+    authentication_classes = []
+
+
+class CachedView:
 
     """
-    Hide ``protected`` privacy level from Form.
+    Allow to cache views at the CDN level when privacy levels are enabled.
 
-    Remove Protected for now since it causes confusions to users.
+    The cache control header is only used when privacy levels
+    are enabled (otherwise everything is public by default).
 
-    If the current ``privacy_level`` is ``protected`` we show it (so users keep
-    seeing consistency values), and hide it otherwise (so it can't be selected).
+    Views that can be cached should always return the same response for all
+    users (anonymous and authenticated users), like when the version attached
+    to the request is public.
 
-    There is a better way to manage this by using Version states.
-    See: https://github.com/rtfd/readthedocs.org/issues/5321
+    To cache a view you can either set the `cache_request` attribute to `True`,
+    or override the `can_be_cached` method.
+
+    We use ``CDN-Cache-Control``, to control caching at the CDN level only.
+    This doesn't affect caching at the browser level (``Cache-Control``).
+
+    See https://developers.cloudflare.com/cache/about/cdn-cache-control.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    cache_request = False
 
-        if self.instance is None or self.instance.privacy_level != PROTECTED:
-            privacy_level = list(PRIVACY_CHOICES)
-            privacy_level.remove((PROTECTED, _('Protected')))
-            self.fields['privacy_level'].choices = privacy_level
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if settings.ALLOW_PRIVATE_REPOS and self.can_be_cached(request):
+            response.headers['CDN-Cache-Control'] = 'public'
+        return response
+
+    def can_be_cached(self, request):
+        return self.cache_request
+
+    @lru_cache(maxsize=1)
+    def _is_cache_enabled(self, project):
+        """Helper function to check if CND is enabled for a project."""
+        # TODO: check for the organization's plan.
+        return settings.ALLOW_PRIVATE_REPOS and project.has_feature(Feature.CDN_ENABLED)

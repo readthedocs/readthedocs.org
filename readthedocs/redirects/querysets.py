@@ -1,32 +1,38 @@
 """Queryset for the redirects app."""
-
-import logging
+import structlog
 
 from django.db import models
-from django.db.models import Value, CharField, Q, F
+from django.db.models import CharField, F, Q, Value
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.permissions import AdminPermission
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
-class RedirectQuerySetBase(models.QuerySet):
+class RedirectQuerySet(models.QuerySet):
 
     """Redirects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user):
         if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
+    def api(self, user=None):
         queryset = self.none()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
     def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
@@ -88,7 +94,3 @@ class RedirectQuerySetBase(models.QuerySet):
             if new_path:
                 return new_path, redirect.http_status
         return (None, None)
-
-
-class RedirectQuerySet(SettingsOverrideObject):
-    _default_class = RedirectQuerySetBase

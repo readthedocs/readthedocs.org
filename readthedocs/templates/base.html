@@ -19,10 +19,10 @@
   <!-- Google Analytics -->
   <script>
     if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
-      console.log('Respecting DNT with respect to analytics...');
+      console.debug('Respecting DNT with respect to analytics...');
     } else {
       // For more details on analytics at Read the Docs, please see:
-      // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+      // https://docs.readthedocs.io/en/stable/advertising/advertising-details.html#analytics
       (function () {
         // New Google Site Tag (gtag.js) tagging/analytics framework
         // https://developers.google.com/gtagjs
@@ -40,7 +40,7 @@
       // Setup the RTD global analytics code and send a pageview
       gtag('config', '{{ GLOBAL_ANALYTICS_CODE }}', {
         'anonymize_ip': true,
-        'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+        'cookie_expires': 0,  // Session cookie (non-persistent)
         'groups': 'rtfd'
       });
 
@@ -48,7 +48,7 @@
         // Dashboard Analytics Code
         gtag('config', '{{ DASHBOARD_ANALYTICS_CODE }}', {
           'anonymize_ip': true,
-          'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+          'cookie_expires': 0,  // Session cookie (non-persistent)
           'groups': 'dashboard'
         });
         // End Dashboard Analytics Code
@@ -102,6 +102,11 @@
             <ul class="notifications">
               {% for message in messages %}
                 <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
+                  {% if message.pk %}
+                  <a class="notification-action" href="{% url 'message_mark_read' message.pk %}">
+                    <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
+                  </a>
+                  {% endif %}
                   {{ message }}
                 </li>
               {% endfor %}
@@ -129,50 +134,68 @@
 
         {% block footer-content %}
 
-        <div class="column-logo">
-          <div id="email-signup">
-            <form action="https://readthedocs.us3.list-manage.com/subscribe/post?u=a6a22369cc2b356379cf789ca&amp;id=a85a83a5a5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-              <div>
-                <h4>{% trans 'Stay Updated' %}</h4>
+        <div id="mlb2-4726913" class="column-logo ml-form-embedContainer ml-subscribe-form ml-subscribe-form-4726913">
+          <div id="email-signup" class="ml-form-align-center">
+            <div class="ml-form-embedWrapper embedForm">
+              <div class="ml-form-embedBody ml-form-embedBodyDefault row-form">
+                <div class="ml-form-embedContent">
+                  <h4>{% trans 'Stay Updated' %}</h4>
 
-                <ul>
-                  <li>
-                    <a href="https://blog.readthedocs.com/">{% trans 'Blog' %}</a>
-                  </li>
-                </ul>
+                  <ul>
+                    <li>
+                      <a href="https://blog.readthedocs.com/">{% trans 'Blog' %}</a>
+                    </li>
+                  </ul>
 
-                <p>{% trans 'Sign up for our newsletter to get our latest blog updates delivered to your inbox weekly.' %}</p>
-                <div>
-                  <label for="mce-EMAIL">{% trans 'Email' %}</label>
-                  <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="you@example.com">
+                  <p>{% trans 'Sign up for our newsletter to get our latest blog updates delivered to your inbox weekly.' %}</p>
                 </div>
-                <div id="mce-responses" class="clear">
-                  <div class="response" id="mce-error-response" style="display:none"></div>
-                  <div class="response" id="mce-success-response" style="display:none"></div>
-                </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-                <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_a6a22369cc2b356379cf789ca_a85a83a5a5" tabindex="-1" value=""></div>
-                <div class="clear"><input type="submit" value="{% trans 'Subscribe' %}" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                <form class="validate ml-block-form" action="https://static.mailerlite.com/webforms/submit/t0a9l4" data-code="t0a9l4" method="post" target="_blank">
+                  <div class="ml-form-formContent">
+                    <div class="ml-form-fieldRow ml-last-item">
+                      <div class="ml-field-group ml-field-email ml-validate-email ml-validate-required">
+                        <label for="ml-EMAIL">{% trans 'Email' %}</label>
+                        <input aria-label="email" aria-required="true" type="email" id="ml-EMAIL" class="required email form-control" data-inputmask="" name="fields[email]" placeholder="you@example.com" autocomplete="email">
+                      </div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="ml-submit" value="1">
+                  <div class="ml-form-embedSubmit">
+                    <button type="submit" class="primary">{% trans 'Subscribe' %}</button>
+                    <button disabled="disabled" style="display:none" type="button" class="loading"> <div class="ml-form-embedSubmitLoad"></div> <span class="sr-only">Loading...</span> </button>
+                  </div>
+                  <input type="hidden" name="anticsrf" value="true">
+                </form>
               </div>
-            </form>
+              <div class="ml-form-successBody row-success" style="display:none">
+                <div class="ml-form-successContent">
+                  <h4>{% trans 'Thank you!' %}</h4>
+                  <p>{% trans 'You have successfully joined our subscriber list.' %}</p>
+                </div>
+              </div>
+            </div>
           </div>
-
         </div>
+        <script>
+          function ml_webform_success_4726913(){var r=ml_jQuery||jQuery;r(".ml-subscribe-form-4726913 .row-success").show(),r(".ml-subscribe-form-4726913 .row-form").hide()}
+        </script>
+        <img src="https://track.mailerlite.com/webforms/o/4726913/t0a9l4?v1632124791" width="1" height="1" style="max-width:1px;max-height:1px;visibility:hidden;padding:0;margin:0;display:block" alt="." border="0">
+        <script src="https://static.mailerlite.com/js/w/webforms.min.js?v0c75f831c56857441820dcec3163967c" type="text/javascript"></script>
 
         <div class="column-about">
           <h4>{% trans 'Resources' %}</h4>
 
           <ul>
             <li>
-              <a href="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html">{% trans 'Getting Started Guide' %}</a>
-            </li>
-            <li>
-              <a href="https://docs.readthedocs.io/page/contribute.html">{% trans 'Contributing' %}</a>
+              <a href="https://docs.readthedocs.io/page/tutorial/">{% trans 'Tutorial' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io/page/team.html">{% trans 'Team' %}</a>
             </li>
             <li>
               <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.org/sustainability/">{% trans 'Going Ad-free' %}</a>
             </li>
             <li>
               <a href="https://readthedocs.org/support/">{% trans 'Site Support' %}</a>

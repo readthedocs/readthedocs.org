@@ -1,12 +1,14 @@
 """Django administration interface for `projects.models`."""
 
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
+from django.db.models import Sum
 from django.forms import BaseInlineFormSet
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.models import UserProfile
+from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
@@ -19,10 +21,12 @@ from .models import (
     EnvironmentVariable,
     Feature,
     HTMLFile,
+    HTTPHeader,
     ImportedFile,
     Project,
     ProjectRelationship,
     WebHook,
+    WebHookEvent,
 )
 from .notifications import (
     DeprecatedBuildWebhookNotification,
@@ -30,7 +34,7 @@ from .notifications import (
     ResourceUsageNotification,
 )
 from .tag_utils import import_tags
-from .tasks import clean_project_resources
+from .tasks.utils import clean_project_resources
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -87,31 +91,6 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
-# Turning off to support Django 1.9's requirement
-# to not import apps that aren't in INSTALLED_APPS on rtd.com
-# class ImpressionInline(admin.TabularInline):
-#     from readthedocs.donate.models import ProjectImpressions
-#     model = ProjectImpressions
-#     readonly_fields = (
-#         'date',
-#         'promo',
-#         'offers',
-#         'views',
-#         'clicks',
-#         'view_ratio',
-#         'click_ratio',
-#     )
-#     extra = 0
-#     can_delete = False
-#     max_num = 15
-
-#     def view_ratio(self, instance):
-#         return instance.view_ratio * 100
-
-#     def click_ratio(self, instance):
-#         return instance.click_ratio * 100
-
-
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
     """
@@ -141,22 +120,119 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectSpamThreshold(admin.SimpleListFilter):
+
+    """Filter for projects that are potentially SPAM."""
+
+    title = 'Spam Threshold'
+    parameter_name = 'spam_threshold'
+
+    NOT_ENOUGH_SCORE = 'not_enough_score'
+    DONT_SHOW_ADS = 'dont_show_ads'
+    DENY_ON_ROBOTS = 'deny_on_robots'
+    DONT_SERVE_DOCS = 'dont_serve_docs'
+    DONT_SHOW_DASHBOARD = 'dont_show_dashboard'
+    DELETE_PROJECT = 'delete_project'
+
+    def lookups(self, request, model_admin):
+        return (
+            (
+                self.NOT_ENOUGH_SCORE,
+                _("Not spam (1-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                ),
+            ),
+            (
+                self.DONT_SHOW_ADS,
+                _("Don't show Ads ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                    settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                ),
+            ),
+            (
+                self.DENY_ON_ROBOTS,
+                _('Deny on robots ({}-{})').format(
+                    settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                ),
+            ),
+            (
+                self.DONT_SHOW_DASHBOARD,
+                _("Don't show dashboard ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                    settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                ),
+            ),
+            (
+                self.DONT_SERVE_DOCS,
+                _("Don't serve docs ({}-{})").format(
+                    settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                    settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+                ),
+            ),
+            (
+                self.DELETE_PROJECT,
+                _('Delete project (>={})').format(
+                    settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+                ),
+            ),
+        )
+
+    def queryset(self, request, queryset):
+        queryset = queryset.annotate(spam_score=Sum('spam_rules__value'))
+        if self.value() == self.NOT_ENOUGH_SCORE:
+            return queryset.filter(
+                spam_score__gte=1,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+            )
+        if self.value() == self.DONT_SHOW_ADS:
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_ADS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+            )
+        if self.value() == self.DENY_ON_ROBOTS:
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DENY_ON_ROBOTS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+            )
+        if self.value() == self.DONT_SHOW_DASHBOARD:
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SHOW_DASHBOARD,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+            )
+        if self.value() == self.DONT_SERVE_DOCS:
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS,
+                spam_score__lt=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+            )
+        if self.value() == self.DELETE_PROJECT:
+            return queryset.filter(
+                spam_score__gte=settings.RTD_SPAM_THRESHOLD_DELETE_PROJECT,
+            )
+        return queryset
+
+
+class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
-    list_filter = (
-        'repo_type',
-        'featured',
-        'privacy_level',
-        'documentation_type',
-        'programming_language',
-        'feature__feature_id',
+    list_display = ('name', 'slug', 'repo')
+
+    list_filter = tuple()
+    if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        list_filter = list_filter + (ProjectSpamThreshold,)
+
+    list_filter = list_filter + (
         ProjectOwnerBannedFilter,
+        'is_spam',
+        'feature__feature_id',
+        'repo_type',
+        'privacy_level',
+        'programming_language',
+        'documentation_type',
     )
-    list_editable = ('featured',)
+
     search_fields = ('slug', 'repo')
     inlines = [
         ProjectRelationshipInline,
@@ -164,19 +240,26 @@ class ProjectAdmin(admin.ModelAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags',)
-    raw_id_fields = ('users', 'main_language_project')
+    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
+    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
     actions = [
         'send_owner_email',
         'ban_owner',
+        'run_spam_rule_checks',
         'build_default_version',
         'reindex_active_versions',
         'wipe_all_versions',
         'import_tags_from_vcs',
     ]
 
+    def matching_spam_rules(self, obj):
+        result = []
+        for spam_rule in obj.spam_rules.filter(enabled=True):
+            result.append(f'{spam_rule.spam_rule_type} ({spam_rule.value})')
+        return '\n'.join(result) or 'No matching spam rules'
+
     def feature_flags(self, obj):
-        return ', '.join([str(f.get_feature_display()) for f in obj.features])
+        return '\n'.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
@@ -185,6 +268,26 @@ class ProjectAdmin(admin.ModelAdmin):
         return view(request, queryset=queryset)
 
     send_owner_email.short_description = 'Notify project owners'
+
+    def run_spam_rule_checks(self, request, queryset):
+        """Run all the spam checks on this project."""
+        if 'readthedocsext.spamfighting' not in settings.INSTALLED_APPS:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Spam fighting Django application not installed',
+            )
+            return
+
+        from readthedocsext.spamfighting.tasks import spam_rules_check  # noqa
+        project_slugs = queryset.values_list('slug', flat=True)
+        # NOTE: convert queryset to a simple list so Celery can serialize it
+        spam_rules_check.delay(project_slugs=list(project_slugs))
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Spam check task triggered for {} projects'.format(queryset.count()),
+        )
 
     def ban_owner(self, request, queryset):
         """
@@ -197,12 +300,11 @@ class ProjectAdmin(admin.ModelAdmin):
         total = 0
         for project in queryset:
             if project.users.count() == 1:
-                count = (
-                    UserProfile.objects.filter(
-                        user__projects=project,
-                    ).update(banned=True)
-                )  # yapf: disabled
-                total += count
+                user = project.users.first()
+                user.profile.banned = True
+                set_change_reason(user.profile, self.get_change_reason())
+                user.profile.save()
+                total += 1
             else:
                 messages.add_message(
                     request,
@@ -273,6 +375,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
     reindex_active_versions.short_description = 'Reindex active versions to ES'
 
+    # TODO: rename method to mention "indexes" on its name
     def wipe_all_versions(self, request, queryset):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()
@@ -341,6 +444,10 @@ class ImportedFileAdmin(admin.ModelAdmin):
     search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
 
+class HTTPHeaderInline(admin.TabularInline):
+    model = HTTPHeader
+
+
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
         'domain',
@@ -352,10 +459,29 @@ class DomainAdmin(admin.ModelAdmin):
         'created',
         'modified',
     )
+    inlines = (HTTPHeaderInline,)
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
     list_filter = ('canonical', 'https', 'ssl_status')
     model = Domain
+
+
+class HTTPHeaderAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'value',
+        'domain_name',
+        'project_slug',
+    )
+    raw_id_fields = ('domain',)
+    search_fields = ('name', 'domain__name', 'project__slug')
+    model = HTTPHeader
+
+    def domain_name(self, http_header):
+        return http_header.domain.domain
+
+    def project_slug(self, http_header):
+        return http_header.domain.project.slug
 
 
 class FeatureAdmin(admin.ModelAdmin):
@@ -380,8 +506,10 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(HTTPHeader, HTTPHeaderAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(WebHookEvent)
 admin.site.register(HTMLFile, ImportedFileAdmin)

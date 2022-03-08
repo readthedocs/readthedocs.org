@@ -7,16 +7,17 @@ from readthedocs.search.faceted_search import PageSearch
 @pytest.mark.search
 class TestXSS:
 
-    def test_facted_page_xss(self, client, project):
+    def test_facted_page_xss(self, all_projects):
         query = '"XSS"'
-        page_search = PageSearch(query=query)
+        page_search = PageSearch(query=query, projects={'docs': 'latest'})
         results = page_search.execute()
         expected = """
         &lt;h3&gt;<span>XSS</span> exploit&lt;&#x2F;h3&gt;
         """.strip()
 
         hits = results.hits.hits
-        assert len(hits) == 1  # there should be only one result
+        assert len(hits) == 1
+        assert hits[0]['_source']['version'] == 'latest'
 
         inner_hits = hits[0]['inner_hits']
 

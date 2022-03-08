@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ARG GITHUB_TOKEN
 
@@ -50,6 +50,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /tmp
 
 COPY requirements/pip.txt pip.txt
+COPY requirements/debug.txt debug.txt
 COPY requirements/docker.txt docker.txt
 RUN pip3 install --no-cache-dir -r docker.txt
 

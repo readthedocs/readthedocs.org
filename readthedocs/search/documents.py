@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
@@ -14,7 +14,7 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class RTDDocTypeMixin:
@@ -31,6 +31,8 @@ class RTDDocTypeMixin:
 @project_index.document
 class ProjectDocument(RTDDocTypeMixin, Document):
 
+    """Document representation of a Project."""
+
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(
@@ -41,11 +43,15 @@ class ProjectDocument(RTDDocTypeMixin, Document):
     )
     language = fields.KeywordField()
 
+    name = fields.TextField(attr='name')
+    slug = fields.TextField(attr='slug')
+    description = fields.TextField(attr='description')
+
     modified_model_field = 'modified_date'
 
     class Django:
         model = Project
-        fields = ('name', 'slug', 'description')
+        fields = []
         ignore_signals = True
 
 
@@ -75,13 +81,17 @@ class PageDocument(RTDDocTypeMixin, Document):
     rank = fields.IntegerField()
 
     # Searchable content
-    title = fields.TextField(attr='processed_json.title')
+    title = fields.TextField(
+        attr='processed_json.title',
+    )
     sections = fields.NestedField(
         attr='processed_json.sections',
         properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
-            'content': fields.TextField(term_vector='with_positions_offsets'),
+            'content': fields.TextField(
+                term_vector='with_positions_offsets',
+            ),
         }
     )
     domains = fields.NestedField(
@@ -93,11 +103,14 @@ class PageDocument(RTDDocTypeMixin, Document):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(term_vector='with_positions_offsets'),
-
-            # Simple analyzer breaks on `.`,
-            # otherwise search results are too strict for this use case
-            'name': fields.TextField(analyzer='simple'),
+            'docstrings': fields.TextField(
+                term_vector='with_positions_offsets',
+            ),
+            'name': fields.TextField(
+                # Simple analyzer breaks on `.`,
+                # otherwise search results are too strict for this use case
+                analyzer='simple',
+            ),
         }
     )
 
@@ -157,16 +170,11 @@ class PageDocument(RTDDocTypeMixin, Document):
         return all_domains
 
     def get_queryset(self):
-        """
-        Ignore certain files from indexing.
-
-        - Files from external versions
-        - Ignored files
-        """
+        """Don't include ignored files."""
         queryset = super().get_queryset()
         queryset = (
             queryset
-            .internal()
             .exclude(ignore=True)
+            .select_related('version', 'project')
         )
         return queryset

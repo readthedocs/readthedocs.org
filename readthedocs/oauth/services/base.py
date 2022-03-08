@@ -1,6 +1,6 @@
 """OAuth utility functions."""
 
-import logging
+import structlog
 from datetime import datetime
 
 from allauth.socialaccount.models import SocialAccount
@@ -17,7 +17,7 @@ from readthedocs.oauth.models import (
 )
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
@@ -134,7 +134,7 @@ class Service:
                 datetime.fromtimestamp(data['expires_at']),
             )
             token.save()
-            log.info('Updated token %s:', token)
+            log.info('Updated token.', token=token)
 
         return _updater
 
@@ -173,7 +173,7 @@ class Service:
             return results
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
-            log.warning('access_token or refresh_token failed: %s', url)
+            log.warning('access_token or refresh_token failed.', url=url)
             raise Exception('You should reconnect your account')
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -184,9 +184,9 @@ class Service:
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'Paginate failed at %s with response: %s',
-                url,
-                debug_data,
+                'Paginate failed at URL.',
+                url=url,
+                debug_data=debug_data,
             )
 
         return []

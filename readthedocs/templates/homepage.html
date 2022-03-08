@@ -85,7 +85,7 @@
       <p>
         {% blocktrans trimmed %}
         We build and host your docs for the web, but they are
-        also vieweable as PDFs, as single page HTML, and for eReaders.
+        also viewable as PDFs, as single page HTML, and for eReaders.
         No additional configuration is required.
         {% endblocktrans %}
       </p>
@@ -106,7 +106,7 @@
   <!-- Call to action -->
   <section>
     <p style="text-align: center">
-      <a href="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html" class="cta-btn">{% trans 'Getting started guide' %}</a>
+      <a href="https://docs.readthedocs.io/page/tutorial/" class="cta-btn">{% trans 'Read the Tutorial' %}</a>
     </p>
   </section>
 
@@ -133,22 +133,42 @@
   {% endif %}
   {% endcache %}
 
+  <section>
+    <h2>{% trans 'About Read the Docs' %}</h2>
+
+    <p>
+      {% blocktrans trimmed %}
+      Read the Docs has grown substantially
+      since its beginning as a weekend project and is closing in on being a top-1000 site on the internet.
+      Today, we:
+      {% endblocktrans %}
+    </p>
+
+    <!-- Updated: June 2018, pageviews June 2021 -->
+    {% blocktrans trimmed %}
+    <ul class="donate-about">
+      <li>Serve over <b>55 million pages</b> of documentation a month</li>
+      <li>Serve over <b>40 TB</b> of documentation a month</li>
+      <li>Host over <b>80,000 open source projects</b> and support over <b>100,000 users</b></li>
+      <li>Are supported by a <a href="https://docs.readthedocs.io/en/latest/team.html">very small team</a> of dedicated engineers</li>
+    </ul>
+    {% endblocktrans %}
+
+  </section>
   <!-- Funding and Contributing -->
   <section>
     <h2>{% trans "Read the Docs is funded by the community" %}</h2>
     <p>
 
-    {% url "donate" as sponsors_url %}
-    {% url "gold_detail" as gold_detail %}
+    {% url "donate" as donate_url %}
 
-    {% blocktrans trimmed %}
-    Read the Docs is a huge resource that millions of developers rely on
-    for software documentation. It would not be possible without the
-    support of our
-    <a href="{{ sponsors_url }}">sponsors</a>,
-    <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertisers</a>,
-    and <a href="{{ gold_detail }}">readers like you</a>.
-    {% endblocktrans %}
+    <p>
+      {% blocktrans trimmed %}
+      We fund our operations through <a href="https://www.ethicalads.io/advertisers/?ref=rtd">advertising</a>,
+      corporate-hosted documentation with <a href="https://readthedocs.com">Read the Docs for Business</a>,
+     <a href="{{ donate_url }}">donations</a>,
+      and we are supported by a number of generous <a href="https://docs.readthedocs.io/page/sponsors.html">sponsors</a>.
+      {% endblocktrans %}
     </p>
 
     <p>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Delete Organization" %}{% endblock %}
+
+{% block content %}
+
+  <!-- BEGIN organization delete -->
+  <div class="module">
+    <h2>{% trans "Delete Organization" %}</h2>
+    <p>
+      {% blocktrans %}
+        Deleting this organization will also remove all the organization's
+        teams, users, projects, and built documentation.  Are you sure that it
+        is safe to remove this organization?
+      {% endblocktrans %}
+    </p>
+
+    <form method="post" action="{% url "organization_delete" organization.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Delete forever" %}">
+    </form>
+  </div>
+  <!-- END organization delete -->
+
+{% endblock %}

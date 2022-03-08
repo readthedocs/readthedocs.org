@@ -1,11 +1,12 @@
-from django.test import TestCase
-from django_dynamic_fixture import get
 from unittest.mock import patch
 
-from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
-from readthedocs.builds.models import Version, Build
+from django.test import TestCase
+from django_dynamic_fixture import get
+
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import send_external_build_status
+from readthedocs.projects.tasks.utils import send_external_build_status
 
 
 class SendBuildStatusTests(TestCase):
@@ -17,7 +18,7 @@ class SendBuildStatusTests(TestCase):
         self.external_build = get(Build, project=self.project, version=self.external_version)
         self.internal_build = get(Build, project=self.project, version=self.internal_version)
 
-    @patch('readthedocs.projects.tasks.send_build_status')
+    @patch('readthedocs.projects.tasks.utils.send_build_status')
     def test_send_external_build_status_with_external_version(self, send_build_status):
         send_external_build_status(
             self.external_version.type, self.external_build.id,
@@ -30,7 +31,7 @@ class SendBuildStatusTests(TestCase):
             BUILD_STATUS_SUCCESS
         )
 
-    @patch('readthedocs.projects.tasks.send_build_status')
+    @patch('readthedocs.projects.tasks.utils.send_build_status')
     def test_send_external_build_status_with_internal_version(self, send_build_status):
         send_external_build_status(
             self.internal_version.type, self.internal_build.id,

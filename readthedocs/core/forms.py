@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
-
 """Forms for core app."""
 
-import logging
+import structlog
 
 from django import forms
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
+from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -40,8 +39,15 @@ class UserProfileForm(forms.ModelForm):
             user = profile.user
             user.first_name = first_name
             user.last_name = last_name
+            # SimpleHistoryModelForm isn't used here
+            # because the model of this form is `UserProfile`, not `User`.
+            set_change_reason(user, self.get_change_reason())
             user.save()
         return profile
+
+    def get_change_reason(self):
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
 
 class UserDeleteForm(forms.ModelForm):

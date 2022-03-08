@@ -1,3 +1,16 @@
+"""
+Shared Sphinx configuration.
+
+Each docset corresponds to a directory containing several rst/md files,
+sharing this same conf.py file. To build a docset an environment variable
+is used, ``RTD_DOCSET``, values given in the settings are relative to this
+conf.py file, if you want to give a different value for a docset, use the
+``docsets`` dictionary, or if you want to extend the current value,
+use f'{docset}/setting' as value on the setting, for example::
+
+    html_static_path = ['_static', f'{docset}/_static']
+"""
+
 import os
 import sys
 from configparser import RawConfigParser
@@ -8,11 +21,28 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
-from django.conf import settings
 from django.utils import timezone
 
 import django
 django.setup()
+
+
+# Set here the variables you want for each docset.
+docsets = {
+    'user': {
+        'project': 'Read the Docs user documentation',
+    },
+    'dev': {
+        'project': 'Read the Docs developer documentation',
+    },
+}
+docset = os.environ.get('RTD_DOCSET', 'user')
+if docset not in docsets:
+    print(f'Invalid RTD_DOCSET value: "{docset}"')
+    exit(1)
+
+for k, v in docsets[docset].items():
+    locals()[k] = v
 
 
 def get_version():
@@ -32,18 +62,16 @@ extensions = [
     'doc_extensions',
     'sphinx_tabs.tabs',
     'sphinx-prompt',
-    'recommonmark',
     'notfound.extension',
     'hoverxref.extension',
     'sphinx_search.extension',
     'sphinxemoji.sphinxemoji',
+    'myst_parser',
 ]
 
 templates_path = ['_templates']
-source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
-project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
@@ -53,18 +81,43 @@ exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
-    'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
+    'django': ('https://docs.djangoproject.com/en/2.2/', 'https://docs.djangoproject.com/en/2.2/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'pip': ('https://pip.pypa.io/en/stable/', None),
+    'nbsphinx': ('https://nbsphinx.readthedocs.io/en/0.8.6/', None),
+    'myst-nb': ('https://myst-nb.readthedocs.io/en/v0.12.3/', None),
+    'ipywidgets': ('https://ipywidgets.readthedocs.io/en/7.6.3/', None),
+    'jupytext': ('https://jupytext.readthedocs.io/en/stable/', None),
+    'ipyleaflet': ('https://ipyleaflet.readthedocs.io/en/stable/', None),
+    'poliastro': ('https://docs.poliastro.space/en/v0.15.2/', None),
+    'qiskit': ('https://qiskit.org/documentation/', None),
+    'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
+    'writethedocs': ('https://www.writethedocs.org/', None),
+    'jupyterbook': ('https://jupyterbook.org/', None),
+    'myst-parser': ('https://myst-parser.readthedocs.io/en/v0.15.1/', None),
+    'rst-to-myst': ('https://rst-to-myst.readthedocs.io/en/stable/', None),
+    'rtd': ('https://docs.readthedocs.io/en/stable/', None),
+    'rtd-dev': ('https://dev.readthedocs.io/en/latest/', None),
 }
+myst_enable_extensions = [
+    "deflist",
+]
+hoverxref_intersphinx = [
+   "sphinx",
+   "pip",
+   "nbsphinx",
+   "myst-nb",
+   "ipywidgets",
+   "jupytext",
+]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
-    ('index', 'ReadTheDocs.tex', u'Read the Docs Documentation',
-     u'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
+    ('index', 'ReadTheDocs.tex', 'Read the Docs Documentation',
+     'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
 ]
 man_pages = [
-    ('index', 'read-the-docs', u'Read the Docs Documentation',
-     [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
+    ('index', 'read-the-docs', 'Read the Docs Documentation',
+     ['Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
 
 exclude_patterns = [
@@ -74,18 +127,25 @@ exclude_patterns = [
 language = 'en'
 
 locale_dirs = [
-    'locale/',
+    f'{docset}/locale/',
 ]
 gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = ['_static', f'{docset}/_static']
+html_css_files = ['css/custom.css', 'css/sphinx_prompt_css.css']
 html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
+}
+html_context = {
+    # Fix the "edit on" links.
+    # TODO: remove once we support different rtd config
+    # files per project.
+    'conf_py_path': f'/docs/{docset}/',
 }
 
 hoverxref_auto_ref = True
@@ -109,8 +169,6 @@ rst_epilog = """
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
-
-numfig = True
 
 # sphinx-notfound-page
 # https://github.com/readthedocs/sphinx-notfound-page
@@ -142,4 +200,4 @@ linkcheck_ignore = [
 
 
 def setup(app):
-    app.add_css_file('css/sphinx_prompt_css.css')
+    app.srcdir += '/' + docset

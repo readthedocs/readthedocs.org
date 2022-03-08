@@ -7,11 +7,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
-from readthedocs.projects.tasks import (
+from readthedocs.projects.tasks.search import (
     _create_imported_files,
     _create_intersphinx_data,
-    _sync_imported_files,
 )
+from readthedocs.projects.tasks.search import _sync_imported_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -176,7 +176,7 @@ class ImportedFileTests(TestCase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     @override_settings(RTD_INTERSPHINX_URL='https://readthedocs.org')
-    @mock.patch('readthedocs.projects.tasks.os.path.exists')
+    @mock.patch('readthedocs.projects.tasks.builds.os.path.exists')
     def test_create_intersphinx_data(self, mock_exists):
         mock_exists.return_Value = True
 
@@ -255,7 +255,7 @@ class ImportedFileTests(TestCase):
         self.assertEqual(ImportedFile.objects.count(), 2)
 
     @override_settings(RTD_INTERSPHINX_URL='http://localhost:8080')
-    @mock.patch('readthedocs.projects.tasks.os.path.exists')
+    @mock.patch('readthedocs.projects.tasks.builds.os.path.exists')
     def test_custom_intersphinx_url(self, mock_exists):
         mock_exists.return_Value = True
 

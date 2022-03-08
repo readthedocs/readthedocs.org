@@ -10,9 +10,8 @@ in our Docker Development environment.
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
 from django.conf import settings
-from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.exceptions import ImproperlyConfigured
-from storages.backends.s3boto3 import S3Boto3Storage
+from storages.backends.s3boto3 import S3Boto3Storage, S3ManifestStaticStorage
 
 from readthedocs.builds.storage import BuildMediaStorageMixin
 
@@ -52,7 +51,11 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
             )
 
 
-class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage):
+class S3StaticStorage(
+    OverrideHostnameMixin,
+    S3ManifestStaticStorage,
+    S3Boto3Storage
+):  # pylint: disable=too-many-ancestors
 
     """
     An AWS S3 Storage backend for static media.
@@ -88,4 +91,18 @@ class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3
             raise ImproperlyConfigured(
                 'AWS S3 not configured correctly. '
                 'Ensure S3_BUILD_ENVIRONMENT_STORAGE_BUCKET is defined.',
+            )
+
+
+class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+
+    bucket_name = getattr(settings, 'S3_BUILD_TOOLS_STORAGE_BUCKET', None)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.bucket_name:
+            raise ImproperlyConfigured(
+                'AWS S3 not configured correctly. '
+                'Ensure S3_BUILD_TOOLS_STORAGE_BUCKET is defined.',
             )
