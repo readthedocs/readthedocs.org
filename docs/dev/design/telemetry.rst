@@ -27,8 +27,7 @@ Metabase:
 
 Summary: We have several tools that can inspect data form a postgres DB,
 and we also have ``Kibana`` that works *only* with ElasticSearch.
-The data to be collected can be saved in a postgres or ES database,
-if we use postgres, we would need to use *real* json fields.
+The data to be collected can be saved in a postgres or ES database.
 
 Data to be collected
 --------------------
@@ -44,9 +43,6 @@ but to save some space we are saving it only if it's different than the one from
 
 The config file being saved isn't the original one used by the user,
 but the result of merging it with its default values.
-It's saved using a _fake_ ``JSONField``
-(charfield that is transformed to json when creating the model object).
-For these reasons we can't query or download them in bulk without iterating over all objects.
 
 We may also want to have the original config file,
 so we know which settings users are using.
@@ -142,8 +138,7 @@ so we may be collecting some noise, but we can use ``pip list`` as a secondary s
 APT packages
 ~~~~~~~~~~~~
 
-This isn't implemented yet, but when it is,
-we can get the list from the config file,
+We can get the list from the config file,
 or we can list the packages installed with ``dpkg --get-selections``.
 That command would list all pre-installed packages as well, so we may be getting some noise.
 
@@ -185,9 +180,9 @@ but since it changes with time, we can get it from the OS itself:
 Format
 ~~~~~~
 
-The final file to be saved would have the following information:
+The final information to be saved would have the following information:
 
-- project: the project slug
+- project: the project id/slug
 - version: the version slug
 - build: the build id (which may stop existing if the project is deleted)
 - date: full date in isoformat or timestamp (POSIX)
