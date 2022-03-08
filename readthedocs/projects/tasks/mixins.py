@@ -1,8 +1,6 @@
-import os
 from collections import Counter
 
 import structlog
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
@@ -46,46 +44,46 @@ class SyncRepositoryMixin:
         version_data = api_v2.version(version_pk).get()
         return APIVersion(**version_data)
 
-    def get_vcs_repo(self, environment):
-        """
-        Get the VCS object of the current project.
+    # def get_vcs_repo(self, environment):
+    #     """
+    #     Get the VCS object of the current project.
 
-        All VCS commands will be executed using `environment`.
-        """
-        version_repo = self.data.project.vcs_repo(
-            version=self.data.version.slug,
-            environment=environment,
-            verbose_name=self.data.version.verbose_name,
-            version_type=self.data.version.type
-        )
-        return version_repo
+    #     All VCS commands will be executed using `environment`.
+    #     """
+    #     version_repo = self.data.project.vcs_repo(
+    #         version=self.data.version.slug,
+    #         environment=environment,
+    #         verbose_name=self.data.version.verbose_name,
+    #         version_type=self.data.version.type
+    #     )
+    #     return version_repo
 
-    def sync_repo(self, environment):
-        """Update the project's repository and hit ``sync_versions`` API."""
-        # Make Dirs
-        if not os.path.exists(self.data.project.doc_path):
-            os.makedirs(self.data.project.doc_path)
+    # def sync_repo(self, environment):
+    #     """Update the project's repository and hit ``sync_versions`` API."""
+    #     # Make Dirs
+    #     if not os.path.exists(self.data.project.doc_path):
+    #         os.makedirs(self.data.project.doc_path)
 
-        if not self.data.project.vcs_class():
-            raise RepositoryError(
-                _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.data.project.repo_type,
-                ),
-            )
+    #     if not self.data.project.vcs_class():
+    #         raise RepositoryError(
+    #             _('Repository type "{repo_type}" unknown').format(
+    #                 repo_type=self.data.project.repo_type,
+    #             ),
+    #         )
 
-        # Get the actual code on disk
-        log.info(
-            'Checking out version.',
-            version_identifier=self.data.version.identifier,
-        )
-        version_repo = self.get_vcs_repo(environment)
+    #     # Get the actual code on disk
+    #     log.info(
+    #         'Checking out version.',
+    #         version_identifier=self.data.version.identifier,
+    #     )
+    #     version_repo = self.get_vcs_repo(environment)
 
-        self.data.builder.checkout()
-        # version_repo.update()
+    #     self.data.builder.checkout()
+    #     # version_repo.update()
 
-        self.sync_versions(version_repo)
-        identifier = self.data.build_commit or self.data.version.identifier
-        version_repo.checkout(identifier)
+    #     self.sync_versions(version_repo)
+    #     identifier = self.data.build_commit or self.data.version.identifier
+    #     version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -95,6 +93,12 @@ class SyncRepositoryMixin:
 
            It may trigger a new build to the stable version.
         """
+
+        # NOTE: `sync_versions` should receive `tags` and `branches` already
+        # and just validate them trigger the task. All the other logic should
+        # be done by the DocumentationBuilder or the VCS backend. We should not
+        # check this here and do not depend on ``version_repo``.
+
         tags = None
         branches = None
         if (
@@ -172,20 +176,3 @@ class SyncRepositoryMixin:
                 raise RepositoryError(
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
-
-    def get_vcs_env_vars(self):
-        """Get environment variables to be included in the VCS setup step."""
-        env = self.get_rtd_env_vars()
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env
-
-    def get_rtd_env_vars(self):
-        """Get bash environment variables specific to Read the Docs."""
-        env = {
-            'READTHEDOCS': 'True',
-            'READTHEDOCS_VERSION': self.data.version.slug,
-            'READTHEDOCS_PROJECT': self.data.project.slug,
-            'READTHEDOCS_LANGUAGE': self.data.project.language,
-        }
-        return env

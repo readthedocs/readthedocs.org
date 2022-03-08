@@ -5,10 +5,8 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
-import os
 import signal
 import socket
-from collections import defaultdict
 
 import structlog
 from celery import Task
@@ -34,7 +32,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
-from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.builder import DocumentationBuilder
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
@@ -49,14 +47,12 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     YAMLParseError,
 )
-from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
 from ..exceptions import ProjectConfigurationError, RepositoryError
 from ..models import APIProject, Feature, WebHookEvent
-from ..signals import after_build, before_build, before_vcs
+from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
 from .utils import BuildRequest, clean_build, send_external_build_status
@@ -104,6 +100,8 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         RepositoryError,
     )
 
+    # TODO: adapt this task to make it work. It's currently untested.
+
     def before_start(self, task_id, args, kwargs):
         log.info('Running task.', name=self.name)
 
@@ -148,6 +146,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         clean_build(self.data.version)
 
     def execute(self):
+        # TODO: initialize the doc builder here
+        self.data.builder = DocumentationBuilder()
+
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
@@ -180,6 +181,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing.')
+            # TODO: needs to figure it out how to do this `sync_versions` here
             self.sync_versions(version_repo)
 
 
@@ -429,7 +431,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Store build artifacts to storage (local or cloud storage)
         self.store_build_artifacts(
-            self.data.build_env,
             html=html,
             search=search,
             localmedia=localmedia,
@@ -441,13 +442,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # HTML are built successfully.
         if html:
             try:
-                api_v2.version(self.data.version.pk).patch({
-                    'built': True,
-                    'documentation_type': self.get_final_doctype(),
-                    'has_pdf': pdf,
-                    'has_epub': epub,
-                    'has_htmlzip': localmedia,
-                })
+                api_v2.version(self.data.version.pk).patch(
+                    {
+                        "built": True,
+                        "documentation_type": self.data.version.documentation_type,
+                        "has_pdf": pdf,
+                        "has_epub": epub,
+                        "has_htmlzip": localmedia,
+                    }
+                )
             except HttpClientError:
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
@@ -538,88 +541,33 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception('Unable to update build')
 
     def execute(self):
-        self.run_setup()
-        self.run_build()
+        # NOTE: what about doing:
+        #
+        # (triggered)
+        # - self.clone()
+        # - self.install()
+        # - self.build()
+        # - self.upload()
+        # (finished)
 
-    def run_setup(self):
-        """
-        Run setup in a build environment.
-
-        1. Create a Docker container with the default image
-        2. Clone the repository's code and submodules
-        3. Save the `config` object into the database
-        4. Update VCS submodules
-        """
-        environment = self.data.environment_class(
-            project=self.data.project,
-            version=self.data.version,
-            build=self.data.build,
-            environment=self.get_vcs_env_vars(),
-            # Force the ``container_image`` to use one that has the latest
-            # ca-certificate package which is compatible with Lets Encrypt
-            container_image=settings.RTD_DOCKER_BUILD_SETTINGS['os']['ubuntu-20.04']
-        )
-        self.data.builder = DocumentationBuilder(environment=environment)
-
-        # Environment used for code checkout & initial configuration reading
-        with environment:
-            before_vcs.send(
-                sender=self.data.version,
-                environment=environment,
-            )
-
-            self.setup_vcs(environment)
-            self.data.config = load_yaml_config(version=self.data.version)
-            self.save_build_config()
-            self.update_vcs_submodules(environment)
-
-    def update_vcs_submodules(self, environment):
-        version_repo = self.get_vcs_repo(environment)
-        if version_repo.supports_submodules:
-            version_repo.update_submodules(self.data.config)
-
-    def run_build(self):
-        """Build the docs in an environment."""
-        # NOTE: why are we using `self.data.build_env` instead of just
-        # `environment =` as we do in `setup_vcs`
-        self.data.build_env = self.data.environment_class(
-            project=self.data.project,
-            version=self.data.version,
-            config=self.data.config,
-            build=self.data.build,
-            environment=self.get_build_env_vars(),
+        self.data.builder = DocumentationBuilder(
+            data=self.data,
         )
 
-        # Environment used for building code, usually with Docker
-        with self.data.build_env:
-            python_env_cls = Virtualenv
-            if any([
-                    self.data.config.conda is not None,
-                    self.data.config.python_interpreter in ('conda', 'mamba'),
-            ]):
-                python_env_cls = Conda
+        self.update_build(state=BUILD_STATE_CLONING)
+        self.data.builder.vcs()
 
-            self.data.python_env = python_env_cls(
-                version=self.data.version,
-                build_env=self.data.build_env,
-                config=self.data.config,
-            )
+        # Sync tags/branches from VCS repository into Read the Docs' `Version`
+        # objects in the database
+        #
+        # FIXME: review why I had to disable this for now.
+        log.error("Not triggering `sync_versions` because it's broken")
+        # self.sync_versions()
 
-            # TODO: check if `before_build` and `after_build` are still useful
-            # (maybe in commercial?)
-            #
-            # I didn't find they are used anywhere, we should probably remove them
-            before_build.send(
-                sender=self.data.version,
-                environment=self.data.build_env,
-            )
-
-            self.setup_build()
-            self.build_docs()
-
-            after_build.send(
-                sender=self.data.version,
-            )
+        self.update_build(state=BUILD_STATE_INSTALLING)
+        self.data.builder.setup_environment()
+        self.update_build(state=BUILD_STATE_BUILDING)
+        self.data.builder.build()
 
     @staticmethod
     def get_project(project_pk):
@@ -649,55 +597,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             for key, val in build.items() if key not in private_keys
         }
 
-    def setup_vcs(self, environment):
-        """
-        Update the checkout of the repo to make sure it's the latest.
+    # TODO: can we name this `clonning`
+    # def setup_vcs(self, environment):
+    #     """
+    #     Update the checkout of the repo to make sure it's the latest.
 
-        This also syncs versions in the DB.
-        """
-        self.update_build(state=BUILD_STATE_CLONING)
-        self.sync_repo(environment)
+    #     This also syncs versions in the DB.
+    #     """
+    #     self.update_build(state=BUILD_STATE_CLONING)
+    #     self.sync_repo(environment)
 
-        commit = self.data.build_commit or self.get_vcs_repo(environment).commit
-        if commit:
-            self.data.build['commit'] = commit
-
-    def get_build_env_vars(self):
-        """Get bash environment variables used for all builder commands."""
-        env = self.get_rtd_env_vars()
-
-        # https://no-color.org/
-        env['NO_COLOR'] = '1'
-
-        if self.data.config.conda is not None:
-            env.update({
-                'CONDA_ENVS_PATH': os.path.join(self.data.project.doc_path, 'conda'),
-                'CONDA_DEFAULT_ENV': self.data.version.slug,
-                'BIN_PATH': os.path.join(
-                    self.data.project.doc_path,
-                    'conda',
-                    self.data.version.slug,
-                    'bin',
-                ),
-            })
-        else:
-            env.update({
-                'BIN_PATH': os.path.join(
-                    self.data.project.doc_path,
-                    'envs',
-                    self.data.version.slug,
-                    'bin',
-                ),
-            })
-
-        # Update environment from Project's specific environment variables,
-        # avoiding to expose private environment variables
-        # if the version is external (i.e. a PR build).
-        env.update(self.data.project.environment_variables(
-            public_only=self.data.version.is_external
-        ))
-
-        return env
+    #     commit = self.data.build_commit or self.get_vcs_repo(environment).commit
+    #     if commit:
+    #         self.data.build['commit'] = commit
 
     # NOTE: this can be just updated on `self.data.build['']` and sent once the
     # build has finished to reduce API calls.
@@ -709,21 +621,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    # TODO: think about reducing the amount of API calls. Can we just save the
-    # `config` in memory (`self.data.build['config']`) and update it later (e.g.
-    # together with the build status)?
-    def save_build_config(self):
-        """Save config in the build object."""
-        pk = self.data.build['id']
-        config = self.data.config.as_dict()
-        api_v2.build(pk).patch({
-            'config': config,
-        })
-        self.data.build['config'] = config
 
     def store_build_artifacts(
             self,
-            environment,
             html=False,
             localmedia=False,
             search=False,
@@ -817,81 +717,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     media_path=media_path,
                 )
 
-    def setup_build(self):
-        self.update_build(state=BUILD_STATE_INSTALLING)
-
-        self.data.builder.pre_system_dependencies()
-        self.data.builder.system_dependencies()
-        self.data.builder.post_system_dependencies()
-
-        # Install all ``build.tools`` specified by the user
-        if self.data.config.using_build_tools:
-            self.data.python_env.install_build_tools()
-
-        self.data.builder.pre_create_environment()
-        self.data.builder.create_environment()
-        self.data.builder.post_create_environment()
-        # self.data.python_env.setup_base()
-
-        self.data.builder.pre_install()
-        self.data.builder.install()
-        self.data.builder.post_install()
-        # self.data.python_env.install_core_requirements()
-        # self.data.python_env.install_requirements()
-
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.data.python_env.list_packages_installed()
-
-
-    def build_docs(self):
-        """
-        Wrapper to all build functions.
-
-        Executes the necessary builds for this task and returns whether the
-        build was successful or not.
-
-        :returns: Build outcomes with keys for html, search, localmedia, pdf,
-                  and epub
-        :rtype: dict
-        """
-        self.update_build(state=BUILD_STATE_BUILDING)
-
-        self.data.outcomes = defaultdict(lambda: False)
-        self.data.outcomes["html"] = self.data.builder.build_html()
-        # self.data.outcomes['html'] = self.build_docs_html()
-
-        self.data.outcomes['search'] = self.build_docs_search()
-
-        self.data.outcomes["localmedia"] = self.data.builder.build_htmlzip()
-        # self.data.outcomes['localmedia'] = self.build_docs_localmedia()
-
-        self.data.outcomes["pdf"] = self.data.builder.build_pdf()
-        # self.data.outcomes['pdf'] = self.build_docs_pdf()
-
-        self.data.outcomes["epub"] = self.data.builder.build_epub()
-        # self.data.outcomes['epub'] = self.build_docs_epub()
-
-        return self.data.outcomes
-
-
-    def get_final_doctype(self):
-        html_builder = get_builder_class(self.data.config.doctype)(
-            build_env=self.data.build_env,
-            python_env=self.data.python_env,
-        )
-        return html_builder.get_final_doctype()
-
-    def build_docs_search(self):
-        """
-        Build search data.
-
-        .. note::
-           For MkDocs search is indexed from its ``html`` artifacts.
-           And in sphinx is run using the rtd-sphinx-extension.
-        """
-        return self.is_type_sphinx()
-
     def send_notifications(self, version_pk, build_pk, event):
         """Send notifications to all subscribers of `event`."""
         # Try to infer the version type if we can
@@ -902,10 +727,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=build_pk,
                 event=event,
             )
-
-    def is_type_sphinx(self):
-        """Is documentation type Sphinx."""
-        return 'sphinx' in self.data.config.doctype
 
 
 @app.task(
