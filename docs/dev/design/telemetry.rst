@@ -184,6 +184,7 @@ Format
 
 The final information to be saved would consist of:
 
+- organization: the organization id/slug
 - project: the project id/slug
 - version: the version id/slug
 - build: the build id, date, length, status.
@@ -198,6 +199,10 @@ The final information to be saved would consist of:
 .. code-block:: json
 
    {
+     "organization": {
+       "id": 1,
+       "slug": "org"
+     },
      "project": {
        "id": 2,
        "slug": "docs"
