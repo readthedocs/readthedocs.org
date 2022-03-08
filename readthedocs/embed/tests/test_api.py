@@ -265,7 +265,7 @@ class BaseTestEmbedAPI:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
-        assert response['Cache-tag'] == 'project,project-latest'
+        assert response['Cache-tag'] == 'project,project:latest'
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_mkdocs(self, storage_mock, client):

@@ -1,12 +1,12 @@
 """Git-related utilities."""
 
-import structlog
 import re
 
 import git
-from gitdb.util import hex_to_bin
+import structlog
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
+from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -19,7 +19,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
 
 log = structlog.get_logger(__name__)
 
@@ -197,8 +196,11 @@ class Backend(BaseVCS):
 
         cmd.extend([self.repo_url, '.'])
 
-        code, stdout, stderr = self.run(*cmd)
-        return code, stdout, stderr
+        try:
+            code, stdout, stderr = self.run(*cmd)
+            return code, stdout, stderr
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR)
 
     @property
     def lsremote(self):

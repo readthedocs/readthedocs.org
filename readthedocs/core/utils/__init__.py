@@ -1,11 +1,9 @@
 """Common utility functions."""
 
 import datetime
-import errno
-import structlog
-import os
 import re
 
+import structlog
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import keep_lazy
@@ -285,3 +283,16 @@ def slugify(value, *args, **kwargs):
         # DNS doesn't allow - at the beginning or end of subdomains
         value = mark_safe(value.strip('-'))
     return value
+
+
+def get_cache_tag(*args):
+    """
+    Generate a cache tag from the given args.
+
+    The final tag is composed of several parts
+    that form a unique tag (like project and version slug).
+
+    All parts are separated using a character that isn't
+    allowed in slugs to avoid collisions.
+    """
+    return ':'.join(args)

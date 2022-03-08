@@ -1,3 +1,24 @@
+Version 7.4.1
+-------------
+
+:Date: March 07, 2022
+
+* `@humitos <https://github.com/humitos>`__: Upgrade common submodule (`#9001 <https://github.com/readthedocs/readthedocs.org/pull/9001>`__)
+* `@humitos <https://github.com/humitos>`__: Build: `RepositoryError` message (`#8999 <https://github.com/readthedocs/readthedocs.org/pull/8999>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: remove `django-permissions-policy` (`#8987 <https://github.com/readthedocs/readthedocs.org/pull/8987>`__)
+* `@stsewd <https://github.com/stsewd>`__: Archive builds: avoid filtering by commands__isnull (`#8986 <https://github.com/readthedocs/readthedocs.org/pull/8986>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel error message (`#8984 <https://github.com/readthedocs/readthedocs.org/pull/8984>`__)
+* `@humitos <https://github.com/humitos>`__: API: validate `RemoteRepository` when creating a `Project` (`#8983 <https://github.com/readthedocs/readthedocs.org/pull/8983>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: trigger `archive_builds` frequently with a lower limit (`#8981 <https://github.com/readthedocs/readthedocs.org/pull/8981>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 09 (`#8977 <https://github.com/readthedocs/readthedocs.org/pull/8977>`__)
+* `@stsewd <https://github.com/stsewd>`__: MkDocs: allow None on extra_css/extra_javascript (`#8976 <https://github.com/readthedocs/readthedocs.org/pull/8976>`__)
+* `@stsewd <https://github.com/stsewd>`__: CDN: avoid cache tags collision (`#8969 <https://github.com/readthedocs/readthedocs.org/pull/8969>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: warn about custom domains on subprojects (`#8945 <https://github.com/readthedocs/readthedocs.org/pull/8945>`__)
+* `@humitos <https://github.com/humitos>`__: Code style: format the code using `darker` (`#8875 <https://github.com/readthedocs/readthedocs.org/pull/8875>`__)
+* `@dogukanteber <https://github.com/dogukanteber>`__: Use django-storages' manifest files class instead of the overriden class (`#8781 <https://github.com/readthedocs/readthedocs.org/pull/8781>`__)
+* `@nienn <https://github.com/nienn>`__: Docs: Add links to documentation on creating custom classes (`#8466 <https://github.com/readthedocs/readthedocs.org/pull/8466>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: allow to pass more data about external versions (`#7692 <https://github.com/readthedocs/readthedocs.org/pull/7692>`__)
+
 Version 7.4.0
 -------------
 
