@@ -182,12 +182,11 @@ but since it changes with time, we can get it from the OS itself:
 Format
 ~~~~~~
 
-The final information to be saved would have the following information:
+The final information to be saved would consist of:
 
 - project: the project id/slug
-- version: the version slug
-- build: the build id (which may stop existing if the project is deleted)
-- date: full date in isoformat or timestamp (POSIX)
+- version: the version id/slug
+- build: the build id, date, length, status.
 - user_config: Original user config file
 - final_config: Final configuration used (merged with defaults)
 - packages.pip: List of pip packages with name and version
