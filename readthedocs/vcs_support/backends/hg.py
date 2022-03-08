@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Mercurial-related utilities."""
 from readthedocs.projects.exceptions import RepositoryError
@@ -33,8 +32,11 @@ class Backend(BaseVCS):
 
     def clone(self):
         self.make_clean_working_dir()
-        output = self.run('hg', 'clone', self.repo_url, '.')
-        return output
+        try:
+            output = self.run("hg", "clone", self.repo_url, ".")
+            return output
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR)
 
     @property
     def branches(self):

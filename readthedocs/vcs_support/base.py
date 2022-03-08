@@ -1,11 +1,11 @@
 """Base classes for VCS backends."""
-import structlog
 import os
 import shutil
 
-from readthedocs.doc_builder.exceptions import BuildUserError, BuildCancelled
-from readthedocs.projects.exceptions import RepositoryError
+import structlog
 
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.projects.exceptions import RepositoryError
 
 log = structlog.get_logger(__name__)
 
@@ -108,7 +108,9 @@ class BaseVCS:
             raise BuildCancelled
         except BuildUserError as e:
             # Re raise as RepositoryError to handle it properly from outside
-            raise RepositoryError(str(e))
+            if hasattr(e, "message"):
+                raise RepositoryError(e.message)
+            raise RepositoryError
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
