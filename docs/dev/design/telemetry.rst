@@ -251,8 +251,8 @@ The final information to be saved would have the following information:
 Storage
 -------
 
-We can store this information in a dedicated database (telemetry),
-using Django's models.
+All this information can be collected after the build has finished,
+and we can store it in a dedicated database (telemetry), using Django's models.
 
 Since this information isn't sensitive,
 we should be fine saving this data even if the project/version is deleted.
