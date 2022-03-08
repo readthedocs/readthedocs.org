@@ -28,6 +28,8 @@ Metabase:
 Summary: We have several tools that can inspect data form a postgres DB,
 and we also have ``Kibana`` that works *only* with ElasticSearch.
 The data to be collected can be saved in a postgres or ES database.
+Currently, we are making use of Metabase to get other information,
+so it's probably the right choice for this task.
 
 Data to be collected
 --------------------
@@ -197,12 +199,26 @@ The final information to be saved would have the following information:
 .. code-block:: json
 
    {
-     "project": "docs",
-     "version": "latest",
-     "build": 12,
-     "date": "2021-04-20-...",
-     "user_config": {},
-     "final_config": {},
+     "project": {
+       "id": 2,
+       "slug": "docs"
+     },
+     "version": {
+       "id": 1,
+       "slug": "latest"
+     },
+     "build": {
+       "id": 3,
+       "date/start": "2021-04-20-...",
+       "length": "00:06:34",
+       "status": "normal",
+       "success": true,
+       "commit": "abcd1234"
+     },
+     "config": {
+       "user": {},
+       "final": {}
+     },
      "packages": {
         "pip": [{
            "name": "sphinx",
@@ -229,20 +245,21 @@ The final information to be saved would have the following information:
         ]
      },
      "python": "3.7",
-     "os": {
-         "name": "ubuntu",
-         "version": "18.04.5"
-     }
+     "os": "ubuntu-18.04.5"
    }
 
 Storage
 -------
 
+We can store this information in a dedicated database (telemetry),
+using Django's models.
+
 Since this information isn't sensitive,
 we should be fine saving this data even if the project/version is deleted.
 As we don't care about historical data,
 we can save the information per-version and from their latest build only.
+And delete old data if it grows too much.
 
-We can collect data for one year,
-export it to cloud storage after being analyzed (maybe share this data publicity),
-and remove it from our database if it takes too much space.
+Should we make heavy use of JSON fields?
+Or try to avoid nesting structures as possible?
+Like config.user/config.final vs user_config/final_config.
