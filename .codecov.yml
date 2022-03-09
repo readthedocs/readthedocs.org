@@ -5,4 +5,4 @@ coverage:
     patch: off
 
 fixes:
-   - "/home/circleci/::"
+   - "/home/circleci/readthedocs::"
