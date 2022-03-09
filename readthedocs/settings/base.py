@@ -10,7 +10,6 @@ from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -110,12 +109,6 @@ class CommunityBaseSettings(Settings):
     CSP_EXCLUDE_URL_PREFIXES = (
         "/admin/",
     )
-
-    # Permissions Policy
-    # https://github.com/adamchainz/django-permissions-policy
-    PERMISSIONS_POLICY = {
-        "interest-cohort": [],
-    }
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -252,7 +245,6 @@ class CommunityBaseSettings(Settings):
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
         'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
         'django_structlog.middlewares.CeleryMiddleware',
@@ -400,13 +392,6 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    BROKER_TRANSPORT_OPTIONS = {
-        'queue_order_strategy': 'priority',
-        # We use 0 here because some things still put a task in the queue with no priority
-        # I don't fully understand why, but this seems to solve it.
-        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
-    }
-
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
@@ -434,12 +419,14 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
-        'hourly-archive-builds': {
-            'task': 'readthedocs.builds.tasks.archive_builds',
-            'schedule': crontab(minute=30),
+        'quarter-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds_task',
+            'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
             'kwargs': {
                 'days': 1,
+                'limit': 500,
+                'delete': True,
             },
         },
         'every-day-delete-inactive-external-versions': {
@@ -669,6 +656,7 @@ class CommunityBaseSettings(Settings):
         'accept',
         'origin',
         'authorization',
+        'x-hoverxref-version',
         'x-csrftoken'
     )
     # Additional protection to allow only idempotent methods.

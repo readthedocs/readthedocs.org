@@ -1,16 +1,15 @@
 import json
-import structlog
-from datetime import datetime, timedelta
 from io import BytesIO
 
 import requests
-from celery import Task
+import structlog
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs import __version__
-from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.api.v2.serializers import BuildCommandSerializer
 from readthedocs.api.v2.utils import (
     delete_versions_from_db,
     get_deleted_active_versions,
@@ -115,14 +114,17 @@ class TaskRouter:
         last_builds = version.builds.order_by('-date')[:self.N_LAST_BUILDS]
         # Version has used conda in previous builds
         for build in last_builds.iterator():
-            build_tools_python = (
-                build.config
-                .get('build', {})
-                .get('tools', {})
-                .get('python', {})
-                .get('version', '')
-            )
-            conda = build.config.get('conda', None)
+            build_tools_python = ''
+            conda = None
+            if build.config:
+                build_tools_python = (
+                    build.config
+                    .get('build', {})
+                    .get('tools', {})
+                    .get('python', {})
+                    .get('version', '')
+                )
+                conda = build.config.get('conda', None)
 
             uses_conda = any([
                 conda,
@@ -175,62 +177,53 @@ class TaskRouter:
         return version
 
 
-class ArchiveBuilds(Task):
-
-    """Task to archive old builds to cold storage."""
-
-    name = __name__ + '.archive_builds'
-
-    def run(self, *args, **kwargs):
-        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
-            return
-
-        lock_id = '{0}-lock'.format(self.name)
-        days = kwargs.get('days', 14)
-        limit = kwargs.get('limit', 5000)
-        delete = kwargs.get('delete', True)
-
-        with memcache_lock(lock_id, self.app.oid) as acquired:
-            if acquired:
-                archive_builds_task(days=days, limit=limit, delete=delete)
-            else:
-                log.warning('Archive Builds Task still locked')
-
-
-def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
+@app.task(queue='web', bind=True)
+def archive_builds_task(self, days=14, limit=200, delete=False):
     """
-    Find stale builds and remove build paths.
+    Task to archive old builds to cold storage.
 
     :arg days: Find builds older than `days` days.
-    :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
-    max_date = datetime.now() - timedelta(days=days)
-    queryset = Build.objects.exclude(commands__isnull=True)
-    if not include_cold:
-        queryset = queryset.exclude(cold_storage=True)
-    queryset = queryset.filter(date__lt=max_date)[:limit]
+    if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+        return
 
-    for build in queryset:
-        data = BuildSerializer(build).data['commands']
-        if data:
-            for cmd in data:
-                if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
-                    cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build.', build_id=build.id)
-            output = BytesIO()
-            output.write(json.dumps(data).encode('utf8'))
-            output.seek(0)
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
-            try:
-                build_commands_storage.save(name=filename, content=output)
-                build.cold_storage = True
-                build.save()
-                if delete:
-                    build.commands.all().delete()
-            except IOError:
-                log.exception('Cold Storage save failure')
+    lock_id = '{0}-lock'.format(self.name)
+    with memcache_lock(lock_id, self.app.oid) as acquired:
+        if not acquired:
+            log.warning('Archive Builds Task still locked')
+            return False
+
+        max_date = timezone.now() - timezone.timedelta(days=days)
+        queryset = (
+            Build.objects
+            .exclude(cold_storage=True)
+            .filter(date__lt=max_date)
+            .prefetch_related('commands')
+            .only('date', 'cold_storage')
+            [:limit]
+        )
+
+        for build in queryset:
+            commands = BuildCommandSerializer(build.commands, many=True).data
+            if commands:
+                for cmd in commands:
+                    if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
+                        cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
+                        cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
+                        log.warning('Truncating build command for build.', build_id=build.id)
+                output = BytesIO(json.dumps(commands).encode('utf8'))
+                filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+                try:
+                    build_commands_storage.save(name=filename, content=output)
+                    if delete:
+                        build.commands.all().delete()
+                except IOError:
+                    log.exception('Cold Storage save failure')
+                    continue
+
+            build.cold_storage = True
+            build.save()
 
 
 @app.task(queue='web')
@@ -240,7 +233,7 @@ def delete_inactive_external_versions(limit=200, days=30 * 3):
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
-    days_ago = datetime.now() - timedelta(days=days)
+    days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
         active=False,
         modified__lte=days_ago,

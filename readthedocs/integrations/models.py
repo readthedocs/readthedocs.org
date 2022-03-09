@@ -12,7 +12,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from jsonfield import JSONField
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -102,12 +101,15 @@ class HttpExchangeManager(models.Manager):
         :param related_object: Object to use for generic relationship.
         """
         request = response.request
+        # NOTE: we need to cast ``request.headers`` and ``response.headers``
+        # because it's a ``requests.structures.CaseInsensitiveDict`` which is
+        # not JSON serializable.
         obj = self.create(
             related_object=related_object,
-            request_headers=request.headers or {},
+            request_headers=dict(request.headers) or {},
             request_body=request.body or '',
             status_code=response.status_code,
-            response_headers=response.headers,
+            response_headers=dict(response.headers),
             response_body=response.text,
         )
         self.delete_limit(related_object)
@@ -144,8 +146,7 @@ class HttpExchange(models.Model):
 
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
-    request_headers = JSONField(_('Request headers'))
-    request_headers_json = models.JSONField(
+    request_headers = models.JSONField(
         _('Request headers'),
         # Delete after deploy
         null=True,
@@ -153,8 +154,7 @@ class HttpExchange(models.Model):
     )
     request_body = models.TextField(_('Request body'))
 
-    response_headers = JSONField(_('Request headers'))
-    response_headers_json = models.JSONField(
+    response_headers = models.JSONField(
         _('Request headers'),
         # Delete after deploy
         null=True,
@@ -174,15 +174,6 @@ class HttpExchange(models.Model):
 
     def __str__(self):
         return _('Exchange {0}').format(self.pk)
-
-    # TODO: delete .save method after deploy
-    # Copy headers into new JSONField
-    def save(self, *args, **kwargs):
-        # NOTE: cast headers into a regular dict because Django does not know
-        # how to serialize ``requests.structures.CaseInsensitiveDict``
-        self.request_headers_json = dict(self.request_headers)
-        self.response_headers_json = dict(self.response_headers)
-        super().save(*args, **kwargs)
 
     @property
     def failed(self):
@@ -298,8 +289,7 @@ class Integration(models.Model):
         max_length=32,
         choices=INTEGRATIONS,
     )
-    provider_data = JSONField(_('Provider data'), default=dict)
-    provider_data_json = models.JSONField(
+    provider_data = models.JSONField(
         _('Provider data'),
         null=True,
         blank=True,
@@ -328,12 +318,6 @@ class Integration(models.Model):
     def remove_secret(self):
         self.secret = None
         self.save(update_fields=['secret'])
-
-    # TODO: delete .save method after deploy
-    # Copy `provider_data` into new JSONField
-    def save(self, *args, **kwargs):
-        self.provider_data_json = self.provider_data
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return (
