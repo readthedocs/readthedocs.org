@@ -537,19 +537,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception('Unable to update build')
 
     def execute(self):
-        # NOTE: what about doing:
-        #
-        # (triggered)
-        # - self.clone()
-        # - self.install()
-        # - self.build()
-        # - self.upload()
-        # (finished)
-
         self.data.builder = DocumentationBuilder(
             data=self.data,
         )
 
+        # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
         self.data.builder.vcs()
 
@@ -557,8 +549,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # objects in the database
         self.sync_versions(self.data.builder.vcs_repository)
 
+        # Installing
         self.update_build(state=BUILD_STATE_INSTALLING)
         self.data.builder.setup_environment()
+
+        # Building
         self.update_build(state=BUILD_STATE_BUILDING)
         self.data.builder.build()
 
