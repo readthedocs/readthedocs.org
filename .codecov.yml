@@ -4,5 +4,8 @@ coverage:
     project: off
     patch: off
 
+# Our tests are located in the readthedocs directory,
+# not in the root directory, so this is needed.
+# https://docs.codecov.com/docs/fixing-paths
 fixes:
-   - "/home/circleci/readthedocs::"
+  - "/home/circleci/project/::"
