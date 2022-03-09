@@ -20,7 +20,8 @@ jobs:
       - run: git submodule update --init
       - run: pip install --user tox
       - run: tox -e py38
-      - codecov/upload
+      - codecov/upload:
+          file: .coverage
 
   tests-embedapi:
     docker:
