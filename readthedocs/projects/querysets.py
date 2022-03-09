@@ -114,9 +114,9 @@ class ProjectQuerySetBase(models.QuerySet):
             max_concurrent_organization = organization.max_concurrent_builds
 
         return (
-            project.max_concurrent_builds or
-            max_concurrent_organization or
-            PlanFeature.objects.get_feature_value(
+            project.max_concurrent_builds
+            or max_concurrent_organization
+            or PlanFeature.objects.get_feature_value(
                 project,
                 type=PlanFeature.TYPE_CONCURRENT_BUILDS,
                 default=settings.RTD_MAX_CONCURRENT_BUILDS,

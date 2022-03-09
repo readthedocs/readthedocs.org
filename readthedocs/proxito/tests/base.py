@@ -1,6 +1,5 @@
 # Copied from .org
 
-from readthedocs.projects.constants import SSL_STATUS_VALID
 import django_dynamic_fixture as fixture
 import pytest
 from django.conf import settings
@@ -8,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
 from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
@@ -82,14 +81,14 @@ class BaseDocServing(TestCase):
         self.domain = fixture.get(
             Domain,
             project=self.project,
-            domain='docs1.example.com',
+            domain="docs1.example.com",
             https=True,
             ssl_status=SSL_STATUS_VALID,
         )
         self.domain2 = fixture.get(
             Domain,
             project=self.project,
-            domain='docs2.example.com',
+            domain="docs2.example.com",
             https=True,
             ssl_status=SSL_STATUS_VALID,
         )

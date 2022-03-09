@@ -13,12 +13,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.utils import slugify
-from readthedocs.organizations.models import (
-    Organization,
-    Team,
-    TeamInvite,
-    TeamMember,
-)
+from readthedocs.organizations.models import Organization, Team, TeamInvite, TeamMember
 from readthedocs.organizations.views import public as public_views
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin

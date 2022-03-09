@@ -221,10 +221,10 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     def get_context_data(self, **kwargs):
         organization = self.get_organization()
         context = super().get_context_data(**kwargs)
-        context['enabled'] = self._is_feature_enabled(organization)
-        context['days_limit'] = self._get_retention_days_limit(organization)
-        context['filter'] = self.filter
-        context['AuditLog'] = AuditLog
+        context["enabled"] = self._is_feature_enabled(organization)
+        context["days_limit"] = self._get_retention_days_limit(organization)
+        context["filter"] = self.filter
+        context["AuditLog"] = AuditLog
         return context
 
     def _get_start_date(self):

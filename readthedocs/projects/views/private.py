@@ -79,7 +79,6 @@ from readthedocs.projects.views.mixins import (
 from readthedocs.search.models import SearchQuery
 from readthedocs.subscriptions.models import PlanFeature
 
-
 log = structlog.get_logger(__name__)
 
 
