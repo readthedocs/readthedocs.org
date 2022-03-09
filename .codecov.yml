@@ -3,6 +3,3 @@ coverage:
   status:
     project: off
     patch: off
-
-fixes:
-   - "/home/circleci/project/::"
