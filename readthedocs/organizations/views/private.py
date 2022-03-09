@@ -221,7 +221,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     def get_context_data(self, **kwargs):
         organization = self.get_organization()
         context = super().get_context_data(**kwargs)
-        context['enabled'] = self._is_enabled(organization)
+        context['enabled'] = self._is_feature_enabled(organization)
         context['days_limit'] = self._get_retention_days_limit(organization)
         context['filter'] = self.filter
         context['AuditLog'] = AuditLog
@@ -242,7 +242,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     def _get_queryset(self):
         """Return the queryset without filters."""
         organization = self.get_organization()
-        if not self._is_enabled(organization):
+        if not self._is_feature_enabled(organization):
             return AuditLog.objects.none()
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
@@ -282,7 +282,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
             default=settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
         )
 
-    def _is_enabled(self, organization):
+    def _is_feature_enabled(self, organization):
         return PlanFeature.objects.has_feature(
             organization,
             type=self.feature_type,
