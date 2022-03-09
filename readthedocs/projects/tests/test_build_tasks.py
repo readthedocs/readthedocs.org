@@ -636,11 +636,6 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
-    def test_use_config_file(self, load_yaml_config):
-        self._trigger_update_docs_task()
-        load_yaml_config.assert_called_once()
-
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
     def test_install_apt_packages(self, load_yaml_config):
         config = BuildConfigV2(
             {},
