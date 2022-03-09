@@ -79,7 +79,6 @@ class TaskData:
     """
 
 
-
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
     """
@@ -594,7 +593,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
-
 
     def store_build_artifacts(
             self,

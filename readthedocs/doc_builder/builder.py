@@ -33,7 +33,8 @@ class DocumentationBuilder:
     """
 
     def __init__(self, data):
-        """Initializer.
+        """
+        Initializer.
 
         :param data: object with all the data grabbed by Celery task in
         ``before_start`` and used as a way to share data with this class
@@ -302,29 +303,28 @@ class DocumentationBuilder:
 
     def build_html(self):
         commands = []  # self.data.config.build.jobs.build.html
-        for command in commands:
-            self.build_environment.run(command)
+        if commands:
+            for command in commands:
+                self.build_environment.run(command)
+            return True
 
-        if not commands:
-            return self.build_docs_class(self.data.config.doctype)
+        return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
-        # TODO: adapt all the other `build_` methods to use `if commands:`
         commands = []  # self.data.config.build.jobs.build.pdf
         if commands:
             for command in commands:
                 self.build_environment.run(command)
             return True
 
-        else:
-            # Mkdocs has no pdf generation currently.
-            if self.is_type_sphinx():
-                return self.build_docs_class("sphinx_pdf")
+        # Mkdocs has no pdf generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class("sphinx_pdf")
 
-            return False
+        return False
 
     def build_htmlzip(self):
         if (
@@ -334,28 +334,30 @@ class DocumentationBuilder:
             return False
 
         commands = []  # self.data.config.build.jobs.build.htmlzip
-        for command in commands:
-            self.build_environment.run(command)
+        if commands:
+            for command in commands:
+                self.build_environment.run(command)
+            return True
 
-        if not commands:
-            # We don't generate a zip for mkdocs currently.
-            if self.is_type_sphinx():
-                return self.build_docs_class("sphinx_singlehtmllocalmedia")
-            return False
+        # We don't generate a zip for mkdocs currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class("sphinx_singlehtmllocalmedia")
+        return False
 
     def build_epub(self):
         if "epub" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
         commands = []  # self.data.config.build.jobs.build.epub
-        for command in commands:
-            self.build_environment.run(command)
+        if commands:
+            for command in commands:
+                self.build_environment.run(command)
+            return True
 
-        if not commands:
-            # Mkdocs has no epub generation currently.
-            if self.is_type_sphinx():
-                return self.build_docs_class("sphinx_epub")
-            return False
+        # Mkdocs has no epub generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class("sphinx_epub")
+        return False
 
     def post_build(self):
         commands = []  # self.data.config.build.jobs.post_build
