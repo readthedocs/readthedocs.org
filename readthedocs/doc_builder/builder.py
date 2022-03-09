@@ -17,10 +17,22 @@ log = structlog.get_logger(__name__)
 
 
 class DocumentationBuilder:
-    def __init__(
-        self,
-        data,  # Celery task's ``data`` object
-    ):
+
+    """
+    Encapsulates all the logic to perform a build for user's documentation.
+
+    This class handles all the VCS commands, setup OS and language (e.g. only
+    Python for now) environment (via virtualenv or conda), installs all the
+    required basic and user packages, and finally execute the build commands
+    (e.g. Sphinx or MkDocs) to generate the artifacts.
+
+    Note that this class *is not* in charge of doing anything related to Read
+    the Docs, the platform, itself. These include not updating the `Build`'s
+    status, or uploading the artifacts to the storage, creating the search
+    index, among others.
+    """
+
+    def __init__(self, data):
         """Initializer.
 
         :param data: object with all the data grabbed by Celery task in
