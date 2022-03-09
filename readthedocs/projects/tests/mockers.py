@@ -1,6 +1,5 @@
-import shutil
 import os
-
+import shutil
 from unittest import mock
 
 from django.conf import settings
@@ -186,7 +185,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/version/{self.version.pk}/',
-            json={
+            json=lambda requests, context: {
                 'pk': self.version.pk,
                 'slug': self.version.slug,
                 'project': {
@@ -208,7 +207,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/',
-            json={
+            json=lambda request, context: {
                 'id': self.build.pk,
                 'state': BUILD_STATE_TRIGGERED,
                 'commit': self.build.commit,
@@ -228,7 +227,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/build/concurrent/?project__slug={self.project.slug}',
-            json={
+            json=lambda request, context: {
                 'limit_reached': False,
                 'max_concurrent': settings.RTD_MAX_CONCURRENT_BUILDS,
                 'concurrent': 0,
@@ -238,7 +237,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/active_versions/',
-            json={
+            json=lambda request, context: {
                 'versions': [
                     {
                         'id': self.version.pk,
