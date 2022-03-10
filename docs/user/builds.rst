@@ -82,18 +82,14 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
    ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
    ``READTHEDOCS_VERSION``, The RTD slug of the version which is being built, ``latest``
    ``READTHEDOCS_VERSION_NAME``, Corresponding version name as displayed in RTD's version switch menu, ``stable``
-   ``READTHEDOCS_VERSION_TYPE``, Type of the event triggering the build, ``branch`` ``tag`` ``external`` ``unknown``
+   ``READTHEDOCS_VERSION_TYPE``, Type of the event triggering the build, ``branch`` | ``tag`` | ``external`` (for :doc:`pull request builds </pull-requests>`) | ``unknown``
    ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
    ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
-
 .. note::
 
-   - The term slug is used to refer to a unique string across projects/versions containing ASCII characters only.
-     This value is used in the URLs of your documentation.
-
-   - If ``READTHEDOCS_VERSION_TYPE`` is ``external``,
-     it means that the version was built from pull request. See :doc:`/pull-requests`.
+   The term slug is used to refer to a unique string across projects/versions containing ASCII characters only.
+   This value is used in the URLs of your documentation.
 
 
 .. tip::

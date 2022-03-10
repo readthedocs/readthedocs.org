@@ -53,7 +53,7 @@ GitHub
   *application/x-www-form-urlencoded* work
 * Leave the **Secrets** field blank
 * Select **Let me select individual events**,
-  and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events.
+  and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events
 * Ensure **Active** is enabled; it is by default
 * Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
 
