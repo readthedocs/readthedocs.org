@@ -97,7 +97,8 @@ Conda packages
 ~~~~~~~~~~~~~~
 
 We can get a json with all dependencies with ``conda list --json``.
-That command gets all the root dependencies and their dependencies,
+That command gets all the root dependencies and their dependencies
+(there is no way to list only the root dependencies),
 so we may be collecting some noise, but we can use ``pip list`` as a secondary source.
 
 .. code-block::
@@ -144,7 +145,7 @@ We can get the list from the config file,
 or we can list the packages installed with ``dpkg --get-selections``.
 That command would list all pre-installed packages as well, so we may be getting some noise.
 
-.. code-block::
+.. code-block:: console
 
    $ dpkg --get-selections
 
@@ -158,6 +159,50 @@ That command would list all pre-installed packages as well, so we may be getting
    binutils-x86-64-linux-gnu                       install
    bsdutils                                        install
    build-essential                                 install
+
+We can get the installed version with:
+
+.. code-block:: console
+
+   $ dpkg --status python3
+
+   Package: python3
+   Status: install ok installed
+   Priority: optional
+   Section: python
+   Installed-Size: 189
+   Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+   Architecture: amd64
+   Multi-Arch: allowed
+   Source: python3-defaults
+   Version: 3.8.2-0ubuntu2
+   Replaces: python3-minimal (<< 3.1.2-2)
+   Provides: python3-profiler
+   Depends: python3.8 (>= 3.8.2-1~), libpython3-stdlib (= 3.8.2-0ubuntu2)
+   Pre-Depends: python3-minimal (= 3.8.2-0ubuntu2)
+   Suggests: python3-doc (>= 3.8.2-0ubuntu2), python3-tk (>= 3.8.2-1~), python3-venv (>= 3.8.2-0ubuntu2)
+   Description: interactive high-level object-oriented language (default python3 version)
+   Python, the high-level, interactive object oriented language,
+   includes an extensive class library with lots of goodies for
+   network programming, system administration, sounds and graphics.
+   .
+   This package is a dependency package, which depends on Debian's default
+   Python 3 version (currently v3.8).
+   Homepage: https://www.python.org/
+   Original-Maintainer: Matthias Klose <doko@debian.org>
+
+Or with
+
+.. code-block:: console
+
+   $ apt-cache policy python3
+
+   Installed: 3.8.2-0ubuntu2
+   Candidate: 3.8.2-0ubuntu2
+   Version table:
+   *** 3.8.2-0ubuntu2 500
+         500 http://archive.ubuntu.com/ubuntu focal/main amd64 Packages
+         100 /var/lib/dpkg/status
 
 Python
 ~~~~~~
@@ -243,10 +288,10 @@ The final information to be saved would consist of:
            "channel": "conda-forge",
            "version": "0.1"
         }],
-        "apt": [
-            "python3-dev",
-            "cmatrix"
-        ]
+        "apt": [{
+           "name": "python3-dev",
+           "version": "3.8.2-0ubuntu2"
+        }],
      },
      "python": "3.7",
      "os": "ubuntu-18.04.5"
@@ -267,3 +312,4 @@ And delete old data if it grows too much.
 Should we make heavy use of JSON fields?
 Or try to avoid nesting structures as possible?
 Like config.user/config.final vs user_config/final_config.
+Or having several fields in our model instead of just one big json field?
