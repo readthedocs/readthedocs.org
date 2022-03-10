@@ -1,7 +1,6 @@
 """Utilities for the builds app."""
-from time import monotonic
-
 from contextlib import contextmanager
+from time import monotonic
 
 from django.core.cache import cache
 

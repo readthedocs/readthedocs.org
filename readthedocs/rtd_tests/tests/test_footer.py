@@ -73,27 +73,27 @@ class BaseTestFooterHTML:
         self.assertEqual(r.context['main_project'], self.pip)
 
     def test_footer_show_explicit_name_for_external_version(self):
-        project = Project.objects.get(slug='pip')
+        project = Project.objects.get(slug="pip")
         version = project.versions.get(slug=LATEST)
         version.type = EXTERNAL
-        version.verbose_name = '4'
+        version.verbose_name = "4"
         version.save()
         self.url = (
-            reverse('footer_html') +
-            f'?project={project.slug}&version={version.slug}&page=index&docroot=/'
+            reverse("footer_html")
+            + f"?project={project.slug}&version={version.slug}&page=index&docroot=/"
         )
 
-        git_provider_name = 'readthedocs.projects.models.Project.git_provider_name'
+        git_provider_name = "readthedocs.projects.models.Project.git_provider_name"
         with mock.patch(git_provider_name, GITHUB_BRAND):
             r = self.render()
-            self.assertIn('#4 (PR)', r.data['html'])
-            self.assertNotIn('#4 (MR)', r.data['html'])
-            self.assertNotIn('#4 (EV)', r.data['html'])
+            self.assertIn("#4 (PR)", r.data["html"])
+            self.assertNotIn("#4 (MR)", r.data["html"])
+            self.assertNotIn("#4 (EV)", r.data["html"])
         with mock.patch(git_provider_name, GITLAB_BRAND):
             r = self.render()
-            self.assertIn('#4 (MR)', r.data['html'])
-            self.assertNotIn('#4 (PR)', r.data['html'])
-            self.assertNotIn('#4 (EV)', r.data['html'])
+            self.assertIn("#4 (MR)", r.data["html"])
+            self.assertNotIn("#4 (PR)", r.data["html"])
+            self.assertNotIn("#4 (EV)", r.data["html"])
 
     def test_footer_dont_show_version_warning_for_external_versions(self):
         self.latest.type = EXTERNAL

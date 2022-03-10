@@ -18,7 +18,7 @@
         <dt>{% trans "Languages" %}</dt>
 
         {# Output the main project language since it isn't included in translations list #}
-        
+
         <dd {% if main_project.language == current_language %} class="rtd-current-item" {% endif %}>
           <a href="{{ main_project.get_docs_url }}{{ path }}">{{ main_project.language }}</a>
         </dd>

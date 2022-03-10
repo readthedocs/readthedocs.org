@@ -14,10 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
@@ -225,9 +222,9 @@ class Version(TimeStampedModel):
         if not self.is_external:
             return self.verbose_name
 
-        template = '#{name} ({abbrev})'
+        template = "#{name} ({abbrev})"
         external_origin = external_version_name(self)
-        abbrev = ''.join(word[0].upper() for word in external_origin.split())
+        abbrev = "".join(word[0].upper() for word in external_origin.split())
         return template.format(name=self.verbose_name, abbrev=abbrev)
 
     @property
@@ -1334,7 +1331,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 pattern=match_arg,
                 version_slug=version.slug,
             )
-        except Exception as e:
+        except Exception:
             log.exception('Error parsing regex.', exc_info=True)
         return False, None
 
