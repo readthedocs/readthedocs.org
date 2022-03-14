@@ -15,15 +15,8 @@ from readthedocs.config import ALL, ConfigError
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import (
-    EnvironmentVariable,
-    Project,
-    WebHookEvent,
-)
-from readthedocs.projects.tasks.builds import (
-    sync_repository_task,
-    update_docs_task,
-)
+from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 
 from .mockers import BuildEnvironmentMocker
 
@@ -199,12 +192,14 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         env = {
-            'NO_COLOR': '1',
-            'READTHEDOCS': 'True',
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
-            'BIN_PATH': os.path.join(
+            "NO_COLOR": "1",
+            "READTHEDOCS": "True",
+            "READTHEDOCS_VERSION": self.version.slug,
+            "READTHEDOCS_VERSION_TYPE": self.version.type,
+            "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
+            "READTHEDOCS_PROJECT": self.project.slug,
+            "READTHEDOCS_LANGUAGE": self.project.language,
+            "BIN_PATH": os.path.join(
                 self.project.doc_path,
                 'envs',
                 self.version.slug,

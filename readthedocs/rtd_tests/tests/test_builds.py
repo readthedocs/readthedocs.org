@@ -491,7 +491,8 @@ class DeDuplicateBuildTests(TestCase):
         self.project = get(Project)
         self.version = get(
             Version,
-            project=self.project
+            project=self.project,
+            type=BRANCH,
         )
 
         get(
