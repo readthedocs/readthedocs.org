@@ -1,8 +1,10 @@
 """Utilities for the builds app."""
-from time import monotonic
 
 from contextlib import contextmanager
+from time import monotonic
 
+import regex
+import structlog
 from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL
@@ -14,13 +16,15 @@ from readthedocs.projects.constants import (
     GITLAB_REGEXS,
 )
 
+log = structlog.get_logger(__name__)
+
 LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
 
 
 def get_github_username_repo(url):
     if 'github' in url:
-        for regex in GITHUB_REGEXS:
-            match = regex.search(url)
+        for pattern in GITHUB_REGEXS:
+            match = pattern.search(url)
             if match:
                 return match.groups()
     return (None, None)
@@ -28,8 +32,8 @@ def get_github_username_repo(url):
 
 def get_bitbucket_username_repo(url=None):
     if 'bitbucket' in url:
-        for regex in BITBUCKET_REGEXS:
-            match = regex.search(url)
+        for pattern in BITBUCKET_REGEXS:
+            match = pattern.search(url)
             if match:
                 return match.groups()
     return (None, None)
@@ -37,8 +41,8 @@ def get_bitbucket_username_repo(url=None):
 
 def get_gitlab_username_repo(url=None):
     if 'gitlab' in url:
-        for regex in GITLAB_REGEXS:
-            match = regex.search(url)
+        for pattern in GITLAB_REGEXS:
+            match = pattern.search(url)
             if match:
                 return match.groups()
     return (None, None)
@@ -100,3 +104,33 @@ def memcache_lock(lock_id, oid):
             # owned by someone else
             # also don't release the lock if we didn't acquire it
             cache.delete(lock_id)
+
+
+def match_regex(pattern, text, timeout=1):
+    """
+    Find a match using regex.search.
+
+    .. note::
+
+       We use the regex module with the timeout arg to avoid ReDoS.
+       We could use a finite state machine type of regex too,
+       but there isn't a stable library at the time of writing this code.
+    """
+    try:
+        match = regex.search(
+            pattern,
+            text,
+            # Compatible with the re module
+            flags=regex.VERSION0,
+            timeout=timeout,
+        )
+        return match
+    except TimeoutError:
+        log.exception(
+            "Timeout while parsing regex.",
+            pattern=pattern,
+            input=text,
+        )
+    except Exception:
+        log.exception("Error parsing regex.", exc_info=True)
+    return None
