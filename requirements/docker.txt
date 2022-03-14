@@ -6,7 +6,7 @@
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
 psycopg2-binary==2.9.2  # pyup: ignore
 
-django-redis-cache==3.0.0
+django-redis-cache==3.0.1
 
 # For resizing images
 pillow==9.0.1
