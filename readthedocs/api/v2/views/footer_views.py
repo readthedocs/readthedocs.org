@@ -1,9 +1,9 @@
 """Endpoint to generate footer HTML."""
 
-import structlog
 import re
 from functools import lru_cache
 
+import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template import loader as template_loader
@@ -162,18 +162,18 @@ class BaseFooterHTML(CachedResponseMixin, APIView):
                 path = page_slug + '.html'
 
         context = {
-            'project': project,
-            'version': version,
-            'path': path,
-            'downloads': version.get_downloads(pretty=True),
-            'current_version': version.verbose_name,
-            'versions': self._get_active_versions_sorted(),
-            'main_project': main_project,
-            'translations': main_project.translations.all(),
-            'current_language': project.language,
-            'new_theme': new_theme,
-            'settings': settings,
-            'github_edit_url': version.get_github_url(
+            "project": project,
+            "version": version,
+            "path": path,
+            "downloads": version.get_downloads(pretty=True),
+            "current_version": version,
+            "versions": self._get_active_versions_sorted(),
+            "main_project": main_project,
+            "translations": main_project.translations.all(),
+            "current_language": project.language,
+            "new_theme": new_theme,
+            "settings": settings,
+            "github_edit_url": version.get_github_url(
                 docroot,
                 page_slug,
                 source_suffix,

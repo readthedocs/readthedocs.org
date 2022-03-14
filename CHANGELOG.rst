@@ -1,3 +1,21 @@
+Version 7.4.2
+-------------
+
+:Date: March 14, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: CI: fix codecov again (`#9007 <https://github.com/readthedocs/readthedocs.org/pull/9007>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: fix codecov (`#9006 <https://github.com/readthedocs/readthedocs.org/pull/9006>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.4.1 (`#9004 <https://github.com/readthedocs/readthedocs.org/pull/9004>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 10 (`#9003 <https://github.com/readthedocs/readthedocs.org/pull/9003>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade common submodule (`#9001 <https://github.com/readthedocs/readthedocs.org/pull/9001>`__)
+* `@humitos <https://github.com/humitos>`__: Build: `RepositoryError` message (`#8999 <https://github.com/readthedocs/readthedocs.org/pull/8999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix integration with latest sphinx (`#8994 <https://github.com/readthedocs/readthedocs.org/pull/8994>`__)
+* `@humitos <https://github.com/humitos>`__: API: validate `RemoteRepository` when creating a `Project` (`#8983 <https://github.com/readthedocs/readthedocs.org/pull/8983>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: fix mock.patch order (`#8909 <https://github.com/readthedocs/readthedocs.org/pull/8909>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: remove queue priority (`#8848 <https://github.com/readthedocs/readthedocs.org/pull/8848>`__)
+* `@dogukanteber <https://github.com/dogukanteber>`__: Use django-storages' manifest files class instead of the overriden class (`#8781 <https://github.com/readthedocs/readthedocs.org/pull/8781>`__)
+* `@abravalheri <https://github.com/abravalheri>`__: Improve displayed version name when building from PR (`#8237 <https://github.com/readthedocs/readthedocs.org/pull/8237>`__)
+
 Version 7.4.1
 -------------
 
