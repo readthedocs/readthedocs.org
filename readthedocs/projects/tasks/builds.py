@@ -548,13 +548,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # objects in the database
         self.sync_versions(self.data.build_director.vcs_repository)
 
-        # Installing
-        self.update_build(state=BUILD_STATE_INSTALLING)
-        self.data.build_director.setup_environment()
+        # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
+        # handled inside the ``BuildDirector`` but we can't use ``with
+        # self.build_environment`` twice because it kills the container on
+        # ``__exit__``
+        self.data.build_director.create_build_environment()
+        with self.data.build_director.build_environment:
+            # Installing
+            self.update_build(state=BUILD_STATE_INSTALLING)
+            self.data.build_director.setup_environment()
 
-        # Building
-        self.update_build(state=BUILD_STATE_BUILDING)
-        self.data.build_director.build()
+            # Building
+            self.update_build(state=BUILD_STATE_BUILDING)
+            self.data.build_director.build()
 
     @staticmethod
     def get_project(project_pk):
