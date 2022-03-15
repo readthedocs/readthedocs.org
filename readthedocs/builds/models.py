@@ -14,10 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
@@ -30,9 +27,6 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
-    GENERIC_EXTERNAL_VERSION_NAME,
-    GITHUB_EXTERNAL_VERSION_NAME,
-    GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -57,6 +51,7 @@ from readthedocs.builds.querysets import (
     VersionQuerySet,
 )
 from readthedocs.builds.utils import (
+    external_version_name,
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
@@ -210,6 +205,27 @@ class Version(TimeStampedModel):
     @property
     def is_external(self):
         return self.type == EXTERNAL
+
+    @property
+    def explicit_name(self):
+        """
+        Version name that is explicit about external origins.
+
+        For example, if a version originates from GitHub pull request #4, then
+        ``version.explicit_name == "#4 (PR)"``.
+
+        On the other hand, Versions associated with regular RTD builds
+        (e.g. new tags or branches), simply return :obj:`~.verbose_name`.
+        This means that a regular git tag named **v4** will correspond to
+        ``version.explicit_name == "v4"``.
+        """
+        if not self.is_external:
+            return self.verbose_name
+
+        template = "#{name} ({abbrev})"
+        external_origin = external_version_name(self)
+        abbrev = "".join(word[0].upper() for word in external_origin.split())
+        return template.format(name=self.verbose_name, abbrev=abbrev)
 
     @property
     def ref(self):
@@ -946,16 +962,7 @@ class Build(models.Model):
 
     @property
     def external_version_name(self):
-        if self.is_external:
-            if self.project.git_provider_name == GITHUB_BRAND:
-                return GITHUB_EXTERNAL_VERSION_NAME
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                return GITLAB_EXTERNAL_VERSION_NAME
-
-            # TODO: Add External Version Name for BitBucket.
-            return GENERIC_EXTERNAL_VERSION_NAME
-        return None
+        return external_version_name(self)
 
     def using_latest_config(self):
         if self.config:
@@ -1324,7 +1331,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 pattern=match_arg,
                 version_slug=version.slug,
             )
-        except Exception as e:
+        except Exception:
             log.exception('Error parsing regex.', exc_info=True)
         return False, None
 

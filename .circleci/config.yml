@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@3.2.2
+
 jobs:
   tests:
     docker:
@@ -16,7 +19,8 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user tox
-      - run: tox -e py38,codecov
+      - run: tox -e py38
+      - codecov/upload
 
   tests-embedapi:
     docker:
