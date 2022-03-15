@@ -4,7 +4,7 @@ Sphinx==4.4.0
 Pygments==2.11.2
 
 sphinx_rtd_theme==1.0.0
-sphinx-tabs==3.2.0
+sphinx-tabs==3.3.0
 sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.1

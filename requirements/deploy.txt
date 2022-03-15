@@ -4,7 +4,7 @@
 
 psycopg2==2.9.3
 gunicorn==20.1.0
-django-redis-cache==3.0.0
+django-redis-cache==3.0.1
 
 #For resizing images
 pillow==9.0.1
