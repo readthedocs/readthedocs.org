@@ -15,6 +15,7 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from .find import find_one
 from .models import (
     Build,
+    BuildJobs,
     BuildTool,
     BuildWithTools,
     Conda,
@@ -751,6 +752,10 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
+    # NOTE: I think we should rename `BuildWithTools` to `BuildWithOs` since
+    # `os` is the main and mandatory key that makes the diference
+    #
+    # NOTE: `build.jobs` can't be used without using `build.os`
     def validate_build_config_with_tools(self):
         """
         Validates the build object (new format).
@@ -769,6 +774,22 @@ class BuildConfigV2(BuildConfigBase):
             for tool in tools.keys():
                 validate_choice(tool, self.settings['tools'].keys())
 
+        jobs = {}
+        with self.catch_validation_error("build.jobs"):
+            # FIXME: should we use `default={}` or kept the `None` here and
+            # shortcircuit the rest of the logic?
+            jobs = self.pop_config("build.jobs", default={})
+            validate_dict(jobs)
+            # NOTE: besides validating that each key is one of the expected
+            # ones, we could validate the value of each of them is a list of
+            # commands. However, I don't think we should validate the "command"
+            # looks like a real command.
+            for job in jobs.keys():
+                validate_choice(
+                    job,
+                    BuildJobs.__slots__,
+                )
+
         if not tools:
             self.error(
                 key='build.tools',
@@ -779,6 +800,16 @@ class BuildConfigV2(BuildConfigBase):
                 ),
                 code=CONFIG_REQUIRED,
             )
+
+        build["jobs"] = {}
+        for job in BuildJobs.__slots__:
+            build["jobs"][job] = []
+
+        for job, commands in jobs.items():
+            with self.catch_validation_error(f"build.jobs.{job}"):
+                build["jobs"][job] = [
+                    validate_string(command) for command in validate_list(commands)
+                ]
 
         build['tools'] = {}
         for tool, version in tools.items():
@@ -1263,7 +1294,10 @@ class BuildConfigV2(BuildConfigBase):
             return BuildWithTools(
                 os=build['os'],
                 tools=tools,
-                apt_packages=build['apt_packages'],
+                jobs=BuildJobs(
+                    **{job: commands for job, commands in build["jobs"].items()}
+                ),
+                apt_packages=build["apt_packages"],
             )
         return Build(**build)
 

@@ -1,4 +1,5 @@
 import os
+import shlex
 from collections import defaultdict
 
 import structlog
@@ -65,7 +66,7 @@ class BuildDirector:
                 ),
             )
 
-        environment = self.data.environment_class(
+        self.vcs_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             build=self.data.build,
@@ -74,17 +75,17 @@ class BuildDirector:
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
         )
-        with environment:
+        with self.vcs_environment:
             before_vcs.send(
                 sender=self.data.version,
-                environment=environment,
+                environment=self.vcs_environment,
             )
 
             # Create the VCS repository where all the commands are going to be
             # executed for a particular VCS type
             self.vcs_repository = self.data.project.vcs_repo(
                 version=self.data.version.slug,
-                environment=environment,
+                environment=self.vcs_environment,
                 verbose_name=self.data.version.verbose_name,
                 version_type=self.data.version.type,
             )
@@ -207,15 +208,17 @@ class BuildDirector:
             self.vcs_repository.update_submodules(self.data.config)
 
     def post_checkout(self):
-        commands = []  # self.data.config.build.jobs.post_checkout
+        commands = self.data.config.build.jobs.post_checkout
         for command in commands:
-            self.build_environment.run(command)
+            # TODO: we could make a helper `self.run(environment, command)`
+            # that handles split and escape command
+            self.vcs_environment.run(*shlex.split(command), escape_command=False)
 
     # System dependencies (``build.apt_packages``)
     def pre_system_dependencies(self):
-        commands = []  # self.data.config.build.jobs.pre_system_dependencies
+        commands = self.data.config.build.jobs.pre_system_dependencies
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     # NOTE: `system_dependencies` should not be possible to override by the
     # user because it's executed as ``RTD_DOCKER_USER`` (e.g. ``root``) user.
@@ -253,58 +256,60 @@ class BuildDirector:
             )
 
     def post_system_dependencies(self):
-        pass
+        commands = self.data.config.build.jobs.post_system_dependencies
+        for command in commands:
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     # Language environment
     def pre_create_environment(self):
-        commands = []  # self.data.config.build.jobs.pre_create_environment
+        commands = self.data.config.build.jobs.pre_create_environment
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     def create_environment(self):
         commands = []  # self.data.config.build.jobs.create_environment
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
         if not commands:
             self.language_environment.setup_base()
 
     def post_create_environment(self):
-        commands = []  # self.data.config.build.jobs.post_create_environment
+        commands = self.data.config.build.jobs.post_create_environment
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     # Install
     def pre_install(self):
-        commands = []  # self.data.config.build.jobs.pre_install
+        commands = self.data.config.build.jobs.pre_install
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     def install(self):
         commands = []  # self.data.config.build.jobs.install
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
         if not commands:
             self.language_environment.install_core_requirements()
             self.language_environment.install_requirements()
 
     def post_install(self):
-        commands = []  # self.data.config.build.jobs.post_install
+        commands = self.data.config.build.jobs.post_install
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     # Build
     def pre_build(self):
-        commands = []  # self.data.config.build.jobs.pre_build
+        commands = self.data.config.build.jobs.pre_build
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     def build_html(self):
         commands = []  # self.data.config.build.jobs.build.html
         if commands:
             for command in commands:
-                self.build_environment.run(command)
+                self.build_environment.run(*shlex.split(command), escape_command=False)
             return True
 
         return self.build_docs_class(self.data.config.doctype)
@@ -316,7 +321,7 @@ class BuildDirector:
         commands = []  # self.data.config.build.jobs.build.pdf
         if commands:
             for command in commands:
-                self.build_environment.run(command)
+                self.build_environment.run(*shlex.split(command), escape_command=False)
             return True
 
         # Mkdocs has no pdf generation currently.
@@ -335,7 +340,7 @@ class BuildDirector:
         commands = []  # self.data.config.build.jobs.build.htmlzip
         if commands:
             for command in commands:
-                self.build_environment.run(command)
+                self.build_environment.run(*shlex.split(command), escape_command=False)
             return True
 
         # We don't generate a zip for mkdocs currently.
@@ -350,7 +355,7 @@ class BuildDirector:
         commands = []  # self.data.config.build.jobs.build.epub
         if commands:
             for command in commands:
-                self.build_environment.run(command)
+                self.build_environment.run(*shlex.split(command), escape_command=False)
             return True
 
         # Mkdocs has no epub generation currently.
@@ -359,9 +364,9 @@ class BuildDirector:
         return False
 
     def post_build(self):
-        commands = []  # self.data.config.build.jobs.post_build
+        commands = self.data.config.build.jobs.post_build
         for command in commands:
-            self.build_environment.run(command)
+            self.build_environment.run(*shlex.split(command), escape_command=False)
 
     # Helpers
     #

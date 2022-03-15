@@ -37,7 +37,7 @@ class Build(Base):
 
 class BuildWithTools(Base):
 
-    __slots__ = ('os', 'tools', 'apt_packages')
+    __slots__ = ("os", "tools", "jobs", "apt_packages")
 
     def __init__(self, **kwargs):
         kwargs.setdefault('apt_packages', [])
@@ -47,6 +47,22 @@ class BuildWithTools(Base):
 class BuildTool(Base):
 
     __slots__ = ('version', 'full_version')
+
+
+class BuildJobs(Base):
+
+    __slots__ = (
+        "pre_checkout",
+        "post_checkout",
+        "pre_system_dependencies",
+        "post_system_dependencies",
+        "pre_create_environment",
+        "post_create_environment",
+        "pre_install",
+        "post_install",
+        "pre_build",
+        "post_build",
+    )
 
 
 class Python(Base):
