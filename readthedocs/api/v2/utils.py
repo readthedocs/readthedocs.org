@@ -79,9 +79,9 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             Version.objects.filter(
                 project=project,
                 verbose_name=version_name,
+                type=type,
             ).update(
                 identifier=version_id,
-                type=type,
                 machine=False,
             )
 
