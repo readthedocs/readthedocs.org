@@ -176,7 +176,7 @@ class ImportedFileTests(TestCase):
 
     @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     @override_settings(RTD_INTERSPHINX_URL="https://readthedocs.org")
-    @mock.patch("readthedocs.doc_builder.builder.os.path.exists")
+    @mock.patch("readthedocs.doc_builder.director.os.path.exists")
     def test_create_intersphinx_data(self, mock_exists):
         mock_exists.return_Value = True
 
@@ -255,7 +255,7 @@ class ImportedFileTests(TestCase):
         self.assertEqual(ImportedFile.objects.count(), 2)
 
     @override_settings(RTD_INTERSPHINX_URL="http://localhost:8080")
-    @mock.patch("readthedocs.doc_builder.builder.os.path.exists")
+    @mock.patch("readthedocs.doc_builder.director.os.path.exists")
     def test_custom_intersphinx_url(self, mock_exists):
         mock_exists.return_Value = True
 

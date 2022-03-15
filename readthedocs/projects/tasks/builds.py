@@ -32,7 +32,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
-from readthedocs.doc_builder.builder import DocumentationBuilder
+from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
@@ -536,25 +536,25 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception('Unable to update build')
 
     def execute(self):
-        self.data.builder = DocumentationBuilder(
+        self.data.build_director = BuildDirector(
             data=self.data,
         )
 
         # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
-        self.data.builder.vcs()
+        self.data.build_director.setup_vcs()
 
         # Sync tags/branches from VCS repository into Read the Docs' `Version`
         # objects in the database
-        self.sync_versions(self.data.builder.vcs_repository)
+        self.sync_versions(self.data.build_director.vcs_repository)
 
         # Installing
         self.update_build(state=BUILD_STATE_INSTALLING)
-        self.data.builder.setup_environment()
+        self.data.build_director.setup_environment()
 
         # Building
         self.update_build(state=BUILD_STATE_BUILDING)
-        self.data.builder.build()
+        self.data.build_director.build()
 
     @staticmethod
     def get_project(project_pk):

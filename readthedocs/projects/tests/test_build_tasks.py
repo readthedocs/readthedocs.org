@@ -89,7 +89,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ("all", ["latex", "readthedocssinglehtmllocalmedia", "nepub"]),
         ),
     )
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @pytest.mark.skip
     def test_build_sphinx_formats(self, load_yaml_config, formats, builders):
         load_yaml_config.return_value = self._config_file(
@@ -145,8 +145,8 @@ class TestBuildTask(BuildEnvironmentBase):
                 )
             )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
-    @mock.patch("readthedocs.doc_builder.builder.DocumentationBuilder.build_docs_class")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
     def test_build_formats_only_html_for_external_versions(
         self, build_docs_class, load_yaml_config
     ):
@@ -166,8 +166,8 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("sphinx")  # HTML builder
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
-    @mock.patch("readthedocs.doc_builder.builder.DocumentationBuilder.build_docs_class")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
     def test_build_respects_formats_mkdocs(self, build_docs_class, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -183,7 +183,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @pytest.mark.skip()
     # NOTE: find a way to test we are passing all the environment variables to all the commands
     def test_get_env_vars_default(self, load_yaml_config):
@@ -236,7 +236,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_successful_build(
         self,
         load_yaml_config,
@@ -462,7 +462,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "success": False,
         }
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -635,7 +635,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_install_apt_packages(self, load_yaml_config):
         config = BuildConfigV2(
             {},
@@ -677,7 +677,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_tools(self, load_yaml_config):
         config = BuildConfigV2(
             {},
@@ -732,7 +732,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.doc_builder.python_environments.tarfile")
     @mock.patch("readthedocs.doc_builder.python_environments.build_tools_storage")
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_tools_cached(self, load_yaml_config, build_tools_storage, tarfile):
         config = BuildConfigV2(
             {},
@@ -803,7 +803,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_requirements_from_config_file_installed(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -837,7 +837,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_conda_config_calls_conda_command(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -895,7 +895,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_mamba_commands(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -947,7 +947,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_sphinx_fail_on_warning(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -985,7 +985,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_mkdocs_fail_on_warning(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1018,7 +1018,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_system_site_packages(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1044,7 +1044,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_system_site_packages_project_overrides(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1074,7 +1074,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_setuptools(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1105,7 +1105,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_pip(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1141,7 +1141,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_pip_extras(self, load_yaml_config):
         # FIXME: the test passes but in the logs there is an error related to
         # `backends/sphinx.py` not finding a file.
@@ -1182,7 +1182,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_pip_several_options(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1253,7 +1253,7 @@ class TestBuildTask(BuildEnvironmentBase):
             (["one", "two"], ["one", "two"]),
         ],
     )
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_submodules_include(self, load_yaml_config, value, expected):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1273,7 +1273,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_submodules_exclude(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1300,7 +1300,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ]
         )
 
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_submodules_exclude_all(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1328,7 +1328,7 @@ class TestBuildTask(BuildEnvironmentBase):
             ("singlehtml", "readthedocssinglehtml"),
         ],
     )
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_sphinx_builder(self, load_yaml_config, value, command):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1366,7 +1366,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
 
 class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
-    @mock.patch("readthedocs.doc_builder.builder.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_config_file_exception(self, load_yaml_config):
         load_yaml_config.side_effect = ConfigError(
             code="invalid", message="Invalid version in config file."

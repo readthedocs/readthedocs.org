@@ -16,7 +16,7 @@ from readthedocs.projects.signals import after_build, before_build, before_vcs
 log = structlog.get_logger(__name__)
 
 
-class DocumentationBuilder:
+class BuildDirector:
 
     """
     Encapsulates all the logic to perform a build for user's documentation.
@@ -45,7 +45,7 @@ class DocumentationBuilder:
         """
         self.data = data
 
-    def vcs(self):
+    def setup_vcs(self):
         """
         Perform all VCS related steps.
 

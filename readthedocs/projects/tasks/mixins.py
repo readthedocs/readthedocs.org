@@ -55,7 +55,7 @@ class SyncRepositoryMixin:
 
         # NOTE: `sync_versions` should receive `tags` and `branches` already
         # and just validate them trigger the task. All the other logic should
-        # be done by the DocumentationBuilder or the VCS backend. We should not
+        # be done by the BuildDirector or the VCS backend. We should not
         # check this here and do not depend on ``vcs_repository``.
 
         tags = None
