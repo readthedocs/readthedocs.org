@@ -97,14 +97,7 @@ class BuildDirector:
             if commit:
                 self.data.build["commit"] = commit
 
-    def setup_environment(self):
-        """
-        Create the environment and install required dependencies.
-
-        1. install OS dependencies (apt)
-        2. create language (e.g. Python) environment
-        3. install dependencies into the environment
-        """
+    def create_build_environment(self):
         self.build_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
@@ -113,51 +106,58 @@ class BuildDirector:
             environment=self.get_build_env_vars(),
         )
 
+    def setup_environment(self):
+        """
+        Create the environment and install required dependencies.
+
+        1. install OS dependencies (apt)
+        2. create language (e.g. Python) environment
+        3. install dependencies into the environment
+        """
         # Environment used for building code, usually with Docker
-        with self.build_environment:
-            language_environment_cls = Virtualenv
-            if any(
-                [
-                    self.data.config.conda is not None,
-                    self.data.config.python_interpreter in ("conda", "mamba"),
-                ]
-            ):
-                language_environment_cls = Conda
+        language_environment_cls = Virtualenv
+        if any(
+            [
+                self.data.config.conda is not None,
+                self.data.config.python_interpreter in ("conda", "mamba"),
+            ]
+        ):
+            language_environment_cls = Conda
 
-            self.language_environment = language_environment_cls(
-                version=self.data.version,
-                build_env=self.build_environment,
-                config=self.data.config,
-            )
+        self.language_environment = language_environment_cls(
+            version=self.data.version,
+            build_env=self.build_environment,
+            config=self.data.config,
+        )
 
-            # TODO: check if `before_build` and `after_build` are still useful
-            # (maybe in commercial?)
-            #
-            # I didn't find they are used anywhere, we should probably remove them
-            before_build.send(
-                sender=self.data.version,
-                environment=self.build_environment,
-            )
+        # TODO: check if `before_build` and `after_build` are still useful
+        # (maybe in commercial?)
+        #
+        # I didn't find they are used anywhere, we should probably remove them
+        before_build.send(
+            sender=self.data.version,
+            environment=self.build_environment,
+        )
 
-            self.pre_system_dependencies()
-            self.system_dependencies()
-            self.post_system_dependencies()
+        self.pre_system_dependencies()
+        self.system_dependencies()
+        self.post_system_dependencies()
 
-            # Install all ``build.tools`` specified by the user
-            if self.data.config.using_build_tools:
-                self.language_environment.install_build_tools()
+        # Install all ``build.tools`` specified by the user
+        if self.data.config.using_build_tools:
+            self.language_environment.install_build_tools()
 
-            self.pre_create_environment()
-            self.create_environment()
-            self.post_create_environment()
+        self.pre_create_environment()
+        self.create_environment()
+        self.post_create_environment()
 
-            self.pre_install()
-            self.install()
-            self.post_install()
+        self.pre_install()
+        self.install()
+        self.post_install()
 
-            # TODO: remove this and document how to do it on `build.jobs.post_install`
-            if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-                self.language_environment.list_packages_installed()
+        # TODO: remove this and document how to do it on `build.jobs.post_install`
+        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.language_environment.list_packages_installed()
 
     def build(self):
         """
@@ -168,17 +168,16 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
-        with self.build_environment:
-            self.data.outcomes = defaultdict(lambda: False)
-            self.data.outcomes["html"] = self.build_html()
-            self.data.outcomes["search"] = self.is_type_sphinx()
-            self.data.outcomes["localmedia"] = self.build_htmlzip()
-            self.data.outcomes["pdf"] = self.build_pdf()
-            self.data.outcomes["epub"] = self.build_epub()
+        self.data.outcomes = defaultdict(lambda: False)
+        self.data.outcomes["html"] = self.build_html()
+        self.data.outcomes["search"] = self.is_type_sphinx()
+        self.data.outcomes["localmedia"] = self.build_htmlzip()
+        self.data.outcomes["pdf"] = self.build_pdf()
+        self.data.outcomes["epub"] = self.build_epub()
 
-            after_build.send(
-                sender=self.data.version,
-            )
+        after_build.send(
+            sender=self.data.version,
+        )
 
     # VCS checkout
     def pre_checkout(self):
