@@ -215,6 +215,8 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
 
         branches = []
+        # Git has two types of tags: lightweight and annotated.
+        # Lightweight tags are the "normal" ones.
         all_tags = {}
         light_tags = {}
         for line in stdout.splitlines()[1:]:  # skip HEAD
