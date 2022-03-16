@@ -298,11 +298,12 @@ class BuildDirector:
             return
 
         cwd = self.data.project.checkout_path(self.data.version.slug)
+        environment = self.vcs_environment
+        if job not in ("pre_checkout", "post_checkout"):
+            environment = self.build_environment
+
         commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
-            environment = self.vcs_environment
-            if job not in ("pre_checkout", "post_checkout"):
-                environment = self.build_environment
             environment.run(*command.split(), escape_command=False, cwd=cwd)
 
     # Helpers
