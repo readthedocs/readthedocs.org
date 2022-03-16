@@ -343,6 +343,8 @@ class BuildDirector:
         env = {
             "READTHEDOCS": "True",
             "READTHEDOCS_VERSION": self.data.version.slug,
+            "READTHEDOCS_VERSION_TYPE": self.data.version.type,
+            "READTHEDOCS_VERSION_NAME": self.data.version.verbose_name,
             "READTHEDOCS_PROJECT": self.data.project.slug,
             "READTHEDOCS_LANGUAGE": self.data.project.language,
         }
