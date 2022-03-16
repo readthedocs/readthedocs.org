@@ -1,8 +1,8 @@
 """OAuth utility functions."""
 
-import structlog
 from datetime import datetime
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
@@ -16,7 +16,6 @@ from readthedocs.oauth.models import (
     RemoteRepositoryRelation,
 )
 
-
 log = structlog.get_logger(__name__)
 
 
@@ -24,7 +23,6 @@ class SyncServiceError(Exception):
 
     """Error raised when a service failed to sync."""
 
-    pass
 
 
 class Service:
@@ -149,7 +147,7 @@ class Service:
         """
         resp = None
         try:
-            resp = self.get_session().get(url, data=kwargs)
+            resp = self.get_session().get(url, params=kwargs)
 
             # TODO: this check of the status_code would be better in the
             # ``create_session`` method since it could be used from outside, but

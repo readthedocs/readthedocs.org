@@ -1,20 +1,17 @@
 """OAuth utility functions."""
 
 import json
-import structlog
 import re
 from urllib.parse import quote_plus, urlparse
 
+import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import (
-    BUILD_STATUS_SUCCESS,
-    SELECT_BUILD_STATUS,
-)
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITLAB
@@ -76,7 +73,8 @@ class GitLabService(Service):
         remote_repositories = []
         try:
             repos = self.paginate(
-                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/projects".format(url=self.adapter.provider_base_url),
+                pagination="keyset",
                 per_page=100,
                 archived=False,
                 order_by='path',
@@ -102,7 +100,8 @@ class GitLabService(Service):
 
         try:
             orgs = self.paginate(
-                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/groups".format(url=self.adapter.provider_base_url),
+                pagination="keyset",
                 per_page=100,
                 all_available=False,
                 order_by='path',
@@ -115,6 +114,7 @@ class GitLabService(Service):
                         url=self.adapter.provider_base_url,
                         id=org['id'],
                     ),
+                    pagination="keyset",
                     per_page=100,
                     archived=False,
                     order_by='path',
