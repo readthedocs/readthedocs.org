@@ -345,8 +345,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _reset_build(self):
         # Reset build only if it has some commands already.
-        if self.data.build.get('commands'):
-            api_v2.build(self.data.build['id']).reset.post()
+        if self.data.build.get("commands"):
+            log.info("Reseting build.")
+            api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         if not hasattr(self.data, 'build'):
