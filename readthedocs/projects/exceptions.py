@@ -4,7 +4,7 @@
 from django.conf import settings
 from django.utils.translation import gettext_noop as _
 
-from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import BuildAppError, BuildUserError
 
 
 class ProjectConfigurationError(BuildUserError):
@@ -59,3 +59,8 @@ class RepositoryError(BuildUserError):
 
     def get_default_message(self):
         return self.GENERIC_ERROR
+
+
+class SyncRepositoryLocked(BuildAppError):
+
+    """Error risen when there is another sync_repository_task already running."""

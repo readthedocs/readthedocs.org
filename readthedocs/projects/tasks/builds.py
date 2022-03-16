@@ -11,6 +11,7 @@ import socket
 import structlog
 from celery import Task
 from django.conf import settings
+from django.core.cache import cache
 from django.utils import timezone
 from slumber.exceptions import HttpClientError
 
@@ -26,8 +27,6 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
@@ -50,7 +49,11 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
-from ..exceptions import ProjectConfigurationError, RepositoryError
+from ..exceptions import (
+    ProjectConfigurationError,
+    RepositoryError,
+    SyncRepositoryLocked,
+)
 from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
@@ -97,6 +100,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     default_retry_delay = 7 * 60
     throws = (
         RepositoryError,
+        SyncRepositoryLocked,
     )
 
     def before_start(self, task_id, args, kwargs):
@@ -135,6 +139,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 'There was an error with the repository.',
                 exc_info=True,
             )
+        elif isinstance(exc, SyncRepositoryLocked):
+            log.warning(
+                "Skipping syncing repository because there is another task running."
+            )
         else:
             # Catch unhandled errors when syncing
             log.exception('An unhandled exception was raised during VCS syncing.')
@@ -142,7 +150,20 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.data.version)
 
+    def _rate_limit(self):
+        """
+        Rate limit the task per-project.
+
+        Allow to execute 1 task per minute.
+        """
+        lock_id = f"{self.name}-lock-{self.data.project.slug}"
+        locked = not cache.add(lock_id, oid, 60)
+        if locked:
+            raise SyncRepositoryLocked
+
     def execute(self):
+        self._rate_limit()
+
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
