@@ -89,9 +89,18 @@ class BuildDirector:
                 version_type=self.data.version.type,
             )
 
-            self.pre_checkout()
+            # We can't do too much on ``pre_checkout`` because we haven't
+            # cloned the repository yet and we don't know what the user wrote
+            # in the `.readthedocs.yaml` yet.
+            #
+            # We could implement something different in the future if we download
+            # the `.readthedocs.yaml` file without cloning.
+            # See https://github.com/readthedocs/readthedocs.org/issues/8935
+            #
+            # self.run_build_job('pre_checkout')
+
             self.checkout()
-            self.post_checkout()
+            self.run_build_job("post_checkout")
 
             commit = self.data.build_commit or self.vcs_repository.commit
             if commit:
@@ -139,21 +148,21 @@ class BuildDirector:
             environment=self.build_environment,
         )
 
-        self.pre_system_dependencies()
+        self.run_build_job("pre_system_dependencies")
         self.system_dependencies()
-        self.post_system_dependencies()
+        self.run_build_job("post_system_dependencies")
 
         # Install all ``build.tools`` specified by the user
         if self.data.config.using_build_tools:
             self.language_environment.install_build_tools()
 
-        self.pre_create_environment()
+        self.run_build_job("pre_create_environment")
         self.create_environment()
-        self.post_create_environment()
+        self.run_build_job("post_create_environment")
 
-        self.pre_install()
+        self.run_build_job("pre_install")
         self.install()
-        self.post_install()
+        self.run_build_job("post_install")
 
         # TODO: remove this and document how to do it on `build.jobs.post_install`
         if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
@@ -169,7 +178,7 @@ class BuildDirector:
         4. build ePub
         """
 
-        self.pre_build()
+        self.run_build_job("pre_build")
 
         self.data.outcomes = defaultdict(lambda: False)
         self.data.outcomes["html"] = self.build_html()
@@ -178,23 +187,13 @@ class BuildDirector:
         self.data.outcomes["pdf"] = self.build_pdf()
         self.data.outcomes["epub"] = self.build_epub()
 
-        self.post_build()
+        self.run_build_job("post_build")
 
         after_build.send(
             sender=self.data.version,
         )
 
     # VCS checkout
-    def pre_checkout(self):
-        # We can't do too much here because we haven't cloned the repository
-        # yet and we don't know what the user wrote in the `.readthedocs.yaml`
-        # yet.
-        #
-        # We could implement something different in the future if we download
-        # the `.readthedocs.yaml` file without cloning.
-        # See https://github.com/readthedocs/readthedocs.org/issues/8935
-        pass
-
     def checkout(self):
         log.info(
             "Clonning repository.",
@@ -211,17 +210,7 @@ class BuildDirector:
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
 
-    def post_checkout(self):
-        commands = self.data.config.build.jobs.post_checkout
-        for command in commands:
-            self.run_user_cmd(command)
-
     # System dependencies (``build.apt_packages``)
-    def pre_system_dependencies(self):
-        commands = self.data.config.build.jobs.pre_system_dependencies
-        for command in commands:
-            self.run_user_cmd(command)
-
     # NOTE: `system_dependencies` should not be possible to override by the
     # user because it's executed as ``RTD_DOCKER_USER`` (e.g. ``root``) user.
     def system_dependencies(self):
@@ -257,74 +246,22 @@ class BuildDirector:
                 user=settings.RTD_DOCKER_SUPER_USER,
             )
 
-    def post_system_dependencies(self):
-        commands = self.data.config.build.jobs.post_system_dependencies
-        for command in commands:
-            self.run_user_cmd(command)
-
     # Language environment
-    def pre_create_environment(self):
-        commands = self.data.config.build.jobs.pre_create_environment
-        for command in commands:
-            self.run_user_cmd(command)
-
     def create_environment(self):
-        commands = []  # self.data.config.build.jobs.create_environment
-        for command in commands:
-            self.run_user_cmd(command)
-
-        if not commands:
-            self.language_environment.setup_base()
-
-    def post_create_environment(self):
-        commands = self.data.config.build.jobs.post_create_environment
-        for command in commands:
-            self.run_user_cmd(command)
+        self.language_environment.setup_base()
 
     # Install
-    def pre_install(self):
-        commands = self.data.config.build.jobs.pre_install
-        for command in commands:
-            self.run_user_cmd(command)
-
     def install(self):
-        commands = []  # self.data.config.build.jobs.install
-        for command in commands:
-            self.run_user_cmd(command)
-
-        if not commands:
-            self.language_environment.install_core_requirements()
-            self.language_environment.install_requirements()
-
-    def post_install(self):
-        commands = self.data.config.build.jobs.post_install
-        for command in commands:
-            self.run_user_cmd(command)
+        self.language_environment.install_core_requirements()
+        self.language_environment.install_requirements()
 
     # Build
-    def pre_build(self):
-        commands = self.data.config.build.jobs.pre_build
-        for command in commands:
-            self.run_user_cmd(command)
-
     def build_html(self):
-        commands = []  # self.data.config.build.jobs.build.html
-        if commands:
-            for command in commands:
-                self.run_user_cmd(command)
-            return True
-
         return self.build_docs_class(self.data.config.doctype)
 
     def build_pdf(self):
         if "pdf" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
-
-        commands = []  # self.data.config.build.jobs.build.pdf
-        if commands:
-            for command in commands:
-                self.run_user_cmd(command)
-            return True
 
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -339,12 +276,6 @@ class BuildDirector:
         ):
             return False
 
-        commands = []  # self.data.config.build.jobs.build.htmlzip
-        if commands:
-            for command in commands:
-                self.run_user_cmd(command)
-            return True
-
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
             return self.build_docs_class("sphinx_singlehtmllocalmedia")
@@ -354,30 +285,30 @@ class BuildDirector:
         if "epub" not in self.data.config.formats or self.data.version.type == EXTERNAL:
             return False
 
-        commands = []  # self.data.config.build.jobs.build.epub
-        if commands:
-            for command in commands:
-                self.run_user_cmd(command)
-            return True
-
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
             return self.build_docs_class("sphinx_epub")
         return False
 
-    def post_build(self):
-        commands = self.data.config.build.jobs.post_build
+    def run_build_job(self, job):
+        if (
+            getattr(self.data.config.build, "jobs", None) is None
+            or getattr(self.data.config.build.jobs, job, None) is None
+        ):
+            return
+
+        cwd = self.data.project.checkout_path(self.data.version.slug)
+        commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
-            self.run_user_cmd(command)
+            environment = self.vcs_environment
+            if job not in ("pre_checkout", "post_checkout"):
+                environment = self.build_environment
+            environment.run(*command.split(), escape_command=False, cwd=cwd)
 
     # Helpers
     #
     # TODO: move somewhere or change names to make them private or something to
     # easily differentiate them from the normal flow.
-    def run_user_cmd(self, cmd):
-        cwd = self.data.project.checkout_path(self.data.version.slug)
-        self.build_environment.run(cmd.split(), escape_command=False, cwd=cwd)
-
     def build_docs_class(self, builder_class):
         """
         Build docs with additional doc backends.
