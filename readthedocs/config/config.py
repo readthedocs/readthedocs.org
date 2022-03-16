@@ -1294,9 +1294,7 @@ class BuildConfigV2(BuildConfigBase):
             return BuildWithTools(
                 os=build['os'],
                 tools=tools,
-                jobs=BuildJobs(
-                    **{job: commands for job, commands in build["jobs"].items()}
-                ),
+                jobs=BuildJobs(**build["jobs"]),
                 apt_packages=build["apt_packages"],
             )
         return Build(**build)
