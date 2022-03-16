@@ -169,12 +169,17 @@ class BuildDirector:
         3. build PDF
         4. build ePub
         """
+
+        self.pre_build()
+
         self.data.outcomes = defaultdict(lambda: False)
         self.data.outcomes["html"] = self.build_html()
         self.data.outcomes["search"] = self.is_type_sphinx()
         self.data.outcomes["localmedia"] = self.build_htmlzip()
         self.data.outcomes["pdf"] = self.build_pdf()
         self.data.outcomes["epub"] = self.build_epub()
+
+        self.post_build()
 
         after_build.send(
             sender=self.data.version,
