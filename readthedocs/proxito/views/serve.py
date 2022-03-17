@@ -325,7 +325,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # (project.get_default_version())
         version = (
             Version.objects.filter(project=final_project, slug=version_slug)
-            .only('documentation_type')
+            .only("documentation_type")
             .first()
         )
         doc_type = version.documentation_type if version else None

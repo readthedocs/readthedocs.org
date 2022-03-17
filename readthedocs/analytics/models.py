@@ -20,7 +20,6 @@ def _last_30_days_iter():
 
 
 class PageViewManager(models.Manager):
-
     def register_page_view(self, project, version, path, status):
         fields = dict(
             project=project,
@@ -31,11 +30,11 @@ class PageViewManager(models.Manager):
         )
         page_view, created = self.get_or_create(
             **fields,
-            defaults={'view_count': 1},
+            defaults={"view_count": 1},
         )
         if not created:
-            page_view.view_count = models.F('view_count') + 1
-            page_view.save(update_fields=['view_count'])
+            page_view.view_count = models.F("view_count") + 1
+            page_view.save(update_fields=["view_count"])
         return page_view
 
 
@@ -60,7 +59,7 @@ class PageView(models.Model):
     date = models.DateField(default=datetime.date.today, db_index=True)
     status = models.PositiveIntegerField(
         default=200,
-        help_text=_('HTTP status code'),
+        help_text=_("HTTP status code"),
     )
 
     objects = PageViewManager()
@@ -90,12 +89,11 @@ class PageView(models.Model):
             since = timezone.now().date() - timezone.timedelta(days=30)
 
         queryset = (
-            cls.objects
-            .filter(project=project, date__gte=since, status=status)
-            .values_list('path')
-            .annotate(total_views=Sum('view_count'))
-            .values_list('path', 'total_views')
-            .order_by('-total_views')[:limit]
+            cls.objects.filter(project=project, date__gte=since, status=status)
+            .values_list("path")
+            .annotate(total_views=Sum("view_count"))
+            .values_list("path", "total_views")
+            .order_by("-total_views")[:limit]
         )
 
         pages = []
@@ -129,11 +127,16 @@ class PageView(models.Model):
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
-        queryset = cls.objects.filter(
-            project__slug=project_slug,
-            date__gte=since,
-            status=status,
-        ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
+        queryset = (
+            cls.objects.filter(
+                project__slug=project_slug,
+                date__gte=since,
+                status=status,
+            )
+            .values("date")
+            .annotate(total_views=Sum("view_count"))
+            .order_by("date")
+        )
 
         count_dict = dict(
             queryset.order_by('date').values_list('date', 'total_views')

@@ -1,7 +1,6 @@
 """Project views for authenticated users."""
 
 import structlog
-
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
@@ -1181,10 +1180,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
         # Count of views for top pages over the month
         top_pages = PageView.top_viewed_pages(project, limit=25)
-        top_viewed_pages = zip(
-            top_pages['pages'],
-            top_pages['view_counts']
-        )
+        top_viewed_pages = zip(top_pages["pages"], top_pages["view_counts"])
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
@@ -1199,15 +1195,17 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             status=404,
         )
         broken_links = zip(
-            broken_links['pages'],
-            broken_links['view_counts'],
+            broken_links["pages"],
+            broken_links["view_counts"],
         )
 
-        context.update({
-            'top_viewed_pages': top_viewed_pages,
-            'page_data': page_data,
-            'broken_links': broken_links,
-        })
+        context.update(
+            {
+                "top_viewed_pages": top_viewed_pages,
+                "page_data": page_data,
+                "broken_links": broken_links,
+            }
+        )
 
         return context
 
