@@ -74,7 +74,6 @@ class GitLabService(Service):
         try:
             repos = self.paginate(
                 "{url}/api/v4/projects".format(url=self.adapter.provider_base_url),
-                pagination="keyset",
                 per_page=100,
                 archived=False,
                 order_by='path',
@@ -101,7 +100,6 @@ class GitLabService(Service):
         try:
             orgs = self.paginate(
                 "{url}/api/v4/groups".format(url=self.adapter.provider_base_url),
-                pagination="keyset",
                 per_page=100,
                 all_available=False,
                 order_by='path',
@@ -114,7 +112,6 @@ class GitLabService(Service):
                         url=self.adapter.provider_base_url,
                         id=org['id'],
                     ),
-                    pagination="keyset",
                     per_page=100,
                     archived=False,
                     order_by='path',
