@@ -19,6 +19,26 @@ def _last_30_days_iter():
     return (thirty_days_ago + timezone.timedelta(days=n) for n in range(31))
 
 
+class PageViewManager(models.Manager):
+
+    def register_page_view(self, project, version, path, status):
+        fields = dict(
+            project=project,
+            version=version,
+            path=path,
+            date=timezone.now().date(),
+            status=status,
+        )
+        page_view, created = self.get_or_create(
+            **fields,
+            defaults={'view_count': 1},
+        )
+        if not created:
+            page_view.view_count = models.F('view_count') + 1
+            page_view.save(update_fields=['view_count'])
+        return page_view
+
+
 class PageView(models.Model):
 
     """PageView counts per day for a project, version, and path."""
@@ -33,19 +53,26 @@ class PageView(models.Model):
         verbose_name=_('Version'),
         related_name='page_views',
         on_delete=models.CASCADE,
+        null=True,
     )
     path = models.CharField(max_length=4096)
     view_count = models.PositiveIntegerField(default=0)
     date = models.DateField(default=datetime.date.today, db_index=True)
+    status = models.PositiveIntegerField(
+        default=200,
+        help_text=_('HTTP status code'),
+    )
+
+    objects = PageViewManager()
 
     class Meta:
-        unique_together = ("project", "version", "path", "date")
+        unique_together = ("project", "version", "path", "date", "status")
 
     def __str__(self):
         return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
 
     @classmethod
-    def top_viewed_pages(cls, project, since=None, limit=10):
+    def top_viewed_pages(cls, project, since=None, limit=10, status=200):
         """
         Returns top pages according to view counts.
 
@@ -64,7 +91,7 @@ class PageView(models.Model):
 
         queryset = (
             cls.objects
-            .filter(project=project, date__gte=since)
+            .filter(project=project, date__gte=since, status=status)
             .values_list('path')
             .annotate(total_views=Sum('view_count'))
             .values_list('path', 'total_views')
@@ -86,7 +113,7 @@ class PageView(models.Model):
         return final_data
 
     @classmethod
-    def page_views_by_date(cls, project_slug, since=None):
+    def page_views_by_date(cls, project_slug, since=None, status=200):
         """
         Returns the total page views count for last 30 days for a particular project.
 
@@ -105,6 +132,7 @@ class PageView(models.Model):
         queryset = cls.objects.filter(
             project__slug=project_slug,
             date__gte=since,
+            status=status,
         ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
 
         count_dict = dict(

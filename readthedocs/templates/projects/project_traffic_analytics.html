@@ -48,6 +48,27 @@
     <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
   </form>
 
+  <h3>{% trans "Broken links"%}</h3>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul class="long-list-overflow">
+        {% for page, count in broken_links %}
+          <li class="module-item">
+            {{ page }}
+            <span class="right quiet">{{ count }}</span>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No data available.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
 {% endblock %}
 
 {% block extra_scripts %}

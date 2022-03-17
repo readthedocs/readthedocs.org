@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CachedView
@@ -322,11 +323,12 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        doc_type = (
+        version = (
             Version.objects.filter(project=final_project, slug=version_slug)
-            .values_list('documentation_type', flat=True)
+            .only('documentation_type')
             .first()
         )
+        doc_type = version.documentation_type if version else None
         versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
@@ -362,9 +364,27 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
+                    self._register_broken_link(
+                        project=final_project,
+                        version=version,
+                        path=path,
+                    )
                     return resp
 
+        self._register_broken_link(
+            project=final_project,
+            version=version,
+            path=path,
+        )
         raise Http404('No custom 404 page found.')
+
+    def _register_broken_link(self, project, version, path):
+        PageView.objects.register_page_view(
+            project=project,
+            version=version,
+            path=path,
+            status=404,
+        )
 
 
 class ServeError404(SettingsOverrideObject):
