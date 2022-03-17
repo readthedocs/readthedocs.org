@@ -132,6 +132,8 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        self._check_rate_limit()
+
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -150,7 +152,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.data.version)
 
-    def _rate_limit(self):
+    def _check_rate_limit(self):
         """
         Rate limit the task per-project.
 
@@ -162,8 +164,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             raise SyncRepositoryLocked
 
     def execute(self):
-        self._rate_limit()
-
         environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
