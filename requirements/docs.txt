@@ -10,7 +10,7 @@ sphinx-intl==2.0.1
 readthedocs-sphinx-search==0.1.1
 
 # Test out hoverxref
-git+https://github.com/readthedocs/sphinx-hoverxref@master
+git+https://github.com/readthedocs/sphinx-hoverxref
 
 # Docs
 sphinxemoji==0.2.0
