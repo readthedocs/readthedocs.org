@@ -24,9 +24,9 @@ def _last_30_days_iter():
 class PageViewManager(models.Manager):
     def register_page_view(self, project, version, path, status):
         # Normalize path to avoid duplicates.
-        path = path.strip('/')
+        path = path.strip("/")
         if not path:
-            path = '/'
+            path = "/"
         fields = dict(
             project=project,
             version=version,
@@ -77,7 +77,9 @@ class PageView(models.Model):
         return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
 
     @classmethod
-    def top_viewed_pages(cls, project, since=None, limit=10, status=200, per_version=False):
+    def top_viewed_pages(
+        cls, project, since=None, limit=10, status=200, per_version=False
+    ):
         """
         Returns top pages according to view counts.
 
@@ -103,7 +105,7 @@ class PageView(models.Model):
             .order_by("-total_views")[:limit]
         )
 
-        PageViewResult = namedtuple('PageViewResult', 'path, full_path, count')
+        PageViewResult = namedtuple("PageViewResult", "path, full_path, count")
         result = []
         parsed_domain = urlparse(resolve(project))
         default_version = project.get_default_version()
@@ -123,11 +125,13 @@ class PageView(models.Model):
                 # then the path starts at the root of the domain.
                 path = row.path
             full_path = parsed_domain._replace(path=path).geturl()
-            result.append(PageViewResult(
-                path=path if per_version else row.path,
-                full_path=full_path,
-                count=row.total_views,
-            ))
+            result.append(
+                PageViewResult(
+                    path=path if per_version else row.path,
+                    full_path=full_path,
+                    count=row.total_views,
+                )
+            )
         return result
 
     @classmethod
