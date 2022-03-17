@@ -717,7 +717,7 @@ Schema
 ------
 
 You can see the complete schema
-`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+`here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
 
 
 Legacy ``build`` specification

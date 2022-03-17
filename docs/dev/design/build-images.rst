@@ -72,7 +72,7 @@ Non goals
 Pre-built build image structure
 -------------------------------
 
-.. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/master/Dockerfile
+.. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/main/Dockerfile
 
 The new pre-built images will depend only on the Ubuntu OS.
 They will contain all the requirements to add extra languages support at built time via ``asdf`` command.
