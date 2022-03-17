@@ -23,10 +23,10 @@
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
-          {% for page, count in top_viewed_pages %}
+          {% for row in top_pages %}
             <li class="module-item">
-              {{ page }}
-              <span class="right quiet">{{ count }}</span>
+              <a href="{{ row.full_path }}">{{ row.path }}</a>
+              <span class="right quiet">{{ row.count }}</span>
             </li>
           {% empty %}
             <li class="module-item">
@@ -53,10 +53,10 @@
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul class="long-list-overflow">
-        {% for page, count in broken_links %}
+        {% for row in broken_links %}
           <li class="module-item">
-            {{ page }}
-            <span class="right quiet">{{ count }}</span>
+            <a href="{{ row.full_path }}">{{ row.path }}</a>
+            <span class="right quiet">{{ row.count }}</span>
           </li>
         {% empty %}
           <li class="module-item">
