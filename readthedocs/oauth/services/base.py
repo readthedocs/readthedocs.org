@@ -11,18 +11,12 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-from readthedocs.oauth.models import (
-    RemoteOrganizationRelation,
-    RemoteRepositoryRelation,
-)
-
 log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
 
     """Error raised when a service failed to sync."""
-
 
 
 class Service:
