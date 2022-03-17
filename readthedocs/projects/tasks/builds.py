@@ -159,7 +159,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         Allow to execute 1 task per minute.
         """
         lock_id = f"{self.name}-lock-{self.data.project.slug}"
-        locked = not cache.add(lock_id, oid, 60)
+        locked = not cache.add(lock_id, self.app.oid, 60)
         if locked:
             raise SyncRepositoryLocked
 
