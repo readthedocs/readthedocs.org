@@ -38,7 +38,7 @@ feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 You can :ref:`opt out <advertising/ethical-advertising:Opting out>` of having paid ads on your projects,
 or seeing paid ads if you want.
 You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`,
-which we run for free that promote community projects. 
+which we run for free that promote community projects.
 
 Our Worldview
 -------------
