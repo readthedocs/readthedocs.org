@@ -304,7 +304,7 @@ help pages <http://help.transifex.com/features/client/>`_.
    with a `tasks.py file`_ to follow this process:
 
    .. _Invoke: https://www.pyinvoke.org/
-   .. _tasks.py file: https://github.com/readthedocs/readthedocs.org/blob/master/tasks.py
+   .. _tasks.py file: https://github.com/readthedocs/readthedocs.org/blob/main/tasks.py
 
    #. Update files and push sources (English) to Transifex:
 
