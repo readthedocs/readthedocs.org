@@ -217,6 +217,20 @@ For others, the webhook will simply fail to connect when there are new commits t
   Make sure to apply it to the "Site".
 
 
+Running Ngrok
+~~~~~~~~~~~
+
+Ngrok can be used with a few changes. (reword and elaborate)
+
+Changes to ``docker-compose.override.yml`` overrides the base configuration in 
+``docker-compose.yml``.
+
+``dockerfiles/nginx/proxito.conf``
+
+``dockerfiles/nginx/web.conf``
+
+``readthedocs/settings/docker_compose.py``
+
 Core team standards
 -------------------
 
