@@ -72,7 +72,7 @@ Non goals
 Pre-built build image structure
 -------------------------------
 
-.. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/master/Dockerfile
+.. Taken from https://github.com/readthedocs/readthedocs-docker-images/blob/main/Dockerfile
 
 The new pre-built images will depend only on the Ubuntu OS.
 They will contain all the requirements to add extra languages support at built time via ``asdf`` command.
@@ -212,9 +212,9 @@ Cache language binaries on S3
 Read the Docs can make usage of this to create a mirror hosted locally on S3 to get faster download speeds.
 This will make a good improvement for languages that offer binaries: ``nodejs``, ``rust`` and ``go``:
 
-* ``nodejs`` uses ``NODEJS_ORG_MIRROR``: https://github.com/asdf-vm/asdf-nodejs/blob/master/lib/utils.sh#L5
-* ``rust`` uses ``RUSTUP_UPDATE_ROOT``: https://github.com/rust-lang/rustup/blob/master/rustup-init.sh#L23
-* ``go`` has the URL hardcoded: https://github.com/kennyp/asdf-golang/blob/master/bin/download#L54
+* ``nodejs`` uses ``NODEJS_ORG_MIRROR``: https://github.com/asdf-vm/asdf-nodejs/blob/f9957f3f256ebbb3fdeebcaed5082ad305222be6/lib/utils.sh#L5
+* ``rust`` uses ``RUSTUP_UPDATE_ROOT``: https://github.com/rust-lang/rustup/blob/499e582bc8ba34fa7e84d5120001aae31151d3c8/rustup-init.sh#L23
+* ``go`` has the URL hardcoded: https://github.com/kennyp/asdf-golang/blob/cc8bc47d4877beed61e10815d46669e1eaaa0bbe/bin/download#L54
 
 However, currently Python does not offer binaries and a different solution is needed.
 Python versions can be pre-compiled once and expose the output on the S3 for the builders to download and extract in the correct PATH.

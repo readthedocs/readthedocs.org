@@ -214,19 +214,30 @@ class Backend(BaseVCS):
         self.check_working_dir()
         code, stdout, stderr = self.run(*cmd)
 
-        tags = []
         branches = []
+        # Git has two types of tags: lightweight and annotated.
+        # Lightweight tags are the "normal" ones.
+        all_tags = {}
+        light_tags = {}
         for line in stdout.splitlines()[1:]:  # skip HEAD
             commit, ref = line.split()
-            if ref.startswith('refs/heads/'):
-                branch = ref.replace('refs/heads/', '')
+            if ref.startswith("refs/heads/"):
+                branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
-            if ref.startswith('refs/tags/'):
-                tag = ref.replace('refs/tags/', '')
+
+            if ref.startswith("refs/tags/"):
+                tag = ref.replace("refs/tags/", "", 1)
+                # If the tag is annotated, then the real commit
+                # will be on the ref ending with ^{}.
                 if tag.endswith('^{}'):
-                    # skip annotated tags since they are duplicated
-                    continue
-                tags.append(VCSVersion(self, commit, tag))
+                    light_tags[tag[:-3]] = commit
+                else:
+                    all_tags[tag] = commit
+
+        # Merge both tags, lightweight tags will have
+        # priority over annotated tags.
+        all_tags.update(light_tags)
+        tags = [VCSVersion(self, commit, tag) for tag, commit in all_tags.items()]
 
         return branches, tags
 
