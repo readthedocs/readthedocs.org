@@ -13,7 +13,6 @@ use f'{docset}/setting' as value on the setting, for example::
 
 import os
 import sys
-from configparser import RawConfigParser
 
 import sphinx_rtd_theme
 
@@ -45,13 +44,6 @@ for k, v in docsets[docset].items():
     locals()[k] = v
 
 
-def get_version():
-    """Return package version from setup.cfg."""
-    config = RawConfigParser()
-    config.read(os.path.join('..', 'setup.cfg'))
-    return config.get('metadata', 'version')
-
-
 sys.path.append(os.path.abspath('_ext'))
 extensions = [
     'sphinx.ext.autosectionlabel',
@@ -75,7 +67,7 @@ master_doc = 'index'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = get_version()
+version = "7.4.2"
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
