@@ -18,13 +18,16 @@ import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readthedocs.settings.dev')
 
-from django.utils import timezone
-
-import django
-django.setup()
-
+try:
+    # Nesting in try to avoid isort inflicting unwanted changes. It tries to
+    # move these imports above the very necessary sys.path manipulation.
+    import django
+    from django.utils import timezone
+    django.setup()
+except ImportError:
+    raise
 
 # Set here the variables you want for each docset.
 docsets = {
@@ -67,7 +70,7 @@ master_doc = 'index'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = "7.4.2"
+version = '7.4.2'
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
@@ -92,15 +95,15 @@ intersphinx_mapping = {
     'rtd-dev': ('https://dev.readthedocs.io/en/latest/', None),
 }
 myst_enable_extensions = [
-    "deflist",
+    'deflist',
 ]
 hoverxref_intersphinx = [
-   "sphinx",
-   "pip",
-   "nbsphinx",
-   "myst-nb",
-   "ipywidgets",
-   "jupytext",
+   'sphinx',
+   'pip',
+   'nbsphinx',
+   'myst-nb',
+   'ipywidgets',
+   'jupytext',
 ]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
