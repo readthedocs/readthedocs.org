@@ -220,38 +220,40 @@ For others, the webhook will simply fail to connect when there are new commits t
 Running Ngrok
 ~~~~~~~~~~~
 
-Ngrok can be used with a few changes. (reword and elaborate)
+Ngrok allows us to create a temporary server that is connectable to the internet, allowing a server that is running 
+locally on Docker to be publicly accessible. Ngrok can be used with a locally run version of ReadtheDocs.org with 
+a few changes.
 
-(Ngoc's edit)
-Ngrok allows us to create a temporary server that is connectable to the internet and allow other people on the internet to connect to our locally run server.
-We can use Ngrok with our locally run version of ReadtheDocs.org with a few changes
-
-There are 4 files we need to change to complete the tasks
+There are 4 files we need to change:
 
 1. ``docker-compose.override.yml``
-2. ``proxito.conf``
-3. ``web.conf``
-4. ``docker_compose.py``
+2. ``dockerfiles/nginx/proxito.conf``
+3. ``dockerfiles/nginx/web.conf``
+4. ``readthedocs/settings/docker_compose.py``
 
 **Change docker-compose.override.yml**
 
-| From the main folder, look for ``docker-compose.override.yml``.
-| Search for ``- "community.dev.readthedocs.io:10.10.0.100"``
-| Add a new line and write in this line ``- "readthedocs.ngrok.io:10.5.0.100"`` 
+Changes to ``docker-compose.override.yml`` overrides the base configuration in 
+``docker-compose.yml``.
 
-The end result should look like this in ``docker-compose.override.yml``::
+For ``extra_hosts``, include an additional entry: ``readthedocs.ngrok.io:10.5.0.100``.
+
+The end result should look like this:
+
+::
 
     extra_hosts:
         - "community.dev.readthedocs.io:10.10.0.100"
-        - "readthedocs.ngrok.io:10.5.0.100"
+        - "readthedocs.ngrok.io:10.5.0.100" #new host added
 
-**Change proxito.conf**
 
-| From main foler, open ``dockerfiles/nginx/proxito.conf``
-| Look for ``server_name *.community.dev.readthedocs.io *.org.dev.readthedocs.build;``
-| And change it to ``server_name *.readthedocs.ngrok.io;``
+**Change dockerfiles/nginx/proxito.conf**
 
-The end result should look like this in ``proxito.conf``
+| Inside of ``server``, replace ``server_name`` from 
+| ``*.community.dev.readthedocs.io *.org.dev.readthedocs.build;``
+| to ``*.readthedocs.ngrok.io;``
+
+The end result should look like this:
 
 ::
 
@@ -259,12 +261,12 @@ The end result should look like this in ``proxito.conf``
         listen 80 default_server;
         server_name *.readthedocs.ngrok.io;
 
-**Change web.conf**
+**Change dockerfiles/nginx/web.conf**
 
-| From main folder, open ``dockerfiles/nginx/web.conf``
-| Search for ``server_name community.dev.readthedocs.io;``
-| Change it to ``server_name readthedocs.ngrok.io;`` 
-| The end result should look like this in ``web.conf``
+| Inside of ``server``, replace ``server_name`` from 
+| ``community.dev.readthedocs.io;`` to ``readthedocs.ngrok.io;``
+
+The end result should look like this:
 
 ::
 
@@ -272,23 +274,14 @@ The end result should look like this in ``proxito.conf``
         listen 80;
 
         # This should match settings.PRODUCTION_DOMAIN
-        server_name community.dev.readthedocs.io;
+        server_name readthedocs.ngrok.io;
 
-**Change docker_compose.py**
+**Change readthedocs/settings/docker_compose.py**
 
-| Search for ``PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'``
-| Replace it with ``PRODUCTION_DOMAIN = 'readthedocs.ngrok.io'``
+| Replace ``PRODUCTION_DOMAIN``, ``PUBLIC_DOMAIN``, ``S3_STATIC_STORAGE_OVERRIDE_HOSTNAME``,
+| ``S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME`` values with ``readthedocs.ngrok.io``.
 
-| Search for ``PUBLIC_DOMAIN = 'community.dev.readthedocs.io'``
-| Replace it with ``PUBLIC_DOMAIN = 'readthedocs.ngrok.io'``
-
-| Search for ``S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'``
-| Replace it with ``S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io'``
-
-| Search for ``S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'``
-| Replace it with ``S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io'``
-
-The end result should look like this in ``docker_compose.py``
+The end result should look like this:
 
 ::
 
@@ -303,8 +296,8 @@ The end result should look like this in ``docker_compose.py``
         DOCKER_LIMITS = {'memory': '1g', 'time': 900}
         USE_SUBDOMAIN = True
 
-        PRODUCTION_DOMAIN = 'readthedocs.ngrok.io'
-        PUBLIC_DOMAIN = 'readthedocs.ngrok.io'
+        PRODUCTION_DOMAIN = 'readthedocs.ngrok.io' # replaced
+        PUBLIC_DOMAIN = 'readthedocs.ngrok.io' # replaced
         PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
 And 
@@ -318,20 +311,9 @@ And
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
     S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
-    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io'
-    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io'
+    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io' # replaced
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'readthedocs.ngrok.io' # replaced
 
-
-(Ngoc's edit)
-
-Changes to ``docker-compose.override.yml`` overrides the base configuration in 
-``docker-compose.yml``.
-
-``dockerfiles/nginx/proxito.conf``
-
-``dockerfiles/nginx/web.conf``
-
-``readthedocs/settings/docker_compose.py``
 
 Core team standards
 -------------------
