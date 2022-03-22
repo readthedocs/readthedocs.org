@@ -20,15 +20,11 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
-try:
-    # Nesting in try to avoid isort inflicting unwanted changes. It tries to
-    # move these imports above the very necessary sys.path manipulation.
-    import django
-    from django.utils import timezone
+# Load Django after sys.path and configuration setup
+# isort: split
+import django
 
-    django.setup()
-except ImportError:
-    raise
+django.setup()
 
 # Set here the variables you want for each docset.
 docsets = {
@@ -68,7 +64,7 @@ extensions = [
 templates_path = ['_templates']
 
 master_doc = "index"
-copyright = "2010-{}, Read the Docs, Inc & contributors".format(timezone.now().year)
+copyright = "2010, Read the Docs, Inc & contributors"
 version = "7.4.2"
 release = version
 exclude_patterns = ['_build']
