@@ -344,7 +344,7 @@ class Virtualenv(PythonEnvironment):
                     negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
-            if self.project.has_feature(Feature.USE_SPHINX_LATEST):
+            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
                 requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
