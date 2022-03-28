@@ -48,7 +48,13 @@
     <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
   </form>
 
-  <h3>{% trans "Broken links"%}</h3>
+  <h3>{% trans "Not Found (404) pages"%}</h3>
+  
+  <p>
+  {% blocktrans %}
+  The way that we could 404 pages is on our backend hosting. It's possible the number of times each page is viewed is undercounted because of caching in the browser or in a CDN.
+  {% endblocktrans %}
+  </p>
 
   <div class="module-list">
     <div class="module-list-wrapper">
@@ -58,6 +64,7 @@
             <a href="{{ row.full_path }}">{{ row.path }}</a>
             <span class="right quiet">{{ row.count }}</span>
           </li>
+          {# TODO: Add a `Create Redirect` button here with the URL pre-filled as the `from` URL #}
         {% empty %}
           <li class="module-item">
             <p class="quiet">
