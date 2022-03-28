@@ -77,6 +77,6 @@ when you push to GitHub.
 License
 -------
 
-`MIT`_ © 2010-2021 Read the Docs, Inc. & contributors
+`MIT`_ © 2010 Read the Docs, Inc. & contributors
 
 .. _MIT: LICENSE
