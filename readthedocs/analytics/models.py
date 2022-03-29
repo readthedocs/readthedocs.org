@@ -22,20 +22,18 @@ def _last_30_days_iter():
 
 
 class PageViewManager(models.Manager):
-    def register_page_view(self, project, version, path, status):
-        # Normalize path to avoid duplicates.
-        path = path.strip("/")
-        if not path:
-            path = "/"
-        fields = dict(
+    def register_page_view(self, project, version, path, full_path=None, status=200):
+        # Normalize paths to avoid duplicates.
+        path = path.strip("/") or "/"
+        full_path = full_path.strip("/") or "/"
+
+        page_view, created = self.get_or_create(
             project=project,
             version=version,
             path=path,
+            full_path=full_path,
             date=timezone.now().date(),
             status=status,
-        )
-        page_view, created = self.get_or_create(
-            **fields,
             defaults={"view_count": 1},
         )
         if not created:
@@ -53,6 +51,9 @@ class PageView(models.Model):
         related_name='page_views',
         on_delete=models.CASCADE,
     )
+    # NOTE: this could potentially be removed,
+    # since isn't being used and not all page
+    # views (404s) ara attached to a version.
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
@@ -60,7 +61,16 @@ class PageView(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
-    path = models.CharField(max_length=4096)
+    path = models.CharField(
+        max_length=4096,
+        help_text=_("Path relative to the version."),
+    )
+    full_path = models.CharField(
+        max_length=4096,
+        help_text=_("Full path including the version and language parts."),
+        null=True,
+        blank=True,
+    )
     view_count = models.PositiveIntegerField(default=0)
     date = models.DateField(default=datetime.date.today, db_index=True)
     status = models.PositiveIntegerField(
@@ -74,7 +84,7 @@ class PageView(models.Model):
         unique_together = ("project", "version", "path", "date", "status")
 
     def __str__(self):
-        return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
+        return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
 
     @classmethod
     def top_viewed_pages(
@@ -86,50 +96,40 @@ class PageView(models.Model):
         :param per_version: If `True`, group the results per version.
 
         :returns: A list of named tuples ordered by the number of views.
-         Each tuple contains: path, full_path, and total_views.
+         Each tuple contains: path, url, and count.
         """
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
-        group_by = ["path"]
-        values = ["path", "total_views"]
-        if per_version:
-            group_by.append("version")
-            values.append("version__slug")
-
+        group_by = "full_path" if per_version else "path"
         queryset = (
             cls.objects.filter(project=project, date__gte=since, status=status)
-            .values_list(*group_by)
-            .annotate(total_views=Sum("view_count"))
-            .values_list(*values, named=True)
-            .order_by("-total_views")[:limit]
+            .values_list(group_by)
+            .annotate(count=Sum("view_count"))
+            .values_list(group_by, "count", named=True)
+            .order_by("-count")[:limit]
         )
 
-        PageViewResult = namedtuple("PageViewResult", "path, full_path, count")
+        PageViewResult = namedtuple("PageViewResult", "path, url, count")
         result = []
         parsed_domain = urlparse(resolve(project))
         default_version = project.get_default_version()
         for row in queryset:
-            version_slug = default_version
-            if per_version:
-                version_slug = row.version__slug
-
-            if version_slug:
-                path = resolve_path(
+            if not per_version:
+                url_path = resolve_path(
                     project=project,
-                    version_slug=version_slug,
+                    version_slug=default_version,
                     filename=row.path,
                 )
             else:
-                # If there isn't a version,
-                # then the path starts at the root of the domain.
-                path = row.path
-            full_path = parsed_domain._replace(path=path).geturl()
+                url_path = row.full_path or ""
+            url = parsed_domain._replace(path=url_path).geturl()
+            path = row.full_path if per_version else row.path
             result.append(
                 PageViewResult(
-                    path=path if per_version else row.path,
-                    full_path=full_path,
-                    count=row.total_views,
+                    path=path,
+                    url=url,
+                    count=row.count,
                 )
             )
         return result

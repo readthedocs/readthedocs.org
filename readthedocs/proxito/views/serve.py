@@ -368,6 +368,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                         project=final_project,
                         version=version,
                         path=path,
+                        full_path=proxito_path,
                     )
                     return resp
 
@@ -375,16 +376,27 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             project=final_project,
             version=version,
             path=path,
+            full_path=proxito_path,
         )
         raise Http404('No custom 404 page found.')
 
-    def _register_broken_link(self, project, version, path):
-        PageView.objects.register_page_view(
-            project=project,
-            version=version,
-            path=path,
-            status=404,
-        )
+    def _register_broken_link(self, project, version, path, full_path):
+        try:
+            PageView.objects.register_page_view(
+                project=project,
+                version=version,
+                path=path,
+                full_path=full_path,
+                status=404,
+            )
+        except Exception:
+            # Don't break doc serving if there was an error
+            # while recording the broken link.
+            log.exception(
+                "Error while recording the broken link",
+                project=project.slug,
+                full_path=full_path,
+            )
 
 
 class ServeError404(SettingsOverrideObject):

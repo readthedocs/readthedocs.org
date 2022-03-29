@@ -1179,8 +1179,8 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             return context
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project, limit=25)
-        broken_links = PageView.top_viewed_pages(
+        top_pages_200 = PageView.top_viewed_pages(project, limit=25)
+        top_pages_404 = PageView.top_viewed_pages(
             project,
             limit=25,
             status=404,
@@ -1194,9 +1194,9 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
         context.update(
             {
-                "top_pages": top_pages,
+                "top_pages_200": top_pages_200,
                 "page_data": page_data,
-                "broken_links": broken_links,
+                "top_pages_404": top_pages_404,
             }
         )
 

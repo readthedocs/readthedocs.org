@@ -1,6 +1,6 @@
 """Analytics views that are served from the same domain as the docs."""
-
 from functools import lru_cache
+from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -65,11 +65,13 @@ class BaseAnalyticsView(APIView):
             return
 
         path = unresolved.filename
+        full_path = urlparse(absolute_uri).path
 
         PageView.objects.register_page_view(
             project=project,
             version=version,
             path=path,
+            full_path=full_path,
             status=200,
         )
 
