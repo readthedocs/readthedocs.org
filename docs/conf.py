@@ -65,7 +65,7 @@ templates_path = ['_templates']
 
 master_doc = "index"
 copyright = "2010, Read the Docs, Inc & contributors"
-version = "7.4.2"
+version = "7.5.0"
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
