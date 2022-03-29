@@ -84,13 +84,19 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
-
-        # All public versions can be cached.
         version = final_project.versions.filter(slug=version_slug).first()
+
+        # Skip serving versions that don't exist or are not active. This is to
+        # avoid serving files that we have in the storage, but its associated
+        # version does not exist anymore or it was de-activated
+        if not version or not version.active:
+            raise Http404("Version does not exist or is not active.")
+
         if (
             self._is_cache_enabled(final_project)
             and version and not version.is_private
         ):
+            # All public versions can be cached.
             self.cache_request = True
 
         log.bind(

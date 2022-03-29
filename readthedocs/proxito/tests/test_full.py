@@ -198,6 +198,25 @@ class TestFullDocServing(BaseDocServing):
 
     # Invalid tests
 
+    def test_non_existent_version(self):
+        url = "/en/non-existent-version/"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_inactive_version(self):
+        url = "/en/inactive/"
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Version,
+            verbose_name="inactive",
+            slug="inactive",
+            active=False,
+            project=self.project,
+        )
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
     )
