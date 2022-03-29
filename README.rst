@@ -69,7 +69,7 @@ when you push to GitHub.
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
-.. |coverage| image:: https://codecov.io/gh/readthedocs/readthedocs.org/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/readthedocs/readthedocs.org/branch/main/graph/badge.svg
     :alt: Test coverage
     :scale: 100%
     :target: https://codecov.io/gh/readthedocs/readthedocs.org

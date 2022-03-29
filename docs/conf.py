@@ -13,7 +13,6 @@ use f'{docset}/setting' as value on the setting, for example::
 
 import os
 import sys
-from configparser import RawConfigParser
 
 import sphinx_rtd_theme
 
@@ -21,11 +20,11 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
-from django.utils import timezone
-
+# Load Django after sys.path and configuration setup
+# isort: split
 import django
-django.setup()
 
+django.setup()
 
 # Set here the variables you want for each docset.
 docsets = {
@@ -43,13 +42,6 @@ if docset not in docsets:
 
 for k, v in docsets[docset].items():
     locals()[k] = v
-
-
-def get_version():
-    """Return package version from setup.cfg."""
-    config = RawConfigParser()
-    config.read(os.path.join('..', 'setup.cfg'))
-    return config.get('metadata', 'version')
 
 
 sys.path.append(os.path.abspath('_ext'))
@@ -71,11 +63,9 @@ extensions = [
 
 templates_path = ['_templates']
 
-master_doc = 'index'
-copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
-    timezone.now().year
-)
-version = get_version()
+master_doc = "index"
+copyright = "2010, Read the Docs, Inc & contributors"
+version = "7.4.2"
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
@@ -103,12 +93,12 @@ myst_enable_extensions = [
     "deflist",
 ]
 hoverxref_intersphinx = [
-   "sphinx",
-   "pip",
-   "nbsphinx",
-   "myst-nb",
-   "ipywidgets",
-   "jupytext",
+    "sphinx",
+    "pip",
+    "nbsphinx",
+    "myst-nb",
+    "ipywidgets",
+    "jupytext",
 ]
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
