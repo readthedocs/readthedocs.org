@@ -53,7 +53,7 @@ class PageView(models.Model):
     )
     # NOTE: this could potentially be removed,
     # since isn't being used and not all page
-    # views (404s) ara attached to a version.
+    # views (404s) are attached to a version.
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
@@ -117,6 +117,8 @@ class PageView(models.Model):
         default_version = project.get_default_version()
         for row in queryset:
             if not per_version:
+                # If we aren't groupig by version,
+                # then always link to the default version.
                 url_path = resolve_path(
                     project=project,
                     version_slug=default_version,
