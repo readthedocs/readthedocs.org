@@ -98,6 +98,7 @@ class PageView(models.Model):
         :returns: A list of named tuples ordered by the number of views.
          Each tuple contains: path, url, and count.
         """
+        # pylint: disable=too-many-locals
         if since is None:
             since = timezone.now().date() - timezone.timedelta(days=30)
 
