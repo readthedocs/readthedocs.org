@@ -1,7 +1,7 @@
-from itertools import zip_longest
 import os
 import tempfile
 import uuid
+from itertools import zip_longest
 from unittest import mock
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -407,11 +407,12 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark',
-            'recommonmark',
-            'sphinx',
-            'sphinx-rtd-theme',
-            'readthedocs-sphinx-ext',
+            "commonmark",
+            "recommonmark",
+            "sphinx",
+            "sphinx-rtd-theme",
+            "readthedocs-sphinx-ext",
+            "jinja2<3.1.0",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)
@@ -444,12 +445,13 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark',
-            'recommonmark',
-            'sphinx',
-            'sphinx-rtd-theme',
-            'readthedocs-sphinx-ext',
-            'setuptools<58.3.0',
+            "commonmark",
+            "recommonmark",
+            "sphinx",
+            "sphinx-rtd-theme",
+            "readthedocs-sphinx-ext",
+            "jinja2<3.1.0",
+            "setuptools<58.3.0",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)

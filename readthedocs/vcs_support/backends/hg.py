@@ -33,7 +33,14 @@ class Backend(BaseVCS):
     def clone(self):
         self.make_clean_working_dir()
         try:
-            output = self.run("hg", "clone", self.repo_url, ".")
+            # Disable sparse-revlog extension when cloning because it's not
+            # included in older versions of Mercurial and producess an error
+            # when using an old version. See
+            # https://github.com/readthedocs/readthedocs.org/pull/9042/
+
+            output = self.run(
+                "hg", "clone", "--config", "format.sparse-revlog=no", self.repo_url, "."
+            )
             return output
         except RepositoryError:
             raise RepositoryError(RepositoryError.CLONE_ERROR)

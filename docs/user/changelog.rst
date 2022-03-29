@@ -50,7 +50,7 @@ Locally I had trouble in a test environment that pip did not update to the speci
 Development Update Notes
 ````````````````````````
 
-The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into master):
+The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into ``main``):
 
 - **Before updating** please make sure that all migrations are applied::
 

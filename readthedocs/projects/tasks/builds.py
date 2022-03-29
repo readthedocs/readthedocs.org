@@ -345,8 +345,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _reset_build(self):
         # Reset build only if it has some commands already.
-        if self.data.build.get('commands'):
-            api_v2.build(self.data.build['id']).reset.post()
+        if self.data.build.get("commands"):
+            log.info("Reseting build.")
+            api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         if not hasattr(self.data, 'build'):
@@ -548,13 +549,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # objects in the database
         self.sync_versions(self.data.build_director.vcs_repository)
 
-        # Installing
-        self.update_build(state=BUILD_STATE_INSTALLING)
-        self.data.build_director.setup_environment()
+        # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
+        # handled inside the ``BuildDirector`` but we can't use ``with
+        # self.build_environment`` twice because it kills the container on
+        # ``__exit__``
+        self.data.build_director.create_build_environment()
+        with self.data.build_director.build_environment:
+            # Installing
+            self.update_build(state=BUILD_STATE_INSTALLING)
+            self.data.build_director.setup_environment()
 
-        # Building
-        self.update_build(state=BUILD_STATE_BUILDING)
-        self.data.build_director.build()
+            # Building
+            self.update_build(state=BUILD_STATE_BUILDING)
+            self.data.build_director.build()
 
     @staticmethod
     def get_project(project_pk):
