@@ -1224,6 +1224,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
                 PageView.objects.filter(
                     project=project,
                     date__gte=days_ago,
+                    status=200,
                 )
                 .order_by('-date')
                 .values_list(*[value for _, value in values])
