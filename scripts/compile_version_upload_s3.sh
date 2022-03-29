@@ -89,7 +89,7 @@ set -x # Echo commands
 
 # Define variables
 SLEEP=350 # Container timeout
-OS="ubuntu-20.04" # Docker image name
+OS="${OS:-ubuntu-22.04}" # Docker image name
 TOOL=$1
 VERSION=$2
 

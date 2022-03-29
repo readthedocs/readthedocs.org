@@ -3,7 +3,7 @@
 -r pip.txt
 
 django-dynamic-fixture==3.1.2
-pytest==7.0.1
+pytest==7.1.0
 pytest-custom-exit-code==0.3.0
 pytest-django==4.5.2
 pytest-cov==3.0.0
