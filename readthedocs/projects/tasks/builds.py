@@ -231,6 +231,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         ProjectBuildsSkippedError,
     )
 
+    # Do not send external build status on failure builds for these exceptions.
+    exceptions_without_external_build_status = (DuplicatedBuildError,)
+
     acks_late = True
     track_started = True
 
@@ -407,7 +410,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.data.build_commit:
+        if self.data.build_commit and not isinstance(
+            exc, self.exceptions_without_external_build_status
+        ):
             send_external_build_status(
                 version_type=self.data.version.type,
                 build_pk=self.data.build['id'],
