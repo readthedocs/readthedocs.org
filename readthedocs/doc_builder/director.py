@@ -291,6 +291,33 @@ class BuildDirector:
         return False
 
     def run_build_job(self, job):
+        """
+        Run a command specified by the user under `build.jobs.` config key.
+
+        It uses the "VCS environment" for pre_/post_ checkout jobs and "build
+        environment" for the rest of them.
+
+        Note that user's commands:
+
+        - are not escaped
+        - are run with under the path where the repository was cloned
+        - are run as RTD_DOCKER_USER user
+        - users can't run commands as `root` user
+        - all the user's commands receive environment variables
+
+        Example:
+
+          build:
+            jobs:
+              pre_install:
+                - echo `date`
+                - python path/to/myscript.py
+              pre_build:
+                - sed -i **/*.rst -e "s|{version}|v3.5.1|g"
+
+        In this case, `self.data.config.build.jobs.pre_build` will contains
+        `sed` command.
+        """
         if (
             getattr(self.data.config.build, "jobs", None) is None
             or getattr(self.data.config.build.jobs, job, None) is None
