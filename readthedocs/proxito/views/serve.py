@@ -382,6 +382,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
+            # If the path isn't attached to a version
+            # it should be the same as the full_path,
+            # otherwise it would be empty.
+            if not version:
+                path = full_path
             PageView.objects.register_page_view(
                 project=project,
                 version=version,

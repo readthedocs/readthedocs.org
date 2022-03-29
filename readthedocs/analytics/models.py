@@ -22,7 +22,7 @@ def _last_30_days_iter():
 
 
 class PageViewManager(models.Manager):
-    def register_page_view(self, project, version, path, full_path=None, status=200):
+    def register_page_view(self, project, version, path, full_path, status):
         # Normalize paths to avoid duplicates.
         path = path.strip("/") or "/"
         full_path = full_path.strip("/") or "/"
