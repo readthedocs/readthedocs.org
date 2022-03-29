@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
-
 import os
+import textwrap
 from os.path import exists
 from tempfile import mkdtemp
-import textwrap
 from unittest import mock
+from unittest.mock import Mock, patch
 
-from django.test import TestCase
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from unittest.mock import Mock, patch
+from django.test import TestCase
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
@@ -21,6 +19,7 @@ from readthedocs.rtd_tests.utils import (
     create_git_tag,
     delete_git_branch,
     delete_git_tag,
+    get_current_commit,
     make_test_git,
     make_test_hg,
 )
@@ -72,6 +71,7 @@ class TestGitBackend(TestCase):
         # create the working dir if it not exists. It's required to ``cwd`` to
         # execute the command
         repo.check_working_dir()
+        commit = get_current_commit(repo_path)
         repo_branches, repo_tags = repo.lsremote
 
         self.assertEqual(
@@ -80,8 +80,8 @@ class TestGitBackend(TestCase):
         )
 
         self.assertEqual(
-            {'v01', 'v02', 'release-ünîø∂é'},
-            {vcs.verbose_name for vcs in repo_tags},
+            {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
+            {tag.verbose_name: tag.identifier for tag in repo_tags},
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -201,9 +201,10 @@ class TestGitBackend(TestCase):
         # We aren't cloning the repo,
         # so we need to hack the repo path
         repo.working_dir = repo_path
+        commit = get_current_commit(repo_path)
         self.assertEqual(
-            {'v01', 'v02', 'release-ünîø∂é'},
-            {vcs.verbose_name for vcs in repo.tags},
+            {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
+            {tag.verbose_name: tag.identifier for tag in repo.tags},
         )
 
     def test_check_for_submodules(self):

@@ -1,8 +1,6 @@
-import os
 from collections import Counter
 
 import structlog
-from django.utils.translation import gettext_lazy as _
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
@@ -46,45 +44,7 @@ class SyncRepositoryMixin:
         version_data = api_v2.version(version_pk).get()
         return APIVersion(**version_data)
 
-    def get_vcs_repo(self, environment):
-        """
-        Get the VCS object of the current project.
-
-        All VCS commands will be executed using `environment`.
-        """
-        version_repo = self.data.project.vcs_repo(
-            version=self.data.version.slug,
-            environment=environment,
-            verbose_name=self.data.version.verbose_name,
-            version_type=self.data.version.type
-        )
-        return version_repo
-
-    def sync_repo(self, environment):
-        """Update the project's repository and hit ``sync_versions`` API."""
-        # Make Dirs
-        if not os.path.exists(self.data.project.doc_path):
-            os.makedirs(self.data.project.doc_path)
-
-        if not self.data.project.vcs_class():
-            raise RepositoryError(
-                _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.data.project.repo_type,
-                ),
-            )
-
-        # Get the actual code on disk
-        log.info(
-            'Checking out version.',
-            version_identifier=self.data.version.identifier,
-        )
-        version_repo = self.get_vcs_repo(environment)
-        version_repo.update()
-        self.sync_versions(version_repo)
-        identifier = self.data.build_commit or self.data.version.identifier
-        version_repo.checkout(identifier)
-
-    def sync_versions(self, version_repo):
+    def sync_versions(self, vcs_repository):
         """
         Update tags/branches via a Celery task.
 
@@ -92,29 +52,33 @@ class SyncRepositoryMixin:
 
            It may trigger a new build to the stable version.
         """
+
+        # NOTE: `sync_versions` should receive `tags` and `branches` already
+        # and just validate them trigger the task. All the other logic should
+        # be done by the BuildDirector or the VCS backend. We should not
+        # check this here and do not depend on ``vcs_repository``.
+
         tags = None
         branches = None
         if (
-            version_repo.supports_lsremote and
-            not version_repo.repo_exists() and
-            self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
+            vcs_repository.supports_lsremote
+            and not vcs_repository.repo_exists()
+            and self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
         ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.
-            branches, tags = version_repo.lsremote
-            log.info('Remote versions.', branches=branches, tags=tags)
+            branches, tags = vcs_repository.lsremote
 
         branches_data = []
         tags_data = []
 
-        if (
-            version_repo.supports_tags and
-            not self.data.project.has_feature(Feature.SKIP_SYNC_TAGS)
+        if vcs_repository.supports_tags and not self.data.project.has_feature(
+            Feature.SKIP_SYNC_TAGS
         ):
             # Will be an empty list if we called lsremote and had no tags returned
             if tags is None:
-                tags = version_repo.tags
+                tags = vcs_repository.tags
             tags_data = [
                 {
                     'identifier': v.identifier,
@@ -123,13 +87,12 @@ class SyncRepositoryMixin:
                 for v in tags
             ]
 
-        if (
-            version_repo.supports_branches and
-            not self.data.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+        if vcs_repository.supports_branches and not self.data.project.has_feature(
+            Feature.SKIP_SYNC_BRANCHES
         ):
             # Will be an empty list if we called lsremote and had no branches returned
             if branches is None:
-                branches = version_repo.branches
+                branches = vcs_repository.branches
             branches_data = [
                 {
                     'identifier': v.identifier,
@@ -137,6 +100,8 @@ class SyncRepositoryMixin:
                 }
                 for v in branches
             ]
+
+        log.debug("Synchronizing versions.", branches=branches, tags=tags)
 
         self.validate_duplicate_reserved_versions(
             tags_data=tags_data,
@@ -169,22 +134,3 @@ class SyncRepositoryMixin:
                 raise RepositoryError(
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
-
-    def get_vcs_env_vars(self):
-        """Get environment variables to be included in the VCS setup step."""
-        env = self.get_rtd_env_vars()
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env
-
-    def get_rtd_env_vars(self):
-        """Get bash environment variables specific to Read the Docs."""
-        env = {
-            "READTHEDOCS": "True",
-            "READTHEDOCS_VERSION": self.data.version.slug,
-            "READTHEDOCS_VERSION_TYPE": self.data.version.type,
-            "READTHEDOCS_VERSION_NAME": self.data.version.verbose_name,
-            "READTHEDOCS_PROJECT": self.data.project.slug,
-            "READTHEDOCS_LANGUAGE": self.data.project.language,
-        }
-        return env
