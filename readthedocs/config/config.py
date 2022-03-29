@@ -802,9 +802,6 @@ class BuildConfigV2(BuildConfigBase):
             )
 
         build["jobs"] = {}
-        for job in BuildJobs.__slots__:
-            build["jobs"][job] = []
-
         for job, commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [

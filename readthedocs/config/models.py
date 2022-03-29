@@ -64,6 +64,11 @@ class BuildJobs(Base):
         "post_build",
     )
 
+    def __init__(self, **kwargs):
+        for step in self.__slots__:
+            kwargs.setdefault(step, [])
+        super().__init__(**kwargs)
+
 
 class Python(Base):
 
