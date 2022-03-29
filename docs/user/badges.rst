@@ -23,7 +23,7 @@ Style
 -----
 
 Now you can pass the ``style`` GET argument,
-to get custom styled badges same as you would for shields.io. 
+to get custom styled badges same as you would for shields.io.
 If no argument is passed, ``flat`` is used as default.
 
 +---------------+---------------------+
@@ -69,7 +69,7 @@ since it will stay up to date with your Read the Docs project::
     https://readthedocs.org/projects/pip/badge/
 
 
-.. _Read the Docs README: https://github.com/readthedocs/readthedocs.org/blob/master/README.rst
+.. _Read the Docs README: https://github.com/readthedocs/readthedocs.org/blob/main/README.rst
 .. _project page: https://readthedocs.org/projects/pip/
 .. |green| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
 .. |red| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg

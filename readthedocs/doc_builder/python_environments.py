@@ -3,10 +3,10 @@
 import codecs
 import copy
 import itertools
-import structlog
 import os
 import tarfile
 
+import structlog
 import yaml
 from django.conf import settings
 
@@ -344,6 +344,8 @@ class Virtualenv(PythonEnvironment):
                     negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
+            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
+                requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
         if self.config.python.use_system_site_packages:
@@ -498,7 +500,7 @@ class Conda(PythonEnvironment):
 
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
-        version_path = os.path.join(conda_env_path, self.version.slug)
+        os.path.join(conda_env_path, self.version.slug)
 
         if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
             self._update_conda_startup()
