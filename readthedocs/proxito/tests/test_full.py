@@ -856,7 +856,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(PageView.objects.all().count(), 0)
 
         paths = [
-            "/en/latest/not-found",
+            "/en/latest/not-found/",
             "/en/latest/not-found/",
             "/not-found",
             "/en/not-found/",
@@ -877,24 +877,24 @@ class TestAdditionalDocViews(BaseDocServing):
 
         version = self.project.versions.get(slug="latest")
 
-        pageview = PageView.objects.get(full_path="en/latest/not-found")
+        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
         self.assertEqual(pageview.project, self.project)
         self.assertEqual(pageview.version, version)
-        self.assertEqual(pageview.path, "not-found")
+        self.assertEqual(pageview.path, "/not-found/")
         self.assertEqual(pageview.view_count, 2)
         self.assertEqual(pageview.status, 404)
 
-        pageview = PageView.objects.get(full_path="not-found")
+        pageview = PageView.objects.get(full_path="/not-found")
         self.assertEqual(pageview.project, self.project)
         self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "not-found")
+        self.assertEqual(pageview.path, "/not-found")
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
 
-        pageview = PageView.objects.get(full_path="en/not-found")
+        pageview = PageView.objects.get(full_path="/en/not-found/")
         self.assertEqual(pageview.project, self.project)
         self.assertEqual(pageview.version, None)
-        self.assertEqual(pageview.path, "en/not-found")
+        self.assertEqual(pageview.path, "/en/not-found/")
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
 
@@ -904,6 +904,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(PageView.objects.all().count(), 0)
 
         paths = [
+            "/en/latest/not-found",
             "/en/latest/not-found",
             "/en/latest/not-found/",
         ]
@@ -921,12 +922,21 @@ class TestAdditionalDocViews(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
             storage_open.assert_called_once_with("html/project/latest/404.html")
 
-        self.assertEqual(PageView.objects.all().count(), 1)
-        pageview = PageView.objects.first()
+        self.assertEqual(PageView.objects.all().count(), 2)
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(path="/not-found")
         self.assertEqual(pageview.project, self.project)
-        self.assertEqual(pageview.path, "not-found")
-        self.assertEqual(pageview.full_path, "en/latest/not-found")
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found")
         self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(path="/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
+        self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
 
     def test_sitemap_xml(self):
