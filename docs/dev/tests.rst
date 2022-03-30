@@ -13,7 +13,7 @@ paths. Before testing, make sure you have Tox installed:
 
 .. prompt:: bash
 
-    pip install tox
+   pip install tox
 
 To run the full test and lint suite against your changes, simply run Tox. Tox
 should return without any errors. You can run Tox against all of our
@@ -21,7 +21,7 @@ environments by running:
 
 .. prompt:: bash
 
-    tox
+   tox
 
 By default, tox won't run tests from search,
 in order to run all test including the search tests,
@@ -31,7 +31,7 @@ you can also set the ``TOX_POSARGS`` environment variable to an empty string:
 
 .. prompt:: bash
 
-    TOX_POSARGS='' tox
+   TOX_POSARGS='' tox
 
 .. note::
 
@@ -40,19 +40,22 @@ you can also set the ``TOX_POSARGS`` environment variable to an empty string:
 
 .. prompt:: bash
 
-       tox -- -m 'not search' -x
+   tox -- -m 'not search' -x
 
 To target a specific environment:
 
 .. prompt:: bash
 
-    tox -e py38
+   tox -e py38
 
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite:
 
 py38
     Run our test suite using Python 3.8
+
+py38-debug
+    Same as ``py38``, but there are some useful debugging tools available in the environment.
 
 lint
     Run code linting using `Prospector`_. This currently runs `pylint`_,

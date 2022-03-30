@@ -1,11 +1,11 @@
 """Base classes for VCS backends."""
-import structlog
 import os
 import shutil
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
-from readthedocs.projects.exceptions import RepositoryError
+import structlog
 
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.projects.exceptions import RepositoryError
 
 log = structlog.get_logger(__name__)
 
@@ -69,8 +69,11 @@ class BaseVCS:
 
         # TODO: always pass an explicit environment
         # This is only used in tests #6546
+        #
+        # TODO: we should not allow ``environment=None`` and always use the
+        # environment defined by the settings
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
-        self.environment = environment or LocalBuildEnvironment(record=False)
+        self.environment = environment or LocalBuildEnvironment()
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -98,10 +101,16 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
-        except BuildEnvironmentWarning as e:
-            # Re raise as RepositoryError,
-            # so isn't logged as ERROR.
-            raise RepositoryError(str(e))
+        except BuildCancelled:
+            # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
+            # raise a ``RepositoryError`` then the ``on_failure`` method from
+            # Celery won't treat this problem as a ``BuildCancelled`` issue.
+            raise BuildCancelled
+        except BuildUserError as e:
+            # Re raise as RepositoryError to handle it properly from outside
+            if hasattr(e, "message"):
+                raise RepositoryError(e.message)
+            raise RepositoryError
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)

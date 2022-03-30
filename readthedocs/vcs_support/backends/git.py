@@ -1,12 +1,12 @@
 """Git-related utilities."""
 
-import structlog
 import re
 
 import git
-from gitdb.util import hex_to_bin
+import structlog
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
+from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -19,7 +19,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
 
 log = structlog.get_logger(__name__)
 
@@ -173,8 +172,6 @@ class Backend(BaseVCS):
                 )
 
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
         return code, stdout, stderr
 
     def checkout_revision(self, revision=None):
@@ -182,12 +179,13 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout', '--force', revision)
-        if code != 0:
+        try:
+            code, out, err = self.run('git', 'checkout', '--force', revision)
+            return [code, out, err]
+        except RepositoryError:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             )
-        return [code, out, err]
 
     def clone(self):
         """Clones the repository."""
@@ -198,10 +196,11 @@ class Backend(BaseVCS):
 
         cmd.extend([self.repo_url, '.'])
 
-        code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
-        return code, stdout, stderr
+        try:
+            code, stdout, stderr = self.run(*cmd)
+            return code, stdout, stderr
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR)
 
     @property
     def lsremote(self):
@@ -214,22 +213,31 @@ class Backend(BaseVCS):
 
         self.check_working_dir()
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
 
-        tags = []
         branches = []
+        # Git has two types of tags: lightweight and annotated.
+        # Lightweight tags are the "normal" ones.
+        all_tags = {}
+        light_tags = {}
         for line in stdout.splitlines()[1:]:  # skip HEAD
             commit, ref = line.split()
-            if ref.startswith('refs/heads/'):
-                branch = ref.replace('refs/heads/', '')
+            if ref.startswith("refs/heads/"):
+                branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
-            if ref.startswith('refs/tags/'):
-                tag = ref.replace('refs/tags/', '')
+
+            if ref.startswith("refs/tags/"):
+                tag = ref.replace("refs/tags/", "", 1)
+                # If the tag is annotated, then the real commit
+                # will be on the ref ending with ^{}.
                 if tag.endswith('^{}'):
-                    # skip annotated tags since they are duplicated
-                    continue
-                tags.append(VCSVersion(self, commit, tag))
+                    light_tags[tag[:-3]] = commit
+                else:
+                    all_tags[tag] = commit
+
+        # Merge both tags, lightweight tags will have
+        # priority over annotated tags.
+        all_tags.update(light_tags)
+        tags = [VCSVersion(self, commit, tag) for tag, commit in all_tags.items()]
 
         return branches, tags
 
@@ -308,8 +316,6 @@ class Backend(BaseVCS):
 
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
-        if code != 0:
-            return code, out, err
 
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')

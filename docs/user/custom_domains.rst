@@ -147,7 +147,7 @@ so that they can send people to the correct page.
 
 Read the Docs uses these in two ways:
 
-* We point all versions of your docs at the "latest" version as canonical
+* We point all versions of your docs at default version, usually "latest" or "stable", as canonical.
 * We point at the user specified canonical URL, generally a custom domain for your docs.
 
 Example

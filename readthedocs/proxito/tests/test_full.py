@@ -1,5 +1,3 @@
-# Copied from .org
-
 import os
 from textwrap import dedent
 from unittest import mock
@@ -10,6 +8,7 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
@@ -23,7 +22,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
@@ -980,3 +979,174 @@ class TestAdditionalDocViews(BaseDocServing):
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(response.status_code, 404)
+
+
+@override_settings(
+    ALLOW_PRIVATE_REPOS=True,
+    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
+)
+class TestCDNCache(BaseDocServing):
+
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.CDN_ENABLED,
+            projects=list(Project.objects.all()),
+        )
+
+    def _test_cache_control_header_project(self, expected_value, host=None):
+        """
+        Test the CDN-Cache-Control header on requests for `self.project`.
+
+        :param expected_value: The expected value of the header: 'public' or 'private'.
+        :param host: Hostname to use in the requests.
+        """
+        host = host or 'project.dev.readthedocs.io'
+
+        # Normal serving.
+        urls = [
+            '/en/latest/',
+            '/en/latest/foo.html',
+        ]
+        for url in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest', url)
+
+        # Page & system redirects are always cached.
+        # Authz is done on the redirected URL.
+        location = f'https://{host}/en/latest/'
+        urls = [
+            ['', location],
+            ['/', location],
+            ['/page/foo.html', f'https://{host}/en/latest/foo.html'],
+        ]
+        for url, location in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp['Location'], location, url)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'project', url)
+
+        # Slash redirect is done at the middleware level.
+        # So, it doesn't take into consideration the privacy level of the
+        # version, and always defaults to private.
+        url = '/en//latest//'
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        self.assertEqual(resp['Location'], '/en/latest/', url)
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
+        self.assertNotIn('Cache-Tag', resp.headers, url)
+
+    def _test_cache_control_header_subproject(self, expected_value, host=None):
+        """
+        Test the CDN-Cache-Control header on requests for `self.subproject`.
+
+        :param expected_value: The expected value of the header: 'public' or 'private'.
+        :param host: Hostname to use in the requests.
+        """
+        host = host or 'project.dev.readthedocs.io'
+
+        # Normal serving.
+        urls = [
+            '/projects/subproject/en/latest/',
+            '/projects/subproject/en/latest/foo.html',
+        ]
+        for url in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest', url)
+
+        # Page & system redirects are always cached.
+        # Authz is done on the redirected URL.
+        location = f'https://{host}/projects/subproject/en/latest/'
+        urls = [
+            ['/projects/subproject', location],
+            ['/projects/subproject/', location],
+        ]
+        for url, location in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp['Location'], location, url)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'subproject', url)
+
+        # Slash redirect is done at the middleware level.
+        # So, it doesn't take into consideration the privacy level of the
+        # version, and always defaults to private.
+        url = '/projects//subproject//'
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        self.assertEqual(resp['Location'], '/projects/subproject/', url)
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
+        self.assertNotIn('Cache-Tag', resp.headers, url)
+
+    def test_cache_on_private_versions(self):
+        self.project.versions.update(privacy_level=PRIVATE)
+        self._test_cache_control_header_project(expected_value='private')
+
+    def test_cache_on_private_versions_custom_domain(self):
+        self.project.versions.update(privacy_level=PRIVATE)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_project(expected_value='private', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
+
+    def test_cache_public_versions(self):
+        self.project.versions.update(privacy_level=PUBLIC)
+        self._test_cache_control_header_project(expected_value='public')
+
+    def test_cache_public_versions_custom_domain(self):
+        self.project.versions.update(privacy_level=PUBLIC)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_project(expected_value='public', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
+
+    def test_cache_on_private_versions_subproject(self):
+        self.subproject.versions.update(privacy_level=PRIVATE)
+        self._test_cache_control_header_subproject(expected_value='private')
+
+    def test_cache_on_private_versions_custom_domain_subproject(self):
+        self.subproject.versions.update(privacy_level=PRIVATE)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_subproject(expected_value='private', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get(
+            '/projects/subproject/en/latest/',
+            secure=False,
+            HTTP_HOST=self.domain.domain,
+        )
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_public_versions_subproject(self):
+        self.subproject.versions.update(privacy_level=PUBLIC)
+        self._test_cache_control_header_subproject(expected_value='public')
+
+    def test_cache_public_versions_custom_domain(self):
+        self.subproject.versions.update(privacy_level=PUBLIC)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_subproject(expected_value='public', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get(
+            '/projects/subproject/en/latest/',
+            secure=False,
+            HTTP_HOST=self.domain.domain,
+        )
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')

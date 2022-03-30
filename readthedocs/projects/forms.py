@@ -682,7 +682,10 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta:
         model = Integration
-        exclude = ['provider_data', 'exchanges', 'secret']  # pylint: disable=modelform-uses-exclude
+        fields = [
+            'project',
+            'integration_type',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

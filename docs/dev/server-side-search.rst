@@ -1,12 +1,12 @@
-Search
-======
+Server Side Search
+==================
 
 Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
 All the Search Code is open source and lives in the `GitHub Repository`_.
 Currently we are using `Elasticsearch 6.3`_.
 
-Local Development Configuration
+Local development configuration
 -------------------------------
 
 Elasticsearch is installed and run as part of the :doc:`development installation guide </install>`.
@@ -24,7 +24,7 @@ management command:
 For performance optimization, we implemented our own version of management command rather than
 the built in management command provided by the `django-elasticsearch-dsl`_ package.
 
-Auto Indexing
+Auto indexing
 ^^^^^^^^^^^^^
 
 By default, Auto Indexing is turned off in development mode. To turn it on, change the
@@ -57,16 +57,12 @@ If you get an error like::
 
    RequestError(400, 'search_phase_execution_exception', 'failed to create query: ...
 
-You can fix this by deleting the page index:
+You can fix this by deleting the page index and :ref:`re-indexing <server-side-search:indexing into elasticsearch>`:
 
 .. prompt:: bash
 
    inv docker.manage 'search_index --delete'
-
-.. note::
-
-   You'll need to :ref:`reindex the projects <search:indexing into elasticsearch>` after this.
-
+   inv docker.manage reindex_elasticsearch
 
 How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,7 +89,7 @@ from the main site. We listen to the `post_create` and `post_delete` signals of
 `Project` model and index/delete into Elasticsearch accordingly.
 
 
-Elasticsearch Document
+Elasticsearch document
 ~~~~~~~~~~~~~~~~~~~~~~
 
 `elasticsearch-dsl`_ provides a model-like wrapper for `the Elasticsearch document`_.
@@ -117,7 +113,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
-.. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/search
+.. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/main/readthedocs/search
 .. _the Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: https://elasticsearch-dsl.readthedocs.io/en/latest/

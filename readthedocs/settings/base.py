@@ -10,7 +10,6 @@ from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -111,12 +110,6 @@ class CommunityBaseSettings(Settings):
         "/admin/",
     )
 
-    # Permissions Policy
-    # https://github.com/adamchainz/django-permissions-policy
-    PERMISSIONS_POLICY = {
-        "interest-cohort": [],
-    }
-
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -125,6 +118,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
+    RTD_BUILDS_MAX_RETRIES = 25
+    RTD_BUILDS_RETRY_DELAY = 5 * 60  # seconds
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
@@ -250,7 +245,6 @@ class CommunityBaseSettings(Settings):
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
         'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
         'django_structlog.middlewares.CeleryMiddleware',
@@ -398,17 +392,10 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    BROKER_TRANSPORT_OPTIONS = {
-        'queue_order_strategy': 'priority',
-        # We use 0 here because some things still put a task in the queue with no priority
-        # I don't fully understand why, but this seems to solve it.
-        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
-    }
-
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
-            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
@@ -437,12 +424,14 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
-        'hourly-archive-builds': {
-            'task': 'readthedocs.builds.tasks.archive_builds',
-            'schedule': crontab(minute=30),
+        'quarter-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds_task',
+            'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
             'kwargs': {
                 'days': 1,
+                'limit': 500,
+                'delete': True,
             },
         },
         'every-day-delete-inactive-external-versions': {
@@ -553,6 +542,7 @@ class CommunityBaseSettings(Settings):
         # Mapping of build.os options to docker image.
         'os': {
             'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
+            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
         },
         # Mapping of build.tools options to specific versions.
         'tools': {
@@ -672,6 +662,7 @@ class CommunityBaseSettings(Settings):
         'accept',
         'origin',
         'authorization',
+        'x-hoverxref-version',
         'x-csrftoken'
     )
     # Additional protection to allow only idempotent methods.
@@ -682,7 +673,6 @@ class CommunityBaseSettings(Settings):
     ]
 
     # RTD Settings
-    REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
@@ -863,6 +853,11 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
                 'level': 'INFO',
+            },
+            'docker.utils.config': {
+                'handlers': ['null'],
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
             'django_structlog.middlewares.request': {
                 'handlers': ['null'],

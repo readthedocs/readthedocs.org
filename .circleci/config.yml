@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@3.2.2
+
 jobs:
   tests:
     docker:
@@ -10,12 +13,14 @@ jobs:
         name: search
         environment:
           discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
     steps:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user tox
-      - run: tox -e py38,codecov
+      - run: tox -e py38
+      - codecov/upload
 
   tests-embedapi:
     docker:
@@ -44,6 +49,7 @@ jobs:
             echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
       - run: tox -e migrations
+      - run: tox -e pre-commit
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs

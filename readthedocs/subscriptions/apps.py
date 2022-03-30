@@ -9,3 +9,4 @@ class SubscriptionsConfig(AppConfig):
 
     def ready(self):
         import readthedocs.subscriptions.signals  # noqa
+        import readthedocs.subscriptions.tasks  # noqa

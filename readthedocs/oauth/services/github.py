@@ -1,9 +1,9 @@
 """OAuth utility functions."""
 
 import json
-import structlog
 import re
 
+import structlog
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
@@ -12,10 +12,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import (
-    BUILD_STATUS_SUCCESS,
-    SELECT_BUILD_STATUS,
-)
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import Integration
 
@@ -40,7 +37,7 @@ class GitHubService(Service):
         remote_repositories = []
 
         try:
-            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+            repos = self.paginate("https://api.github.com/user/repos", per_page=100)
             for repo in repos:
                 remote_repository = self.create_repository(repo)
                 remote_repositories.append(remote_repository)
@@ -58,14 +55,14 @@ class GitHubService(Service):
         remote_repositories = []
 
         try:
-            orgs = self.paginate('https://api.github.com/user/orgs')
+            orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
             for org in orgs:
                 org_details = self.get_session().get(org['url']).json()
                 remote_organization = self.create_organization(org_details)
-                # Add repos
-                # TODO ?per_page=100
+                org_url = org["url"]
                 org_repos = self.paginate(
-                    '{org_url}/repos'.format(org_url=org['url']),
+                    f"{org_url}/repos",
+                    per_page=100,
                 )
 
                 remote_organizations.append(remote_organization)
@@ -325,7 +322,7 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('GitHub webhook creation successful for project.')
+                log.debug('GitHub webhook creation successful for project.')
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
@@ -471,7 +468,7 @@ class GitHubService(Service):
             )
             log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info("GitHub commit status created for project.")
+                log.debug("GitHub commit status created for project.")
                 return True
 
             if resp.status_code in [401, 403, 404]:
