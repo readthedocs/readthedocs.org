@@ -11,7 +11,7 @@ from readthedocs.worker import app
 log = logging.getLogger(__name__)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def delete_old_personal_audit_logs(days=None):
     """
     Delete personal security logs older than `days`.

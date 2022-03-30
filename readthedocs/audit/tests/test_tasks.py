@@ -12,28 +12,27 @@ from readthedocs.projects.models import Project
 
 
 class AuditTasksTest(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.project = get(
             Project,
-            slug='project',
+            slug="project",
         )
         self.organization = get(
             Organization,
             owners=[self.user],
-            name='testorg',
+            name="testorg",
         )
         self.organization.projects.add(self.project)
 
         self.another_user = get(User)
         self.another_project = get(
             Project,
-            slug='another-project',
+            slug="another-project",
             users=[self.user],
         )
 
-    @mock.patch('django.utils.timezone.now')
+    @mock.patch("django.utils.timezone.now")
     def test_delete_old_personal_audit_logs(self, now_mock):
         now_mock.return_value = timezone.datetime(
             year=2021,
