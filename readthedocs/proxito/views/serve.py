@@ -399,7 +399,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             # while recording the broken link.
             log.exception(
                 "Error while recording the broken link",
-                project=project.slug,
+                project_slug=project.slug,
                 full_path=full_path,
             )
 
