@@ -303,7 +303,7 @@ class BuildDirector:
         - are run with under the path where the repository was cloned
         - are run as RTD_DOCKER_USER user
         - users can't run commands as `root` user
-        - all the user's commands receive environment variables
+        - all the user's commands receive same environment variables as regular commands
 
         Example:
 
