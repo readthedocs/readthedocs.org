@@ -51,6 +51,8 @@ class BuildTool(Base):
 
 class BuildJobs(Base):
 
+    """Object used for `build.jobs` key."""
+
     __slots__ = (
         "pre_checkout",
         "post_checkout",
