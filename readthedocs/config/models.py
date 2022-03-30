@@ -65,12 +65,12 @@ class BuildJobs(Base):
     )
 
     def __init__(self, **kwargs):
-    """
-    Create an empty list as a default for all possible builds.jobs configs.
-    
-    This is necessary because it makes the code cleaner when we add items to these lists,
-    without having to check for a dict to be created first. 
-    """
+        """
+        Create an empty list as a default for all possible builds.jobs configs.
+
+        This is necessary because it makes the code cleaner when we add items to these lists,
+        without having to check for a dict to be created first.
+        """
         for step in self.__slots__:
             kwargs.setdefault(step, [])
         super().__init__(**kwargs)
