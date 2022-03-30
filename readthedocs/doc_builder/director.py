@@ -65,7 +65,30 @@ class BuildDirector:
                 ),
             )
 
-        environment = self.data.environment_class(
+        before_vcs.send(
+            sender=self.data.version,
+            environment=self.vcs_environment,
+        )
+
+        # Create the VCS repository where all the commands are going to be
+        # executed for a particular VCS type
+        self.vcs_repository = self.data.project.vcs_repo(
+            version=self.data.version.slug,
+            environment=self.vcs_environment,
+            verbose_name=self.data.version.verbose_name,
+            version_type=self.data.version.type,
+        )
+
+        self.pre_checkout()
+        self.checkout()
+        self.post_checkout()
+
+        commit = self.data.build_commit or self.vcs_repository.commit
+        if commit:
+            self.data.build["commit"] = commit
+
+    def create_vcs_environment(self):
+        self.vcs_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             build=self.data.build,
@@ -74,28 +97,6 @@ class BuildDirector:
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
         )
-        with environment:
-            before_vcs.send(
-                sender=self.data.version,
-                environment=environment,
-            )
-
-            # Create the VCS repository where all the commands are going to be
-            # executed for a particular VCS type
-            self.vcs_repository = self.data.project.vcs_repo(
-                version=self.data.version.slug,
-                environment=environment,
-                verbose_name=self.data.version.verbose_name,
-                version_type=self.data.version.type,
-            )
-
-            self.pre_checkout()
-            self.checkout()
-            self.post_checkout()
-
-            commit = self.data.build_commit or self.vcs_repository.commit
-            if commit:
-                self.data.build["commit"] = commit
 
     def create_build_environment(self):
         self.build_environment = self.data.environment_class(
