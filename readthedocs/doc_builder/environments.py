@@ -1,6 +1,5 @@
 """Documentation Builder Environments."""
 
-import structlog
 import os
 import re
 import subprocess
@@ -8,6 +7,7 @@ import sys
 import uuid
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
@@ -31,10 +31,7 @@ from .constants import (
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
 )
-from .exceptions import (
-    BuildAppError,
-    BuildUserError,
-)
+from .exceptions import BuildAppError, BuildUserError
 
 log = structlog.get_logger(__name__)
 
