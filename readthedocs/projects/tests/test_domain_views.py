@@ -98,10 +98,14 @@ class TestDomainViews(TestCase):
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
-@mock.patch.object(DomainMixin, "_is_audit_enabled")
 class TestDomainViewsWithOrganizations(TestDomainViews):
     def setUp(self):
         super().setUp()
         self.org = get(
             Organization, owners=[self.user], projects=[self.project, self.subproject]
         )
+        self.patcher = mock.patch.object(DomainMixin, "_is_enabled", return_value=True)
+        self.patcher.start()
+
+    def tearDown(self):
+        self.patcher.stop()
