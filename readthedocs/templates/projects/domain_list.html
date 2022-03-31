@@ -14,7 +14,7 @@
 {% block project_edit_content %}
   {% if superproject %}
     {% url "projects_detail" superproject.slug as superproject_url %}
-    <p class="help_text">
+    <p>
       {% blocktrans trimmed with superproject=superproject.name superproject_url=superproject_url domain=project.subdomain %}
         This project is a subproject of <a href="{{ superproject_url }}">{{ superproject }}</a>,
         its documentation will always be served from the <code>{{ domain }}</code> domain.
@@ -44,16 +44,18 @@
   </p>
   {% endif %}
 
-  <h3> {% trans "Add new Domain" %} </h3>
+  {% if not superproject %}
+    <h3>{% trans "Add new Domain" %}</h3>
 
-  {% if not enabled %}
-    {% include 'projects/includes/feature_disabled.html' with project=project %}
-  {% else %}
-    <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
-      {{ form.as_p }}
-      <p>
-        <input style="display: inline;" type="submit" value="{% trans "Add" %}">
-      </p>
-    </form>
+    {% if not enabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% else %}
+      <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
+        {{ form.as_p }}
+        <p>
+          <input style="display: inline;" type="submit" value="{% trans "Add" %}">
+        </p>
+      </form>
+    {% endif %}
   {% endif %}
 {% endblock %}

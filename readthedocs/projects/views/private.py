@@ -782,7 +782,7 @@ class DomainCreateBase(DomainMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
-        if self._is_enabled(project):
+        if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
 
@@ -806,7 +806,7 @@ class DomainUpdateBase(DomainMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
-        if self._is_enabled(project):
+        if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
 
