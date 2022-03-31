@@ -19,6 +19,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    :maxdepth: 1
 
    install
+   guides/index
    design
    docs
    front-end

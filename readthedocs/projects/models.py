@@ -1767,6 +1767,7 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     CDN_ENABLED = 'cdn_enabled'
+    DOCKER_GVISOR_RUNTIME = 'gvisor_runtime'
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1853,6 +1854,10 @@ class Feature(models.Model):
         (
             CDN_ENABLED,
             _('CDN support for a project\'s public versions when privacy levels are enabled.'),
+        ),
+        (
+            DOCKER_GVISOR_RUNTIME,
+            _('Use Docker gVisor runtime to create build container.'),
         ),
 
         # Versions sync related features

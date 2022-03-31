@@ -790,10 +790,16 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
+            docker_runtime = self.project.get_feature_value(
+                Feature.DOCKER_GVISOR_RUNTIME,
+                positive="runsc",
+                negative=None,
+            )
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
+                docker_runtime=docker_runtime,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -808,6 +814,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
+                runtime=docker_runtime,
             )
             client.start(container=self.container_id)
         except (DockerAPIError, ConnectionError) as e:
