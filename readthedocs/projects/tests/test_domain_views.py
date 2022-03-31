@@ -1,5 +1,3 @@
-from unittest import mock
-
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -7,7 +5,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
-from readthedocs.projects.views.private import DomainMixin
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
@@ -104,8 +101,3 @@ class TestDomainViewsWithOrganizations(TestDomainViews):
         self.org = get(
             Organization, owners=[self.user], projects=[self.project, self.subproject]
         )
-        self.patcher = mock.patch.object(DomainMixin, "_is_enabled", return_value=True)
-        self.patcher.start()
-
-    def tearDown(self):
-        self.patcher.stop()
