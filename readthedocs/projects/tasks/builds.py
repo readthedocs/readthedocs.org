@@ -548,11 +548,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
-        self.data.build_director.setup_vcs()
 
-        # Sync tags/branches from VCS repository into Read the Docs' `Version`
-        # objects in the database
-        self.sync_versions(self.data.build_director.vcs_repository)
+        # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be
+        # handled inside the ``BuildDirector`` but we can't use ``with
+        # self.vcs_environment`` twice because it kills the container on
+        # ``__exit__``
+        self.data.build_director.create_vcs_environment()
+        with self.data.build_director.vcs_environment:
+            self.data.build_director.setup_vcs()
+
+            # Sync tags/branches from VCS repository into Read the Docs'
+            # `Version` objects in the database. This method runs commands
+            # (e.g. "hg tags") inside the VCS environment, so it requires to be
+            # inside the `with` statement
+            self.sync_versions(self.data.build_director.vcs_repository)
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with
