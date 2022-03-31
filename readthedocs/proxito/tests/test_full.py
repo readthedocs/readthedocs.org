@@ -204,6 +204,12 @@ class TestFullDocServing(BaseDocServing):
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
 
+    def test_non_existent_version_with_filename(self):
+        url = "/en/non-existent-version/doesnt-exist.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
     def test_inactive_version(self):
         url = "/en/inactive/"
         host = "project.dev.readthedocs.io"
