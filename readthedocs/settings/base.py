@@ -110,12 +110,6 @@ class CommunityBaseSettings(Settings):
         "/admin/",
     )
 
-    # Permissions Policy
-    # https://github.com/adamchainz/django-permissions-policy
-    PERMISSIONS_POLICY = {
-        "interest-cohort": [],
-    }
-
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -251,7 +245,6 @@ class CommunityBaseSettings(Settings):
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
         'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'django_permissions_policy.PermissionsPolicyMiddleware',
         'simple_history.middleware.HistoryRequestMiddleware',
         'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
         'django_structlog.middlewares.CeleryMiddleware',
@@ -544,6 +537,7 @@ class CommunityBaseSettings(Settings):
         # Mapping of build.os options to docker image.
         'os': {
             'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
+            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
         },
         # Mapping of build.tools options to specific versions.
         'tools': {

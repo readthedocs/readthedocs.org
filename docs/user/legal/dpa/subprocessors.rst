@@ -14,7 +14,7 @@ access to or will process personal data.
     Previous versions of this document, as well as the change history to this
     document, are available `on GitHub`_
 
-.. _on GitHub: https://github.com/readthedocs/readthedocs.org/commits/master/docs/legal/dpa/subprocessors.rst
+.. _on GitHub: https://github.com/readthedocs/readthedocs.org/commits/main/docs/legal/dpa/subprocessors.rst
 
 Infrastructure
 --------------
@@ -36,7 +36,7 @@ Sendgrid, Inc.
 
 Google Analytics
     Website analtyics for dashboard and documentation sites.
-    
+
 Stripe Inc.
     Subscription payment provider. Data collected can include user data necessary
     to process payment transactions, however this data is not processed directly

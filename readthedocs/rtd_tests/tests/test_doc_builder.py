@@ -566,7 +566,7 @@ class MkdocsBuilderTest(TestCase):
         yaml_contents = [
             {'docs_dir': ['docs']},
             {'extra_css': 'a string here'},
-            {'extra_javascript': None},
+            {'extra_javascript': ''},
         ]
         for content in yaml_contents:
             yaml.safe_dump(
@@ -575,6 +575,50 @@ class MkdocsBuilderTest(TestCase):
             )
             with self.assertRaises(MkDocsYAMLParseError):
                 self.searchbuilder.append_conf()
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_and_none_values(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        builder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        yaml.safe_dump(
+            {
+                'extra_css': None,
+                'extra_javascript': None,
+            },
+            open(yaml_file, 'w'),
+        )
+        builder.append_conf()
+        config = yaml_load_safely(open(yaml_file))
+
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css',
+            ],
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
+            ],
+        )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')

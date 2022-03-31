@@ -920,9 +920,13 @@ class IntegrationsTests(TestCase):
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": self.commit
-                }
-            }
+                    "sha": self.commit,
+                    "ref": "source_branch",
+                },
+                "base": {
+                    "ref": "master",
+                },
+            },
         }
         self.gitlab_merge_request_payload = {
             "object_kind": GITLAB_MERGE_REQUEST,
@@ -931,7 +935,9 @@ class IntegrationsTests(TestCase):
                 "last_commit": {
                     "id": self.commit
                 },
-                "action": "open"
+                "action": "open",
+                "source_branch": "source_branch",
+                "target_branch": "master",
             },
         }
         self.gitlab_payload = {
@@ -1526,6 +1532,14 @@ class IntegrationsTests(TestCase):
         )
         self.assertTrue(resp.json()['versions_synced'])
 
+    def test_github_get_external_version_data(self, trigger_build):
+        view = GitHubWebhookView(data=self.github_pull_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
+
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
@@ -2040,6 +2054,14 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
+
+    def test_gitlab_get_external_version_data(self, trigger_build):
+        view = GitLabWebhookView(data=self.gitlab_merge_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""

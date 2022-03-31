@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Subversion-related utilities."""
 
@@ -63,7 +62,7 @@ class Backend(BaseVCS):
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', url, '.')
         if retcode != 0:
-            raise RepositoryError
+            raise RepositoryError(RepositoryError.CLONE_ERROR)
         return retcode, out, err
 
     @property

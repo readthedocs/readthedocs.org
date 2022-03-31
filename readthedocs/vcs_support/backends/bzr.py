@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Bazaar-related utilities."""
 
@@ -36,7 +35,10 @@ class Backend(BaseVCS):
 
     def clone(self):
         self.make_clean_working_dir()
-        self.run('bzr', 'checkout', self.repo_url, '.')
+        try:
+            self.run("bzr", "checkout", self.repo_url, ".")
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR)
 
     @property
     def tags(self):
