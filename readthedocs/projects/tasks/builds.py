@@ -4,14 +4,12 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
-
 import signal
 import socket
 
 import structlog
 from celery import Task
 from django.conf import settings
-from django.core.cache import cache
 from django.utils import timezone
 from slumber.exceptions import HttpClientError
 
@@ -30,6 +28,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.utils import memcache_lock
 from readthedocs.config import ConfigError
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
@@ -132,8 +131,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
-        self._check_rate_limit()
-
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # Do not log as error handled exceptions
         if isinstance(exc, RepositoryError):
@@ -151,17 +148,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.data.version)
-
-    def _check_rate_limit(self):
-        """
-        Rate limit the task per-project.
-
-        Allow to execute 1 task per minute.
-        """
-        lock_id = f"{self.name}-lock-{self.data.project.slug}"
-        locked = not cache.add(lock_id, self.app.oid, 60)
-        if locked:
-            raise SyncRepositoryLocked
 
     def execute(self):
         environment = self.data.environment_class(
@@ -206,7 +192,16 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def sync_repository_task(self, version_id):
-    self.execute()
+    lock_id = f"{self.name}-lock-{self.data.project.slug}"
+    with memcache_lock(lock_id, 60, self.app.oid) as lock_acquired:
+        # Run `sync_repository_task` one at a time. If the task exceedes the 60
+        # seconds, the lock is released and another task can be run in parallel
+        # by a different worker.
+        # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
+        if not lock_acquired:
+            raise SyncRepositoryLocked
+
+        self.execute()
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):

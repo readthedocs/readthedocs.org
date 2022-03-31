@@ -103,15 +103,15 @@ def external_version_name(build_or_version):
 
 
 @contextmanager
-def memcache_lock(lock_id, oid):
+def memcache_lock(lock_id, lock_expire, oid):
     """
     Create a lock using django's cache for running a celery task.
 
     From http://docs.celeryproject.org/en/latest/tutorials/task-cookbook.html#cookbook-task-serial
     """
-    timeout_at = monotonic() + LOCK_EXPIRE - 3
+    timeout_at = monotonic() + lock_expire - 3
     # cache.add fails if the key already exists
-    status = cache.add(lock_id, oid, LOCK_EXPIRE)
+    status = cache.add(lock_id, oid, lock_expire)
     try:
         yield status
     finally:
