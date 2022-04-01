@@ -104,7 +104,7 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
         #
         # However, if there is a `version_slug` in the URL but there is no
         # version on the database we want to return 404.
-        if version and not version.active or (not version and version_slug):
+        if (version and not version.active) or (version_slug and not version):
             log.warning("Version does not exist or is not active.")
             raise Http404("Version does not exist or is not active.")
 
