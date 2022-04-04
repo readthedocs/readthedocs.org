@@ -20,8 +20,6 @@ from readthedocs.projects.constants import (
     GITLAB_REGEXS,
 )
 
-LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
-
 
 def get_github_username_repo(url):
     if 'github' in url:
@@ -103,7 +101,7 @@ def external_version_name(build_or_version):
 
 
 @contextmanager
-def memcache_lock(lock_id, lock_expire, oid):
+def memcache_lock(lock_id, lock_expire, app_identifier):
     """
     Create a lock using django's cache for running a celery task.
 
@@ -111,7 +109,7 @@ def memcache_lock(lock_id, lock_expire, oid):
     """
     timeout_at = monotonic() + lock_expire - 3
     # cache.add fails if the key already exists
-    status = cache.add(lock_id, oid, lock_expire)
+    status = cache.add(lock_id, app_identifier, lock_expire)
     try:
         yield status
     finally:

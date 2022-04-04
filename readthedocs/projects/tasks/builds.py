@@ -193,8 +193,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 )
 def sync_repository_task(self, version_id):
     lock_id = f"{self.name}-lock-{self.data.project.slug}"
-    with memcache_lock(lock_id, 60, self.app.oid) as lock_acquired:
-        # Run `sync_repository_task` one at a time. If the task exceedes the 60
+    with memcache_lock(
+        lock_id=lock_id, lock_expire=60, app_identifier=self.app.oid
+    ) as lock_acquired:
+        # Run `sync_repository_task` one at a time. If the task exceeds the 60
         # seconds, the lock is released and another task can be run in parallel
         # by a different worker.
         # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
