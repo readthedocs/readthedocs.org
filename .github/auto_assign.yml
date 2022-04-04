@@ -1,0 +1,3 @@
+# https://github.com/kentaro-m/auto-assign#assign-author-as-assignee
+# Set to author to set pr creator as assignee
+addAssignees: author

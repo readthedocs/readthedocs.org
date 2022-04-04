@@ -1,3 +1,29 @@
+Version 7.5.1
+-------------
+
+:Date: April 04, 2022
+
+* `@humitos <https://github.com/humitos>`__: Github: use probot auto-assign bot (`#9069 <https://github.com/readthedocs/readthedocs.org/pull/9069>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sphinx-tabs (`#9061 <https://github.com/readthedocs/readthedocs.org/pull/9061>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: use sphinx-multiproject (`#9057 <https://github.com/readthedocs/readthedocs.org/pull/9057>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `build.jobs` reference documentation (`#9056 <https://github.com/readthedocs/readthedocs.org/pull/9056>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use same hack for VCS and build environments (`#9055 <https://github.com/readthedocs/readthedocs.org/pull/9055>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix jinja2 on embed tests (`#9053 <https://github.com/readthedocs/readthedocs.org/pull/9053>`__)
+* `@jsquyres <https://github.com/jsquyres>`__: director.py: restore READTHEDOCS_VERSION_[TYPE|NAME] (`#9052 <https://github.com/readthedocs/readthedocs.org/pull/9052>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix tests around jinja2 (`#9050 <https://github.com/readthedocs/readthedocs.org/pull/9050>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not send VCS build status on specific exceptions (`#9049 <https://github.com/readthedocs/readthedocs.org/pull/9049>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: do not serve non-existent versions (`#9048 <https://github.com/readthedocs/readthedocs.org/pull/9048>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.5.0 (`#9047 <https://github.com/readthedocs/readthedocs.org/pull/9047>`__)
+* `@humitos <https://github.com/humitos>`__: Build: Mercurial (`hg`) compatibility with old versions (`#9042 <https://github.com/readthedocs/readthedocs.org/pull/9042>`__)
+* `@eyllanesc <https://github.com/eyllanesc>`__: Fixes link (`#9041 <https://github.com/readthedocs/readthedocs.org/pull/9041>`__)
+* `@ericholscher <https://github.com/ericholscher>`__:     Fix jinja2 pinning on Sphinx 1.8 feature flagged projects (`#9036 <https://github.com/readthedocs/readthedocs.org/pull/9036>`__)
+* `@humitos <https://github.com/humitos>`__: Copyright date (`#9022 <https://github.com/readthedocs/readthedocs.org/pull/9022>`__)
+* `@humitos <https://github.com/humitos>`__: SyncRepositoryTask: rate limit to 1 per minute per project (`#9021 <https://github.com/readthedocs/readthedocs.org/pull/9021>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use same build environment for setup and build (`#9018 <https://github.com/readthedocs/readthedocs.org/pull/9018>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: fix annotated tags on lsremote (`#9017 <https://github.com/readthedocs/readthedocs.org/pull/9017>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implement `build.jobs` config file key (`#9016 <https://github.com/readthedocs/readthedocs.org/pull/9016>`__)
+* `@abravalheri <https://github.com/abravalheri>`__: Improve displayed version name when building from PR (`#8237 <https://github.com/readthedocs/readthedocs.org/pull/8237>`__)
+
 Version 7.5.0
 -------------
 

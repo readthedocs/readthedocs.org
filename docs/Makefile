@@ -5,7 +5,8 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-BUILDDIR      = _build/$(RTD_DOCSET)
+PROJECT       ?= user
+BUILDDIR      = _build/$(PROJECT)
 
 # Do not use local Django settings during the docs build
 export DJANGO_SETTINGS_SKIP_LOCAL = True
