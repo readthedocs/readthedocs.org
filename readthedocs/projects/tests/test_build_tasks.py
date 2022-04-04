@@ -524,6 +524,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "sphinx<2",
                     "sphinx-rtd-theme<0.5",
                     "readthedocs-sphinx-ext<2.2",
+                    "jinja2<3.1.0",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),

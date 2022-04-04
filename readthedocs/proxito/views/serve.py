@@ -84,14 +84,7 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
-
-        # All public versions can be cached.
         version = final_project.versions.filter(slug=version_slug).first()
-        if (
-            self._is_cache_enabled(final_project)
-            and version and not version.is_private
-        ):
-            self.cache_request = True
 
         log.bind(
             project_slug=final_project.slug,
@@ -99,8 +92,27 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
-            cache_request=self.cache_request,
         )
+
+        # Skip serving versions that are not active (return 404). This is to
+        # avoid serving files that we have in the storage, but its associated
+        # version does not exist anymore or it was de-activated.
+        #
+        # Note that we want to serve the page when `version is None` because it
+        # could be a valid URL, like `/` or `` (empty) that does not have a
+        # version associated to it.
+        #
+        # However, if there is a `version_slug` in the URL but there is no
+        # version on the database we want to return 404.
+        if (version and not version.active) or (version_slug and not version):
+            log.warning("Version does not exist or is not active.")
+            raise Http404("Version does not exist or is not active.")
+
+        if self._is_cache_enabled(final_project) and version and not version.is_private:
+            # All public versions can be cached.
+            self.cache_request = True
+
+        log.bind(cache_request=self.cache_request)
         log.debug('Serving docs.')
 
         # Verify if the project is marked as spam and return a 401 in that case

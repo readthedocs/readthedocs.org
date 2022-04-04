@@ -249,6 +249,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         ProjectBuildsSkippedError,
     )
 
+    # Do not send external build status on failure builds for these exceptions.
+    exceptions_without_external_build_status = (DuplicatedBuildError,)
+
     acks_late = True
     track_started = True
 
@@ -425,7 +428,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.data.build_commit:
+        if self.data.build_commit and not isinstance(
+            exc, self.exceptions_without_external_build_status
+        ):
             send_external_build_status(
                 version_type=self.data.version.type,
                 build_pk=self.data.build['id'],
@@ -561,11 +566,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
-        self.data.build_director.setup_vcs()
 
-        # Sync tags/branches from VCS repository into Read the Docs' `Version`
-        # objects in the database
-        self.sync_versions(self.data.build_director.vcs_repository)
+        # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be
+        # handled inside the ``BuildDirector`` but we can't use ``with
+        # self.vcs_environment`` twice because it kills the container on
+        # ``__exit__``
+        self.data.build_director.create_vcs_environment()
+        with self.data.build_director.vcs_environment:
+            self.data.build_director.setup_vcs()
+
+            # Sync tags/branches from VCS repository into Read the Docs'
+            # `Version` objects in the database. This method runs commands
+            # (e.g. "hg tags") inside the VCS environment, so it requires to be
+            # inside the `with` statement
+            self.sync_versions(self.data.build_director.vcs_repository)
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with
