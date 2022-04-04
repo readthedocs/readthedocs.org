@@ -65,6 +65,37 @@ class BuildDirector:
                 ),
             )
 
+        before_vcs.send(
+            sender=self.data.version,
+            environment=self.vcs_environment,
+        )
+
+        # Create the VCS repository where all the commands are going to be
+        # executed for a particular VCS type
+        self.vcs_repository = self.data.project.vcs_repo(
+            version=self.data.version.slug,
+            environment=self.vcs_environment,
+            verbose_name=self.data.version.verbose_name,
+            version_type=self.data.version.type,
+        )
+
+        # We can't do too much on ``pre_checkout`` because we haven't
+        # cloned the repository yet and we don't know what the user wrote
+        # in the `.readthedocs.yaml` yet.
+        #
+        # We could implement something different in the future if we download
+        # the `.readthedocs.yaml` file without cloning.
+        # See https://github.com/readthedocs/readthedocs.org/issues/8935
+        #
+        # self.run_build_job("pre_checkout")
+        self.checkout()
+        self.run_build_job("post_checkout")
+
+        commit = self.data.build_commit or self.vcs_repository.commit
+        if commit:
+            self.data.build["commit"] = commit
+
+    def create_vcs_environment(self):
         self.vcs_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
@@ -74,37 +105,6 @@ class BuildDirector:
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
         )
-        with self.vcs_environment:
-            before_vcs.send(
-                sender=self.data.version,
-                environment=self.vcs_environment,
-            )
-
-            # Create the VCS repository where all the commands are going to be
-            # executed for a particular VCS type
-            self.vcs_repository = self.data.project.vcs_repo(
-                version=self.data.version.slug,
-                environment=self.vcs_environment,
-                verbose_name=self.data.version.verbose_name,
-                version_type=self.data.version.type,
-            )
-
-            # We can't do too much on ``pre_checkout`` because we haven't
-            # cloned the repository yet and we don't know what the user wrote
-            # in the `.readthedocs.yaml` yet.
-            #
-            # We could implement something different in the future if we download
-            # the `.readthedocs.yaml` file without cloning.
-            # See https://github.com/readthedocs/readthedocs.org/issues/8935
-            #
-            # self.run_build_job('pre_checkout')
-
-            self.checkout()
-            self.run_build_job("post_checkout")
-
-            commit = self.data.build_commit or self.vcs_repository.commit
-            if commit:
-                self.data.build["commit"] = commit
 
     def create_build_environment(self):
         self.build_environment = self.data.environment_class(
