@@ -20,7 +20,7 @@ argh==0.26.2
 tox==3.24.5
 
 # AWS utilities to use against MinIO
-awscli==1.22.73
+awscli==1.22.87
 
 # Used together with structlog to have nicer logs locally
 rich==12.0.0
