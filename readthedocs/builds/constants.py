@@ -3,7 +3,6 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-
 BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
@@ -136,3 +135,5 @@ BUILD_STATUS_CHOICES = (
 
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
+
+LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours

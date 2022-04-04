@@ -1,11 +1,11 @@
 import os
-from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
 from unittest.mock import DEFAULT, patch
 
 import pytest
+from django.conf import settings
 from pytest import raises
 
 from readthedocs.config import (
@@ -33,6 +33,7 @@ from readthedocs.config.config import (
 )
 from readthedocs.config.models import (
     Build,
+    BuildJobs,
     BuildWithTools,
     Conda,
     PythonInstall,
@@ -1011,6 +1012,87 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.version'
+
+    @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
+    def test_jobs_build_config_invalid_jobs(self, value):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {value: ["echo 1234", "git fetch --unshallow"]},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.jobs"
+
+    @pytest.mark.parametrize("value", ["", None, "echo 123", 42])
+    def test_jobs_build_config_invalid_job_commands(self, value):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_install": value,
+                    },
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.jobs.pre_install"
+
+    def test_jobs_build_config(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_checkout": ["echo pre_checkout"],
+                        "post_checkout": ["echo post_checkout"],
+                        "pre_system_dependencies": ["echo pre_system_dependencies"],
+                        "post_system_dependencies": ["echo post_system_dependencies"],
+                        "pre_create_environment": ["echo pre_create_environment"],
+                        "post_create_environment": ["echo post_create_environment"],
+                        "pre_install": ["echo pre_install", "echo `date`"],
+                        "post_install": ["echo post_install"],
+                        "pre_build": [
+                            "echo pre_build",
+                            'sed -i -e "s|{VERSION}|${READTHEDOCS_VERSION_NAME}|g"',
+                        ],
+                        "post_build": ["echo post_build"],
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build.jobs, BuildJobs)
+        assert build.build.jobs.pre_checkout == ["echo pre_checkout"]
+        assert build.build.jobs.post_checkout == ["echo post_checkout"]
+        assert build.build.jobs.pre_system_dependencies == [
+            "echo pre_system_dependencies"
+        ]
+        assert build.build.jobs.post_system_dependencies == [
+            "echo post_system_dependencies"
+        ]
+        assert build.build.jobs.pre_create_environment == [
+            "echo pre_create_environment"
+        ]
+        assert build.build.jobs.post_create_environment == [
+            "echo post_create_environment"
+        ]
+        assert build.build.jobs.pre_install == ["echo pre_install", "echo `date`"]
+        assert build.build.jobs.post_install == ["echo post_install"]
+        assert build.build.jobs.pre_build == [
+            "echo pre_build",
+            'sed -i -e "s|{VERSION}|${READTHEDOCS_VERSION_NAME}|g"',
+        ]
+        assert build.build.jobs.post_build == ["echo post_build"]
 
     @pytest.mark.parametrize(
         'value',
@@ -2296,6 +2378,18 @@ class TestBuildConfigV2:
                         'version': '16',
                         'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
                     },
+                },
+                "jobs": {
+                    "pre_checkout": [],
+                    "post_checkout": [],
+                    "pre_system_dependencies": [],
+                    "post_system_dependencies": [],
+                    "pre_create_environment": [],
+                    "post_create_environment": [],
+                    "pre_install": [],
+                    "post_install": [],
+                    "pre_build": [],
+                    "post_build": [],
                 },
                 'apt_packages': [],
             },

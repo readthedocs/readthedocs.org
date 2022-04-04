@@ -524,6 +524,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "sphinx<2",
                     "sphinx-rtd-theme<0.5",
                     "readthedocs-sphinx-ext<2.2",
+                    "jinja2<3.1.0",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
@@ -729,6 +730,46 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "golang", golang_version),
                 mock.call("asdf", "reshim", "golang", record=False),
                 mock.ANY,
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_jobs(self, load_yaml_config):
+        config = BuildConfigV2(
+            {},
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.7"},
+                    "jobs": {
+                        "post_checkout": ["git fetch --unshallow"],
+                        "pre_build": ["echo `date`"],
+                    },
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call(
+                    "git", "fetch", "--unshallow", escape_command=False, cwd=mock.ANY
+                ),
+                # Don't care about the intermediate commands. They are checked
+                # in other tests
+                mock.ANY,
+                mock.ANY,
+                mock.ANY,
+                mock.ANY,
+                mock.ANY,
+                mock.ANY,
+                mock.ANY,
+                mock.call("echo", "`date`", escape_command=False, cwd=mock.ANY),
             ]
         )
 
