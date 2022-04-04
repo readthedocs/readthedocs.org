@@ -108,10 +108,7 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             log.warning("Version does not exist or is not active.")
             raise Http404("Version does not exist or is not active.")
 
-        if (
-            self._is_cache_enabled(final_project)
-            and version and not version.is_private
-        ):
+        if self._is_cache_enabled(final_project) and version and not version.is_private:
             # All public versions can be cached.
             self.cache_request = True
 
