@@ -21,7 +21,8 @@ daemon to avoid systemd cgroups.
             % sudo runsc install
 
         You do need to instruct Docker to avoid systemd cgroups. You will need
-        to make further changes to ``/etc/docker/daemon.json``:
+        to make further changes to ``/etc/docker/daemon.json`` and restart the
+        Docker service:
 
         .. code:: json
 
