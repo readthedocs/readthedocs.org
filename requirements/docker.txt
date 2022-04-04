@@ -12,7 +12,7 @@ django-redis-cache==3.0.1
 pillow==9.1.0
 
 # Local debugging tools
-watchdog==2.1.6
+watchdog==2.1.7
 # watchdog dependency
 argh==0.26.2
 
