@@ -4,7 +4,6 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
-
 import signal
 import socket
 
@@ -26,11 +25,10 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.utils import memcache_lock
 from readthedocs.config import ConfigError
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
@@ -50,7 +48,11 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
-from ..exceptions import ProjectConfigurationError, RepositoryError
+from ..exceptions import (
+    ProjectConfigurationError,
+    RepositoryError,
+    SyncRepositoryLocked,
+)
 from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
@@ -97,6 +99,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     default_retry_delay = 7 * 60
     throws = (
         RepositoryError,
+        SyncRepositoryLocked,
     )
 
     def before_start(self, task_id, args, kwargs):
@@ -134,6 +137,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             log.warning(
                 'There was an error with the repository.',
                 exc_info=True,
+            )
+        elif isinstance(exc, SyncRepositoryLocked):
+            log.warning(
+                "Skipping syncing repository because there is another task running."
             )
         else:
             # Catch unhandled errors when syncing
@@ -185,7 +192,18 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def sync_repository_task(self, version_id):
-    self.execute()
+    lock_id = f"{self.name}-lock-{self.data.project.slug}"
+    with memcache_lock(
+        lock_id=lock_id, lock_expire=60, app_identifier=self.app.oid
+    ) as lock_acquired:
+        # Run `sync_repository_task` one at a time. If the task exceeds the 60
+        # seconds, the lock is released and another task can be run in parallel
+        # by a different worker.
+        # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
+        if not lock_acquired:
+            raise SyncRepositoryLocked
+
+        self.execute()
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):

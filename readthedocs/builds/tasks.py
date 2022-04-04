@@ -22,6 +22,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    LOCK_EXPIRE,
     MAX_BUILD_COMMAND_SIZE,
     TAG,
 )
@@ -189,7 +190,7 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
         return
 
     lock_id = '{0}-lock'.format(self.name)
-    with memcache_lock(lock_id, self.app.oid) as acquired:
+    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             log.warning('Archive Builds Task still locked')
             return False
