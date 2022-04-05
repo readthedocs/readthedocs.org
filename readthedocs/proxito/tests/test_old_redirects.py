@@ -10,8 +10,10 @@ and adapted to use:
 """
 
 import django_dynamic_fixture as fixture
+import pytest
 from django.http import Http404
 from django.test.utils import override_settings
+from django.urls import Resolver404
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -562,10 +564,6 @@ class UserRedirectCrossdomainTest(BaseDocServing):
                 "http://project.dev.readthedocs.io//my.host/path.html",
                 "/my.host/path.html",
             ),
-            # Trying to bypass the protocol check by including a `\n` char.
-            # TODO: these are returning 500.
-            # ('http://project.dev.readthedocs.io/http:/%0A/my.host/path.html', 'http://project.dev.readthedocs.io/en/latest/http:/my.host/path.html'),
-            # ('http://project.dev.readthedocs.io/%0A/my.host/path.html', 'http://project.dev.readthedocs.io/en/latest/my.host/path.html'),
             # Trying to bypass the protocol check by including a `\r` char.
             (
                 "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
@@ -592,6 +590,19 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             )
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
+
+        # These aren't even handled by Django.
+        urls = [
+            # Trying to bypass the protocol check by including a `\n` char.
+            "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
+            "http://project.dev.readthedocs.io/%0A/my.host/path.html",
+        ]
+        for url in urls:
+            with pytest.raises(Resolver404):
+                self.client.get(
+                    url,
+                    HTTP_HOST="project.dev.readthedocs.io",
+                )
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
         """
