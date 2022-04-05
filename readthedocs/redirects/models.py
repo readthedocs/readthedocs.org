@@ -172,7 +172,8 @@ class Redirect(models.Model):
     def redirect_prefix(self, path, language=None, version_slug=None):
         if path.startswith(self.from_url):
             log.debug("Redirecting...", redirect=self)
-            cut_path = path[len(self.from_url) :]
+            # pep8 and blank don't agree on having a space before :.
+            cut_path = path[len(self.from_url) :]  # noqa
 
             to = self.get_full_path(
                 filename=cut_path,
