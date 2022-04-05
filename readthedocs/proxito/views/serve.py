@@ -302,10 +302,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
-        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60  # noqa
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60   # noqa
         #
         # We parse ``filename`` to:
-        # - Remove the query params (NOTE: probably it doesn't contain any query params at this point)
+        # - Remove the query params (probably it doesn't contain any query params at this point)
         # - Remove any invalid URL chars (\r, \n, \t).
         #
         # We don't use ``.path`` to avoid parsing the filename as a full url.
