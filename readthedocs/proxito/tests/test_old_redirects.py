@@ -13,7 +13,7 @@ import django_dynamic_fixture as fixture
 import pytest
 from django.http import Http404
 from django.test.utils import override_settings
-from django.urls import reverse
+from django.urls import Resolver404
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -533,40 +533,76 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
 
-# FIXME: these tests are valid, but the problem I'm facing is that the request
-# is received as ``GET '//my.host/path/'`` (note that we are losing the http:)
-@pytest.mark.xfail(strict=True)
+@override_settings(
+    PYTHON_MEDIA=True,
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
+)
 class UserRedirectCrossdomainTest(BaseDocServing):
 
     def test_redirect_prefix_crossdomain(self):
         """
-        Avoid redirecting to an external site unless the external site is in to_url
+        Avoid redirecting to an external site unless the external site is in to_url.
+
+        We also test by trying to bypass the protocol check with the special chars listed at
+        https://github.com/python/cpython/blob/c3ffbbdf3d5645ee07c22649f2028f9dffc762ba/Lib/urllib/parse.py#L80-L81.
         """
         fixture.get(
             Redirect,
-            project=self.project, redirect_type='prefix',
-            from_url='/',
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\t` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        # These aren't even handled by Django.
+        urls = [
+            # Trying to bypass the protocol check by including a `\n` char.
+            "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
+            "http://project.dev.readthedocs.io/%0A/my.host/path.html",
+        ]
+        for url in urls:
+            with pytest.raises(Resolver404):
+                self.client.get(
+                    url,
+                    HTTP_HOST="project.dev.readthedocs.io",
+                )
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
         """
@@ -577,122 +613,65 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             project=self.project, redirect_type='sphinx_htmldir',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path/",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path/",
+            ),
+        ]
 
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
     def test_redirect_sphinx_html_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,
             project=self.project,
             redirect_type='sphinx_html',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path/",
+                "/http:/my.host/path/",
+            ),
+            ("http://project.dev.readthedocs.io//my.host/path/", "/my.host/path/"),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
 
-        r = self.client.get(
-            'http://testserver//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
-
-    def test_redirect_sphinx_htmldir_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in ``to_url``.
-        """
-        fixture.get(
-            Redirect,
-            project=self.project,
-            redirect_type='sphinx_htmldir',
-        )
-
-        r = self.client.get(
-            '/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
-
-        r = self.client.get(
-            '//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
-
-    # (Pdb) proxito_path
-    # '//http://my.host/path/'
-    # (Pdb) urlparse(proxito_path)
-    # ParseResult(scheme='', netloc='http:', path='//my.host/path/', params='', query='', fragment='')
-    # (Pdb)
-    # since there is a netloc inside the path
-    # I'm expecting,
-    # ParseResult(scheme='', netloc='', path='//http://my.host/path/', params='', query='', fragment='')
-    # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L78
-    def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
-        fixture.get(
-            Redirect,
-            project=self.project,
-            redirect_type='sphinx_html',
-        )
-
-        # NOTE: it's mandatory to use http://testserver/ URL here, otherwise the
-        # request does not receive the proper URL.
-        r = self.client.get(
-            'http://testserver//http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
-
-        r = self.client.get(
-            '//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
