@@ -303,14 +303,17 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
         # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        # We parse ``filename`` to remove the query from it,
-        # and to remove invalid chars from it.
-        # We don't use ``.path`` to avoid parsing the filename as
-        # a full url.
+        #
+        # We parse ``filename`` to:
+        # - Remove the query params (NOTE: probably it doesn't contain any query params at this point)
+        # - Remove any invalid URL chars (\r, \n, \t).
+        #
+        # We don't use ``.path`` to avoid parsing the filename as a full url.
+        # For example if the filename is ``http://example.com/my-path``, ``.path`` would return ``my-path``.
         parsed = urlparse(filename)
         redirect_filename = parsed._replace(query="").geturl()
 
-        # we can't check for lang and version here to decide if we need to add
+        # We can't check for lang and version here to decide if we need to add
         # the ``/`` or not because ``/install.html`` is a valid path to use as
         # redirect and does not include lang and version on it. It should be
         # fine always adding the ``/`` to the beginning.

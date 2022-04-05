@@ -539,7 +539,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 class UserRedirectCrossdomainTest(BaseDocServing):
 
     def test_redirect_prefix_crossdomain(self):
-        """Avoid redirecting to an external site unless the external site is in to_url."""
+        """
+        Avoid redirecting to an external site unless the external site is in to_url.
+
+        We also test by trying to bypass the protocol check with the special chars listed at
+        https://github.com/python/cpython/blob/c3ffbbdf3d5645ee07c22649f2028f9dffc762ba/Lib/urllib/parse.py#L80-L81.
+        """
         fixture.get(
             Redirect,
             project=self.project,
@@ -676,15 +681,6 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/my.host/path/',
         )
 
-    # (Pdb) proxito_path
-    # '//http://my.host/path/'
-    # (Pdb) urlparse(proxito_path)
-    # ParseResult(scheme='', netloc='http:', path='//my.host/path/', params='', query='', fragment='')
-    # (Pdb)
-    # since there is a netloc inside the path
-    # I'm expecting,
-    # ParseResult(scheme='', netloc='', path='//http://my.host/path/', params='', query='', fragment='')
-    # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L78
     def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
         """
         Avoid redirecting to an external site unless the external site is in to_url
