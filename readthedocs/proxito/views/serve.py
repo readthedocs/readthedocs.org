@@ -267,27 +267,27 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         if version_slug:
             storage_root_path = final_project.get_storage_path(
-                type_='html',
+                type_="html",
                 version_slug=version_slug,
                 include_file=False,
                 version_type=self.version_type,
             )
 
             # First, check for dirhtml with slash
-            for tryfile in ('index.html', 'README.html'):
+            for tryfile in ("index.html", "README.html"):
                 storage_filename_path = build_media_storage.join(
                     storage_root_path,
-                    f'{filename}/{tryfile}'.lstrip('/'),
+                    f"{filename}/{tryfile}".lstrip("/"),
                 )
-                log.debug('Trying index filename.')
+                log.debug("Trying index filename.")
                 if build_media_storage.exists(storage_filename_path):
-                    log.info('Redirecting to index file.')
+                    log.info("Redirecting to index file.")
                     # Use urlparse so that we maintain GET args in our redirect
                     parts = urlparse(proxito_path)
-                    if tryfile == 'README.html':
-                        new_path = parts.path.rstrip('/') + f'/{tryfile}'
+                    if tryfile == "README.html":
+                        new_path = parts.path.rstrip("/") + f"/{tryfile}"
                     else:
-                        new_path = parts.path.rstrip('/') + '/'
+                        new_path = parts.path.rstrip("/") + "/"
 
                     # `proxito_path` doesn't include query params.`
                     query = urlparse(request.get_full_path()).query
