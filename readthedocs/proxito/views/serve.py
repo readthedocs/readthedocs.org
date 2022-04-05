@@ -280,7 +280,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             )
             log.debug('Trying index filename.')
             if build_media_storage.exists(storage_filename_path):
-                log.info('Redirecting to index file.')
+                log.info(
+                    "Redirecting to index file.",
+                    index_file=tryfile,
+                )
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
