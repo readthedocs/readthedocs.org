@@ -602,113 +602,65 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             project=self.project, redirect_type='sphinx_htmldir',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path/",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path/",
+            ),
+        ]
 
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
     def test_redirect_sphinx_html_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,
             project=self.project,
             redirect_type='sphinx_html',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path/",
+                "/http:/my.host/path/",
+            ),
+            ("http://project.dev.readthedocs.io//my.host/path/", "/my.host/path/"),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
 
-        r = self.client.get(
-            'http://testserver//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
-
-    def test_redirect_sphinx_htmldir_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in ``to_url``.
-        """
-        fixture.get(
-            Redirect,
-            project=self.project,
-            redirect_type='sphinx_htmldir',
-        )
-
-        r = self.client.get(
-            '/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
-
-        r = self.client.get(
-            '//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
-
-    def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
-        fixture.get(
-            Redirect,
-            project=self.project,
-            redirect_type='sphinx_html',
-        )
-
-        # NOTE: it's mandatory to use http://testserver/ URL here, otherwise the
-        # request does not receive the proper URL.
-        r = self.client.get(
-            'http://testserver//http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
-
-        r = self.client.get(
-            '//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
