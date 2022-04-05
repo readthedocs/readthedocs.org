@@ -10,10 +10,8 @@ and adapted to use:
 """
 
 import django_dynamic_fixture as fixture
-import pytest
 from django.http import Http404
 from django.test.utils import override_settings
-from django.urls import reverse
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -533,40 +531,62 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
 
-# FIXME: these tests are valid, but the problem I'm facing is that the request
-# is received as ``GET '//my.host/path/'`` (note that we are losing the http:)
-@pytest.mark.xfail(strict=True)
+@override_settings(
+    PYTHON_MEDIA=True,
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
+)
 class UserRedirectCrossdomainTest(BaseDocServing):
 
     def test_redirect_prefix_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,
-            project=self.project, redirect_type='prefix',
-            from_url='/',
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
-
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\n` char.
+            # TODO: these are returning 500.
+            # ('http://project.dev.readthedocs.io/http:/%0A/my.host/path.html', 'http://project.dev.readthedocs.io/en/latest/http:/my.host/path.html'),
+            # ('http://project.dev.readthedocs.io/%0A/my.host/path.html', 'http://project.dev.readthedocs.io/en/latest/my.host/path.html'),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\t` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
         """

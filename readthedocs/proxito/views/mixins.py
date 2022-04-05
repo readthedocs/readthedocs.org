@@ -1,6 +1,6 @@
 import copy
 import mimetypes
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
@@ -17,10 +17,7 @@ from slugify import slugify as unicode_slugify
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
-from readthedocs.proxito.constants import (
-    REDIRECT_CANONICAL_CNAME,
-    REDIRECT_HTTPS,
-)
+from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -284,11 +281,10 @@ class ServeRedirectMixin:
         :returns: redirect response with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
-
-        schema, netloc, path, params, query, fragments = urlparse(proxito_path)
         # `proxito_path` doesn't include query params.
         query = urlparse(request.get_full_path()).query
-        new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
+        # Pass the query params from the original request to the redirect.
+        new_path = urlparse(redirect_path)._replace(query=query).geturl()
 
         # Re-use the domain and protocol used in the current request.
         # Redirects shouldn't change the domain, version or language.
