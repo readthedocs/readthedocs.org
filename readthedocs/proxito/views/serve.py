@@ -265,40 +265,41 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
         )
 
-        storage_root_path = final_project.get_storage_path(
-            type_='html',
-            version_slug=version_slug,
-            include_file=False,
-            version_type=self.version_type,
-        )
-
-        # First, check for dirhtml with slash
-        for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = build_media_storage.join(
-                storage_root_path,
-                f'{filename}/{tryfile}'.lstrip('/'),
+        if version_slug:
+            storage_root_path = final_project.get_storage_path(
+                type_="html",
+                version_slug=version_slug,
+                include_file=False,
+                version_type=self.version_type,
             )
-            log.debug('Trying index filename.')
-            if build_media_storage.exists(storage_filename_path):
-                log.info('Redirecting to index file.')
-                # Use urlparse so that we maintain GET args in our redirect
-                parts = urlparse(proxito_path)
-                if tryfile == 'README.html':
-                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
-                else:
-                    new_path = parts.path.rstrip('/') + '/'
 
-                # `proxito_path` doesn't include query params.`
-                query = urlparse(request.get_full_path()).query
-                new_parts = parts._replace(
-                    path=new_path,
-                    query=query,
+            # First, check for dirhtml with slash
+            for tryfile in ("index.html", "README.html"):
+                storage_filename_path = build_media_storage.join(
+                    storage_root_path,
+                    f"{filename}/{tryfile}".lstrip("/"),
                 )
-                redirect_url = new_parts.geturl()
+                log.debug("Trying index filename.")
+                if build_media_storage.exists(storage_filename_path):
+                    log.info("Redirecting to index file.")
+                    # Use urlparse so that we maintain GET args in our redirect
+                    parts = urlparse(proxito_path)
+                    if tryfile == "README.html":
+                        new_path = parts.path.rstrip("/") + f"/{tryfile}"
+                    else:
+                        new_path = parts.path.rstrip("/") + "/"
 
-                # TODO: decide if we need to check for infinite redirect here
-                # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+                    # `proxito_path` doesn't include query params.`
+                    query = urlparse(request.get_full_path()).query
+                    new_parts = parts._replace(
+                        path=new_path,
+                        query=query,
+                    )
+                    redirect_url = new_parts.geturl()
+
+                    # TODO: decide if we need to check for infinite redirect here
+                    # (from URL == to URL)
+                    return HttpResponseRedirect(redirect_url)
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
