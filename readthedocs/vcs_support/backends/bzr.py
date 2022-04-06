@@ -38,7 +38,7 @@ class Backend(BaseVCS):
         try:
             self.run("bzr", "checkout", self.repo_url, ".")
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR)
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
 
     @property
     def tags(self):
