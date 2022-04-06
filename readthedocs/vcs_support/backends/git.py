@@ -200,7 +200,7 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR)
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
 
     @property
     def lsremote(self):
