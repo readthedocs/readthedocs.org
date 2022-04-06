@@ -43,7 +43,7 @@ class Backend(BaseVCS):
             )
             return output
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR)
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
 
     @property
     def branches(self):
