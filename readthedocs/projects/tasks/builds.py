@@ -245,12 +245,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
         BuildCancelled,
+        BuildMaxConcurrencyError,
         DuplicatedBuildError,
         ProjectBuildsSkippedError,
     )
 
     # Do not send external build status on failure builds for these exceptions.
-    exceptions_without_external_build_status = (DuplicatedBuildError,)
+    exceptions_without_external_build_status = (
+        BuildMaxConcurrencyError,
+        DuplicatedBuildError,
+    )
 
     acks_late = True
     track_started = True
