@@ -731,9 +731,9 @@ class Project(models.Model):
         if self.is_subproject:
             return self.superprojects.first().alias
 
-    def subdomain(self):
+    def subdomain(self, use_custom_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self)
+        return resolve_domain(self, use_custom_domain=use_custom_domain)
 
     def get_downloads(self):
         downloads = {}
