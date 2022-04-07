@@ -387,7 +387,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     self._register_broken_link(
                         project=final_project,
                         version=version,
-                        path=path,
+                        path=redirect_filename,
                         full_path=proxito_path,
                     )
                     return resp
@@ -395,7 +395,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         self._register_broken_link(
             project=final_project,
             version=version,
-            path=path,
+            path=redirect_filename,
             full_path=proxito_path,
         )
         raise Http404('No custom 404 page found.')
