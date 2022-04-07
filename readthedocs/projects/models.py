@@ -2,12 +2,12 @@
 import fnmatch
 import hashlib
 import hmac
-import structlog
 import os
 import re
 from shlex import quote
 from urllib.parse import urlparse
 
+import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
@@ -21,10 +21,7 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -34,7 +31,6 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -54,12 +50,7 @@ from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
-    MEDIA_TYPES,
-)
+from .constants import MEDIA_TYPE_EPUB, MEDIA_TYPE_HTMLZIP, MEDIA_TYPE_PDF, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -676,9 +667,9 @@ class Project(models.Model):
         It is used for doc serving on projects that have their own ``urlconf``.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.urls import core_urls
         from readthedocs.proxito.views.serve import ServeDocs
         from readthedocs.proxito.views.utils import proxito_404_page_handler
-        from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
 
@@ -1753,20 +1744,21 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
-    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
-    API_LARGE_DATA = 'api_large_data'
-    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
-    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    CLEAN_AFTER_BUILD = 'clean_after_build'
-    UPDATE_CONDA_STARTUP = 'update_conda_startup'
-    CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    CONDA_USES_MAMBA = 'conda_uses_mamba'
-    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
-    CACHED_ENVIRONMENT = 'cached_environment'
-    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    CDN_ENABLED = 'cdn_enabled'
+    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
+    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
+    API_LARGE_DATA = "api_large_data"
+    DONT_SHALLOW_CLONE = "dont_shallow_clone"
+    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
+    CLEAN_AFTER_BUILD = "clean_after_build"
+    UPDATE_CONDA_STARTUP = "update_conda_startup"
+    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
+    CONDA_USES_MAMBA = "conda_uses_mamba"
+    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
+    CACHED_ENVIRONMENT = "cached_environment"
+    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
+    CDN_ENABLED = "cdn_enabled"
+    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1853,6 +1845,10 @@ class Feature(models.Model):
         (
             CDN_ENABLED,
             _('CDN support for a project\'s public versions when privacy levels are enabled.'),
+        ),
+        (
+            DOCKER_GVISOR_RUNTIME,
+            _("Use Docker gVisor runtime to create build container."),
         ),
 
         # Versions sync related features

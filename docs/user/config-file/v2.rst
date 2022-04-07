@@ -418,6 +418,42 @@ We don't currently support PPA's or other custom repositories.
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
    :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
+
+build.jobs
+``````````
+
+Commands to be run before or after a Read the Docs pre-defined job.
+This allows you to run custom commands at a particular moment in the build process.
+
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.10"
+     jobs:
+       pre_create_environment:
+         - echo "Command run at 'pre_create_environment' step"
+       post_build:
+         - echo "Command run at 'post_build' step"
+         - echo `date`
+
+.. note::
+
+   Each key under ``build.jobs`` must be a list of strings.
+
+
+:Type: ``dict``
+:Allowed keys: ``post_checkout``, ``pre_system_dependencies``, ``post_system_dependencies``,
+   ``pre_create_environment``, ``post_create_environment``, ``pre_install``, ``post_install``,
+   ``pre_build``, ``post_build``
+:Required: ``false``
+:Default: ``{}``
+
+
 sphinx
 ~~~~~~
 

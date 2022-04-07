@@ -75,8 +75,8 @@ class TestGitBackend(TestCase):
         repo_branches, repo_tags = repo.lsremote
 
         self.assertEqual(
-            set(branches + default_branches),
-            {branch.verbose_name for branch in repo_branches},
+            {branch: branch for branch in default_branches + branches},
+            {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
 
         self.assertEqual(
@@ -111,8 +111,8 @@ class TestGitBackend(TestCase):
         repo.clone()
 
         self.assertEqual(
-            set(branches + default_branches),
-            {branch.verbose_name for branch in repo.branches},
+            {branch: branch for branch in default_branches + branches},
+            {branch.verbose_name: branch.identifier for branch in repo.branches},
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')

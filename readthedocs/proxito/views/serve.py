@@ -85,14 +85,7 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
-
-        # All public versions can be cached.
         version = final_project.versions.filter(slug=version_slug).first()
-        if (
-            self._is_cache_enabled(final_project)
-            and version and not version.is_private
-        ):
-            self.cache_request = True
 
         log.bind(
             project_slug=final_project.slug,
@@ -100,8 +93,27 @@ class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
-            cache_request=self.cache_request,
         )
+
+        # Skip serving versions that are not active (return 404). This is to
+        # avoid serving files that we have in the storage, but its associated
+        # version does not exist anymore or it was de-activated.
+        #
+        # Note that we want to serve the page when `version is None` because it
+        # could be a valid URL, like `/` or `` (empty) that does not have a
+        # version associated to it.
+        #
+        # However, if there is a `version_slug` in the URL but there is no
+        # version on the database we want to return 404.
+        if (version and not version.active) or (version_slug and not version):
+            log.warning("Version does not exist or is not active.")
+            raise Http404("Version does not exist or is not active.")
+
+        if self._is_cache_enabled(final_project) and version and not version.is_private:
+            # All public versions can be cached.
+            self.cache_request = True
+
+        log.bind(cache_request=self.cache_request)
         log.debug('Serving docs.')
 
         # Verify if the project is marked as spam and return a 401 in that case
@@ -254,49 +266,57 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
         )
 
-        storage_root_path = final_project.get_storage_path(
-            type_='html',
-            version_slug=version_slug,
-            include_file=False,
-            version_type=self.version_type,
-        )
-
-        # First, check for dirhtml with slash
-        for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = build_media_storage.join(
-                storage_root_path,
-                f'{filename}/{tryfile}'.lstrip('/'),
+        if version_slug:
+            storage_root_path = final_project.get_storage_path(
+                type_="html",
+                version_slug=version_slug,
+                include_file=False,
+                version_type=self.version_type,
             )
-            log.debug('Trying index filename.')
-            if build_media_storage.exists(storage_filename_path):
-                log.info('Redirecting to index file.')
-                # Use urlparse so that we maintain GET args in our redirect
-                parts = urlparse(proxito_path)
-                if tryfile == 'README.html':
-                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
-                else:
-                    new_path = parts.path.rstrip('/') + '/'
 
-                # `proxito_path` doesn't include query params.`
-                query = urlparse(request.get_full_path()).query
-                new_parts = parts._replace(
-                    path=new_path,
-                    query=query,
+            # First, check for dirhtml with slash
+            for tryfile in ("index.html", "README.html"):
+                storage_filename_path = build_media_storage.join(
+                    storage_root_path,
+                    f"{filename}/{tryfile}".lstrip("/"),
                 )
-                redirect_url = new_parts.geturl()
+                log.debug("Trying index filename.")
+                if build_media_storage.exists(storage_filename_path):
+                    log.info("Redirecting to index file.")
+                    # Use urlparse so that we maintain GET args in our redirect
+                    parts = urlparse(proxito_path)
+                    if tryfile == "README.html":
+                        new_path = parts.path.rstrip("/") + f"/{tryfile}"
+                    else:
+                        new_path = parts.path.rstrip("/") + "/"
 
-                # TODO: decide if we need to check for infinite redirect here
-                # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+                    # `proxito_path` doesn't include query params.`
+                    query = urlparse(request.get_full_path()).query
+                    new_parts = parts._replace(
+                        path=new_path,
+                        query=query,
+                    )
+                    redirect_url = new_parts.geturl()
+
+                    # TODO: decide if we need to check for infinite redirect here
+                    # (from URL == to URL)
+                    return HttpResponseRedirect(redirect_url)
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
-        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        # We parse ``filename`` to remove the query from it
-        schema, netloc, path, params, query, fragments = urlparse(filename)
-        redirect_filename = path
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60   # noqa
+        #
+        # We parse ``filename`` to:
+        # - Remove the query params (probably it doesn't contain any query params at this point)
+        # - Remove any invalid URL chars (\r, \n, \t).
+        #
+        # We don't use ``.path`` to avoid parsing the filename as a full url.
+        # For example if the filename is ``http://example.com/my-path``,
+        # ``.path`` would return ``my-path``.
+        parsed = urlparse(filename)
+        redirect_filename = parsed._replace(query="").geturl()
 
-        # we can't check for lang and version here to decide if we need to add
+        # We can't check for lang and version here to decide if we need to add
         # the ``/`` or not because ``/install.html`` is a valid path to use as
         # redirect and does not include lang and version on it. It should be
         # fine always adding the ``/`` to the beginning.
