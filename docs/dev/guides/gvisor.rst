@@ -35,6 +35,21 @@ daemon to avoid systemd cgroups.
                 "exec-opts": ["native.cgroupdriver=cgroupfs"]
             }
 
+    .. tab:: Fedora
+
+       - Install docker from their repositories,
+         the one included in Fedora doesn't work,
+         using their `convenience script`_ is an easy way to do it.
+       - `Install gvisor manually`_, the one included in Fedora doesn't work.
+       - Enable cgroups v1:
+
+         .. code:: console
+
+            % sudo grubby --update-kernel=ALL --args="systemd.unified_cgroup_hierarchy=0"
+
+       .. _convenience script: https://docs.docker.com/engine/install/fedora/#install-using-the-convenience-script
+       .. _Install gvisor manually: https://gvisor.dev/docs/user_guide/install/#install-latest
+
 Docker is correctly configured when you can run this command from the quick
 start guide:
 
