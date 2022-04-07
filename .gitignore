@@ -8,6 +8,7 @@
 .cache
 .coverage
 .coverage.*
+coverage.xml
 .idea
 .vagrant
 .vscode

@@ -10,6 +10,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
@@ -874,6 +875,94 @@ class TestAdditionalDocViews(BaseDocServing):
                 mock.call('html/project/latest/404/index.html'),
             ]
         )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link(self, storage_exists):
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found/",
+            "/en/latest/not-found/",
+            "/not-found",
+            "/en/not-found/",
+        ]
+        for path in paths:
+            storage_exists.reset_mock()
+            storage_exists.return_value = False
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        self.assertEqual(PageView.objects.all().count(), 3)
+
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.path, "/not-found/")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/not-found")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/en/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/en/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_custom_404(self, storage_exists, storage_open):
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found",
+            "/en/latest/not-found",
+            "/en/latest/not-found/",
+        ]
+        for path in paths:
+            storage_open.reset_mock()
+            storage_exists.reset_mock()
+            storage_exists.side_effect = [False, False, True]
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+            storage_open.assert_called_once_with("html/project/latest/404.html")
+
+        self.assertEqual(PageView.objects.all().count(), 2)
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(path="/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
 
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
