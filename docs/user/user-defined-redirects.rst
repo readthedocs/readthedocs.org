@@ -53,9 +53,8 @@ Where ``en`` and ``latest`` are the default language and version values for your
 
 .. note::
 
-   In other words, a *Prefix Redirect* removes a prefix from the original URL.
-   This prefix is removed from the rest of the URL's ``path`` after ``/$lang/$version``.
-   For example, if the URL is ``/es/1.0/guides/tutorial/install.html`` the "From URL's prefix" will be removed from ``/guides/tutorial/install.html`` part.
+   If you were hosting your docs without a prefix, you can create a ``/`` Prefix Redirect,
+   which will prepend ``/$lang/$version/`` to all incoming URLs. 
 
 
 Page Redirects
