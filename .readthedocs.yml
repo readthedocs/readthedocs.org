@@ -16,7 +16,7 @@ build:
     python: "3.8"
   jobs:
     pre_build:
-      - sphinx-build -W -q -b linkcheck -d _build/doctrees docs/ _build/linkcheck
+      - sphinx-build -W --keep-going -q -b linkcheck -d _build/doctrees docs/ _build/linkcheck
 
 search:
   ranking:
