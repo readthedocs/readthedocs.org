@@ -54,7 +54,6 @@ You can make changes to your Markdown files and your docs will automatically reb
 
 .. figure:: /_static/images/first-steps/mkdocs-hello-world.png
    :figwidth: 500px
-   :target: /_static/images/first-steps/mkdocs-hello-world.png
    :align: center
 
    Your MkDocs project is built

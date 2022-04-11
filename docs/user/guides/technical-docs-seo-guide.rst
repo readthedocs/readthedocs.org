@@ -222,7 +222,6 @@ In Sphinx, you can customize your meta description using the following Restructu
 .. figure:: ../_static/images/guides/google-search-engine-results.png
     :align: center
     :figwidth: 80%
-    :target: ../_static/images/guides/google-search-engine-results.png
 
     Google search engine results showing a customized meta description
 
