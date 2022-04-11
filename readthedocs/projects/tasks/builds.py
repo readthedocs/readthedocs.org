@@ -747,6 +747,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 @app.task(
     base=UpdateDocsTask,
     bind=True,
+    ignore_result=True,
 )
 def update_docs_task(self, version_id, build_id, build_commit=None):
     self.execute()
