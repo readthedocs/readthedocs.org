@@ -31,10 +31,12 @@ class PageViewManager(models.Manager):
             project=project,
             version=version,
             path=path,
-            full_path=full_path,
             date=timezone.now().date(),
             status=status,
-            defaults={"view_count": 1},
+            defaults={
+                "view_count": 1,
+                "full_path": full_path,
+            },
         )
         if not created:
             page_view.view_count = models.F("view_count") + 1
