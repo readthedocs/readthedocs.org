@@ -1,10 +1,8 @@
 """Analytics views that are served from the same domain as the docs."""
-
 from functools import lru_cache
+from urllib.parse import urlparse
 
-from django.db.models import F
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -67,20 +65,15 @@ class BaseAnalyticsView(APIView):
             return
 
         path = unresolved.filename
+        full_path = urlparse(absolute_uri).path
 
-        fields = dict(
+        PageView.objects.register_page_view(
             project=project,
             version=version,
             path=path,
-            date=timezone.now().date(),
+            full_path=full_path,
+            status=200,
         )
-        page_view, created = PageView.objects.get_or_create(
-            **fields,
-            defaults={'view_count': 1},
-        )
-        if not created:
-            page_view.view_count = F('view_count') + 1
-            page_view.save(update_fields=['view_count'])
 
 
 class AnalyticsView(SettingsOverrideObject):

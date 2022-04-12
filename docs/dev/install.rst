@@ -47,7 +47,7 @@ Set up your environment
 
    .. tip::
 
-      If you pass ``GITHUB_TOKEN`` environment variable to this command,
+      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
       it will add support for readthedocs-ext.
 
 #. pull down Docker images for the builders:

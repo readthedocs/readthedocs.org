@@ -760,17 +760,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call(
                     "git", "fetch", "--unshallow", escape_command=False, cwd=mock.ANY
                 ),
-                # Don't care about the intermediate commands. They are checked
-                # in other tests
-                mock.ANY,
-                mock.ANY,
-                mock.ANY,
-                mock.ANY,
-                mock.ANY,
-                mock.ANY,
-                mock.ANY,
                 mock.call("echo", "`date`", escape_command=False, cwd=mock.ANY),
-            ]
+            ],
+            any_order=True,
         )
 
     @mock.patch("readthedocs.doc_builder.python_environments.tarfile")
