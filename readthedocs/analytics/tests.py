@@ -140,8 +140,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{self.absolute_uri}\' is already created'
-            assert PageView.objects.filter(path='index.html').count() == 1
+            ), f"PageView object for path '{self.absolute_uri}' is already created"
+            assert PageView.objects.filter(path="/index.html").count() == 1
             assert (
                 PageView.objects.all().first().view_count == 2
             ), f'\'{self.absolute_uri}\' has 2 views now'
@@ -154,8 +154,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 2
-            ), f'PageView object for path \'{self.absolute_uri}\' is created for two days (yesterday and today)'
-            assert PageView.objects.filter(path='index.html').count() == 2
+            ), f"PageView object for path '{self.absolute_uri}' is created for two days (yesterday and today)"
+            assert PageView.objects.filter(path="/index.html").count() == 2
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{self.absolute_uri}\' has 1 view today'
@@ -168,8 +168,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 3
-            ), f'PageView object for path \'{self.absolute_uri}\' is created for three days (yesterday, today & tomorrow)'
-            assert PageView.objects.filter(path='index.html').count() == 3
+            ), f"PageView object for path '{self.absolute_uri}' is created for three days (yesterday, today & tomorrow)"
+            assert PageView.objects.filter(path="/index.html").count() == 3
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{self.absolute_uri}\' has 1 view tomorrow'

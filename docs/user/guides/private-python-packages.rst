@@ -56,7 +56,7 @@ URI example:
 
 .. code::
 
-   git+https://${GITHUB_TOKEN}@github.com/user/project.git@{version}
+   git+https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/user/project.git@{version}
 
 .. warning::
 

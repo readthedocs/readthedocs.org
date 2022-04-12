@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CachedView
@@ -265,49 +266,57 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
         )
 
-        storage_root_path = final_project.get_storage_path(
-            type_='html',
-            version_slug=version_slug,
-            include_file=False,
-            version_type=self.version_type,
-        )
-
-        # First, check for dirhtml with slash
-        for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = build_media_storage.join(
-                storage_root_path,
-                f'{filename}/{tryfile}'.lstrip('/'),
+        if version_slug:
+            storage_root_path = final_project.get_storage_path(
+                type_="html",
+                version_slug=version_slug,
+                include_file=False,
+                version_type=self.version_type,
             )
-            log.debug('Trying index filename.')
-            if build_media_storage.exists(storage_filename_path):
-                log.info('Redirecting to index file.')
-                # Use urlparse so that we maintain GET args in our redirect
-                parts = urlparse(proxito_path)
-                if tryfile == 'README.html':
-                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
-                else:
-                    new_path = parts.path.rstrip('/') + '/'
 
-                # `proxito_path` doesn't include query params.`
-                query = urlparse(request.get_full_path()).query
-                new_parts = parts._replace(
-                    path=new_path,
-                    query=query,
+            # First, check for dirhtml with slash
+            for tryfile in ("index.html", "README.html"):
+                storage_filename_path = build_media_storage.join(
+                    storage_root_path,
+                    f"{filename}/{tryfile}".lstrip("/"),
                 )
-                redirect_url = new_parts.geturl()
+                log.debug("Trying index filename.")
+                if build_media_storage.exists(storage_filename_path):
+                    log.info("Redirecting to index file.")
+                    # Use urlparse so that we maintain GET args in our redirect
+                    parts = urlparse(proxito_path)
+                    if tryfile == "README.html":
+                        new_path = parts.path.rstrip("/") + f"/{tryfile}"
+                    else:
+                        new_path = parts.path.rstrip("/") + "/"
 
-                # TODO: decide if we need to check for infinite redirect here
-                # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+                    # `proxito_path` doesn't include query params.`
+                    query = urlparse(request.get_full_path()).query
+                    new_parts = parts._replace(
+                        path=new_path,
+                        query=query,
+                    )
+                    redirect_url = new_parts.geturl()
+
+                    # TODO: decide if we need to check for infinite redirect here
+                    # (from URL == to URL)
+                    return HttpResponseRedirect(redirect_url)
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
-        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        # We parse ``filename`` to remove the query from it
-        schema, netloc, path, params, query, fragments = urlparse(filename)
-        redirect_filename = path
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60   # noqa
+        #
+        # We parse ``filename`` to:
+        # - Remove the query params (probably it doesn't contain any query params at this point)
+        # - Remove any invalid URL chars (\r, \n, \t).
+        #
+        # We don't use ``.path`` to avoid parsing the filename as a full url.
+        # For example if the filename is ``http://example.com/my-path``,
+        # ``.path`` would return ``my-path``.
+        parsed = urlparse(filename)
+        redirect_filename = parsed._replace(query="").geturl()
 
-        # we can't check for lang and version here to decide if we need to add
+        # We can't check for lang and version here to decide if we need to add
         # the ``/`` or not because ``/install.html`` is a valid path to use as
         # redirect and does not include lang and version on it. It should be
         # fine always adding the ``/`` to the beginning.
@@ -334,11 +343,12 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        doc_type = (
+        version = (
             Version.objects.filter(project=final_project, slug=version_slug)
-            .values_list('documentation_type', flat=True)
+            .only("documentation_type")
             .first()
         )
+        doc_type = version.documentation_type if version else None
         versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
@@ -374,9 +384,44 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
+                    self._register_broken_link(
+                        project=final_project,
+                        version=version,
+                        path=redirect_filename,
+                        full_path=proxito_path,
+                    )
                     return resp
 
+        self._register_broken_link(
+            project=final_project,
+            version=version,
+            path=redirect_filename,
+            full_path=proxito_path,
+        )
         raise Http404('No custom 404 page found.')
+
+    def _register_broken_link(self, project, version, path, full_path):
+        try:
+            # If the path isn't attached to a version
+            # it should be the same as the full_path,
+            # otherwise it would be empty.
+            if not version:
+                path = full_path
+            PageView.objects.register_page_view(
+                project=project,
+                version=version,
+                path=path,
+                full_path=full_path,
+                status=404,
+            )
+        except Exception:
+            # Don't break doc serving if there was an error
+            # while recording the broken link.
+            log.exception(
+                "Error while recording the broken link",
+                project_slug=project.slug,
+                full_path=full_path,
+            )
 
 
 class ServeError404(SettingsOverrideObject):
