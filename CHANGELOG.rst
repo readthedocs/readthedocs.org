@@ -1,3 +1,31 @@
+Version 7.6.0
+-------------
+
+:Date: April 12, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Celery: workaround fix for bug on retrying builds (`#9096 <https://github.com/readthedocs/readthedocs.org/pull/9096>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circle api v2 to trigger builds (`#9094 <https://github.com/readthedocs/readthedocs.org/pull/9094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Try to fix .com tests (`#9092 <https://github.com/readthedocs/readthedocs.org/pull/9092>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: don't send it on build retry (`#9086 <https://github.com/readthedocs/readthedocs.org/pull/9086>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add notes about gvisor on Fedora (`#9085 <https://github.com/readthedocs/readthedocs.org/pull/9085>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#9084 <https://github.com/readthedocs/readthedocs.org/pull/9084>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bugfix `RepositoryError.CLONE_ERROR` message (`#9083 <https://github.com/readthedocs/readthedocs.org/pull/9083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: remove unused code (`#9080 <https://github.com/readthedocs/readthedocs.org/pull/9080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: only check for index files if there is a version (`#9079 <https://github.com/readthedocs/readthedocs.org/pull/9079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Adapt scripts and docs to make use of the new github personal tokens (`#9078 <https://github.com/readthedocs/readthedocs.org/pull/9078>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: avoid using re.sub (`#9077 <https://github.com/readthedocs/readthedocs.org/pull/9077>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: fix URL parsing (`#9075 <https://github.com/readthedocs/readthedocs.org/pull/9075>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 7.5.1 (`#9074 <https://github.com/readthedocs/readthedocs.org/pull/9074>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 14 (`#9073 <https://github.com/readthedocs/readthedocs.org/pull/9073>`__)
+* `@humitos <https://github.com/humitos>`__: Github: use probot auto-assign bot (`#9069 <https://github.com/readthedocs/readthedocs.org/pull/9069>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add gVisor runtime option for build containers (`#9066 <https://github.com/readthedocs/readthedocs.org/pull/9066>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `build.jobs` reference documentation (`#9056 <https://github.com/readthedocs/readthedocs.org/pull/9056>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: do not serve non-existent versions (`#9048 <https://github.com/readthedocs/readthedocs.org/pull/9048>`__)
+* `@stsewd <https://github.com/stsewd>`__: Traffic analytics: track 404s (`#9027 <https://github.com/readthedocs/readthedocs.org/pull/9027>`__)
+* `@humitos <https://github.com/humitos>`__: SyncRepositoryTask: rate limit to 1 per minute per project (`#9021 <https://github.com/readthedocs/readthedocs.org/pull/9021>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: filter by type on update (`#9019 <https://github.com/readthedocs/readthedocs.org/pull/9019>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implement `build.jobs` config file key (`#9016 <https://github.com/readthedocs/readthedocs.org/pull/9016>`__)
+
 Version 7.5.1
 -------------
 
