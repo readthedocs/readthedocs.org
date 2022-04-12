@@ -22,6 +22,9 @@ def _last_30_days_iter():
 
 
 class PageViewManager(models.Manager):
+
+    """Manager for PageView model."""
+
     def register_page_view(self, project, version, path, full_path, status):
         # Normalize paths to avoid duplicates.
         path = "/" + path.lstrip("/")
@@ -31,10 +34,12 @@ class PageViewManager(models.Manager):
             project=project,
             version=version,
             path=path,
-            full_path=full_path,
             date=timezone.now().date(),
             status=status,
-            defaults={"view_count": 1},
+            defaults={
+                "view_count": 1,
+                "full_path": full_path,
+            },
         )
         if not created:
             page_view.view_count = models.F("view_count") + 1
