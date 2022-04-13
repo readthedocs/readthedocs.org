@@ -49,7 +49,7 @@
 #   export AWS_SECRET_ACCESS_KEY=...
 #   export AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
 #
-#   ./compile_version_upload.sh $TOOL $VERSION
+#   ./compile_version_upload.sh $TOOL-$VERSION
 #
 #
 # ONE-LINE COMMAND FROM UTIL01 PRODUCTION
@@ -67,12 +67,12 @@
 #       AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
 #       AWS_BUILD_TOOLS_BUCKET=$AWS_BUILD_TOOLS_BUCKET \
 #       PATH=/home/docs/buildtools/bin:${PATH} \
-#       /home/docs/checkouts/readthedocs.org/scripts/compile_version_upload_s3.sh $TOOL $VERSION"
+#       /home/docs/checkouts/readthedocs.org/scripts/compile_version_upload_s3.sh $TOOL-$VERSION"
 #
 #
 # USAGE
 #
-#  ./scripts/compile_version_upload.sh $TOOL $VERSION
+#  ./scripts/compile_version_upload.sh $TOOL-$VERSION
 #
 # ARGUMENTS
 #
@@ -81,8 +81,8 @@
 #
 # EXAMPLES
 #
-#  ./scripts/compile_version_upload.sh python 3.9.7
-#  ./scripts/compile_version_upload.sh nodejs 14.17.6
+#  ./scripts/compile_version_upload.sh python-3.9.7
+#  ./scripts/compile_version_upload.sh nodejs-14.17.6
 
 set -e # Stop on errors
 set -x # Echo commands
@@ -90,8 +90,9 @@ set -x # Echo commands
 # Define variables
 SLEEP=350 # Container timeout
 OS="${OS:-ubuntu-22.04}" # Docker image name
-TOOL=$1
-VERSION=$2
+
+TOOL=$(echo $1 | cut -d- -f1)
+VERSION=$(echo $1 | cut -d- -f2-)
 
 # https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
