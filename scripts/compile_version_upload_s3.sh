@@ -53,10 +53,7 @@ set -x # Echo commands
 
 # Define variables
 SLEEP=350 # Container timeout
-
-# Docker image name
-# e.g. ubuntu-22.04-2022.03.15
-OS=$(echo $OS | cut -d- -f1,2)
+OS="${OS:-ubuntu-22.04}" # Docker image name
 
 TOOL=$(echo $1 | cut -d- -f1)
 VERSION=$(echo $1 | cut -d- -f2-)
