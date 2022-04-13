@@ -408,7 +408,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                     # Use ``user_in=`` instead of ``user__projects=`` here
                     # because User's are not related to Project's directly in
                     # Read the Docs for Business
-                    user__in=AdminPermission.members(build.project),
+                    user__in=users,
                 ).select_related('account', 'user').only('user', 'account')
             )
 
