@@ -220,8 +220,8 @@ For others, the webhook will simply fail to connect when there are new commits t
 Running Ngrok
 ~~~~~~~~~~~
 
-Ngrok allows us to create a temporary server that is connectable to the internet, allowing a server that is running 
-locally on Docker to be publicly accessible. Ngrok can be used with a locally run version of ReadtheDocs.org with 
+Ngrok allows us to create a temporary server that is connectable to the internet, allowing a server that is running
+locally on Docker to be publicly accessible. Ngrok can be used with a locally run version of ReadtheDocs.org with
 a few changes.
 
 There are 4 files we need to change:
@@ -233,7 +233,7 @@ There are 4 files we need to change:
 
 **Change docker-compose.override.yml**
 
-Changes to ``docker-compose.override.yml`` overrides the base configuration in 
+Changes to ``docker-compose.override.yml`` overrides the base configuration in
 ``docker-compose.yml``.
 
 For ``extra_hosts``, include an additional entry: ``readthedocs.ngrok.io:10.5.0.100``.
@@ -249,7 +249,7 @@ The end result should look like this:
 
 **Change dockerfiles/nginx/proxito.conf**
 
-| Inside of ``server``, replace ``server_name`` from 
+| Inside of ``server``, replace ``server_name`` from
 | ``*.community.dev.readthedocs.io *.org.dev.readthedocs.build;``
 | to ``*.readthedocs.ngrok.io;``
 
@@ -263,7 +263,7 @@ The end result should look like this:
 
 **Change dockerfiles/nginx/web.conf**
 
-| Inside of ``server``, replace ``server_name`` from 
+| Inside of ``server``, replace ``server_name`` from
 | ``community.dev.readthedocs.io;`` to ``readthedocs.ngrok.io;``
 
 The end result should look like this:
@@ -300,7 +300,7 @@ The end result should look like this:
         PUBLIC_DOMAIN = 'readthedocs.ngrok.io' # replaced
         PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
-And 
+And
 
 ::
 
