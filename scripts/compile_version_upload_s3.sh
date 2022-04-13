@@ -150,7 +150,7 @@ then
     # Development environment
     echo "Uploading to dev environment"
     aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
-fi
 
-# Delete the .tar.gz file from the host
-rm $OS-$TOOL-$VERSION.tar.gz
+    # Delete the .tar.gz file from the host
+    rm $OS-$TOOL-$VERSION.tar.gz
+fi
