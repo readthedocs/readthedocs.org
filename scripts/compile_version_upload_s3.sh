@@ -103,18 +103,21 @@ docker cp $CONTAINER_ID:/home/docs/$OS-$TOOL-$VERSION.tar.gz .
 # Kill the container
 docker container kill $CONTAINER_ID
 
-# Upload the .tar.gz to S3
-AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
-AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
-
-if [[ -z $AWS_REGION ]]
+if [[ -z $CIRCLECI ]]
 then
-    # Development environment
+    # Upload the .tar.gz to S3 development environment
     echo "Uploading to dev environment"
+
+    AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
+    AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
+    AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
+    AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
+
     aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 
     # Delete the .tar.gz file from the host
     rm $OS-$TOOL-$VERSION.tar.gz
+else
+    echo "Skip uploading .tar.gz file because it's being run from inside CircleCI."
+    echo "It should be uploaded by orbs/aws automatically."
 fi
