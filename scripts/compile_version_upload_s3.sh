@@ -78,6 +78,10 @@ docker exec $CONTAINER_ID asdf global $TOOL $VERSION
 docker exec $CONTAINER_ID asdf reshim $TOOL
 
 # Install dependencies for this version
+#
+# TODO: pin all transitive dependencies with pip-tools or similar. We can find
+# the current versions by running `pip freeze` in production and stick with them
+# for now to avoid changing versions.
 if [[ $TOOL == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
     RTD_PIP_VERSION=21.2.4
