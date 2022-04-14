@@ -180,6 +180,7 @@ class BuildConfigBase:
     def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
         self._raw_config = copy.deepcopy(raw_config)
+        self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file

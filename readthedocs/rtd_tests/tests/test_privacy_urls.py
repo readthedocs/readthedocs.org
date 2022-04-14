@@ -18,12 +18,7 @@ from readthedocs.builds.models import (
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import (
-    Domain,
-    EnvironmentVariable,
-    Project,
-    WebHook,
-)
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
 from readthedocs.rtd_tests.utils import create_user
 
 
@@ -399,35 +394,36 @@ class APIMixin(URLAccessMixin):
             'api_webhook_stripe': {},
         }
         self.response_data = {
-            'domain-list': {'status_code': 410},
-            'buildcommandresult-list': {'status_code': 410},
-            'build-concurrent': {'status_code': 403},
-            'build-list': {'status_code': 410},
-            'build-reset': {'status_code': 403},
-            'project-sync-versions': {'status_code': 403},
-            'project-token': {'status_code': 403},
-            'emailhook-list': {'status_code': 403},
-            'emailhook-detail': {'status_code': 403},
-            'embed': {'status_code': 400},
-            'docurl': {'status_code': 400},
-            'cname': {'status_code': 400},
-            'index_search': {'status_code': 403},
-            'api_search': {'status_code': 400},
-            'api_project_search': {'status_code': 400},
-            'api_section_search': {'status_code': 400},
-            'api_sync_remote_repositories': {'status_code': 403},
-            'api_webhook': {'status_code': 405},
-            'api_webhook_github': {'status_code': 405},
-            'api_webhook_gitlab': {'status_code': 405},
-            'api_webhook_bitbucket': {'status_code': 405},
-            'api_webhook_generic': {'status_code': 403},
-            'api_webhook_stripe': {'status_code': 405},
-            'sphinxdomain-detail': {'status_code': 404},
-            'project-list': {'status_code': 410},
-            'remoteorganization-detail': {'status_code': 404},
-            'remoterepository-detail': {'status_code': 404},
-            'remoteaccount-detail': {'status_code': 404},
-            'version-list': {'status_code': 410},
+            "domain-list": {"status_code": 410},
+            "buildcommandresult-list": {"status_code": 410},
+            "build-concurrent": {"status_code": 403},
+            "build-telemetry": {"status_code": 403},
+            "build-list": {"status_code": 410},
+            "build-reset": {"status_code": 403},
+            "project-sync-versions": {"status_code": 403},
+            "project-token": {"status_code": 403},
+            "emailhook-list": {"status_code": 403},
+            "emailhook-detail": {"status_code": 403},
+            "embed": {"status_code": 400},
+            "docurl": {"status_code": 400},
+            "cname": {"status_code": 400},
+            "index_search": {"status_code": 403},
+            "api_search": {"status_code": 400},
+            "api_project_search": {"status_code": 400},
+            "api_section_search": {"status_code": 400},
+            "api_sync_remote_repositories": {"status_code": 403},
+            "api_webhook": {"status_code": 405},
+            "api_webhook_github": {"status_code": 405},
+            "api_webhook_gitlab": {"status_code": 405},
+            "api_webhook_bitbucket": {"status_code": 405},
+            "api_webhook_generic": {"status_code": 403},
+            "api_webhook_stripe": {"status_code": 405},
+            "sphinxdomain-detail": {"status_code": 404},
+            "project-list": {"status_code": 410},
+            "remoteorganization-detail": {"status_code": 404},
+            "remoterepository-detail": {"status_code": 404},
+            "remoteaccount-detail": {"status_code": 404},
+            "version-list": {"status_code": 410},
         }
 
 

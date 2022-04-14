@@ -198,6 +198,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
+            'readthedocs.telemetry',
 
             # allauth
             'allauth',
