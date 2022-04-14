@@ -68,7 +68,16 @@ echo "Running all the commands in Docker container: $CONTAINER_ID"
 # Install the tool version requested
 if [[ $TOOL == "python" ]]
 then
-    docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
+    if [[ $VERSION == "3.6.15" ]]
+    then
+        # Special command for Python 3.6.15
+        # See https://github.com/pyenv/pyenv/issues/1889#issuecomment-833587851
+        docker exec --user root $CONTAINER_ID apt-get update
+        docker exec --user root $CONTAINER_ID apt-get install --yes clang
+        docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" --env CC=clang $CONTAINER_ID asdf install $TOOL $VERSION
+    else
+        docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
+    fi
 else
     docker exec $CONTAINER_ID asdf install $TOOL $VERSION
 fi
