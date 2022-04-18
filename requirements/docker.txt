@@ -23,4 +23,4 @@ tox==3.25.0
 awscli==1.22.97
 
 # Used together with structlog to have nicer logs locally
-rich==12.1.0
+rich==12.2.0
