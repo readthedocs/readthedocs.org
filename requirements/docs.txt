@@ -23,4 +23,4 @@ sphinx-autobuild==2021.3.14
 rstcheck==3.3.1
 
 # Markdown
-myst_parser==0.17.0
+myst_parser==0.17.2
