@@ -3,7 +3,7 @@
 pip==22.0.4
 virtualenv==20.14.1
 
-django==3.2.12  # pyup: <3.3
+django==3.2.13  # pyup: <3.3
 django-extensions==3.1.5
 django-polymorphic==3.1.0
 django-autoslug==1.9.8
