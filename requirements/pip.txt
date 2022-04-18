@@ -38,7 +38,7 @@ Pygments==2.11.2
 # django-redis-cache 2.1.3 depends on redis<4.0
 redis==3.5.3  # pyup: ignore
 
-celery==5.2.5
+celery==5.2.6
 
 # When upgrading to 0.43.0 we should double check the ``base.html`` change
 # described in the changelog. In previous versions, the allauth app included a
