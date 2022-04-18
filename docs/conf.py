@@ -83,7 +83,7 @@ intersphinx_mapping = {
     "myst-nb": ("https://myst-nb.readthedocs.io/en/v0.12.3/", None),
     "ipywidgets": ("https://ipywidgets.readthedocs.io/en/7.6.3/", None),
     "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
-    "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/stable/", None),
+    "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/v0.15.2/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/v0.15.1/", None),
