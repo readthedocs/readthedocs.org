@@ -7,3 +7,5 @@ coverage:
     patch:
       default:
         informational: true
+codecov:
+  require_ci_to_pass: false
