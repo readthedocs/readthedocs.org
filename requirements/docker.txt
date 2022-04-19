@@ -17,10 +17,10 @@ watchdog==2.1.7
 argh==0.26.2
 
 # run tests
-tox==3.24.5
+tox==3.25.0
 
 # AWS utilities to use against MinIO
-awscli==1.22.87
+awscli==1.22.97
 
 # Used together with structlog to have nicer logs locally
-rich==12.1.0
+rich==12.2.0
