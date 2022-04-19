@@ -202,17 +202,22 @@ class Backend(BaseVCS):
         except RepositoryError:
             raise RepositoryError(RepositoryError.CLONE_ERROR())
 
-    @property
-    def lsremote(self):
+    def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
 
         :returns: tuple containing a list of branch and tags
         """
-        cmd = ['git', 'ls-remote', self.repo_url]
+        extra_args = []
+        if include_tags:
+            extra_args.append("--tags")
+        if include_branches:
+            extra_args.append("--heads")
+
+        cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        code, stdout, stderr = self.run(*cmd)
+        _, stdout, _ = self.run(*cmd)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.

@@ -72,7 +72,7 @@ class TestGitBackend(TestCase):
         # execute the command
         repo.check_working_dir()
         commit = get_current_commit(repo_path)
-        repo_branches, repo_tags = repo.lsremote
+        repo_branches, repo_tags = repo.lsremote()
 
         self.assertEqual(
             {branch: branch for branch in default_branches + branches},
@@ -82,6 +82,58 @@ class TestGitBackend(TestCase):
         self.assertEqual(
             {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
             {tag.verbose_name: tag.identifier for tag in repo_tags},
+        )
+
+    def test_git_lsremote_tags_only(self):
+        repo_path = self.project.repo
+        create_git_tag(repo_path, "v01")
+        create_git_tag(repo_path, "v02", annotated=True)
+        create_git_tag(repo_path, "release-ünîø∂é")
+
+        repo = self.project.vcs_repo()
+        # create the working dir if it not exists. It's required to ``cwd`` to
+        # execute the command
+        repo.check_working_dir()
+        commit = get_current_commit(repo_path)
+        repo_branches, repo_tags = repo.lsremote(
+            include_tags=True, include_branches=False
+        )
+
+        self.assertEqual(repo_branches, [])
+        self.assertEqual(
+            {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
+            {tag.verbose_name: tag.identifier for tag in repo_tags},
+        )
+
+    def test_git_lsremote_branches_only(self):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            "submodule",
+            "invalidsubmodule",
+        ]
+        branches = [
+            "develop",
+            "master",
+            "2.0.X",
+            "release/2.0.0",
+            "release/foo/bar",
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        repo = self.project.vcs_repo()
+        # create the working dir if it not exists. It's required to ``cwd`` to
+        # execute the command
+        repo.check_working_dir()
+        repo_branches, repo_tags = repo.lsremote(
+            include_tags=False, include_branches=True
+        )
+
+        self.assertEqual(repo_tags, [])
+        self.assertEqual(
+            {branch: branch for branch in default_branches + branches},
+            {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
