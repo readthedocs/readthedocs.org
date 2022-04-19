@@ -646,7 +646,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                 container_id=self.container_id,
             )
         except DockerAPIError:
-            log.exception(
+            # Logging this as warning because it usually happens due memory
+            # limit or build timeout. In those cases, the container is not
+            # running and can't be killed
+            log.warning(
                 'Unable to kill container.',
                 container_id=self.container_id,
             )

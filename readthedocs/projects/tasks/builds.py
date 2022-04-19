@@ -136,7 +136,6 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         if isinstance(exc, RepositoryError):
             log.warning(
                 'There was an error with the repository.',
-                exc_info=True,
             )
         elif isinstance(exc, SyncRepositoryLocked):
             log.warning(

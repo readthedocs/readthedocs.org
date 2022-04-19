@@ -1,3 +1,13 @@
+Version 7.6.1
+-------------
+
+:Date: April 19, 2022
+
+* `@humitos <https://github.com/humitos>`__: Logging: reduce verbosity (`#9107 <https://github.com/readthedocs/readthedocs.org/pull/9107>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: Don't use full_path in get_or_create (`#9099 <https://github.com/readthedocs/readthedocs.org/pull/9099>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not upload `build.tool` to production S3 (`#9098 <https://github.com/readthedocs/readthedocs.org/pull/9098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup Redirects docs (`#9095 <https://github.com/readthedocs/readthedocs.org/pull/9095>`__)
+
 Version 7.6.0
 -------------
 
