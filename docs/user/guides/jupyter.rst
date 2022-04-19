@@ -145,8 +145,7 @@ the slider will render correctly in Sphinx.
 To see more elaborate examples:
 
 - `ipyleaflet`_ provides several widgets for interactive maps,
-  and renders live versions of them :doc:`in their
-  documentation <ipyleaflet:api_reference/velocity>`.
+  and renders live versions of them :doc:`in their documentation <ipyleaflet:layers/velocity>`.
 - `PyVista <https://docs.pyvista.org/>`_ is used for scientific 3D visualization
   with several interactive backends and `examples in their
   documentation <https://docs.pyvista.org/index.html#maps-and-geoscience>`_ as well.
