@@ -208,6 +208,9 @@ class Backend(BaseVCS):
 
         :returns: tuple containing a list of branch and tags
         """
+        if not include_tags and not include_branches:
+            return [], []
+
         extra_args = []
         if include_tags:
             extra_args.append("--tags")
