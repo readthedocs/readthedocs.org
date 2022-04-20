@@ -47,8 +47,8 @@ def prepare_build(
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Feature, Project, WebHookEvent
-    from readthedocs.projects.tasks.utils import send_external_build_status
     from readthedocs.projects.tasks.builds import update_docs_task
+    from readthedocs.projects.tasks.utils import send_external_build_status
 
     if not Project.objects.is_active(project):
         log.warning(
@@ -69,6 +69,8 @@ def prepare_build(
         success=True,
         commit=commit
     )
+
+    log.bind(build_id=build.id)
 
     options = {}
     if project.build_queue:
@@ -210,12 +212,12 @@ def trigger_build(project, version=None, commit=None):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
-    log.info(
-        'Triggering build.',
+    log.bind(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
         commit=commit,
     )
+    log.info("Triggering build.")
     update_docs_task, build = prepare_build(
         project=project,
         version=version,
