@@ -224,7 +224,7 @@ class Backend(BaseVCS):
         # Lightweight tags are the "normal" ones.
         all_tags = {}
         light_tags = {}
-        for line in stdout.splitlines()[1:]:  # skip HEAD
+        for line in stdout.splitlines():
             commit, ref = line.split()
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
