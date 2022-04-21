@@ -3,6 +3,17 @@
 from django.db import migrations, models
 
 
+def forwards_func(apps, schema_editor):
+    """
+    Migrate external Versions with `active=False` to use `state=Closed` and `active=True`.
+    """
+    Version = apps.get_model("builds", "Version")
+    Version.external.filter(active=False).update(
+        active=True,
+        state="closed",
+    )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -22,4 +33,5 @@ class Migration(migrations.Migration):
                 verbose_name="State",
             ),
         ),
+        migrations.RunPython(forwards_func),
     ]
