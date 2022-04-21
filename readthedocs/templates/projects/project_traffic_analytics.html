@@ -48,6 +48,7 @@
     <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
   </form>
 
+  {% if track_404 %}
   <h3>{% trans "Not Found (404) pages" %}</h3>
 
   <div class="module-list">
@@ -76,7 +77,7 @@
     It's possible the number of times each page is viewed is undercounted because of caching in the browser or in a CDN.
     {% endblocktrans %}
   </small>
-
+  {% endif %}
 
 {% endblock %}
 
