@@ -27,6 +27,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
+    EXTERNAL_VERSION_STATES,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -140,8 +141,16 @@ class Version(TimeStampedModel):
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
-    built = models.BooleanField(_('Built'), default=False)
-    uploaded = models.BooleanField(_('Uploaded'), default=False)
+    state = models.CharField(
+        _("State"),
+        max_length=20,
+        choices=EXTERNAL_VERSION_STATES,
+        null=True,
+        blank=True,
+        help_text=_("State of the PR/MR associated to this version."),
+    )
+    built = models.BooleanField(_("Built"), default=False)
+    uploaded = models.BooleanField(_("Uploaded"), default=False)
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
