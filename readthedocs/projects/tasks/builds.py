@@ -316,15 +316,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
+        # Create the object to store all the task-related data
+        self.data = TaskData()
+
         # Comes from the signature of the task and they are the only
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
 
         log.bind(build_pk=self.data.build_pk)
         log.info('Running task.', name=self.name)
-
-        # Create the object to store all the task-related data
-        self.data = TaskData()
 
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
