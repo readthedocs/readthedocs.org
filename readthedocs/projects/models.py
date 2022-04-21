@@ -1759,7 +1759,7 @@ class Feature(models.Model):
     LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
     CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
-    DONT_RECORD_404_PAGE_VIEWS = "dont_record_404_page_views"
+    RECORD_404_PAGE_VIEWS = "record_404_page_views"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1852,8 +1852,8 @@ class Feature(models.Model):
             _("Use Docker gVisor runtime to create build container."),
         ),
         (
-            DONT_RECORD_404_PAGE_VIEWS,
-            _("Don't record 404s page views."),
+            RECORD_404_PAGE_VIEWS,
+            _("Record 404s page views."),
         ),
 
         # Versions sync related features

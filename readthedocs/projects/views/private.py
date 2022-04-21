@@ -1181,7 +1181,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
         # Count of views for top pages over the month
         top_pages_200 = PageView.top_viewed_pages(project, limit=25)
-        track_404 = not project.has_feature(Feature.DONT_RECORD_404_PAGE_VIEWS)
+        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
         top_pages_404 = []
         if track_404:
             top_pages_404 = PageView.top_viewed_pages(

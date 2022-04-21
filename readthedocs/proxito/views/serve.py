@@ -403,7 +403,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
-            if project.has_feature(Feature.DONT_RECORD_404_PAGE_VIEWS):
+            if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
 
             # If the path isn't attached to a version
