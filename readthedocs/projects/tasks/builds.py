@@ -323,7 +323,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
 
-        log.bind(build_pk=self.data.build_pk)
+        log.bind(build_id=self.data.build_pk)
         log.info('Running task.', name=self.name)
 
         self.data.start_time = timezone.now()
