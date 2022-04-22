@@ -298,6 +298,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if concurrency_limit_reached:
             # By raising this exception and using ``autoretry_for``, Celery
             # will handle this automatically calling ``on_retry``
+            log.info("Concurrency limit reached, retrying task.")
             raise BuildMaxConcurrencyError(
                 BuildMaxConcurrencyError.message.format(
                     limit=max_concurrent_builds,
@@ -315,10 +316,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
-        log.info('Running task.', name=self.name)
-
         # Create the object to store all the task-related data
         self.data = TaskData()
+
+        # Comes from the signature of the task and they are the only
+        # required arguments.
+        self.data.version_pk, self.data.build_pk = args
+
+        log.bind(build_id=self.data.build_pk)
+        log.info("Running task.", name=self.name)
 
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
@@ -326,10 +332,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # TODO: delete LocalBuildEnvironment since it's not supported
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
-
-        # Comes from the signature of the task and they are the only required
-        # arguments
-        self.data.version_pk, self.data.build_pk = args
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -347,7 +349,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         log.bind(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
-            build_id=self.data.build['id'],
             builder=self.data.build['builder'],
             commit=self.data.build_commit,
             project_slug=self.data.project.slug,
@@ -374,6 +375,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
+        log.info("Task failed.")
         if not hasattr(self.data, 'build'):
             # NOTE: use `self.data.build_id` (passed to the task) instead
             # `self.data.build` (retrieved from the API) because it's not present,
