@@ -193,7 +193,7 @@ def _create_intersphinx_data(version, commit, build):
                     'Error while getting sphinx domain information. Skipping...',
                     project_slug=version.project.slug,
                     version_slug=version.slug,
-                    sphinx_domain='{domain}->{name}',
+                    sphinx_domain=f'{domain}->{name}',
                 )
                 continue
 
