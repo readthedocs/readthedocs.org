@@ -27,7 +27,7 @@ These in-between jobs are:
 :post_build:
 
 
-These jobs can be declared by using a :ref:`config-file/index` with the :ref:`config-file/build-jobs` key on it.
+These jobs can be declared by using a :ref:`config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
 Let's say the project requires a mandatory command to be executed _before_ installing any dependency into the Python environment and _after_ the build has finished.
 In that case, a config file similar to this one can be used:
 
@@ -54,7 +54,7 @@ In that case, a config file similar to this one can be used:
 Examples
 --------
 
-This is a non-exahustive list of common examples where using :ref:`config-file/build-jobs` will be useful.
+This is a non-exahustive list of common examples where using :ref:`config-file/v2:build.jobs` will be useful.
 Also note that these examples may require some adaption for each projects' use case.
 They are listed here just as a guide.
 

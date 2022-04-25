@@ -14,7 +14,7 @@ It should also allow users to take advantage of certain things that happen durin
 
 .. note::
 
-   It's important to know that all the steps are ran inside a Docker container with the image the project defined in :ref:`config-file/build.os`.
+   It's important to know that all the steps are ran inside a Docker container with the image the project defined in :ref:`config-file/v2:build.os`.
 
 
 The following are the pre-defined commands executed by default by Read the Docs:
@@ -29,20 +29,20 @@ The following are the pre-defined commands executed by default by Read the Docs:
    Installs OS/system dependencies.
    This includes specific version of languages (e.g. Python, NodeJS, Go, Rust) and also OS packages.
 
-   At this point, :ref:`config-file/build.tools` can be used to defined languages versions,
-   and :ref:`config-file/build.apt_packages` to define APT packages.
+   At this point, :ref:`config-file/v2:build.tools` can be used to defined languages versions,
+   and :ref:`config-file/v2:build.apt_packages` to define APT packages.
 
 :create_environment:
 
    Creates a Python environment to install all the dependencies in an isolated and reproducible way.
-   Depending on what's defined by the project a Virtualenv or a Conda environment (:ref:`config-file/conda`) will be used.
+   Depending on what's defined by the project a Virtualenv or a Conda environment (:ref:`config-file/v2:conda`) will be used.
 
 :install:
 
    Install :ref:`default common dependencies <build-default-versions>` to build project's documentation.
 
    At this point, if the project has extra Python requirements than the default ones,
-   :ref:`config-file/python.install` can be used for this.
+   :ref:`config-file/v2:python.install` can be used for this.
 
    .. tip::
 
@@ -51,8 +51,8 @@ The following are the pre-defined commands executed by default by Read the Docs:
 
 :build:
 
-   Runs the main command to build the documentation for each of the formats declared (:ref:`config-file/formats`).
-   It will use Sphinx (:ref:`config-file/sphinx`) or MkDocs (:ref:`config-file/mkdocs`) depending on the project.
+   Runs the main command to build the documentation for each of the formats declared (:ref:`config-file/v2:formats`).
+   It will use Sphinx (:ref:`config-file/v2:sphinx`) or MkDocs (:ref:`config-file/v2:mkdocs`) depending on the project.
 
 :upload:
 
