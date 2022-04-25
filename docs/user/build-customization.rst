@@ -4,7 +4,7 @@ Build customization
 Read the Docs has a :ref:`well-defined build process <builds>` that may not be enough for all the use cases.
 This page explains how to customize Read the Docs build process to get the most of it and support custom build processes.
 
-In the normal build process the jobs `checkout`, `system_dependencies`, `create_environment`, `install`, `build` and `upload` are executed.
+In the normal build process the jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
 However, Read the Docs exposes in-between jobs to users so they can customize the build process by running shell commands.
 These in-between jobs are:
 
