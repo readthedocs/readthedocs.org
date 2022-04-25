@@ -2,7 +2,7 @@ Build process
 =============
 
 Once a project has been imported into Read the Docs and a push is done (or a build is manually triggered),
-Read the Docs executes specific pre-defined commands to build the project's documentation and update the hosted version with up-to-date content.
+Read the Docs executes specific pre-defined jobs to build the project's documentation and update the hosted version with up-to-date content.
 This page explains in details what happens behind the scenes.
 
 
@@ -17,7 +17,7 @@ It should also allow users to take advantage of certain things that happen durin
    It's important to know that all the steps are ran inside a Docker container with the image the project defined in :ref:`config-file/v2:build.os`.
 
 
-The following are the pre-defined commands executed by default by Read the Docs:
+The following are the pre-defined jobs executed by default by Read the Docs:
 
 :checkout:
 
