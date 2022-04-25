@@ -8,7 +8,10 @@ def forwards_func(apps, schema_editor):
     Migrate external Versions with `active=False` to use `state=Closed` and `active=True`.
     """
     Version = apps.get_model("builds", "Version")
-    Version.external.filter(active=False).update(
+    # NOTE: we can't use `Version.external` because the Django's __fake__
+    # object does not declare it. So, we need to pass `type=external` in the
+    # filter
+    Version.objects.filter(type="external", active=False).update(
         active=True,
         state="closed",
     )
@@ -26,7 +29,7 @@ class Migration(migrations.Migration):
             name="state",
             field=models.CharField(
                 blank=True,
-                choices=[("open", "Open"), ("closed", "Closed"), ("merged", "Merged")],
+                choices=[("open", "Open"), ("closed", "Closed")],
                 help_text="State of the PR/MR associated to this version.",
                 max_length=20,
                 null=True,
