@@ -1,3 +1,21 @@
+Version 7.6.2
+-------------
+
+:Date: April 25, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Builds: fix retry (`#9133 <https://github.com/readthedocs/readthedocs.org/pull/9133>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log more data (`#9132 <https://github.com/readthedocs/readthedocs.org/pull/9132>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: add feature flag to skip tracking 404s (`#9131 <https://github.com/readthedocs/readthedocs.org/pull/9131>`__)
+* `@humitos <https://github.com/humitos>`__: External versions: save state (open / closed) (`#9128 <https://github.com/readthedocs/readthedocs.org/pull/9128>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log more attributes (`#9127 <https://github.com/readthedocs/readthedocs.org/pull/9127>`__)
+* `@stsewd <https://github.com/stsewd>`__: git: respect SKIP_SYNC_* flags when using lsremote (`#9125 <https://github.com/readthedocs/readthedocs.org/pull/9125>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.6.1 (`#9123 <https://github.com/readthedocs/readthedocs.org/pull/9123>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#9121 <https://github.com/readthedocs/readthedocs.org/pull/9121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9120 <https://github.com/readthedocs/readthedocs.org/pull/9120>`__)
+* `@thomasrockhu-codecov <https://github.com/thomasrockhu-codecov>`__: ci: add informational Codecov status checks (`#9119 <https://github.com/readthedocs/readthedocs.org/pull/9119>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use gvisor for projects using build.jobs (`#9114 <https://github.com/readthedocs/readthedocs.org/pull/9114>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: call `linkcheck` Sphinx builder for our docs (`#9091 <https://github.com/readthedocs/readthedocs.org/pull/9091>`__)
+
 Version 7.6.1
 -------------
 
