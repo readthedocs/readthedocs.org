@@ -28,7 +28,7 @@ These in-between jobs are:
 
 
 These jobs can be declared by using a :ref:`config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
-Let's say the project requires a mandatory command to be executed _before_ installing any dependency into the Python environment and _after_ the build has finished.
+Let's say the project requires a mandatory command to be executed *before* installing any dependency into the Python environment and *after* the build has finished.
 In that case, a config file similar to this one can be used:
 
 .. code:: yaml
@@ -40,11 +40,13 @@ In that case, a config file similar to this one can be used:
        python: "3.10"
      jobs:
        pre_install:
-         - echo 'Executing pre_install step...'
+         - echo "Executing pre_install step..."
          - bash ./scripts/pre_install.sh
        post_build:
-         - echo 'Executing post_install step...'
-         - curl -X POST -F "project=${READTHEDOCS_PROJECT}" -F "version=${READTHEDOCS_VERSION}" https://my.company.com/webhooks/readthedocs/
+         - echo "Executing post_build step..."
+         - curl -X POST \
+           -F "project=${READTHEDOCS_PROJECT}" \
+           -F "version=${READTHEDOCS_VERSION}" https://my.company.com/webhooks/readthedocs/
 
 .. note::
 
