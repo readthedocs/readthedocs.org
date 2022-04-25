@@ -296,12 +296,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
         if concurrency_limit_reached:
-            # By raising this exception and using ``autoretry_for``, Celery
-            # will handle this automatically calling ``on_retry``
+            # By calling ``retry`` Celery will raise an exception and call ``on_retry``.
+            # NOTE: autoretry_for doesn't work with exceptions raised from before_start,
+            # it only works if they are raised from the run/execute method.
             log.info("Concurrency limit reached, retrying task.")
-            raise BuildMaxConcurrencyError(
-                BuildMaxConcurrencyError.message.format(
-                    limit=max_concurrent_builds,
+            self.retry(
+                exc=BuildMaxConcurrencyError(
+                    BuildMaxConcurrencyError.message.format(
+                        limit=max_concurrent_builds,
+                    )
                 )
             )
 
@@ -323,8 +326,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # required arguments.
         self.data.version_pk, self.data.build_pk = args
 
-        log.bind(build_pk=self.data.build_pk)
-        log.info('Running task.', name=self.name)
+        log.bind(build_id=self.data.build_pk)
+        log.info("Running task.", name=self.name)
 
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment

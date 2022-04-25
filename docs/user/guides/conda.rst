@@ -134,7 +134,7 @@ with these contents:
 You can read more about the :ref:`config-file/v2:build.tools.python` configuration
 in our documentation.
 
-.. _mamba: https://quantstack.net/mamba.html
+.. _mamba: https://github.com/mamba-org/mamba
 .. _a known issue: https://www.anaconda.com/understanding-and-improving-condas-performance/
 
 Mixing conda and pip packages

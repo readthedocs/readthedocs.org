@@ -137,7 +137,7 @@ https://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for custom domains:
 
-http://docs.celeryproject.org/projects/kombu/en/latest/
+http://docs..org/projects/kombu/en/latest/
 
 You can add subprojects in the project admin dashboard.
 

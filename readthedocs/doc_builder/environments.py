@@ -554,12 +554,15 @@ class DockerBuildEnvironment(BuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
-        container_image = kwargs.pop('container_image', None)
-
+        container_image = kwargs.pop("container_image", None)
+        self.use_gvisor = kwargs.pop("use_gvisor", False)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = self.get_container_name()
+
+        if self.project.has_feature(Feature.DOCKER_GVISOR_RUNTIME):
+            self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -790,11 +793,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
-            docker_runtime = self.project.get_feature_value(
-                Feature.DOCKER_GVISOR_RUNTIME,
-                positive="runsc",
-                negative=None,
-            )
+            docker_runtime = "runsc" if self.use_gvisor else None
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,

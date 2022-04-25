@@ -108,7 +108,7 @@ On Read the Docs:
 On your Gitea instance:
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
-* Create a new webhook of type "Gitea" 
+* Create a new webhook of type "Gitea"
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations` page
 * Leave the default **HTTP Method** as POST
@@ -197,7 +197,7 @@ Payload validation
 
 If your project was imported through a connected account,
 we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
-Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
+Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token>`__
 offer a way to check this.
 
 Troubleshooting
