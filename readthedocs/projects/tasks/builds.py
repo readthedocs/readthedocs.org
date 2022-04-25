@@ -297,7 +297,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         if concurrency_limit_reached:
             # By calling ``retry`` Celery will raise an exception and call ``on_retry``.
-            # NOTE: relying on autoretry_for isn't working.
+            # NOTE: autoretry_for doesn't work with exceptions raised from before_start,
+            # it only works if they are raised from the run/execute method.
             log.info("Concurrency limit reached, retrying task.")
             self.retry(
                 exc=BuildMaxConcurrencyError(
