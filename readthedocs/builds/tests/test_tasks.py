@@ -5,18 +5,24 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
+    TAG,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.builds.tasks import (
     archive_builds_task,
-    delete_inactive_external_versions,
+    delete_closed_external_versions,
 )
 from readthedocs.projects.models import Project
 
 
 class TestTasks(TestCase):
 
-    def test_delete_inactive_external_versions(self):
+    def test_delete_closed_external_versions(self):
         project = get(Project)
         project.versions.all().delete()
         get(
@@ -24,7 +30,7 @@ class TestTasks(TestCase):
             project=project,
             slug='branch',
             type=BRANCH,
-            active=False,
+            state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=7),
         )
         get(
@@ -32,7 +38,7 @@ class TestTasks(TestCase):
             project=project,
             slug='tag',
             type=TAG,
-            active=True,
+            state=EXTERNAL_VERSION_STATE_OPEN,
             modified=datetime.now() - timedelta(days=7),
         )
         get(
@@ -40,7 +46,7 @@ class TestTasks(TestCase):
             project=project,
             slug='external-active',
             type=EXTERNAL,
-            active=True,
+            state=EXTERNAL_VERSION_STATE_OPEN,
             modified=datetime.now() - timedelta(days=7),
         )
         get(
@@ -48,7 +54,7 @@ class TestTasks(TestCase):
             project=project,
             slug='external-inactive',
             type=EXTERNAL,
-            active=False,
+            state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=3),
         )
         get(
@@ -56,7 +62,7 @@ class TestTasks(TestCase):
             project=project,
             slug='external-inactive-old',
             type=EXTERNAL,
-            active=False,
+            state=EXTERNAL_VERSION_STATE_CLOSED,
             modified=datetime.now() - timedelta(days=7),
         )
 
@@ -64,12 +70,12 @@ class TestTasks(TestCase):
         self.assertEqual(Version.external.all().count(), 3)
 
         # We don't have inactive external versions from 9 days ago.
-        delete_inactive_external_versions(days=9)
+        delete_closed_external_versions(days=9)
         self.assertEqual(Version.objects.all().count(), 5)
         self.assertEqual(Version.external.all().count(), 3)
 
         # We have one inactive external versions from 6 days ago.
-        delete_inactive_external_versions(days=6)
+        delete_closed_external_versions(days=6)
         self.assertEqual(Version.objects.all().count(), 4)
         self.assertEqual(Version.external.all().count(), 2)
         self.assertFalse(Version.objects.filter(slug='external-inactive-old').exists())
