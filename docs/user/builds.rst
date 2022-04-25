@@ -10,11 +10,11 @@ Understanding what's going on
 -----------------------------
 
 Understanding how Read the Docs builds projects helps with debugging the problems that may appear in the process.
-It should also allow users to take advantage of certain things that happen during the build process:
+It should also allow users to take advantage of certain things that happen during the build process.
 
 .. note::
 
-   It's important to know that all the steps are ran inside a Docker container with the image the project defined in :ref:`config-file/v2:build.os`.
+   All the steps are ran inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`.
 
 
 The following are the pre-defined jobs executed by default by Read the Docs:
@@ -42,12 +42,11 @@ The following are the pre-defined jobs executed by default by Read the Docs:
    Install :ref:`default common dependencies <build-default-versions>` to build project's documentation.
 
    At this point, if the project has extra Python requirements than the default ones,
-   :ref:`config-file/v2:python.install` can be used for this.
+   :ref:`config-file/v2:python.install` can be used to specify them.
 
    .. tip::
 
-    We strongly recommend :ref:`pinning all the versions <guides/reproducible-builds:pinning dependencies>` required to build the documentation.
-    This avoid unexpected build errors when a third party dependency release a new backward incompatible version.
+    We strongly recommend :ref:`pinning all the versions <guides/reproducible-builds:pinning dependencies>` required to build the documentation to avoid unexpected build errors.
 
 :build:
 
@@ -60,10 +59,10 @@ The following are the pre-defined jobs executed by default by Read the Docs:
    Read the Docs uploads the resulting artifacts to the storage and purge the cache so the newer version of the documentation is served.
 
 
-If this process is not enough for the projects needs,
+If this process is not enough for the project's needs,
 there are some extra steps that are required to build the documentation,
 or simply the needing to execute extra commands to improve Read the Docs' integration with other services,
-it's possible to hook user-defined commands and :ref:`customize the build process <build-customization>`..
+it's possible to hook user-defined commands and :doc:`customize the build process <build-customization>`...
 
 
 Build resources
