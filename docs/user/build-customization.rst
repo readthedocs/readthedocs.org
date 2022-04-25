@@ -28,6 +28,27 @@ These in-between jobs are:
 
 
 These jobs can be declared by using a :ref:`config-file/index` with the :ref:`config-file/build-jobs` key on it.
+Let's say the project requires a mandatory command to be executed _before_ installing any dependency into the Python environment and _after_ the build has finished.
+In that case, a config file similar to this one can be used:
+
+.. code:: yaml
+
+   version: 2
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.10"
+     jobs:
+       pre_install:
+         - echo 'Executing pre_install step...'
+         - bash ./scripts/pre_install.sh
+       post_build:
+         - echo 'Executing post_install step...'
+         - curl -X POST -F "project=${READTHEDOCS_PROJECT}" -F "version=${READTHEDOCS_VERSION}" https://my.company.com/webhooks/readthedocs/
+
+.. note::
+
+   Currently, the default jobs (e.g. ``checkout``, ``system_dependencies``, etc) executed by Read the Docs are not possible to overwritte or skip.
 
 
 Examples
