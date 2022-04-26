@@ -1,16 +1,9 @@
-from unittest import mock
-
 import django_dynamic_fixture as fixture
 import pytest
 from django.test import TestCase, override_settings
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.resolver import (
-    Resolver,
-    resolve,
-    resolve_domain,
-    resolve_path,
-)
+from readthedocs.core.resolver import Resolver, resolve, resolve_domain, resolve_path
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -359,7 +352,10 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.pip)
             self.assertEqual(url, 'pip.readthedocs.org')
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(
+        PRODUCTION_DOMAIN="readthedocs.org",
+        PUBLIC_DOMAIN="readthedocs.io",
+    )
     def test_domain_resolver_with_domain_object(self):
         self.domain = fixture.get(
             Domain,
@@ -374,14 +370,23 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.pip)
             self.assertEqual(url, 'docs.foobar.com')
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+            url = resolve_domain(project=self.pip, use_canonical_domain=False)
+            self.assertEqual(url, "pip.readthedocs.io")
+
+    @override_settings(
+        PRODUCTION_DOMAIN="readthedocs.org",
+        PUBLIC_DOMAIN="readthedocs.io",
+    )
     def test_domain_resolver_subproject(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.subproject)
             self.assertEqual(url, 'readthedocs.org')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.subproject)
-            self.assertEqual(url, 'pip.readthedocs.org')
+            self.assertEqual(url, "pip.readthedocs.io")
+
+            url = resolve_domain(project=self.subproject, use_canonical_domain=False)
+            self.assertEqual(url, "pip.readthedocs.io")
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_domain_resolver_subproject_itself(self):
@@ -404,14 +409,20 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.pip)
             self.assertEqual(url, 'pip.readthedocs.org')
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(
+        PRODUCTION_DOMAIN="readthedocs.org",
+        PUBLIC_DOMAIN="readthedocs.io",
+    )
     def test_domain_resolver_translation(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, 'readthedocs.org')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.translation)
-            self.assertEqual(url, 'pip.readthedocs.org')
+            self.assertEqual(url, "pip.readthedocs.io")
+
+            url = resolve_domain(project=self.translation, use_canonical_domain=False)
+            self.assertEqual(url, "pip.readthedocs.io")
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_domain_resolver_translation_itself(self):
@@ -444,6 +455,9 @@ class ResolverDomainTests(ResolverBase):
             self.assertEqual(url, 'readthedocs.org')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.translation)
+            self.assertEqual(url, "pip.public.readthedocs.org")
+
+            url = resolve_domain(project=self.translation, use_canonical_domain=False)
             self.assertEqual(url, 'pip.public.readthedocs.org')
 
     @override_settings(
