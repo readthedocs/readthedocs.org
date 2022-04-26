@@ -167,6 +167,13 @@ class BuildDataCollector:
         return ""
 
     def _get_apt_packages(self):
+        """
+        Get the list of installed apt packages (global and from the user).
+
+        The current source of user installed packages is the config file,
+        but we have only the name, so we take the version from the list of all
+        installed packages.
+        """
         all_apt_packages = self._get_all_apt_packages()
         all_apt_packages_dict = dict(
             (package["name"], package["version"]) for package in all_apt_packages

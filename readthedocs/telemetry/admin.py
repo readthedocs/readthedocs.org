@@ -10,8 +10,12 @@ from readthedocs.telemetry.models import BuildData
 @admin.register(BuildData)
 class BuildDataAdmin(admin.ModelAdmin):
 
-    fields = ("pretty_data",)
-    readonly_fields = ("pretty_data",)
+    fields = ("created", "modified", "pretty_data")
+    readonly_fields = (
+        "created",
+        "modified",
+        "pretty_data",
+    )
 
     # pylint: disable=no-self-use
     def pretty_data(self, instance):
