@@ -10,6 +10,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
@@ -197,6 +198,31 @@ class TestFullDocServing(BaseDocServing):
         )
 
     # Invalid tests
+
+    def test_non_existent_version(self):
+        url = "/en/non-existent-version/"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_non_existent_version_with_filename(self):
+        url = "/en/non-existent-version/doesnt-exist.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_inactive_version(self):
+        url = "/en/inactive/"
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Version,
+            verbose_name="inactive",
+            slug="inactive",
+            active=False,
+            project=self.project,
+        )
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
 
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
@@ -849,6 +875,104 @@ class TestAdditionalDocViews(BaseDocServing):
                 mock.call('html/project/latest/404/index.html'),
             ]
         )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link(self, storage_exists):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found/",
+            "/en/latest/not-found/",
+            "/not-found",
+            "/en/not-found/",
+        ]
+        for path in paths:
+            storage_exists.reset_mock()
+            storage_exists.return_value = False
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        self.assertEqual(PageView.objects.all().count(), 3)
+
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.path, "/not-found/")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/not-found")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/en/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/en/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_custom_404(self, storage_exists, storage_open):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found",
+            "/en/latest/not-found",
+            "/en/latest/not-found/",
+        ]
+        for path in paths:
+            storage_open.reset_mock()
+            storage_exists.reset_mock()
+            storage_exists.side_effect = [False, False, True]
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+            storage_open.assert_called_once_with("html/project/latest/404.html")
+
+        self.assertEqual(PageView.objects.all().count(), 2)
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(path="/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
 
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)

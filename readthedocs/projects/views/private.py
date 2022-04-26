@@ -65,6 +65,7 @@ from readthedocs.projects.models import (
     Domain,
     EmailHook,
     EnvironmentVariable,
+    Feature,
     Project,
     ProjectRelationship,
     WebHook,
@@ -1176,21 +1177,30 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             return context
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project, limit=25)
-        top_viewed_pages = list(zip(
-            top_pages['pages'],
-            top_pages['view_counts']
-        ))
+        top_pages_200 = PageView.top_viewed_pages(project, limit=25)
+        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
+        top_pages_404 = []
+        if track_404:
+            top_pages_404 = PageView.top_viewed_pages(
+                project,
+                limit=25,
+                status=404,
+                per_version=True,
+            )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
             project_slug=project.slug,
         )
 
-        context.update({
-            'top_viewed_pages': top_viewed_pages,
-            'page_data': page_data,
-        })
+        context.update(
+            {
+                "top_pages_200": top_pages_200,
+                "page_data": page_data,
+                "top_pages_404": top_pages_404,
+                "track_404": track_404,
+            }
+        )
 
         return context
 
@@ -1216,6 +1226,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
                 PageView.objects.filter(
                     project=project,
                     date__gte=days_ago,
+                    status=200,
                 )
                 .order_by('-date')
                 .values_list(*[value for _, value in values])

@@ -47,7 +47,7 @@ Set up your environment
 
    .. tip::
 
-      If you pass ``GITHUB_TOKEN`` environment variable to this command,
+      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
       it will add support for readthedocs-ext.
 
 #. pull down Docker images for the builders:
@@ -204,7 +204,6 @@ For others, the webhook will simply fail to connect when there are new commits t
 .. figure:: /_static/images/development/bitbucket-oauth-setup.png
     :align: center
     :figwidth: 80%
-    :target: /_static/images/development/bitbucket-oauth-setup.png
 
     Configuring an OAuth consumer for local development on Bitbucket
 

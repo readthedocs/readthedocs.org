@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Django models for the redirects app."""
 
-import structlog
 import re
 
+import structlog
 from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -13,7 +11,6 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
 from .querysets import RedirectQuerySet
-
 
 log = structlog.get_logger(__name__)
 
@@ -174,8 +171,9 @@ class Redirect(models.Model):
 
     def redirect_prefix(self, path, language=None, version_slug=None):
         if path.startswith(self.from_url):
-            log.debug('Redirecting...', redirect=self)
-            cut_path = re.sub('^%s' % self.from_url, '', path)
+            log.debug("Redirecting...", redirect=self)
+            # pep8 and blank don't agree on having a space before :.
+            cut_path = path[len(self.from_url) :]  # noqa
 
             to = self.get_full_path(
                 filename=cut_path,
@@ -208,7 +206,7 @@ class Redirect(models.Model):
         if '$rest' in self.from_url:
             match = self.from_url.split('$rest')[0]
             if full_path.startswith(match):
-                cut_path = re.sub('^%s' % match, self.to_url, full_path)
+                cut_path = full_path.replace(match, self.to_url, 1)
                 return cut_path
 
     def redirect_sphinx_html(self, path, language=None, version_slug=None):

@@ -1,6 +1,5 @@
 """Documentation Builder Environments."""
 
-import structlog
 import os
 import re
 import subprocess
@@ -8,6 +7,7 @@ import sys
 import uuid
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
@@ -31,10 +31,7 @@ from .constants import (
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
 )
-from .exceptions import (
-    BuildAppError,
-    BuildUserError,
-)
+from .exceptions import BuildAppError, BuildUserError
 
 log = structlog.get_logger(__name__)
 
@@ -557,12 +554,15 @@ class DockerBuildEnvironment(BuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
-        container_image = kwargs.pop('container_image', None)
-
+        container_image = kwargs.pop("container_image", None)
+        self.use_gvisor = kwargs.pop("use_gvisor", False)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = self.get_container_name()
+
+        if self.project.has_feature(Feature.DOCKER_GVISOR_RUNTIME):
+            self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -649,7 +649,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                 container_id=self.container_id,
             )
         except DockerAPIError:
-            log.exception(
+            # Logging this as warning because it usually happens due memory
+            # limit or build timeout. In those cases, the container is not
+            # running and can't be killed
+            log.warning(
                 'Unable to kill container.',
                 container_id=self.container_id,
             )
@@ -790,10 +793,12 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
+            docker_runtime = "runsc" if self.use_gvisor else None
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
+                docker_runtime=docker_runtime,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -808,6 +813,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
+                runtime=docker_runtime,
             )
             client.start(container=self.container_id)
         except (DockerAPIError, ConnectionError) as e:

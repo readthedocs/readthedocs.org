@@ -1,5 +1,6 @@
 FROM ubuntu:20.04
 
+ARG GITHUB_USER
 ARG GITHUB_TOKEN
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -58,9 +59,9 @@ RUN pip3 install --no-cache-dir -r docker.txt
 WORKDIR /usr/src/app/checkouts/
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
         pip3 install --no-cache-dir -e ext-theme ; \
         fi
 

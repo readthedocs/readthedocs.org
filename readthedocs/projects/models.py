@@ -1751,20 +1751,22 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
-    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
-    API_LARGE_DATA = 'api_large_data'
-    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
-    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    CLEAN_AFTER_BUILD = 'clean_after_build'
-    UPDATE_CONDA_STARTUP = 'update_conda_startup'
-    CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    CONDA_USES_MAMBA = 'conda_uses_mamba'
-    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
-    CACHED_ENVIRONMENT = 'cached_environment'
-    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    CDN_ENABLED = 'cdn_enabled'
+    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
+    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
+    API_LARGE_DATA = "api_large_data"
+    DONT_SHALLOW_CLONE = "dont_shallow_clone"
+    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
+    CLEAN_AFTER_BUILD = "clean_after_build"
+    UPDATE_CONDA_STARTUP = "update_conda_startup"
+    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
+    CONDA_USES_MAMBA = "conda_uses_mamba"
+    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
+    CACHED_ENVIRONMENT = "cached_environment"
+    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
+    CDN_ENABLED = "cdn_enabled"
+    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
+    RECORD_404_PAGE_VIEWS = "record_404_page_views"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1851,6 +1853,14 @@ class Feature(models.Model):
         (
             CDN_ENABLED,
             _('CDN support for a project\'s public versions when privacy levels are enabled.'),
+        ),
+        (
+            DOCKER_GVISOR_RUNTIME,
+            _("Use Docker gVisor runtime to create build container."),
+        ),
+        (
+            RECORD_404_PAGE_VIEWS,
+            _("Record 404s page views."),
         ),
 
         # Versions sync related features

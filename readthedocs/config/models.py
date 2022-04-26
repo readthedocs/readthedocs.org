@@ -37,7 +37,7 @@ class Build(Base):
 
 class BuildWithTools(Base):
 
-    __slots__ = ('os', 'tools', 'apt_packages')
+    __slots__ = ("os", "tools", "jobs", "apt_packages")
 
     def __init__(self, **kwargs):
         kwargs.setdefault('apt_packages', [])
@@ -47,6 +47,35 @@ class BuildWithTools(Base):
 class BuildTool(Base):
 
     __slots__ = ('version', 'full_version')
+
+
+class BuildJobs(Base):
+
+    """Object used for `build.jobs` key."""
+
+    __slots__ = (
+        "pre_checkout",
+        "post_checkout",
+        "pre_system_dependencies",
+        "post_system_dependencies",
+        "pre_create_environment",
+        "post_create_environment",
+        "pre_install",
+        "post_install",
+        "pre_build",
+        "post_build",
+    )
+
+    def __init__(self, **kwargs):
+        """
+        Create an empty list as a default for all possible builds.jobs configs.
+
+        This is necessary because it makes the code cleaner when we add items to these lists,
+        without having to check for a dict to be created first.
+        """
+        for step in self.__slots__:
+            kwargs.setdefault(step, [])
+        super().__init__(**kwargs)
 
 
 class Python(Base):

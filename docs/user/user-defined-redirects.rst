@@ -1,7 +1,7 @@
 User-defined Redirects
 ======================
 
-You can set up redirects for a project in your project dashboard's Redirects page.
+You can set up redirects for a project in your project dashboard's :guilabel:`Redirects` page.
 
 Quick Summary
 -------------
@@ -16,13 +16,20 @@ Quick Summary
 
 Your redirects will be effective immediately.
 
-.. note::
+Limitations
+~~~~~~~~~~~
 
-    For the time being, redirects are only implemented in case of a
-    *404 File Not Found* error.
+Redirects are only implemented in case of a *404 File Not Found* error.
+If you need to redirect a large number of files that still exist,
+please reach out to :doc:`/support`.
+
+Page & Exact Redirects can redirect to URLs outside Read the Docs.
+Define the `To URL` as the absolute URL you want to redirect to.
 
 Redirect Types
 --------------
+
+We offer a few different type of redirects based on what you want to do.
 
 Prefix Redirects
 ~~~~~~~~~~~~~~~~
@@ -50,12 +57,10 @@ Your users query would now redirect in the following manner::
 
 Where ``en`` and ``latest`` are the default language and version values for your project.
 
-
 .. note::
 
-   In other words, a *Prefix Redirect* removes a prefix from the original URL.
-   This prefix is removed from the rest of the URL's ``path`` after ``/$lang/$version``.
-   For example, if the URL is ``/es/1.0/guides/tutorial/install.html`` the "From URL's prefix" will be removed from ``/guides/tutorial/install.html`` part.
+   If you were hosting your docs without a prefix, you can create a ``/`` Prefix Redirect,
+   which will prepend ``/$lang/$version/`` to all incoming URLs.
 
 
 Page Redirects
@@ -73,23 +78,18 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-Note that the ``/`` at the start doesn't count the ``/$lang/$version`` prefix (e.g.
-``/en/latest``), but just the user-controlled section of the URL.
+**Page Redirects apply to all versions of you documentation.**
+Because of this,
+the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
+``/en/latest``), but just the version-specific part of the URL.
 If you want to set directs only for some languages or some versions, you should use
 :ref:`user-defined-redirects:exact redirects` with the fully-specified path.
-
-.. tip::
-
-   *Page Redirects* can redirect URLs **outside** Read the Docs platform
-   just by defining the "To URL" as the absolute URL you want to redirect to.
-
 
 Exact Redirects
 ~~~~~~~~~~~~~~~
 
-If you're redirecting from an old host AND you aren't maintaining old paths for your
-documents, a Prefix Redirect won't suffice and you'll need to create *Exact Redirects*
-to redirect from a specific URL, to a specific page.
+*Exact Redirects* are for redirecting a single URL,
+and take into account the full URL (including language & version).
 
 Say you're moving ``docs.example.com`` to Read the Docs and want to redirect traffic
 from an old page at ``https://docs.example.com/dev/install.html`` to a new URL
@@ -127,11 +127,6 @@ The readers of your documentation will now be redirected as::
 Similarly, if you maintain several branches of your documentation (e.g. ``3.0`` and
 ``latest``) and decide to move pages in ``latest`` but not the older branches, you can use
 *Exact Redirects* to do so.
-
-.. tip::
-
-   *Exact Redirects* can redirect URLs **outside** Read the Docs platform
-   just by defining the "To URL" as the absolute URL you want to redirect to.
 
 
 Sphinx Redirects
