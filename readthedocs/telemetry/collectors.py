@@ -45,6 +45,12 @@ class BuildDataCollector:
         return build_cmd.exit_code, build_cmd.output, build_cmd.error
 
     def collect(self):
+        """
+        Collect all relevant data from the runnig build.
+
+        Data that can be extracted from the database (project/organization)
+        isn't collected here.
+        """
         data = {}
         data["config"] = {"user": self.config.source_config}
         data["os"] = self._get_operating_system()
