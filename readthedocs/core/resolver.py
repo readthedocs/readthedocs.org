@@ -152,15 +152,15 @@ class ResolverBase:
             urlconf=urlconf or project.urlconf,
         )
 
-    def resolve_domain(self, project, use_custom_domain=True):
+    def resolve_domain(self, project, use_canonical_domain=True):
         """
         Get the domain from where the documentation of ``project`` is served from.
 
         :param project: Project object
-        :param bool use_custom_domain: If `True` use its canonical custom domain if available.
+        :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
         """
         canonical_project = self._get_canonical_project(project)
-        if use_custom_domain and self._use_cname(canonical_project):
+        if use_canonical_domain and self._use_cname(canonical_project):
             domain = canonical_project.get_canonical_custom_domain()
             if domain:
                 return domain.domain

@@ -370,7 +370,7 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.pip)
             self.assertEqual(url, 'docs.foobar.com')
 
-            url = resolve_domain(project=self.pip, use_custom_domain=False)
+            url = resolve_domain(project=self.pip, use_canonical_domain=False)
             self.assertEqual(url, "pip.readthedocs.io")
 
     @override_settings(
@@ -385,7 +385,7 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.subproject)
             self.assertEqual(url, "pip.readthedocs.io")
 
-            url = resolve_domain(project=self.subproject, use_custom_domain=False)
+            url = resolve_domain(project=self.subproject, use_canonical_domain=False)
             self.assertEqual(url, "pip.readthedocs.io")
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -421,7 +421,7 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, "pip.readthedocs.io")
 
-            url = resolve_domain(project=self.translation, use_custom_domain=False)
+            url = resolve_domain(project=self.translation, use_canonical_domain=False)
             self.assertEqual(url, "pip.readthedocs.io")
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -457,7 +457,7 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, "pip.public.readthedocs.org")
 
-            url = resolve_domain(project=self.translation, use_custom_domain=False)
+            url = resolve_domain(project=self.translation, use_canonical_domain=False)
             self.assertEqual(url, 'pip.public.readthedocs.org')
 
     @override_settings(
