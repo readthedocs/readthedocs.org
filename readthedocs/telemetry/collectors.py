@@ -190,26 +190,26 @@ class BuildDataCollector:
         The output of ``dpkg-query --show`` is the form of::
 
             adduser 3.116ubuntu1
-            apt     1.6.14
-            base-files      10.1ubuntu2.11
-            base-passwd     3.5.44
-            bash    4.4.18-2ubuntu1.2
-            bsdutils        1:2.31.1-0.4ubuntu3.7
-            bzip2   1.0.6-8.1ubuntu0.2
-            coreutils       8.28-1ubuntu1
-            dash    0.5.8-2.10
+            apt 1.6.14
+            base-files 10.1ubuntu2.11
+            base-passwd 3.5.44
+            bash 4.4.18-2ubuntu1.2
+            bsdutils 1:2.31.1-0.4ubuntu3.7
+            bzip2 1.0.6-8.1ubuntu0.2
+            coreutils 8.28-1ubuntu1
+            dash 0.5.8-2.10
             debconf 1.5.66ubuntu1
-            debianutils     4.8.4
-            diffutils       1:3.6-1
-            dpkg    1.19.0.5ubuntu2.3
-            e2fsprogs       1.44.1-1ubuntu1.3
-            fdisk   2.31.1-0.4ubuntu3.7
-            findutils       4.6.0+git+20170828-2
-            gcc-8-base:amd64        8.4.0-1ubuntu1~18.04
-            gpgv    2.2.4-1ubuntu1.4
-            grep    3.1-2build1
-            gzip    1.6-5ubuntu1.2
-            hostname        3.20
+            debianutils 4.8.4
+            diffutils 1:3.6-1
+            dpkg 1.19.0.5ubuntu2.3
+            e2fsprogs 1.44.1-1ubuntu1.3
+            fdisk 2.31.1-0.4ubuntu3.7
+            findutils 4.6.0+git+20170828-2
+            gcc-8-base 8.4.0-1ubuntu1~18.04
+            gpgv 2.2.4-1ubuntu1.4
+            grep 3.1-2build1
+            gzip 1.6-5ubuntu1.2
+            hostname 3.20
         """
         code, stdout, _ = self.run(
             "dpkg-query", "--showformat", "${package} ${version}\\n", "--show"

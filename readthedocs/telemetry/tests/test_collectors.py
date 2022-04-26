@@ -149,12 +149,12 @@ class TestBuildDataCollector(TestCase):
     def test_get_all_apt_packages(self, run):
         out = dedent(
             """
-            apt     1.6.14
-            base-files      10.1ubuntu2.11
-            base-passwd     3.5.44
-            bash    4.4.18-2ubuntu1.2
-            bsdutils        1:2.31.1-0.4ubuntu3.7
-            coreutils       8.28-1ubuntu1
+            apt 1.6.14
+            base-files 10.1ubuntu2.11
+            base-passwd 3.5.44
+            bash 4.4.18-2ubuntu1.2
+            bsdutils 1:2.31.1-0.4ubuntu3.7
+            coreutils 8.28-1ubuntu1
             """
         )
         run.return_value = (0, out, "")
