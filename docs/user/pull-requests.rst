@@ -30,7 +30,6 @@ Warning banner
    :align: center
    :alt: GitHub build status reporting for pull requests.
    :figwidth: 80%
-   :target: ../_static/images/guides/github-build-status-reporting.gif
 
    GitHub build status reporting
 

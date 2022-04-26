@@ -19,6 +19,7 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
+from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
@@ -402,6 +403,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
+            if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
+                return
+
             # If the path isn't attached to a version
             # it should be the same as the full_path,
             # otherwise it would be empty.

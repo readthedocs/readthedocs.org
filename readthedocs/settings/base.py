@@ -431,7 +431,7 @@ class CommunityBaseSettings(Settings):
             },
         },
         'every-day-delete-inactive-external-versions': {
-            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },

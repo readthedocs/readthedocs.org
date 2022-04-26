@@ -107,12 +107,14 @@ class BuildDirector:
         )
 
     def create_build_environment(self):
+        use_gvisor = self.data.config.using_build_tools and self.data.config.build.jobs
         self.build_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             config=self.data.config,
             build=self.data.build,
             environment=self.get_build_env_vars(),
+            use_gvisor=use_gvisor,
         )
 
     def setup_environment(self):
