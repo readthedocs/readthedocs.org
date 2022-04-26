@@ -1,31 +1,29 @@
 Build customization
 ===================
 
-Read the Docs has a :ref:`well-defined build process <builds>` that works for many projects, 
+Read the Docs has a :ref:`well-defined build process <builds>` that works for many projects,
 but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process, using user-defined jobs to execute custom commands.
 
-In the normal build process the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
-However, Read the Docs exposes in-between jobs to users so they can customize the build process by running shell commands.
-These in-between jobs are:
+In the normal build process,
+the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install`` and ``build`` are executed.
+However, Read the Docs exposes extra jobs to users so they can customize the build process by running shell commands.
+These extra jobs are:
 
-:post_checkout:
+.. list-table::
 
-:pre_system_dependencies:
-
-:post_system_dependencies:
-
-:pre_create_environment:
-
-:post_create_environment:
-
-:pre_install:
-
-:post_install:
-
-:pre_build:
-
-:post_build:
+   * - Step
+     - Customizable jobs
+   * - Checkout
+     - ``post_checkout``
+   * - System dependencies
+     - ``pre_system_dependencies``, ``post_system_dependencies``
+   * - Create environment
+     - ``pre_create_environment``, ``post_create_environment``
+   * - Install
+     - ``pre_install``, ``post_install``
+   * - Build
+     - ``pre_build``, ``post_build``
 
 
 These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
@@ -41,10 +39,8 @@ In that case, a config file similar to this one can be used:
        python: "3.10"
      jobs:
        pre_install:
-         - echo "Executing pre_install step..."
          - bash ./scripts/pre_install.sh
        post_build:
-         - echo "Executing post_build step..."
          - curl -X POST \
            -F "project=${READTHEDOCS_PROJECT}" \
            -F "version=${READTHEDOCS_VERSION}" https://example.com/webhooks/readthedocs/
@@ -52,6 +48,15 @@ In that case, a config file similar to this one can be used:
 .. note::
 
    Currently, the default jobs (e.g. ``checkout``, ``system_dependencies``, etc) executed by Read the Docs are not possible to override or skip.
+
+
+There are some caveats to knowing when using user-defined jobs:
+
+* ``PWD`` environment variable is the root of the cloned repository
+* Environment variables are expanded in the commands (see :doc:`environment-variables`)
+* Each command is executed in a new shell process, so modifications done to the shell environment are not persistent between commands
+* Any command returning non-zero exit code makes the build to fail immediately
+* ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
 Examples
