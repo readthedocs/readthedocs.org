@@ -424,6 +424,7 @@ build.jobs
 
 Commands to be run before or after a Read the Docs pre-defined job.
 This allows you to run custom commands at a particular moment in the build process.
+See :doc:`build-customization` for more details.
 
 
 .. code-block:: yaml
