@@ -1,6 +1,7 @@
 """Telemetry models."""
 
 from django.db import models
+from django_extensions.db.models import TimeStampedModel
 
 
 class BuildDataManager(models.Manager):
@@ -106,7 +107,7 @@ class BuildDataManager(models.Manager):
         return self.create(data=data)
 
 
-class BuildData(models.Model):
+class BuildData(TimeStampedModel):
     class Meta:
         verbose_name_plural = "Build data"
 

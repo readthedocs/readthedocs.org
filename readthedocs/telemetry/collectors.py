@@ -33,10 +33,10 @@ class BuildDataCollector:
         # pylint: disable=broad-except
         try:
             return json.loads(content)
-        except Exception as exc:
+        except Exception:
             log.info(
                 "Error while loading JSON content.",
-                execption=str(exc),
+                exc_info=True,
             )
             return default
 
@@ -46,21 +46,21 @@ class BuildDataCollector:
 
     def collect(self):
         data = {}
-        data["config"] = {
-            "user": self.config.source_config,
-        }
+        data["config"] = {"user": self.config.source_config}
+        data["os"] = (self._get_operating_system(),)
+
+        user_apt_packages, all_apt_packages = self._get_apt_packages()
         data["packages"] = {
-            "os": self._get_operating_system(),
             "pip": {
-                "user": self._get_user_pip_packages(),
-                "all": self._get_all_pip_packages(),
+                "user": self._get_pip_packages(include_all=False),
+                "all": self._get_pip_packages(include_all=True),
             },
             "conda": {
                 "all": self._get_all_conda_packages(),
             },
             "apt": {
-                "user": self._get_user_apt_packages(),
-                "all": self._get_all_apt_packages(),
+                "user": user_apt_packages,
+                "all": all_apt_packages,
             },
         }
         return data
@@ -111,51 +111,7 @@ class BuildDataCollector:
             return packages
         return []
 
-    def _get_user_pip_packages(self):
-        """
-        Get all the top level packages installed by the user using pip.
-
-        The output of ``pip list`` is in the form of::
-
-            [
-                {
-                    "name": "requests-mock",
-                    "version": "1.8.0"
-                },
-                {
-                    "name": "requests-toolbelt",
-                    "version": "0.9.1"
-                },
-                {
-                    "name": "rstcheck",
-                    "version": "3.3.1"
-                },
-                {
-                    "name": "selectolax",
-                    "version": "0.2.10"
-                },
-                {
-                    "name": "slumber",
-                    "version": "0.7.1"
-                }
-            ]
-        """
-        code, stdout, _ = self.run(
-            "python",
-            "-m",
-            "pip",
-            "list",
-            "--pre",
-            "--not-required",
-            "--local",
-            "--format",
-            "json",
-        )
-        if code == 0 and stdout:
-            return self._safe_json_loads(stdout, [])
-        return []
-
-    def _get_all_pip_packages(self):
+    def _get_pip_packages(self, include_all=False):
         """
         Get all the packages installed by the user using pip.
 
@@ -185,9 +141,10 @@ class BuildDataCollector:
                 }
             ]
         """
-        code, stdout, _ = self.run(
-            "python", "-m", "pip", "list", "--pre", "--local", "--format", "json"
-        )
+        cmd = ["python", "-m", "pip", "list", "--pre", "--local", "--format", "json"]
+        if include_all:
+            cmd.append("--not-required")
+        code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:
             return self._safe_json_loads(stdout, [])
         return []
@@ -209,6 +166,17 @@ class BuildDataCollector:
                 stdout = stdout[len(prefix) :].strip()  # noqa
             return stdout
         return ""
+
+    def _get_apt_packages(self):
+        all_apt_packages = self._get_all_apt_packages()
+        all_apt_packages_dict = dict(
+            (package["name"], package["version"])
+            for package in all_apt_packages
+        )
+        user_apt_packages = self._get_user_apt_packages()
+        for package in user_apt_packages:
+            package["version"] = all_apt_packages_dict.get(package["name"], "")
+        return user_apt_packages, all_apt_packages
 
     def _get_all_apt_packages(self):
         """
