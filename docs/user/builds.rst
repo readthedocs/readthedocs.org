@@ -9,8 +9,8 @@ This page explains in details what happens behind the scenes.
 Understanding what's going on
 -----------------------------
 
-Understanding how Read the Docs builds projects helps with debugging the problems that may appear in the process.
-It should also allow users to take advantage of certain things that happen during the build process.
+Understanding how your content is built helps with debugging the problems that may appear in the process.
+It also allows you customize the steps of the build process.
 
 .. note::
 
@@ -22,26 +22,26 @@ The following are the pre-defined jobs executed by default by Read the Docs:
 :checkout:
 
    Checks out project's code from the URL's repository defined for this project.
-   It will use `git clone`, `hg clone`, etc depending on the VCS backend.
+   It will use `git clone`, `hg clone`, etc depending on the version control system you choose.
 
 :system_dependencies:
 
-   Installs OS/system dependencies.
-   This includes specific version of languages (e.g. Python, NodeJS, Go, Rust) and also OS packages.
+   Installs operating system & system-level dependencies.
+This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
 
-   At this point, :ref:`config-file/v2:build.tools` can be used to defined languages versions,
-   and :ref:`config-file/v2:build.apt_packages` to define APT packages.
+   At this point, :ref:`config-file/v2:build.tools` can be used to define a  language version,
+   and :ref:`config-file/v2:build.apt_packages` to define ``apt`` packages.
 
 :create_environment:
 
    Creates a Python environment to install all the dependencies in an isolated and reproducible way.
-   Depending on what's defined by the project a Virtualenv or a Conda environment (:ref:`config-file/v2:conda`) will be used.
+   Depending on what's defined by the project a virtualenv or a conda environment (:ref:`config-file/v2:conda`) will be used.
 
 :install:
 
-   Install :ref:`default common dependencies <build-default-versions>` to build project's documentation.
+   Install :ref:`default common dependencies <build-default-versions>`.
 
-   At this point, if the project has extra Python requirements than the default ones,
+   If the project has extra Python requirements,
    :ref:`config-file/v2:python.install` can be used to specify them.
 
    .. tip::
@@ -55,14 +55,15 @@ The following are the pre-defined jobs executed by default by Read the Docs:
 
 :upload:
 
-   Once the build process has finished and succeed,
-   Read the Docs uploads the resulting artifacts to the storage and purge the cache so the newer version of the documentation is served.
+   Once the build process finishes successfully,
+   the resulting artifacts are uploaded to our servers, and the CDN is purged so the newer version of the documentation is served.
 
 
-If this process is not enough for the project's needs,
-there are some extra steps that are required to build the documentation,
-or simply the needing to execute extra commands to improve Read the Docs' integration with other services,
-it's possible to hook user-defined commands and :doc:`customize the build process <build-customization>`...
+
+.. seealso::
+    If there are extra steps required to build the documentation,
+    or you need to execute additional commands to integrate with other tools,
+    it's possible to run user-defined commands and :doc:`customize the build process <build-customization>`.
 
 
 Build resources
@@ -99,7 +100,7 @@ Currently, these build limits are:
 Default environment variables
 -----------------------------
 
-The builder sets the following Read the Docs specific environment variables when building your documentation:
+The Read the Docs builder sets the following environment variables when building your documentation:
 
 .. csv-table:: Environment Variables
    :header: Environment variable, Description, Example value
@@ -120,6 +121,6 @@ The builder sets the following Read the Docs specific environment variables when
 
 .. tip::
 
-   In case extra environment variables are needed to the build process (like secrets, tokens, etc),
+   If extra environment variables are needed in the build process (like an API token),
    you can add them going to :guilabel:`Admin` > :guilabel:`Environment Variables` in your project.
    See :doc:`/environment-variables`.
