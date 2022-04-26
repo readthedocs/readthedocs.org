@@ -47,6 +47,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
+from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
 from ..exceptions import (
@@ -543,7 +544,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         self.update_build(BUILD_STATE_FINISHED)
-        self.upload_build_data()
+        self.save_build_data()
 
         build_complete.send(sender=Build, build=self.data.build)
 
@@ -624,18 +625,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         except Exception:
             log.exception("Error while collecting build data")
 
-    def upload_build_data(self):
+    def save_build_data(self):
         """
-        Upload data collected from the build after the build has ended.
+        Save the data collected from the build after it has ended.
 
         This must be called after the build has finished updating its state,
         otherwise some attributes like ``length`` won't be available.
         """
         try:
             if self.data.build_data:
-                api_v2.build(self.data.build_pk).telemetry.post(self.data.build_data)
+                save_build_data.delay(
+                    build_id=self.data.build_pk,
+                    data=self.data.build_data,
+                )
         except Exception:
-            log.exception("Error while uploading build data")
+            log.exception("Error while saving build data")
 
     @staticmethod
     def get_project(project_pk):

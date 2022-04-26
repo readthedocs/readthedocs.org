@@ -19,7 +19,6 @@ from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
-from readthedocs.telemetry.models import BuildData
 
 from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
@@ -284,17 +283,6 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
         """Reset the build so it can be re-used when re-trying."""
         instance = self.get_object()
         instance.reset()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @decorators.action(
-        detail=True,
-        permission_classes=[permissions.IsAdminUser],
-        methods=["post"],
-    )
-    def telemetry(self, request, **kwargs):
-        """Collect telemetry data from the build."""
-        build = self.get_object()
-        BuildData.objects.collect(build, request.data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

@@ -17,6 +17,7 @@ from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
+from readthedocs.telemetry.models import BuildData
 
 from .mockers import BuildEnvironmentMocker
 
@@ -258,6 +259,8 @@ class TestBuildTask(BuildEnvironmentBase):
             }
         )
 
+        assert not BuildData.objects.all().exists()
+
         self._trigger_update_docs_task()
 
         # It has to be called twice, ``before_start`` and ``after_return``
@@ -393,8 +396,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
 
-        request = self.requests_mock.request_history[10]
-        assert request.path == "/api/v2/build/1/telemetry/"
+        assert BuildData.objects.all().exists()
 
         self.mocker.mocks["build_media_storage"].sync_directory.assert_has_calls(
             [
@@ -410,7 +412,6 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
-    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.upload_build_data")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
@@ -419,10 +420,11 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         execute,
-        upload_build_data,
         send_external_build_status,
         build_complete,
     ):
+        assert not BuildData.objects.all().exists()
+
         # Force an exception from the execution of the task. We don't really
         # care "where" it was raised: setup, build, syncing directories, etc
         execute.side_effect = Exception('Force and exception here.')
@@ -455,8 +457,8 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         # The build data is None (we are failing the build before the environment is created)
-        # and the API won't be hit, but we can test that the method was called at least.
-        upload_build_data.assert_called_once()
+        # and the task won't be run.
+        assert not BuildData.objects.all().exists()
 
         # Test we are updating the DB by calling the API with the updated build object
         api_request = self.requests_mock.request_history[
