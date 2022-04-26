@@ -5,7 +5,7 @@ Read the Docs has a :ref:`well-defined build process <builds>` that works for ma
 but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process, using user-defined jobs to execute custom commands.
 
-In the normal build process the jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
+In the normal build process the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
 However, Read the Docs exposes in-between jobs to users so they can customize the build process by running shell commands.
 These in-between jobs are:
 

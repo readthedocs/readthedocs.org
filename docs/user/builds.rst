@@ -1,9 +1,10 @@
 Build process
 =============
 
-Once a project has been imported into Read the Docs and a push is done (or a build is manually triggered),
-Read the Docs executes specific pre-defined jobs to build the project's documentation and update the hosted version with up-to-date content.
-This page explains in details what happens behind the scenes.
+Once a project has been imported and a build is triggered,
+Read the Docs executes specific pre-defined jobs to build the project's documentation and update the hosted content.
+This page explains in detail what happens behind the scenes,
+and an overview of how you can change this process.
 
 
 Understanding what's going on
