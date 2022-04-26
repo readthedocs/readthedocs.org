@@ -11,6 +11,7 @@ However, Read the Docs exposes extra jobs to users so they can customize the bui
 These extra jobs are:
 
 .. list-table::
+   :header-rows: 1
 
    * - Step
      - Customizable jobs
