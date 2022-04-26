@@ -1,20 +1,18 @@
-from fnmatch import fnmatch
 import json
+from fnmatch import fnmatch
 
-from sphinx.ext import intersphinx
 import structlog
-
 from django.conf import settings
+from sphinx.ext import intersphinx
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.signals import files_changed
-from readthedocs.search.utils import remove_indexed_files, index_new_files
+from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
-
 
 log = structlog.get_logger(__name__)
 
