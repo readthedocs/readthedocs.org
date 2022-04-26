@@ -47,7 +47,8 @@ class BuildDataCollector:
     def collect(self):
         data = {}
         data["config"] = {"user": self.config.source_config}
-        data["os"] = (self._get_operating_system(),)
+        data["os"] = self._get_operating_system()
+        data["python"] = self._get_python_version()
 
         user_apt_packages, all_apt_packages = self._get_apt_packages()
         data["packages"] = {
@@ -160,11 +161,9 @@ class BuildDataCollector:
         code, stdout, _ = self.run("lsb_release", "--description")
         stdout = stdout.strip()
         if code == 0 and stdout:
-            prefix = "Description:"
-            if stdout.startswith(prefix):
-                # pep8 and blank don't agree on having a space before :.
-                stdout = stdout[len(prefix) :].strip()  # noqa
-            return stdout
+            parts = stdout.split("\t")
+            if len(parts) == 2:
+                return parts[1]
         return ""
 
     def _get_apt_packages(self):
@@ -272,3 +271,19 @@ class BuildDataCollector:
             {"name": package, "version": ""}
             for package in self.config.build.apt_packages
         ]
+
+    def _get_python_version(self):
+        """
+        Get the python version currently used.
+
+        The output of ``python --version`` is in the form of::
+
+            Python 3.8.12
+        """
+        code, stdout, _ = self.run("python", "--version")
+        stdout = stdout.strip()
+        if code == 0 and stdout:
+            parts = stdout.split()
+            if len(parts) == 2:
+                return parts[1]
+        return ""

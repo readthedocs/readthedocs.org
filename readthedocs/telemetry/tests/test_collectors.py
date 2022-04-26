@@ -39,6 +39,11 @@ class TestBuildDataCollector(TestCase):
         out = self.collector._get_operating_system()
         self.assertEqual(out, "Ubuntu 20.04.3 LTS")
 
+    def test_get_python_version(self, run):
+        run.return_value = (0, "Python 3.8.12", "")
+        out = self.collector._get_python_version()
+        self.assertEqual(out, "3.8.12")
+
     def test_get_all_conda_packages(self, run):
         out = dedent(
             """
