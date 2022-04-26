@@ -143,7 +143,7 @@ class BuildDataCollector:
             ]
         """
         cmd = ["python", "-m", "pip", "list", "--pre", "--local", "--format", "json"]
-        if include_all:
+        if not include_all:
             cmd.append("--not-required")
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:
@@ -169,8 +169,7 @@ class BuildDataCollector:
     def _get_apt_packages(self):
         all_apt_packages = self._get_all_apt_packages()
         all_apt_packages_dict = dict(
-            (package["name"], package["version"])
-            for package in all_apt_packages
+            (package["name"], package["version"]) for package in all_apt_packages
         )
         user_apt_packages = self._get_user_apt_packages()
         for package in user_apt_packages:
