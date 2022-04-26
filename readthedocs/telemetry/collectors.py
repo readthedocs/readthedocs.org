@@ -180,82 +180,42 @@ class BuildDataCollector:
         """
         Get all installed apt packages and their versions.
 
-        The output of ``dpkg --status`` is the form of::
+        The output of ``dpkg-query --show`` is the form of::
 
-            Package: adduser
-            Status: install ok installed
-            Priority: important
-            Section: admin
-            Version: 3.118ubuntu2
-            Depends: passwd, debconf (>= 0.5) | debconf-2.0
-            Suggests: liblocale-gettext-perl, perl, ecryptfs-utils (>= 67-1)
-            Conffiles:
-            /etc/deluser.conf 773fb95e98a27947de4a95abb3d3f2a2
-            Description: add and remove users and groups
-            This package includes the 'adduser' and 'deluser' commands for creating
-            and removing users.
-            .
-            - 'adduser' creates new users and groups and adds existing users to
-                existing groups;
-            - 'deluser' removes users and groups and removes users from a given
-                group.
-            .
-
-            Package: apt
-            Status: install ok installed
-            Priority: important
-            Section: admin
-            Installed-Size: 4209
-            Architecture: amd64
-            Version: 2.0.6
-            Replaces: apt-transport-https (<< 1.5~alpha4~), apt-utils (<< 1.3~exp2~)
-            Provides: apt-transport-https (= 2.0.6)
-            Depends: adduser, gpgv | gpgv2 | gpgv1, libapt-pkg6.0 (>= 2.0.6)
-
-            Package: base-files
-            Essential: yes
-            Status: install ok installed
-            Priority: required
-            Section: admin
-            Installed-Size: 392
-            Architecture: amd64
-            Multi-Arch: foreign
-            Version: 11ubuntu5.5
-            Replaces: base, dpkg (<= 1.15.0), miscutils
-            Provides: base
-            Depends: libc6 (>= 2.3.4), libcrypt1 (>= 1:4.4.10-10ubuntu3)
-            Pre-Depends: awk
-            Breaks: debian-security-support (<< 2019.04.25), initscripts (<< 2.88dsf-13.3)
-
-        .. note:: Some lines have been removed for brevity.
+            adduser 3.116ubuntu1
+            apt     1.6.14
+            base-files      10.1ubuntu2.11
+            base-passwd     3.5.44
+            bash    4.4.18-2ubuntu1.2
+            bsdutils        1:2.31.1-0.4ubuntu3.7
+            bzip2   1.0.6-8.1ubuntu0.2
+            coreutils       8.28-1ubuntu1
+            dash    0.5.8-2.10
+            debconf 1.5.66ubuntu1
+            debianutils     4.8.4
+            diffutils       1:3.6-1
+            dpkg    1.19.0.5ubuntu2.3
+            e2fsprogs       1.44.1-1ubuntu1.3
+            fdisk   2.31.1-0.4ubuntu3.7
+            findutils       4.6.0+git+20170828-2
+            gcc-8-base:amd64        8.4.0-1ubuntu1~18.04
+            gpgv    2.2.4-1ubuntu1.4
+            grep    3.1-2build1
+            gzip    1.6-5ubuntu1.2
+            hostname        3.20
         """
-
-        def extract_value(key, line):
-            if line.startswith(key):
-                # pep8 and blank don't agree on having a space before :.
-                return line[len(key) :].strip()  # noqa
-            return ""
-
-        code, stdout, _ = self.run("dpkg", "--status")
+        code, stdout, _ = self.run(
+            "dpkg-query", "--showformat", "${package} ${version}\\n", "--show"
+        )
         stdout = stdout.strip()
         packages = []
         if code != 0 or not stdout:
             return packages
 
-        for chunk in stdout.split("\n\n"):
-            lines = chunk.split("\n")
-            package = ""
-            version = ""
-            for line in lines:
-                if not package:
-                    package = extract_value("Package:", line)
-                if not version:
-                    version = extract_value("Version:", line)
-                if package and version:
-                    break
-            # If the version wasn't recovered we
-            # at least got the package name.
-            if package:
+        for line in stdout.split("\n"):
+            parts = line.split()
+            if len(parts) == 2:
+                package, version = parts
                 packages.append(
                     {
                         "name": package,

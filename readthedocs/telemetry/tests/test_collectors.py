@@ -149,50 +149,12 @@ class TestBuildDataCollector(TestCase):
     def test_get_all_apt_packages(self, run):
         out = dedent(
             """
-            Package: adduser
-            Status: install ok installed
-            Priority: important
-            Section: admin
-            Version: 3.118ubuntu2
-            Depends: passwd, debconf (>= 0.5) | debconf-2.0
-            Suggests: liblocale-gettext-perl, perl, ecryptfs-utils (>= 67-1)
-            Conffiles:
-            /etc/deluser.conf 773fb95e98a27947de4a95abb3d3f2a2
-            Description: add and remove users and groups
-            This package includes the 'adduser' and 'deluser' commands for creating
-            and removing users.
-            .
-            - 'adduser' creates new users and groups and adds existing users to
-                existing groups;
-            - 'deluser' removes users and groups and removes users from a given
-                group.
-            .
-
-            Package: apt
-            Status: install ok installed
-            Priority: important
-            Section: admin
-            Installed-Size: 4209
-            Architecture: amd64
-            Version: 2.0.6
-            Replaces: apt-transport-https (<< 1.5~alpha4~), apt-utils (<< 1.3~exp2~)
-            Provides: apt-transport-https (= 2.0.6)
-            Depends: adduser, gpgv | gpgv2 | gpgv1, libapt-pkg6.0 (>= 2.0.6)
-
-            Package: base-files
-            Essential: yes
-            Status: install ok installed
-            Priority: required
-            Section: admin
-            Installed-Size: 392
-            Architecture: amd64
-            Multi-Arch: foreign
-            Version: 11ubuntu5.5
-            Replaces: base, dpkg (<= 1.15.0), miscutils
-            Provides: base
-            Depends: libc6 (>= 2.3.4), libcrypt1 (>= 1:4.4.10-10ubuntu3)
-            Pre-Depends: awk
-            Breaks: debian-security-support (<< 2019.04.25), initscripts (<< 2.88dsf-13.3)
+            apt     1.6.14
+            base-files      10.1ubuntu2.11
+            base-passwd     3.5.44
+            bash    4.4.18-2ubuntu1.2
+            bsdutils        1:2.31.1-0.4ubuntu3.7
+            coreutils       8.28-1ubuntu1
             """
         )
         run.return_value = (0, out, "")
@@ -200,16 +162,28 @@ class TestBuildDataCollector(TestCase):
             self.collector._get_all_apt_packages(),
             [
                 {
-                    "name": "adduser",
-                    "version": "3.118ubuntu2",
-                },
-                {
                     "name": "apt",
-                    "version": "2.0.6",
+                    "version": "1.6.14",
                 },
                 {
                     "name": "base-files",
-                    "version": "11ubuntu5.5",
+                    "version": "10.1ubuntu2.11",
+                },
+                {
+                    "name": "base-passwd",
+                    "version": "3.5.44",
+                },
+                {
+                    "name": "bash",
+                    "version": "4.4.18-2ubuntu1.2",
+                },
+                {
+                    "name": "bsdutils",
+                    "version": "1:2.31.1-0.4ubuntu3.7",
+                },
+                {
+                    "name": "coreutils",
+                    "version": "8.28-1ubuntu1",
                 },
             ],
         )
