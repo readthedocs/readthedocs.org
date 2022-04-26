@@ -28,7 +28,7 @@ The following are the pre-defined jobs executed by default by Read the Docs:
 :system_dependencies:
 
    Installs operating system & system-level dependencies.
-This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
+   This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
 
    At this point, :ref:`config-file/v2:build.tools` can be used to define a  language version,
    and :ref:`config-file/v2:build.apt_packages` to define ``apt`` packages.
@@ -62,6 +62,7 @@ This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and
 
 
 .. seealso::
+
     If there are extra steps required to build the documentation,
     or you need to execute additional commands to integrate with other tools,
     it's possible to run user-defined commands and :doc:`customize the build process <build-customization>`.

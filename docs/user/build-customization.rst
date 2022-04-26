@@ -6,7 +6,7 @@ but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process, using user-defined jobs to execute custom commands.
 
 In the normal build process,
-the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install`` and ``build`` are executed.
+the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
 However, Read the Docs exposes extra jobs to users so they can customize the build process by running shell commands.
 These extra jobs are:
 
@@ -24,6 +24,12 @@ These extra jobs are:
      - ``pre_install``, ``post_install``
    * - Build
      - ``pre_build``, ``post_build``
+   * - Upload
+     - There is no customizable jobs currently
+
+.. note::
+
+   Currently, the default jobs (e.g. ``checkout``, ``system_dependencies``, etc) executed by Read the Docs are not possible to override or skip.
 
 
 These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
@@ -44,10 +50,6 @@ In that case, a config file similar to this one can be used:
          - curl -X POST \
            -F "project=${READTHEDOCS_PROJECT}" \
            -F "version=${READTHEDOCS_VERSION}" https://example.com/webhooks/readthedocs/
-
-.. note::
-
-   Currently, the default jobs (e.g. ``checkout``, ``system_dependencies``, etc) executed by Read the Docs are not possible to override or skip.
 
 
 There are some caveats to knowing when using user-defined jobs:
@@ -70,7 +72,7 @@ we recommend you use them as a starting point.
 Unshallow clone
 ~~~~~~~~~~~~~~~
 
-Read the Docs does not perform a full clone on ``checkout`` step to reduce network data and speed up the build process.
+Read the Docs does not perform a full clone on ``checkout`` job to reduce network data and speed up the build process.
 Because of this, extensions that depend on the full Git history will fail.
 To avoid this, it's possible to unshallow the clone done by Read the Docs:
 
