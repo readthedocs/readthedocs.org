@@ -26,11 +26,11 @@ These extra jobs are:
    * - Build
      - ``pre_build``, ``post_build``
    * - Upload
-     - There is no customizable jobs currently
+     - There are no customizable jobs currently
 
 .. note::
 
-   Currently, the default jobs (e.g. ``checkout``, ``system_dependencies``, etc) executed by Read the Docs are not possible to override or skip.
+   Currently, the pre-defined jobs (``checkout``, ``system_dependencies``, etc) executed by Read the Docs cannot be overridden or skipped.
 
 
 These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
@@ -55,10 +55,10 @@ In that case, a config file similar to this one can be used:
 
 There are some caveats to knowing when using user-defined jobs:
 
-* ``PWD`` environment variable is the root of the cloned repository
+* The current working directory is at the root of your project's cloned repository
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
-* Each command is executed in a new shell process, so modifications done to the shell environment are not persistent between commands
-* Any command returning non-zero exit code makes the build to fail immediately
+* Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
+* Any command returning non-zero exit code will cause the build to fail immediately
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
@@ -103,6 +103,8 @@ It's possible to run Doxygen as part of the build process to generate documentat
        python: "3.10"
      jobs:
        pre_build:
+       # Note that this HTML won't be automatically uploaded, 
+       # unless your documentation build includes it somehow. 
          - doxygen
 
 
@@ -124,8 +126,8 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
          - pydoc-markdown --build --site-dir "$PWD/_build/html"
 
 
-Avoid having a dirty ``git`` index
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Avoid having a dirty Git index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Read the Docs needs to modify some files before performing the build to be able to integrate with some of its features.
 Because of this reason, it could happen the Git index gets dirty (it will detect modified files).

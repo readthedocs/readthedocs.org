@@ -15,10 +15,10 @@ It also allows you customize the steps of the build process.
 
 .. note::
 
-   All the steps are ran inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`.
+   All the steps are run inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`.
 
 
-The following are the pre-defined jobs executed by default by Read the Docs:
+The following are the pre-defined jobs executed by Read the Docs:
 
 :checkout:
 
