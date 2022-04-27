@@ -1,12 +1,13 @@
 """Build and Version QuerySet classes."""
 import datetime
-import structlog
 
+import structlog
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
@@ -225,9 +226,18 @@ class BuildQuerySet(models.QuerySet):
             query |= Q(project__in=organization.projects.all())
 
         concurrent = (
-            self.filter(query)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        ).distinct().count()
+            (
+                self.filter(query).exclude(
+                    state__in=[
+                        BUILD_STATE_TRIGGERED,
+                        BUILD_STATE_FINISHED,
+                        BUILD_STATE_CANCELLED,
+                    ]
+                )
+            )
+            .distinct()
+            .count()
+        )
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(

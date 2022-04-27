@@ -1,24 +1,19 @@
 """Organization signals."""
 
 import structlog
-
 from allauth.account.signals import user_signed_up
 from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.organizations.models import (
-    Organization,
-    Team,
-    TeamInvite,
-    TeamMember,
-)
+from readthedocs.organizations.models import Organization, Team, TeamInvite, TeamMember
 from readthedocs.projects.models import Project
 
-from .tasks import mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task
+from .tasks import (
+    mark_organization_assets_not_cleaned as mark_organization_assets_not_cleaned_task,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -90,5 +85,5 @@ def mark_organization_assets_not_cleaned(sender, build, **kwargs):
     trigger a Celery task that will be executed in the web and mark the
     organization assets as not cleaned.
     """
-    if build['state'] == BUILD_STATE_FINISHED:
-        mark_organization_assets_not_cleaned_task.delay(build['id'])
+    if build["state"] in BUILD_FINAL_STATES:
+        mark_organization_assets_not_cleaned_task.delay(build["id"])
