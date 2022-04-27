@@ -40,7 +40,7 @@ The following are the pre-defined jobs executed by Read the Docs:
 
 :install:
 
-   Install :ref:`default common dependencies <build-default-versions>`.
+   Install :doc:`default common dependencies <build-default-versions>`.
 
    If the project has extra Python requirements,
    :ref:`config-file/v2:python.install` can be used to specify them.

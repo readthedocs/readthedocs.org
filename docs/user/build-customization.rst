@@ -1,7 +1,7 @@
 Build customization
 ===================
 
-Read the Docs has a :ref:`well-defined build process <builds>` that works for many projects,
+Read the Docs has a :doc:`well-defined build process <builds>` that works for many projects,
 but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process, using :term:`user-defined build jobs` to execute custom commands.
 
