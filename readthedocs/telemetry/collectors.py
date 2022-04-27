@@ -181,9 +181,9 @@ class BuildDataCollector:
         installed packages.
         """
         all_apt_packages = self._get_all_apt_packages()
-        all_apt_packages_dict = dict(
-            (package["name"], package["version"]) for package in all_apt_packages
-        )
+        all_apt_packages_dict = {
+            package["name"]: package["version"] for package in all_apt_packages
+        }
         user_apt_packages = self._get_user_apt_packages()
         for package in user_apt_packages:
             package["version"] = all_apt_packages_dict.get(package["name"], "")

@@ -21,6 +21,7 @@ class BuildDataManager(models.Manager):
 
            {
                "os": "ubuntu-18.04.5"
+               "python": "3.10.2",
                "organization": {
                     "id": 1,
                     "slug": "org"
