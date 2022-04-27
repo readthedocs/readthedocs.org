@@ -22,7 +22,7 @@ from readthedocs.telemetry.models import BuildData
 from .mockers import BuildEnvironmentMocker
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(databases="__all__")
 class BuildEnvironmentBase:
 
     # NOTE: `load_yaml_config` maybe be moved to the setup and assign to self.
