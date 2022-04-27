@@ -121,7 +121,15 @@ class DockerBaseSettings(CommunityDevSettings):
                 "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
                 "HOST": os.environ.get("DB_HOST", "database"),
                 "PORT": "",
-            }
+            },
+            "telemetry": {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": "telemetry",
+                "USER": os.environ.get("DB_USER", "docs_user"),
+                "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
+                "HOST": os.environ.get("DB_HOST", "database"),
+                "PORT": "",
+            },
         }
 
     def show_debug_toolbar(request):

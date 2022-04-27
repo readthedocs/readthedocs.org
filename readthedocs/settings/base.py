@@ -128,6 +128,7 @@ class CommunityBaseSettings(Settings):
     DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
+    DATABASE_ROUTERS = ['readthedocs.core.db.SplitAppsRouter']
 
     USER_MATURITY_DAYS = 7
 
