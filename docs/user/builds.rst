@@ -2,7 +2,7 @@ Build process
 =============
 
 Once a project has been imported and a build is triggered,
-Read the Docs executes specific pre-defined jobs to build the project's documentation and update the hosted content.
+Read the Docs executes specific :term:`pre-defined jobs <pre-defined build jobs>` to build the project's documentation and update the hosted content.
 This page explains in detail what happens behind the scenes,
 and an overview of how you can change this process.
 

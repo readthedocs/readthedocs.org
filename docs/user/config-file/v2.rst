@@ -422,7 +422,7 @@ We don't currently support PPA's or other custom repositories.
 build.jobs
 ``````````
 
-Commands to be run before or after a Read the Docs pre-defined job.
+Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`.
 This allows you to run custom commands at a particular moment in the build process.
 See :doc:`build-customization` for more details.
 
