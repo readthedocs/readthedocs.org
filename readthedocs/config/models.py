@@ -37,10 +37,11 @@ class Build(Base):
 
 class BuildWithTools(Base):
 
-    __slots__ = ("os", "tools", "jobs", "apt_packages")
+    __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('apt_packages', [])
+        kwargs.setdefault("apt_packages", [])
+        kwargs.setdefault("commands", [])
         super().__init__(**kwargs)
 
 

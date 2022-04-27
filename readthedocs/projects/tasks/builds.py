@@ -6,6 +6,7 @@ rebuilding documentation.
 """
 import signal
 import socket
+from collections import defaultdict
 
 import structlog
 from celery import Task
@@ -601,13 +602,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build_director.create_build_environment()
         with self.data.build_director.build_environment:
             try:
-                # Installing
-                self.update_build(state=BUILD_STATE_INSTALLING)
-                self.data.build_director.setup_environment()
+                # NOTE: check if the build uses `build.commands` and only run those
+                if self.data.config.build.commands:
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.run_build_commands()
 
-                # Building
-                self.update_build(state=BUILD_STATE_BUILDING)
-                self.data.build_director.build()
+                    self.data.outcomes = defaultdict(lambda: False)
+                    self.data.outcomes["html"] = True
+                else:
+                    # Installing
+                    self.update_build(state=BUILD_STATE_INSTALLING)
+                    self.data.build_director.setup_environment()
+
+                    # Building
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.build()
             finally:
                 self.data.build_data = self.collect_build_data()
 

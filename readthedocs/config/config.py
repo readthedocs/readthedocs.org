@@ -791,6 +791,11 @@ class BuildConfigV2(BuildConfigBase):
                     BuildJobs.__slots__,
                 )
 
+        commands = []
+        with self.catch_validation_error("build.commands"):
+            commands = self.pop_config("build.commands")
+            validate_list(commands)
+
         if not tools:
             self.error(
                 key='build.tools',
@@ -802,12 +807,24 @@ class BuildConfigV2(BuildConfigBase):
                 code=CONFIG_REQUIRED,
             )
 
+        if commands and jobs:
+            self.error(
+                key="build.commands",
+                message="The keys build.jobs and build.commands can't be used together.",
+                code=INVALID_KEYS_COMBINATION,
+            )
+
         build["jobs"] = {}
         for job, commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
                     validate_string(command) for command in validate_list(commands)
                 ]
+
+        build["commands"] = []
+        for command in commands:
+            with self.catch_validation_error("build.commands"):
+                build["commands"].append(validate_string(command))
 
         build['tools'] = {}
         for tool, version in tools.items():
@@ -1293,6 +1310,7 @@ class BuildConfigV2(BuildConfigBase):
                 os=build['os'],
                 tools=tools,
                 jobs=BuildJobs(**build["jobs"]),
+                commands=build["commands"],
                 apt_packages=build["apt_packages"],
             )
         return Build(**build)

@@ -1,4 +1,5 @@
 import os
+import shutil
 from collections import defaultdict
 
 import structlog
@@ -334,6 +335,24 @@ class BuildDirector:
         commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
+
+    def run_build_commands(self):
+        cwd = self.data.project.checkout_path(self.data.version.slug)
+        environment = self.vcs_environment
+        for command in self.data.config.build.commands:
+            environment.run(*command.split(), escape_command=False, cwd=cwd)
+
+        # Copy files to artifacts path so they are uploaded to S3
+        target = self.data.project.artifact_path(
+            version=self.data.version.slug,
+            type_="sphinx",
+        )
+        artifacts_path = os.path.join(cwd, "output")
+        shutil.copytree(
+            artifacts_path,
+            target,
+            # ignore=shutil.ignore_patterns(*self.ignore_patterns),
+        )
 
     # Helpers
     #
