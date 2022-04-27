@@ -103,8 +103,8 @@ It's possible to run Doxygen as part of the build process to generate documentat
        python: "3.10"
      jobs:
        pre_build:
-       # Note that this HTML won't be automatically uploaded, 
-       # unless your documentation build includes it somehow. 
+       # Note that this HTML won't be automatically uploaded,
+       # unless your documentation build includes it somehow.
          - doxygen
 
 
@@ -164,3 +164,35 @@ This helps ensure that all external links are still valid and readers aren't lin
      jobs:
        pre_build:
          - python -m sphinx -b linkcheck docs/ _build/linkcheck
+
+
+Support Git LFS (Large File Storage)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In case the repository contains large files that are tracked with Git LFS,
+there are some extra steps required to be able to download their content.
+It's possible to use ``post_checkout`` user-defined job for this.
+
+.. code:: yaml
+
+   version: 2
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_checkout:
+         # Download and uncompress the binary
+         # https://git-lfs.github.com/
+         - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
+         - tar xvfz git-lfs-linux-amd64-v3.1.4.tar.gz
+         # Modify LFS config paths to point where git-lfs binary was downloaded
+         - git config filter.lfs.process "`pwd`/git-lfs filter-process"
+         - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
+         - git config filter.lfs.clean "`pwd`/git-lfs clean -- %f"
+         # Make LFS available in current repository
+         - ./git-lfs install
+         # Download content from remote
+         - ./git-lfs fetch
+         # Make local files to have the real content on them
+         - ./git-lfs checkout
