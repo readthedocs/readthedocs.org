@@ -1,3 +1,4 @@
+# pyup: ignore file
 # Packages required to build docs, independent of application dependencies
 
 Sphinx==4.5.0
@@ -24,3 +25,6 @@ rstcheck==5.0.0
 
 # Markdown
 myst_parser==0.17.2
+
+# awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
+pyyaml==5.4.1
