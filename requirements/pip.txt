@@ -101,7 +101,7 @@ django-storages[boto3]==1.12.3
 
 
 # Required only in development and linting
-django-debug-toolbar==3.2.4
+django-debug-toolbar==3.3.0
 
 # For enabling content-security-policy
 django-csp==3.7
