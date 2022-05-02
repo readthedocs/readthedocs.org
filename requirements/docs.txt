@@ -1,7 +1,7 @@
 # Packages required to build docs, independent of application dependencies
 
 Sphinx==4.5.0
-Pygments==2.11.2
+Pygments==2.12.0
 
 sphinx_rtd_theme==1.0.0
 sphinx-tabs==3.3.1
