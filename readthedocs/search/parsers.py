@@ -1,12 +1,12 @@
 """JSON/HTML parsers for search indexing."""
 
 import itertools
-import structlog
 import os
 import re
 from urllib.parse import urlparse
 
 import orjson as json
+import structlog
 from selectolax.parser import HTMLParser
 
 from readthedocs.storage import build_media_storage
@@ -386,14 +386,14 @@ class SphinxParser(BaseParser):
             try:
                 body = HTMLParser(data['body'])
                 sections = self._get_sections(title=title, body=body.body)
-            except Exception as e:
+            except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
 
             try:
                 # Create a new html object, since the previous one could have been modified.
                 body = HTMLParser(data['body'])
                 domain_data = self._generate_domains_data(body)
-            except Exception as e:
+            except Exception:
                 log.info('Unable to index domains.', path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
@@ -405,6 +405,21 @@ class SphinxParser(BaseParser):
             'domain_data': domain_data,
         }
 
+    def _get_sphinx_domains(self, body):
+        """
+        Get all nodes that are a sphinx domain.
+
+        A Sphinx domain is a <dl> tag which contains <dt> tags with an 'id' attribute,
+        dl tags that have the "footnote" class aren't domains.
+        """
+        domains = []
+        dl_tags = body.css("dl:has(dt[id])")
+        for tag in dl_tags:
+            classes = tag.attributes.get("class", "").split()
+            if "footnote" not in classes:
+                domains.append(tag)
+        return domains
+
     def _clean_body(self, body):
         """
         Removes sphinx domain nodes.
@@ -414,16 +429,7 @@ class SphinxParser(BaseParser):
         We already index those in another step.
         """
         body = super()._clean_body(body)
-
-        nodes_to_be_removed = []
-
-        # remove all <dl> tags which contains <dt> tags having 'id' attribute
-        dt_tags = body.css('dt[id]')
-        for tag in dt_tags:
-            parent = tag.parent
-            if parent.tag == 'dl':
-                nodes_to_be_removed.append(parent)
-
+        nodes_to_be_removed = self._get_sphinx_domains(body)
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
@@ -452,7 +458,7 @@ class SphinxParser(BaseParser):
         """
 
         domain_data = {}
-        dl_tags = body.css('dl')
+        dl_tags = self._get_sphinx_domains(body)
         number_of_domains = 0
 
         for dl_tag in dl_tags:
@@ -466,7 +472,10 @@ class SphinxParser(BaseParser):
                 try:
                     id_ = title.attributes.get('id', '')
                     if id_:
-                        docstrings = self._parse_domain_tag(desc)
+                        # Create a copy of the node,
+                        # since _parse_domain_tag will modify it.
+                        copy_desc = HTMLParser(desc.html).body.child
+                        docstrings = self._parse_domain_tag(copy_desc)
                         domain_data[id_] = docstrings
                         number_of_domains += 1
                     if number_of_domains >= self.max_inner_documents:
@@ -490,7 +499,8 @@ class SphinxParser(BaseParser):
         # and all 'dl' tags are already captured.
         nodes_to_be_removed = tag.css('dl') + tag.css('dt') + tag.css('dd')
         for node in nodes_to_be_removed:
-            node.decompose()
+            if tag != node:
+                node.decompose()
 
         docstring = self._parse_content(tag.text())
         return docstring
