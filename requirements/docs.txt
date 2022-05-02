@@ -69,7 +69,7 @@ readthedocs-sphinx-search==0.1.1
     # via -r docs.in
 requests==2.27.1
     # via sphinx
-rstcheck==3.3.1
+rstcheck==5.0.0
     # via -r docs.in
 six==1.16.0
     # via
@@ -122,11 +122,14 @@ sphinxemoji==0.2.0
     # via -r docs.in
 tornado==6.1
     # via livereload
+types-docutils==0.18.3
+    # via rstcheck
 typing-extensions==4.2.0
     # via
     #   importlib-metadata
     #   markdown-it-py
     #   myst-parser
+    #   rstcheck
 urllib3==1.26.9
     # via requests
 zipp==3.8.0
