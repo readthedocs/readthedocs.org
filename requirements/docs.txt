@@ -63,7 +63,7 @@ pyparsing==3.0.8
     # via packaging
 pytz==2022.1
     # via babel
-pyyaml==6.0
+pyyaml==5.4.1
     # via myst-parser
 readthedocs-sphinx-search==0.1.1
     # via -r docs.in
