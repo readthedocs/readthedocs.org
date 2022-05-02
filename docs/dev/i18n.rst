@@ -295,7 +295,7 @@ not compile the translation files, so you have to do this after the pull (see
 the `Compiling to MO`_ section).
 
 For more information about the ``tx`` command, read the `Transifex client's
-help pages <http://help.transifex.com/features/client/>`_.
+help pages <https://docs.transifex.com/client/introduction/>`_.
 
 
 .. note::

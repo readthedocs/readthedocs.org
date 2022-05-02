@@ -22,6 +22,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
     LOCK_EXPIRE,
     MAX_BUILD_COMMAND_SIZE,
     TAG,
@@ -228,15 +229,15 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
 
 
 @app.task(queue='web')
-def delete_inactive_external_versions(limit=200, days=30 * 3):
+def delete_closed_external_versions(limit=200, days=30 * 3):
     """
-    Delete external versions that have been marked as inactive after ``days``.
+    Delete external versions that have been marked as closed after ``days``.
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
-        active=False,
+        state=EXTERNAL_VERSION_STATE_CLOSED,
         modified__lte=days_ago,
     )[:limit]
     for version in queryset:

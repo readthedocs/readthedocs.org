@@ -41,6 +41,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_DUPLICATED,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -1242,12 +1243,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=pull_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
@@ -1938,12 +1939,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=merge_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.trigger_build')
@@ -1983,11 +1984,12 @@ class IntegrationsTests(TestCase):
         ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_gitlab_merge_request_no_action(self, trigger_build):

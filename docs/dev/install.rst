@@ -133,7 +133,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.test``
     Runs all the test suites inside the container.
 
-    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py38 -- -k test_api"``)
+    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py310 -- -k test_api"``)
 
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
@@ -204,7 +204,6 @@ For others, the webhook will simply fail to connect when there are new commits t
 .. figure:: /_static/images/development/bitbucket-oauth-setup.png
     :align: center
     :figwidth: 80%
-    :target: /_static/images/development/bitbucket-oauth-setup.png
 
     Configuring an OAuth consumer for local development on Bitbucket
 

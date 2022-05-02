@@ -878,6 +878,11 @@ class TestAdditionalDocViews(BaseDocServing):
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_track_broken_link(self, storage_exists):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
         self.assertEqual(PageView.objects.all().count(), 0)
 
         paths = [
@@ -926,6 +931,11 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_track_broken_link_custom_404(self, storage_exists, storage_open):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
         self.assertEqual(PageView.objects.all().count(), 0)
 
         paths = [

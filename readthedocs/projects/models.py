@@ -731,9 +731,9 @@ class Project(models.Model):
         if self.is_subproject:
             return self.superprojects.first().alias
 
-    def subdomain(self):
+    def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self)
+        return resolve_domain(self, use_canonical_domain=use_canonical_domain)
 
     def get_downloads(self):
         downloads = {}
@@ -1753,12 +1753,12 @@ class Feature(models.Model):
     CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
-    CONDA_USES_MAMBA = "conda_uses_mamba"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CACHED_ENVIRONMENT = "cached_environment"
     LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
     CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
+    RECORD_404_PAGE_VIEWS = "record_404_page_views"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1824,10 +1824,6 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
-            CONDA_USES_MAMBA,
-            _('Uses mamba binary instead of conda to create the environment'),
-        ),
-        (
             ALL_VERSIONS_IN_HTML_CONTEXT,
             _(
                 'Pass all versions (including private) into the html context '
@@ -1849,6 +1845,10 @@ class Feature(models.Model):
         (
             DOCKER_GVISOR_RUNTIME,
             _("Use Docker gVisor runtime to create build container."),
+        ),
+        (
+            RECORD_404_PAGE_VIEWS,
+            _("Record 404s page views."),
         ),
 
         # Versions sync related features

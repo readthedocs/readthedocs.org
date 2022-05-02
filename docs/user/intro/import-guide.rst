@@ -26,7 +26,6 @@ these properties, and then click **Next** to
 .. figure:: ../_static/images/first-steps/import-a-repository.png
     :align: right
     :figwidth: 300px
-    :target: ../_static/images/first-steps/import-a-repository.png
 
     Importing a repository
 
@@ -60,7 +59,6 @@ for more information on this process.
 
     .. figure:: ../_static/images/first-steps/admin-panel.png
         :figwidth: 400px
-        :target: ../_static/images/first-steps/admin-panel.png
 
 
 Building your documentation
