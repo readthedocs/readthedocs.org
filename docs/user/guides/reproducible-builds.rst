@@ -42,8 +42,7 @@ and **those settings live in your repository**.
 A configuration file with explicit dependencies looks like this:
 
 .. code-block:: yaml
-
-   # File: .readthedocs.yaml
+   :caption: .readthedocs.yaml
 
    version: 2
 
@@ -62,8 +61,7 @@ A configuration file with explicit dependencies looks like this:
        - requirements: docs/requirements.txt
 
 .. code-block::
-
-   # File: docs/requirements.txt
+   :caption: docs/requirements.txt
 
    # Defining the exact version will make sure things don't break
    sphinx==4.2.0
@@ -85,8 +83,7 @@ for example:
    and its dependencies using a requirements file.
 
    .. code-block:: yaml
-
-      # File: .readthedocs.yaml
+      :caption: .readthedocs.yaml
 
       version: 2
 
@@ -106,8 +103,7 @@ for example:
    Your project is relying on the default Python version and default installed dependencies.
 
    .. code-block:: yaml
-
-      # File: .readthedocs.yaml
+      :caption: .readthedocs.yaml
 
       version: 2
 
@@ -126,16 +122,14 @@ Some examples:
    in all platforms, and won't be updated unexpectedly.
 
    .. code-block::
-
-      # File: docs/requirements.txt
+      :caption: docs/requirements.txt
 
       sphinx==4.2.0
       sphinx_rtd_theme==1.0.0
       readthedocs-sphinx-search==0.1.1
 
    .. code-block:: yaml
-
-      # File: docs/environment.yaml
+      :caption: docs/environment.yaml
 
       name: docs
       channels:
@@ -152,16 +146,14 @@ Some examples:
    and your builds can fail or change unexpectedly any time.
 
    .. code-block::
-
-      # File: docs/requirements.txt
+      :caption: docs/requirements.txt
 
       sphinx
       sphinx_rtd_theme
       readthedocs-sphinx-search
 
    .. code-block:: yaml
-
-      # File: docs/environment.yaml
+      :caption: docs/environment.yaml
 
       name: docs
       channels:
