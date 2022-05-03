@@ -445,7 +445,7 @@ See :doc:`/build-customization` for more details.
 .. note::
 
    Each key under ``build.jobs`` must be a list of strings.
-   `build.os` and `build.tools` are also required to use `build.jobs`.
+   ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
 
 
 :Type: ``dict``
