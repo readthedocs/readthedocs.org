@@ -28,10 +28,18 @@
       "content": "Sphinx configuration file used to build this docs: # -*- coding: utf-8 -*- # Default settings project = 'Test Builds' extensions = [ 'sphinx_autorun', ] latex_engine = 'xelatex' # allow us to build Unicode chars # Include all your settings here html_theme = 'sphinx_rtd_theme' >>> # Build at >>> import datetime >>> datetime.datetime.utcnow() # UTC datetime.datetime(2020, 5, 3, 16, 38, 11, 137311)"
     },
     {
+      "id": "footnotes-and-domains",
+      "title": "Footnotes and domains",
+      "content": "1(1,2) A footnote contains body elements, consistently indented by at least 3 spaces. This is the footnote’s second paragraph. 3 This footnote is numbered automatically and anonymously using a label of “#” only."
+    },
+    {
       "content": "This is a H3 title. Fig. 4 I'm a figure!",
       "id": "subsub-title",
       "title": "Subsub title"
     }
   ],
-  "domain_data": {}
+  "domain_data": {
+    "test_py_module.test.Foo": "Docstring for class Foo. This text tests for the formatting of docstrings generated from output sphinx.ext.autodoc.",
+    "test_py_module.test.Foo.__init__": "Start the Foo."
+  }
 }
