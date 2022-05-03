@@ -6,7 +6,7 @@ orbs:
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.8'
+      - image: 'cimg/python:3.10'
         environment:
           TOX_POSARGS: ''
       - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
@@ -19,12 +19,12 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user tox
-      - run: tox -e py38
+      - run: tox -e py310
       - codecov/upload
 
   tests-embedapi:
     docker:
-      - image: 'cimg/python:3.8'
+      - image: 'cimg/python:3.10'
     steps:
       - checkout
       - run: git submodule sync
@@ -34,7 +34,7 @@ jobs:
 
   checks:
     docker:
-      - image: 'cimg/python:3.8'
+      - image: 'cimg/python:3.10'
         environment:
           NODE_VERSION: 10.17.0
     steps:

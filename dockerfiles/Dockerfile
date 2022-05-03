@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG GITHUB_USER
 ARG GITHUB_TOKEN
@@ -24,20 +24,11 @@ RUN apt-get -y install \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
+        postgresql-client \
         sqlite \
         netcat \
         telnet \
         lsb-release
-
-# https://www.postgresql.org/download/linux/ubuntu/
-# Use PostgreSQL client 12 from official PostgreSQL Ubuntu's repository to avoid this WARNING
-# WARNING: psql major version 10, server major version 12.
-# Some psql features might not work.
-# TODO: remove this when upgrading to Ubuntu 20.04 LTS
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN curl -s https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get -y update
-RUN apt-get -y install postgresql-client-12
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
