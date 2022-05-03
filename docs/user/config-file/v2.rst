@@ -479,7 +479,7 @@ Configuration for Sphinx documentation
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before October 2020 <builds:external dependencies>`.
+   if your project was created before October 2020 <build-default-versions:external dependencies>`.
 
 sphinx.builder
 ``````````````
@@ -537,7 +537,7 @@ Configuration for MkDocs documentation.
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before March 2021 <builds:external dependencies>`.
+   if your project was created before March 2021 <build-default-versions:external dependencies>`.
 
 mkdocs.configuration
 ````````````````````
