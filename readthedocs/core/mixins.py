@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from vanilla import ListView
 
 from readthedocs.projects.models import Feature
+from readthedocs.subscriptions.models import PlanFeature
 
 
 class ListViewWithForm(ListView):
@@ -64,6 +65,11 @@ class CachedView:
 
     @lru_cache(maxsize=1)
     def _is_cache_enabled(self, project):
-        """Helper function to check if CND is enabled for a project."""
-        # TODO: check for the organization's plan.
-        return settings.ALLOW_PRIVATE_REPOS and project.has_feature(Feature.CDN_ENABLED)
+        """Helper function to check if CDN is enabled for a project."""
+        plan_has_cdn = PlanFeature.objects.filter(
+            feature_type=PlanFeature.TYPE_CDN,
+            plan__subscriptions__organization__in=project.organizations.all(),
+        ).exists()
+        return settings.ALLOW_PRIVATE_REPOS and (
+            plan_has_cdn or project.has_feature(Feature.CDN_ENABLED)
+        )
