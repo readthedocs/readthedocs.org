@@ -1002,7 +1002,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
         # Only requests with threat score below 10 are recorded.
         self.assertEqual(
-            {'/en/latest/one', '/en/latest/two'},
+            {"/en/latest/one", "/en/latest/two"},
             {pageview.full_path for pageview in PageView.objects.all()},
         )
 

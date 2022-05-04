@@ -410,10 +410,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             # it goes from 0 to 100, 0 being low risk,
             # and values above 10 are bots/spammers.
             # https://developers.cloudflare.com/ruleset-engine/rules-language/fields/#dynamic-fields.
-            threat_score = int(self.request.headers.get('X-Cloudflare-Threat-Score', 0))
+            threat_score = int(self.request.headers.get("X-Cloudflare-Threat-Score", 0))
             if threat_score > 10:
                 log.info(
-                    'Suspicious threat score, not recording 404.',
+                    "Suspicious threat score, not recording 404.",
                     threat_score=threat_score,
                 )
                 return
