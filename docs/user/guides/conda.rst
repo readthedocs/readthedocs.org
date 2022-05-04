@@ -15,7 +15,7 @@ Activating Conda
 
 Conda support is available using a :doc:`../config-file/index`, see :ref:`config-file/v2:conda`.
 
-Our :ref:`Docker images <builds:Docker images>` use Miniconda, a minimal conda installer.
+Our Docker images use Miniconda, a minimal conda installer.
 After specifying your project requirements using a conda ``environment.yml`` file,
 Read the Docs will create the environment (using ``conda env create``)
 and add the core dependencies needed to build the documentation.
@@ -28,7 +28,7 @@ There are several ways of `exporting a conda environment`_:
 - ``conda env export`` will produce a complete list of all the packages installed in the environment
   with their exact versions. This is the best option to ensure reproducibility,
   but can create problems if done from a different operative system than the target machine,
-  in our case Ubuntu Linux (check out our :ref:`Docker images <builds:Docker images>` for further information).
+  in our case Ubuntu Linux.
 - ``conda env export --from-history`` will only include packages that were explicitly requested
   in the environment, excluding the transitive dependencies. This is the best option to maximize
   cross-platform compatibility, however it may include packages that are not needed to build your docs.
@@ -175,7 +175,7 @@ Compiling your project sources
 
 If your project contains extension modules written in a compiled language (C, C++, FORTRAN)
 or server-side JavaScript, you might need special tools to build it from source
-that are not readily available on our :ref:`Docker images <builds:Docker images>`,
+that are not readily available on our Docker images,
 such as a suitable compiler, CMake, Node.js, and others.
 
 Luckily, conda is a language-agnostic package manager, and many of these development tools

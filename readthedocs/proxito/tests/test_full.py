@@ -878,6 +878,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
     def test_track_broken_link(self, storage_exists):
+        storage_exists.return_value = False
         get(
             Feature,
             feature_id=Feature.RECORD_404_PAGE_VIEWS,
@@ -892,8 +893,6 @@ class TestAdditionalDocViews(BaseDocServing):
             "/en/not-found/",
         ]
         for path in paths:
-            storage_exists.reset_mock()
-            storage_exists.return_value = False
             resp = self.client.get(
                 reverse(
                     "proxito_404_handler",
@@ -973,6 +972,39 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(pageview.full_path, "/en/latest/not-found/")
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_threat_score(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            ("/en/latest/one", 1),
+            ("/en/latest/two", 7),
+            ("/en/latest/three", 13),
+            ("/en/latest/four", 57),
+        ]
+        for path, score in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+                HTTP_X_CLOUDFLARE_THREAT_SCORE=score,
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        # Only requests with threat score below 10 are recorded.
+        self.assertEqual(
+            {"/en/latest/one", "/en/latest/two"},
+            {pageview.full_path for pageview in PageView.objects.all()},
+        )
 
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
