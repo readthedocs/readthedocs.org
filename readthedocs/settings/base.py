@@ -752,8 +752,8 @@ class CommunityBaseSettings(Settings):
     DJSTRIPE_WEBHOOK_SECRET = None
 
     STRIPE_LIVE_MODE = False  # Change to True in production
+    DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
     DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
-    STRIPE_LIVE_MODE = False  # Set to True in production
     if not DJSTRIPE_WEBHOOK_SECRET:
         # This is less optimal than setting the webhook secret
         # However, the app won't start without the secret
