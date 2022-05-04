@@ -42,6 +42,7 @@ What can/can't be cached?
   This view is already cached at the application level.
 - ServeSitemapXML: can be cached. It displays only public versions, for everyone.
   This view is already cached at the application level.
+- ServeStaticFiles: can be cached, all files are the same for all projects.
 - Embed API: can be cached for public versions.
 - Search:
   This view checks for user permissions, can't be cached.

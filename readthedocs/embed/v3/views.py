@@ -2,12 +2,9 @@
 
 import re
 from urllib.parse import urlparse
+
 import requests
-
 import structlog
-
-from selectolax.parser import HTMLParser
-
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
@@ -17,8 +14,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selectolax.parser import HTMLParser
 
-from readthedocs.api.v2.mixins import CachedResponseMixin
+from readthedocs.api.v2.mixins import CacheTagsMixin
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_links
@@ -28,7 +26,7 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
-class EmbedAPIBase(CachedResponseMixin, APIView):
+class EmbedAPIBase(CacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
     # pylint: disable=no-self-use

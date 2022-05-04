@@ -5,7 +5,7 @@ from readthedocs.core.utils import get_cache_tag
 log = structlog.get_logger(__name__)
 
 
-class CachedResponseMixin:
+class CacheTagsMixin:
 
     """
     Add cache tags for project and version to the response of this view.
@@ -35,15 +35,16 @@ class CachedResponseMixin:
            so any exceptions like 404 should be caught.
         """
         try:
+            tags = []
             project = self._get_project()
             version = self._get_version()
-            tags = [
-                project.slug,
-                get_cache_tag(project.slug, version.slug),
-            ]
-            if self.project_cache_tag:
+            if project:
+                tags.append(project.slug)
+            if project and version:
+                tags.append(get_cache_tag(project.slug, version.slug))
+            if project and self.project_cache_tag:
                 tags.append(get_cache_tag(project.slug, self.project_cache_tag))
             return tags
-        except Exception as e:
+        except Exception:
             log.debug('Error while retrieving project and version for this view.')
         return []

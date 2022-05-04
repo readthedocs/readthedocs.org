@@ -4,6 +4,7 @@ import functools
 import json
 import re
 
+import structlog
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils.functional import cached_property
@@ -14,15 +15,13 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import structlog
-
-from readthedocs.api.v2.mixins import CachedResponseMixin
+from readthedocs.api.v2.mixins import CacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none, clean_links
+from readthedocs.embed.utils import clean_links, recurse_while_none
 from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 
@@ -36,7 +35,7 @@ def escape_selector(selector):
     return ret
 
 
-class EmbedAPIBase(CachedResponseMixin, APIView):
+class EmbedAPIBase(CacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
 

@@ -27,9 +27,9 @@ def get_absolute_static_url():
     """
     static_url = settings.STATIC_URL
 
-    if not static_url.startswith('http'):
+    if not static_url.startswith("http"):
         domain = settings.PRODUCTION_DOMAIN
-        static_url = 'http://{}{}'.format(domain, static_url)
+        static_url = "http://{}{}".format(domain, static_url)
 
     return static_url
 
@@ -147,8 +147,14 @@ class BaseMkdocs(BaseBuilder):
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
-        # Set mkdocs config values
-        static_url = get_absolute_static_url()
+        # MkDocs <=0.17.x doesn't support absolute paths,
+        # it needs one with a full domain.
+        if self.project.has_feature(Feature.DEFAULT_TO_MKDOCS_0_17_3):
+            static_url = get_absolute_static_url()
+        else:
+            static_url = self.project.proxied_static_path
+
+        # Set mkdocs config values.
         extra_assets = {
             'extra_javascript': [
                 'readthedocs-data.js',

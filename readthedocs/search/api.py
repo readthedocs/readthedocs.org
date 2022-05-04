@@ -1,7 +1,7 @@
-import structlog
 from functools import lru_cache, namedtuple
 from math import ceil
 
+import structlog
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -9,7 +9,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.api.v2.mixins import CachedResponseMixin
+from readthedocs.api.v2.mixins import CacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
@@ -117,7 +117,7 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class PageSearchAPIView(CachedResponseMixin, GenericAPIView):
+class PageSearchAPIView(CacheTagsMixin, GenericAPIView):
 
     """
     Main entry point to perform a search using Elasticsearch.

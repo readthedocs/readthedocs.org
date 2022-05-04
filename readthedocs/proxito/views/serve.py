@@ -4,7 +4,8 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
@@ -12,6 +13,7 @@ from django.views import View
 from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
+from readthedocs.api.v2.mixins import CacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CachedView
@@ -673,3 +675,45 @@ class ServeSitemapXMLBase(View):
 
 class ServeSitemapXML(SettingsOverrideObject):
     _default_class = ServeSitemapXMLBase
+
+
+class ServeStaticFiles(CachedView, CacheTagsMixin, View):
+
+    """
+    Serve static files from the same domain the docs are being served from.
+
+    This is basically a proxy for ``STATIC_URL``.
+    """
+
+    project_cache_tag = "staticfile"
+    cache_request = True
+
+    @method_decorator(map_project_slug)
+    def get(self, request, filename, project):
+        try:
+            # This is needed for the _get_project
+            # method for the CacheTagsMixin class.
+            self.project = project
+            return FileResponse(staticfiles_storage.open(filename))
+        except FileNotFoundError:
+            # Don't use ``raise Http404`` so the other operations
+            # in ``.dispatch`` can be completed.
+            return HttpResponse(status=404)
+
+    def _get_cache_tags(self):
+        """
+        Add an additional *global* tag.
+
+        This is so we can purge all files from all projects
+        with one single call.
+        """
+        tags = super()._get_cache_tags()
+        tags.append(self.project_cache_tag)
+        return tags
+
+    def _get_project(self):
+        return getattr(self, "project", None)
+
+    def _get_version(self):
+        # This view isn't attached to a version.
+        return None
