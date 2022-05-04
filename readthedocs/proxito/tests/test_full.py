@@ -14,6 +14,7 @@ from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
@@ -26,6 +27,7 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
 
@@ -1306,3 +1308,27 @@ class TestCDNCache(BaseDocServing):
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
         self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_on_plan(self):
+        self.organization = get(Organization)
+        self.plan = get(
+            Plan,
+            published=True,
+        )
+        self.subscription = get(
+            Subscription,
+            plan=self.plan,
+            organization=self.organization,
+        )
+        self.feature = get(
+            PlanFeature,
+            plan=self.plan,
+            feature_type=PlanFeature.TYPE_CDN,
+        )
+
+        # Delete feature plan, so we aren't using that logic
+        Feature.objects.filter(feature_id=Feature.CDN_ENABLED).delete()
+
+        # Add project to plan, so we're using that to enable CDN
+        self.organization.projects.add(self.project)
+        self._test_cache_control_header_project(expected_value="public")
