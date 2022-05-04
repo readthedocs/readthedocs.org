@@ -748,7 +748,7 @@ class CommunityBaseSettings(Settings):
 
     # DJStripe values
     STRIPE_LIVE_SECRET_KEY = None
-    STRIPE_TEST_SECRET_KEY = None
+    STRIPE_TEST_SECRET_KEY = "sk_test_x" # A default so the `checks` don't fail
     DJSTRIPE_WEBHOOK_SECRET = None
 
     STRIPE_LIVE_MODE = False  # Change to True in production
