@@ -616,7 +616,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         Collect data from the current build.
 
         The data is collected from inside the container,
-        to this must be called before killing the container.
+        so this must be called before killing the container.
         """
         try:
             return BuildDataCollector(
