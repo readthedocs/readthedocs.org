@@ -7,10 +7,10 @@ https://docs.djangoproject.com/en/4.0/topics/db/multi-db/#automatic-database-rou
 from collections import defaultdict
 
 
-class SplitAppsRouter:
+class MapAppsRouter:
 
     """
-    Router to split applications into different databases.
+    Router to map Django applications to a specific database.
 
     :py:attr:`apps_to_db` is used to map an application to a database,
     if an application isn't listed here, it will use the ``default`` database.
