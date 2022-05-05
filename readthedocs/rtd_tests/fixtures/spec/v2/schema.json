@@ -85,7 +85,8 @@
               "title": "Operating System",
               "description": "Operating system to be used in the build.",
               "enum": [
-                "ubuntu-20.04"
+                "ubuntu-20.04",
+                "ubuntu-22.04"
               ]
             },
             "tools": {
