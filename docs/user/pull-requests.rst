@@ -14,7 +14,7 @@ Build on pull request events
     and rebuild the version whenever a new commit is pushed.
 
 Build status report
-    Your project's pull request build status will show as as one of your pull
+    Your project's pull request build status will show as one of your pull
     request's checks. This status will update as the build is running, and will
     show a success or failure status when the build completes.
 
