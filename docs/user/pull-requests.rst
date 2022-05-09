@@ -84,13 +84,16 @@ No new builds are started when I open a pull request
    send Read the Docs pull request events. You'll need to re-sync your project's
    webhook integration to reconfigure the Read the Docs webhook.
 
+   To resync your project's webhook, go to your project's admin dashboard,
+   :guilabel:`Integrations`, and then select the webhook integration for your
+   provider. Follow the directions on to re-sync the webhook, or create a new
+   webhook integration.
+
    You may also notice this behavior if your Read the Docs account is not
    connected to your VCS provider account, or if it needs to be reconnected.
    You can (re)connect your account by going to your :guilabel:`Username dropdown`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
 
-   .. seealso::
-      :ref:`integrations:Debugging webhooks`
 
 Build status is not being reported to your VCS provider
    If opening a pull request does start a new build, but the build status is not
@@ -101,7 +104,8 @@ Build status is not being reported to your VCS provider
    your personal or organization GitHub account. You can also try reconnecting
    your account with your VCS provider.
 
-   .. seealso::
-      :ref:`github-permission-troubleshooting`
+.. seealso::
+   - :ref:`integrations:Debugging webhooks`
+   - :ref:`github-permission-troubleshooting`
 
 .. _OAuth App: https://github.com/settings/applications
