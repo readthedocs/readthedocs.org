@@ -54,7 +54,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.pull --only-latest
+      inv docker.pull --only-required
 
 #. start all the containers:
 
