@@ -195,7 +195,7 @@ How do I support multiple languages of documentation?
 See the section on :doc:`localization`.
 
 
-Does Read The Docs work well with "legible" docstrings?
+Does Read the Docs work well with "legible" docstrings?
 -------------------------------------------------------
 
 Yes. One criticism of Sphinx is that its annotated docstrings are too
@@ -206,7 +206,7 @@ informative and legible. The
 and
 `Google <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`__
 styles are two popular docstring formats.  Fortunately, the default
-Read The Docs theme handles both formats just fine, provided
+Read the Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
 knows how to convert your customized docstrings.  Two such extensions
 are `numpydoc <https://github.com/numpy/numpydoc>`_ and

@@ -1,5 +1,4 @@
 import json
-import os
 from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
@@ -153,9 +152,9 @@ class BaseTestEmbedAPI:
         )
 
         expected = {
-            'content': [],
-            'headers': [
-                {'Welcome to Read The Docs': '#'},
+            "content": [],
+            "headers": [
+                {"Welcome to Read the Docs": "#"},
             ],
             'url': 'http://project.readthedocs.io/en/latest/index.html',
             'meta': {
