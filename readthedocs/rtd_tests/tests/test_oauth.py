@@ -13,11 +13,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GitHubWebhook, GitLabWebhook
 from readthedocs.oauth.constants import BITBUCKET, GITHUB, GITLAB
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.oauth.services import (
-    BitbucketService,
-    GitHubService,
-    GitLabService,
-)
+from readthedocs.oauth.services import BitbucketService, GitHubService, GitLabService
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
@@ -29,8 +25,8 @@ class GitHubOAuthTests(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
-        self.project = Project.objects.get(slug='pip')
-        self.org = RemoteOrganization.objects.create(slug='rtfd')
+        self.project = Project.objects.get(slug="pip")
+        self.org = RemoteOrganization.objects.create(slug="rtfd", remote_id=1234)
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
         self.service = GitHubService(
             user=self.user,
@@ -55,9 +51,7 @@ class GitHubOAuthTests(TestCase):
                 "url": "https://api.github.com/repos/test/Hello-World/hooks/12345678",
             }
         ]
-
-    def test_make_project_pass(self):
-        repo_json = {
+        self.repo_response_data = {
             'name': 'testrepo',
             'full_name': 'testuser/testrepo',
             'id': '12345678',
@@ -67,9 +61,45 @@ class GitHubOAuthTests(TestCase):
             'ssh_url': 'ssh://git@github.com:testuser/testrepo.git',
             'html_url': 'https://github.com/testuser/testrepo',
             'clone_url': 'https://github.com/testuser/testrepo.git',
+            "owner": {
+                "type": "User",
+                "id": 1234,
+            },
         }
+
+    def test_create_remote_repository(self):
         repo = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            privacy=self.privacy,
+        )
+        self.assertIsInstance(repo, RemoteRepository)
+        self.assertEqual(repo.name, "testrepo")
+        self.assertEqual(repo.full_name, "testuser/testrepo")
+        self.assertEqual(repo.remote_id, "12345678")
+        self.assertEqual(repo.vcs_provider, GITHUB)
+        self.assertEqual(repo.description, "Test Repo")
+        self.assertEqual(
+            repo.avatar_url,
+            settings.OAUTH_AVATAR_USER_DEFAULT_URL,
+        )
+        self.assertIn(self.user, repo.users.all())
+        self.assertEqual(repo.organization, None)
+        self.assertEqual(
+            repo.clone_url,
+            "https://github.com/testuser/testrepo.git",
+        )
+        self.assertEqual(
+            repo.ssh_url,
+            "ssh://git@github.com:testuser/testrepo.git",
+        )
+        self.assertEqual(repo.html_url, "https://github.com/testuser/testrepo")
+
+    def test_create_remote_repository_with_organization(self):
+        self.repo_response_data["owner"]["type"] = "Organization"
+        repo = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
@@ -91,22 +121,102 @@ class GitHubOAuthTests(TestCase):
         )
         self.assertEqual(repo.html_url, 'https://github.com/testuser/testrepo')
 
-    def test_make_project_fail(self):
-        repo_json = {
-            'name': '',
-            'full_name': '',
-            'id': '',
-            'description': '',
-            'git_url': '',
-            'private': True,
-            'ssh_url': '',
-            'html_url': '',
-            'clone_url': '',
-        }
+    def test_skip_creation_remote_repository_on_private_repos(self):
+        self.repo_response_data["private"] = True
         github_project = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         self.assertIsNone(github_project)
+
+    def test_project_was_moved_from_a_personal_account_to_an_organization(self):
+        github_project = self.service.create_repository(
+            self.repo_response_data,
+            privacy=self.privacy,
+        )
+        self.assertEqual(github_project.organization, None)
+
+        # Project belongs has been moved to an organization.
+        self.repo_response_data["owner"]["type"] = "Organization"
+
+        self.service.create_repository(
+            self.repo_response_data,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, None)
+
+        self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, self.org)
+
+    def test_project_was_moved_from_an_organization_to_a_personal_account(self):
+        # Project belongs to an organization.
+        self.repo_response_data["owner"]["type"] = "Organization"
+        github_project = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
+        )
+        self.assertEqual(github_project.organization, self.org)
+
+        # Project belongs has been moved to a personal account.
+        self.repo_response_data["owner"]["type"] = "User"
+
+        # This operation doesn't have any effect.
+        self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, self.org)
+
+        self.service.create_repository(
+            self.repo_response_data,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, None)
+
+    def test_project_was_moved_to_another_organization(self):
+        another_remote_organization = RemoteOrganization.objects.create(
+            slug="another", remote_id=4321
+        )
+
+        # Project belongs to an organization.
+        self.repo_response_data["owner"]["type"] = "Organization"
+        github_project = self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
+        )
+        self.assertEqual(github_project.organization, self.org)
+
+        # Project was moved to another organization.
+        self.repo_response_data["owner"]["id"] = 4321
+
+        self.service.create_repository(
+            self.repo_response_data,
+            organization=another_remote_organization,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, another_remote_organization)
+
+        # The remote ID doesn't match, the project isn't moved to the organization.
+        self.service.create_repository(
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
+        )
+        github_project.refresh_from_db()
+        self.assertEqual(github_project.organization, another_remote_organization)
 
     def test_make_organization(self):
         org_json = {
@@ -131,20 +241,11 @@ class GitHubOAuthTests(TestCase):
         self.assertEqual(services, [])
 
     def test_multiple_users_same_repo(self):
-        repo_json = {
-            'name': '',
-            'full_name': 'testrepo/multiple',
-            'id': '12345678',
-            'description': '',
-            'git_url': '',
-            'private': False,
-            'ssh_url': '',
-            'html_url': '',
-            'clone_url': '',
-        }
-
+        self.repo_response_data["owner"]["type"] = "Organization"
         github_project = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
 
         user2 = User.objects.get(pk=2)
@@ -153,17 +254,23 @@ class GitHubOAuthTests(TestCase):
             account=get(SocialAccount, user=self.user)
         )
         github_project_2 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         self.assertIsInstance(github_project, RemoteRepository)
         self.assertIsInstance(github_project_2, RemoteRepository)
         self.assertEqual(github_project_2, github_project)
 
         github_project_3 = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         github_project_4 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         self.assertIsInstance(github_project_3, RemoteRepository)
         self.assertIsInstance(github_project_4, RemoteRepository)
@@ -171,13 +278,19 @@ class GitHubOAuthTests(TestCase):
         self.assertEqual(github_project_2, github_project_4)
 
         github_project_5 = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
         github_project_6 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy,
+            self.repo_response_data,
+            organization=self.org,
+            privacy=self.privacy,
         )
 
+        self.assertIsNotNone(github_project)
         self.assertEqual(github_project, github_project_5)
+        self.assertIsNotNone(github_project_2)
         self.assertEqual(github_project_2, github_project_6)
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -232,23 +345,13 @@ class GitHubOAuthTests(TestCase):
         )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
-    def test_make_private_project(self):
-        """
-        Test ability to import ``public`` repositories under ``private`` level.
-        """
-        repo_json = {
-            'name': 'testrepo',
-            'full_name': 'testuser/testrepo',
-            'id': '12345678',
-            'description': 'Test Repo',
-            'git_url': 'git://github.com/testuser/testrepo.git',
-            'private': False,
-            'ssh_url': 'ssh://git@github.com:testuser/testrepo.git',
-            'html_url': 'https://github.com/testuser/testrepo',
-            'clone_url': 'https://github.com/testuser/testrepo.git',
-        }
-        repo = self.service.create_repository(repo_json, organization=self.org)
-        self.assertIsNotNone(repo)
+    def test_create_public_repo_when_private_projects_are_enabled(self):
+        """Test ability to import ``public`` repositories under ``private`` level."""
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org
+        )
+        self.assertEqual(repo.organization, self.org)
+        self.assertEqual(repo.remote_id, self.repo_response_data["id"])
 
     @mock.patch('readthedocs.oauth.services.github.log')
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')

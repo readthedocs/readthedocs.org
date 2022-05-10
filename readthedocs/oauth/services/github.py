@@ -103,33 +103,22 @@ class GitHubService(Service):
                 remote_id=fields['id'],
                 vcs_provider=self.vcs_provider_slug
             )
-            remote_repository_relation = repo.get_remote_repository_relation(
-                self.user, self.account
-            )
 
-            # It's possible that a user has access to a repository from within
-            # an organization without being member of that organization
-            # (external contributor). In this case, the repository will be
-            # listed under the ``/repos`` endpoint but not under ``/orgs``
-            # endpoint. Then, when calling this method (``create_repository``)
-            # we will have ``organization=None`` but we don't have to skip the
-            # creation of the ``RemoteRepositoryRelation``.
-            if repo.organization and organization and repo.organization != organization:
-                log.debug(
-                    'Not importing repository because mismatched orgs.',
-                    repository=fields['name'],
-                )
-                return None
+            owner_type = fields["owner"]["type"]
 
-            if any([
-                # There is an organization associated with this repository:
-                # attach the organization to the repository
-                organization is not None,
-                # There is no organization and the repository belongs to a
-                # user: removes the organization linked to the repository
-                not organization and fields['owner']['type'] == 'User',
-            ]):
+            # If there is an organization associated with this repository,
+            # attach the organization to the repository.
+            if (
+                organization
+                and owner_type == "Organization"
+                and organization.remote_id == fields["owner"]["id"]
+            ):
                 repo.organization = organization
+
+            # If there is no organization and the repository belongs to a user,
+            # remove the organization linked to the repository.
+            if not organization and owner_type == "User":
+                repo.organization = None
 
             repo.name = fields['name']
             repo.full_name = fields['full_name']
@@ -151,7 +140,12 @@ class GitHubService(Service):
 
             repo.save()
 
-            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
+            )
+            remote_repository_relation.admin = fields.get("permissions", {}).get(
+                "admin", False
+            )
             remote_repository_relation.save()
 
             return repo
