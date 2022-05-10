@@ -100,8 +100,8 @@ class GitHubService(Service):
         ]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['id'],
-                vcs_provider=self.vcs_provider_slug
+                remote_id=str(fields["id"]),
+                vcs_provider=self.vcs_provider_slug,
             )
 
             owner_type = fields["owner"]["type"]
@@ -111,7 +111,7 @@ class GitHubService(Service):
             if (
                 organization
                 and owner_type == "Organization"
-                and organization.remote_id == fields["owner"]["id"]
+                and organization.remote_id == str(fields["owner"]["id"])
             ):
                 repo.organization = organization
 

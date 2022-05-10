@@ -26,7 +26,7 @@ class GitHubOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug="pip")
-        self.org = RemoteOrganization.objects.create(slug="rtfd", remote_id=1234)
+        self.org = RemoteOrganization.objects.create(slug="rtfd", remote_id="1234")
         self.privacy = settings.DEFAULT_PRIVACY_LEVEL
         self.service = GitHubService(
             user=self.user,
@@ -52,15 +52,15 @@ class GitHubOAuthTests(TestCase):
             }
         ]
         self.repo_response_data = {
-            'name': 'testrepo',
-            'full_name': 'testuser/testrepo',
-            'id': '12345678',
-            'description': 'Test Repo',
-            'git_url': 'git://github.com/testuser/testrepo.git',
-            'private': False,
-            'ssh_url': 'ssh://git@github.com:testuser/testrepo.git',
-            'html_url': 'https://github.com/testuser/testrepo',
-            'clone_url': 'https://github.com/testuser/testrepo.git',
+            "name": "testrepo",
+            "full_name": "testuser/testrepo",
+            "id": 12345678,
+            "description": "Test Repo",
+            "git_url": "git://github.com/testuser/testrepo.git",
+            "private": False,
+            "ssh_url": "ssh://git@github.com:testuser/testrepo.git",
+            "html_url": "https://github.com/testuser/testrepo",
+            "clone_url": "https://github.com/testuser/testrepo.git",
             "owner": {
                 "type": "User",
                 "id": 1234,
@@ -186,7 +186,7 @@ class GitHubOAuthTests(TestCase):
 
     def test_project_was_moved_to_another_organization(self):
         another_remote_organization = RemoteOrganization.objects.create(
-            slug="another", remote_id=4321
+            slug="another", remote_id="4321"
         )
 
         # Project belongs to an organization.
@@ -347,11 +347,12 @@ class GitHubOAuthTests(TestCase):
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_create_public_repo_when_private_projects_are_enabled(self):
         """Test ability to import ``public`` repositories under ``private`` level."""
+        self.repo_response_data["owner"]["type"] = "Organization"
         repo = self.service.create_repository(
             self.repo_response_data, organization=self.org
         )
         self.assertEqual(repo.organization, self.org)
-        self.assertEqual(repo.remote_id, self.repo_response_data["id"])
+        self.assertEqual(repo.remote_id, str(self.repo_response_data["id"]))
 
     @mock.patch('readthedocs.oauth.services.github.log')
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
