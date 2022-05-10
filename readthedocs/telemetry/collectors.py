@@ -41,7 +41,7 @@ class BuildDataCollector:
             return default
 
     def run(self, *args, **kwargs):
-        build_cmd = self.environment.run(*args, record=False, **kwargs)
+        build_cmd = self.environment.run(*args, record=False, demux=True, **kwargs)
         return build_cmd.exit_code, build_cmd.output, build_cmd.error
 
     def collect(self):
