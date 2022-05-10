@@ -220,7 +220,7 @@ class Backend(BaseVCS):
         cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        _, stdout, _ = self.run(*cmd)
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.
