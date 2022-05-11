@@ -57,20 +57,22 @@ class BuildCommand(BuildCommandResultMixin):
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
+    :param demux: Return stdout and stderr separately.
     :param kwargs: allow to subclass this class and extend it
     """
 
     def __init__(
-            self,
-            command,
-            cwd=None,
-            shell=False,
-            environment=None,
-            user=None,
-            build_env=None,
-            bin_path=None,
-            record_as_success=False,
-            **kwargs,
+        self,
+        command,
+        cwd=None,
+        shell=False,
+        environment=None,
+        user=None,
+        build_env=None,
+        bin_path=None,
+        record_as_success=False,
+        demux=False,
+        **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -88,6 +90,7 @@ class BuildCommand(BuildCommandResultMixin):
 
         self.bin_path = bin_path
         self.record_as_success = record_as_success
+        self.demux = demux
         self.exit_code = None
 
         # NOTE: `self.build_env` is not available when instantiating this class
@@ -147,13 +150,14 @@ class BuildCommand(BuildCommandResultMixin):
             if self.shell:
                 command = self.get_command()
 
+            stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
             proc = subprocess.Popen(
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
                 stdin=None,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stderr=stderr,
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
@@ -302,8 +306,17 @@ class DockerBuildCommand(BuildCommand):
                 stderr=True,
             )
 
-            cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
-            self.output = self.sanitize_output(cmd_output)
+            out = client.exec_start(
+                exec_id=exec_cmd["Id"], stream=False, demux=self.demux
+            )
+            cmd_stdout = ""
+            cmd_stderr = ""
+            if self.demux:
+                cmd_stdout, cmd_stderr = out
+            else:
+                cmd_stdout = out
+            self.output = self.sanitize_output(cmd_stdout)
+            self.error = self.sanitize_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
