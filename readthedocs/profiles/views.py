@@ -89,8 +89,8 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context["projects_to_be_deleted"] = Project.objects.only_owner(user)
-        context["organizations_to_be_deleted"] = Organization.objects.only_owner(user)
+        context["projects_to_be_deleted"] = Project.objects.single_owner(user)
+        context["organizations_to_be_deleted"] = Organization.objects.single_owner(user)
         return context
 
     def get_success_url(self):

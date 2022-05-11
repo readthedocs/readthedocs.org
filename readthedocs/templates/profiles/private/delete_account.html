@@ -40,14 +40,19 @@
       <ul>
         {% for organization in organizations_to_be_deleted %}
           <li>
-            <a href="{{ organization.get_absolute_url }}">{{ organization.slug }}</a>
-            <ul>
-              {% for project in organization.projects.all %}
-                <li>
-                  <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
-                </li>
-              {% endfor %}
-            </ul>
+            <p>
+              <a href="{{ organization.get_absolute_url }}">{{ organization.slug }}</a>
+            </p>
+            <p>
+              Projects:
+              <ul>
+                {% for project in organization.projects.all %}
+                  <li>
+                    <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </p>
           </li>
         {% endfor %}
       </ul>

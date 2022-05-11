@@ -214,7 +214,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
         )
         return orgs.distinct()
 
-    def only_owner(self, user):
+    def single_owner(self, user):
         """Returns organizations where `user` is the only owner."""
         return self.annotate(count_owners=Count("owners")).filter(
             owners=user,

@@ -147,7 +147,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def api(self, user=None):
         return self.public(user)
 
-    def only_owner(self, user):
+    def single_owner(self, user):
         """
         Returns projects where `user` is the only owner.
 

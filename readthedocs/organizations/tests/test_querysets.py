@@ -16,7 +16,9 @@ class TestOrganizationQuerysets(TestCase):
         get(Organization, slug="four", owners=[user, another_user])
         get(Organization, slug="five", owners=[])
 
-        self.assertEqual({org_one, org_two}, set(Organization.objects.only_owner(user)))
         self.assertEqual(
-            {org_three}, set(Organization.objects.only_owner(another_user))
+            {org_one, org_two}, set(Organization.objects.single_owner(user))
+        )
+        self.assertEqual(
+            {org_three}, set(Organization.objects.single_owner(another_user))
         )

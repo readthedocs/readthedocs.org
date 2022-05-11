@@ -212,9 +212,11 @@ class ProjectQuerySetTests(TestCase):
         get(Organization, owners=[user], projects=[project_with_organization])
 
         self.assertEqual(
-            {project_one, project_two}, set(Project.objects.only_owner(user))
+            {project_one, project_two}, set(Project.objects.single_owner(user))
         )
-        self.assertEqual({project_three}, set(Project.objects.only_owner(another_user)))
+        self.assertEqual(
+            {project_three}, set(Project.objects.single_owner(another_user))
+        )
 
 
 class FeatureQuerySetTests(TestCase):

@@ -121,10 +121,10 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     """
     user = instance
 
-    for project in Project.objects.only_owner(user):
+    for project in Project.objects.single_owner(user):
         project.delete()
 
-    for organization in Organization.objects.only_owner(user):
+    for organization in Organization.objects.single_owner(user):
         organization.delete()
 
 
