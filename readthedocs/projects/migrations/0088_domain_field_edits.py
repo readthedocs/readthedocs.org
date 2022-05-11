@@ -6,23 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0087_use_booleanfield_null'),
+        ("projects", "0087_use_booleanfield_null"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='domain',
-            name='canonical',
-            field=models.BooleanField(default=False, help_text='This domain is the primary one where the documentation is served from'),
+            model_name="domain",
+            name="canonical",
+            field=models.BooleanField(
+                default=False,
+                help_text="This domain is the primary one where the documentation is served from",
+            ),
         ),
         migrations.AlterField(
-            model_name='domain',
-            name='cname',
-            field=models.BooleanField(default=False, help_text='This domain is a CNAME for the project'),
+            model_name="domain",
+            name="cname",
+            field=models.BooleanField(
+                default=False, help_text="This domain is a CNAME for the project"
+            ),
         ),
         migrations.AlterField(
-            model_name='domain',
-            name='machine',
-            field=models.BooleanField(default=False, help_text='This domain was auto-created'),
+            model_name="domain",
+            name="machine",
+            field=models.BooleanField(
+                default=False, help_text="This domain was auto-created"
+            ),
         ),
     ]
