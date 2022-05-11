@@ -1615,17 +1615,16 @@ class Domain(TimeStampedModel, models.Model):
     )
     machine = models.BooleanField(
         default=False,
-        help_text=_('This Domain was auto-created'),
+        help_text=_("This domain was auto-created"),
     )
     cname = models.BooleanField(
         default=False,
-        help_text=_('This Domain is a CNAME for the project'),
+        help_text=_("This domain is a CNAME for the project"),
     )
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            'This Domain is the primary one where the documentation is '
-            'served from',
+            "This domain is the primary one where the documentation is " "served from",
         ),
     )
     https = models.BooleanField(
