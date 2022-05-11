@@ -85,6 +85,14 @@ for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``
 
 .. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 
+Multiple documentation sites as sub-folders of a domain
++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+You may host multiple documentation repositories as **sub-folders of a single domain**.
+For example, ``docs.example.org/projects/repo1`` and ``docs.example.org/projects/repo2``.
+This is `a way to boost the SEO of your website <https://moz.com/blog/subdomains-vs-subfolders-rel-canonical-vs-301-how-to-structure-links-optimally-for-seo-whiteboard-friday>`_.
+
+See :doc:`subprojects` for more information.
 
 Troubleshooting
 +++++++++++++++
