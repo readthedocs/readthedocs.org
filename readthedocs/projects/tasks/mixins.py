@@ -78,7 +78,7 @@ class SyncRepositoryMixin:
         if use_lsremote:
             branches, tags = vcs_repository.lsremote(
                 include_tags=sync_tags,
-                include_branches_data=sync_branches,
+                include_branches=sync_branches,
             )
         else:
             if sync_tags:

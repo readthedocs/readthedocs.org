@@ -331,7 +331,7 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``
 :Required: ``true``
 
 build.tools
@@ -422,8 +422,9 @@ We don't currently support PPA's or other custom repositories.
 build.jobs
 ``````````
 
-Commands to be run before or after a Read the Docs pre-defined job.
+Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`.
 This allows you to run custom commands at a particular moment in the build process.
+See :doc:`/build-customization` for more details.
 
 
 .. code-block:: yaml
@@ -444,6 +445,7 @@ This allows you to run custom commands at a particular moment in the build proce
 .. note::
 
    Each key under ``build.jobs`` must be a list of strings.
+   ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
 
 
 :Type: ``dict``
@@ -478,7 +480,7 @@ Configuration for Sphinx documentation
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before October 2020 <builds:external dependencies>`.
+   if your project was created before October 2020 <build-default-versions:external dependencies>`.
 
 sphinx.builder
 ``````````````
@@ -536,7 +538,7 @@ Configuration for MkDocs documentation.
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before March 2021 <builds:external dependencies>`.
+   if your project was created before March 2021 <build-default-versions:external dependencies>`.
 
 mkdocs.configuration
 ````````````````````

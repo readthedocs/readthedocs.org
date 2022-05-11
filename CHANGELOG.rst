@@ -1,3 +1,49 @@
+Version 8.0.1
+-------------
+
+:Date: May 09, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix RTD branding in the code (`#9175 <https://github.com/readthedocs/readthedocs.org/pull/9175>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove our old out-dated architecture diagram (`#9169 <https://github.com/readthedocs/readthedocs.org/pull/9169>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `ubuntu-22.04` as a valid option (`#9166 <https://github.com/readthedocs/readthedocs.org/pull/9166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial test of adding plan to CDN (`#9163 <https://github.com/readthedocs/readthedocs.org/pull/9163>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix links in docs from the build page refactor (`#9162 <https://github.com/readthedocs/readthedocs.org/pull/9162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: skip requests from bots on 404s (`#9161 <https://github.com/readthedocs/readthedocs.org/pull/9161>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Note build.jobs required other keys (`#9160 <https://github.com/readthedocs/readthedocs.org/pull/9160>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add docs showing pip-tools usage on dependencies (`#9158 <https://github.com/readthedocs/readthedocs.org/pull/9158>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Expierment with pip-tools for our docs.txt requirements (`#9124 <https://github.com/readthedocs/readthedocs.org/pull/9124>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a basic djstripe integration (`#9087 <https://github.com/readthedocs/readthedocs.org/pull/9087>`__)
+
+Version 8.0.0
+-------------
+
+:Date: May 03, 2022
+
+
+.. note::
+
+   We are upgrading to Ubuntu 22.04 LTS and also to Python 3.10.
+
+
+Projects using Mamba with the old feature flag, and now removed, ``CONDA_USES_MAMBA``,
+have to update their ``.readthedocs.yaml`` file to use ``build.tools.python: mambaforge-4.10``
+to continue using Mamba to create their environment.
+See more about ``build.tools.python`` at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-tools-python
+
+* `@stsewd <https://github.com/stsewd>`__: Search: fix parsing of footnotes (`#9154 <https://github.com/readthedocs/readthedocs.org/pull/9154>`__)
+* `@humitos <https://github.com/humitos>`__: Mamba: remove CONDA_USES_MAMBA feature flag (`#9153 <https://github.com/readthedocs/readthedocs.org/pull/9153>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove prebuild step so docs keep working (`#9143 <https://github.com/readthedocs/readthedocs.org/pull/9143>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: fix incorrect kwarg (`#9142 <https://github.com/readthedocs/readthedocs.org/pull/9142>`__)
+* `@stsewd <https://github.com/stsewd>`__: Rebase of #9136 (`#9141 <https://github.com/readthedocs/readthedocs.org/pull/9141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 7.6.2 (`#9140 <https://github.com/readthedocs/readthedocs.org/pull/9140>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: feature documentation for `build.jobs` (`#9138 <https://github.com/readthedocs/readthedocs.org/pull/9138>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: fix retry (`#9133 <https://github.com/readthedocs/readthedocs.org/pull/9133>`__)
+* `@humitos <https://github.com/humitos>`__: External versions: save state (open / closed) (`#9128 <https://github.com/readthedocs/readthedocs.org/pull/9128>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: allow to ignore custom domains (`#9089 <https://github.com/readthedocs/readthedocs.org/pull/9089>`__)
+* `@humitos <https://github.com/humitos>`__: Update project to use Ubuntu 22.04 LTS (`#9010 <https://github.com/readthedocs/readthedocs.org/pull/9010>`__)
+* `@OriolAbril <https://github.com/OriolAbril>`__: add note on setting locale_dirs (`#8972 <https://github.com/readthedocs/readthedocs.org/pull/8972>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: collect data about builds (`#8124 <https://github.com/readthedocs/readthedocs.org/pull/8124>`__)
+
 Version 7.6.2
 -------------
 

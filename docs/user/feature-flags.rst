@@ -26,12 +26,6 @@ This helps users to pin dependencies on conda and to improve build time.
 
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
-``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`
-
-The ``DONT_SHALLOW_CLONE`` flag is useful if your code accesses old commits during docs build,
-e.g. python-reno release notes manager is known to do that
-(error message line would probably include one of old Git commit id's).
-
 ``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
 
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`
