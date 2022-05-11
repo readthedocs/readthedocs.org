@@ -626,6 +626,7 @@ class Project(models.Model):
 
     @property
     def proxied_static_path(self):
+        """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
 
     @property

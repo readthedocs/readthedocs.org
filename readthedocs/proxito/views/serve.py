@@ -13,10 +13,10 @@ from django.views import View
 from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
-from readthedocs.api.v2.mixins import CacheTagsMixin
+from readthedocs.api.v2.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import CachedView
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -33,7 +33,7 @@ from .utils import _get_project_data_from_request
 log = structlog.get_logger(__name__)  # noqa
 
 
-class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -61,7 +61,7 @@ class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -677,7 +677,7 @@ class ServeSitemapXML(SettingsOverrideObject):
     _default_class = ServeSitemapXMLBase
 
 
-class ServeStaticFiles(CachedView, CacheTagsMixin, View):
+class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
     """
     Serve static files from the same domain the docs are being served from.
@@ -685,8 +685,7 @@ class ServeStaticFiles(CachedView, CacheTagsMixin, View):
     This is basically a proxy for ``STATIC_URL``.
     """
 
-    project_cache_tag = "staticfile"
-    cache_request = True
+    project_cache_tag = "rtd-staticfile"
 
     @method_decorator(map_project_slug)
     def get(self, request, filename, project):
@@ -699,6 +698,10 @@ class ServeStaticFiles(CachedView, CacheTagsMixin, View):
             # Don't use ``raise Http404`` so the other operations
             # in ``.dispatch`` can be completed.
             return HttpResponse(status=404)
+
+    def can_be_cached(self, request):
+        project = self._get_project()
+        return bool(project and self._is_cache_enabled(project))
 
     def _get_cache_tags(self):
         """

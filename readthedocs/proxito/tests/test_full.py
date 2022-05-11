@@ -1151,7 +1151,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
-            resp.headers["Cache-Tag"], "project,project:staticfile,staticfile"
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfile,rtd-staticfile"
         )
 
         resp = self.client.get(
@@ -1163,7 +1163,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(
-            resp.headers["Cache-Tag"], "project,project:staticfile,staticfile"
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfile,rtd-staticfile"
         )
 
         resp = self.client.get(
@@ -1228,7 +1228,7 @@ class TestCDNCache(BaseDocServing):
         resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(
-            resp.headers["Cache-Tag"], "project,project:staticfile,staticfile"
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfile,rtd-staticfile"
         )
 
         # Slash redirect is done at the middleware level.
@@ -1276,7 +1276,7 @@ class TestCDNCache(BaseDocServing):
         resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(
-            resp.headers["Cache-Tag"], "project,project:staticfile,staticfile"
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfile,rtd-staticfile"
         )
 
         # Slash redirect is done at the middleware level.

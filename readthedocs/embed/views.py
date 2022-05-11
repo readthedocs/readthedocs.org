@@ -15,7 +15,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readthedocs.api.v2.mixins import CacheTagsMixin
+from readthedocs.api.v2.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
@@ -35,7 +35,7 @@ def escape_selector(selector):
     return ret
 
 
-class EmbedAPIBase(CacheTagsMixin, APIView):
+class EmbedAPIBase(CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
 

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
-from readthedocs.api.v2.mixins import CacheTagsMixin
+from readthedocs.api.v2.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
@@ -83,7 +83,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class BaseFooterHTML(CacheTagsMixin, APIView):
+class BaseFooterHTML(CDNCacheTagsMixin, APIView):
 
     """
     Render and return footer markup.
