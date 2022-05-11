@@ -32,7 +32,7 @@
     <div>
       <p>
         {% blocktrans trimmed %}
-          <strong>All organizations where you are the only owner will be deleted.</strong>
+          <strong>All organizations and its projects where you are the only owner will be deleted.</strong>
           If you want to keep an organization, add another owner or transfer ownership.
           The following organizations and all their projects will be deleted.
         {% endblocktrans %}
@@ -41,6 +41,13 @@
         {% for organization in organizations_to_be_deleted %}
           <li>
             <a href="{{ organization.get_absolute_url }}">{{ organization.slug }}</a>
+            <ul>
+              {% for project in organization.projects.all %}
+                <li>
+                  <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
+                </li>
+              {% endfor %}
+            </ul>
           </li>
         {% endfor %}
       </ul>
