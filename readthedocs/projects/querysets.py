@@ -1,8 +1,7 @@
 """Project model QuerySet classes."""
-
 from django.conf import settings
 from django.db import models
-from django.db.models import OuterRef, Prefetch, Q, Subquery
+from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -147,6 +146,18 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def api(self, user=None):
         return self.public(user)
+
+    def single_owner(self, user):
+        """
+        Returns projects where `user` is the only owner.
+
+        Projects that belong to organizations aren't included.
+        """
+        return self.annotate(count_users=Count("users")).filter(
+            users=user,
+            count_users=1,
+            organizations__isnull=True,
+        )
 
 
 class ProjectQuerySet(SettingsOverrideObject):
