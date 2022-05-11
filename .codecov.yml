@@ -9,3 +9,5 @@ coverage:
         informational: true
 codecov:
   require_ci_to_pass: false
+github_checks:
+  annotations: false
