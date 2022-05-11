@@ -41,7 +41,10 @@ class CDNCacheTagsMixin:
             project = self._get_project()
             version = self._get_version()
         except Exception:
-            log.warning("Error while retrieving project or version for this view.")
+            log.warning(
+                "Error while retrieving project or version for this view.",
+                exc_info=True,
+            )
             return []
 
         tags = []
