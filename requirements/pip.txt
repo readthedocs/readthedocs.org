@@ -70,6 +70,7 @@ django-gravatar2==1.4.4
 pytz==2022.1
 django-kombu==0.9.4
 stripe==2.72.0
+dj-stripe==2.6.1
 regex==2022.3.15
 markdown==3.3.6
 

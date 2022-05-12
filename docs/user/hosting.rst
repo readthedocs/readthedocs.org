@@ -19,7 +19,7 @@ We support CDN's on both of our sites,
 as we talk about below.
 
 .. tabs::
-   
+
    .. tab:: |org_brand|
 
       On |org_brand|,
@@ -36,7 +36,7 @@ as we talk about below.
    .. tab:: |com_brand|
 
       On |com_brand|,
-      we offer a CDN as part of our Enterprise plan.
+      we offer a CDN as part of our **Pro plan** and above.
       Please contact support@readthedocs.com to discuss how we can enable this for you.
 
 .. _CloudFlare: https://www.cloudflare.com/

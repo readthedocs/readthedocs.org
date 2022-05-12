@@ -6,9 +6,10 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.constants import BUILD_FINAL_STATES
+from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
-from readthedocs.organizations.models import Organization, Team, TeamInvite, TeamMember
+from readthedocs.organizations.models import Organization, Team, TeamMember
 from readthedocs.projects.models import Project
 
 from .tasks import (
@@ -51,28 +52,13 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     # to be sure that the projects we are deleting here belongs only to the
     # organization deleted
     projects = Project.objects.annotate(
-        Count('organizations'),
-    ).filter(
-        organizations__in=[organization],
-        organizations__count=1,
-    )
+        count_organizations=Count("organizations")
+    ).filter(organizations__in=[organization], count_organizations=1)
 
-    versions = Version.objects.filter(project__in=projects)
-    teams = Team.objects.filter(organization=organization)
-    team_invites = TeamInvite.objects.filter(organization=organization)
-    team_memberships = TeamMember.objects.filter(team__in=teams)
-
-    # Bulk delete
-    team_memberships.delete()
-    team_invites.delete()
-    teams.delete()
-
-    # Granular delete that trigger other complex tasks
-    for version in versions:
-        # Triggers a task to remove artifacts from storage
-        version.delete()
-
-    projects.delete()
+    # Granular delete that trigger other complex tasks.
+    for project in projects:
+        # Triggers a task to remove artifacts from storage.
+        project.delete()
 
 
 @receiver(build_complete, sender=Build)

@@ -1615,17 +1615,16 @@ class Domain(TimeStampedModel, models.Model):
     )
     machine = models.BooleanField(
         default=False,
-        help_text=_('This Domain was auto-created'),
+        help_text=_("This domain was auto-created"),
     )
     cname = models.BooleanField(
         default=False,
-        help_text=_('This Domain is a CNAME for the project'),
+        help_text=_("This domain is a CNAME for the project"),
     )
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            'This Domain is the primary one where the documentation is '
-            'served from',
+            "This domain is the primary one where the documentation is " "served from",
         ),
     )
     https = models.BooleanField(
@@ -1753,7 +1752,6 @@ class Feature(models.Model):
     CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
-    CONDA_USES_MAMBA = "conda_uses_mamba"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CACHED_ENVIRONMENT = "cached_environment"
     LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
@@ -1823,10 +1821,6 @@ class Feature(models.Model):
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
-        ),
-        (
-            CONDA_USES_MAMBA,
-            _('Uses mamba binary instead of conda to create the environment'),
         ),
         (
             ALL_VERSIONS_IN_HTML_CONTEXT,
