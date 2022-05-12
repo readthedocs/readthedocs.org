@@ -42,14 +42,9 @@ https://docs.example.com/projects/bar/en/latest/
 Custom domain on subprojects
 ----------------------------
 
-Adding a custom domain to a subproject is allowed,
-but your documentation will always be served from
+Adding a custom domain to a subproject is not allowed,
+since your documentation will always be served from
 the domain of the parent project.
-
-For example, if the domain of a parent project is ``https://docs.example.com``,
-and you add the ``https://subproject.example.com/`` domain to one of its subprojects,
-it will always redirect to the domain of the parent project
-``https://docs.example.com/projects/subproject/``.
 
 Search
 ------

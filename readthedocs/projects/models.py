@@ -726,6 +726,13 @@ class Project(models.Model):
         return self.superprojects.exists()
 
     @property
+    def superproject(self):
+        relationship = self.get_parent_relationship()
+        if relationship:
+            return relationship.parent
+        return None
+
+    @property
     def alias(self):
         """Return the alias (as subproject) if it's a subproject."""  # noqa
         if self.is_subproject:
