@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
@@ -677,7 +677,7 @@ class ServeSitemapXML(SettingsOverrideObject):
     _default_class = ServeSitemapXMLBase
 
 
-class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
 
     """
     Serve static files from the same domain the docs are being served from.
@@ -689,15 +689,12 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
     @method_decorator(map_project_slug)
     def get(self, request, filename, project):
-        try:
-            # This is needed for the _get_project
-            # method for the CacheTagsMixin class.
-            self.project = project
-            return FileResponse(staticfiles_storage.open(filename))
-        except FileNotFoundError:
-            # Don't use ``raise Http404`` so the other operations
-            # in ``.dispatch`` can be completed.
-            return HttpResponse(status=404)
+        # This is needed for the _get_project
+        # method for the CacheTagsMixin class.
+        self.project = project
+        storage_url = staticfiles_storage.url(filename)
+        path = urlparse(storage_url)._replace(scheme="", netloc="").geturl()
+        return self._serve_static_file(request, path)
 
     def can_be_cached(self, request):
         project = self._get_project()

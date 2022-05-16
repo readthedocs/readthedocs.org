@@ -1151,29 +1151,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
-            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/javascript/readthedocs-doc-embed.js",
         )
-
-        resp = self.client.get(
-            reverse(
-                "proxito_static_files",
-                args=["javascript/secrets.js"],
-            ),
-            HTTP_HOST="project.readthedocs.io",
-        )
-        self.assertEqual(resp.status_code, 404)
         self.assertEqual(
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
-
-        resp = self.client.get(
-            reverse(
-                "proxito_static_files",
-                args=["../../javascript/readthedocs-doc-embed.js"],
-            ),
-            HTTP_HOST="project.readthedocs.io",
-        )
-        self.assertEqual(resp.status_code, 400)
 
 
 @override_settings(
