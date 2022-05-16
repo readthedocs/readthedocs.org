@@ -690,7 +690,7 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
     @method_decorator(map_project_slug)
     def get(self, request, filename, project):
         # This is needed for the _get_project
-        # method for the CacheTagsMixin class.
+        # method for the CDNCacheTagsMixin class.
         self.project = project
         storage_url = staticfiles_storage.url(filename)
         path = urlparse(storage_url)._replace(scheme="", netloc="").geturl()
