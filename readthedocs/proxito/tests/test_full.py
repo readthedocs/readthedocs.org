@@ -1138,6 +1138,26 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    @override_settings(
+        STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    def test_serve_static_files(self):
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["javascript/readthedocs-doc-embed.js"],
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
@@ -1187,6 +1207,13 @@ class TestCDNCache(BaseDocServing):
             self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
             self.assertEqual(resp.headers['Cache-Tag'], 'project', url)
 
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
         # Slash redirect is done at the middleware level.
         # So, it doesn't take into consideration the privacy level of the
         # version, and always defaults to private.
@@ -1227,6 +1254,13 @@ class TestCDNCache(BaseDocServing):
             self.assertEqual(resp['Location'], location, url)
             self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
             self.assertEqual(resp.headers['Cache-Tag'], 'subproject', url)
+
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
 
         # Slash redirect is done at the middleware level.
         # So, it doesn't take into consideration the privacy level of the

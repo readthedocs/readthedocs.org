@@ -625,6 +625,11 @@ class Project(models.Model):
         return self.proxied_api_host.strip('/') + '/'
 
     @property
+    def proxied_static_path(self):
+        """Path for static files hosted on the user's doc domain."""
+        return f"{self.proxied_api_host}/static/"
+
+    @property
     def regex_urlconf(self):
         """
         Convert User's URLConf into a proper django URLConf.
