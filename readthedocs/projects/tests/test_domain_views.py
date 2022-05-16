@@ -5,6 +5,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
@@ -100,4 +101,18 @@ class TestDomainViewsWithOrganizations(TestDomainViews):
         super().setUp()
         self.org = get(
             Organization, owners=[self.user], projects=[self.project, self.subproject]
+        )
+        self.plan = get(
+            Plan,
+            published=True,
+        )
+        self.subscription = get(
+            Subscription,
+            plan=self.plan,
+            organization=self.org,
+        )
+        self.feature = get(
+            PlanFeature,
+            plan=self.plan,
+            feature_type=PlanFeature.TYPE_CNAME,
         )
