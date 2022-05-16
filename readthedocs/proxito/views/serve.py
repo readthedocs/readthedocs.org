@@ -685,7 +685,7 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, View):
     This is basically a proxy for ``STATIC_URL``.
     """
 
-    project_cache_tag = "rtd-staticfile"
+    project_cache_tag = "rtd-staticfiles"
 
     @method_decorator(map_project_slug)
     def get(self, request, filename, project):
