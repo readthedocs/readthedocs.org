@@ -316,7 +316,7 @@ class DockerBuildCommand(BuildCommand):
             else:
                 cmd_stdout = out
             # Docker returns None when there's no stderr/stdout
-            # so we need to convert that to a string. 
+            # so we need to convert that to a string.
             self.output = self.sanitize_output(cmd_stdout or "")
             self.error = self.sanitize_output(cmd_stderr or "")
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
