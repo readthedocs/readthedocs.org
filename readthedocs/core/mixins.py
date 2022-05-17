@@ -31,7 +31,7 @@ class ProxiedAPIMixin:
     authentication_classes = []
 
 
-class CachedView:
+class CDNCacheControlMixin:
 
     """
     Allow to cache views at the CDN level when privacy levels are enabled.

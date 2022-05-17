@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -12,9 +13,10 @@ from django.views import View
 from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
+from readthedocs.api.v2.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import CachedView
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -31,7 +33,7 @@ from .utils import _get_project_data_from_request
 log = structlog.get_logger(__name__)  # noqa
 
 
-class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -59,7 +61,7 @@ class ServePageRedirect(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
-class ServeDocsBase(CachedView, ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -673,3 +675,45 @@ class ServeSitemapXMLBase(View):
 
 class ServeSitemapXML(SettingsOverrideObject):
     _default_class = ServeSitemapXMLBase
+
+
+class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+
+    """
+    Serve static files from the same domain the docs are being served from.
+
+    This is basically a proxy for ``STATIC_URL``.
+    """
+
+    project_cache_tag = "rtd-staticfiles"
+
+    @method_decorator(map_project_slug)
+    def get(self, request, filename, project):
+        # This is needed for the _get_project
+        # method for the CDNCacheTagsMixin class.
+        self.project = project
+        storage_url = staticfiles_storage.url(filename)
+        path = urlparse(storage_url)._replace(scheme="", netloc="").geturl()
+        return self._serve_static_file(request, path)
+
+    def can_be_cached(self, request):
+        project = self._get_project()
+        return bool(project and self._is_cache_enabled(project))
+
+    def _get_cache_tags(self):
+        """
+        Add an additional *global* tag.
+
+        This is so we can purge all files from all projects
+        with one single call.
+        """
+        tags = super()._get_cache_tags()
+        tags.append(self.project_cache_tag)
+        return tags
+
+    def _get_project(self):
+        return getattr(self, "project", None)
+
+    def _get_version(self):
+        # This view isn't attached to a version.
+        return None
