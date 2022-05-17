@@ -138,7 +138,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
 
-    * ``--only-latest`` does not pull ``stable`` and ``testing`` images.
+    * ``--only-required`` pulls only the image ``ubuntu-20.04``.
 
 ``inv docker.buildassets``
     Build all the assets and "deploy" them to the storage.
@@ -215,6 +215,52 @@ For others, the webhook will simply fail to connect when there are new commits t
   ``http://community.dev.readthedocs.io/admin/socialaccount/socialapp/``.
   Make sure to apply it to the "Site".
 
+
+Troubleshooting
+---------------
+
+Builds fail with a generic error
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are projects that do not use the default Docker image downloaded when setting up the development environment.
+These extra images are not downloaded by default because they are big and they are not required in all cases.
+However, if you are seeing the following error
+
+.. figure:: /_static/images/development/read-the-docs-build-failing.png
+    :align: center
+    :figwidth: 80%
+
+    Build failing with a generic error
+
+
+and in the console where the logs are shown you see something like ``BuildAppError: No such image: readthedocs/build:ubuntu-22.04``,
+that means the application wasn't able to find the Docker image required to build that project and it failed.
+
+In this case, you can run a command to download all the optional Docker images:
+
+.. prompt:: bash
+
+   inv docker.pull
+
+However, if you prefer to download only the *specific* image required for that project and save some space on disk,
+you have to follow these steps:
+
+#. go to https://hub.docker.com/r/readthedocs/build/tags
+#. find the latest tag for the image shown in the logs
+   (in this example is ``readthedocs/build:ubuntu-22.04``, which the current latest tag on that page is ``ubuntu-22.04-2022.03.15``)
+#. run the Docker command to pull it:
+
+   .. prompt:: bash
+
+      docker pull readthedocs/build:ubuntu-22.04-2022.03.15
+
+#. tag the downloaded Docker image for the app to findit:
+
+   .. prompt:: bash
+
+      docker tag readthedocs/build:ubuntu-22.04-2022.03.15 readthedocs/build:ubuntu-22.04
+
+Once this is done, you should be able to trigger a new build on that project and it should succeed.
 
 Core team standards
 -------------------
