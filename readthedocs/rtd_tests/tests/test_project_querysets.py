@@ -198,6 +198,26 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_only_owner(self):
+        user = get(User)
+        another_user = get(User)
+
+        project_one = get(Project, slug="one", users=[user])
+        project_two = get(Project, slug="two", users=[user])
+        project_three = get(Project, slug="three", users=[another_user])
+        get(Project, slug="four", users=[user, another_user])
+        get(Project, slug="five", users=[])
+
+        project_with_organization = get(Project, slug="six", users=[user])
+        get(Organization, owners=[user], projects=[project_with_organization])
+
+        self.assertEqual(
+            {project_one, project_two}, set(Project.objects.single_owner(user))
+        )
+        self.assertEqual(
+            {project_three}, set(Project.objects.single_owner(another_user))
+        )
+
 
 class FeatureQuerySetTests(TestCase):
 

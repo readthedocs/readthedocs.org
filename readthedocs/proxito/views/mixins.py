@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -45,7 +46,7 @@ class ServeDocsMixin:
         shouldn't do this in production, but I don't want to force a check for
         ``DEBUG``.
 
-        If ``download`` and ``version_slug`` are passed, when serving via NGINX
+        If ``download`` and ``version_slug`` are passed,
         the HTTP header ``Content-Disposition`` is added with the proper
         filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
         or "docs-celeryproject-org-kombu-en-stable.pdf")
@@ -57,21 +58,25 @@ class ServeDocsMixin:
             request=request,
             download=download,
         )
-
         if settings.PYTHON_MEDIA:
-            return self._serve_docs_python(
-                request,
-                final_project=final_project,
-                path=path,
-            )
+            response = self._serve_file_from_python(request, path, build_media_storage)
+        else:
+            response = self._serve_file_from_nginx(path, root_path="proxito")
 
-        return self._serve_docs_nginx(
-            request,
-            final_project=final_project,
-            version_slug=version_slug,
-            path=path,
-            download=download,
-        )
+        # Set the filename of the download.
+        if download:
+            filename_ext = urlparse(path).path.rsplit(".", 1)[-1]
+            domain = unicode_slugify(final_project.subdomain().replace(".", "-"))
+            if final_project.is_subproject:
+                alias = final_project.alias
+                filename = f"{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}"  # noqa
+            else:
+                filename = (
+                    f"{domain}-{final_project.language}-{version_slug}.{filename_ext}"
+                )
+            response["Content-Disposition"] = f"filename={filename}"
+
+        return response
 
     def _track_pageview(self, project, path, request, download):
         """Create an audit log of the page view if audit is enabled."""
@@ -96,31 +101,26 @@ class ServeDocsMixin:
         """
         return False
 
-    def _serve_docs_python(self, request, final_project, path):
-        """
-        Serve docs from Python.
+    def _serve_static_file(self, request, path):
+        if settings.PYTHON_MEDIA:
+            return self._serve_file_from_python(request, path, staticfiles_storage)
+        return self._serve_file_from_nginx(path, root_path="proxito-static")
 
-        .. warning:: Don't do this in production!
+    def _serve_file_from_nginx(self, path, root_path):
         """
-        log.debug('Django serve.', path=path, project_slug=final_project.slug)
-
-        root_path = build_media_storage.path('')
-        # Serve from Python
-        return serve(request, path, root_path)
-
-    def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
-        """
-        Serve docs from nginx.
+        Serve a file from nginx.
 
         Returns a response with ``X-Accel-Redirect``, which will cause nginx to
         serve it directly as an internal redirect.
-        """
 
+        :param path: The path of the file to serve.
+        :param root_path: The root path of the internal redirect.
+        """
         original_path = copy.copy(path)
-        if not path.startswith('/proxito/'):
+        if not path.startswith(f"/{root_path}/"):
             if path[0] == '/':
                 path = path[1:]
-            path = f'/proxito/{path}'
+            path = f"/{root_path}/{path}"
 
         log.debug(
             'Nginx serve.',
@@ -144,19 +144,19 @@ class ServeDocsMixin:
         x_accel_redirect = iri_to_uri(path)
         response['X-Accel-Redirect'] = x_accel_redirect
 
-        if download:
-            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
-            if final_project.is_subproject:
-                alias = final_project.alias
-                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
-            else:
-                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
-            response['Content-Disposition'] = f'filename={filename}'
-
         # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
         return response
+
+    def _serve_file_from_python(self, request, path, storage):
+        """
+        Serve a file from Python.
+
+        .. warning:: Don't use this in production!
+        """
+        log.debug("Django serve.", path=path)
+        root_path = storage.path("")
+        return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
         res = render(request, '401.html')
