@@ -541,7 +541,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         build_state = None
-        if self.build["state"] not in BUILD_FINAL_STATES:
+        if self.data.build["state"] not in BUILD_FINAL_STATES:
             build_state = BUILD_STATE_FINISHED
 
         self.update_build(build_state)

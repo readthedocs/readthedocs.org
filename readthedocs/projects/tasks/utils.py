@@ -8,7 +8,11 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import BUILD_FINAL_STATES, EXTERNAL
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    EXTERNAL,
+)
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.storage import build_media_storage
