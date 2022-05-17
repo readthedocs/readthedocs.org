@@ -50,6 +50,7 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
                 'Ensure S3_BUILD_COMMANDS_STORAGE_BUCKET is defined.',
             )
 
+
 class S3StaticStorageMixin:
 
     bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
@@ -69,9 +70,10 @@ class S3StaticStorageMixin:
         self.querystring_auth = False
 
 
+# pylint: disable=too-many-ancestors
 class S3StaticStorage(
     S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage
-):  # pylint: disable=too-many-ancestors
+):
 
     """
     An AWS S3 Storage backend for static media.
@@ -80,14 +82,15 @@ class S3StaticStorage(
     """
 
 
-class RTDS3StaticStorage(
+class NoManifestS3StaticStorage(
     S3StaticStorageMixin, OverrideHostnameMixin, S3Boto3Storage
-):  # pylint: disable=too-many-ancestors
+):
 
     """
     Storage backend for static files used outside Django's static files.
 
-    This is the same as S3StaticStorage, but without inheriting from S3ManifestStaticStorage.
+    This is the same as S3StaticStorage, but without inheriting from S3ManifestStaticStorage,
+    this way we can get the URL of any file in that bucket, even hashed ones.
     """
 
 
