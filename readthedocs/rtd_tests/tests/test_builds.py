@@ -520,7 +520,7 @@ class DeDuplicateBuildTests(TestCase):
         self.assertEqual(build.success, False)
         self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
         self.assertEqual(build.status, DuplicatedBuildError.status)
-        self.assertEqual(build.state, 'finished')
+        self.assertEqual(build.state, "cancelled")
 
     def test_trigger_duplicated_finshed_build_by_commit(self, update_docs_task):
         """

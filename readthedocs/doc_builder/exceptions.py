@@ -56,6 +56,7 @@ class DuplicatedBuildError(BuildUserError):
     message = gettext_noop('Duplicated build.')
     exit_code = 1
     status = BUILD_STATUS_DUPLICATED
+    state = BUILD_STATE_CANCELLED
 
 
 class BuildCancelled(BuildUserError):
