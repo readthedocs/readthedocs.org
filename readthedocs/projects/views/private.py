@@ -435,10 +435,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['superproject'] = self.project.superprojects.first()
-        return ctx
+    pass
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
@@ -786,7 +783,7 @@ class DomainCreateBase(DomainMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
-        if self._is_enabled(project):
+        if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
 
@@ -810,7 +807,7 @@ class DomainUpdateBase(DomainMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
-        if self._is_enabled(project):
+        if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
 

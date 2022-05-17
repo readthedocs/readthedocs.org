@@ -46,8 +46,9 @@ from readthedocs.proxito.views.serve import (
     ServePageRedirect,
     ServeRobotsTXT,
     ServeSitemapXML,
+    ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
+from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
@@ -105,6 +106,17 @@ proxied_urls = [
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
         include('readthedocs.api.v3.proxied_urls'),
+    ),
+    # Serve static files
+    # /_/static/file.js
+    re_path(
+        r"^{DOC_PATH_PREFIX}static/"
+        r"(?P<filename>{filename_slug})$".format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+            **pattern_opts,
+        ),
+        ServeStaticFiles.as_view(),
+        name="proxito_static_files",
     ),
 ]
 

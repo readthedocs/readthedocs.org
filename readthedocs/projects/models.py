@@ -625,6 +625,11 @@ class Project(models.Model):
         return self.proxied_api_host.strip('/') + '/'
 
     @property
+    def proxied_static_path(self):
+        """Path for static files hosted on the user's doc domain."""
+        return f"{self.proxied_api_host}/static/"
+
+    @property
     def regex_urlconf(self):
         """
         Convert User's URLConf into a proper django URLConf.
@@ -724,6 +729,13 @@ class Project(models.Model):
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
+
+    @property
+    def superproject(self):
+        relationship = self.get_parent_relationship()
+        if relationship:
+            return relationship.parent
+        return None
 
     @property
     def alias(self):
