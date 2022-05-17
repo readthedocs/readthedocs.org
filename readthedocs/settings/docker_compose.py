@@ -156,6 +156,7 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildToolsStorage'
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.NoManifestS3StaticStorage'
 
     AWS_ACCESS_KEY_ID = 'admin'
     AWS_SECRET_ACCESS_KEY = 'password'

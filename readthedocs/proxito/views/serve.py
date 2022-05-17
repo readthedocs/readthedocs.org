@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -24,7 +23,7 @@ from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
+from readthedocs.storage import build_media_storage, staticfiles_storage
 
 from .decorators import map_project_slug
 from .mixins import ServeDocsMixin, ServeRedirectMixin

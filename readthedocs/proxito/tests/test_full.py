@@ -1139,7 +1139,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
 
     @override_settings(
-        STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
     )
     def test_serve_static_files(self):
         resp = self.client.get(
