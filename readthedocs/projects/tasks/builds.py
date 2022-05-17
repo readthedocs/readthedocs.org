@@ -415,6 +415,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 self.data.build['error'] = exc.message
             else:
                 self.data.build['error'] = BuildUserError.GENERIC
+
+            if hasattr(exc, "state"):
+                self.data.build["state"] = exc.state
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
