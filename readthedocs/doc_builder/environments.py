@@ -315,8 +315,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout, cmd_stderr = out
             else:
                 cmd_stdout = out
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.sanitize_output(cmd_stdout or "")
+            self.error = self.sanitize_output(cmd_stderr or "")
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
