@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -20,7 +19,7 @@ from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
 from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
+from readthedocs.storage import build_media_storage, staticfiles_storage
 
 log = structlog.get_logger(__name__)  # noqa
 

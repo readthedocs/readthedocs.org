@@ -51,17 +51,7 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
             )
 
 
-class S3StaticStorage(
-    OverrideHostnameMixin,
-    S3ManifestStaticStorage,
-    S3Boto3Storage
-):  # pylint: disable=too-many-ancestors
-
-    """
-    An AWS S3 Storage backend for static media.
-
-    * Uses Django's ManifestFilesMixin to have unique file paths (eg. core.a6f5e2c.css)
-    """
+class S3StaticStorageMixin:
 
     bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
     override_hostname = getattr(settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None)
@@ -78,6 +68,30 @@ class S3StaticStorage(
         self.bucket_acl = 'public-read'
         self.default_acl = 'public-read'
         self.querystring_auth = False
+
+
+# pylint: disable=too-many-ancestors
+class S3StaticStorage(
+    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage
+):
+
+    """
+    An AWS S3 Storage backend for static media.
+
+    * Uses Django's ManifestFilesMixin to have unique file paths (eg. core.a6f5e2c.css)
+    """
+
+
+class NoManifestS3StaticStorage(
+    S3StaticStorageMixin, OverrideHostnameMixin, S3Boto3Storage
+):
+
+    """
+    Storage backend for static files used outside Django's static files.
+
+    This is the same as S3StaticStorage, but without inheriting from S3ManifestStaticStorage,
+    this way we can get the URL of any file in that bucket, even hashed ones.
+    """
 
 
 class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
