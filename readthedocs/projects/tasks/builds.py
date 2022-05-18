@@ -46,6 +46,8 @@ from readthedocs.doc_builder.exceptions import (
     YAMLParseError,
 )
 from readthedocs.storage import build_media_storage
+from readthedocs.telemetry.collectors import BuildDataCollector
+from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
 from ..exceptions import (
@@ -346,6 +348,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Reset any previous build error reported to the user
         self.data.build['error'] = ''
 
+        self.data.build_data = None
+
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get('build_commit')
@@ -540,6 +544,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         self.update_build(BUILD_STATE_FINISHED)
+        self.save_build_data()
 
         build_complete.send(sender=Build, build=self.data.build)
 
@@ -595,13 +600,46 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # ``__exit__``
         self.data.build_director.create_build_environment()
         with self.data.build_director.build_environment:
-            # Installing
-            self.update_build(state=BUILD_STATE_INSTALLING)
-            self.data.build_director.setup_environment()
+            try:
+                # Installing
+                self.update_build(state=BUILD_STATE_INSTALLING)
+                self.data.build_director.setup_environment()
 
-            # Building
-            self.update_build(state=BUILD_STATE_BUILDING)
-            self.data.build_director.build()
+                # Building
+                self.update_build(state=BUILD_STATE_BUILDING)
+                self.data.build_director.build()
+            finally:
+                self.data.build_data = self.collect_build_data()
+
+    def collect_build_data(self):
+        """
+        Collect data from the current build.
+
+        The data is collected from inside the container,
+        so this must be called before killing the container.
+        """
+        try:
+            return BuildDataCollector(
+                self.data.build_director.build_environment
+            ).collect()
+        except Exception:
+            log.exception("Error while collecting build data")
+
+    def save_build_data(self):
+        """
+        Save the data collected from the build after it has ended.
+
+        This must be called after the build has finished updating its state,
+        otherwise some attributes like ``length`` won't be available.
+        """
+        try:
+            if self.data.build_data:
+                save_build_data.delay(
+                    build_id=self.data.build_pk,
+                    data=self.data.build_data,
+                )
+        except Exception:
+            log.exception("Error while saving build data")
 
     @staticmethod
     def get_project(project_pk):
