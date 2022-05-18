@@ -196,3 +196,22 @@ It's possible to use ``post_checkout`` user-defined job for this.
          - ./git-lfs fetch
          # Make local files to have the real content on them
          - ./git-lfs checkout
+
+
+Document your code with ``jsdoc``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's possible to make usage of ``jsdoc`` to document your Javascript code directly from your source code.
+To setup it, you need to first define the version of ``nodejs`` you want to use and also install ``jsdoc`` as shown below:
+
+.. code:: yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.9"
+       nodejs: "16"
+     jobs:
+       post_install:
+         - npm install -g jsdoc
