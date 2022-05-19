@@ -26,6 +26,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
@@ -1222,6 +1223,23 @@ class TestCDNCache(BaseDocServing):
         self.assertEqual(resp['Location'], '/en/latest/', url)
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
         self.assertNotIn('Cache-Tag', resp.headers, url)
+
+        # Forced redirects will be cached only if the version is public.
+        get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+        )
+        url = "/en/latest/install.html"
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        self.assertEqual(
+            resp["Location"], f"https://{host}/en/latest/tutorial/install.html", url
+        )
+        self.assertEqual(resp.headers["CDN-Cache-Control"], expected_value, url)
+        self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest", url)
 
     def _test_cache_control_header_subproject(self, expected_value, host=None):
         """
