@@ -198,11 +198,11 @@ It's possible to use ``post_checkout`` user-defined job for this.
          - ./git-lfs checkout
 
 
-Document your code with ``jsdoc``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Node.js dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It's possible to make usage of ``jsdoc`` to document your Javascript code directly from your source code.
-To setup it, you need to first define the version of ``nodejs`` you want to use and also install ``jsdoc`` as shown below:
+It's possible to install Node.js together with the required dependencies by using :term:`user-defined build jobs`.
+To setup it, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
 
 .. code:: yaml
 
@@ -214,4 +214,7 @@ To setup it, you need to first define the version of ``nodejs`` you want to use 
        nodejs: "16"
      jobs:
        post_install:
+         # Install dependencies defined in your ``package.json``
+         - npm ci
+         # Install any other extra dependencies to build the docs
          - npm install -g jsdoc
