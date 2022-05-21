@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-25 12:24-0800\n"
-"PO-Revision-Date: 2022-05-21 17:25+0200\n"
+"PO-Revision-Date: 2022-05-21 20:05+0200\n"
 "Last-Translator: Anthony <aj@ohess.org>\n"
 "Language-Team: German (http://www.transifex.com/readthedocs/readthedocs/language/"
 "de/)\n"
@@ -38,7 +38,7 @@ msgstr "Ausgelöst"
 
 #: builds/constants.py:17
 msgid "Cloning"
-msgstr "Klone"
+msgstr "Klonen"
 
 #: builds/constants.py:18
 msgid "Installing"
@@ -46,7 +46,7 @@ msgstr "Installiert"
 
 #: builds/constants.py:19
 msgid "Building"
-msgstr "Erstelle"
+msgstr "Erstellen"
 
 #: builds/constants.py:20
 msgid "Finished"
@@ -78,7 +78,7 @@ msgstr "Branch"
 
 #: builds/constants.py:40
 msgid "Tag"
-msgstr "Anh├ñnger"
+msgstr "Anhänger"
 
 #: builds/constants.py:41
 msgid "Unknown"
@@ -87,7 +87,7 @@ msgstr "Unbekannt"
 #: builds/forms.py:22
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
-msgstr ""
+msgstr "{version} ist die Standardversion des Projekts, sie sollte aktiv sein."
 
 #: builds/models.py:66 builds/models.py:482 projects/models.py:1081
 #: redirects/models.py:60
@@ -104,16 +104,16 @@ msgstr "Identifikation"
 
 #: builds/models.py:87
 msgid "Verbose Name"
-msgstr "Name"
+msgstr "Ausführlicher Name"
 
 #: builds/models.py:94 oauth/models.py:47 projects/models.py:106
 #: projects/models.py:1091
 msgid "Slug"
-msgstr "K├╝rzel"
+msgstr "Kürzel"
 
 #: builds/models.py:99
 msgid "Supported"
-msgstr "Unterst├╝tzt"
+msgstr "Unterstützt"
 
 #: builds/models.py:100 oauth/models.py:45 oauth/models.py:107 redirects/models.py:26
 #: templates/projects/project_versions.html:46
@@ -190,11 +190,11 @@ msgstr ""
 
 #: builds/models.py:512 projects/models.py:1094
 msgid "Commit"
-msgstr ""
+msgstr "Übernehmen"
 
 #: builds/models.py:517
 msgid "Configuration used in the build"
-msgstr ""
+msgstr "Im Build verwendete Konfiguration"
 
 #: builds/models.py:519
 msgid "Build Length"
@@ -202,7 +202,7 @@ msgstr "Buildlänge"
 
 #: builds/models.py:522
 msgid "Builder"
-msgstr ""
+msgstr "Builder"
 
 #: builds/models.py:529
 msgid "Cold Storage"
@@ -211,15 +211,15 @@ msgstr ""
 #: builds/models.py:615
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
-msgstr ""
+msgstr "{project} für {usernames} erstellen ({pk})"
 
 #: builds/models.py:663
 msgid "Build"
-msgstr ""
+msgstr "Build"
 
 #: builds/models.py:667
 msgid "Command"
-msgstr ""
+msgstr "Befehl"
 
 #: builds/models.py:668 oauth/models.py:119 projects/models.py:108
 #: templates/core/project_details.html:80
@@ -228,11 +228,11 @@ msgstr "Beschreibung"
 
 #: builds/models.py:669
 msgid "Command output"
-msgstr ""
+msgstr "Befehlsausgabe"
 
 #: builds/models.py:670
 msgid "Command exit code"
-msgstr ""
+msgstr "Exit-Code des Befehls"
 
 #: builds/models.py:672
 msgid "Start time"
@@ -245,23 +245,23 @@ msgstr "Endzeit"
 #: builds/models.py:683
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
-msgstr ""
+msgstr "Build-Befehl {pk} für Build {build}"
 
 #: core/admin.py:30
 msgid "user projects"
-msgstr ""
+msgstr "Benutzerprojekte"
 
 #: core/admin.py:38
 msgid "has active project"
-msgstr ""
+msgstr "hat ein aktives Projekt"
 
 #: core/admin.py:39
 msgid "has built project"
-msgstr ""
+msgstr "hat Projekt gebuildet"
 
 #: core/admin.py:40
 msgid "has project with recent builds"
-msgstr ""
+msgstr "hat Projekt mit den letzten Builds"
 
 #: core/forms.py:19
 msgid "First name"
@@ -273,15 +273,15 @@ msgstr "Nachname"
 
 #: core/forms.py:49
 msgid "Username"
-msgstr ""
+msgstr "Benutzername"
 
 #: core/forms.py:50
 msgid "Please type your username to confirm."
-msgstr ""
+msgstr "Bitte geben Sie zur Bestätigung Ihren Benutzernamen ein."
 
 #: core/forms.py:61
 msgid "Username does not match!"
-msgstr ""
+msgstr "Benutzername stimmt nicht überein!"
 
 #: core/middleware.py:69
 msgid "Project not found"
@@ -301,7 +301,7 @@ msgstr "Auf wei├ƒe Liste gesetzt"
 
 #: core/models.py:28
 msgid "Banned"
-msgstr ""
+msgstr "Gesperrt"
 
 #: core/models.py:29
 msgid "Homepage"
@@ -309,11 +309,11 @@ msgstr "Webseite"
 
 #: core/models.py:31
 msgid "See paid advertising"
-msgstr ""
+msgstr "Siehe bezahlte Werbung"
 
 #: core/models.py:32
 msgid "If unchecked, you will still see community ads."
-msgstr ""
+msgstr "Wenn diese Option deaktiviert ist, sehen Sie weiterhin Community-Anzeigen."
 
 #: core/models.py:36
 msgid "Allow email"
@@ -330,7 +330,7 @@ msgstr "Profil von %(username)s"
 
 #: core/templates/core/dns-404.html:6
 msgid "Maze Found - Invalid Host"
-msgstr ""
+msgstr "Labyrinth gefunden - Ungültiger Host"
 
 #: core/templates/core/dns-404.html:20
 msgid "404 - Invalid Host"
@@ -339,7 +339,7 @@ msgstr "404 - Ungültiger Host"
 #: core/templates/core/dns-404.html:21
 #, python-format
 msgid "The host \"%(host)s\" is unknown to Read the Docs"
-msgstr ""
+msgstr "Der Host \"%(host)s\" ist Read the Docs unbekannt"
 
 #: core/templates/core/dns-404.html:25
 #, python-format
@@ -437,14 +437,12 @@ msgid ""
 msgstr ""
 
 #: gold/forms.py:113
-#, fuzzy
-#| msgid "No projects found"
 msgid "No project found."
-msgstr "Keine Projekte gefunden."
+msgstr "Kein Projekt gefunden."
 
 #: gold/models.py:30 oauth/models.py:30 oauth/models.py:84 projects/models.py:95
 msgid "Publication date"
-msgstr "Ver├Âffentlichungsdatum"
+msgstr "Veröffentlichungsdatum"
 
 #: gold/models.py:31 oauth/models.py:31 oauth/models.py:85 projects/models.py:96
 #: projects/models.py:1095
@@ -453,7 +451,7 @@ msgstr "Modifizierungsdatum"
 
 #: gold/models.py:40 gold/templates/gold/subscription_detail.html:40
 msgid "Level"
-msgstr ""
+msgstr "Level"
 
 #: gold/models.py:47 gold/templates/gold/subscription_detail.html:57
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -491,7 +489,7 @@ msgstr "Entfernen"
 
 #: gold/templates/gold/projects.html:39
 msgid "Add a project"
-msgstr ""
+msgstr "Ein Projekt hinzufügen"
 
 #: gold/templates/gold/projects.html:41
 msgid "Choose which project you would like to add."
