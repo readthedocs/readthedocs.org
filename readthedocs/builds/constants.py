@@ -3,20 +3,27 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-BUILD_STATE_TRIGGERED = 'triggered'
-BUILD_STATE_CLONING = 'cloning'
-BUILD_STATE_INSTALLING = 'installing'
-BUILD_STATE_BUILDING = 'building'
-BUILD_STATE_UPLOADING = 'uploading'
-BUILD_STATE_FINISHED = 'finished'
+BUILD_STATE_TRIGGERED = "triggered"
+BUILD_STATE_CLONING = "cloning"
+BUILD_STATE_INSTALLING = "installing"
+BUILD_STATE_BUILDING = "building"
+BUILD_STATE_UPLOADING = "uploading"
+BUILD_STATE_FINISHED = "finished"
+BUILD_STATE_CANCELLED = "cancelled"
 
 BUILD_STATE = (
-    (BUILD_STATE_TRIGGERED, _('Triggered')),
-    (BUILD_STATE_CLONING, _('Cloning')),
-    (BUILD_STATE_INSTALLING, _('Installing')),
-    (BUILD_STATE_BUILDING, _('Building')),
-    (BUILD_STATE_UPLOADING, _('Uploading')),
-    (BUILD_STATE_FINISHED, _('Finished')),
+    (BUILD_STATE_TRIGGERED, _("Triggered")),
+    (BUILD_STATE_CLONING, _("Cloning")),
+    (BUILD_STATE_INSTALLING, _("Installing")),
+    (BUILD_STATE_BUILDING, _("Building")),
+    (BUILD_STATE_UPLOADING, _("Uploading")),
+    (BUILD_STATE_FINISHED, _("Finished")),
+    (BUILD_STATE_CANCELLED, _("Cancelled")),
+)
+
+BUILD_FINAL_STATES = (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_CANCELLED,
 )
 
 BUILD_TYPES = (
