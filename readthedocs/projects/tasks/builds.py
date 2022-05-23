@@ -16,6 +16,7 @@ from slumber.exceptions import HttpClientError
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -418,6 +419,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 self.data.build['error'] = exc.message
             else:
                 self.data.build['error'] = BuildUserError.GENERIC
+
+            if hasattr(exc, "state"):
+                self.data.build["state"] = exc.state
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
@@ -543,7 +547,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Update build object
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
-        self.update_build(BUILD_STATE_FINISHED)
+        build_state = None
+        if self.data.build["state"] not in BUILD_FINAL_STATES:
+            build_state = BUILD_STATE_FINISHED
+
+        self.update_build(build_state)
         self.save_build_data()
 
         build_complete.send(sender=Build, build=self.data.build)
@@ -556,8 +564,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             success=self.data.build['success']
         )
 
-    def update_build(self, state):
-        self.data.build['state'] = state
+    def update_build(self, state=None):
+        if state:
+            self.data.build["state"] = state
 
         # Attempt to stop unicode errors on build reporting
         # for key, val in list(self.data.build.items()):

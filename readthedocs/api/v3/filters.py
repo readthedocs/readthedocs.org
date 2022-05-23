@@ -1,8 +1,8 @@
 import django_filters.rest_framework as filters
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build, Version
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Project
 
 
@@ -45,9 +45,9 @@ class BuildFilter(filters.FilterSet):
 
     def get_running(self, queryset, name, value):
         if value:
-            return queryset.exclude(state=BUILD_STATE_FINISHED)
+            return queryset.exclude(state__in=BUILD_FINAL_STATES)
 
-        return queryset.filter(state=BUILD_STATE_FINISHED)
+        return queryset.filter(state__in=BUILD_FINAL_STATES)
 
 
 class RemoteRepositoryFilter(filters.FilterSet):

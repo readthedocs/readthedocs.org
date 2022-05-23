@@ -30,7 +30,7 @@ $(document).ready(function () {
 {% block content %}
   <div class="build build-detail" id="build-detail">
 
-    {% if build.state != "finished" and request.user|is_admin:project %}
+    {% if build.state != "finished" and build.state != "cancelled" and request.user|is_admin:project %}
     <form method="post" action="{% url "builds_detail" build.version.project.slug build.pk %}">
       {% csrf_token %}
       <input type="submit" value="{% trans "Cancel build" %}">
@@ -138,9 +138,14 @@ $(document).ready(function () {
         {% trans "Build completed" %}
       </span>
       <span class="build-state-failed"
-            data-bind="visible: finished() && !success()"
+            data-bind="visible: finished() && !success() && !cancelled()"
             style="display: none;">
-        {% trans "Build failed" %}
+          {% trans "Build failed" %}
+      </span>
+      <span class="build-state-cancelled"
+            data-bind="visible: finished() && !success() && cancelled()"
+            style="display: none;">
+        {% trans "Build cancelled" %}
       </span>
     </div>
 
