@@ -194,7 +194,7 @@ class BuildCommand(BuildCommandResultMixin):
             # https://code.djangoproject.com/ticket/28201
             sanitized = sanitized.replace('\x00', '')
         except (TypeError, AttributeError):
-            sanitized = None
+            sanitized = ""
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
         output_length = len(output) if output else 0
@@ -317,8 +317,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout = out
             # Docker returns None when there's no stderr/stdout
             # so we need to convert that to a string.
-            self.output = self.sanitize_output(cmd_stdout or "")
-            self.error = self.sanitize_output(cmd_stderr or "")
+            self.output = self.sanitize_output(cmd_stdout)
+            self.error = self.sanitize_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
