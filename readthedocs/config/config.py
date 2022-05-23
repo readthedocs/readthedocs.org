@@ -793,7 +793,7 @@ class BuildConfigV2(BuildConfigBase):
 
         commands = []
         with self.catch_validation_error("build.commands"):
-            commands = self.pop_config("build.commands")
+            commands = self.pop_config("build.commands", default=[])
             validate_list(commands)
 
         if not tools:
