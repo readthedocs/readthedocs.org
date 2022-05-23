@@ -4,7 +4,7 @@ Build customization
 Read the Docs has a :doc:`well-defined build process <builds>` that works for many projects,
 but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process using :term:`user-defined build jobs` to execute custom commands,
-and also how to :ref:`override the build process completely <override-the-build-process-completely>`.
+and also how to :ref:`override the build process completely <build-customization:override the build process completely>`.
 
 
 Extend the build process
@@ -38,7 +38,7 @@ These extra jobs are:
    Currently, the pre-defined jobs (``checkout``, ``system_dependencies``, etc) executed by Read the Docs cannot be overridden or skipped.
 
 
-These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`/config-file/v2:build.jobs` key on it.
+These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
 Let's say the project requires commands to be executed *before* installing any dependency into the Python environment and *after* the build has finished.
 In that case, a config file similar to this one can be used:
 
@@ -236,9 +236,9 @@ Override the build process completely
    Use it under your own responsibility.
 
 
-When :ref:`extending the build process <extend-the-build-process>` is not enough for a particular use case,
+When :ref:`extending the build process <build-customization:extend the build process>` is not enough for a particular use case,
 all the default commands can be overwritten to execute only the commands defined by the project on its config file.
-This can be achieve by using :ref:`/config-file/v2:builds.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
+This can be achieve by using :ref:`config-file/v2:build.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
 
 
 .. code-block:: yaml
