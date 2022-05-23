@@ -241,8 +241,7 @@ all the default commands can be overwritten to execute only the commands defined
 This can be achieve by using :ref:`config-file/v2:build.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
 
 
-.. code-block:: yaml
-   :caption: .readthedocs.yaml
+.. code:: yaml
 
    version: 2
    build:
