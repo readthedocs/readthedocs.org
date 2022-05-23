@@ -178,7 +178,7 @@ $(document).ready(function () {
     {% if build.finished and build.config.build.commands %}
     <div class="build-ideas">
       <p>
-        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html#build-commands" %}
+        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process-completely" %}
         <strong><code>"build.commands"</code> config is in beta, use it under your own risks.</strong>
         Read more at <a href="{{ config_file_link }}">our documentation</a> to find out its limitations and potential issues.
         {% endblocktrans %}
