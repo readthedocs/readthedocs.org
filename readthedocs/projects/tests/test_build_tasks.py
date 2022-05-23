@@ -776,8 +776,8 @@ class TestBuildTask(BuildEnvironmentBase):
             any_order=True,
         )
 
-    @mock.patch("readthedocs.doc_builder.python_environments.tarfile")
-    @mock.patch("readthedocs.doc_builder.python_environments.build_tools_storage")
+    @mock.patch("readthedocs.doc_builder.director.tarfile")
+    @mock.patch("readthedocs.doc_builder.director.build_tools_storage")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_tools_cached(self, load_yaml_config, build_tools_storage, tarfile):
         config = BuildConfigV2(
