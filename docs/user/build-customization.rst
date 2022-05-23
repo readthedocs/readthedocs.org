@@ -3,7 +3,12 @@ Build customization
 
 Read the Docs has a :doc:`well-defined build process <builds>` that works for many projects,
 but we offer additional customization to support more uses of our platform.
-This page explains how to extend the build process, using :term:`user-defined build jobs` to execute custom commands.
+This page explains how to extend the build process using :term:`user-defined build jobs` to execute custom commands,
+and also how to :ref:`override the build process completely <override-the-build-process-completely>`.
+
+
+Extend the build process
+------------------------
 
 In the normal build process,
 the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
@@ -33,7 +38,7 @@ These extra jobs are:
    Currently, the pre-defined jobs (``checkout``, ``system_dependencies``, etc) executed by Read the Docs cannot be overridden or skipped.
 
 
-These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`config-file/v2:build.jobs` key on it.
+These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`/config-file/v2:build.jobs` key on it.
 Let's say the project requires commands to be executed *before* installing any dependency into the Python environment and *after* the build has finished.
 In that case, a config file similar to this one can be used:
 
@@ -63,7 +68,7 @@ There are some caveats to knowing when using user-defined jobs:
 
 
 Examples
---------
+++++++++
 
 We've included some common examples where using :ref:`config-file/v2:build.jobs` will be useful.
 These examples may require some adaptation for each projects' use case,
@@ -218,3 +223,37 @@ To setup it, you need to define the version of Node.js to use and install the de
          - npm ci
          # Install any other extra dependencies to build the docs
          - npm install -g jsdoc
+
+
+Override the build process completely
+-------------------------------------
+
+.. warning::
+
+   This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
+   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
+   However, integrating all of them is part of the plan.
+   Use it under your own responsibility.
+
+
+When :ref:`extending the build process <extend-the-build-process>` is not enough for a particular use case,
+all the default commands can be overwritten to execute only the commands defined by the project on its config file.
+This can be achieve by using :ref:`/config-file/v2:builds.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
+
+
+.. code:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     commands:
+       - pip install pelican[markdown]
+       - pelican --settings docs/pelicanconf.py --output output/ docs/
+
+
+As Read the Docs does not have control over the build process,
+you are responsible to run all the commands required to install the requirements and build the documentation properly.
+Once the build process finishes, the ``output/`` folder will be hosted.
