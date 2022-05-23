@@ -601,8 +601,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build_director.create_build_environment()
         with self.data.build_director.build_environment:
             try:
-                # NOTE: check if the build uses `build.commands` and only run those
-                if self.data.config.build.commands:
+                if getattr("commands", self.data.config.build, False):
                     self.update_build(state=BUILD_STATE_INSTALLING)
                     self.data.build_director.install_build_tools()
 
