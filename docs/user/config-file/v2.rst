@@ -467,7 +467,9 @@ The ``output/`` directory (relative to the checkout's path) will be uploaded and
 
 .. warning::
 
-   This feature is in a *beta phase* and can suffer incompatible changes or even removed completely in the near feature.
+   This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
+   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
+   However, integrating all of them is part of the plan.
    Use it under your own responsibility.
 
 .. code-block:: yaml
