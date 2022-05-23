@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
 from readthedocs.notifications import SiteNotification
@@ -66,7 +65,7 @@ class GitBuildStatusFailureNotification(SiteNotification):
         'Could not send {{ provider_name }} build status report for {{ project.name }}. '
         'Make sure you have the correct {{ provider_name }} repository permissions</a> and '
         'your <a href="{{ url_connect_account }}">{{ provider_name }} account</a> '
-        'is connected to ReadtheDocs.'
+        "is connected to Read the Docs."
     )  # noqa
 
     def get_context_data(self):

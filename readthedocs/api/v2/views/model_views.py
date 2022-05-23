@@ -1,8 +1,8 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import logging
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.db.models import BooleanField, Case, Value, When
@@ -40,7 +40,7 @@ from ..utils import (
     RemoteProjectPagination,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
@@ -84,12 +84,18 @@ class DisableListEndpoint:
     """
 
     def list(self, *args, **kwargs):
+        # Using private repos will list resources the user has access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return super().list(*args, **kwargs)
+
         disabled = True
 
         # NOTE: keep list endpoint that specifies a resource
         if any([
                 self.basename == 'version' and 'project__slug' in self.request.GET,
-                self.basename == 'build' and 'commit' in self.request.GET,
+                self.basename == 'build'
+                and ('commit' in self.request.GET or 'project__slug' in self.request.GET),
+                self.basename == 'project' and 'slug' in self.request.GET,
         ]):
             disabled = False
 
@@ -263,8 +269,8 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
                     data['commands'] = json.loads(json_resp)
                 except Exception:
                     log.exception(
-                        'Failed to read build data from storage. path=%s.',
-                        storage_path,
+                        'Failed to read build data from storage.',
+                        path=storage_path,
                     )
         return Response(data)
 

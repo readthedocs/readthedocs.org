@@ -1,8 +1,8 @@
 """OAuth utility functions."""
 
-import logging
 from datetime import datetime
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
@@ -11,20 +11,12 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-from readthedocs.oauth.models import (
-    RemoteOrganizationRelation,
-    RemoteRepositoryRelation,
-)
-
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class SyncServiceError(Exception):
 
     """Error raised when a service failed to sync."""
-
-    pass
 
 
 class Service:
@@ -134,7 +126,7 @@ class Service:
                 datetime.fromtimestamp(data['expires_at']),
             )
             token.save()
-            log.info('Updated token %s:', token)
+            log.info('Updated token.', token=token)
 
         return _updater
 
@@ -149,7 +141,7 @@ class Service:
         """
         resp = None
         try:
-            resp = self.get_session().get(url, data=kwargs)
+            resp = self.get_session().get(url, params=kwargs)
 
             # TODO: this check of the status_code would be better in the
             # ``create_session`` method since it could be used from outside, but
@@ -173,7 +165,7 @@ class Service:
             return results
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
-            log.warning('access_token or refresh_token failed: %s', url)
+            log.warning('access_token or refresh_token failed.', url=url)
             raise Exception('You should reconnect your account')
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -184,9 +176,9 @@ class Service:
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'Paginate failed at %s with response: %s',
-                url,
-                debug_data,
+                'Paginate failed at URL.',
+                url=url,
+                debug_data=debug_data,
             )
 
         return []

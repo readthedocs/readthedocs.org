@@ -6,7 +6,7 @@
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book">&nbsp;</span>
-      v: {{ current_version }}
+      v: {{ current_version.explicit_name }}
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
@@ -18,18 +18,19 @@
         <dt>{% trans "Languages" %}</dt>
 
         {# Output the main project language since it isn't included in translations list #}
-        {% if main_project.language == current_language %} <strong> {% endif %}
-        <dd><a href="{{ main_project.get_docs_url }}{{ path }}">{{ main_project.language }}</a></dd>
-        {% if main_project.language == current_language %} </strong> {% endif %}
+
+        <dd {% if main_project.language == current_language %} class="rtd-current-item" {% endif %}>
+          <a href="{{ main_project.get_docs_url }}{{ path }}">{{ main_project.language }}</a>
+        </dd>
 
         {# regroup to make language_list unique per language #}
         {% regroup translations by language as language_list %}
         {% for group in language_list %}
         {% for translation in group.list %}
         {% if translation.language != main_project.language %}
-        {% if translation.language == current_language %} <strong> {% endif %}
-        <dd><a href="{{ translation.get_docs_url }}{{ path }}">{{ translation.language }}</a></dd>
-        {% if translation.language == current_language %} </strong> {% endif %}
+        <dd {% if translation.language == current_language %} class="rtd-current-item" {% endif %}>
+          <a href="{{ translation.get_docs_url }}{{ path }}">{{ translation.language }}</a>
+        </dd>
         {% endif %}
         {% endfor %}
         {% endfor %}
@@ -40,9 +41,9 @@
       <dl>
         <dt>{% trans "Versions" %}</dt>
         {% for version in versions %}
-        {% if version.verbose_name == current_version %} <strong> {% endif %}
-        <dd><a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.slug }}</a></dd>
-        {% if version.verbose_name == current_version %} </strong> {% endif %}
+        <dd {% if version == current_version %} class="rtd-current-item" {% endif %}>
+          <a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.verbose_name }}</a>
+        </dd>
         {% endfor %}
       </dl>
       {% endif %}
@@ -126,10 +127,8 @@
       </dl>
       {% endblock %}
 
-      {% block auth %}
-      {% endblock %}
-
       <hr/>
+
       {% block footer %}
         <small>
           <span>{% trans "Hosted by" %} <a href="https://readthedocs.org">Read the Docs</a></span>

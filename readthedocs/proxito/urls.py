@@ -34,7 +34,7 @@ pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include, re_path
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
@@ -46,22 +46,24 @@ from readthedocs.proxito.views.serve import (
     ServePageRedirect,
     ServeRobotsTXT,
     ServeSitemapXML,
+    ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
+from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 health_check_urls = [
-    url('^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
+    re_path(
+        '^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
         HealthCheckView.as_view(),
         name='health_check',
-        ),
+    ),
 ]
 
 proxied_urls = [
     # Serve project downloads
     # /_/downloads/<lang>/<ver>/<type>/
-    url(
+    re_path(
         (
             r'^{DOC_PATH_PREFIX}downloads/'
             r'(?P<lang_slug>{lang_slug})/'
@@ -75,7 +77,7 @@ proxied_urls = [
     ),
     # Serve subproject downloads
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
-    url(
+    re_path(
         (
             r'^{DOC_PATH_PREFIX}downloads/'
             r'(?P<subproject_slug>{project_slug})/'
@@ -91,30 +93,49 @@ proxied_urls = [
 
     # Serve proxied API
     # /_/api/v2/
-    url(
+    re_path(
         r'^{DOC_PATH_PREFIX}api/v2/'.format(
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
         include('readthedocs.api.v2.proxied_urls'),
     ),
+
+    # /_/api/v3/
+    re_path(
+        r'^{DOC_PATH_PREFIX}api/v3/'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
+        include('readthedocs.api.v3.proxied_urls'),
+    ),
+    # Serve static files
+    # /_/static/file.js
+    re_path(
+        r"^{DOC_PATH_PREFIX}static/"
+        r"(?P<filename>{filename_slug})$".format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+            **pattern_opts,
+        ),
+        ServeStaticFiles.as_view(),
+        name="proxito_static_files",
+    ),
 ]
 
 core_urls = [
     # Serve custom 404 pages
-    url(
+    re_path(
         r'^_proxito_404_(?P<proxito_path>.*)$',
         ServeError404.as_view(),
         name='proxito_404_handler',
     ),
-    url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
-    url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+    re_path(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
+    re_path(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
 ]
 
 docs_urls = [
 
     # # TODO: Support this?
     # (Sub)project `page` redirect
-    url(
+    re_path(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
         ServePageRedirect.as_view(),
@@ -122,7 +143,7 @@ docs_urls = [
     ),
 
     # (Sub)project w/ translation and versions
-    url(
+    re_path(
         (
             r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<lang_slug>{lang_slug})/'
@@ -136,7 +157,7 @@ docs_urls = [
     # Hack /en/latest so it redirects properly
     # We don't want to serve the docs here,
     # because it's at a different level of serving so relative links break.
-    url(
+    re_path(
         (
             r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<lang_slug>{lang_slug})/'
@@ -148,7 +169,7 @@ docs_urls = [
 
     # # TODO: Support this?
     # # (Sub)project translation and single version
-    # url(
+    # re_path(
     #     (
     #         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
     #         r'(?P<lang_slug>{lang_slug})/'
@@ -159,7 +180,7 @@ docs_urls = [
     # ),
 
     # (Sub)project single version
-    url(
+    re_path(
         (
             # subproject_slash variable at the end of this regex is for ``/projects/subproject``
             # so that it will get captured here and redirect properly.

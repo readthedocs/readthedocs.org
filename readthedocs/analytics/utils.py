@@ -4,16 +4,16 @@
 
 import hashlib
 import ipaddress
-import logging
+import structlog
 
 import requests
 from django.conf import settings
 from django.utils.crypto import get_random_string
-from django.utils.encoding import force_bytes, force_text
+from django.utils.encoding import force_bytes, force_str
 from user_agents import parse
 
 
-log = logging.getLogger(__name__)  # noqa
+log = structlog.get_logger(__name__)  # noqa
 
 
 def get_client_ip(request):
@@ -47,7 +47,7 @@ def anonymize_ip_address(ip_address):
     ip_mask = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)
 
     try:
-        ip_obj = ipaddress.ip_address(force_text(ip_address))
+        ip_obj = ipaddress.ip_address(force_str(ip_address))
     except ValueError:
         return None
 
@@ -79,7 +79,7 @@ def send_to_analytics(data):
         data['ua'] = anonymize_user_agent(data['ua'])
 
     resp = None
-    log.debug('Sending data to analytics: %s', data)
+    log.debug('Sending data to analytics.', data=data)
     try:
         resp = requests.post(
             'https://www.google-analytics.com/collect',

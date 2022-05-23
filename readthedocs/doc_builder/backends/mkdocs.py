@@ -4,10 +4,9 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import json
-import logging
 import os
 
+import structlog
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
@@ -17,8 +16,7 @@ from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_absolute_static_url():
@@ -29,9 +27,9 @@ def get_absolute_static_url():
     """
     static_url = settings.STATIC_URL
 
-    if not static_url.startswith('http'):
+    if not static_url.startswith("http"):
         domain = settings.PRODUCTION_DOMAIN
-        static_url = 'http://{}{}'.format(domain, static_url)
+        static_url = "http://{}{}".format(domain, static_url)
 
     return static_url
 
@@ -61,8 +59,8 @@ class BaseMkdocs(BaseBuilder):
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
             self.DEFAULT_THEME_NAME = 'readthedocs'
             log.warning(
-                'Project using readthedocs theme as default for MkDocs: slug=%s',
-                self.project.slug,
+                'Project using readthedocs theme as default for MkDocs.',
+                project_slug=self.project.slug,
             )
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
@@ -109,9 +107,9 @@ class BaseMkdocs(BaseBuilder):
 
         except IOError:
             log.info(
-                'Creating default MkDocs config file for project: %s:%s',
-                self.project.slug,
-                self.version.slug,
+                'Creating default MkDocs config file for project.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
             )
             return {
                 'site_name': self.version.project.name,
@@ -149,37 +147,43 @@ class BaseMkdocs(BaseBuilder):
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
-        # Set mkdocs config values
-        static_url = get_absolute_static_url()
+        # MkDocs <=0.17.x doesn't support absolute paths,
+        # it needs one with a full domain.
+        if self.project.has_feature(Feature.DEFAULT_TO_MKDOCS_0_17_3):
+            static_url = get_absolute_static_url()
+        else:
+            static_url = self.project.proxied_static_path
 
-        for config in ('extra_css', 'extra_javascript'):
-            user_value = user_config.get(config, [])
-            if not isinstance(user_value, list):
+        # Set mkdocs config values.
+        extra_assets = {
+            'extra_javascript': [
+                'readthedocs-data.js',
+                f'{static_url}core/js/readthedocs-doc-embed.js',
+                f'{static_url}javascript/readthedocs-analytics.js',
+            ],
+            'extra_css': [
+                f'{static_url}css/badge_only.css',
+                f'{static_url}css/readthedocs-doc-embed.css',
+            ],
+        }
+
+        for config, extras in extra_assets.items():
+            value = user_config.get(config, [])
+            if value is None:
+                value = []
+            if not isinstance(value, list):
                 raise MkDocsYAMLParseError(
                     MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
                         config=config,
                     ),
                 )
-
-        extra_javascript_list = [
-            'readthedocs-data.js',
-            '%score/js/readthedocs-doc-embed.js' % static_url,
-            '%sjavascript/readthedocs-analytics.js' % static_url,
-        ]
-        extra_css_list = [
-            '%scss/badge_only.css' % static_url,
-            '%scss/readthedocs-doc-embed.css' % static_url,
-        ]
-
-        # Only add static file if the files are not already in the list
-        user_config.setdefault('extra_javascript', []).extend(
-            [js for js in extra_javascript_list if js not in user_config.get(
-                'extra_javascript')]
-        )
-        user_config.setdefault('extra_css', []).extend(
-            [css for css in extra_css_list if css not in user_config.get(
-                'extra_css')]
-        )
+            # Add the static file only if isn't already in the list.
+            value.extend([
+                extra
+                for extra in extras
+                if extra not in value
+            ])
+            user_config[config] = value
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.
@@ -235,6 +239,14 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        commit = (
+            self.version.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -248,7 +260,7 @@ class BaseMkdocs(BaseBuilder):
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'commit': commit,
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),

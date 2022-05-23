@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Tasks for Read the Docs' analytics."""
 
 from django.conf import settings
@@ -77,9 +75,10 @@ def analytics_event(
 @app.task(queue='web')
 def delete_old_page_counts():
     """
-    Delete page counts older than 30 days.
+    Delete page counts older than ``RTD_ANALYTICS_DEFAULT_RETENTION_DAYS``.
 
     This is intended to run from a periodic task daily.
     """
-    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
-    return PageView.objects.filter(date__lt=thirty_days_ago).delete()
+    retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
+    days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
+    return PageView.objects.filter(date__lt=days_ago).delete()

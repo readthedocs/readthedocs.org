@@ -1,29 +1,33 @@
-# Copied from .org
-
 import os
+from textwrap import dedent
 from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
-from textwrap import dedent
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
+from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
+    PRIVATE,
+    PUBLIC,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
-    PUBLIC,
-    PRIVATE,
 )
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Feature, Project
+from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
 
@@ -168,7 +172,59 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
 
-        # Invalid tests
+    @override_settings(
+        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+    )
+    def test_external_version_serving_old_slugs(self):
+        """
+        Test external version serving with projects with `--` in their slug.
+
+        Some old projects may have been created with a slug containg `--`,
+        our current code doesn't allow these type of slugs.
+        """
+        fixture.get(
+            Version,
+            verbose_name='10',
+            slug='10',
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        self.project.slug = 'test--project'
+        self.project.save()
+
+        host = 'test--project--10.dev.readthedocs.build'
+        resp = self.client.get('/awesome.html', HTTP_HOST=host)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/media/external/html/test--project/10/awesome.html',
+        )
+
+    # Invalid tests
+
+    def test_non_existent_version(self):
+        url = "/en/non-existent-version/"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_non_existent_version_with_filename(self):
+        url = "/en/non-existent-version/doesnt-exist.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_inactive_version(self):
+        url = "/en/inactive/"
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Version,
+            verbose_name="inactive",
+            slug="inactive",
+            active=False,
+            project=self.project,
+        )
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
 
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
@@ -302,6 +358,59 @@ class TestDocServingBackends(BaseDocServing):
             resp['x-accel-redirect'],
             '/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
         )
+
+    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
+    def test_track_html_files_only(self, is_audit_enabled):
+        is_audit_enabled.return_value = False
+
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+        url = '/en/latest/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+
+        is_audit_enabled.return_value = True
+        url = '/en/latest/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
+
+        log = AuditLog.objects.last()
+        self.assertEqual(log.user, None)
+        self.assertEqual(log.project, self.project)
+        self.assertEqual(log.resource, url)
+        self.assertEqual(log.action, AuditLog.PAGEVIEW)
+
+        resp = self.client.get('/en/latest/awesome.js', HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        resp = self.client.get('/en/latest/awesome.css', HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
+
+    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
+    def test_track_downloads(self, is_audit_enabled):
+        is_audit_enabled.return_value = True
+
+        self.project.versions.update(
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
+        )
+
+        self.assertEqual(AuditLog.objects.all().count(), 0)
+        url = '/_/downloads/en/latest/pdf/'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertIn('x-accel-redirect', resp)
+        self.assertEqual(AuditLog.objects.all().count(), 1)
+
+        log = AuditLog.objects.last()
+        self.assertEqual(log.user, None)
+        self.assertEqual(log.project, self.project)
+        self.assertEqual(log.resource, url)
+        self.assertEqual(log.action, AuditLog.DOWNLOAD)
 
 
 @override_settings(
@@ -769,6 +878,136 @@ class TestAdditionalDocViews(BaseDocServing):
             ]
         )
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found/",
+            "/en/latest/not-found/",
+            "/not-found",
+            "/en/not-found/",
+        ]
+        for path in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        self.assertEqual(PageView.objects.all().count(), 3)
+
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.path, "/not-found/")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/not-found")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/en/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/en/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_custom_404(self, storage_exists, storage_open):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found",
+            "/en/latest/not-found",
+            "/en/latest/not-found/",
+        ]
+        for path in paths:
+            storage_open.reset_mock()
+            storage_exists.reset_mock()
+            storage_exists.side_effect = [False, False, True]
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+            storage_open.assert_called_once_with("html/project/latest/404.html")
+
+        self.assertEqual(PageView.objects.all().count(), 2)
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(path="/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_threat_score(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            ("/en/latest/one", 1),
+            ("/en/latest/two", 7),
+            ("/en/latest/three", 13),
+            ("/en/latest/four", 57),
+        ]
+        for path, score in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+                HTTP_X_CLOUDFLARE_THREAT_SCORE=score,
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        # Only requests with threat score below 10 are recorded.
+        self.assertEqual(
+            {"/en/latest/one", "/en/latest/two"},
+            {pageview.full_path for pageview in PageView.objects.all()},
+        )
+
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
         private_version = fixture.get(
@@ -898,3 +1137,232 @@ class TestAdditionalDocViews(BaseDocServing):
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(response.status_code, 404)
+
+    @override_settings(
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    def test_serve_static_files(self):
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["javascript/readthedocs-doc-embed.js"],
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
+
+@override_settings(
+    ALLOW_PRIVATE_REPOS=True,
+    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
+)
+class TestCDNCache(BaseDocServing):
+
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.CDN_ENABLED,
+            projects=list(Project.objects.all()),
+        )
+
+    def _test_cache_control_header_project(self, expected_value, host=None):
+        """
+        Test the CDN-Cache-Control header on requests for `self.project`.
+
+        :param expected_value: The expected value of the header: 'public' or 'private'.
+        :param host: Hostname to use in the requests.
+        """
+        host = host or 'project.dev.readthedocs.io'
+
+        # Normal serving.
+        urls = [
+            '/en/latest/',
+            '/en/latest/foo.html',
+        ]
+        for url in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest', url)
+
+        # Page & system redirects are always cached.
+        # Authz is done on the redirected URL.
+        location = f'https://{host}/en/latest/'
+        urls = [
+            ['', location],
+            ['/', location],
+            ['/page/foo.html', f'https://{host}/en/latest/foo.html'],
+        ]
+        for url, location in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp['Location'], location, url)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'project', url)
+
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
+        # Slash redirect is done at the middleware level.
+        # So, it doesn't take into consideration the privacy level of the
+        # version, and always defaults to private.
+        url = '/en//latest//'
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        self.assertEqual(resp['Location'], '/en/latest/', url)
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
+        self.assertNotIn('Cache-Tag', resp.headers, url)
+
+    def _test_cache_control_header_subproject(self, expected_value, host=None):
+        """
+        Test the CDN-Cache-Control header on requests for `self.subproject`.
+
+        :param expected_value: The expected value of the header: 'public' or 'private'.
+        :param host: Hostname to use in the requests.
+        """
+        host = host or 'project.dev.readthedocs.io'
+
+        # Normal serving.
+        urls = [
+            '/projects/subproject/en/latest/',
+            '/projects/subproject/en/latest/foo.html',
+        ]
+        for url in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], expected_value, url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest', url)
+
+        # Page & system redirects are always cached.
+        # Authz is done on the redirected URL.
+        location = f'https://{host}/projects/subproject/en/latest/'
+        urls = [
+            ['/projects/subproject', location],
+            ['/projects/subproject/', location],
+        ]
+        for url, location in urls:
+            resp = self.client.get(url, secure=True, HTTP_HOST=host)
+            self.assertEqual(resp['Location'], location, url)
+            self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
+            self.assertEqual(resp.headers['Cache-Tag'], 'subproject', url)
+
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
+        # Slash redirect is done at the middleware level.
+        # So, it doesn't take into consideration the privacy level of the
+        # version, and always defaults to private.
+        url = '/projects//subproject//'
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        self.assertEqual(resp['Location'], '/projects/subproject/', url)
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
+        self.assertNotIn('Cache-Tag', resp.headers, url)
+
+    def test_cache_on_private_versions(self):
+        self.project.versions.update(privacy_level=PRIVATE)
+        self._test_cache_control_header_project(expected_value='private')
+
+    def test_cache_on_private_versions_custom_domain(self):
+        self.project.versions.update(privacy_level=PRIVATE)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_project(expected_value='private', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
+
+    def test_cache_public_versions(self):
+        self.project.versions.update(privacy_level=PUBLIC)
+        self._test_cache_control_header_project(expected_value='public')
+
+    def test_cache_public_versions_custom_domain(self):
+        self.project.versions.update(privacy_level=PUBLIC)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_project(expected_value='public', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get('/en/latest/', secure=False, HTTP_HOST=self.domain.domain)
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
+        self.assertEqual(resp.headers['Cache-Tag'], 'project,project:latest')
+
+    def test_cache_on_private_versions_subproject(self):
+        self.subproject.versions.update(privacy_level=PRIVATE)
+        self._test_cache_control_header_subproject(expected_value='private')
+
+    def test_cache_on_private_versions_custom_domain_subproject(self):
+        self.subproject.versions.update(privacy_level=PRIVATE)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_subproject(expected_value='private', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get(
+            '/projects/subproject/en/latest/',
+            secure=False,
+            HTTP_HOST=self.domain.domain,
+        )
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_public_versions_subproject(self):
+        self.subproject.versions.update(privacy_level=PUBLIC)
+        self._test_cache_control_header_subproject(expected_value='public')
+
+    def test_cache_public_versions_custom_domain(self):
+        self.subproject.versions.update(privacy_level=PUBLIC)
+        self.domain.canonical = True
+        self.domain.save()
+        self._test_cache_control_header_subproject(expected_value='public', host=self.domain.domain)
+
+        # HTTPS redirect respects the privacy level of the version.
+        resp = self.client.get(
+            '/projects/subproject/en/latest/',
+            secure=False,
+            HTTP_HOST=self.domain.domain,
+        )
+        self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
+        self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
+        self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_on_plan(self):
+        self.organization = get(Organization)
+        self.plan = get(
+            Plan,
+            published=True,
+        )
+        self.subscription = get(
+            Subscription,
+            plan=self.plan,
+            organization=self.organization,
+        )
+        self.feature = get(
+            PlanFeature,
+            plan=self.plan,
+            feature_type=PlanFeature.TYPE_CDN,
+        )
+
+        # Delete feature plan, so we aren't using that logic
+        Feature.objects.filter(feature_id=Feature.CDN_ENABLED).delete()
+
+        # Add project to plan, so we're using that to enable CDN
+        self.organization.projects.add(self.project)
+        self._test_cache_control_header_project(expected_value="public")

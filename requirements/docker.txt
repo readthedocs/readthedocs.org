@@ -1,28 +1,26 @@
 # Requirements for our local docker development
 
 -r pip.txt
-# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-psycopg2-binary==2.8.6
+-r debug.txt
 
-# Version 3.0.0 drops support for Django < 3.0
-# https://github.com/sebleier/django-redis-cache/#300
-django-redis-cache==2.1.3  # pyup: ignore
+# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
+psycopg2-binary==2.9.2  # pyup: ignore
+
+django-redis-cache==3.0.1
 
 # For resizing images
-pillow==8.2.0
+pillow==9.1.0
 
-# local debugging tools
-watchdog==2.1.1
-datadiff==2.0.0
-ipdb==0.13.7
-pdbpp==0.10.2
-
-# jedi 0.18 is incompatible with ipython
-# https://github.com/ipython/ipython/issues/12740
-jedi>0.17,<0.18  # pyup: ignore
-
+# Local debugging tools
+watchdog==2.1.7
 # watchdog dependency
 argh==0.26.2
 
 # run tests
-tox==3.23.1
+tox==3.25.0
+
+# AWS utilities to use against MinIO
+awscli==1.22.97
+
+# Used together with structlog to have nicer logs locally
+rich==12.2.0

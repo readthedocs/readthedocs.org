@@ -1,0 +1,28 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n gravatar %}
+
+{% block title %}{% trans "Invite Members" %}{% endblock %}
+
+{% block organization-admin-invite %}active{% endblock %}
+
+{% block edit_content_header %}{% trans "Invite Members" %}{% endblock %}
+
+{% block edit_content %}
+  <p class="help_text">
+    {% trans "Invite members to " %} {{ organization.name }}
+  </p>
+
+      {% if teams %}
+        <form method="POST" action=".">{% csrf_token %}
+          {{ form }}
+          <br>
+          <input type="submit" name="submit" value="{% trans "Let them in" %}" id="submit"/>
+        </form>
+      {% else %}
+      <p class="error">
+      Please add a team before you can add people.
+      </p>
+      {% endif %}
+
+{% endblock %}

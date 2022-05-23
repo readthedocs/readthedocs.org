@@ -1,15 +1,20 @@
-import logging
+import structlog
 
-log = logging.getLogger(__name__)
+from readthedocs.core.utils import get_cache_tag
+
+log = structlog.get_logger(__name__)
 
 
-class CachedResponseMixin:
+class CDNCacheTagsMixin:
 
     """
     Add cache tags for project and version to the response of this view.
 
     The view inheriting this mixin should implement the
     `self._get_project` and `self._get_version` methods.
+
+    If `self._get_version` returns `None`,
+    only the project level tags are added.
 
     You can add an extra per-project tag by overriding the `project_cache_tag` attribute.
     """
@@ -35,13 +40,18 @@ class CachedResponseMixin:
         try:
             project = self._get_project()
             version = self._get_version()
-            tags = [
-                project.slug,
-                f'{project.slug}-{version.slug}',
-            ]
-            if self.project_cache_tag:
-                tags.append(f'{project.slug}-{self.project_cache_tag}')
-            return tags
-        except Exception as e:
-            log.debug('Error while retrieving project and version for this view.')
-        return []
+        except Exception:
+            log.warning(
+                "Error while retrieving project or version for this view.",
+                exc_info=True,
+            )
+            return []
+
+        tags = []
+        if project:
+            tags.append(project.slug)
+        if project and version:
+            tags.append(get_cache_tag(project.slug, version.slug))
+        if project and self.project_cache_tag:
+            tags.append(get_cache_tag(project.slug, self.project_cache_tag))
+        return tags

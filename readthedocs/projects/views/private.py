@@ -1,26 +1,23 @@
 """Project views for authenticated users."""
 
-import csv
-import logging
-
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseNotAllowed,
     HttpResponseRedirect,
-    StreamingHttpResponse,
 )
 from django.middleware.csrf import get_token
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, TemplateView, View
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
 from vanilla import (
     CreateView,
@@ -40,17 +37,14 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.core.mixins import (
-    ListViewWithForm,
-    PrivateViewMixin,
-)
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.history import UpdateChangeReasonPostView
+from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
-from readthedocs.projects import tasks
+from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
@@ -77,15 +71,16 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
-from readthedocs.projects.utils import Echo
-from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.tasks.utils import clean_project_resources
+from readthedocs.projects.utils import get_csv_file
+from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
@@ -100,6 +95,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context = super().get_context_data(**kwargs)
         # Set the default search to search files instead of projects
         context['type'] = 'file'
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectListFilterSet(self.request.GET, queryset=self.get_queryset())
+            context['filter'] = filter
+            context['project_list'] = filter.qs
+            # Alternatively, dynamically override super()-derived `project_list` context_data
+            # context[self.get_context_object_name(filter.qs)] = filter.qs
+
         return context
 
     def validate_primary_email(self, user):
@@ -140,7 +143,7 @@ class ProjectMixin(PrivateViewMixin):
         return self.model.objects.for_admin_user(self.request.user)
 
 
-class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectUpdate(ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
     success_message = _('Project settings updated')
@@ -150,7 +153,7 @@ class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
     success_message = _('Project settings updated')
@@ -160,7 +163,7 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectDelete(ProjectMixin, DeleteView):
+class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
 
     success_message = _('Project deleted')
     template_name = 'projects/project_delete.html'
@@ -209,8 +212,11 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s', version.slug)
-                tasks.clean_project_resources(
+                log.info(
+                    'Removing files for version.',
+                    version_slug=version.slug,
+                )
+                clean_project_resources(
                     version.project,
                     version,
                 )
@@ -238,8 +244,8 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            log.info('Removing files for version %s', version.slug)
-            tasks.clean_project_resources(
+            log.info('Removing files for version.', version_slug=version.slug)
+            clean_project_resources(
                 version.project,
                 version,
             )
@@ -250,10 +256,7 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ImportWizardView(
-        ProjectImportMixin, ProjectSpamMixin, PrivateViewMixin,
-        SessionWizardView,
-):
+class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
 
     """
     Project import wizard.
@@ -284,8 +287,15 @@ class ImportWizardView(
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self._set_initial_dict()
+
+        log.bind(user_username=self.request.user.username)
+
+        if self.request.user.profile.banned:
+            log.info('Rejecting project POST from shadowbanned user.')
+            return HttpResponseRedirect(reverse('homepage'))
+
         # The storage is reset after everything is done.
         return super().post(*args, **kwargs)
 
@@ -336,72 +346,6 @@ class ImportWizardView(
         """Determine if the user selected the `show advanced` field."""
         data = self.get_cleaned_data_for_step('basics') or {}
         return data.get('advanced', True)
-
-
-class ImportDemoView(PrivateViewMixin, ProjectImportMixin, View):
-
-    """View to pass request on to import form to import demo project."""
-
-    form_class = ProjectBasicsForm
-    request = None
-    args = None
-    kwargs = None
-
-    def get(self, request, *args, **kwargs):
-        """Process link request as a form post to the project import form."""
-        self.request = request
-        self.args = args
-        self.kwargs = kwargs
-
-        data = self.get_form_data()
-        project = Project.objects.for_admin_user(
-            request.user,
-        ).filter(repo=data['repo']).first()
-        if project is not None:
-            messages.success(
-                request,
-                _('The demo project is already imported!'),
-            )
-        else:
-            kwargs = self.get_form_kwargs()
-            form = self.form_class(data=data, **kwargs)
-            if form.is_valid():
-                project = form.save()
-                project.save()
-                self.trigger_initial_build(project, request.user)
-                messages.success(
-                    request,
-                    _('Your demo project is currently being imported'),
-                )
-            else:
-                messages.error(
-                    request,
-                    _('There was a problem adding the demo project'),
-                )
-                return HttpResponseRedirect(reverse('projects_dashboard'))
-        return HttpResponseRedirect(
-            reverse('projects_detail', args=[project.slug]),
-        )
-
-    def get_form_data(self):
-        """Get form data to post to import form."""
-        return {
-            'name': '{}-demo'.format(self.request.user.username),
-            'repo_type': 'git',
-            'repo': 'https://github.com/readthedocs/template.git',
-        }
-
-    def get_form_kwargs(self):
-        """Form kwargs passed in during instantiation."""
-        return {'user': self.request.user}
-
-    def trigger_initial_build(self, project, user):
-        """
-        Trigger initial build.
-
-        Allow to override the behavior from outside.
-        """
-        return trigger_build(project)
 
 
 class ImportView(PrivateViewMixin, TemplateView):
@@ -491,10 +435,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['superproject'] = self.project.superprojects.first()
-        return ctx
+    pass
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
@@ -523,6 +464,9 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_success_url(self):
         return reverse('projects_users', args=[self.get_project().slug])
 
+    def _is_last_user(self):
+        return self.get_queryset().count() <= 1
+
 
 class ProjectUsersCreateList(ProjectUsersMixin, FormView):
 
@@ -535,6 +479,7 @@ class ProjectUsersCreateList(ProjectUsersMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['users'] = self.get_queryset()
+        context['is_last_user'] = self._is_last_user()
         return context
 
 
@@ -548,11 +493,14 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
             self.get_queryset(),
             username=username,
         )
-        if user == request.user:
-            raise Http404
+        if self._is_last_user():
+            return HttpResponseBadRequest(_(f'{username} is the last owner, can\'t be removed'))
 
         project = self.get_project()
         project.users.remove(user)
+
+        if user == request.user:
+            return HttpResponseRedirect(reverse('projects_dashboard'))
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -572,18 +520,10 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
 
     template_name = 'projects/project_notifications.html'
     email_form = EmailHookForm
-    webhook_form = WebHookForm
 
     def get_email_form(self):
         project = self.get_project()
         return self.email_form(
-            self.request.POST or None,
-            project=project,
-        )
-
-    def get_webhook_form(self):
-        project = self.get_project()
-        return self.webhook_form(
             self.request.POST or None,
             project=project,
         )
@@ -593,25 +533,31 @@ class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
             email_form = self.get_email_form()
             if email_form.is_valid():
                 email_form.save()
-        elif 'url' in request.POST:
-            webhook_form = self.get_webhook_form()
-            if webhook_form.is_valid():
-                webhook_form.save()
         return HttpResponseRedirect(self.get_success_url())
+
+    def _has_old_webhooks(self):
+        """
+        Check if the project has webhooks from the old implementation created.
+
+        Webhooks from the old implementation don't have a custom payload.
+        """
+        project = self.get_project()
+        return (
+            project.webhook_notifications
+            .filter(Q(payload__isnull=True) | Q(payload=''))
+            .exists()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
 
         project = self.get_project()
         emails = project.emailhook_notifications.all()
-        urls = project.webhook_notifications.all()
-
         context.update(
             {
                 'email_form': self.get_email_form(),
-                'webhook_form': self.get_webhook_form(),
                 'emails': emails,
-                'urls': urls,
+                'has_old_webhooks': self._has_old_webhooks(),
             },
         )
         return context
@@ -635,6 +581,68 @@ class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
             except WebHook.DoesNotExist:
                 raise Http404
         return HttpResponseRedirect(self.get_success_url())
+
+
+class WebHookMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = WebHook
+    lookup_url_kwarg = 'webhook_pk'
+    form_class = WebHookForm
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks',
+            args=[self.get_project().slug],
+        )
+
+
+class WebHookList(WebHookMixin, ListView):
+
+    pass
+
+
+class WebHookCreate(WebHookMixin, CreateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks_edit',
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class WebHookUpdate(WebHookMixin, UpdateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_webhooks_edit',
+            args=[self.get_project().slug, self.object.pk],
+        )
+
+
+class WebHookDelete(WebHookMixin, DeleteView):
+
+    http_method_names = ['post']
+
+
+class WebHookExchangeDetail(WebHookMixin, DetailView):
+
+    model = HttpExchange
+    lookup_url_kwarg = 'webhook_exchange_pk'
+    webhook_url_kwarg = 'webhook_pk'
+    template_name = 'projects/webhook_exchange_detail.html'
+
+    def get_queryset(self):
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(webhook__id=self.get_webhook().id)
+
+    def get_webhook(self):
+        return get_object_or_404(
+            WebHook,
+            pk=self.kwargs[self.webhook_url_kwarg],
+            project=self.get_project(),
+        )
 
 
 class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -740,8 +748,18 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_success_url(self):
         return reverse('projects_domains', args=[self.get_project().slug])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['enabled'] = self._is_enabled(project)
+        return context
 
-class DomainList(DomainMixin, ListViewWithForm):
+    def _is_enabled(self, project):
+        """Should we allow custom domains for this project?"""
+        return True
+
+
+class DomainListBase(DomainMixin, ListViewWithForm):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -756,19 +774,46 @@ class DomainList(DomainMixin, ListViewWithForm):
         return ctx
 
 
+class DomainList(SettingsOverrideObject):
+
+    _default_class = DomainListBase
+
+
 class DomainCreateBase(DomainMixin, CreateView):
-    pass
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        if self._is_enabled(project) and not project.superproject:
+            return super().post(request, *args, **kwargs)
+        return HttpResponse('Action not allowed', status=401)
+
+    def get_success_url(self):
+        """Redirect to the edit view so users can follow the next steps."""
+        return reverse(
+            'projects_domains_edit',
+            args=[
+                self.get_project().slug,
+                self.object.pk,
+            ],
+        )
 
 
 class DomainCreate(SettingsOverrideObject):
+
     _default_class = DomainCreateBase
 
 
 class DomainUpdateBase(DomainMixin, UpdateView):
-    pass
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        if self._is_enabled(project) and not project.superproject:
+            return super().post(request, *args, **kwargs)
+        return HttpResponse('Action not allowed', status=401)
 
 
 class DomainUpdate(SettingsOverrideObject):
+
     _default_class = DomainUpdateBase
 
 
@@ -874,7 +919,10 @@ class IntegrationExchangeDetail(IntegrationMixin, DetailView):
     template_name = 'projects/integration_exchange_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.filter(integrations=self.get_integration())
+        # NOTE: We are explicitly using the id instead of the the object
+        # to avoid a bug where the id is wrongly casted as an uuid.
+        # https://code.djangoproject.com/ticket/33450
+        return self.model.objects.filter(integrations__id=self.get_integration().id)
 
     def get_object(self):
         return DetailView.get_object(self)
@@ -1019,7 +1067,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
         if download_data:
-            return self._search_analytics_csv_data()
+            return self._get_csv_data()
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1056,46 +1104,49 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
         return context
 
-    def _search_analytics_csv_data(self):
+    def _get_csv_data(self):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
-        last_3_month = now - timezone.timedelta(days=90)
+        retention_limit = self._get_retention_days_limit(project)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = project.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=retention_limit)
 
+        values = [
+            ('Created Date', 'created'),
+            ('Query', 'query'),
+            ('Total Results', 'total_results'),
+        ]
         data = []
         if self._is_enabled(project):
             data = (
                 SearchQuery.objects.filter(
                     project=project,
-                    created__date__gte=last_3_month,
-                    created__date__lte=now,
+                    created__date__gte=days_ago,
                 )
                 .order_by('-created')
-                .values_list('created', 'query', 'total_results')
+                .values_list(*[value for _, value in values])
             )
 
-        file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+        filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
-            start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
+            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
             end=timezone.datetime.strftime(now, '%Y-%m-%d'),
         )
-        # remove any spaces in filename.
-        file_name = '-'.join([text for text in file_name.split() if text])
 
         csv_data = [
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
-            for time, query, total_results in data
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
         ]
-        # Add headers to the CSV
-        csv_data.insert(0, ['Created Date', 'Query', 'Total Results'])
-        pseudo_buffer = Echo()
-        writer = csv.writer(pseudo_buffer)
-        response = StreamingHttpResponse(
-            (writer.writerow(row) for row in csv_data),
-            content_type="text/csv",
-        )
-        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-        return response
+        csv_data.insert(0, [header for header, _ in values])
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_retention_days_limit(self, project):
+        """From how many days we need to show data for this project?"""
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show search analytics for this project?"""
@@ -1111,6 +1162,12 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
 
+    def get(self, request, *args, **kwargs):
+        download_data = request.GET.get('download', False)
+        if download_data:
+            return self._get_csv_data()
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
@@ -1120,23 +1177,76 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             return context
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project, limit=25)
-        top_viewed_pages = list(zip(
-            top_pages['pages'],
-            top_pages['view_counts']
-        ))
+        top_pages_200 = PageView.top_viewed_pages(project, limit=25)
+        track_404 = project.has_feature(Feature.RECORD_404_PAGE_VIEWS)
+        top_pages_404 = []
+        if track_404:
+            top_pages_404 = PageView.top_viewed_pages(
+                project,
+                limit=25,
+                status=404,
+                per_version=True,
+            )
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(
             project_slug=project.slug,
         )
 
-        context.update({
-            'top_viewed_pages': top_viewed_pages,
-            'page_data': page_data,
-        })
+        context.update(
+            {
+                "top_pages_200": top_pages_200,
+                "page_data": page_data,
+                "top_pages_404": top_pages_404,
+                "track_404": track_404,
+            }
+        )
 
         return context
+
+    def _get_csv_data(self):
+        project = self.get_project()
+        now = timezone.now().date()
+        retention_limit = self._get_retention_days_limit(project)
+        if retention_limit in [None, -1]:
+            # Unlimited.
+            days_ago = project.pub_date.date()
+        else:
+            days_ago = now - timezone.timedelta(days=retention_limit)
+
+        values = [
+            ('Date', 'date'),
+            ('Version', 'version__slug'),
+            ('Path', 'path'),
+            ('Views', 'view_count'),
+        ]
+        data = []
+        if self._is_enabled(project):
+            data = (
+                PageView.objects.filter(
+                    project=project,
+                    date__gte=days_ago,
+                    status=200,
+                )
+                .order_by('-date')
+                .values_list(*[value for _, value in values])
+            )
+
+        filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(days_ago, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+        )
+        csv_data = [
+            [timezone.datetime.strftime(date, '%Y-%m-%d %H:%M:%S'), *rest]
+            for date, *rest in data
+        ]
+        csv_data.insert(0, [header for header, _ in values])
+        return get_csv_file(filename=filename, csv_data=csv_data)
+
+    def _get_retention_days_limit(self, project):
+        """From how many days we need to show data for this project?"""
+        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
 
     def _is_enabled(self, project):
         """Should we show traffic analytics for this project?"""

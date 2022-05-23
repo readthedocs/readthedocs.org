@@ -1,14 +1,14 @@
 """URL resolver for documentation."""
 
-import logging
 from urllib.parse import urlunparse
 
+import structlog
 from django.conf import settings
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class ResolverBase:
@@ -102,7 +102,7 @@ class ResolverBase:
             )
             if '$' in url:
                 log.warning(
-                    'Unconverted variable in a resolver URLConf: url=%s', url
+                    'Unconverted variable in a resolver URLConf.', url=url,
                 )
 
         return url.format(
@@ -152,11 +152,18 @@ class ResolverBase:
             urlconf=urlconf or project.urlconf,
         )
 
-    def resolve_domain(self, project):
+    def resolve_domain(self, project, use_canonical_domain=True):
+        """
+        Get the domain from where the documentation of ``project`` is served from.
+
+        :param project: Project object
+        :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
+        """
         canonical_project = self._get_canonical_project(project)
-        domain = canonical_project.get_canonical_custom_domain()
-        if domain:
-            return domain.domain
+        if use_canonical_domain and self._use_cname(canonical_project):
+            domain = canonical_project.get_canonical_custom_domain()
+            if domain:
+                return domain.domain
 
         if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
@@ -344,6 +351,10 @@ class ResolverBase:
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""
         return settings.USE_SUBDOMAIN and settings.PUBLIC_DOMAIN is not None
+
+    def _use_cname(self, project):
+        """Test if to allow direct serving for project on CNAME."""
+        return True
 
 
 class Resolver(SettingsOverrideObject):

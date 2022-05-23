@@ -24,6 +24,10 @@
     margin: 0;
 }
 
+.rtd-current-item {
+    font-weight: bold;
+}
+
 
 /* Fix RTD theme bottom margin */
 .rst-content .line-block {

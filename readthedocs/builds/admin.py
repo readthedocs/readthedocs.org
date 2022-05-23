@@ -1,16 +1,7 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
-import json
 from django.contrib import admin, messages
-from django.utils.safestring import mark_safe
-from polymorphic.admin import (
-    PolymorphicChildModelAdmin,
-    PolymorphicParentModelAdmin,
-)
-
-from pygments import highlight
-from pygments.lexers import JsonLexer
-from pygments.formatters import HtmlFormatter
+from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin
 
 from readthedocs.builds.models import (
     Build,
@@ -20,32 +11,9 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.utils.admin import pretty_json_field
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
-
-
-def _pretty_config(instance):
-    """
-    Function to display pretty version of our data.
-
-    Thanks to PyDanny: https://www.pydanny.com/pretty-formatting-json-django-admin.html
-    """
-
-    # Convert the data to sorted, indented JSON
-    response = json.dumps(instance.config, sort_keys=True, indent=2)
-
-    # Get the Pygments formatter
-    formatter = HtmlFormatter()
-
-    # Highlight the data
-    response = highlight(response, JsonLexer(), formatter)
-
-    # Get the stylesheet
-    style = "<style>" + formatter.get_style_defs() + "</style><br>"
-
-    # Safe the output
-    return mark_safe(style + response)
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -97,7 +65,7 @@ class BuildAdmin(admin.ModelAdmin):
         return obj.version.slug
 
     def pretty_config(self, instance):
-        return _pretty_config(instance)
+        return pretty_json_field(instance, "config")
 
     pretty_config.short_description = 'Config File'
 
@@ -118,29 +86,15 @@ class VersionAdmin(admin.ModelAdmin):
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
+    actions = ['build_version', 'reindex_version', 'wipe_version_indexes']
 
     def project_slug(self, obj):
         return obj.project.slug
 
-    def wipe_selected_versions(self, request, queryset):
-        """Wipes the selected versions."""
-        for version in queryset:
-            wipe_version_via_slugs(
-                version_slug=version.slug,
-                project_slug=version.project.slug
-            )
-            self.message_user(
-                request,
-                'Wiped {}.'.format(version.slug),
-                level=messages.SUCCESS
-            )
-
     def pretty_config(self, instance):
-        return _pretty_config(instance)
+        return pretty_json_field(instance, "config")
 
     pretty_config.short_description = 'Config File'
-    wipe_selected_versions.short_description = 'Wipe selected versions'
 
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
@@ -179,7 +133,7 @@ class VersionAdmin(admin.ModelAdmin):
 
     reindex_version.short_description = 'Reindex version to ES'
 
-    def wipe_version(self, request, queryset):
+    def wipe_version_indexes(self, request, queryset):
         """Wipe selected versions from ES."""
         html_objs_qs = []
         for version in queryset.iterator():
@@ -197,7 +151,7 @@ class VersionAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
 
-    wipe_version.short_description = 'Wipe version from ES'
+    wipe_version_indexes.short_description = 'Wipe version from ES'
 
 
 @admin.register(RegexAutomationRule)

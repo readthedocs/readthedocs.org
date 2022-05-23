@@ -5,6 +5,9 @@ Some of these settings will eventually be backported into the main settings file
 but currently we have them to be able to run the site with the old middleware for
 a staged rollout of the proxito code.
 """
+import structlog
+
+log = structlog.get_logger(__name__)
 
 
 class CommunityProxitoSettingsMixin:
@@ -12,6 +15,10 @@ class CommunityProxitoSettingsMixin:
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
+
+    # Allow cookies from cross-site requests on subdomains for now.
+    # As 'Lax' breaks when the page is embedded in an iframe.
+    SESSION_COOKIE_SAMESITE = None
 
     @property
     def DATABASES(self):
@@ -31,9 +38,12 @@ class CommunityProxitoSettingsMixin:
 
         middleware_to_remove = (
             'csp.middleware.CSPMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
         )
         for mw in middleware_to_remove:
             if mw in classes:
                 classes.remove(mw)
+            else:
+                log.warning('Failed to remove middleware.', middleware=mw)
 
         return classes

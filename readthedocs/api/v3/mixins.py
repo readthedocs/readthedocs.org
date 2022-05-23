@@ -3,8 +3,51 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from readthedocs.builds.models import Version
+from readthedocs.core.history import (
+    safe_update_change_reason,
+    set_change_reason,
+)
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+
+
+class UpdateChangeReasonMixin:
+
+    """
+    Set the change_reason on the model changed through this API view.
+
+    The view should inherit one of:
+
+    - CreateModelMixin
+    - UpdateModelMixin
+    - DestroyModelMixin
+
+    Unlike the original methods,
+    these return the instance that was created/updated,
+    so they are easy to override without having to save the object twice.
+    """
+
+    change_reason = None
+
+    def get_change_reason(self):
+        if self.change_reason:
+            return self.change_reason
+        klass = self.__class__.__name__
+        return f'origin=api-v3 class={klass}'
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        safe_update_change_reason(obj, self.get_change_reason())
+        return obj
+
+    def perform_update(self, serializer):
+        set_change_reason(serializer.instance, self.get_change_reason())
+        obj = serializer.save()
+        return obj
+
+    def perform_destroy(self, instance):
+        set_change_reason(instance, self.get_change_reason())
+        super().perform_destroy(instance)
 
 
 class NestedParentObjectMixin:
@@ -184,3 +227,9 @@ class UpdateMixin:
         # via Javascript
         super().update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RemoteQuerySetMixin:
+
+    def get_queryset(self):
+        return super().get_queryset().api(self.request.user)

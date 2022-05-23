@@ -1,13 +1,17 @@
 """Views pertaining to builds."""
 
-import logging
+import structlog
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import (
+    EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
+)
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
-from readthedocs.projects.tasks import sync_repository_task
+from readthedocs.projects.tasks.builds import sync_repository_task
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def _build_version(project, slug, already_built=()):
@@ -25,14 +29,14 @@ def _build_version(project, slug, already_built=()):
     version = project.versions.filter(active=True, slug=slug).first()
     if version and slug not in already_built:
         log.info(
-            '(Version build) Building %s:%s',
-            project.slug,
-            version.slug,
+            'Building.',
+            project_slug=project.slug,
+            version_slug=version.slug,
         )
-        trigger_build(project=project, version=version, force=True)
+        trigger_build(project=project, version=version)
         return slug
 
-    log.info('(Version build) Not Building %s', slug)
+    log.info('Not building.', version_slug=slug)
     return None
 
 
@@ -50,10 +54,10 @@ def build_branches(project, branch_list):
         versions = project.versions_from_branch_name(branch)
 
         for version in versions:
-            log.info(
-                '(Branch Build) Processing %s:%s',
-                project.slug,
-                version.slug,
+            log.debug(
+                'Processing.',
+                project_slug=project.slug,
+                version_slug=version.slug,
             )
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
@@ -78,8 +82,8 @@ def trigger_sync_versions(project):
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Sync not triggered because Project is not active: project=%s',
-            project.slug,
+            'Sync not triggered because project is not active.',
+            project_slug=project.slug,
         )
         return None
 
@@ -91,11 +95,11 @@ def trigger_sync_versions(project):
             ).first()
         )
         if not version:
-            log.info('Unable to sync from %s version', version_identifier)
+            log.info('Unable to sync from version.', version_identifier=version_identifier)
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
-            log.info('Skipping sync versions for project: project=%s', project.slug)
+            log.info('Skipping sync versions for project.', project_slug=project.slug)
             return None
 
         options = {}
@@ -103,10 +107,10 @@ def trigger_sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
-        log.info(
-            'Triggering sync repository. project=%s version=%s',
-            version.project.slug,
-            version.slug,
+        log.debug(
+            'Triggering sync repository.',
+            project_slug=version.project.slug,
+            version_slug=version.slug,
         )
         sync_repository_task.apply_async(
             (version.pk,),
@@ -118,74 +122,82 @@ def trigger_sync_versions(project):
     return None
 
 
-def get_or_create_external_version(project, identifier, verbose_name):
+def get_or_create_external_version(project, version_data):
     """
-    Get or create external versions using `identifier` and `verbose_name`.
+    Get or create version using the ``commit`` as identifier, and PR id as ``verbose_name``.
 
     if external version does not exist create an external version
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns:  External version.
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+     instance.
+    :returns: External version.
     :rtype: Version
     """
     external_version, created = project.versions.get_or_create(
-        verbose_name=verbose_name,
+        verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={'identifier': identifier, 'active': True},
+        defaults={
+            "identifier": version_data.commit,
+            "active": True,
+            "state": EXTERNAL_VERSION_STATE_OPEN,
+        },
     )
 
     if created:
         log.info(
-            'External version created. project=%s version=%s',
-            project.slug, external_version.slug,
+            'External version created.',
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
-        external_version.identifier = identifier
-        # If the PR was previously closed it was marked as inactive.
-        external_version.active = True
+        external_version.identifier = version_data.commit
+        # If the PR was previously closed it was marked as closed
+        external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.save()
-
         log.info(
-            'External version updated: project=%s version=%s',
-            project.slug, external_version.slug,
+            'External version updated.',
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
     return external_version
 
 
-def deactivate_external_version(project, identifier, verbose_name):
+def close_external_version(project, version_data):
     """
-    Deactivate external versions using `identifier` and `verbose_name`.
+    Close external versions using `identifier` and `verbose_name`.
 
-    if external version does not exist then returns `None`.
-
-    We mark the version as inactive,
-    so another celery task will remove it after some days.
+    We mark the version's state as `closed` so another celery task will remove
+    it after some days. If external version does not exist then returns `None`.
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns: verbose_name (pull/merge request number).
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+     instance.
     :rtype: str
     """
-    external_version = project.versions(manager=EXTERNAL).filter(
-        verbose_name=verbose_name, identifier=identifier
-    ).first()
+    external_version = (
+        project.versions(manager=EXTERNAL)
+        .filter(
+            verbose_name=version_data.id,
+            identifier=version_data.commit,
+        )
+        .first()
+    )
 
     if external_version:
-        external_version.active = False
+        external_version.state = EXTERNAL_VERSION_STATE_CLOSED
         external_version.save()
         log.info(
-            'External version marked as inactive. project=%s version=%s',
-            project.slug, external_version.slug,
+            "External version marked as closed.",
+            project_slug=project.slug,
+            version_slug=external_version.slug,
         )
         return external_version.verbose_name
     return None
 
 
-def build_external_version(project, version, commit):
+def build_external_version(project, version):
     """
     Where we actually trigger builds for external versions.
 
@@ -197,10 +209,10 @@ def build_external_version(project, version, commit):
 
     # Build External version
     log.info(
-        '(External Version build) Building %s:%s',
-        project.slug,
-        version.slug,
+        'Building external version',
+        project_slug=project.slug,
+        version_slug=version.slug,
     )
-    trigger_build(project=project, version=version, commit=commit, force=True)
+    trigger_build(project=project, version=version, commit=version.identifier)
 
     return version.verbose_name

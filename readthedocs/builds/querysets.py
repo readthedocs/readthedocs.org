@@ -1,20 +1,23 @@
 """Build and Version QuerySet classes."""
 import datetime
-import logging
 
+import structlog
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    EXTERNAL,
 )
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 __all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
@@ -26,20 +29,81 @@ class VersionQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
-        if user.is_superuser:
-            return self.all()
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+    def __init__(self, *args, internal_only=False, external_only=False, **kwargs):
+        """
+        Overridden to pass extra arguments from the manager.
+
+        Usage:
+
+          import functools
+
+          ManagerClass.from_queryset(
+              functools.partial(VersionQuerySet, internal_only=True)
+          )
+
+        :param bool internal_only: If this queryset is being used to query internal versions only.
+        :param bool external_only: If this queryset is being used to query external versions only.
+        """
+        self.internal_only = internal_only
+        self.external_only = external_only
+        super().__init__(*args, **kwargs)
+
+    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
+        """Add related objects from projects where `user` is an `admin` or a `member`."""
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=admin,
+                    member=member,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None, only_active=True,
-               include_hidden=True, only_built=False):
-        queryset = self.filter(privacy_level=constants.PUBLIC)
+    def _public_only(self):
+        if self.internal_only:
+            # Since internal versions are already filtered,
+            # don't do anything special.
+            queryset = self.filter(privacy_level=constants.PUBLIC)
+        elif self.external_only:
+            # Since external versions are already filtered,
+            # don't filter them again.
+            queryset = self.filter(
+                project__external_builds_privacy_level=constants.PUBLIC,
+            )
+        else:
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+            queryset |= self.filter(
+                type=EXTERNAL,
+                project__external_builds_privacy_level=constants.PUBLIC,
+            )
+        return queryset
+
+    def public(
+        self,
+        user=None,
+        project=None,
+        only_active=True,
+        include_hidden=True,
+        only_built=False,
+    ):
+        """
+        Get all allowed versions.
+
+        .. note::
+
+           External versions use the `Project.external_builds_privacy_level`
+           field instead of its `privacy_level` field.
+        """
+        queryset = self._public_only()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -50,21 +114,15 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(hidden=False)
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
-        if detail:
-            return self.public(user, only_active=False)
-
-        queryset = self.none()
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
+    def api(self, user=None):
+        return self.public(user, only_active=False)
 
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
 
 
-class BuildQuerySetBase(models.QuerySet):
+class BuildQuerySet(models.QuerySet):
 
     """
     Build objects that are privacy aware.
@@ -74,31 +132,60 @@ class BuildQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
-        if user.is_superuser:
-            return self.all()
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+    def _add_from_user_projects(self, queryset, user, admin=False, member=False):
+        """Add related objects from projects where `user` is an `admin` or a `member`."""
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=admin,
+                    member=member,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
 
     def public(self, user=None, project=None):
-        queryset = self.filter(version__privacy_level=constants.PUBLIC)
+        """
+        Get all allowed builds.
+
+        Builds are public if the linked version and project are public.
+
+        .. note::
+
+           External versions use the `Project.external_builds_privacy_level`
+           field instead of its `privacy_level` field.
+        """
+        queryset = (
+            self.filter(
+                version__privacy_level=constants.PUBLIC,
+                version__project__privacy_level=constants.PUBLIC,
+            )
+            .exclude(version__type=EXTERNAL)
+        )
+        queryset |= self.filter(
+            version__type=EXTERNAL,
+            project__external_builds_privacy_level=constants.PUBLIC,
+            project__privacy_level=constants.PUBLIC,
+        )
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(
+                    queryset,
+                    user,
+                    admin=True,
+                    member=True,
+                )
         if project:
             queryset = queryset.filter(project=project)
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
-        if detail:
-            return self.public(user)
-
-        queryset = self.none()
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        return queryset.distinct()
+    def api(self, user=None):
+        return self.public(user)
 
     def concurrent(self, project):
         """
@@ -139,53 +226,66 @@ class BuildQuerySetBase(models.QuerySet):
             query |= Q(project__in=organization.projects.all())
 
         concurrent = (
-            self.filter(query)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        ).distinct().count()
+            (
+                self.filter(query).exclude(
+                    state__in=[
+                        BUILD_STATE_TRIGGERED,
+                        BUILD_STATE_FINISHED,
+                        BUILD_STATE_CANCELLED,
+                    ]
+                )
+            )
+            .distinct()
+            .count()
+        )
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
-            'Concurrent builds. project=%s running=%s max=%s',
-            project.slug,
-            concurrent,
-            max_concurrent,
+            'Concurrent builds.',
+            project_slug=project.slug,
+            concurent=concurrent,
+            max_concurrent=max_concurrent,
         )
         if concurrent >= max_concurrent:
             limit_reached = True
         return (limit_reached, concurrent, max_concurrent)
 
 
-class BuildQuerySet(SettingsOverrideObject):
-    _default_class = BuildQuerySetBase
+class RelatedBuildQuerySet(models.QuerySet):
 
+    """
+    For models with association to a project through :py:class:`Build`.
 
-class RelatedBuildQuerySetBase(models.QuerySet):
+    .. note::
 
-    """For models with association to a project through :py:class:`Build`."""
+       This is only used for ``BuildCommandViewSet`` from api v2.
+       Which is being used to upload build command results from the builders.
+    """
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
-        if user.is_superuser:
-            return self.all()
-        if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+    def _add_from_user_projects(self, queryset, user):
+        if user and user.is_authenticated:
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None):
+    def public(self, user=None):
         queryset = self.filter(build__version__privacy_level=constants.PUBLIC)
         if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(build__project=project)
+            if user.is_superuser:
+                queryset = self.all()
+            else:
+                queryset = self._add_from_user_projects(queryset, user)
         return queryset.distinct()
 
     def api(self, user=None):
         return self.public(user)
-
-
-class RelatedBuildQuerySet(SettingsOverrideObject):
-    _default_class = RelatedBuildQuerySetBase
-    _override_setting = 'RELATED_BUILD_MANAGER'

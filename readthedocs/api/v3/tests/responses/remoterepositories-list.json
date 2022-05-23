@@ -1,0 +1,67 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "admin": true,
+      "avatar_url": "https://avatars3.githubusercontent.com/u/test-rtd?v=4",
+      "clone_url": "https://github.com/rtd/project.git",
+      "created": "2019-04-29T10:00:00Z",
+      "default_branch": "master",
+      "description": "This is a test project.",
+      "full_name": "rtd/project",
+      "html_url": "https://github.com/rtd/project",
+      "modified": "2019-04-29T12:00:00Z",
+      "name": "project",
+      "pk": 1,
+      "private": false,
+      "projects": [{
+        "_links": {
+          "_self": "https://readthedocs.org/api/v3/projects/project/",
+          "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+          "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
+          "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
+          "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
+          "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+          "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
+          "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
+        },
+        "created": "2019-04-29T10:00:00Z",
+        "default_branch": "master",
+        "default_version": "latest",
+        "homepage": "http://project.com",
+        "id": 1,
+        "language": { "code": "en", "name": "English" },
+        "modified": "2019-04-29T12:00:00Z",
+        "name": "project",
+        "programming_language": { "code": "words", "name": "Only Words" },
+        "repository": { "type": "git", "url": "https://github.com/rtfd/project" },
+        "slug": "project",
+        "subproject_of": null,
+        "tags": ["tag", "project", "test"],
+        "translation_of": null,
+        "urls": {
+          "builds": "https://readthedocs.org/projects/project/builds/",
+          "documentation": "http://project.readthedocs.io/en/latest/",
+          "home": "https://readthedocs.org/projects/project/",
+          "versions": "https://readthedocs.org/projects/project/versions/"
+        },
+        "users": [{ "username": "testuser" }]
+      }],
+      "remote_organization": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
+          "created": "2019-04-29T10:00:00Z",
+          "modified": "2019-04-29T12:00:00Z",
+          "name": "Read the Docs",
+          "pk": 1,
+          "slug": "readthedocs",
+          "url": "https://github.com/readthedocs",
+          "vcs_provider": "github"
+      },
+      "ssh_url": "git@github.com:rtd/project.git",
+      "vcs": "git",
+      "vcs_provider": "github"
+    }
+  ]
+}

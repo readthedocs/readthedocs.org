@@ -1,13 +1,9 @@
-from unittest import mock
-
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.models import Project, ProjectRelationship
-from readthedocs.rtd_tests.utils import create_user
 
 
 class SubprojectFormTests(TestCase):
@@ -73,7 +69,7 @@ class SubprojectFormTests(TestCase):
             r'Select a valid choice.',
         )
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             [''],
         )
 
@@ -124,7 +120,7 @@ class SubprojectFormTests(TestCase):
         # The subsubproject is valid here, as far as the child check is
         # concerned, but the parent check should fail.
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             ['', subsubproject.pk],
         )
         form.full_clean()
@@ -153,7 +149,7 @@ class SubprojectFormTests(TestCase):
             user=user,
         )
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             [''],
         )
 
@@ -218,6 +214,10 @@ class SubprojectFormTests(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Select a valid choice',
+            form.errors['child'][0],
+        )
         self.assertNotIn(
             project.id,
             [proj_id for (proj_id, __) in form.fields['child'].choices],

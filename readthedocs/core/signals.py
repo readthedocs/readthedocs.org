@@ -1,104 +1,148 @@
-# -*- coding: utf-8 -*-
-
 """Signal handling for core app."""
 
-import logging
-from urllib.parse import urlparse
-
+import structlog
 from corsheaders import signals
 from django.conf import settings
-from django.db.models import Count, Q
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
 from rest_framework.permissions import SAFE_METHODS
+from simple_history.models import HistoricalRecords
+from simple_history.signals import pre_create_historical_record
 
-from readthedocs.oauth.models import RemoteOrganization
-from readthedocs.projects.models import Domain, Project
+from readthedocs.analytics.utils import get_client_ip
+from readthedocs.builds.models import Version
+from readthedocs.core.unresolver import unresolve
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
+log = structlog.get_logger(__name__)
 
-log = logging.getLogger(__name__)
-
-WHITELIST_URLS = [
+ALLOWED_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
-    '/api/v2/sustainability',
+    '/api/v2/embed',
+    '/api/v3/embed',
 ]
 
-webhook_github = Signal(providing_args=['project', 'data', 'event'])
-webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
-webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
+webhook_github = Signal()
+webhook_gitlab = Signal()
+webhook_bitbucket = Signal()
 
 pre_collectstatic = Signal()
 post_collectstatic = Signal()
+
+
+def _has_donate_app():
+    """
+    Check if the current app has the sustainability API.
+
+    This is a separate function so it's easy to mock.
+    """
+    return 'readthedocsext.donate' in settings.INSTALLED_APPS
 
 
 def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
     """
     Decide whether a request should be given CORS access.
 
-    This checks that:
-    * The URL is whitelisted against our CORS-allowed domains
-    * The Domain exists in our database, and belongs to the project being queried.
+    Allow the request if:
 
-    Returns True when a request should be given CORS access.
+    * It's a safe HTTP method
+    * The origin is in ALLOWED_URLS
+    * The URL is owned by the project that they are requesting data from
+    * The version is public
+
+    .. note::
+
+       Requests from the sustainability API are always allowed
+       if the donate app is installed.
+
+    :returns: `True` when a request should be given CORS access.
     """
-    if 'HTTP_ORIGIN' not in request.META:
+    if 'HTTP_ORIGIN' not in request.META or request.method not in SAFE_METHODS:
         return False
-    host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    # Don't do domain checking for this API for now
-    if request.path_info.startswith('/api/v2/sustainability'):
+    # Always allow the sustainability API,
+    # it's used only on .org to check for ad-free users.
+    if _has_donate_app() and request.path_info.startswith('/api/v2/sustainability'):
         return True
 
-    # Don't do domain checking for APIv2 when the Domain is known
-    if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
-        domain = Domain.objects.filter(domain__icontains=host)
-        if domain.exists():
-            return True
-
-    valid_url = False
-    for url in WHITELIST_URLS:
+    valid_url = None
+    for url in ALLOWED_URLS:
         if request.path_info.startswith(url):
-            valid_url = True
+            valid_url = url
             break
 
     if valid_url:
-        project_slug = request.GET.get('project', None)
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            log.warning(
-                'Invalid project passed to domain. [%s:%s]',
-                project_slug,
-                host,
-            )
-            return False
+        url = request.GET.get('url')
+        if url:
+            unresolved = unresolve(url)
+            if unresolved is None:
+                # NOTE: Embed APIv3 now supports external sites. In that case
+                # ``unresolve()`` will return None and we want to allow it
+                # since the target is a public project.
+                return True
 
-        domain = Domain.objects.filter(
-            Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project),
-        )
-        if domain.exists():
-            return True
+            project = unresolved.project
+            version_slug = unresolved.version_slug
+        else:
+            project_slug = request.GET.get('project', None)
+            version_slug = request.GET.get('version', None)
+            project = Project.objects.filter(slug=project_slug).first()
+
+        if project and version_slug:
+            # This is from IsAuthorizedToViewVersion,
+            # we should abstract is a bit perhaps?
+            is_public = (
+                Version.objects
+                .public(
+                    project=project,
+                    only_active=False,
+                )
+                .filter(slug=version_slug)
+                .exists()
+            )
+            # Allowing CORS on public versions,
+            # since they are already public.
+            if is_public:
+                return True
 
     return False
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
-def delete_projects(sender, instance, *args, **kwargs):
-    # Here we count the owner list from the projects that the user own
-    # Then exclude the projects where there are more than one owner
-    # Add annotate before filter
-    # https://github.com/rtfd/readthedocs.org/pull/4577
-    # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
-    projects = (
-        Project.objects.annotate(num_users=Count('users')
-                                 ).filter(users=instance.id
-                                          ).exclude(num_users__gt=1)
-    )
+def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+    """
+    Delete projects and organizations where the user is the only owner.
 
-    projects.delete()
+    We delete projects that don't belong to an organization first,
+    then full organizations.
+    """
+    user = instance
+
+    for project in Project.objects.single_owner(user):
+        project.delete()
+
+    for organization in Organization.objects.single_owner(user):
+        organization.delete()
+
+
+@receiver(pre_create_historical_record)
+def add_extra_historical_fields(sender, **kwargs):
+    history_instance = kwargs['history_instance']
+    if not history_instance:
+        return
+
+    history_user = kwargs['history_user']
+    if history_user:
+        history_instance.extra_history_user_id = history_user.id
+        history_instance.extra_history_user_username = history_user.username
+
+    request = getattr(HistoricalRecords.context, 'request', None)
+    if request:
+        history_instance.extra_history_ip = get_client_ip(request)
+        history_instance.extra_history_browser = request.headers.get('User-Agent')
 
 
 signals.check_request_enabled.connect(decide_if_cors)

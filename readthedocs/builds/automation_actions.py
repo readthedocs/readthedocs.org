@@ -8,12 +8,12 @@ Each function will receive the following args:
 - action_arg: An additional argument to apply the action
 """
 
-import logging
+import structlog
 
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
@@ -72,8 +72,9 @@ def delete_version(version, match_result, action_arg, *args, **kwargs):
     """Delete a version if isn't marked as the default version."""
     if version.project.default_version == version.slug:
         log.info(
-            "Skipping deleting default version. project=%s version=%s",
-            version.project.slug, version.slug,
+            "Skipping deleting default version.",
+            project_slug=version.project.slug,
+            version_slug=version.slug,
         )
         return
     version.delete()

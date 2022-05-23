@@ -53,6 +53,17 @@ function attach_elastic_search_query_sphinx(data) {
         search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
                             '&version=' + version + '&language=' + language;
 
+        /*
+         * Compatibility function to set a text to a Node or JQuery object.
+         */
+        var setText = function (node, text) {
+          if (node.jquery) {
+            node.text(text);
+          } else {
+            node.innerText = text;
+          }
+        };
+
         search_def
             .then(function (data) {
                 var results = data.results || [];
@@ -61,7 +72,7 @@ function attach_elastic_search_query_sphinx(data) {
                     for (var i = 0; i < results.length; i += 1) {
                         var result = results[i];
                         var blocks = result.blocks;
-                        var list_item = $('<li style="display: none;"></li>');
+                        var list_item = $('<li>');
 
                         var title = result.title;
                         // if highlighted title is present, use that.
@@ -70,11 +81,6 @@ function attach_elastic_search_query_sphinx(data) {
                         }
 
                         var link = result.path + "?highlight=" + $.urlencode(query);
-                        // If we aren't on the main domain of the subproject, link to it.
-                        // TODO: we should always redirect to the main domain instead.
-                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
-                            link = result.domain + link;
-                        }
 
                         var item = $('<a>', {'href': link});
 
@@ -193,10 +199,14 @@ function attach_elastic_search_query_sphinx(data) {
                             }
                         }
 
-                        Search.output.append(list_item);
-                        list_item.slideDown(5);
+                        if (Search.output.jquery) {
+                          Search.output.append(list_item);
+                        } else {
+                          Search.output.appendChild(list_item.get(0));
+                        }
                     }
-                    Search.status.text(
+                    setText(
+                        Search.status,
                         _('Search finished, found %s page(s) matching the search query.').replace('%s', results.length)
                     );
                 } else {
@@ -211,8 +221,7 @@ function attach_elastic_search_query_sphinx(data) {
             .always(function () {
                 $('#search-progress').empty();
                 Search.stopPulse();
-                Search.title.text(_('Search Results'));
-                Search.status.fadeIn(500);
+                setText(Search.title, _('Search Results'));
             });
 
         $.ajax({
@@ -295,11 +304,6 @@ function attach_elastic_search_query_mkdocs(data) {
                         var blocks = result.blocks;
 
                         var link = result.path;
-                        // If we aren't on the main domain of the subproject, link to it.
-                        // TODO: we should always redirect to the main domain instead.
-                        if (result.path.startsWith('/projects/') && !window.location.href.startsWith(result.domain)) {
-                            link = result.domain + link;
-                        }
 
                         var item = $('<article>');
                         item.append(

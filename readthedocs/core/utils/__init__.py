@@ -1,11 +1,9 @@
-"""Common utilty functions."""
+"""Common utility functions."""
 
 import datetime
-import errno
-import logging
-import os
 import re
 
+import structlog
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import keep_lazy
@@ -13,31 +11,25 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
 )
-from readthedocs.projects.constants import (
-    CELERY_HIGH,
-    CELERY_LOW,
-    CELERY_MEDIUM,
-)
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def prepare_build(
         project,
         version=None,
         commit=None,
-        record=True,
-        force=False,
         immutable=True,
 ):
     """
@@ -49,27 +41,21 @@ def prepare_build(
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Feature, Project
-    from readthedocs.projects.tasks import (
-        send_external_build_status,
-        send_notifications,
-        update_docs_task,
-    )
-
-    build = None
+    from readthedocs.builds.tasks import send_build_notifications
+    from readthedocs.projects.models import Feature, Project, WebHookEvent
+    from readthedocs.projects.tasks.builds import update_docs_task
+    from readthedocs.projects.tasks.utils import send_external_build_status
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Build not triggered because Project is not active: project=%s',
-            project.slug,
+            'Build not triggered because project is not active.',
+            project_slug=project.slug,
         )
         return (None, None)
 
@@ -77,22 +63,16 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
-    kwargs = {
-        'record': record,
-        'force': force,
-        'commit': commit,
-    }
+    build = Build.objects.create(
+        project=project,
+        version=version,
+        type='html',
+        state=BUILD_STATE_TRIGGERED,
+        success=True,
+        commit=commit
+    )
 
-    if record:
-        build = Build.objects.create(
-            project=project,
-            version=version,
-            type='html',
-            state=BUILD_STATE_TRIGGERED,
-            success=True,
-            commit=commit
-        )
-        kwargs['build_pk'] = build.pk
+    log.bind(build_id=build.id)
 
     options = {}
     if project.build_queue:
@@ -110,31 +90,29 @@ def prepare_build(
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
     except ValueError:
-        log.warning('Invalid time_limit for project: %s', project.slug)
+        log.warning('Invalid time_limit for project.', project_slug=project.slug)
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    if build and commit:
+    if commit:
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
-            version_type=version.type, build_pk=build.id,
-            commit=commit, status=BUILD_STATUS_PENDING
+            version_type=version.type,
+            build_pk=build.id,
+            commit=commit,
+            status=BUILD_STATUS_PENDING
         )
 
-    if build and version.type != EXTERNAL:
-        # Send Webhook notification for build triggered.
-        send_notifications.delay(version.pk, build_pk=build.pk, email=False)
-
-    options['priority'] = CELERY_HIGH
-    if project.main_language_project:
-        # Translations should be medium priority
-        options['priority'] = CELERY_MEDIUM
-    if version.type == EXTERNAL:
-        # External builds should be lower priority.
-        options['priority'] = CELERY_LOW
+    if version.type != EXTERNAL:
+        # Send notifications for build triggered.
+        send_build_notifications.delay(
+            version_pk=version.pk,
+            build_pk=build.pk,
+            event=WebHookEvent.BUILD_TRIGGERED,
+        )
 
     skip_build = False
     if commit:
@@ -145,7 +123,7 @@ def prepare_build(
                 version=version,
                 commit=commit,
             ).exclude(
-                state=BUILD_STATE_FINISHED,
+                state__in=BUILD_FINAL_STATES,
             ).exclude(
                 pk=build.pk,
             ).exists()
@@ -165,24 +143,27 @@ def prepare_build(
         ).count() > 1
 
     if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
-        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        log.debug(
+            'Skipping deduplication of builds. Feature not enabled.',
+            project_slug=project.slug,
+        )
         skip_build = False
 
     if skip_build:
         # TODO: we could mark the old build as duplicated, however we reset our
         # position in the queue and go back to the end of it --penalization
         log.warning(
-            'Marking build to be skipped by builder. project=%s version=%s build=%s commit=%s',
-            project.slug,
-            version.slug,
-            build.pk,
-            commit,
+            'Marking build to be skipped by builder.',
+            project_slug=project.slug,
+            version_slug=version.slug,
+            build_id=build.pk,
+            commit=commit,
         )
         build.error = DuplicatedBuildError.message
         build.status = DuplicatedBuildError.status
         build.exit_code = DuplicatedBuildError.exit_code
         build.success = False
-        build.state = BUILD_STATE_FINISHED
+        build.state = BUILD_STATE_CANCELLED
         build.save()
 
     # Start the build in X minutes and mark it as limited
@@ -190,12 +171,15 @@ def prepare_build(
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
             log.warning(
-                'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
-                project.slug,
-                version.slug,
+                'Delaying tasks at trigger step due to concurrency limit.',
+                project_slug=project.slug,
+                version_slug=version.slug,
             )
-            options['countdown'] = 5 * 60
-            options['max_retries'] = 25
+            # Delay the start of the build for the build retry delay.
+            # We're still triggering the task, but it won't run immediately,
+            # and the user will be alerted in the UI from the Error below.
+            options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
+            options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
             build.error = BuildMaxConcurrencyError.message.format(
                 limit=max_concurrent_builds,
             )
@@ -203,8 +187,13 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(version.pk,),
-            kwargs=kwargs,
+            args=(
+                version.pk,
+                build.pk,
+            ),
+            kwargs={
+                'build_commit': commit,
+            },
             options=options,
             immutable=True,
         ),
@@ -212,7 +201,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, commit=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None):
     """
     Trigger a Build.
 
@@ -222,23 +211,19 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
     :param commit: commit sha of the version required for sending build status reports
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
-    log.info(
-        'Triggering build. project=%s version=%s commit=%s',
-        project.slug,
-        version.slug if version else None,
-        commit,
+    log.bind(
+        project_slug=project.slug,
+        version_slug=version.slug if version else None,
+        commit=commit,
     )
+    log.info("Triggering build.")
     update_docs_task, build = prepare_build(
-        project,
-        version,
-        commit,
-        record,
-        force,
+        project=project,
+        version=version,
+        commit=commit,
         immutable=True,
     )
 
@@ -246,7 +231,18 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
         # Build was skipped
         return (None, None)
 
-    return (update_docs_task.apply_async(), build)
+    task = update_docs_task.apply_async()
+
+    # FIXME: I'm using `isinstance` here because I wasn't able to mock this
+    # properly when running tests and it fails when trying to save a
+    # `mock.Mock` object in the database.
+    #
+    # Store the task_id in the build object to be able to cancel it later.
+    if isinstance(task.id, (str, int)):
+        build.task_id = task.id
+        build.save()
+
+    return task, build
 
 
 def send_email(
@@ -281,25 +277,26 @@ def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
 
-    :param dns_safe: Remove underscores from slug as well
+    :param bool dns_safe: Replace special chars like underscores with ``-``.
+     And remove trailing ``-``.
     """
     dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = mark_safe(re.sub('[-_]+', '-', value))
+        value = re.sub('[-_]+', '-', value)
+        # DNS doesn't allow - at the beginning or end of subdomains
+        value = mark_safe(value.strip('-'))
     return value
 
 
-def safe_makedirs(directory_name):
+def get_cache_tag(*args):
     """
-    Safely create a directory.
+    Generate a cache tag from the given args.
 
-    Makedirs has an issue where it has a race condition around checking for a
-    directory and then creating it. This catches the exception in the case where
-    the dir already exists.
+    The final tag is composed of several parts
+    that form a unique tag (like project and version slug).
+
+    All parts are separated using a character that isn't
+    allowed in slugs to avoid collisions.
     """
-    try:
-        os.makedirs(directory_name)
-    except OSError as e:
-        if e.errno != errno.EEXIST:  # 17, FileExistsError
-            raise
+    return ':'.join(args)

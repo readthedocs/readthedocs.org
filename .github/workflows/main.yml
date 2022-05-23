@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -15,6 +15,7 @@ jobs:
       run: |
         curl --request POST \
         --silent --output /dev/null \
-        --url https://circleci.com/api/v1.1/project/github/${{ secrets.CORPORATE_REPO }}/tree/master \
+        --url https://circleci.com/api/v2/project/gh/${{ secrets.CORPORATE_REPO }}/pipeline \
         --user '${{ secrets.CIRCLECI_USER_TOKEN }}:' \
-        --data 'build_parameters[CIRCLE_JOB]=${{ secrets.CIRCLECI_JOB }}'
+        --header 'content-type: application/json' \
+        --data '{"branch": "main", "parameters":{"CIRCLE_JOB": "${{ secrets.CIRCLECI_JOB }}"}}'

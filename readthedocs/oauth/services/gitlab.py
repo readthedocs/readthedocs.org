@@ -1,31 +1,24 @@
 """OAuth utility functions."""
 
 import json
-import logging
 import re
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 
+import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import (
-    BUILD_STATUS_SUCCESS,
-    SELECT_BUILD_STATUS,
-)
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import Project
 
 from ..constants import GITLAB
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-)
+from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class GitLabService(Service):
@@ -52,11 +45,14 @@ class GitLabService(Service):
     vcs_provider_slug = GITLAB
 
     def _get_repo_id(self, project):
-        # The ID or URL-encoded path of the project
-        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
-        try:
+        """
+        Get the ID or URL-encoded path of the project.
+
+        See https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding.
+        """
+        if project.remote_repository:
             repo_id = project.remote_repository.remote_id
-        except Project.remote_repository.RelatedObjectDoesNotExist:
+        else:
             # Handle "Manual Import" when there is no RemoteRepository
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)
@@ -64,10 +60,7 @@ class GitLabService(Service):
             if (username, repo) == (None, None):
                 return None
 
-            repo_id = '{username}%2F{repo}'.format(
-                username=username,
-                repo=repo,
-            )
+            repo_id = quote_plus(f'{username}/{repo}')
         return repo_id
 
     def get_next_url_to_paginate(self, response):
@@ -80,7 +73,7 @@ class GitLabService(Service):
         remote_repositories = []
         try:
             repos = self.paginate(
-                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/projects".format(url=self.adapter.provider_base_url),
                 per_page=100,
                 archived=False,
                 order_by='path',
@@ -106,7 +99,7 @@ class GitLabService(Service):
 
         try:
             orgs = self.paginate(
-                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                "{url}/api/v4/groups".format(url=self.adapter.provider_base_url),
                 per_page=100,
                 all_available=False,
                 order_by='path',
@@ -151,15 +144,14 @@ class GitLabService(Service):
                             remote_repositories.append(remote_repository)
                         else:
                             log.warning(
-                                'GitLab project does not exist or user does not have '
-                                'permissions: project=%s',
-                                repo['name_with_namespace'],
+                                'GitLab project does not exist or user does not have permissions.',
+                                repository=repo['name_with_namespace'],
                             )
 
                     except Exception:
                         log.exception(
-                            'Error creating GitLab repository=%s',
-                            repo['name_with_namespace'],
+                            'Error creating GitLab repository',
+                            repository=repo['name_with_namespace'],
                         )
 
         except (TypeError, ValueError):
@@ -204,8 +196,8 @@ class GitLabService(Service):
 
             if repo.organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs',
-                    fields['name'],
+                    'Not importing because mismatched orgs',
+                    repository=fields['name'],
                 )
                 return None
 
@@ -253,9 +245,9 @@ class GitLabService(Service):
             return repo
 
         log.info(
-            'Not importing %s because mismatched type: visibility=%s',
-            fields['path_with_namespace'],
-            fields['visibility'],
+            'Not importing repository because mismatched type.',
+            repository=fields['path_with_namespace'],
+            visibility=fields['visibility'],
         )
 
     def create_organization(self, fields):
@@ -340,6 +332,10 @@ class GitLabService(Service):
             return None
 
         session = self.get_session()
+        log.bind(
+            project_slug=project.slug,
+            integration_id=integration.pk,
+        )
 
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
@@ -369,22 +365,14 @@ class GitLabService(Service):
                         integration.save()
 
                         log.info(
-                            'GitLab integration updated with provider data for project: %s',
-                            project,
+                            'GitLab integration updated with provider data for project.',
                         )
                         break
             else:
-                log.info(
-                    'GitLab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
-                )
+                log.info('GitLab project does not exist or user does not have permissions.')
 
         except Exception:
-            log.exception(
-                'GitLab webhook Listing failed for project: %s',
-                project,
-            )
+            log.exception('GitLab webhook Listing failed for project.')
 
         return integration.provider_data
 
@@ -411,50 +399,41 @@ class GitLabService(Service):
             integration.recreate_secret()
 
         repo_id = self._get_repo_id(project)
+        url = f'{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/hooks'
 
         if repo_id is None:
             # Set the secret to None so that the integration can be used manually.
             integration.remove_secret()
             return (False, resp)
 
+        log.bind(
+            project_slug=project.slug,
+            integration_id=integration.pk,
+            url=url,
+        )
         data = self.get_webhook_data(repo_id, project, integration)
         session = self.get_session()
         try:
             resp = session.post(
-                '{url}/api/v4/projects/{repo_id}/hooks'.format(
-                    url=self.adapter.provider_base_url,
-                    repo_id=repo_id,
-                ),
+                url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+            log.bind(http_status_code=resp.status_code)
 
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
                 integration.save()
-                log.info(
-                    'GitLab webhook creation successful for project: %s',
-                    project,
-                )
+                log.debug('GitLab webhook creation successful for project.')
                 return (True, resp)
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'Gitlab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
-                )
+                log.info('Gitlab project does not exist or user does not have permissions.')
+            else:
+                log.warning('GitLab webhook creation failed. Unknown response from GitLab.')
 
-        except (RequestException, ValueError):
-            log.exception(
-                'GitLab webhook creation failed for project: %s',
-                project,
-            )
-        else:
-            log.error(
-                'GitLab webhook creation failed for project: %s',
-                project,
-            )
+        except Exception:
+            log.exception('GitLab webhook creation failed.')
 
         # Always remove secret and return False if we don't return True above
         integration.remove_secret()
@@ -494,6 +473,10 @@ class GitLabService(Service):
 
         data = self.get_webhook_data(repo_id, project, integration)
 
+        log.bind(
+            project_slug=project.slug,
+            integration_id=integration.pk,
+        )
         try:
             hook_id = provider_data.get('id')
             resp = session.put(
@@ -510,10 +493,7 @@ class GitLabService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info(
-                    'GitLab webhook update successful for project: %s',
-                    project,
-                )
+                log.info('GitLab webhook update successful for project.')
                 return (True, resp)
 
             # GitLab returns 404 when the webhook doesn't exist. In this case,
@@ -521,22 +501,17 @@ class GitLabService(Service):
             if resp.status_code == 404:
                 return self.setup_webhook(project, integration)
 
-        # Catch exceptions with request or deserializing JSON
-        except (AttributeError, RequestException, ValueError):
-            log.exception(
-                'GitLab webhook update failed for project: %s',
-                project,
-            )
-        else:
-            log.error(
-                'GitLab webhook update failed for project: %s',
-                project,
-            )
+        except Exception:
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug('GitLab webhook update failure response: %s', debug_data)
+            except Exception:
+                debug_data = None
+            log.exception(
+                'GitLab webhook update failed.',
+                debug_data=debug_data,
+            )
 
         integration.remove_secret()
         return (False, resp)
@@ -581,40 +556,34 @@ class GitLabService(Service):
             'description': description,
             'context': context,
         }
-        url = self.adapter.provider_base_url
+        url = f'{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/statuses/{commit}'
 
+        log.bind(
+            project_slug=project.slug,
+            commit_status=gitlab_build_state,
+            user_username=self.user.username,
+            url=url,
+        )
         try:
-            statuses_url = f'{url}/api/v4/projects/{repo_id}/statuses/{commit}'
             resp = session.post(
-                statuses_url,
+                url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
 
+            log.bind(http_status_code=resp.status_code)
             if resp.status_code == 201:
-                log.info(
-                    "GitLab commit status created for project: %s, commit status: %s",
-                    project.slug,
-                    gitlab_build_state,
-                )
+                log.debug("GitLab commit status created for project.")
                 return True
 
             if resp.status_code in [401, 403, 404]:
-                log.info(
-                    'GitLab project does not exist or user does not have permissions: '
-                    'project=%s, user=%s, status=%s, url=%s',
-                    project.slug, self.user.username, resp.status_code, statuses_url,
-                )
+                log.info('GitLab project does not exist or user does not have permissions.')
                 return False
 
             return False
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.exception(
-                'GitLab commit status creation failed for project: %s',
-                project.slug,
-            )
             # Response data should always be JSON, still try to log if not
             # though
             if resp is not None:
@@ -625,8 +594,8 @@ class GitLabService(Service):
             else:
                 debug_data = resp
 
-            log.debug(
-                'GitLab commit status creation failure response: %s',
-                debug_data,
+            log.exception(
+                'GitLab commit status creation failed.',
+                debug_data=debug_data,
             )
             return False

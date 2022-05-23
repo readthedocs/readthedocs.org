@@ -1,0 +1,890 @@
+Configuration File V2
+=====================
+
+Read the Docs supports configuring your documentation builds with a YAML file.
+The :doc:`configuration file <index>` must be in the root directory of your project
+and be named ``.readthedocs.yaml``.
+
+All options are applied to the version containing this file.
+Below is an example YAML file which shows the most common configuration options:
+
+.. tabs::
+
+   .. tab:: Sphinx
+
+      .. code:: yaml
+
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+         # Required
+         version: 2
+
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+             # You can also specify other tool versions:
+             # nodejs: "16"
+             # rust: "1.55"
+             # golang: "1.17"
+
+         # Build documentation in the docs/ directory with Sphinx
+         sphinx:
+            configuration: docs/conf.py
+
+         # If using Sphinx, optionally build your docs in additional formats such as PDF
+         # formats:
+         #    - pdf
+
+         # Optionally declare the Python requirements required to build your docs
+         python:
+            install:
+            - requirements: docs/requirements.txt
+
+   .. tab:: MkDocs
+
+      .. code:: yaml
+
+         # .readthedocs.yaml
+         # Read the Docs configuration file
+         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+         # Required
+         version: 2
+
+         # Set the version of Python and other tools you might need
+         build:
+           os: ubuntu-20.04
+           tools:
+             python: "3.9"
+
+         mkdocs:
+           configuration: mkdocs.yml
+
+         # Optionally declare the Python requirements required to build your docs
+         python:
+            install:
+            - requirements: docs/requirements.txt
+
+Supported settings
+------------------
+
+Read the Docs validates every configuration file.
+Any configuration option that isn't supported will make the build fail.
+This is to avoid typos and provide feedback on invalid configurations.
+
+.. warning::
+
+   When using a v2 configuration file,
+   the local settings from the web interface are ignored.
+
+.. contents::
+   :local:
+   :depth: 3
+
+version
+~~~~~~~
+
+:Required: ``true``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+.. warning::
+
+   If you don't provide the version, :doc:`v1 <v1>` will be used.
+
+formats
+~~~~~~~
+
+Additional formats of the documentation to be built,
+apart from the default HTML.
+
+:Type: ``list``
+:Options: ``htmlzip``, ``pdf``, ``epub``, ``all``
+:Default: ``[]``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+   # Default
+   formats: []
+
+.. code-block:: yaml
+
+   version: 2
+
+   # Build PDF & ePub
+   formats:
+     - epub
+     - pdf
+
+.. note::
+
+   You can use the ``all`` keyword to indicate all formats.
+
+   .. code-block:: yaml
+
+      version: 2
+
+      # Build all formats
+      formats: all
+
+.. warning::
+
+   At the moment, only Sphinx supports additional formats.
+   ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
+
+python
+~~~~~~
+
+Configuration of the Python environment to be used.
+
+.. code-block:: yaml
+
+   version: 2
+
+   python:
+     install:
+       - requirements: docs/requirements.txt
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: another/package
+     system_packages: true
+
+python.version
+``````````````
+
+.. warning::
+
+   This option is now deprecated
+   and replaced by :ref:`config-file/v2:build.tools.python`.
+   See :ref:`config-file/v2:python.version (legacy)`
+   for the description of this option.
+
+python.install
+``````````````
+
+List of installation methods of packages and requirements.
+You can have several of the following methods.
+
+:Type: ``list``
+:Default: ``[]``
+
+Requirements file
+'''''''''''''''''
+
+Install packages from a requirements file.
+
+The path to the requirements file, relative to the root of the project.
+
+:Key: ``requirements``
+:Type: ``path``
+:Required: ``true``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+   python:
+     version: "3.7"
+     install:
+       - requirements: docs/requirements.txt
+       - requirements: requirements.txt
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment to
+  manage the build, this setting will not have any effect. Instead
+  add the extra requirements to the ``environment`` file of Conda.
+
+Packages
+''''''''
+
+Install the project using ``python setup.py install`` or ``pip install``.
+
+The path to the package, relative to the root of the project.
+
+:Key: ``path``
+:Type: ``path``
+:Required: ``true``
+
+The installation method.
+
+:Key: ``method``
+:Options: ``pip``, ``setuptools``
+:Default: ``pip``
+
+`Extra requirements`_ section to install in addition to the `package dependencies`_.
+
+.. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies
+.. _package dependencies: https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#declaring-required-dependency
+
+.. warning::
+
+   You need to install your project with ``pip`` to use ``extra_requirements``.
+
+:Key: ``extra_requirements``
+:Type: ``list``
+:Default: ``[]``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+   python:
+     version: "3.7"
+     install:
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: package
+
+With the previous settings, Read the Docs will execute the next commands:
+
+.. prompt:: bash $
+
+   pip install .[docs]
+   python package/setup.py install
+
+python.system_packages
+``````````````````````
+
+Give the virtual environment access to the global site-packages directory.
+
+:Type: ``bool``
+:Default: ``false``
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment
+  to manage the build, this setting will not have any effect, since
+  the virtual environment creation is managed by Conda.
+
+conda
+~~~~~
+
+Configuration for Conda support.
+
+.. code-block:: yaml
+
+   version: 2
+
+   conda:
+     environment: environment.yml
+
+conda.environment
+`````````````````
+
+The path to the Conda environment file, relative to the root of the project.
+
+:Type: ``path``
+:Required: ``true``
+
+build
+~~~~~
+
+Configuration for the documentation build process.
+This allows you to specify the base Read the Docs image
+used to build the documentation,
+and control the versions of several tools:
+Python, Node.js, Rust, and Go.
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-20.04
+     tools:
+       python: "3.9"
+       nodejs: "16"
+       rust: "1.55"
+       golang: "1.17"
+
+build.os
+````````
+
+The Docker image used for building the docs.
+Image names refer to the operating system Read the Docs uses to build them.
+
+.. note::
+
+   Arbitrary Docker images are not supported.
+
+:Type: ``string``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``
+:Required: ``true``
+
+build.tools
+```````````
+
+Version specifiers for each tool. It must contain at least one tool.
+
+:Type: ``dict``
+:Options: ``python``, ``nodejs``, ``rust``, ``golang``
+:Required: ``true``
+
+build.tools.python
+``````````````````
+
+Python version to use.
+You can use several interpreters and versions, from CPython, PyPy, Miniconda, and Mamba.
+
+.. note::
+
+   If you use Miniconda3 or Mambaforge, you can select the Python version
+   using the ``environment.yml`` file. See our :doc:`/guides/conda` guide
+   for more information.
+
+:Type: ``string``
+:Options:
+  - ``2.7``
+  - ``3`` (last stable CPython version)
+  - ``3.6``
+  - ``3.7``
+  - ``3.8``
+  - ``3.9``
+  - ``3.10``
+  - ``pypy3.7``
+  - ``miniconda3-4.7``
+  - ``mambaforge-4.10``
+
+build.tools.nodejs
+``````````````````
+
+Node.js version to use.
+
+:Type: ``string``
+:Options: ``14``, ``16``
+
+build.tools.rust
+````````````````
+
+Rust version to use.
+
+:Type: ``string``
+:Options: ``1.55``
+
+build.tools.golang
+``````````````````
+
+Go version to use.
+
+:Type: ``string``
+:Options: ``1.17``
+
+build.apt_packages
+``````````````````
+
+List of `APT packages`_ to install.
+Our build servers run Ubuntu 18.04, with the default set of package repositories installed.
+We don't currently support PPA's or other custom repositories.
+
+.. _APT packages: https://packages.ubuntu.com/
+
+:Type: ``list``
+:Default: ``[]``
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     apt_packages:
+       - libclang
+       - cmake
+
+.. note::
+
+   When possible avoid installing Python packages using apt (``python3-numpy`` for example),
+   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
+
+
+build.jobs
+``````````
+
+Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`.
+This allows you to run custom commands at a particular moment in the build process.
+See :doc:`/build-customization` for more details.
+
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.10"
+     jobs:
+       pre_create_environment:
+         - echo "Command run at 'pre_create_environment' step"
+       post_build:
+         - echo "Command run at 'post_build' step"
+         - echo `date`
+
+.. note::
+
+   Each key under ``build.jobs`` must be a list of strings.
+   ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
+
+
+:Type: ``dict``
+:Allowed keys: ``post_checkout``, ``pre_system_dependencies``, ``post_system_dependencies``,
+   ``pre_create_environment``, ``post_create_environment``, ``pre_install``, ``post_install``,
+   ``pre_build``, ``post_build``
+:Required: ``false``
+:Default: ``{}``
+
+
+sphinx
+~~~~~~
+
+Configuration for Sphinx documentation
+(this is the default documentation type).
+
+.. code-block:: yaml
+
+   version: 2
+
+   sphinx:
+     builder: html
+     configuration: conf.py
+     fail_on_warning: true
+
+.. note::
+   If you want to pin Sphinx to a specific version,
+   use a ``requirements.txt`` or ``environment.yml`` file
+   (see :ref:`config-file/v2:requirements file` and  :ref:`config-file/v2:conda.environment`).
+   If you are using a metadata file to describe code dependencies
+   like ``setup.py``, ``pyproject.toml``, or similar,
+   you can use the ``extra_requirements`` option
+   (see :ref:`config-file/v2:packages`).
+   This also allows you to override :ref:`the default pinning done by Read the Docs
+   if your project was created before October 2020 <build-default-versions:external dependencies>`.
+
+sphinx.builder
+``````````````
+
+The builder type for the Sphinx documentation.
+
+:Type: ``string``
+:Options: ``html``, ``dirhtml``, ``singlehtml``
+:Default: ``html``
+
+.. note::
+   The ``htmldir`` builder option was renamed to ``dirhtml`` to use the same name as sphinx.
+   Configurations using the old name will continue working.
+
+sphinx.configuration
+````````````````````
+
+The path to the ``conf.py`` file, relative to the root of the project.
+
+:Type: ``path``
+:Default: ``null``
+
+If the value is ``null``,
+Read the Docs will try to find a ``conf.py`` file in your project.
+
+sphinx.fail_on_warning
+``````````````````````
+
+Turn warnings into errors
+(:option:`-W <sphinx:sphinx-build.-W>` and :option:`--keep-going <sphinx:sphinx-build.--keep-going>` options).
+This means the build fails if there is a warning and exits with exit status 1.
+
+:Type: ``bool``
+:Default: ``false``
+
+mkdocs
+~~~~~~
+
+Configuration for MkDocs documentation.
+
+.. code-block:: yaml
+
+   version: 2
+
+   mkdocs:
+     configuration: mkdocs.yml
+     fail_on_warning: false
+
+.. note::
+   If you want to pin MkDocs to a specific version,
+   use a ``requirements.txt`` or ``environment.yml`` file
+   (see :ref:`config-file/v2:requirements file` and  :ref:`config-file/v2:conda.environment`).
+   If you are using a metadata file to describe code dependencies
+   like ``setup.py``, ``pyproject.toml``, or similar,
+   you can use the ``extra_requirements`` option
+   (see :ref:`config-file/v2:packages`).
+   This also allows you to override :ref:`the default pinning done by Read the Docs
+   if your project was created before March 2021 <build-default-versions:external dependencies>`.
+
+mkdocs.configuration
+````````````````````
+
+The path to the ``mkdocs.yml`` file, relative to the root of the project.
+
+:Type: ``path``
+:Default: ``null``
+
+If the value is ``null``,
+Read the Docs will try to find a ``mkdocs.yml`` file in your project.
+
+mkdocs.fail_on_warning
+``````````````````````
+
+`Turn warnings into errors <https://www.mkdocs.org/user-guide/configuration/#strict>`__.
+This means that the build stops at the first warning and exits with exit status 1.
+
+:Type: ``bool``
+:Default: ``false``
+
+submodules
+~~~~~~~~~~
+
+VCS submodules configuration.
+
+.. note::
+
+   Only Git is supported at the moment.
+
+.. warning::
+
+   You can't use ``include`` and ``exclude`` settings for submodules at the same time.
+
+.. code-block:: yaml
+
+   version: 2
+
+   submodules:
+     include:
+       - one
+       - two
+     recursive: true
+
+submodules.include
+``````````````````
+
+List of submodules to be included.
+
+:Type: ``list``
+:Default: ``[]``
+
+.. note::
+
+   You can use the ``all`` keyword to include all submodules.
+
+   .. code-block:: yaml
+
+      version: 2
+
+      submodules:
+        include: all
+
+submodules.exclude
+``````````````````
+
+List of submodules to be excluded.
+
+:Type: ``list``
+:Default: ``[]``
+
+.. note::
+
+   You can use the ``all`` keyword to exclude all submodules.
+   This is the same as ``include: []``.
+
+   .. code-block:: yaml
+
+      version: 2
+
+      submodules:
+        exclude: all
+
+submodules.recursive
+````````````````````
+
+Do a recursive clone of the submodules.
+
+:Type: ``bool``
+:Default: ``false``
+
+.. note::
+
+   This is ignored if there aren't submodules to clone.
+
+search
+~~~~~~
+
+Settings for more control over :doc:`/server-side-search`.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+     ranking:
+       api/v1/*: -1
+       api/v2/*: 4
+     ignore:
+       - 404.html
+
+search.ranking
+``````````````
+
+Set a custom search rank over pages matching a pattern.
+
+:Type: ``map`` of patterns to ranks
+:Default: ``{}``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+The rank can be an integer number between -10 and 10 (inclusive).
+Pages with a rank closer to -10 will appear further down the list of results,
+and pages with a rank closer to 10 will appear higher in the list of results.
+Note that 0 means *normal rank*, not *no rank*.
+
+If you are looking to completely ignore a page,
+check :ref:`config-file/v2:search.ignore`.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+     ranking:
+       # Match a single file
+       tutorial.html: 2
+
+       # Match all files under the api/v1 directory
+       api/v1/*: -5
+
+       # Match all files that end with tutorial.html
+       '*/tutorial.html': 3
+
+.. note::
+
+   The final rank will be the last pattern to match the page.
+
+.. tip::
+
+   Is better to decrease the rank of pages you want to deprecate,
+   rather than increasing the rank of the other pages.
+
+search.ignore
+`````````````
+
+Don't index files matching a pattern.
+This is, you won't see search results from these files.
+
+:Type: ``list`` of patterns
+:Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Ignore a single file
+        - 404.html
+
+        # Ignore all files under the search/ directory
+        - search/*
+
+        # Ignore all files that end with ref.html
+        - '*/ref.html'
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Custom files to ignore
+        - file.html
+        - api/v1/*
+
+        # Defaults
+        - search.html
+        - search/index.html
+        - 404.html
+        - 404/index.html'
+
+.. note::
+
+   Since Read the Docs fallbacks to the original search engine when no results are found,
+   you may still see search results from ignored pages.
+
+Schema
+------
+
+You can see the complete schema
+`here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+
+
+Legacy ``build`` specification
+------------------------------
+
+The legacy ``build`` specification used a different set of Docker images,
+and only allowed you to specify the Python version.
+It remains supported for backwards compatibility reasons.
+Check out the :ref:`config-file/v2:build` above
+for an alternative method that is more flexible.
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     image: latest
+     apt_packages:
+       - libclang
+       - cmake
+
+   python:
+     version: "3.7"
+
+The legacy ``build`` specification also supports
+the ``apt_packages`` key described above.
+
+.. warning::
+
+   When using the new specification,
+   the ``build.image`` and ``python.version`` options cannot be used.
+   Doing so will error the build.
+
+build (legacy)
+~~~~~~~~~~~~~~
+
+build.image (legacy)
+````````````````````
+
+The Docker image used for building the docs.
+
+:Type: ``string``
+:Options: ``stable``, ``latest``
+:Default: ``latest``
+
+Each image support different Python versions and has different packages installed,
+as defined here:
+
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+
+python.version (legacy)
+```````````````````````
+
+The Python version (this depends on :ref:`config-file/v2:build.image (legacy)`).
+
+:Type: ``string``
+:Default: ``3``
+
+.. note::
+
+   Make sure to use quotes (``"``) to make it a string.
+   We previously supported using numbers here,
+   but that approach is deprecated.
+
+.. warning::
+
+   If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+   the build, this setting will not have any effect, as the Python version is managed by Conda.
+
+Migrating from v1
+-----------------
+
+Changes
+~~~~~~~
+
+- The version setting is required. See :ref:`config-file/v2:version`.
+- The default value of the :ref:`config-file/v2:formats` setting has changed to ``[]``
+  and it doesn't include the values from the web interface.
+- The top setting ``requirements_file`` was moved to ``python.install``
+  and we don't try to find a requirements file if the option isn't present.
+  See :ref:`config-file/v2:Requirements file`.
+- The setting ``conda.file`` was renamed to ``conda.environment``.
+  See :ref:`config-file/v2:conda.environment`.
+- The ``build.image`` setting has been replaced by ``build.os``.
+  See :ref:`config-file/v2:build.os`.
+  Alternatively, you can use the legacy ``build.image``
+  that now has only two options: ``latest`` (default) and ``stable``.
+- The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
+  And now it accepts a path to the package.
+  See :ref:`config-file/v2:Packages`.
+- The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
+  See :ref:`config-file/v2:python.system_packages`.
+- The build will fail if there are invalid keys (strict mode).
+
+.. warning::
+
+   Some values from the web interface are no longer respected,
+   please see :ref:`config-file/v2:Migrating from the web interface` if you have settings there.
+
+New settings
+~~~~~~~~~~~~
+
+- :ref:`config-file/v2:sphinx`
+- :ref:`config-file/v2:mkdocs`
+- :ref:`config-file/v2:submodules`
+- :ref:`config-file/v2:python.install`
+- :ref:`config-file/v2:search`
+
+Migrating from the web interface
+--------------------------------
+
+This should be pretty straightforward,
+just go to the :guilabel:`Admin` > :guilabel:`Advanced settings`,
+and find their respective setting in :ref:`here <config-file/v2:Supported settings>`.
+
+Not all settings in the web interface are per version, but are per project.
+These settings aren't supported via the configuration file.
+
+* ``Name``
+* ``Repository URL``
+* ``Repository type``
+* ``Language``
+* ``Programming language``
+* ``Project homepage``
+* ``Tags``
+* ``Single version``
+* ``Default branch``
+* ``Default version``
+* ``Show versions warning``
+* ``Privacy level``
+* ``Analytics code``

@@ -1,25 +1,40 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@3.2.2
+
 jobs:
   tests:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.10'
         environment:
           TOX_POSARGS: ''
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.9.2'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
         name: search
         environment:
           discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
     steps:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user tox
-      - run: tox -e py36,codecov
+      - run: tox -e py310
+      - codecov/upload
+
+  tests-embedapi:
+    docker:
+      - image: 'cimg/python:3.10'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user tox
+      - run: tox -c tox.embedapi.ini
 
   checks:
     docker:
-      - image: 'cimg/python:3.6'
+      - image: 'cimg/python:3.10'
         environment:
           NODE_VERSION: 10.17.0
     steps:
@@ -34,9 +49,11 @@ jobs:
             echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
       - run: tox -e migrations
+      - run: tox -e pre-commit
       - run: tox -e lint
       - run: tox -e docs-lint
       - run: tox -e docs
+      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:
@@ -45,3 +62,4 @@ workflows:
     jobs:
       - checks
       - tests
+      - tests-embedapi

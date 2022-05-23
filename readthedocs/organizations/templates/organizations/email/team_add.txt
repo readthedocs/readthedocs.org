@@ -1,0 +1,7 @@
+{% extends 'core/email/common.txt' %}
+{% block content %}Join your team at Read the Docs!
+
+{{ sender_full_name|default:sender_username }} has added you to a team at {{ organization_name|default_if_none:"your company" }}.
+Join your team now, by going to:
+
+{{ uri }}{% url "organization_detail" organization_slug %}{% endblock %}

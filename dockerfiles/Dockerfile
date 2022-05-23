@@ -1,5 +1,6 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
+ARG GITHUB_USER
 ARG GITHUB_TOKEN
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -23,20 +24,11 @@ RUN apt-get -y install \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
+        postgresql-client \
         sqlite \
         netcat \
         telnet \
         lsb-release
-
-# https://www.postgresql.org/download/linux/ubuntu/
-# Use PostgreSQL client 12 from official PostgreSQL Ubuntu's repository to avoid this WARNING
-# WARNING: psql major version 10, server major version 12.
-# Some psql features might not work.
-# TODO: remove this when upgrading to Ubuntu 20.04 LTS
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN curl -s https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get -y update
-RUN apt-get -y install postgresql-client-12
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -50,6 +42,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /tmp
 
 COPY requirements/pip.txt pip.txt
+COPY requirements/debug.txt debug.txt
 COPY requirements/docker.txt docker.txt
 RUN pip3 install --no-cache-dir -r docker.txt
 
@@ -57,9 +50,9 @@ RUN pip3 install --no-cache-dir -r docker.txt
 WORKDIR /usr/src/app/checkouts/
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
         pip3 install --no-cache-dir -e ext-theme ; \
         fi
 

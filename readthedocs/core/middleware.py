@@ -1,27 +1,19 @@
-import logging
+import structlog
 import time
 
 from django.conf import settings
-from django.contrib.sessions.backends.base import SessionBase
-from django.contrib.sessions.backends.base import UpdateError
+from django.contrib.sessions.backends.base import SessionBase, UpdateError
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import SuspiciousOperation
-from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.http import Http404, HttpResponseBadRequest
-from django.urls.base import set_urlconf
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    MiddlewareNotUsed,
+    SuspiciousOperation,
+)
 from django.utils.cache import patch_vary_headers
-from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import http_date
-from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 
-from readthedocs.projects.models import Domain, Project
-
-
-log = logging.getLogger(__name__)
-
-LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
+log = structlog.get_logger(__name__)
 
 
 class ReadTheDocsSessionMiddleware(SessionMiddleware):

@@ -23,10 +23,10 @@
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
-          {% for page, count in top_viewed_pages %}
+          {% for row in top_pages_200 %}
             <li class="module-item">
-              {{ page }}
-              <span class="right quiet">{{ count }}</span>
+              <a href="{{ row.url }}">{{ row.path }}</a>
+              <span class="right quiet">{{ row.count }}</span>
             </li>
           {% empty %}
             <li class="module-item">
@@ -41,8 +41,43 @@
 
   <br/>
 
-  <h2>{% trans "Daily pageview totals" %}</h2>
+  <h3>{% trans "Daily pageview totals" %}</h3>
   <canvas id="page-views-per-page" width="400" height="150"></canvas>
+
+  <form method="get">
+    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+  </form>
+
+  {% if track_404 %}
+  <h3>{% trans "Not Found (404) pages" %}</h3>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul class="long-list-overflow">
+        {% for row in top_pages_404 %}
+          <li class="module-item">
+            <a href="{{ row.url }}">{{ row.path }}</a>
+            <span class="right quiet">{{ row.count }}</span>
+          </li>
+          {# TODO: Add a `Create Redirect` button here with the URL pre-filled as the `from` URL #}
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans "No data available." %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <small class="help_text">
+    {% blocktrans %}
+    * The way that we track 404 pages is on our backend hosting.
+    It's possible the number of times each page is viewed is undercounted because of caching in the browser or in a CDN.
+    {% endblocktrans %}
+  </small>
+  {% endif %}
 
 {% endblock %}
 

@@ -5,8 +5,9 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
+from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 
@@ -43,7 +44,13 @@ class Organization(models.Model):
 
     # Local
     name = models.CharField(_('Name'), max_length=100)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    slug = models.SlugField(
+        _('Slug'),
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+    )
     email = models.EmailField(
         _('E-mail'),
         help_text='How can we get in touch with you?',
@@ -69,6 +76,11 @@ class Organization(models.Model):
         help_text='Docs and builds are disabled for this organization',
         default=False,
     )
+    artifacts_cleaned = models.BooleanField(
+        _('Artifacts Cleaned'),
+        help_text='Artifacts are cleaned out from storage',
+        default=False,
+    )
     max_concurrent_builds = models.IntegerField(
         _('Maximum concurrent builds allowed for this organization'),
         null=True,
@@ -82,8 +94,9 @@ class Organization(models.Model):
         null=True,
     )
 
-    # Manager
+    # Managers
     objects = OrganizationQuerySet.as_manager()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'
@@ -192,8 +205,9 @@ class Team(models.Model):
         help_text="Auto join users with an organization's email address to this team.",
     )
 
-    # Manager
+    # Managers
     objects = TeamManager()
+    history = ExtraHistoricalRecords()
 
     class Meta:
         base_manager_name = 'objects'
@@ -209,10 +223,7 @@ class Team(models.Model):
         )
 
     def __str__(self):
-        return '{organization}/{team}'.format(
-            organization=self.organization.name,
-            team=self.name,
-        )
+        return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:

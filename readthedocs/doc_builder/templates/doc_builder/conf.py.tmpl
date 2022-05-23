@@ -10,9 +10,9 @@
 # The following code was added during an automated build on readthedocs.org
 # It is auto created and injected for every build. The result is based on the
 # conf.py.tmpl file found in the readthedocs.org codebase:
-# https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
+# https://github.com/rtfd/readthedocs.org/blob/main/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
 #
-# Note: this file should't rely on extra depencies.
+# Note: this file shouldn't rely on extra dependencies.
 
 import importlib
 import sys
@@ -81,6 +81,7 @@ context = {
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'STATIC_URL': "{{ settings.STATIC_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
+    'proxied_static_path': "{{ proxied_static_path }}",
     'versions': [{% for version in versions %}
     ("{{ version.slug }}", "/{{ version.project.language }}/{{ version.slug}}/"),{% endfor %}
     ],

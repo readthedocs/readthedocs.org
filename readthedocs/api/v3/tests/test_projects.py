@@ -4,11 +4,12 @@ import django_dynamic_fixture as fixture
 from django.urls import reverse
 
 from readthedocs.projects.models import Project
+from readthedocs.oauth.models import RemoteRepository
 
 from .mixins import APIEndpointMixin
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_list(self):
@@ -129,6 +130,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertTrue(query.exists())
 
         project = query.first()
+        self.assertIsNone(project.remote_repository)
         self.assertEqual(project.name, 'Test Project')
         self.assertEqual(project.slug, 'test-project')
         self.assertEqual(project.repo, 'https://github.com/rtfd/template')
@@ -167,6 +169,21 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response = self.client.post(reverse('projects-list'), data)
         self.assertContains(response, 'Project with slug \\"test-project\\" already exists.', status_code=400)
 
+    def test_import_empty_slug(self):
+        data = {
+            'name': '*',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'homepage': 'http://template.readthedocs.io/',
+            'programming_language': 'py',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertContains(response, 'Invalid project name \\"*\\": no slug generated.', status_code=400)
+
     def test_import_project_with_extra_fields(self):
         data = {
             'name': 'Test Project',
@@ -190,6 +207,34 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(project.repo, 'https://github.com/rtfd/template')
         self.assertNotEqual(project.default_version, 'v1.0')
         self.assertIn(self.me, project.users.all())
+
+    def test_import_project_with_remote_repository(self):
+        remote_repository = fixture.get(
+            RemoteRepository,
+            full_name='rtfd/template',
+            clone_url='https://github.com/rtfd/template',
+            html_url='https://github.com/rtfd/template',
+            ssh_url='git@github.com:rtfd/template.git',
+        )
+
+        data = {
+            'name': 'Test Project',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug='test-project')
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertIsNotNone(project.remote_repository)
+        self.assertEqual(project.remote_repository, remote_repository)
 
     def test_update_project(self):
         data = {

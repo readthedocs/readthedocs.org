@@ -5,13 +5,13 @@ Sphinx_ backend for building docs.
 """
 import codecs
 import itertools
-import logging
 import os
 import shutil
 import zipfile
 from glob import glob
 from pathlib import Path
 
+import structlog
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
@@ -28,10 +28,10 @@ from readthedocs.projects.utils import safe_write
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
-from ..exceptions import BuildEnvironmentError
+from ..exceptions import BuildUserError
 from ..signals import finalize_sphinx_context_data
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class BaseSphinx(BaseBuilder):
@@ -63,9 +63,9 @@ class BaseSphinx(BaseBuilder):
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
         log.info(
-            'Creating default Sphinx config file for project: %s:%s',
-            self.project.slug,
-            self.version.slug,
+            'Creating default Sphinx config file for project.',
+            project_slug=self.project.slug,
+            version_slug=self.version.slug,
         )
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
@@ -138,9 +138,9 @@ class BaseSphinx(BaseBuilder):
                 subproject_urls = self.project.get_subproject_urls()
             except ConnectionError:
                 log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
-                    'project: %s version: %s',
-                    self.project.slug, self.version.slug,
+                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
+                    project_slug=self.project.slug,
+                    version_slug=self.version.slug,
                 )
 
         build_id = self.build_env.build.get('id')
@@ -160,22 +160,30 @@ class BaseSphinx(BaseBuilder):
         if self.version.is_external:
             vcs_url = self.version.vcs_url
 
-        data = {
-            'html_theme': 'sphinx_rtd_theme',
-            'html_theme_import': 'sphinx_rtd_theme',
-            'current_version': self.version.verbose_name,
-            'project': self.project,
-            'version': self.version,
-            'settings': settings,
-            'conf_py_path': conf_py_path,
-            'api_host': settings.PUBLIC_API_URL,
-            'commit': self.project.vcs_repo(self.version.slug).commit,
-            'versions': versions,
-            'downloads': downloads,
-            'subproject_urls': subproject_urls,
-            'build_url': build_url,
-            'vcs_url': vcs_url,
+        commit = (
+            self.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            )
+            .commit
+        )
 
+        data = {
+            "html_theme": "sphinx_rtd_theme",
+            "html_theme_import": "sphinx_rtd_theme",
+            "current_version": self.version.verbose_name,
+            "project": self.project,
+            "version": self.version,
+            "settings": settings,
+            "conf_py_path": conf_py_path,
+            "api_host": settings.PUBLIC_API_URL,
+            "commit": commit,
+            "versions": versions,
+            "downloads": downloads,
+            "subproject_urls": subproject_urls,
+            "build_url": build_url,
+            "vcs_url": vcs_url,
+            "proxied_static_path": self.project.proxied_static_path,
             # GitHub
             'github_user': github_user,
             'github_repo': github_repo,
@@ -255,10 +263,9 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             '-T',
+            '-E',
             *self.sphinx_parallel_arg(),
         ]
-        if self._force:
-            build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
             build_command.extend(['-W', '--keep-going'])
         build_command.extend([
@@ -347,7 +354,7 @@ class HtmlBuilder(BaseSphinx):
         if os.path.exists(json_path):
             if os.path.exists(json_path_target):
                 shutil.rmtree(json_path_target)
-            log.info('Copying json on the local filesystem')
+            log.debug('Copying json on the local filesystem')
             shutil.copytree(
                 json_path,
                 json_path_target,
@@ -383,7 +390,11 @@ class LocalMediaBuilder(BaseSphinx):
 
     @restoring_chdir
     def move(self, **__):
-        log.info('Creating zip file from %s', self.old_artifact_path)
+        if not os.path.exists(self.old_artifact_path):
+            log.warning('Not moving localmedia because the build dir is unknown.')
+            return
+
+        log.debug('Creating zip file from path.', path=self.old_artifact_path)
         target_file = os.path.join(
             self.target,
             '{}.zip'.format(self.project.slug),
@@ -489,7 +500,7 @@ class PdfBuilder(BaseSphinx):
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
 
         if not tex_files:
-            raise BuildEnvironmentError('No TeX files were found')
+            raise BuildUserError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
         # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
