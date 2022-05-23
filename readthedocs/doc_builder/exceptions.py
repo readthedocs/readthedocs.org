@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import gettext_noop
+
 from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
 
 
@@ -36,6 +36,9 @@ class BuildUserError(BuildBaseException):
         "We encountered a problem with a command while building your project. "
         "To resolve this error, double check your project configuration and installed "
         "dependencies are correct and have not changed recently."
+    )
+    BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
+        'No "output/" folder detected on the root of the repository after building the project.'
     )
 
 

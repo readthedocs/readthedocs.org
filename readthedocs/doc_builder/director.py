@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.exceptions import RepositoryError
@@ -350,11 +351,16 @@ class BuildDirector:
             type_="sphinx",
         )
         artifacts_path = os.path.join(cwd, "output")
+        if not os.path.exists(artifacts_path):
+            raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
+
         shutil.copytree(
             artifacts_path,
             target,
-            # ignore=shutil.ignore_patterns(*self.ignore_patterns),
         )
+
+        self.data.outcomes = defaultdict(lambda: False)
+        self.data.outcomes["html"] = True
 
     def install_build_tools(self):
         """
