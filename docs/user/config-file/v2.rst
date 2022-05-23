@@ -456,6 +456,41 @@ See :doc:`/build-customization` for more details.
 :Default: ``{}``
 
 
+build.commands
+``````````````
+
+Specify a list of commands that Read the Docs will run on the build process.
+When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
+(see :doc:`/build-customization` for more details).
+This allows you to run custom commands and control the build process completely.
+The ``output/`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
+
+.. warning::
+
+   This feature is in a *beta phase* and can suffer incompatible changes or even removed completely in the near feature.
+   Use it under your own responsibility.
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.10"
+     commands:
+       - pip install pelican
+       - pelican --settings docs/pelicanconf.py --output output/ docs/
+
+.. note::
+
+   ``build.os`` and ``build.tools`` are also required when using ``build.commands``.
+
+:Type: ``list``
+:Required: ``false``
+:Default: ``[]``
+
+
 sphinx
 ~~~~~~
 
