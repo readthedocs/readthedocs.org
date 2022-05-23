@@ -22,12 +22,14 @@ proposing a clear direction to move forward with intermediate steps keeping back
    Please, refer to the following links to read more about all the discussions we already had:
 
     - Public discussions:
+
       - https://github.com/readthedocs/readthedocs.org/issues/9062
       - https://github.com/readthedocs/readthedocs.org/issues/1083
       - https://github.com/readthedocs/readthedocs.org/issues/9063
       - https://github.com/readthedocs/readthedocs.org/issues/9088
 
     - Private discussions:
+
       - https://github.com/readthedocs/meta/discussions/9
       - https://github.com/readthedocs/meta/discussions/14
       - https://github.com/readthedocs/meta/discussions/17
