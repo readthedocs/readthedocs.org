@@ -18,7 +18,11 @@ class CommunityDevSettings(CommunityBaseSettings):
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
-            }
+            },
+            'telemetry': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(self.SITE_ROOT, 'telemetry.dev.db'),
+            },
         }
 
     DONT_HIT_DB = False

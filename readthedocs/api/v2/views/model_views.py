@@ -1,8 +1,8 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import structlog
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.db.models import BooleanField, Case, Value, When
