@@ -1,8 +1,12 @@
 Contributing to Read the Docs
 =============================
 
-You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know how to ask questions and how to work on something.
+Are you here to help on Read the Docs? Awesome! |:heart:|
+
+Read the Docs, and all of it's related projects, are all community maintained,
+open-source projects. We hope you feel welcome as you begin contributing to any
+of these projects. You'll find that development is primarily supported by our
+core team members, who all work on Read the Docs full-time.
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
@@ -10,16 +14,28 @@ Please make sure you are welcoming and friendly in all of our spaces.
 Get in touch
 ------------
 
+If you have a question or comment, we generally suggest the following
+communication channels:
+
 - Ask usage questions ("How do I?") on `StackOverflow`_.
-- Report bugs, suggest features or view the source code `on GitHub`_.
-- Discuss topics on `Gitter`_.
+- Report bugs, suggest features, or view the source code `on GitHub`_.
+- Discuss development topics on `Gitter`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _on GitHub: https://github.com/readthedocs/readthedocs.org
 .. _Gitter: https://gitter.im/readthedocs/community
 
+Contributing
+------------
+
+There are plenty of places to contribute to Read the Docs, but if you are just
+starting with contributions, we suggest focusing on the following areas:
+
+.. contents::
+    :local:
+
 Contributing to development
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
@@ -50,19 +66,33 @@ When contributing code, then please follow the standard Contribution Guidelines 
 
 
 Contributing to documentation
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.io (likely the website you are currently reading).
 
 There are guidelines around writing and formatting documentation for the project.
 For full details, including how to build it, see :doc:`/docs`.
 
+Contributing to translations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We use Transifex to manage localization for all of our projects that we support
+localization on. If you are interested in contributing, we suggest joining a
+team on one of `our projects on Transifex`_. From there, you can suggest
+translations, and can even be added as a reviewer, so you can correct and
+approve suggestions.
+
+If you don't see your language in our list of approved languages for any of our
+projects, feel free to suggest the language on Transifex to start the process.
+
+.. _our projects on Transifex: https://www.transifex.com/projects/p/readthedocs/
 
 Triaging tickets
 ----------------
 
-Here is a brief explanation on how we triage incoming tickets to get a better
-sense of what needs to be done on what end.
+Core team uses the following guidelines for issue triage on all of our projects.
+These guidelines describe the issue lifecycle, and what is required at each step
+of this lifecycle.
 
 .. note:: You will need Triage permission on the project in order to do this.
           You can ask one of the members of the :doc:`team` to give you access.
@@ -223,10 +253,3 @@ Here is a list of links for contributors that look for work:
   <https://github.com/readthedocs/readthedocs.org/issues?q=is:open+is:issue+label:"Needed:+design+decision">`_:
   Project leaders must take actions on these tickets. Otherwise no other
   contributor can go forward on them.
-
-Helping on translations
------------------------
-
-If you wish to contribute translations, please do so on `Transifex`_.
-
-.. _Transifex: https://www.transifex.com/projects/p/readthedocs/
