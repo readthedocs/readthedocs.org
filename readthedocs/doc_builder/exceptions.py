@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import gettext_noop
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
+
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED, BUILD_STATUS_DUPLICATED
 
 
 class BuildBaseException(Exception):
@@ -57,10 +56,12 @@ class DuplicatedBuildError(BuildUserError):
     message = gettext_noop('Duplicated build.')
     exit_code = 1
     status = BUILD_STATUS_DUPLICATED
+    state = BUILD_STATE_CANCELLED
 
 
 class BuildCancelled(BuildUserError):
     message = gettext_noop('Build cancelled by user.')
+    state = BUILD_STATE_CANCELLED
 
 
 class MkDocsYAMLParseError(BuildUserError):

@@ -6,21 +6,21 @@
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
 psycopg2-binary==2.9.2  # pyup: ignore
 
-django-redis-cache==3.0.0
+django-redis-cache==3.0.1
 
 # For resizing images
-pillow==9.0.1
+pillow==9.1.0
 
 # Local debugging tools
-watchdog==2.1.6
+watchdog==2.1.7
 # watchdog dependency
 argh==0.26.2
 
 # run tests
-tox==3.24.5
+tox==3.25.0
 
 # AWS utilities to use against MinIO
-awscli==1.22.63
+awscli==1.22.97
 
 # Used together with structlog to have nicer logs locally
-rich==11.2.0
+rich==12.2.0

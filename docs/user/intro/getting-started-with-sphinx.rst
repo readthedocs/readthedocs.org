@@ -62,7 +62,6 @@ Open this file in your web browser to see your docs.
 
 .. figure:: /_static/images/first-steps/sphinx-hello-world.png
    :figwidth: 500px
-   :target: /_static/images/first-steps/sphinx-hello-world.png
    :align: center
 
    Your Sphinx project is built

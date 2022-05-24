@@ -2,7 +2,11 @@
 
 import structlog
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import (
+    EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
+)
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks.builds import sync_repository_task
@@ -118,22 +122,26 @@ def trigger_sync_versions(project):
     return None
 
 
-def get_or_create_external_version(project, identifier, verbose_name):
+def get_or_create_external_version(project, version_data):
     """
-    Get or create external versions using `identifier` and `verbose_name`.
+    Get or create version using the ``commit`` as identifier, and PR id as ``verbose_name``.
 
     if external version does not exist create an external version
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns:  External version.
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+     instance.
+    :returns: External version.
     :rtype: Version
     """
     external_version, created = project.versions.get_or_create(
-        verbose_name=verbose_name,
+        verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={'identifier': identifier, 'active': True},
+        defaults={
+            "identifier": version_data.commit,
+            "active": True,
+            "state": EXTERNAL_VERSION_STATE_OPEN,
+        },
     )
 
     if created:
@@ -144,11 +152,10 @@ def get_or_create_external_version(project, identifier, verbose_name):
         )
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
-        external_version.identifier = identifier
-        # If the PR was previously closed it was marked as inactive.
-        external_version.active = True
+        external_version.identifier = version_data.commit
+        # If the PR was previously closed it was marked as closed
+        external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.save()
-
         log.info(
             'External version updated.',
             project_slug=project.slug,
@@ -157,30 +164,32 @@ def get_or_create_external_version(project, identifier, verbose_name):
     return external_version
 
 
-def deactivate_external_version(project, identifier, verbose_name):
+def close_external_version(project, version_data):
     """
-    Deactivate external versions using `identifier` and `verbose_name`.
+    Close external versions using `identifier` and `verbose_name`.
 
-    if external version does not exist then returns `None`.
-
-    We mark the version as inactive,
-    so another celery task will remove it after some days.
+    We mark the version's state as `closed` so another celery task will remove
+    it after some days. If external version does not exist then returns `None`.
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns: verbose_name (pull/merge request number).
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+     instance.
     :rtype: str
     """
-    external_version = project.versions(manager=EXTERNAL).filter(
-        verbose_name=verbose_name, identifier=identifier
-    ).first()
+    external_version = (
+        project.versions(manager=EXTERNAL)
+        .filter(
+            verbose_name=version_data.id,
+            identifier=version_data.commit,
+        )
+        .first()
+    )
 
     if external_version:
-        external_version.active = False
+        external_version.state = EXTERNAL_VERSION_STATE_CLOSED
         external_version.save()
         log.info(
-            'External version marked as inactive.',
+            "External version marked as closed.",
             project_slug=project.slug,
             version_slug=external_version.slug,
         )
@@ -188,7 +197,7 @@ def deactivate_external_version(project, identifier, verbose_name):
     return None
 
 
-def build_external_version(project, version, commit):
+def build_external_version(project, version):
     """
     Where we actually trigger builds for external versions.
 
@@ -204,6 +213,6 @@ def build_external_version(project, version, commit):
         project_slug=project.slug,
         version_slug=version.slug,
     )
-    trigger_build(project=project, version=version, commit=commit)
+    trigger_build(project=project, version=version, commit=version.identifier)
 
     return version.verbose_name

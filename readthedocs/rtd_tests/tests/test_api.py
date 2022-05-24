@@ -41,6 +41,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_DUPLICATED,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -801,7 +802,7 @@ class APITests(TestCase):
             max_concurrent_builds=None,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             get(
                 Build,
                 project=project,
@@ -920,9 +921,13 @@ class IntegrationsTests(TestCase):
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": self.commit
-                }
-            }
+                    "sha": self.commit,
+                    "ref": "source_branch",
+                },
+                "base": {
+                    "ref": "master",
+                },
+            },
         }
         self.gitlab_merge_request_payload = {
             "object_kind": GITLAB_MERGE_REQUEST,
@@ -931,7 +936,9 @@ class IntegrationsTests(TestCase):
                 "last_commit": {
                     "id": self.commit
                 },
-                "action": "open"
+                "action": "open",
+                "source_branch": "source_branch",
+                "target_branch": "master",
             },
         }
         self.gitlab_payload = {
@@ -1236,12 +1243,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=pull_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
@@ -1525,6 +1532,14 @@ class IntegrationsTests(TestCase):
             **headers
         )
         self.assertTrue(resp.json()['versions_synced'])
+
+    def test_github_get_external_version_data(self, trigger_build):
+        view = GitHubWebhookView(data=self.github_pull_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
@@ -1924,12 +1939,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=merge_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.trigger_build')
@@ -1969,11 +1984,12 @@ class IntegrationsTests(TestCase):
         ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_gitlab_merge_request_no_action(self, trigger_build):
@@ -2040,6 +2056,14 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
+
+    def test_gitlab_get_external_version_data(self, trigger_build):
+        view = GitLabWebhookView(data=self.gitlab_merge_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""

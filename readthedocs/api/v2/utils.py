@@ -1,8 +1,8 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
-import structlog
 
+import structlog
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
@@ -79,9 +79,11 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             Version.objects.filter(
                 project=project,
                 verbose_name=version_name,
+                # Always filter by type, a tag and a branch
+                # can share the same verbose_name.
+                type=type,
             ).update(
                 identifier=version_id,
-                type=type,
                 machine=False,
             )
 

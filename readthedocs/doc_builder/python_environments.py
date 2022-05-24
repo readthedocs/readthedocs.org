@@ -3,10 +3,10 @@
 import codecs
 import copy
 import itertools
-import structlog
 import os
 import tarfile
 
+import structlog
 import yaml
 from django.conf import settings
 
@@ -344,6 +344,8 @@ class Virtualenv(PythonEnvironment):
                     negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
+            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
+                requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
         if self.config.python.use_system_site_packages:
@@ -445,10 +447,6 @@ class Conda(PythonEnvironment):
         """
         Decide whether use ``mamba`` or ``conda`` to create the environment.
 
-        Return ``mamba`` if the project has ``CONDA_USES_MAMBA`` feature and
-        ``conda`` otherwise. This will be the executable name to be used when
-        creating the conda environment.
-
         ``mamba`` is really fast to solve dependencies and download channel
         metadata on startup.
 
@@ -457,10 +455,6 @@ class Conda(PythonEnvironment):
         # Config file using ``build.tools.python``
         if self.config.using_build_tools:
             return self.config.python_interpreter
-
-        # Config file using ``conda``
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
-            return 'mamba'
         return 'conda'
 
     def _update_conda_startup(self):
@@ -471,8 +465,6 @@ class Conda(PythonEnvironment):
         independently the version of Miniconda that it has installed.
         """
         self.build_env.run(
-            # TODO: use ``self.conda_bin_name()`` once ``mamba`` is installed in
-            # the Docker image
             'conda',
             'update',
             '--yes',
@@ -483,22 +475,9 @@ class Conda(PythonEnvironment):
             cwd=self.checkout_path,
         )
 
-    def _install_mamba(self):
-        self.build_env.run(
-            'conda',
-            'install',
-            '--yes',
-            '--quiet',
-            '--name=base',
-            '--channel=conda-forge',
-            'python=3.7',
-            'mamba',
-            cwd=self.checkout_path,
-        )
-
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
-        version_path = os.path.join(conda_env_path, self.version.slug)
+        os.path.join(conda_env_path, self.version.slug)
 
         if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
             self._update_conda_startup()
@@ -506,15 +485,6 @@ class Conda(PythonEnvironment):
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
             self._append_core_requirements()
             self._show_environment_yaml()
-
-        if all([
-                # The project has CONDA_USES_MAMBA feature enabled and,
-                self.project.has_feature(Feature.CONDA_USES_MAMBA),
-                # the project is not using ``build.tools``,
-                # which has mamba installed via asdf.
-                not self.config.using_build_tools,
-        ]):
-            self._install_mamba()
 
         self.build_env.run(
             self.conda_bin_name(),
@@ -603,9 +573,6 @@ class Conda(PythonEnvironment):
             'mock',
             'pillow',
         ]
-
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
-            conda_requirements.append('pip')
 
         # Install pip-only things.
         pip_requirements = [

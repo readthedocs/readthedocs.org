@@ -10,9 +10,11 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
@@ -25,6 +27,7 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
 
@@ -197,6 +200,31 @@ class TestFullDocServing(BaseDocServing):
         )
 
     # Invalid tests
+
+    def test_non_existent_version(self):
+        url = "/en/non-existent-version/"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_non_existent_version_with_filename(self):
+        url = "/en/non-existent-version/doesnt-exist.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_inactive_version(self):
+        url = "/en/inactive/"
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Version,
+            verbose_name="inactive",
+            slug="inactive",
+            active=False,
+            project=self.project,
+        )
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
 
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
@@ -850,6 +878,136 @@ class TestAdditionalDocViews(BaseDocServing):
             ]
         )
 
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found/",
+            "/en/latest/not-found/",
+            "/not-found",
+            "/en/not-found/",
+        ]
+        for path in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        self.assertEqual(PageView.objects.all().count(), 3)
+
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(full_path="/en/latest/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.path, "/not-found/")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/not-found")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(full_path="/en/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, None)
+        self.assertEqual(pageview.path, "/en/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_custom_404(self, storage_exists, storage_open):
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            "/en/latest/not-found",
+            "/en/latest/not-found",
+            "/en/latest/not-found/",
+        ]
+        for path in paths:
+            storage_open.reset_mock()
+            storage_exists.reset_mock()
+            storage_exists.side_effect = [False, False, True]
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+            storage_open.assert_called_once_with("html/project/latest/404.html")
+
+        self.assertEqual(PageView.objects.all().count(), 2)
+        version = self.project.versions.get(slug="latest")
+
+        pageview = PageView.objects.get(path="/not-found")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found")
+        self.assertEqual(pageview.view_count, 2)
+        self.assertEqual(pageview.status, 404)
+
+        pageview = PageView.objects.get(path="/not-found/")
+        self.assertEqual(pageview.project, self.project)
+        self.assertEqual(pageview.version, version)
+        self.assertEqual(pageview.full_path, "/en/latest/not-found/")
+        self.assertEqual(pageview.view_count, 1)
+        self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_track_broken_link_threat_score(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        paths = [
+            ("/en/latest/one", 1),
+            ("/en/latest/two", 7),
+            ("/en/latest/three", 13),
+            ("/en/latest/four", 57),
+        ]
+        for path, score in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_404_handler",
+                    kwargs={"proxito_path": path},
+                ),
+                HTTP_HOST="project.readthedocs.io",
+                HTTP_X_CLOUDFLARE_THREAT_SCORE=score,
+            )
+            self.assertEqual(resp.status_code, 404)
+
+        # Only requests with threat score below 10 are recorded.
+        self.assertEqual(
+            {"/en/latest/one", "/en/latest/two"},
+            {pageview.full_path for pageview in PageView.objects.all()},
+        )
+
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
         private_version = fixture.get(
@@ -980,6 +1138,26 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
+    @override_settings(
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    def test_serve_static_files(self):
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["javascript/readthedocs-doc-embed.js"],
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
@@ -1029,6 +1207,13 @@ class TestCDNCache(BaseDocServing):
             self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
             self.assertEqual(resp.headers['Cache-Tag'], 'project', url)
 
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
         # Slash redirect is done at the middleware level.
         # So, it doesn't take into consideration the privacy level of the
         # version, and always defaults to private.
@@ -1069,6 +1254,13 @@ class TestCDNCache(BaseDocServing):
             self.assertEqual(resp['Location'], location, url)
             self.assertEqual(resp.headers['CDN-Cache-Control'], 'public', url)
             self.assertEqual(resp.headers['Cache-Tag'], 'subproject', url)
+
+        # Proxied static files are always cached.
+        resp = self.client.get("/_/static/file.js", secure=True, HTTP_HOST=host)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
 
         # Slash redirect is done at the middleware level.
         # So, it doesn't take into consideration the privacy level of the
@@ -1150,3 +1342,27 @@ class TestCDNCache(BaseDocServing):
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
         self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_on_plan(self):
+        self.organization = get(Organization)
+        self.plan = get(
+            Plan,
+            published=True,
+        )
+        self.subscription = get(
+            Subscription,
+            plan=self.plan,
+            organization=self.organization,
+        )
+        self.feature = get(
+            PlanFeature,
+            plan=self.plan,
+            feature_type=PlanFeature.TYPE_CDN,
+        )
+
+        # Delete feature plan, so we aren't using that logic
+        Feature.objects.filter(feature_id=Feature.CDN_ENABLED).delete()
+
+        # Add project to plan, so we're using that to enable CDN
+        self.organization.projects.add(self.project)
+        self._test_cache_control_header_project(expected_value="public")

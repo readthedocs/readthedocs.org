@@ -1,6 +1,5 @@
 """Utility functions for use in tests."""
 
-import structlog
 import subprocess
 import textwrap
 from os import chdir, environ, mkdir
@@ -9,6 +8,7 @@ from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
+import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
 
@@ -191,6 +191,16 @@ def create_git_submodule(
     check_output(command, env=env)
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m', '"{}"'.format(msg)], env=env)
+
+
+@restoring_chdir
+def get_current_commit(directory):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", "HEAD"]
+    return check_output(command, env=env).decode().strip()
 
 
 @restoring_chdir

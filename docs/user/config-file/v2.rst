@@ -331,7 +331,7 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``
 :Required: ``true``
 
 build.tools
@@ -418,6 +418,44 @@ We don't currently support PPA's or other custom repositories.
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
    :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
 
+
+build.jobs
+``````````
+
+Commands to be run before or after a Read the Docs :term:`pre-defined build jobs`.
+This allows you to run custom commands at a particular moment in the build process.
+See :doc:`/build-customization` for more details.
+
+
+.. code-block:: yaml
+
+   version: 2
+
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: "3.10"
+     jobs:
+       pre_create_environment:
+         - echo "Command run at 'pre_create_environment' step"
+       post_build:
+         - echo "Command run at 'post_build' step"
+         - echo `date`
+
+.. note::
+
+   Each key under ``build.jobs`` must be a list of strings.
+   ``build.os`` and ``build.tools`` are also required to use ``build.jobs``.
+
+
+:Type: ``dict``
+:Allowed keys: ``post_checkout``, ``pre_system_dependencies``, ``post_system_dependencies``,
+   ``pre_create_environment``, ``post_create_environment``, ``pre_install``, ``post_install``,
+   ``pre_build``, ``post_build``
+:Required: ``false``
+:Default: ``{}``
+
+
 sphinx
 ~~~~~~
 
@@ -442,7 +480,7 @@ Configuration for Sphinx documentation
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before October 2020 <builds:external dependencies>`.
+   if your project was created before October 2020 <build-default-versions:external dependencies>`.
 
 sphinx.builder
 ``````````````
@@ -500,7 +538,7 @@ Configuration for MkDocs documentation.
    you can use the ``extra_requirements`` option
    (see :ref:`config-file/v2:packages`).
    This also allows you to override :ref:`the default pinning done by Read the Docs
-   if your project was created before March 2021 <builds:external dependencies>`.
+   if your project was created before March 2021 <build-default-versions:external dependencies>`.
 
 mkdocs.configuration
 ````````````````````
@@ -717,7 +755,7 @@ Schema
 ------
 
 You can see the complete schema
-`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+`here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
 
 
 Legacy ``build`` specification
