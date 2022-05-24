@@ -4,7 +4,8 @@ Versioned Documentation
 Read the Docs supports multiple versions of your repository.
 On initial import,
 we will create a ``latest`` version.
-This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
+This will point at the default branch defined in your VCS control
+(by default, ``main`` on Git and ``default`` in Mercurial).
 
 If your project has any tags or branches with a name following `semantic versioning <https://semver.org/>`_,
 we also create a ``stable`` version, tracking your most recent release.
@@ -120,7 +121,7 @@ When you log in to a documentation site, you will be logged in until close your 
 To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
 This is usually located in the bottom right or bottom left, depending on the theme design.
 This will log you out from the current domain,
-but not end any other session that you have active. 
+but not end any other session that you have active.
 
 .. figure:: /_static/images/logout-button.png
    :align: center

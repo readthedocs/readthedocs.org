@@ -2,15 +2,17 @@ import datetime
 import os
 import shutil
 
-
-from celery.worker.request import Request
 import structlog
-
+from celery.worker.request import Request
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    EXTERNAL,
+)
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.storage import build_media_storage
@@ -83,11 +85,11 @@ def finish_inactive_builds():
     """
     Finish inactive builds.
 
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
+    A build is consider inactive if it's not in a final state and it has been
     "running" for more time that the allowed one (``Project.container_time_limit``
     or ``DOCKER_LIMITS['time']`` plus a 20% of it).
 
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
+    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
     ``error`` to be communicated to the user.
     """
     # TODO similar to the celery task time limit, we can't infer this from
@@ -97,9 +99,7 @@ def finish_inactive_builds():
     # Set time as maximum celery task time limit + 5m
     time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
-    query = (
-        ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
-    )
+    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(date__lte=timezone.now() - delta)
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -110,12 +110,12 @@ def finish_inactive_builds():
                 seconds=int(build.project.container_time_limit),
             )
             if build.date + custom_delta > timezone.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
+                # Do not mark as CANCELLED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
                 continue
 
         build.success = False
-        build.state = BUILD_STATE_FINISHED
+        build.state = BUILD_STATE_CANCELLED
         build.error = _(
             'This build was terminated due to inactivity. If you '
             'continue to encounter this error, file a support '

@@ -82,7 +82,7 @@ Bitbucket
 GitLab
 ~~~~~~
 
-* Go to the :guilabel:`Settings` > :guilabel:`Integrations` page for your project
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
 * Leave the default **Push events** selected and mark **Tag push events** also

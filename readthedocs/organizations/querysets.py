@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -213,6 +213,13 @@ class BaseOrganizationQuerySet(models.QuerySet):
             artifacts_cleaned=False,
         )
         return orgs.distinct()
+
+    def single_owner(self, user):
+        """Returns organizations where `user` is the only owner."""
+        return self.annotate(count_owners=Count("owners")).filter(
+            owners=user,
+            count_owners=1,
+        )
 
 
 class OrganizationQuerySet(SettingsOverrideObject):

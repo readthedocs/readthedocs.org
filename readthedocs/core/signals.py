@@ -1,13 +1,10 @@
 """Signal handling for core app."""
 
 import structlog
-
 from corsheaders import signals
 from django.conf import settings
-from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
-
 from rest_framework.permissions import SAFE_METHODS
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
@@ -15,6 +12,7 @@ from simple_history.signals import pre_create_historical_record
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import unresolve
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -114,19 +112,20 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
-def delete_projects(sender, instance, *args, **kwargs):
-    # Here we count the owner list from the projects that the user own
-    # Then exclude the projects where there are more than one owner
-    # Add annotate before filter
-    # https://github.com/rtfd/readthedocs.org/pull/4577
-    # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
-    projects = (
-        Project.objects.annotate(num_users=Count('users')
-                                 ).filter(users=instance.id
-                                          ).exclude(num_users__gt=1)
-    )
+def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+    """
+    Delete projects and organizations where the user is the only owner.
 
-    projects.delete()
+    We delete projects that don't belong to an organization first,
+    then full organizations.
+    """
+    user = instance
+
+    for project in Project.objects.single_owner(user):
+        project.delete()
+
+    for organization in Organization.objects.single_owner(user):
+        organization.delete()
 
 
 @receiver(pre_create_historical_record)
