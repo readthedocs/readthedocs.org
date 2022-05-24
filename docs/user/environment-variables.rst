@@ -36,7 +36,7 @@ User-defined environment variables
 ----------------------------------
 
 If extra environment variables are needed in the build process (like an API token),
-you can define them from the project setting's page:
+you can define them from the project's settings page:
 
 #. Go to your project's :guilabel:`Admin` > :guilabel:`Environment Variables`
 #. Click on :guilabel:`Add Environment Variable`
@@ -76,7 +76,7 @@ for example in your Sphinx's configuration file:
        auth=(username, password),
    )
 
-Also, you can read it from the :term:`user-defined build jobs` in the config file:
+You can also use any of these variables from :term:`user-defined build jobs` in your project's configuration file:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
