@@ -76,7 +76,7 @@ and some of the core features of Read the Docs.
 
 * **Overview of core features**:
   :doc:`/integrations` |
-  :doc:`/custom_domains` |
+  :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
@@ -108,7 +108,8 @@ and some of the core features of Read the Docs.
 
    /config-file/index
    /integrations
-   /custom_domains
+   /custom-domains
+   /canonical-urls
    /versions
    /downloadable-documentation
    /hosting

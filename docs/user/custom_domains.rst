@@ -1,80 +1,53 @@
-Custom Domains and White Labeling
-=================================
+Custom Domains
+==============
 
-Once a project is imported into Read the Docs,
-by default it's hosted under a subdomain on one of our domains.
-If you need a custom domain, see :ref:`custom_domains:custom domain support`.
+With custom domains you can serve your documentation from your own domain.
+By default your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>`:
+``<slug>.readthedocs.io`` or ``<slug>.readthedocs-hosted.com``,
+for example ``https://pip.readthedocs.io``.
 
-Subdomain support
------------------
+.. contents::
+    :local:
 
-Every project has a subdomain that is available to serve its documentation.
-If you go to ``<slug>.readthedocs.io``, it should show you the latest version of your documentation.
-A good example is https://pip.readthedocs.io
-For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
+Adding a custom domain
+----------------------
 
-Custom domain support
----------------------
+To setup your custom domain, follow these steps:
 
-You can also host your documentation from your own domain.
+#. Go the :guilabel:`Admin` tab of your project.
+#. Click on :guilabel:`Domains`.
+#. Enter your domain.
+#. Mark the :guilabel:`Canonical` option if you want use this domain
+   as your :doc:`canonical domain </canonical-urls>`.
+#. Click on :guilabel:`Add`.
+#. At the top of the next page you'll find the value of the CNAME record that you need to point your domain to.
+   For |org_brand| this is ``readthedocs.io``, and for :doc:`/commercial/index`
+   the record is in the form of ``<hash>.domains.readthedocs.com``.
 
-.. note::
+   .. note::
 
-   We don't currently support pointing subdomains or root domains to a project using A records.
+      For a subdomain like ``docs.example.com`` add a CNAME record,
+      and for a root domain like ``example.com`` use an ANAME or ALIAS record.
+
+By default, we provide a validated SSL certificate for the domain,
+this service is provided by Cloudflare.
+The SSL certificate issuance can take about one hour,
+you can see the status of the certificate on the domain page in your project.
+
+As an example, fabric's DNS record looks like this:
+
+.. prompt:: bash $, auto
+
+   $ dig CNAME +short docs.fabfile.org
+     readthedocs.io.
+
+.. warning::
+
+   We don't support pointing subdomains or root domains to a project using A records.
    DNS A records require a static IP address and our IPs may change without notice.
 
-.. tabs::
-
-   .. tab:: Read the Docs Community
-
-      In order to setup your custom domain, follow these steps:
-
-      #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
-         For a root domain like ``example.com`` use an ANAME or ALIAS record pointing to ``readthedocs.io``.
-      #. Go the :guilabel:`Admin` tab of your project
-      #. Click on :guilabel:`Domains`
-      #. Enter your domain and click on :guilabel:`Add`
-
-      By default, we provide a validated SSL certificate for the domain.
-      This service is generously provided by Cloudflare.
-      The SSL certificate issuance can take about one hour,
-      you can see the status of the certificate on the domain page in your project.
-
-      As an example, fabric's DNS record looks like this:
-
-      .. prompt:: bash $, auto
-
-         $ dig CNAME +short docs.fabfile.org
-           readthedocs.io.
-
-   .. tab:: Read the Docs for Business
-
-      In order to setup your custom domain, follow these steps:
-
-      #. Go the :guilabel:`Admin` tab of your project
-      #. Click on :guilabel:`Domains`
-      #. Enter your domain and click on :guilabel:`Add`
-      #. Follow the steps shown on the domain page.
-         This will require adding 2 DNS records, one pointing your custom domain to our servers,
-         and another allowing us to provision an SSL certificate.
-
-      By default, we provide a validated SSL certificate for the domain.
-      The SSL certificate issuance can take a few days,
-      you can see the status of the certificate on the domain page in your project.
-
-      .. note::
-
-         Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
-         These domains will continue to resolve.
-
-      .. note::
-
-         You will need to keep the extra DNS records after the setup is complete.
-         If you remove the verification record, the certificate won't renew automatically,
-         and if you remove the CNAME pointing to us, your domain won't serve the documentation.
-
 Strict Transport Security
-+++++++++++++++++++++++++
+-------------------------
 
 By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
 This is a conscious decision as it can be misconfigured in a not easily reversible way.
@@ -85,8 +58,20 @@ for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``
 
 .. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 
+Legacy domains on |com_brand|
+-----------------------------
+
+Some older setups configured a CNAME record pointing to
+``<organization-slug>.users.readthedocs.com``,
+these domains will continue to resolve.
+
+Previously you were asked to add two records,
+this process has been simplified.
+If you have doubts about deleting some of the old records,
+please reach out to :ref:`support <support:user support>`.
+
 Multiple documentation sites as sub-folders of a domain
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-------------------------------------------------------
 
 You may host multiple documentation repositories as **sub-folders of a single domain**.
 For example, ``docs.example.org/projects/repo1`` and ``docs.example.org/projects/repo2``.
@@ -95,7 +80,7 @@ This is `a way to boost the SEO of your website <https://moz.com/blog/subdomains
 See :doc:`subprojects` for more information.
 
 Troubleshooting
-+++++++++++++++
+---------------
 
 SSL certificate issue delays
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,14 +88,11 @@ SSL certificate issue delays
 The status of your domain validation and certificate can always be seen on the details page for your domain
 under :guilabel:`Admin` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
 
-* For |org_brand|, domains are usually validated and a certificate issued within minutes.
-  However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes
-  and then update DNS hours or days later,
-  this can cause a delay in validating because there is an exponential back-off in validation.
-  Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
-* For |com_brand|, domains can take up to a couple days to validate and issue a certificate.
-  To avoid any downtime in moving a domain from somewhere else to Read the Docs,
-  it is possible to validate the domain and provision the certificate before pointing your domain to Read the Docs.
+Domains are usually validated and a certificate issued within minutes.
+However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes
+and then update DNS hours or days later,
+this can cause a delay in validating because there is an exponential back-off in validation.
+Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
 
 Certificate authority authorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,80 +100,39 @@ Certificate authority authorization
 Certificate authority authorization (CAA) is a security feature that allows domain owners to limit
 which certificate authorities (CAs) can issue certificates for a domain.
 This is done by setting CAA DNS records for your domain.
-CAA records are typically on the root domain, not subdomains
-since you can't have a CNAME and CAA record for the same subdomain.
-Here's an example for palletsprojects.com:
+
+The readthedocs domains that you'll point your domains to already
+have the proper CAA records.
 
 .. prompt:: bash $, auto
 
-    $ dig CAA +short palletsprojects.com
-    0 issue "digicert.com"
-    0 issue "comodoca.com"
-    0 issue "letsencrypt.org"
+   $ dig +short readthedocs.io CAA
+     0 issue "digicert.com; cansignhttpexchanges=yes"
+     0 issuewild "digicert.com; cansignhttpexchanges=yes"
+     0 issue "comodoca.com"
+     0 issue "letsencrypt.org"
+     0 issuewild "comodoca.com"
+     0 issuewild "letsencrypt.org"
 
-If there are CAA records for your domain that do not allow the certificate authorities that Read the Docs uses,
+.. prompt:: bash $, auto
+
+   $ dig +short 0acba22b.domains.readthedocs.com CAA
+     proxy-fallback.readthedocs-hosted.com.
+     0 issue "digicert.com"
+     0 issue "comodoca.com"
+     0 issue "letsencrypt.org"
+
+In case that there are CAA records for your domain that do not allow the certificate authorities that Read the Docs uses,
 you may see an error message like ``pending_validation: caa_error: YOURDOMAIN.TLD``
 in the Read the Docs dashboard for your domain.
 You will need to update your CAA records to allow us to issue the certificate.
 
-* For |org_brand|, we use Cloudflare which uses Digicert as a CA. See the `Cloudflare CAA FAQ`_ for details.
-* For |com_brand|, we use AWS Certificate Manager as a CA. See the `Amazon CAA guide`_ for details.
+We use Cloudflare, which uses Digicert as a CA. See the `Cloudflare CAA FAQ`_ for details.
 
 .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
-.. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
 .. note::
 
    If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
    to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
    else it will always redirect to GitBook.
-
-Canonical URLs
---------------
-
-Canonical URLs allow people to have consistent page URLs for domains.
-This is mainly useful for search engines,
-so that they can send people to the correct page.
-
-Read the Docs uses these in two ways:
-
-* We point all versions of your docs at default version, usually "latest" or "stable", as canonical.
-* We point at the user specified canonical URL, generally a custom domain for your docs.
-
-Example
-+++++++
-
-Fabric hosts their docs on Read the Docs.
-They mostly use their own domain for them ``http://docs.fabfile.org``.
-This means that Google will index both ``http://fabric-docs.readthedocs.io`` and
-``http://docs.fabfile.org`` for their documentation.
-
-Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
-This means that when Google indexes ``http://fabric-docs.readthedocs.io``,
-it will know that it should really point at ``http://docs.fabfile.org``.
-
-Enabling
-++++++++
-
-You can set the canonical URL for your project in the Project Admin page.
-Check your :guilabel:`Admin` > :guilabel:`Domains` page for the domains that we know about.
-
-Implementation
-++++++++++++++
-
-If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
-Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
-
-.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
-
-If you are using :doc:`MkDocs </intro/getting-started-with-mkdocs>`,
-you can use the site_url_ setting.
-
-.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
-
-If you look at the source code for documentation built after you set your canonical URL,
-you should see a bit of HTML like this:
-
-.. code-block:: html
-
-    <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />

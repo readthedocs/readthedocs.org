@@ -161,8 +161,8 @@ The canonical URL tells search engines where the original version
 your documentation is even if you have multiple versions on the internet
 (for example, incomplete translations or deprecated versions).
 
-Read the Docs supports :ref:`setting the canonical URL <custom_domains:Canonical URLs>`
-if you are using a :doc:`custom domain </custom_domains>`
+Read the Docs supports :doc:`setting the canonical URL </canonical-urls>`
+if you are using a :doc:`custom domain </custom-domains>`
 under :guilabel:`Admin` > :guilabel:`Domains`
 in the Read the Docs dashboard.
 

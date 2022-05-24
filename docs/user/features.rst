@@ -26,7 +26,7 @@ we assign you a URL based on your project name.
 You are welcome to use this URL,
 but we also fully support custom domains for all our documentation projects.
 
-Learn more about :doc:`/custom_domains`.
+Learn more about :doc:`/custom-domains`.
 
 Versioned Documentation
 -----------------------
