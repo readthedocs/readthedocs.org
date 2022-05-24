@@ -1,0 +1,6072 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"PO-Revision-Date: 2012-10-03 11:28+0000\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019\n"
+"Language-Team: Hebrew (http://www.transifex.com/readthedocs/readthedocs/"
+"language/he/)\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
+"1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
+
+#: analytics/models.py:64 builds/models.py:616 projects/models.py:1380
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:255
+#: templates/search/elastic_search.html:54
+msgid "Version"
+msgstr "גרסה"
+
+#: analytics/models.py:71
+#, fuzzy
+#| msgid "No active versions."
+msgid "Path relative to the version."
+msgstr "אין גרסאות פעילות."
+
+#: analytics/models.py:75
+msgid "Full path including the version and language parts."
+msgstr ""
+
+#: analytics/models.py:83
+#, fuzzy
+#| msgid "Status code"
+msgid "HTTP status code"
+msgstr "קוד מצב"
+
+#: api/v2/templates/restapi/footer.html:18
+#, fuzzy
+#| msgid "Language"
+msgid "Languages"
+msgstr "שפה"
+
+#: api/v2/templates/restapi/footer.html:42
+#: templates/core/project_bar_base.html:48
+#: templates/core/project_details.html:17
+msgid "Versions"
+msgstr "גרסאות"
+
+#: api/v2/templates/restapi/footer.html:55
+#: api/v2/templates/restapi/footer.html:75
+#: templates/core/project_bar_base.html:42
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "הורדות"
+
+#: api/v2/templates/restapi/footer.html:67
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "On Read the Docs"
+msgstr "Read the Docs"
+
+#: api/v2/templates/restapi/footer.html:69
+#, fuzzy
+#| msgid "Project homepage"
+msgid "Project Home"
+msgstr "דף בית של מיזם"
+
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: templates/core/project_bar_base.html:46
+msgid "Builds"
+msgstr "בניות"
+
+#: api/v2/templates/restapi/footer.html:84
+msgid "On GitHub"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:86
+#: api/v2/templates/restapi/footer.html:105
+#, fuzzy
+#| msgctxt "verb, action to see in detail"
+#| msgid "\"View\""
+msgid "View"
+msgstr "„הצגה”"
+
+#: api/v2/templates/restapi/footer.html:90
+#: api/v2/templates/restapi/footer.html:98
+#: api/v2/templates/restapi/footer.html:109
+#: templates/core/project_details.html:41
+#: templates/projects/project_version_list.html:49
+#: templates/projects/webhook_list.html:39
+msgid "Edit"
+msgstr "עריכה"
+
+#: api/v2/templates/restapi/footer.html:96
+msgid "On Bitbucket"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:103
+msgid "On GitLab"
+msgstr ""
+
+#. Translators: This is about starting a search
+#: api/v2/templates/restapi/footer.html:118
+#: templates/core/project_bar_base.html:44
+#: templates/search/elastic_search.html:110
+#: templates/search/elastic_search.html:125
+msgid "Search"
+msgstr "חיפוש"
+
+#: api/v2/templates/restapi/footer.html:123
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search docs"
+msgstr "חיפוש בכל המסמכים"
+
+#: api/v2/templates/restapi/footer.html:134
+msgid "Hosted by"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:227
+msgid "Privacy Policy"
+msgstr "מדיניות פרטיות"
+
+#: api/v3/serializers.py:494
+#, fuzzy, python-brace-format
+#| msgid "Invalid project name"
+msgid "Invalid project name \"{0}\": no slug generated."
+msgstr "שם המיזם שגוי"
+
+#: api/v3/serializers.py:498
+#, python-brace-format
+msgid "Project with slug \"{0}\" already exists."
+msgstr ""
+
+#: api/v3/serializers.py:699
+#, python-brace-format
+msgid "Project with {slug_name}={value} is not valid as subproject"
+msgstr ""
+
+#: api/v3/serializers.py:707 projects/forms.py:391
+msgid "A subproject with this alias already exists"
+msgstr ""
+
+#: audit/filters.py:22 audit/filters.py:39
+msgid "Authentication success"
+msgstr ""
+
+#: audit/filters.py:23 audit/filters.py:40
+msgid "Authentication failure"
+msgstr ""
+
+#: audit/filters.py:41
+#, fuzzy
+#| msgid "Page Redirect"
+msgid "Page view"
+msgstr "הפניית אמוד"
+
+#: audit/filters.py:42
+#: organizations/templates/organizations/security_log.html:43
+#: templates/profiles/private/security_log.html:29
+#, fuzzy
+#| msgid "Downloads"
+msgid "Download"
+msgstr "הורדות"
+
+#: audit/models.py:85 core/models.py:38 gold/models.py:35
+#: projects/models.py:117
+msgid "User"
+msgstr "משתמש"
+
+#: audit/models.py:92
+#, fuzzy
+#| msgid "User"
+msgid "User ID"
+msgstr "משתמש"
+
+#: audit/models.py:98 core/forms.py:55
+msgid "Username"
+msgstr "שם משתמש"
+
+#: audit/models.py:107 builds/models.py:109 builds/models.py:610
+#: projects/models.py:1374 redirects/models.py:57
+msgid "Project"
+msgstr "מיזם"
+
+#: audit/models.py:114
+#, fuzzy
+#| msgid "Project"
+msgid "Project ID"
+msgstr "מיזם"
+
+#: audit/models.py:120
+#, fuzzy
+#| msgid "Project Slug"
+msgid "Project slug"
+msgstr "שם ייצוגי למיזם"
+
+#: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
+msgid "Organization"
+msgstr "ארגון"
+
+#: audit/models.py:135
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization ID"
+msgstr "ארגון"
+
+#: audit/models.py:141
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization slug"
+msgstr "ארגון"
+
+#: audit/models.py:149 builds/models.py:1120
+#, fuzzy
+#| msgid "Section"
+msgid "Action"
+msgstr "מקטע"
+
+#: audit/models.py:154
+msgid "Auth backend"
+msgstr ""
+
+#: audit/models.py:160 core/history.py:78
+msgid "IP address"
+msgstr ""
+
+#: audit/models.py:166 core/history.py:84
+#, fuzzy
+#| msgid "Browse projects"
+msgid "Browser user-agent"
+msgstr "עיון במיזמים"
+
+#: audit/models.py:174
+msgid "Resource"
+msgstr ""
+
+#: audit/models.py:211
+msgid "shared link"
+msgstr ""
+
+#: audit/models.py:212
+#, fuzzy
+#| msgid "Change Password"
+msgid "shared password"
+msgstr "החלפת ססמה"
+
+#: audit/templates/audit/list_logs.html:15
+#, python-format
+msgid "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:19
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(method)s\">authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:26
+#, python-format
+msgid ""
+"User <a href=\"?action=%(action)s\" title=\"%(method)s\">authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:31
+#, python-format
+msgid ""
+"<a href=\"?action=%(action)s\" title=\"%(method)s\">Authentication failed</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:36
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(path)s\">visited</a> a page"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:43
+#, python-format
+msgid ""
+"A user <a href=\"?action=%(action)s\" title=\"%(path)s\">visited</a> a page"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:49
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(path)s\">downloaded</a> a document"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:56
+#, python-format
+msgid ""
+"A user <a href=\"?action=%(action)s\" title=\"%(path)s\">downloaded</a> a "
+"document"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:62
+msgid "from"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:70
+msgid "on"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:82
+#: templates/core/build_list_detailed.html:21
+#: templates/core/project_list_detailed.html:26
+#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/project_dashboard_base.html:74
+#: templates/projects/webhook_form.html:55
+#, python-format
+msgid "%(date)s ago"
+msgstr "לפני %(date)s"
+
+#: audit/templates/audit/list_logs.html:90
+msgid "No activity logged yet"
+msgstr ""
+
+#: builds/constants.py:15
+msgid "Triggered"
+msgstr "הופעל"
+
+#: builds/constants.py:16
+msgid "Cloning"
+msgstr "בשכפול"
+
+#: builds/constants.py:17
+msgid "Installing"
+msgstr "בהתקנה"
+
+#: builds/constants.py:18
+msgid "Building"
+msgstr "בבנייה"
+
+#: builds/constants.py:19
+#, fuzzy
+#| msgid "Upload"
+msgid "Uploading"
+msgstr "העלאה"
+
+#: builds/constants.py:20
+msgid "Finished"
+msgstr "הסתיים"
+
+#: builds/constants.py:21 templates/core/build_list_detailed.html:7
+#, fuzzy
+#| msgid "cancel"
+msgid "Cancelled"
+msgstr "ביטול"
+
+#: builds/constants.py:30
+msgid "HTML"
+msgstr "HTML"
+
+#: builds/constants.py:31
+msgid "PDF"
+msgstr "PDF"
+
+#: builds/constants.py:32
+msgid "Epub"
+msgstr "Epub"
+
+#: builds/constants.py:36
+msgid "Manpage"
+msgstr "עמוד Man"
+
+#: builds/constants.py:37
+msgid "Dash"
+msgstr "Dash"
+
+#: builds/constants.py:46
+#, fuzzy
+#| msgid "External Links"
+msgid "External"
+msgstr "קישורים חיצוניים"
+
+#: builds/constants.py:49
+msgid "Branch"
+msgstr "ענף"
+
+#: builds/constants.py:51
+msgid "Tag"
+msgstr "תגית"
+
+#: builds/constants.py:53 projects/constants.py:389
+msgid "Unknown"
+msgstr "לא ידוע"
+
+#: builds/constants.py:64
+msgid "Open"
+msgstr ""
+
+#: builds/constants.py:65
+msgid "Closed"
+msgstr ""
+
+#: builds/constants.py:132
+#, fuzzy
+#| msgid "Single version"
+msgid "Any version"
+msgstr "גרסה בודדת"
+
+#: builds/constants.py:133
+#, fuzzy
+#| msgid "Versions"
+msgid "SemVer versions"
+msgstr "גרסאות"
+
+#: builds/constants.py:134
+msgid "Custom match"
+msgstr ""
+
+#: builds/filters.py:18 builds/models.py:144 redirects/models.py:23
+msgid "Active"
+msgstr "פעיל"
+
+#: builds/filters.py:19
+#, fuzzy
+#| msgid "Build failed"
+msgid "Build finished"
+msgstr "הבנייה נכשלה"
+
+#: builds/filters.py:20 projects/models.py:1485
+#: templates/builds/build_detail.html:143
+msgid "Build failed"
+msgstr "הבנייה נכשלה"
+
+#: builds/filters.py:26 builds/models.py:146 builds/models.py:632
+msgid "State"
+msgstr "מצב"
+
+#: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
+msgid "Any"
+msgstr ""
+
+#: builds/forms.py:45
+#, fuzzy
+#| msgid "State"
+msgid "States"
+msgstr "מצב"
+
+#: builds/forms.py:54 projects/filters.py:145
+#, fuzzy
+#| msgid "Private"
+msgid "Privacy"
+msgstr "פרט"
+
+#: builds/forms.py:75
+#, python-brace-format
+msgid "{version} is the default version of the project, it should be active."
+msgstr "{version} היא גרסת בררת המחדל של המיזם, עליה להיות פעילה."
+
+#: builds/forms.py:168
+msgid "Custom match should not be empty."
+msgstr ""
+
+#: builds/forms.py:175
+msgid "Invalid Python regular expression."
+msgstr ""
+
+#: builds/models.py:97 core/models.py:26 projects/models.py:1448
+#: projects/models.py:1616
+#, fuzzy
+#| msgid "Create"
+msgid "created"
+msgstr "יצירה"
+
+#: builds/models.py:102 core/models.py:31 projects/models.py:1453
+#, fuzzy
+#| msgid "Modified date"
+msgid "modified"
+msgstr "תאריך עריכה"
+
+#: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
+#: subscriptions/models.py:134
+msgid "Type"
+msgstr "סוג"
+
+#: builds/models.py:125
+msgid "Identifier"
+msgstr "מזהה"
+
+#: builds/models.py:131
+msgid "Verbose Name"
+msgstr "שם מפורש"
+
+#: builds/models.py:138 oauth/models.py:32 organizations/models.py:48
+#: projects/models.py:122 subscriptions/models.py:35
+msgid "Slug"
+msgstr "שם ייצוגי"
+
+#: builds/models.py:143
+msgid "Supported"
+msgstr "נתמך"
+
+#: builds/models.py:151
+msgid "State of the PR/MR associated to this version."
+msgstr ""
+
+#: builds/models.py:153
+msgid "Built"
+msgstr "נבנה"
+
+#: builds/models.py:154
+msgid "Uploaded"
+msgstr "הועלה"
+
+#: builds/models.py:156 projects/models.py:382
+msgid "Privacy Level"
+msgstr "רמת פרטיות"
+
+#: builds/models.py:160
+msgid "Level of privacy for this Version."
+msgstr "רמת הפרטיות של הגרסה הזו."
+
+#: builds/models.py:163
+msgid "Hidden"
+msgstr ""
+
+#: builds/models.py:165
+msgid "Hide this version from the version (flyout) menu and search results?"
+msgstr ""
+
+#: builds/models.py:167
+msgid "Machine Created"
+msgstr "ביצירת מכונה"
+
+#: builds/models.py:170
+msgid "Has PDF"
+msgstr ""
+
+#: builds/models.py:171
+msgid "Has ePub"
+msgstr ""
+
+#: builds/models.py:172
+msgid "Has HTML Zip"
+msgstr ""
+
+#: builds/models.py:175 projects/models.py:195
+msgid "Documentation type"
+msgstr "סוג התיעוד"
+
+#: builds/models.py:180
+#, fuzzy
+#| msgid "Your documentation is building"
+msgid "Type of documentation the version was built with."
+msgstr "התיעוד שלך נבנה"
+
+#: builds/models.py:196
+#, python-brace-format
+msgid "Version {version} of {project} ({pk})"
+msgstr "גרסה {version} של {project} ({pk})"
+
+#: builds/models.py:644
+#, fuzzy
+#| msgid "State"
+msgid "Status"
+msgstr "מצב"
+
+#: builds/models.py:651 integrations/models.py:147
+msgid "Date"
+msgstr "תאריך"
+
+#: builds/models.py:652
+msgid "Success"
+msgstr "הצלחה"
+
+#: builds/models.py:657
+msgid "Setup"
+msgstr "התקנה"
+
+#: builds/models.py:658
+msgid "Setup error"
+msgstr "שגיאת התקנה"
+
+#: builds/models.py:659
+msgid "Output"
+msgstr "פלט"
+
+#: builds/models.py:660 templates/builds/build_detail.html:213
+msgid "Error"
+msgstr "שגיאה"
+
+#: builds/models.py:661
+msgid "Exit code"
+msgstr "קוד שגיאה"
+
+#: builds/models.py:666 projects/models.py:1391 sphinx_domains/models.py:43
+msgid "Commit"
+msgstr "ביצוע"
+
+#: builds/models.py:672
+#, fuzzy
+#| msgid "Versions"
+msgid "Version slug"
+msgstr "גרסאות"
+
+#: builds/models.py:678
+#, fuzzy
+#| msgid "Version"
+msgid "Version name"
+msgstr "גרסה"
+
+#: builds/models.py:684 builds/models.py:1133
+#, fuzzy
+#| msgid "Version"
+msgid "Version type"
+msgstr "גרסה"
+
+#: builds/models.py:691
+msgid "Configuration used in the build"
+msgstr "הגדרות המשמשות את הבנייה"
+
+#: builds/models.py:696
+msgid "Build Length"
+msgstr "אורך הבנייה"
+
+#: builds/models.py:699
+msgid "Builder"
+msgstr "בונה"
+
+#: builds/models.py:706
+msgid "Cold Storage"
+msgstr "אחסון קר"
+
+#: builds/models.py:712
+msgid "Celery task id"
+msgstr ""
+
+#: builds/models.py:823
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr "בניית {project} עבור {usernames} ({pk})"
+
+#: builds/models.py:1031
+msgid "Build"
+msgstr "בנייה"
+
+#: builds/models.py:1036
+msgid "Command"
+msgstr "פקודה"
+
+#: builds/models.py:1037 builds/models.py:1097 oauth/models.py:135
+#: organizations/models.py:62 projects/models.py:124 subscriptions/models.py:30
+#: subscriptions/models.py:137 templates/core/project_details.html:78
+msgid "Description"
+msgstr "תיאור"
+
+#: builds/models.py:1038
+msgid "Command output"
+msgstr "פלט פקודה"
+
+#: builds/models.py:1039
+msgid "Command exit code"
+msgstr "קוד היציאה של הפקודה"
+
+#: builds/models.py:1041
+msgid "Start time"
+msgstr "מועד התחלה"
+
+#: builds/models.py:1042
+msgid "End time"
+msgstr "מועד סיום"
+
+#: builds/models.py:1052
+#, python-brace-format
+msgid "Build command {pk} for build {build}"
+msgstr "פקודת בנייה {pk} עבור הבנייה {build}"
+
+#: builds/models.py:1076
+#, fuzzy
+#| msgid "Active Versions"
+msgid "Activate version"
+msgstr "גרסאות פעילות"
+
+#: builds/models.py:1077
+#, fuzzy
+#| msgctxt "Build is a verb"
+#| msgid "Build version"
+msgid "Hide version"
+msgstr "גרסת בנייה"
+
+#: builds/models.py:1078
+msgid "Make version public"
+msgstr ""
+
+#: builds/models.py:1079
+#, fuzzy
+#| msgid "Project versions updated"
+msgid "Make version private"
+msgstr "גרסאות המיזם עודכנו"
+
+#: builds/models.py:1080
+#, fuzzy
+#| msgid "Project versions updated"
+msgid "Set version as default"
+msgstr "גרסאות המיזם עודכנו"
+
+#: builds/models.py:1081
+msgid "Delete version (on branch/tag deletion)"
+msgstr ""
+
+#: builds/models.py:1093
+msgid "Rule priority"
+msgstr ""
+
+#: builds/models.py:1094
+msgid "A lower number (0) means a higher priority"
+msgstr ""
+
+#: builds/models.py:1103
+msgid "Match argument"
+msgstr ""
+
+#: builds/models.py:1104
+msgid "Value used for the rule to match the version"
+msgstr ""
+
+#: builds/models.py:1108
+msgid "Predefined match argument"
+msgstr ""
+
+#: builds/models.py:1110
+msgid ""
+"Match argument defined by us, it is used if is not None, otherwise match_arg "
+"will be used."
+msgstr ""
+
+#: builds/models.py:1121
+msgid "Action to apply to matching versions"
+msgstr ""
+
+#: builds/models.py:1126
+msgid "Action argument"
+msgstr ""
+
+#: builds/models.py:1127
+msgid "Value used for the action to perfom an operation"
+msgstr ""
+
+#: builds/models.py:1134
+msgid "Type of version the rule should be applied to"
+msgstr ""
+
+#: builds/models.py:1358
+msgid "Matched rule"
+msgstr ""
+
+#: builds/tasks.py:562
+#, python-brace-format
+msgid "Failed: {project[name]} ({commit})"
+msgstr "כישלון: {project[name]} ({commit})"
+
+#: builds/tasks.py:567
+#, python-brace-format
+msgid "Failed: {project[name]} ({version[verbose_name]})"
+msgstr "כישלון: {project[name]} ({version[verbose_name]})"
+
+#: core/admin.py:36
+msgid "user projects"
+msgstr "מיזמי משתמשים"
+
+#: core/admin.py:44
+msgid "has active project"
+msgstr "יש מיזם פעיל"
+
+#: core/admin.py:45
+msgid "has built project"
+msgstr "יש מיזם שנבנה"
+
+#: core/admin.py:46
+msgid "has project with recent builds"
+msgstr "יש מיזם עם בניות עדכניות"
+
+#: core/forms.py:18
+msgid "First name"
+msgstr "שם פרט"
+
+#: core/forms.py:19
+msgid "Last name"
+msgstr "שם משפחה"
+
+#: core/forms.py:56
+msgid "Please type your username to confirm."
+msgstr "נא להקליד את שם המשתמש שלך כדי לאמת."
+
+#: core/forms.py:67
+msgid "Username does not match!"
+msgstr "שם המשתמש אינו תואם!"
+
+#: core/history.py:66
+msgid "ID"
+msgstr ""
+
+#: core/history.py:72
+#, fuzzy
+#| msgid "Username"
+msgid "username"
+msgstr "שם משתמש"
+
+#: core/models.py:42
+msgid "Whitelisted"
+msgstr "ברשימת היתר"
+
+#: core/models.py:43
+msgid "Banned"
+msgstr "נחסם"
+
+#: core/models.py:44
+msgid "Homepage"
+msgstr "דף בית"
+
+#: core/models.py:46
+msgid "See paid advertising"
+msgstr "הצגת פרסום בתשלום"
+
+#: core/models.py:47
+msgid "If unchecked, you will still see community ads."
+msgstr "אם הסימון בוטל, עדיין תופענה פרסומות קהילתיות."
+
+#: core/models.py:54
+#, python-format
+msgid "%(username)s's profile"
+msgstr "הפרופיל של %(username)s"
+
+#: core/templates/core/dns-404.html:6
+msgid "Maze Found - Invalid Host"
+msgstr "המבוך נמצא - המארח שגוי"
+
+#: core/templates/core/dns-404.html:20
+msgid "404 - Invalid Host"
+msgstr "404 - מארח שגוי"
+
+#: core/templates/core/dns-404.html:21
+#, python-format
+msgid "The host \"%(host)s\" is unknown to Read the Docs"
+msgstr "המארח „%(host)s” אינו מוכר ל־Read the Docs"
+
+#: core/templates/core/dns-404.html:25
+#, python-format
+msgid ""
+"If you control this domain and believe this is in error, please review our "
+"<a href=\"%(docsurl)s\">custom domain documentation</a>. In the past, we "
+"allowed custom domains to point to us without configuring the domain in the "
+"Read the Docs dashboard and we attempted to intelligently guess the correct "
+"project based on DNS settings. Now, we believe that explicit is better than "
+"implicit. Below are some steps to help you get your domain working again:"
+msgstr ""
+"אם שם המתחם הזה הוא בשליטתך ולדעתך מדובר בטעות, נא לעבור שוב על <a href="
+"\"%(docsurl)s\">תיעוד לשמות המתחם המותאמים</a>. בעבר, הרשינו לשמות מתחם "
+"מותאמים להפנות אלינו מבלי להגדיר את שם המתחם בלוח הבקרה של Read the Docs "
+"וניסינו לנחש מה המיזם הנכון לפי הגדרות ה־DNS. כעת, אנו מאמינים שעדיף לנקוט "
+"בגישה המפורשת מאשר במרומזת. להלן מספר צעדים שיסייעו לך להחזיר את פעילות שם "
+"המתחם שלך:"
+
+#: core/templates/core/dns-404.html:38
+msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
+msgstr "נא לוודא שיש לך רשומת CNAME שמפנה אל <code>readthedocs.io</code>"
+
+#: core/templates/core/dns-404.html:39
+msgid ""
+"Add your desired domain in the Read the Docs dashboard for your project "
+"(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
+msgstr ""
+"באפשרותך להוסיף את שם המתחם המועדף עליך בלוח הבקרה של המיזם שלך תחת Read the "
+"Docs (בתוך המיזם שלך &lt;&lt; ניהול &lt;&lt; שמות מתחם)"
+
+#: doc_builder/director.py:63
+#, python-brace-format
+msgid "Repository type \"{repo_type}\" unknown"
+msgstr "סוג המאגר „{repo_type}” אינו ידוע"
+
+#: doc_builder/environments.py:342
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "\n"
+#| "Command killed due to excessive memory consumption\n"
+msgid ""
+"\n"
+"\n"
+"Command killed due to timeout or excessive memory consumption\n"
+msgstr ""
+"\n"
+"\n"
+"הפקודה חוסלה עקב צריכה מוגזמת של זיכרון\n"
+
+#: doc_builder/environments.py:348
+msgid "Command exited abnormally"
+msgstr "הפקודה יצאה באופן חריג"
+
+#: doc_builder/environments.py:631
+msgid "A build environment is currently running for this version"
+msgstr "יש כרגע סביבת בנייה רצה לגרסה זו"
+
+#: doc_builder/environments.py:791
+msgid "Build exited due to time out"
+msgstr "הבנייה יצאה עקב זמן המתנה ממושך"
+
+#: doc_builder/environments.py:796
+msgid "Build exited due to excessive memory consumption"
+msgstr "הבנייה יצאה עקב ניצול מוגזם של זיכרון"
+
+#: doc_builder/environments.py:802
+#, python-brace-format
+msgid "Build exited due to unknown error: {0}"
+msgstr "הבנייה יצאה עקב שגיאה בלתי ידועה: {0}"
+
+#: doc_builder/exceptions.py:26
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "There was a problem with Read the Docs while building your documentation. "
+#| "Please try again later. However, if this problem persists, please report "
+#| "this to us with your build id ({build_id})."
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please try again later. If this problem persists, report this error to us "
+"with your build id ({build_id})."
+msgstr ""
+"אירעה שגיאה ב־Read the Docs בעת בניית התיעוד שלך. נא לנסות שוב. עם זאת, אם "
+"הבעיה מתרחשת שוב, יש לדווח לנו עם מזהה הבנייה שלך ({build_id})."
+
+#: doc_builder/exceptions.py:35
+msgid ""
+"We encountered a problem with a command while building your project. To "
+"resolve this error, double check your project configuration and installed "
+"dependencies are correct and have not changed recently."
+msgstr ""
+
+#: doc_builder/exceptions.py:42
+msgid "Builds for this project are temporarily disabled"
+msgstr "הבניות של מיזם זה מושבתות באופן זמני"
+
+#: doc_builder/exceptions.py:47
+#, python-brace-format
+msgid "Problem in your project's configuration. {exception}"
+msgstr "בעיה בהגדרות המיזם שלך. {exception}"
+
+#: doc_builder/exceptions.py:52
+#, fuzzy, python-brace-format
+#| msgid "Version locked, retrying in 5 minutes."
+msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
+msgstr "גרסה נעולה, מתבצע ניסיון חוזר עוד 5 דקות."
+
+#: doc_builder/exceptions.py:56
+#, fuzzy
+#| msgid "Duplicate"
+msgid "Duplicated build."
+msgstr "שכפול"
+
+#: doc_builder/exceptions.py:63
+msgid "Build cancelled by user."
+msgstr ""
+
+#: doc_builder/exceptions.py:69
+#, python-brace-format
+msgid "Problem parsing MkDocs YAML configuration. {exception}"
+msgstr "תקלה בעת ניתוח תצורת YAML של MkDocs.‏ {exception}"
+
+#: doc_builder/exceptions.py:73
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
+"with relative or absolute path."
+msgstr ""
+"ההגדרה „docs_dir” מקובץ ההגדרות ב־YAML של MkDocs חייבת להיות מחרוזת עם נתיב "
+"יחסי או מלא."
+
+#: doc_builder/exceptions.py:78
+#, fuzzy
+#| msgid ""
+#| "The \"docs_dir\" config from your MkDocs YAML config file has to be a "
+#| "string with relative or absolute path."
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
+"valid path."
+msgstr ""
+"ההגדרה „docs_dir” מקובץ ההגדרות ב־YAML של MkDocs חייבת להיות מחרוזת עם נתיב "
+"יחסי או מלא."
+
+#: doc_builder/exceptions.py:83
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "The \"{config}\" config from your MkDocs YAML config file has to be a a "
+#| "list of relative paths."
+msgid ""
+"The \"{config}\" config from your MkDocs YAML config file has to be a list "
+"of relative paths."
+msgstr ""
+"ההגדרה „{config}” מקובץ ההגדרות ב־YAML של MkDocs חייבת להיות רשימה עם נתיבים "
+"יחסיים."
+
+#: doc_builder/exceptions.py:88
+#, fuzzy
+#| msgid "Problem parsing MkDocs YAML configuration. {exception}"
+msgid "Please make sure the MkDocs YAML configuration file is not empty."
+msgstr "תקלה בעת ניתוח תצורת YAML של MkDocs.‏ {exception}"
+
+#: doc_builder/exceptions.py:92
+msgid ""
+"Your MkDocs YAML config file is incorrect. Please follow the user guide "
+"https://www.mkdocs.org/user-guide/configuration/ to configure the file "
+"properly."
+msgstr ""
+
+#: gold/forms.py:52
+msgid "No project found."
+msgstr "לא נמצא מיזם."
+
+#: gold/forms.py:54
+#, fuzzy
+#| msgid "The demo project is already imported!"
+msgid "This project is already Ad-Free."
+msgstr "מיזם ההדגמה כבר עבר ייבוא!"
+
+#: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
+#: organizations/models.py:239 projects/models.py:111
+#: subscriptions/models.py:24 subscriptions/models.py:126
+msgid "Publication date"
+msgstr "תאריך פרסום"
+
+#: gold/models.py:31 organizations/models.py:30 organizations/models.py:167
+#: organizations/models.py:240 projects/models.py:112 projects/models.py:1393
+#: subscriptions/models.py:25 subscriptions/models.py:127
+#: subscriptions/models.py:183
+msgid "Modified date"
+msgstr "תאריך עריכה"
+
+#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+msgid "Level"
+msgstr "רמה"
+
+#: gold/models.py:48 organizations/models.py:35 organizations/models.py:177
+#: organizations/templates/organizations/team_detail.html:49
+#: organizations/templates/organizations/team_project_edit.html:13
+#: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
+#: templates/projects/project_dashboard_base.html:56
+#: templates/search/elastic_search.html:32
+#: templates/search/elastic_search.html:38
+msgid "Projects"
+msgstr "מיזמים"
+
+#: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
+#, fuzzy
+#| msgid "Projects"
+msgid "Gold Projects"
+msgstr "מיזמים"
+
+#: gold/templates/gold/projects.html:14
+msgid ""
+"Gold members may completely remove advertising for all visitors to their "
+"projects."
+msgstr ""
+
+#: gold/templates/gold/projects.html:20
+#: gold/templates/gold/subscription_detail.html:53
+msgid ""
+"For small businesses or personal projects, we ask for $5 per month to remove "
+"ads from a project."
+msgstr ""
+
+#: gold/templates/gold/projects.html:21
+#: gold/templates/gold/subscription_detail.html:54
+msgid ""
+"For corporate supported open source projects, we ask for a $50 membership in "
+"order to cover our support and operations costs."
+msgstr ""
+
+#: gold/templates/gold/projects.html:24
+#, fuzzy
+#| msgid "Add project"
+msgid "Ad-free projects"
+msgstr "הוספת מיזם"
+
+#: gold/templates/gold/projects.html:39
+msgid "Remove Ad-Free Status"
+msgstr ""
+
+#: gold/templates/gold/projects.html:39
+#: organizations/templates/organizations/includes/member_list.html:21
+#: organizations/templates/organizations/includes/team_member_list.html:12
+#: organizations/templates/organizations/team_delete.html:22
+#: templates/account/email.html:38 templates/projects/domain_list.html:40
+#: templates/projects/environmentvariable_list.html:45
+#: templates/projects/project_notifications.html:66
+#: templates/projects/project_redirects.html:100
+#: templates/projects/project_translations.html:50
+#: templates/projects/project_users.html:37
+msgid "Remove"
+msgstr "הסרה"
+
+#: gold/templates/gold/projects.html:47
+#, fuzzy
+#| msgid "No subprojects are currently configured"
+msgid "No projects are currently ad-free."
+msgstr "אין תת־מיזמים מוגדרים כרגע"
+
+#: gold/templates/gold/projects.html:56
+msgid "Make a project ad-free"
+msgstr ""
+
+#: gold/templates/gold/projects.html:59
+#, fuzzy
+#| msgid "Choose which project you would like to add."
+msgid "Choose which project you would like to make ad-free."
+msgstr "נא לבחור איזה מיזם ברצונך להוסיף."
+
+#: gold/templates/gold/projects.html:64
+#, fuzzy
+#| msgid "Project deleted"
+msgid "Make Project Ad-Free"
+msgstr "המיזם נמחק"
+
+#: gold/templates/gold/projects.html:69
+#, python-format
+msgid ""
+"You can't make any more projects ad-free with your current Gold membership "
+"of %(gold_level)s. You can either increase the level of your membership or "
+"change which projects you make ad-free."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:35
+#, fuzzy
+#| msgid "Read the Docs Archive"
+msgid "Read the Docs Gold Membership"
+msgstr "ארכיון Read the Docs"
+
+#: gold/templates/gold/subscription_detail.html:38
+msgid ""
+"Supporting Read the Docs lets us work more on features that people love. "
+"Your money will go directly to maintenance and development of the product."
+msgstr ""
+"ב־Read the Docs מאפשרת לנו לעבור יותר על תכונות שאנשים אוהבים. שלך יועבר "
+"ישירות לתחזוקה ופיתוח של המוצר.    "
+
+#: gold/templates/gold/subscription_detail.html:46
+msgid ""
+"Becoming a Gold member makes Read the Docs ad-free when you are logged-in. "
+"Gold members may also completely remove advertising for all visitors to "
+"their projects."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:58
+#, fuzzy
+#| msgid ""
+#| "If you are a company using Read the Docs, please consider getting a <a "
+#| "href=\"https://readthedocs.com/services/#open-source-support\">commercial "
+#| "support contract</a>. This will help us cover our costs, and provide you "
+#| "with a better experience on the site. If you aren't able to do that, we "
+#| "suggest giving at least $20/month to help cover our support and "
+#| "operations costs."
+msgid ""
+"If you are a company using Read the Docs, please consider <a href=\"https://"
+"readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
+"our costs, and provide you with a better experience on the site."
+msgstr ""
+"אם Read the Docs משמש אותך במקום עבודתך, מוטב לשקול לקבל <a href=\"https://"
+"readthedocs.com/services/#open-source-support\">חוזה תמיכה מסחרית</a>. כך "
+"נוכל לכסות על הוצאותינו וגם לספר לך חוויה טובה יותר באתר. אם אין לך אפשרות "
+"לעשות זאת, אנו ממליצים לתרום לפחות $20 לחודש כדי לסייע לנו לכסות את עלויות "
+"התמיכה וההפעלה."
+
+#: gold/templates/gold/subscription_detail.html:67
+#, python-format
+msgid ""
+"For any questions about our Gold membership program, please <a href=\"mailto:"
+"rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email us</a>."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:75
+msgid "Your gold membership"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:81
+msgid "Thanks for supporting Read the Docs! It really means a lot to us."
+msgstr "תודה לך על תמיכתך ב־Read the Docs! אנו באמת מעריכים זאת מאוד."
+
+#: gold/templates/gold/subscription_detail.html:93
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Manage subscription"
+msgstr "ביטול מינ"
+
+#: gold/templates/gold/subscription_detail.html:96
+#, fuzzy
+#| msgid "Related projects"
+msgid "Gold projects"
+msgstr "מיזמים קשורים"
+
+#: gold/templates/gold/subscription_detail.html:97
+#, fuzzy
+#| msgid "Choose which project you would like to add."
+msgid "Choose projects you would like to make ad-free."
+msgstr "נא לבחור איזה מיזם ברצונך להוסיף."
+
+#: gold/templates/gold/subscription_detail.html:100
+msgid "Select Projects"
+msgstr "בחירת מיזמים"
+
+#: gold/templates/gold/subscription_detail.html:104
+#, fuzzy
+#| msgid "Become a Gold Member"
+msgid "Become a Gold member"
+msgstr "להפוך ללקוח זהב"
+
+#: gold/templates/gold/subscription_detail.html:112
+#: templates/account/signup.html:10 templates/account/signup.html:46
+msgid "Sign Up"
+msgstr "הרשמה"
+
+#: gold/views.py:190 subscriptions/views.py:150
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes"
+msgstr ""
+
+#: integrations/models.py:150 integrations/models.py:158
+msgid "Request headers"
+msgstr "כותרות הבקשה"
+
+#: integrations/models.py:155
+msgid "Request body"
+msgstr "גוף הבקשה"
+
+#: integrations/models.py:163
+msgid "Response body"
+msgstr "גוף התגובה"
+
+#: integrations/models.py:166
+msgid "Status code"
+msgstr "קוד מצב"
+
+#: integrations/models.py:176
+#, python-brace-format
+msgid "Exchange {0}"
+msgstr "תחלופה {0}"
+
+#: integrations/models.py:274
+msgid "GitHub incoming webhook"
+msgstr "התלייה נכנסת מ־GitHub"
+
+#: integrations/models.py:275
+msgid "Bitbucket incoming webhook"
+msgstr "התלייה נכנסת מ־Bitbucket"
+
+#: integrations/models.py:276
+msgid "GitLab incoming webhook"
+msgstr "התלייה נכנסת מ־GitLab"
+
+#: integrations/models.py:277
+msgid "Generic API incoming webhook"
+msgstr "התלייה נכנסת ב־API גנרי"
+
+#: integrations/models.py:288
+msgid "Integration type"
+msgstr "סוג השילוב"
+
+#: integrations/models.py:293
+msgid "Provider data"
+msgstr "נתוני ספק"
+
+#: integrations/models.py:302
+msgid "Secret used to validate the payload of the webhook"
+msgstr ""
+
+#: integrations/models.py:324
+#, python-brace-format
+msgid "{0} for {1}"
+msgstr "{0} עבור {1}"
+
+#: notifications/forms.py:29
+msgid "Notification"
+msgstr "התרעה"
+
+#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:183
+msgid "Users"
+msgstr "משתמשים"
+
+#: oauth/models.py:33 oauth/models.py:128 organizations/models.py:46
+#: organizations/models.py:190 projects/filters.py:30 projects/filters.py:114
+#: projects/models.py:121 projects/models.py:1385 sphinx_domains/models.py:51
+#: subscriptions/models.py:28
+msgid "Name"
+msgstr "שם"
+
+#: oauth/models.py:34 templates/base.html:156
+msgid "Email"
+msgstr "דוא״ל"
+
+#: oauth/models.py:36
+msgid "Avatar image URL"
+msgstr "כתובת תמונה ייצוגית"
+
+#: oauth/models.py:42
+msgid "URL to organization page"
+msgstr "כתובת לעמוד הארגון"
+
+#: oauth/models.py:53 oauth/models.py:182
+msgid "VCS provider"
+msgstr ""
+
+#: oauth/models.py:93 oauth/models.py:245
+msgid "Connected account"
+msgstr "חשבון מחובר"
+
+#: oauth/models.py:130
+msgid "Full Name"
+msgstr "שם מלא"
+
+#: oauth/models.py:138
+msgid "Description of the project"
+msgstr "תיאור המיזם"
+
+#: oauth/models.py:141
+msgid "Owner avatar image URL"
+msgstr "כתובת התמונה הייצוגית של הבעלים"
+
+#: oauth/models.py:148
+msgid "SSH URL"
+msgstr "כתובת SSH"
+
+#: oauth/models.py:154
+msgid "Repository clone URL"
+msgstr "כתובת שיבוט (clone) המאגר"
+
+#: oauth/models.py:161
+msgid "HTML URL"
+msgstr "כתובת HTML"
+
+#: oauth/models.py:163
+msgid "Private repository"
+msgstr "מאגר פרט"
+
+#: oauth/models.py:165
+msgid "vcs"
+msgstr "מערכת ניהול קוד"
+
+#: oauth/models.py:171
+#, fuzzy
+#| msgid "Default branch"
+msgid "Default branch of the repository"
+msgstr "ענף בררת מחדל"
+
+#: oauth/models.py:249
+msgid "Has admin privilege"
+msgstr "יש הרשאות ניהול"
+
+#: oauth/notifications.py:16
+msgid "Webhook successfully added."
+msgstr "נוספה התלייה בהצלחה."
+
+#: oauth/notifications.py:19
+msgid ""
+"Could not add webhook for {{ project.name }}. Make sure <a href="
+"\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"permissions</a>."
+msgstr ""
+"לא ניתן להוסיף התלייה ל־{{ project.name }}. נא לוודא <a href="
+"\"{{ url_docs_webhook }}\">שיש לך את ההרשאות המתאימות אצל {{ provider.name }}"
+"</a>."
+
+#: oauth/notifications.py:22
+msgid ""
+"Could not add webhook for {{ project.name }}. Please <a href="
+"\"{{ url_connect_account }}\">connect your {{ provider.name }} account</a>."
+msgstr ""
+"לא ניתן להוסיף התלייה ל־{{ project.name }}. נא <a href="
+"\"{{ url_docs_webhook }}\">לקשר עם החשבון שלך אצל {{ provider.name }}</a>."
+
+#: oauth/notifications.py:44
+msgid ""
+"The project {{ project.name }} doesn't have a valid webhook set up, commits "
+"won't trigger new builds for this project. See <a "
+"href='{{ url_integrations }}'>the project integrations</a> for more "
+"information."
+msgstr ""
+"למיזם {{ project.name }} לא מוגדרת התלייה תקנית, הגשות למאגר לא יפעילו בניות "
+"חדשות למיזם זה. מוטב לעיין ב<a href='{{ url_integrations }}'>שילובים של "
+"מיזמים</a> למידע נוסף."
+
+#: oauth/notifications.py:65
+msgid ""
+"Could not send {{ provider_name }} build status report for {{ project."
+"name }}. Make sure you have the correct {{ provider_name }} repository "
+"permissions</a> and your <a href="
+"\"{{ url_connect_account }}\">{{ provider_name }} account</a> is connected "
+"to Read the Docs."
+msgstr ""
+
+#: oauth/tasks.py:52
+#, python-brace-format
+msgid ""
+"Our access to your following accounts was revoked: {providers}. Please, "
+"reconnect them from your social account connections."
+msgstr ""
+"הגישה שלנו לחשבונות הבאים שלך נשללה: {providers}. נא לקשר אותם מחדש "
+"מהקישורים לחשבונות החברתיים שלך."
+
+#: oauth/utils.py:58
+msgid "Webhook activated"
+msgstr "התלייה הופעלה"
+
+#: oauth/utils.py:66
+msgid ""
+"Webhook activation failed. Make sure you have the necessary permissions."
+msgstr "הפעלת ההתלייה נכשלה. נא לוודא שיש לך את ההרשאות המתאימות."
+
+#: organizations/constants.py:9
+msgid "Read-only"
+msgstr ""
+
+#: organizations/constants.py:10 templates/core/project_bar_base.html:51
+#: templates/profiles/base_profile.html:29
+#: templates/profiles/base_profile_edit.html:31
+msgid "Admin"
+msgstr "מנהל"
+
+#: organizations/forms.py:41 organizations/forms.py:96
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization Name"
+msgstr "ארגון"
+
+#: organizations/forms.py:42 organizations/forms.py:97
+#, fuzzy
+#| msgid "Change Email"
+msgid "Billing Email"
+msgstr "החלפת כתובת דוא״ל"
+
+#: organizations/forms.py:48
+#, fuzzy
+#| msgid "SSH URL"
+msgid "Site URL"
+msgstr "כתובת SSH"
+
+#: organizations/forms.py:71
+msgid "Invalid organization name: no slug generated"
+msgstr ""
+
+#: organizations/forms.py:74
+#, python-format
+msgid "Organization %(name)s already exists"
+msgstr ""
+
+#: organizations/forms.py:136 organizations/forms.py:219
+msgid "Email address or username"
+msgstr ""
+
+#: organizations/forms.py:154
+#, fuzzy, python-format
+#| msgid "User {name} does not exist"
+msgid "User %(username)s does not exist"
+msgstr "המשתמש {name} לא קיים"
+
+#: organizations/forms.py:159
+#, python-format
+msgid "User %(username)s is already an owner"
+msgstr ""
+
+#: organizations/forms.py:174
+msgid "Team already exists"
+msgstr ""
+
+#: organizations/forms.py:275
+msgid "User is already a team member"
+msgstr ""
+
+#: organizations/forms.py:297
+msgid "An invitation was already sent to this email"
+msgstr ""
+
+#: organizations/models.py:40
+#: organizations/templates/organizations/admin/base.html:13
+msgid "Owners"
+msgstr ""
+
+#: organizations/models.py:55 organizations/models.py:255
+#, fuzzy
+#| msgid "Email"
+msgid "E-mail"
+msgstr "דוא״ל"
+
+#: organizations/models.py:68 templates/core/project_detail_right.html:61
+msgid "Home Page"
+msgstr "דף הבית"
+
+#: organizations/models.py:75
+#, fuzzy
+#| msgid "CDN Enabled"
+msgid "Disabled"
+msgstr "CDN פעיל"
+
+#: organizations/models.py:80
+msgid "Artifacts Cleaned"
+msgstr ""
+
+#: organizations/models.py:85
+msgid "Maximum concurrent builds allowed for this organization"
+msgstr ""
+
+#: organizations/models.py:91
+msgid "Stripe customer ID"
+msgstr ""
+
+#: organizations/models.py:155
+#, python-brace-format
+msgid "{org} owner {owner}"
+msgstr ""
+
+#: organizations/models.py:197
+#, fuzzy
+#| msgid "Success"
+msgid "Access"
+msgstr "הצלחה"
+
+#: organizations/models.py:250 templates/base.html:192
+msgid "Team"
+msgstr "צוות"
+
+#: organizations/models.py:256
+msgid "Hash"
+msgstr ""
+
+#: organizations/models.py:257
+msgid "Count"
+msgstr ""
+
+#: organizations/models.py:258
+msgid "Total"
+msgstr ""
+
+#: organizations/templates/organizations/admin/base.html:12
+#: organizations/templates/organizations/admin/organization_edit.html:9
+#: organizations/templates/organizations/base.html:31
+#: templates/profiles/base_profile_edit.html:48
+#: templates/projects/domain_list.html:39
+msgid "Details"
+msgstr "פרטים"
+
+#: organizations/templates/organizations/admin/base.html:14
+#: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/security_log.html:6
+#: templates/profiles/private/security_log.html:10
+#, fuzzy
+#| msgid "Security"
+msgid "Security Log"
+msgstr "אבטחה"
+
+#: organizations/templates/organizations/admin/organization_delete.html:5
+#: organizations/templates/organizations/admin/organization_delete.html:11
+#, fuzzy
+#| msgid "Organization"
+msgid "Delete Organization"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/admin/organization_delete.html:13
+msgid ""
+"\n"
+"        Deleting this organization will also remove all the organization's\n"
+"        teams, users, projects, and built documentation.  Are you sure that "
+"it\n"
+"        is safe to remove this organization?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_delete.html:23
+#: templates/projects/project_delete.html:24
+msgid "Delete forever"
+msgstr "למחוק לעד"
+
+#: organizations/templates/organizations/admin/organization_edit.html:5
+#, fuzzy
+#| msgid "Organization"
+msgid "Edit Organization"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/admin/organization_edit.html:15
+#: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
+#: templates/projects/environmentvariable_form.html:20
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_submit.html:4
+#: templates/projects/webhook_form.html:38
+msgid "Save"
+msgstr "שמירה"
+
+#. Translators: The 'or' here is in between 'Save' and 'Delete organization'.
+#: organizations/templates/organizations/admin/organization_edit.html:17
+#: templates/core/home-header.html:19
+msgid "or"
+msgstr "או"
+
+#: organizations/templates/organizations/admin/organization_edit.html:18
+#, fuzzy
+#| msgid "Organization"
+msgid "Delete organization"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/admin/owners_edit.html:5
+#, fuzzy
+#| msgid "Edit Translations"
+msgid "Edit Organization Owners"
+msgstr "עריכת תרגומים"
+
+#: organizations/templates/organizations/admin/owners_edit.html:13
+msgid "Owners have full access to this Organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/owners_edit.html:53
+#: organizations/templates/organizations/admin/owners_edit.html:57
+#: organizations/templates/organizations/team_list.html:51
+#, fuzzy
+#| msgid "Add Maintainer"
+msgid "Add Owner"
+msgstr "הוספת מתחזק"
+
+#: organizations/templates/organizations/base.html:18
+#: organizations/templates/organizations/base_team.html:19
+#, fuzzy
+#| msgid "Organization"
+msgid "Organizations"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/base.html:32
+#: organizations/templates/organizations/team_list.html:7
+#, fuzzy
+#| msgid "Team"
+msgid "Teams"
+msgstr "צוות"
+
+#: organizations/templates/organizations/base.html:34
+#: organizations/templates/organizations/member_list.html:7
+#: organizations/templates/organizations/team_detail.html:40
+msgid "Members"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:37
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
+#: templates/projects/project_edit_base.html:17
+msgid "Settings"
+msgstr "הגדרות"
+
+#: organizations/templates/organizations/includes/team_member_list.html:21
+msgid "invite pending"
+msgstr ""
+
+#: organizations/templates/organizations/includes/team_member_list.html:29
+msgid "This team doesn't have any members"
+msgstr ""
+
+#: organizations/templates/organizations/member_list.html:26
+#, python-format
+msgid ""
+"\n"
+"            This is a list of all the team members and owners inside your "
+"organization.\n"
+"            To invite members, <a href=\"%(invite_url)s\">invite them to a "
+"team</a>\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/base.html:24
+#: templates/projects/import_base.html:27
+msgid "Next"
+msgstr "הבא"
+
+#: organizations/templates/organizations/onboard/base.html:26
+#: templates/projects/import_base.html:29
+msgid "Finish"
+msgstr "סיום"
+
+#: organizations/templates/organizations/onboard/base.html:30
+#: templates/projects/import_base.html:33
+msgid "Previous"
+msgstr "הקודם"
+
+#: organizations/templates/organizations/onboard/invite.html:4
+#: organizations/templates/organizations/onboard/organization.html:4
+#: organizations/templates/organizations/onboard/organization.html:7
+#: organizations/templates/organizations/onboard/plan.html:4
+#: organizations/templates/organizations/onboard/team.html:4
+#: organizations/templates/organizations/organization_create.html:5
+#: organizations/templates/organizations/organization_create.html:10
+#, fuzzy
+#| msgid "Organization"
+msgid "Create an Organization"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/onboard/invite.html:7
+msgid "Invite your Company"
+msgstr ""
+
+#: organizations/templates/organizations/onboard/invite.html:11
+msgid ""
+"\n"
+"        Finally, if you'd like to <b>invite your company to join you</b>,\n"
+"        invite some members to share documentation with below.\n"
+"        More members can be invited to your team later,\n"
+"        in the organization admin dashboard.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/organization.html:11
+msgid ""
+"\n"
+"        Before you can add a project or build documentation,\n"
+"        we will help you create an organization.\n"
+"        Access to your documentation is limited to <b>only those inside your "
+"organization</b>,\n"
+"        or inside a team with access.\n"
+"        We'll help set up a team shortly,\n"
+"        <b>start by entering your organization details</b>.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/team.html:7
+#, fuzzy
+#| msgid "Create"
+msgid "Create a Team"
+msgstr "יצירה"
+
+#: organizations/templates/organizations/organization_create.html:23
+#, fuzzy
+#| msgid "Getting Started Guide"
+msgid "Get Started"
+msgstr "מדריך למתחילים"
+
+#: organizations/templates/organizations/organization_create.html:33
+msgid ""
+"\n"
+"          To start building documentation, we will first help you create an\n"
+"          organization.\n"
+"        "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:42
+msgid ""
+"\n"
+"            Access to your documentation is limited to\n"
+"            <b>only those inside your organization</b>, or inside a team "
+"with access.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:50
+msgid ""
+"\n"
+"            No need to decide now, you can pick a plan that fits your "
+"organization\n"
+"            after a <b>30 day trial</b>.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_detail.html:69
+#: organizations/templates/organizations/team_list.html:69
+msgid "There are no teams currently established."
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:5
+#: organizations/templates/organizations/organization_invite.html:9
+msgid "Invite Members"
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:13
+msgid "Invite members to "
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:20
+msgid "Let them in"
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:6
+#: organizations/templates/organizations/security_log.html:10
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization Security Log"
+msgstr "ארגון"
+
+#: organizations/templates/organizations/security_log.html:19
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">organization security log</a> allows you to see "
+"what has happened recently in your organization."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:25
+#, python-format
+msgid ""
+"Showing logs from the last %(days_limit)s days. You can upgrade your plan to "
+"increase the time period that is stored."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:30
+msgid "Showing logs from all time."
+msgstr ""
+
+#: organizations/templates/organizations/team_create.html:7
+#: organizations/templates/organizations/team_create.html:14
+#: organizations/templates/organizations/team_create.html:18
+#: organizations/templates/organizations/team_list.html:45
+#, fuzzy
+#| msgid "Team"
+msgid "Add Team"
+msgstr "צוות"
+
+#: organizations/templates/organizations/team_delete.html:5
+#: organizations/templates/organizations/team_delete.html:11
+#: organizations/templates/organizations/team_edit.html:21
+#, fuzzy
+#| msgid "Delete"
+msgid "Delete Team"
+msgstr "מחיקה"
+
+#: organizations/templates/organizations/team_delete.html:13
+msgid ""
+"\n"
+"        Deleting this team will revoke access for users that were in the "
+"team.\n"
+"        Are you sure that it is safe to remove these users?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_detail.html:14
+#: organizations/templates/organizations/team_edit.html:7
+#: organizations/templates/organizations/team_edit.html:14
+#, fuzzy
+#| msgid "Edit Card"
+msgid "Edit Team"
+msgstr "עריכת כרטיס"
+
+#: organizations/templates/organizations/team_detail.html:19
+#, fuzzy
+#| msgid "My Projects"
+msgid "Manage Projects"
+msgstr "המיזמים שלי"
+
+#: organizations/templates/organizations/team_detail.html:24
+#: organizations/templates/organizations/team_member_create.html:11
+msgid "Invite Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_edit.html:18
+msgid "Update Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:5
+msgid "Add Team Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:15
+msgid "Add Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:5
+#, fuzzy
+#| msgid "Projects"
+msgid "Team's Projects"
+msgstr "מיזמים"
+
+#: organizations/templates/organizations/team_project_edit.html:15
+msgid ""
+"\n"
+"        Select the projects that you would like this team to have access "
+"to.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:22
+#, fuzzy
+#| msgid "Update subproject"
+msgid "Update Projects"
+msgstr "עדכון תת־מיזם"
+
+#: organizations/templates/organizations/verify_email.html:5
+#, fuzzy
+#| msgid "Verify your email address"
+msgid "Verify you email address"
+msgstr "נא לאמת את כתובת הדוא״ל שלך"
+
+#: organizations/templates/organizations/verify_email.html:10
+#: templates/account/email/email_confirmation_subject.txt:3
+msgid "Verify your email address"
+msgstr "נא לאמת את כתובת הדוא״ל שלך"
+
+#: organizations/views/private.py:102
+msgid "Owner added"
+msgstr ""
+
+#: organizations/views/private.py:106
+msgid "Owner removed"
+msgstr ""
+
+#: organizations/views/private.py:113
+msgid "Team added"
+msgstr ""
+
+#: organizations/views/private.py:123
+#, fuzzy
+#| msgid "Project deleted"
+msgid "Team deleted"
+msgstr "המיזם נמחק"
+
+#: organizations/views/private.py:140
+#, fuzzy
+#| msgid "Stay Updated"
+msgid "Team updated"
+msgstr "להישאר בעניינים"
+
+#: organizations/views/private.py:145
+#, fuzzy
+#| msgid "The project's homepage"
+msgid "Team projects updated"
+msgstr "דף הבית של המיזם"
+
+#: organizations/views/private.py:150
+msgid "Member added to team"
+msgstr ""
+
+#: organizations/views/private.py:159
+msgid "Member removed from team"
+msgstr ""
+
+#: profiles/views.py:72
+msgid "You have successfully deleted your account"
+msgstr ""
+
+#: profiles/views.py:127
+msgid "Updated your advertising preferences"
+msgstr "העדפות הפרסום שלך עודכנו"
+
+#: projects/admin.py:111
+msgid "Yes"
+msgstr "כן"
+
+#: projects/admin.py:112
+msgid "No"
+msgstr ""
+
+#: projects/admin.py:141
+msgid "Not spam (1-{})"
+msgstr ""
+
+#: projects/admin.py:147
+msgid "Don't show Ads ({}-{})"
+msgstr ""
+
+#: projects/admin.py:154
+msgid "Deny on robots ({}-{})"
+msgstr ""
+
+#: projects/admin.py:161
+msgid "Don't show dashboard ({}-{})"
+msgstr ""
+
+#: projects/admin.py:168
+msgid "Don't serve docs ({}-{})"
+msgstr ""
+
+#: projects/admin.py:175
+#, fuzzy
+#| msgid "Delete project"
+msgid "Delete project (>={})"
+msgstr "מחיקת מיזם"
+
+#: projects/constants.py:19
+msgid "Sphinx Html"
+msgstr "Sphinx Html"
+
+#: projects/constants.py:20
+msgid "Mkdocs"
+msgstr ""
+
+#: projects/constants.py:21
+msgid "Sphinx HtmlDir"
+msgstr "Sphinx HtmlDir"
+
+#: projects/constants.py:22
+msgid "Sphinx Single Page HTML"
+msgstr "HTML עמוד יחיד של Sphinx"
+
+#: projects/constants.py:24
+msgid "Mkdocs Html Pages"
+msgstr ""
+
+#: projects/constants.py:66
+msgid "Live"
+msgstr "חי"
+
+#: projects/constants.py:67
+msgid "Deleted"
+msgstr "נמחק"
+
+#: projects/constants.py:76
+msgid "Git"
+msgstr "Git"
+
+#: projects/constants.py:77
+msgid "Subversion"
+msgstr "Subversion"
+
+#: projects/constants.py:78
+msgid "Mercurial"
+msgstr "Mercurial"
+
+#: projects/constants.py:79
+msgid "Bazaar"
+msgstr "Bazaar"
+
+#: projects/constants.py:86 projects/models.py:2004
+msgid "Public"
+msgstr "ציבורי"
+
+#: projects/constants.py:87
+msgid "Private"
+msgstr "פרט"
+
+#: projects/constants.py:98
+msgid "CPython 2.x"
+msgstr "CPython 2.x"
+
+#: projects/constants.py:99
+msgid "CPython 3.x"
+msgstr "CPython 3.x"
+
+#: projects/constants.py:386
+msgid "Valid and active"
+msgstr ""
+
+#: projects/constants.py:387
+#, fuzzy
+#| msgid "Invalid hostname"
+msgid "Invalid"
+msgstr "שם מארח שגוי"
+
+#: projects/constants.py:388
+#, fuzzy
+#| msgid "Branding"
+msgid "Pending"
+msgstr "מיתוג"
+
+#: projects/exceptions.py:15
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr "לא נמצא קובץ תצורה. נא לוודא שיש לך את הקובץ conf.py במאגר שלך."
+
+#: projects/exceptions.py:20
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+"מצאנו יותר מ־conf.py אחד ולא ברור לנו באיזה מהם להשתמש. נא לציין את הקובץ "
+"הנכון תחת לשונית ההגדרות המתקדמות במסך ניהול המיזם."
+
+#: projects/exceptions.py:31
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+"אירעה שגיאה בעת הניסיון להתחבר למאגר שלך, נא לוודא שכתובת המאגר שלך נכונה."
+
+#: projects/exceptions.py:35
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+"אירעה תקלה בעת הניסיון להתחבר למאגר שלך, נא לוודא שכתובת המאגר שלך נכונה "
+"ושהמאגר שלך ציבורי. אין תמיכה במאגרים פרטיים."
+
+#: projects/exceptions.py:40
+#, fuzzy
+#| msgid "One or more submodule URLs are not valid: {}."
+msgid ""
+"One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
+"submodules are not supported."
+msgstr "הכתובות של תת־מודול אחד או יותר אינן תקינות: {}"
+
+#: projects/exceptions.py:44
+msgid "You can not have two versions with the name latest or stable."
+msgstr "אי אפשר להחזיק שתי גרסאות בשמות latest (עדכני) או stable (יציב)."
+
+#: projects/exceptions.py:47
+msgid "Failed to checkout revision: {}"
+msgstr "אחזור המהדורה נכשל: {}"
+
+#: projects/exceptions.py:50
+#, fuzzy
+#| msgid ""
+#| "There was a problem connecting to your repository, ensure that your "
+#| "repository URL is correct."
+msgid ""
+"There was a problem cloning your repository. Please check the command output "
+"for more information."
+msgstr ""
+"אירעה שגיאה בעת הניסיון להתחבר למאגר שלך, נא לוודא שכתובת המאגר שלך נכונה."
+
+#: projects/filters.py:31 projects/filters.py:80
+msgid "Name (descending)"
+msgstr ""
+
+#: projects/filters.py:32 projects/filters.py:83
+msgid "Most recently built"
+msgstr ""
+
+#: projects/filters.py:33 projects/filters.py:84
+#, fuzzy
+#| msgid "has project with recent builds"
+msgid "Least recently built"
+msgstr "יש מיזם עם בניות עדכניות"
+
+#: projects/filters.py:81
+msgid "Most recently modified"
+msgstr ""
+
+#: projects/filters.py:82
+msgid "Least recently modified"
+msgstr ""
+
+#: projects/filters.py:85
+msgid "Most frequently built"
+msgstr ""
+
+#: projects/filters.py:86
+msgid "Least frequently built"
+msgstr ""
+
+#: projects/filters.py:113 projects/filters.py:162
+msgid "Sort by"
+msgstr ""
+
+#: projects/filters.py:132
+#, fuzzy
+#| msgctxt "Build is a verb"
+#| msgid "Build version"
+msgid "Hidden versions"
+msgstr "גרסת בנייה"
+
+#: projects/filters.py:133
+#, fuzzy
+#| msgid "Single version"
+msgid "Visible versions"
+msgstr "גרסה בודדת"
+
+#: projects/filters.py:137
+#, fuzzy
+#| msgid "Subversion"
+msgid "Public versions"
+msgstr "Subversion"
+
+#: projects/filters.py:138
+#, fuzzy
+#| msgid "Private Hosting"
+msgid "Private versions"
+msgstr "אחסון פרט"
+
+#: projects/filters.py:154
+msgid "Visibility"
+msgstr ""
+
+#: projects/filters.py:163
+msgid "Relevance"
+msgstr ""
+
+#: projects/forms.py:99
+msgid "Edit advanced project options"
+msgstr "עריכת אפשרויות מיזם מתקדמות"
+
+#: projects/forms.py:122
+msgid "Invalid project name, a project already exists with that name"
+msgstr "שם מיזם שגוי, כבר קיים מיזם בשם הזה"
+
+#: projects/forms.py:126
+msgid "Invalid project name"
+msgstr "שם המיזם שגוי"
+
+#: projects/forms.py:144
+msgid "Repository invalid"
+msgstr "מאגר שגוי"
+
+#: projects/forms.py:185
+msgid "Length of each tag must be less than or equal to 100 characters."
+msgstr "אורכה של כל תגית חייבת להיות באורך של 100 תווים ומטה."
+
+#: projects/forms.py:244
+#, fuzzy
+#| msgid "Settings"
+msgid "Global settings"
+msgstr "הגדרות"
+
+#: projects/forms.py:248
+#, fuzzy
+#| msgid "Default Version"
+msgid "Default settings"
+msgstr "גרסת בררת מחדל"
+
+#: projects/forms.py:280
+msgid ""
+"Your configuration file is invalid, make sure it contains conf.py in it."
+msgstr "קובץ ההגדרות שלך שגוי, נא לוודא שיש בו conf.py."
+
+#: projects/forms.py:328
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr "כבר קיים תרגום ל„{lang}” של המיזם {proj}."
+
+#: projects/forms.py:411
+#, python-brace-format
+msgid "User {name} does not exist"
+msgstr "המשתמש {name} לא קיים"
+
+#: projects/forms.py:486
+msgid "The payload must be a valid JSON object."
+msgstr ""
+
+#: projects/forms.py:664
+#, fuzzy
+#| msgid "Only 1 Domain can be canonical at a time."
+msgid "Only one domain can be canonical at a time."
+msgstr "רק שם מתחם אחד יכול להיות ייצוגי בכל פעם."
+
+#: projects/forms.py:771
+msgid "Variable name can't start with __ (double underscore)"
+msgstr "שם משתנה לא יכול להתחיל ב־__ (פעמיים קו תחתון)"
+
+#: projects/forms.py:775
+msgid "Variable name can't start with READTHEDOCS"
+msgstr "שם משתנה לא יכול להתחיל ב־READTHEDOCS"
+
+#: projects/forms.py:780
+msgid "There is already a variable with this name for this project"
+msgstr "כבר יש משתנה עם השם הזה במיזם הזה"
+
+#: projects/forms.py:785
+msgid "Variable name can't contain spaces"
+msgstr "שם משתנה לא יכול להכיל רווחים"
+
+#: projects/forms.py:789
+msgid "Only letters, numbers and underscore are allowed"
+msgstr "מותר אותיות באנגלית, ספרות וקווים תחתיים בלבד"
+
+#: projects/models.py:73
+msgid "Parent"
+msgstr "הורה"
+
+#: projects/models.py:79
+msgid "Child"
+msgstr "צאצא"
+
+#: projects/models.py:84
+msgid "Alias"
+msgstr "כינוי"
+
+#: projects/models.py:126
+#, fuzzy
+#| msgid "Description of the project"
+msgid "Short description of this project"
+msgstr "תיאור המיזם"
+
+#: projects/models.py:129
+msgid "Repository URL"
+msgstr "כתובת מאגר"
+
+#: projects/models.py:132
+msgid "Hosted documentation repository URL"
+msgstr "כתובת מאגר תיעוד מתארח"
+
+#: projects/models.py:136
+msgid "Repository type"
+msgstr "סוג מאגר"
+
+#: projects/models.py:142
+msgid "Project homepage"
+msgstr "דף בית של מיזם"
+
+#: projects/models.py:144
+msgid "The project's homepage"
+msgstr "דף הבית של המיזם"
+
+#: projects/models.py:147
+msgid "Canonical URL"
+msgstr "כתובת ידידותית"
+
+#: projects/models.py:149
+msgid "URL that documentation is expected to serve from"
+msgstr "כתובת שמצופה ממנה להציג את התיעוד"
+
+#: projects/models.py:152
+msgid "Single version"
+msgstr "גרסה בודדת"
+
+#: projects/models.py:155
+msgid ""
+"A single version site has no translations and only your \"latest\" version, "
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
+msgstr ""
+"לאתר של גרסה אחת אין תרגומים ויש רק גרסת „latest” שמוגשת כשורש שם המתחם. יש "
+"להשתמש בזהירות רבה, יש להפעיל זאת רק אם <b>אף פעם</b> לא תהיינה יותר גרסות "
+"של המסמכים שלך."
+
+#: projects/models.py:162
+msgid "Default version"
+msgstr "גרסת בררת מחדל"
+
+#: projects/models.py:165
+msgid "The version of your project that / redirects to"
+msgstr "גרסת המיזם ש־/ יפנה אליה"
+
+#: projects/models.py:170
+msgid "Default branch"
+msgstr "ענף בררת מחדל"
+
+#: projects/models.py:176
+msgid ""
+"What branch \"latest\" points to. Leave empty to use the default value for "
+"your VCS (eg. <code>trunk</code> or <code>master</code>)."
+msgstr ""
+"למה מפנה הענף „latest”. יש להשאיר ריק כדי להשתמש בערך בררת המחדל עבור מערכת "
+"ניהול הגרסאות שלך (למשל: <code>trunk</code> או <code>master</code>)."
+
+#: projects/models.py:182
+msgid "Requirements file"
+msgstr "קובץ דרישות"
+
+#: projects/models.py:188
+msgid ""
+"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
+"\">pip requirements file</a> needed to build your documentation. Path from "
+"the root of your project."
+msgstr ""
+"<a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
+"\">קובץ requirements של pip</a> נחוץ לצורך בניית התיעוד שלך. הנתיב הוא משורש "
+"המיזם שלך."
+
+#: projects/models.py:200
+#, fuzzy
+#| msgid ""
+#| "Type of documentation you are building. <a href=\"http://www.sphinx-doc."
+#| "org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder"
+#| "\">More info</a>."
+msgid ""
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info on sphinx builders</a>."
+msgstr ""
+"סוג התיעוד לבנייה. <a href=\"http://www.sphinx-doc.org/en/stable/builders."
+"html#sphinx.builders.html.DirectoryHTMLBuilder\">מידע נוסף</a>."
+
+#: projects/models.py:206
+#, fuzzy
+#| msgid "Documentation Advertising"
+msgid "Documentation URL Configuration"
+msgstr "פרסום בתיעוד"
+
+#: projects/models.py:212
+msgid ""
+"Supports the following keys: $language, $version, $subproject, $filename. An "
+"example: `$language/$version/$filename`."
+msgstr ""
+
+#: projects/models.py:219
+#, fuzzy
+#| msgid "No downloads for this project."
+msgid "Build pull requests for this project"
+msgstr "אין הורדות למיזם זה."
+
+#: projects/models.py:221
+msgid ""
+"More information in <a href=\"https://docs.readthedocs.io/page/guides/"
+"autobuild-docs-for-pull-requests.html\">our docs</a>"
+msgstr ""
+
+#: projects/models.py:224
+msgid "Privacy level of Pull Requests"
+msgstr ""
+
+#: projects/models.py:231
+msgid "Should builds from pull requests be public?"
+msgstr ""
+
+#: projects/models.py:236
+msgid "CDN Enabled"
+msgstr "CDN פעיל"
+
+#: projects/models.py:238
+msgid "Analytics code"
+msgstr "קוד Analytics"
+
+#: projects/models.py:243
+msgid ""
+"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
+"down your page loads."
+msgstr ""
+"Google Analytics Tracking ID (למשל: <code>UA-22345342-1</code>). עשוי להאט "
+"את טעינת העמודים שלך."
+
+#: projects/models.py:249
+#, fuzzy
+#| msgid "Analytics"
+msgid "Disable Analytics"
+msgstr "ניתוח נתונים"
+
+#: projects/models.py:253
+msgid ""
+"Disable Google Analytics completely for this project (requires rebuilding "
+"documentation)"
+msgstr ""
+
+#: projects/models.py:258
+msgid "Alternative container image"
+msgstr "תמונת מכולה חלופית"
+
+#: projects/models.py:264
+msgid "Container memory limit"
+msgstr "הגבלת זיכרון למכולה"
+
+#: projects/models.py:269
+msgid ""
+"Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
+"code>"
+msgstr ""
+"הגבלת זיכרון בתצורת Docker -- למשל: <code>512m</code> או <code>1g</code>"
+
+#: projects/models.py:274
+msgid "Container time limit in seconds"
+msgstr "מגבלת זמן למכולה בשניות"
+
+#: projects/models.py:279
+msgid "Alternate build queue id"
+msgstr "מזהה תור בנייה חלופי"
+
+#: projects/models.py:285
+msgid "Maximum concurrent builds allowed for this project"
+msgstr ""
+
+#: projects/models.py:290
+msgid "Allow paid advertising"
+msgstr "לאפשר פרסום בתשלום"
+
+#: projects/models.py:292
+msgid "If unchecked, users will still see community ads."
+msgstr "אם האפשרות לא סומנה, המשתמשים עדיין יראו פרסומות קהילתיות."
+
+#: projects/models.py:295
+msgid "Ad-free"
+msgstr "נטול פרסומות"
+
+#: projects/models.py:300
+msgid "Is spam?"
+msgstr ""
+
+#: projects/models.py:303
+msgid "Manually marked as (not) spam"
+msgstr ""
+
+#: projects/models.py:306
+msgid "Show version warning"
+msgstr "הצגת אזהרת גרסה"
+
+#: projects/models.py:308
+msgid "Show warning banner in non-stable nor latest versions."
+msgstr "הצגת כותרת אזהרה בגרסאות בלתי יציבות או latest."
+
+#: projects/models.py:313
+msgid "Enable EPUB build"
+msgstr "הפעלת בניית EPUB"
+
+#: projects/models.py:316
+msgid "Create a EPUB version of your documentation with each build."
+msgstr "יצירת גרסת EPUB של התיעוד שלך עם כל בנייה."
+
+#: projects/models.py:320
+msgid "Enable PDF build"
+msgstr "הפעלת בניית PDF"
+
+#: projects/models.py:323
+msgid "Create a PDF version of your documentation with each build."
+msgstr "יצירת גרסת PDF של התיעוד שלך עם כל בנייה."
+
+#: projects/models.py:329 projects/models.py:1390
+msgid "Path"
+msgstr "נתיב"
+
+#: projects/models.py:333
+msgid "The directory where <code>conf.py</code> lives"
+msgstr "התיקייה בה <code>conf.py</code> חי"
+
+#: projects/models.py:338
+msgid "Python configuration file"
+msgstr "קובץ הגדרות Python"
+
+#: projects/models.py:343
+msgid ""
+"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
+"code>). Leave blank if you want us to find it for you."
+msgstr ""
+"נתיב משורש המיזם עד לקובץ ה־<code>conf.py</code> (למשל: <code>docs/conf.py</"
+"code>). ניתן להשאיר ריק כדי לנסות איתור אוטומטי."
+
+#: projects/models.py:349
+msgid "Featured"
+msgstr "מומלץ"
+
+#: projects/models.py:350
+msgid "Skip"
+msgstr "דילוג"
+
+#: projects/models.py:352
+msgid "Install Project"
+msgstr "התקנת מיזם"
+
+#: projects/models.py:354
+msgid ""
+"Install your project inside a virtualenv using <code>setup.py install</code>"
+msgstr ""
+"ניתן להתקין את המיזם שלך בתוך virtualenv בעזרת <code>setup.py install</code>"
+
+#: projects/models.py:363
+msgid "Python Interpreter"
+msgstr "מפענח Python"
+
+#: projects/models.py:368
+msgid "The Python interpreter used to create the virtual environment."
+msgstr "מפענח ה־Python שמשמש ליצירת הסביבה הווירטואלית."
+
+#: projects/models.py:374
+msgid "Use system packages"
+msgstr "שימוש בחבילות המערכת"
+
+#: projects/models.py:376
+msgid "Give the virtual environment access to the global site-packages dir."
+msgstr "להעניק לסביבה הווירטואלית גישה לתיקיית ה־site-packages הגלובלית."
+
+#: projects/models.py:387
+msgid "Should the project dashboard be public?"
+msgstr ""
+
+#: projects/models.py:394
+msgid "Related projects"
+msgstr "מיזמים קשורים"
+
+#: projects/models.py:402 templates/search/elastic_search.html:70
+msgid "Language"
+msgstr "שפה"
+
+#: projects/models.py:406
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+"השפה בה תיעוד המיזם עבר עיבוד. לתשומת לבך: יש לזה השפעה על כתובת המיזם שלך."
+
+#: projects/models.py:414
+msgid "Programming Language"
+msgstr "שפת תכנות"
+
+#: projects/models.py:418
+msgid "The primary programming language the project is written in."
+msgstr "שפת התכנות העיקרית בה נכתב המיזם שלך."
+
+#: projects/models.py:434
+msgid "This project has been built with a webhook"
+msgstr "מיזם זה נבנה עם התלייה"
+
+#: projects/models.py:438
+msgid "This project has been successfully cloned"
+msgstr "המיזם הזה שוכפל בהצלחה"
+
+#: projects/models.py:467
+msgid "Model must have slug"
+msgstr "לדגם חייב להיות שם ייצוגי"
+
+#: projects/models.py:1276
+msgid "Subproject nesting is not supported"
+msgstr "אין תמיכה בקינון תת־מיזמים"
+
+#: projects/models.py:1392 sphinx_domains/models.py:44
+#, fuzzy
+#| msgid "Build failed"
+msgid "Build id"
+msgstr "הבנייה נכשלה"
+
+#: projects/models.py:1395
+msgid "Page search rank"
+msgstr ""
+
+#: projects/models.py:1400
+msgid "Ignore this file from operations like indexing"
+msgstr ""
+
+#: projects/models.py:1483
+#, fuzzy
+#| msgid "Build Started"
+msgid "Build triggered"
+msgstr "הבנייה החלה"
+
+#: projects/models.py:1484
+#, fuzzy
+#| msgid "Build failed"
+msgid "Build passed"
+msgstr "הבנייה נכשלה"
+
+#: projects/models.py:1501
+#, fuzzy
+#| msgid "To URL"
+msgid "URL"
+msgstr "כתובת יעד"
+
+#: projects/models.py:1503
+msgid "URL to send the webhook to"
+msgstr "כתובת אליה לשלוח את ההתלייה"
+
+#: projects/models.py:1506
+msgid "Secret used to sign the payload of the webhook"
+msgstr ""
+
+#: projects/models.py:1514
+msgid "Events to subscribe"
+msgstr ""
+
+#: projects/models.py:1517
+msgid "JSON payload"
+msgstr ""
+
+#: projects/models.py:1519
+msgid ""
+"JSON payload to send to the webhook. Check <a href=\"https://docs."
+"readthedocs.io/page/build-notifications.html#variable-substitutions-reference"
+"\">the docs</a> for available substitutions."
+msgstr ""
+
+#: projects/models.py:1627 sphinx_domains/models.py:47
+msgid "Domain"
+msgstr "שם מתחם"
+
+#: projects/models.py:1634
+#, fuzzy
+#| msgid "This Domain was auto-created"
+msgid "This domain was auto-created"
+msgstr "שם מתחם זה נוצר אוטומטית"
+
+#: projects/models.py:1638
+#, fuzzy
+#| msgid "This Domain is a CNAME for the project"
+msgid "This domain is a CNAME for the project"
+msgstr "שם מתחם זה הוא CNAME למיזם"
+
+#: projects/models.py:1643
+#, fuzzy
+#| msgid ""
+#| "This Domain is the primary one where the documentation is served from"
+msgid "This domain is the primary one where the documentation is served from"
+msgstr "שם מתחם זה הוא העיקרי ממנו יוגש התיעוד"
+
+#: projects/models.py:1647
+msgid "Use HTTPS"
+msgstr "שימוש ב־HTTPS"
+
+#: projects/models.py:1649
+msgid "Always use HTTPS for this domain"
+msgstr "תמיד להשתמש ב־HTTPS לשם מתחם זה"
+
+#: projects/models.py:1653
+msgid "Number of times this domain has been hit"
+msgstr "מספר הפעמים שביקרו בשם מתחם זה"
+
+#: projects/models.py:1658 templates/projects/domain_form.html:40
+msgid "SSL certificate status"
+msgstr ""
+
+#: projects/models.py:1672
+msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
+msgstr ""
+
+#: projects/models.py:1676
+msgid ""
+"If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1680
+msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1806
+msgid "Allow deprecated webhook views"
+msgstr "לאפשר תצוגות התליות שנזנחו"
+
+#: projects/models.py:1810
+msgid "Do not overwrite context vars in conf.py with Read the Docs context"
+msgstr "לא לשכתב את משתני ההקשר ב־conf.py עם ההקשר של Read the Docs"
+
+#: projects/models.py:1815
+msgid "Use Read the Docs theme for MkDocs as default theme"
+msgstr ""
+"להשתמש בערכת העיצוב של Read the Docs עבור MkDocs בתור ערכת העיצוב כבררת המחדל"
+
+#: projects/models.py:1819
+msgid "Do not shallow clone when cloning git repos"
+msgstr "לא לשכפל באופן שטחי בעת שכפול של מאגרי git"
+
+#: projects/models.py:1823
+msgid "Use Docker image labelled as `testing` to build the docs"
+msgstr ""
+"יש להשתמש בתמונה (image) של Docker עם השם `testing` כדי לבנות את המסמכים"
+
+#: projects/models.py:1827
+msgid "Try alternative method of posting large data"
+msgstr "כדאי לנסות שיטה חלופית לפרסום של נתונים גדולים"
+
+#: projects/models.py:1831
+#, fuzzy
+#| msgid "Configuration used in the build"
+msgid "Clean all files used in the build process"
+msgstr "הגדרות המשמשות את הבנייה"
+
+#: projects/models.py:1835
+msgid "Upgrade conda before creating the environment"
+msgstr ""
+
+#: projects/models.py:1839
+msgid "Append Read the Docs core requirements to environment.yml file"
+msgstr ""
+
+#: projects/models.py:1844
+msgid ""
+"Pass all versions (including private) into the html context when building "
+"with Sphinx"
+msgstr ""
+
+#: projects/models.py:1850
+msgid ""
+"Cache the environment (virtualenv, conda, pip cache, repository) in storage"
+msgstr ""
+
+#: projects/models.py:1854
+msgid "Limit the amount of concurrent builds"
+msgstr ""
+
+#: projects/models.py:1858
+msgid ""
+"CDN support for a project's public versions when privacy levels are enabled."
+msgstr ""
+
+#: projects/models.py:1862
+msgid "Use Docker gVisor runtime to create build container."
+msgstr ""
+
+#: projects/models.py:1866
+msgid "Record 404s page views."
+msgstr ""
+
+#: projects/models.py:1872
+msgid "Skip syncing branches"
+msgstr ""
+
+#: projects/models.py:1876
+msgid "Skip syncing tags"
+msgstr ""
+
+#: projects/models.py:1880
+msgid "Skip sync versions task"
+msgstr ""
+
+#: projects/models.py:1884
+msgid "Always run pip install --upgrade"
+msgstr "תמיד להריץ pip install --upgrade"
+
+#: projects/models.py:1885
+msgid "Use new pip resolver"
+msgstr ""
+
+#: projects/models.py:1888
+#, fuzzy
+#| msgid "Use latest version of Sphinx"
+msgid "Don't install the latest version of pip"
+msgstr "שימוש בגרסה העדכניות ביותר של Sphinx"
+
+#: projects/models.py:1890
+msgid "Use latest version of Sphinx"
+msgstr "שימוש בגרסה העדכניות ביותר של Sphinx"
+
+#: projects/models.py:1893
+msgid "Install mkdocs 0.17.3 by default"
+msgstr ""
+
+#: projects/models.py:1895
+#, fuzzy
+#| msgid "Use latest version of setuptools"
+msgid "Use latest version of MkDocs"
+msgstr "שימוש בגרסה העדכנית ביותר של setuptools"
+
+#: projects/models.py:1898
+#, fuzzy
+#| msgid "Use latest version of Sphinx"
+msgid "Use latest version of the Read the Docs Sphinx extension"
+msgstr "שימוש בגרסה העדכניות ביותר של Sphinx"
+
+#: projects/models.py:1904
+msgid "Disable server side search"
+msgstr ""
+
+#: projects/models.py:1908
+msgid "Enable server side search for MkDocs projects"
+msgstr ""
+
+#: projects/models.py:1912
+msgid "Default to fuzzy search for simple search queries"
+msgstr ""
+
+#: projects/models.py:1916
+msgid ""
+"Index content directly from html files instead or relying in other sources"
+msgstr ""
+
+#: projects/models.py:1922
+msgid ""
+"List packages installed in the environment (\"pip list\" or \"conda list\") "
+"on build's output"
+msgstr ""
+
+#: projects/models.py:1928
+msgid ""
+"Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
+msgstr ""
+
+#: projects/models.py:1932
+msgid "Use \"-j auto\" when calling sphinx-build"
+msgstr ""
+
+#: projects/models.py:1936
+msgid "Use regular sphinx builders instead of custom RTD builders"
+msgstr ""
+
+#: projects/models.py:1940
+msgid "Mark duplicated builds as NOOP to be skipped by builders"
+msgstr ""
+
+#: projects/models.py:1944
+msgid "Do not create index.md or README.rst if the project does not have one."
+msgstr ""
+
+#: projects/models.py:1955
+msgid "Feature identifier"
+msgstr "מזהה תכונות"
+
+#: projects/models.py:1960
+msgid "Date feature was added"
+msgstr "התאריך בו נוספה התכונה"
+
+#: projects/models.py:1966
+msgid "Default all past projects to True"
+msgstr ""
+
+#: projects/models.py:1970
+msgid "Default all future projects to True"
+msgstr ""
+
+#: projects/models.py:1992
+msgid "Name of the environment variable"
+msgstr "שם משתנה הסביבה"
+
+#: projects/models.py:1996
+msgid "Value of the environment variable"
+msgstr "ערך משתנה הסביבה"
+
+#: projects/models.py:2001
+msgid "Project where this variable will be used"
+msgstr "מיזם בו יעשה שימוש במשתנה"
+
+#: projects/models.py:2007
+#, fuzzy
+#| msgid "Name of the environment variable"
+msgid "Expose this environment variable in PR builds?"
+msgstr "שם משתנה הסביבה"
+
+#: projects/notifications.py:27
+msgid ""
+"Your primary email address is not verified. Please <a href="
+"\"{{account_email_url}}\">verify it here</a>."
+msgstr ""
+"כתובת הדוא״ל הראשית שלך אינה מאומתת. נא <a href="
+"\"{{account_email_url}}\">לאמת אותה כאן</a>."
+
+#: projects/tasks/utils.py:120
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({})."
+msgstr ""
+"בנייה זו הופסקה עקב חוסר פעילות. אם שגיאה זו חוזרת, יש להגיש בקשת תמיכה עם "
+"הפניה למזהה בנייה זו ({})."
+
+#: projects/validators.py:15
+msgid "Enter a valid plain or internationalized domain name value"
+msgstr "נא להקליד ערך תקני לשם מתחם פשוט או בינלאומי"
+
+#: projects/validators.py:46
+msgid "Invalid character in the URL"
+msgstr "תו שגוי בכתובת"
+
+#: projects/validators.py:67
+msgid "Invalid scheme for URL"
+msgstr "סכמת כתובת שגויה"
+
+#: projects/views/private.py:149 projects/views/private.py:159
+msgid "Project settings updated"
+msgstr "הגדרות המיזם עודכנו"
+
+#: projects/views/private.py:168
+msgid "Project deleted"
+msgstr "המיזם נמחק"
+
+#: projects/views/private.py:386
+#, python-brace-format
+msgid ""
+"There is a problem with your {service} account, try reconnecting your "
+"account on your <a href=\"{url}\">connected services page</a>."
+msgstr ""
+"קרתה תקלה עם החשבון שלך אצל {service}, כדאי לנסות לחבר את החשבון שלך מחדש "
+"ב<a href=\"{url}\">עמוד השירותים המחוברים</a> שלך."
+
+#: projects/views/private.py:497
+#, python-brace-format
+msgid "{username} is the last owner, can't be removed"
+msgstr ""
+
+#: projects/views/private.py:962
+msgid "Project has been opted out from advertisement support"
+msgstr "המיזם ביטל תמיכה עם פרסומות"
+
+#: redirects/models.py:18
+msgid "301 - Permanent Redirect"
+msgstr "301 - הפניה קבועה"
+
+#: redirects/models.py:19
+msgid "302 - Temporary Redirect"
+msgstr "302 - הפניה זמנית"
+
+#: redirects/models.py:24
+msgid "Inactive"
+msgstr "בלתי פעילה"
+
+#: redirects/models.py:28
+msgid "Prefix Redirect"
+msgstr "הפניית קידומת"
+
+#: redirects/models.py:29
+msgid "Page Redirect"
+msgstr "הפניית אמוד"
+
+#: redirects/models.py:30
+msgid "Exact Redirect"
+msgstr "הפנייה מדויקת"
+
+#: redirects/models.py:31
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx HTMLDir -> HTML"
+
+#: redirects/models.py:32
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HTML -> HTMLDir"
+
+#: redirects/models.py:41
+msgid ""
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
+msgstr "נתיב מוחלט, בלי שם המתחם. למשל: <b>/docs/</b>  או <b>‎/install.html</b>"
+
+#: redirects/models.py:45
+msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
+msgstr "כתובת מוחלטת או יחסית. למשל: <b>‎/tutorial/install.html</b>"
+
+#: redirects/models.py:48
+msgid "The type of redirect you wish to use."
+msgstr "סוג ההפניה בה ברצונך להשתמש."
+
+#: redirects/models.py:63
+msgid "Redirect Type"
+msgstr "סוג ההפניה"
+
+#: redirects/models.py:70
+msgid "From URL"
+msgstr "כתובת מוצא"
+
+#: redirects/models.py:88
+msgid "To URL"
+msgstr "כתובת יעד"
+
+#: redirects/models.py:96
+msgid "HTTP Status"
+msgstr "מצב HTTP"
+
+#: redirects/models.py:108
+msgid "redirect"
+msgstr "הפניה"
+
+#: redirects/models.py:109
+msgid "redirects"
+msgstr "הפניות"
+
+#: redirects/models.py:125
+msgid "Redirect: {}"
+msgstr "הפנייה: {}"
+
+#: search/api.py:89
+#, fuzzy
+#| msgid "Invalid hostname"
+msgid "Invalid page"
+msgstr "שם מארח שגוי"
+
+#: search/api.py:174
+#, fuzzy
+#| msgid "This field is required."
+msgid "This query param is required"
+msgstr "שדה זה נחוץ."
+
+#: search/models.py:33
+msgid "Query"
+msgstr ""
+
+#: search/models.py:37
+msgid "Total results"
+msgstr ""
+
+#: settings/base.py:364
+msgid "Catalan"
+msgstr "קטלאנית"
+
+#: settings/base.py:365
+msgid "English"
+msgstr "אנגלי"
+
+#: settings/base.py:366
+msgid "Spanish"
+msgstr "ספרדית"
+
+#: settings/base.py:367
+msgid "Brazilian Portuguese"
+msgstr "פורטוגלית ברזילאית"
+
+#: settings/base.py:368
+msgid "Norwegian Bokmål"
+msgstr "נורווגית ספרותית"
+
+#: settings/base.py:369
+msgid "French"
+msgstr "צרפתית"
+
+#: settings/base.py:370
+msgid "Russian"
+msgstr "רוסית"
+
+#: settings/base.py:371
+msgid "German"
+msgstr "גרמנית"
+
+#: settings/base.py:372
+msgid "Galician"
+msgstr "גליסית"
+
+#: settings/base.py:373
+msgid "Vietnamese"
+msgstr "וייטנאמית"
+
+#: settings/base.py:374
+msgid "Simplified Chinese"
+msgstr "סינית מפושטת"
+
+#: settings/base.py:375
+msgid "Traditional Chinese"
+msgstr "סינית מסורתית"
+
+#: settings/base.py:376
+msgid "Japanese"
+msgstr "יפנית"
+
+#: settings/base.py:377
+msgid "Ukrainian"
+msgstr "אוקראינית"
+
+#: settings/base.py:378
+msgid "Italian"
+msgstr "איטלקית"
+
+#: settings/base.py:379
+msgid "Korean"
+msgstr "קוריאנית"
+
+#: sphinx_domains/models.py:55
+msgid "Display Name"
+msgstr ""
+
+#: sphinx_domains/models.py:63
+msgid "Type Display"
+msgstr ""
+
+#: sphinx_domains/models.py:68
+#, fuzzy
+#| msgid "Name"
+msgid "Doc Name"
+msgstr "שם"
+
+#: sphinx_domains/models.py:72
+msgid "Doc Display"
+msgstr ""
+
+#: sphinx_domains/models.py:77
+msgid "Anchor"
+msgstr ""
+
+#: subscriptions/forms.py:24
+#, python-brace-format
+msgid ""
+"Check our <a href=\"{pricing_page}\">pricing page</a> for more information "
+"about each plan."
+msgstr ""
+
+#: subscriptions/models.py:36
+msgid "Stripe ID"
+msgstr ""
+
+#: subscriptions/models.py:37
+msgid "Price"
+msgstr ""
+
+#: subscriptions/models.py:38
+msgid "Trial"
+msgstr ""
+
+#: subscriptions/models.py:43
+#, fuzzy
+#| msgid "Organization"
+msgid "For organizations"
+msgstr "ארגון"
+
+#: subscriptions/models.py:51
+#, fuzzy
+#| msgid "Public"
+msgid "Published"
+msgstr "ציבורי"
+
+#: subscriptions/models.py:110
+#, fuzzy
+#| msgid "Create Domain"
+msgid "Custom domain"
+msgstr "יצירת שם מתחם"
+
+#: subscriptions/models.py:111
+#, fuzzy
+#| msgid "Documentation"
+msgid "CDN public documentation"
+msgstr "תיעוד"
+
+#: subscriptions/models.py:112
+#, fuzzy
+#| msgid "Python configuration file"
+msgid "Custom SSL configuration"
+msgstr "קובץ הגדרות Python"
+
+#: subscriptions/models.py:113
+#, fuzzy
+#| msgid "Support"
+msgid "Support SLA"
+msgstr "תמיכה"
+
+#: subscriptions/models.py:114
+#, fuzzy
+#| msgid "View your documentation"
+msgid "Private documentation"
+msgstr "הצגת התיעוד שלך"
+
+#: subscriptions/models.py:115
+#, fuzzy
+#| msgid "Embed API"
+msgid "Embed content via API"
+msgstr "API להטמעה"
+
+#: subscriptions/models.py:116
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search analytics"
+msgstr "חיפוש בכל המסמכים"
+
+#: subscriptions/models.py:117
+msgid "Pageview analytics"
+msgstr ""
+
+#: subscriptions/models.py:118
+#, fuzzy
+#| msgid "Currently Building"
+msgid "Concurrent builds"
+msgstr "בבנייה כרגע"
+
+#: subscriptions/models.py:119
+msgid "Single sign on (SSO) with Google"
+msgstr ""
+
+#: subscriptions/models.py:120
+#, fuzzy
+#| msgid "From URL"
+msgid "Custom URLs"
+msgstr "כתובת מוצא"
+
+#: subscriptions/models.py:121
+msgid "Audit logs"
+msgstr ""
+
+#: subscriptions/models.py:122
+msgid "Record every page view"
+msgstr ""
+
+#: subscriptions/models.py:135
+msgid "Numeric value"
+msgstr ""
+
+#: subscriptions/models.py:169
+#: subscriptions/templates/subscriptions/subscription_detail.html:31
+msgid "Plan"
+msgstr ""
+
+#: subscriptions/models.py:179
+#, fuzzy
+#| msgid "Locked"
+msgid "Locked plan"
+msgstr "נעול"
+
+#: subscriptions/models.py:181
+msgid "Locked plan for custom contracts"
+msgstr ""
+
+#: subscriptions/models.py:188
+#, fuzzy
+#| msgid "Update Subscription"
+msgid "Stripe subscription ID"
+msgstr "עדכון מינוי"
+
+#: subscriptions/models.py:193
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription status"
+msgstr "מינוי זהב"
+
+#: subscriptions/models.py:194
+#, fuzzy
+#| msgid "Start time"
+msgid "Start date"
+msgstr "מועד התחלה"
+
+#: subscriptions/models.py:196
+#, fuzzy
+#| msgid "End time"
+msgid "End date"
+msgstr "מועד סיום"
+
+#: subscriptions/models.py:202
+msgid "Trial end date"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:7
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Organization Subscription"
+msgstr "ביטול מינ"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:19
+#, python-format
+msgid ""
+"You are currently on a trial. Please choose a <a href=\"%(pricing_url)s"
+"\">paid plan</a> that fits your organization prior to the end of your trial. "
+"Upgrade your account by clicking on <strong>Manage Subscription</strong> "
+"below."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:37
+msgid "per month"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:42
+#, fuzzy
+#| msgid "Featured"
+msgid "Plan Features:"
+msgstr "מומלץ"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:53
+#, fuzzy
+#| msgid "Sign up"
+msgid "Signed up"
+msgstr "הרשמה"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:55
+#, fuzzy
+#| msgid "Tag"
+msgid "ago"
+msgstr "תגית"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:59
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription Status"
+msgstr "מינוי זהב"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:65
+msgid "Trial ends"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:70
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription ends"
+msgstr "מינוי זהב"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:81
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Manage Subscription"
+msgstr "ביטול מינ"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:85
+msgid ""
+"Use the button above to see past invoices, change your plan, and update your "
+"billing information."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:93
+#, python-format
+msgid ""
+"<strong>You don't currently have an active subscription</strong>. You must "
+"create a subscription for a <a href=\"%(pricing_url)s\">paid plan</a> that "
+"fits your organization to continue using Read the Docs for Business."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:101
+#, fuzzy
+#| msgid "Update Subscription"
+msgid "Create Subscription"
+msgstr "עדכון מינוי"
+
+#: subscriptions/views.py:37
+#, fuzzy
+#| msgid "Your subscription has been updated"
+msgid "Your plan has been upgraded!"
+msgstr "המינוי שלך עודכן"
+
+#: subscriptions/views.py:92
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes."
+msgstr ""
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr "נמצא מבוך"
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "שגיאת שרת"
+
+#: templates/account/email.html:5 templates/account/email.html:9
+#: templates/profiles/base_profile_edit.html:51
+msgid "Change Email"
+msgstr "החלפת כתובת דוא״ל"
+
+#: templates/account/email.html:13
+msgid "The following email addresses are associated with your account:"
+msgstr "כתובות הדוא״ל הבאות משויכות עם החשבון שלך:"
+
+#: templates/account/email.html:26
+msgid "Verified"
+msgstr "מאומת"
+
+#: templates/account/email.html:28
+msgid "Unverified"
+msgstr "לא מאומת"
+
+#: templates/account/email.html:30
+msgid "Primary"
+msgstr "עיקרי"
+
+#: templates/account/email.html:36
+msgid "Make Primary"
+msgstr "הפיכה לעיקרי"
+
+#: templates/account/email.html:37
+msgid "Re-send Verification"
+msgstr "שליחת האימות מחדש"
+
+#: templates/account/email.html:46
+msgid "Warning:"
+msgstr "אזהרה:"
+
+#: templates/account/email.html:46
+msgid ""
+"You currently do not have any email address set up. You should really add an "
+"email address so you can receive notifications, reset your password, etc."
+msgstr ""
+"לא מוגדרת עבורך אף כתובת דוא״ל. עליך להוסיף כתובת דוא״ל כדי שתגענה אליך "
+"התרעות, איפוס ססמה וכו׳."
+
+#: templates/account/email.html:50
+msgid "Add E-mail Address"
+msgstr "הוספת כתובת דוא״ל"
+
+#: templates/account/email.html:55
+msgid "Add E-mail"
+msgstr "הוספת דוא״ל"
+
+#: templates/account/email.html:64
+msgid "Do you really want to remove the selected email address?"
+msgstr "להסיר את כתובת הדוא״ל הנבחרת?"
+
+#: templates/account/email/email_confirmation_message.html:7
+#: templates/account/email/email_confirmation_message.txt:6
+msgid ""
+"To verify your email address and finish setting up your account, please go "
+"to:"
+msgstr "כדי לאמת את כתובת הדוא״ל שלך ולסיים להגדיר את החשבון שלך, נא לגשת אל:"
+
+#: templates/account/email/email_confirmation_message.html:15
+#: templates/account/email/email_confirmation_message.txt:10
+msgid ""
+"If you did not sign up for an account with Read the Docs, you can disregard "
+"this email."
+msgstr "אם לא נרשמת לקבלת חשבון ב־Read the Docs, ניתן להתעלם מההודעה הזו."
+
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
+msgid ""
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+"התקבלה בקשה לאיפוס הססמה שלך ב־Read the Docs. כדי לאשר את בקשת האיפוס הזו, "
+"נא לגשת אל:"
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
+msgstr "אם לא ביקשת את איפוס הססמה שלך, ניתן להתעלם מההודעה הזו."
+
+#: templates/account/email/password_reset_key_subject.txt:3
+msgid "Password reset"
+msgstr "איפוס ססמה"
+
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
+msgid "Sign In"
+msgstr "כניסה"
+
+#: templates/account/login.html:14
+#, python-format
+msgid ""
+"If you have not created an account yet, then please <a href=\"%(signup_url)s"
+"\">sign up</a> first."
+msgstr "אם טרם יצרת חשבון, נא <a href=\"%(signup_url)s\">להירשם</a> תחילה."
+
+#: templates/account/login.html:27
+#, python-format
+msgid ""
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
+msgstr ""
+"אם שכחת את הססמה שלך, ניתן <a href=\"%(password_reset_url)s\">לאפס אותה.</a>"
+
+#: templates/account/login.html:31 templates/account/signup.html:52
+msgid "Or"
+msgstr "או"
+
+#: templates/account/password_change.html:5
+#: templates/account/password_change.html:9
+#: templates/account/password_change.html:15
+#: templates/profiles/base_profile_edit.html:50
+msgid "Change Password"
+msgstr "החלפת ססמה"
+
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "הרשמה"
+
+#: templates/account/signup.html:13
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr "כבר יש לך חשבון? אז נא <a href=\"%(login_url)s\">להיכנס</a>."
+
+#: templates/account/signup.html:19
+#, python-format
+msgid ""
+"You have been invited to join the organization \"%(organization_name)s\" at "
+"Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:25
+msgid "You have been invited to join an organization at Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:33
+msgid ""
+"Sign up using the following provider. If you don't have an account with this "
+"provider, please contact your organization owner and ask about this."
+msgstr ""
+
+#: templates/account/signup.html:48
+#, fuzzy
+#| msgid ""
+#| "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
+#| "latest/privacy-policy.html\">privacy policy</a>."
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
+"terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
+"readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
+msgstr ""
+"הרשמה מהווה את הסכמתך ל<a href=\"https://docs.readthedocs.io/en/latest/"
+"privacy-policy.html\">מדיניות הפרטיות</a> שלנו."
+
+#: templates/archive/index.html:5
+msgid "Read the Docs Archive"
+msgstr "ארכיון Read the Docs"
+
+#: templates/base.html:107
+#, fuzzy
+#| msgid "Remove Notifications"
+msgid "Close notification"
+msgstr "הסרת התרעות"
+
+#: templates/base.html:142
+msgid "Stay Updated"
+msgstr "להישאר בעניינים"
+
+#: templates/base.html:146
+msgid "Blog"
+msgstr "בלוג"
+
+#: templates/base.html:150
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+"ניתן להירשם לרשימת התפוצה שלנו כדי לקבל את העדכונים האחרונים בבלוג שלנו "
+"ישירות לתיבת הדואר הנכנס שלך."
+
+#: templates/base.html:163
+msgid "Subscribe"
+msgstr "מינוי"
+
+#: templates/base.html:171
+msgid "Thank you!"
+msgstr ""
+
+#: templates/base.html:172
+msgid "You have successfully joined our subscriber list."
+msgstr ""
+
+#: templates/base.html:185
+msgid "Resources"
+msgstr ""
+
+#: templates/base.html:189
+msgid "Tutorial"
+msgstr ""
+
+#: templates/base.html:195
+msgid "Documentation"
+msgstr "תיעוד"
+
+#: templates/base.html:198
+#, fuzzy
+#| msgid "Ad-free"
+msgid "Going Ad-free"
+msgstr "נטול פרסומות"
+
+#: templates/base.html:201
+#, fuzzy
+#| msgid "Support"
+msgid "Site Support"
+msgstr "תמיכה"
+
+#: templates/base.html:204
+#, fuzzy
+#| msgid "HTTP Status"
+msgid "Site Status"
+msgstr "מצב HTTP"
+
+#: templates/base.html:211
+msgid "Company"
+msgstr ""
+
+#: templates/base.html:215
+msgid "Jobs"
+msgstr ""
+
+#: templates/base.html:218
+msgid "Advertise with Us"
+msgstr "פרסום אצלנו"
+
+#: templates/base.html:221
+#, fuzzy
+#| msgid "Read the Docs Archive"
+msgid "Read the Docs for Business"
+msgstr "ארכיון Read the Docs"
+
+#: templates/base.html:224
+msgid "Branding & Media Kit"
+msgstr ""
+
+#: templates/base.html:230
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/base.html:251
+msgid "Read the Docs, Inc & contributors"
+msgstr "Read the Docs, בע״מ והמתנדבים"
+
+#: templates/base.html:274
+msgid "Change Language"
+msgstr "החלפת שפה"
+
+#: templates/base_filter.html:14 templates/core/filter_bar.html:8
+msgid "Filter"
+msgstr "מסנן"
+
+#: templates/builds/build_detail.html:36
+#, fuzzy
+#| msgid "1 build"
+#| msgid_plural "%(builds)s builds"
+msgid "Cancel build"
+msgstr "בנייה אחת"
+
+#: templates/builds/build_detail.html:44
+msgid "Completed"
+msgstr "הושלם"
+
+#: templates/builds/build_detail.html:49
+msgid "Build took"
+msgstr "בנייה ארכה"
+
+#: templates/builds/build_detail.html:53
+msgid "seconds"
+msgstr "שניות"
+
+#: templates/builds/build_detail.html:59
+msgid "Built on"
+msgstr "נבנה במועד"
+
+#: templates/builds/build_detail.html:67
+msgid "View docs"
+msgstr "הצגת מסמכים"
+
+#: templates/builds/build_detail.html:75
+msgid "View raw"
+msgstr "הצגת חומר גלם"
+
+#: templates/builds/build_detail.html:98
+#, python-format
+msgid "Build #%(build_id)s"
+msgstr "בנייה מס׳ %(build_id)s"
+
+#: templates/builds/build_detail.html:108
+#, python-format
+msgid ""
+"\n"
+"            <b>%(external_version_name)s</b>\n"
+"          "
+msgstr ""
+
+#: templates/builds/build_detail.html:138
+msgid "Build completed"
+msgstr "הבנייה הושלמה"
+
+#: templates/builds/build_detail.html:148
+#, fuzzy
+#| msgid "Build failed"
+msgid "Build cancelled"
+msgstr "הבנייה נכשלה"
+
+#: templates/builds/build_detail.html:157
+#, python-format
+msgid ""
+"Don't want <em>setup.py install</em> called? Change the <strong>Install "
+"Project</strong> setting in your <a href=\"%(advanced_url)s\">advanced "
+"settings</a>."
+msgstr ""
+"רוצה ליזום קריאה ל־<em>setup.py install</em>? עליך לשנות את הגדרות "
+"<strong>התקנת המיזם</strong> תחת <a href=\"%(advanced_url)s\">הגדרות "
+"מתקדמות</a>."
+
+#: templates/builds/build_detail.html:167
+#, python-format
+msgid ""
+"<strong>Configure your documentation builds!</strong> Adding a <a href="
+"\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is the "
+"recommended way to configure your documentation builds. You can declare "
+"dependencies, set up submodules, and many other great features."
+msgstr ""
+
+#: templates/builds/build_detail.html:182
+msgid "Show full build output"
+msgstr "הצגת פלט הבנייה המלא"
+
+#: templates/builds/build_detail.html:188
+msgid "Build Output"
+msgstr "פלט בנייה"
+
+#: templates/builds/build_detail.html:192
+msgid "Setup Output"
+msgstr "פלט ההתקנה"
+
+#: templates/builds/build_detail.html:197
+msgid "Environment Standard Error"
+msgstr "השגיאות התקניות של הסביבה"
+
+#: templates/builds/build_detail.html:203
+msgid "Build Errors"
+msgstr "שגיאות בנייה"
+
+#: templates/builds/build_detail.html:221
+#, python-format
+msgid "<a href=\"%(url)s\">Report any build issues here</a>."
+msgstr "<a href=\"%(url)s\">ניתן לדווח על בעיות בנייה דרך כאן</a>."
+
+#: templates/builds/build_detail.html:246
+msgid "Command time:"
+msgstr "זמן הפקודה:"
+
+#: templates/builds/build_detail.html:251
+msgid "Return"
+msgstr "חזרה"
+
+#: templates/builds/build_list.html:37
+msgid "Build Version:"
+msgstr "גרסת בנייה:"
+
+#: templates/builds/build_list.html:53
+msgid "Recent Builds"
+msgstr "בניות אחרונות"
+
+#: templates/builds/regexautomationrule_form.html:6
+#: templates/builds/regexautomationrule_form.html:11
+msgid "Automation Rule"
+msgstr ""
+
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "מחיקה"
+
+#: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
+#: templates/projects/tag_list.html:7
+msgid "Popular tags"
+msgstr "תגיות נפוצות"
+
+#: templates/builds/versionautomationrule_list.html:6
+#: templates/builds/versionautomationrule_list.html:15
+#: templates/projects/project_edit_base.html:28
+msgid "Automation Rules"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:20
+msgid ""
+"Automate actions on new branches and tags. Check the <a href=\"https://docs."
+"readthedocs.io/page/automation-rules.html\">documentation on automation "
+"rules</a> for more information."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:32
+msgid "Add Rule"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:54
+#: templates/builds/versionautomationrule_list.html:55
+msgid "Move up"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:65
+#: templates/builds/versionautomationrule_list.html:66
+msgid "Move down"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:76
+#, fuzzy
+#| msgid "No integrations are currently configured."
+msgid "No automation rules are currently configured."
+msgstr "לא מוגדרים שילובים."
+
+#: templates/builds/versionautomationrule_list.html:85
+#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/webhook_form.html:47
+msgid "Recent Activity"
+msgstr "פעילות אחרונה"
+
+#: templates/builds/versionautomationrule_list.html:91
+#, python-format
+msgid ""
+"%(type)s \"%(version)s\" matched the pattern <span>\"%(pattern)s\"</span>, "
+"and the action <a href=\"%(url)s\">%(action)s</a> was performed %(date)s ago."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:101
+#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/webhook_form.html:63
+msgid "There is no recent activity"
+msgstr "אין פעילות אחרונה"
+
+#: templates/core/build_list_detailed.html:7
+msgid "This build is still waiting to be built"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:7
+msgid "Passed"
+msgstr "הצליחה"
+
+#: templates/core/build_list_detailed.html:7
+msgid "Failed"
+msgstr "נכשלה"
+
+#: templates/core/build_list_detailed.html:11
+#, fuzzy, python-format
+#| msgid "%(version_name)s"
+msgid "%(external_version_name)s"
+msgstr "%(version_name)s"
+
+#: templates/core/build_list_detailed.html:16
+#, python-format
+msgid "version %(slug)s (%(type)s)"
+msgstr "גרסה %(slug)s (%(type)s)"
+
+#: templates/core/build_list_detailed.html:29
+msgid "No builds found"
+msgstr "לא נמצאו בניות"
+
+#: templates/core/email/base.html:78
+#, fuzzy
+#| msgid "Hello!"
+msgid "Hello,"
+msgstr "שלום!"
+
+#: templates/core/email/base.html:91
+msgid "Keep documenting,"
+msgstr "להמשיך ולתעד."
+
+#: templates/core/email/base.html:92
+msgid "Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/core/filter_list.html:12
+msgid "No objects found"
+msgstr "לא נמצאו פריטים"
+
+#: templates/core/header.html:28
+msgid "My Projects"
+msgstr "המיזמים שלי"
+
+#: templates/core/header.html:30
+msgid "Support"
+msgstr "תמיכה"
+
+#: templates/core/header.html:33
+msgid "Log Out"
+msgstr "יציאה"
+
+#: templates/core/header.html:41
+msgid "Log In"
+msgstr "כניסה"
+
+#: templates/core/home-header.html:10
+msgid "Create, host, and browse documentation."
+msgstr "יצירה, אירוח ועיון בתיעוד."
+
+#: templates/core/home-header.html:19
+msgid "Log in"
+msgstr "להיכנס"
+
+#: templates/core/project_bar_base.html:12
+#: templates/core/project_list_detailed.html:34
+#: templates/core/project_list_featured.html:13
+#: templates/projects/project_version_list.html:53
+msgid "View Docs"
+msgstr "הצגת מסמכים"
+
+#: templates/core/project_bar_base.html:31
+#, fuzzy, python-format
+#| msgid ""
+#| "Your project is currently disabled for abuse of the system. Please make "
+#| "sure it isn't using unreasonable amounts of resources or triggering lots "
+#| "of builds in a short amount of time. Please <a href=\"https://github.com/"
+#| "rtfd/readthedocs.org/issues\">file a ticket</a> to get your project re-"
+#| "enabled."
+msgid ""
+"Your project is currently disabled for abuse of the system. Please make sure "
+"it isn't using unreasonable amounts of resources or triggering lots of "
+"builds in a short amount of time. Please <a href=\"mailto:%(SUPPORT_EMAIL)s"
+"\">contact support</a> to get your project re-enabled."
+msgstr ""
+"המיזם שלך מושבת עקב ניצול לרעה של המערכת. נא לוודא שאינך עושה שימוש בכמות "
+"בלתי סבירה של משאבים או הפעלה של בניות מרובות בזמן קצר. נא <a href=\"https://"
+"github.com/rtfd/readthedocs.org/issues\">לשלוח לנו דיווח</a> כדי שהמיזם שלך "
+"יופעל מחדש."
+
+#: templates/core/project_bar_base.html:40
+msgid "Overview"
+msgstr "סקירה"
+
+#: templates/core/project_detail_right.html:9
+msgid "Repository"
+msgstr "מאגר"
+
+#: templates/core/project_detail_right.html:21
+msgid "Used in URL's and in code to represent the project name"
+msgstr "בשימוש בכתובות ובקוד לייצוג שם המיזם"
+
+#: templates/core/project_detail_right.html:22
+msgid "Project Slug"
+msgstr "שם ייצוגי למיזם"
+
+#: templates/core/project_detail_right.html:29
+msgid "Last Built"
+msgstr "בנייה אחרונה"
+
+#: templates/core/project_detail_right.html:36
+msgid "passed"
+msgstr "הצליחה"
+
+#: templates/core/project_detail_right.html:38
+msgid "failed"
+msgstr "נכשלה"
+
+#: templates/core/project_detail_right.html:41
+msgid "Currently Building"
+msgstr "בבנייה כרגע"
+
+#: templates/core/project_detail_right.html:44
+#: templates/projects/project_dashboard_base.html:83
+msgid "No builds yet"
+msgstr "אין בניות עדיין"
+
+#: templates/core/project_detail_right.html:51
+#: templates/projects/project_edit_base.html:22
+#: templates/projects/project_users.html:8
+msgid "Maintainers"
+msgstr "מתחזקים"
+
+#: templates/core/project_detail_right.html:69
+msgid "Badge"
+msgstr "תג"
+
+#: templates/core/project_detail_right.html:79
+msgid "Tags"
+msgstr "תגיות"
+
+#: templates/core/project_detail_right.html:87
+msgid "Project has no tags."
+msgstr "למיזם אין תגיות."
+
+#: templates/core/project_detail_right.html:90
+#, python-format
+msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
+msgstr "ניתן להוסיף כאלה ב<a href=\"%(edit_url)s\">הגדרות המיזם</a>."
+
+#: templates/core/project_detail_right.html:100
+msgid "Short URLs"
+msgstr "כתובות מקוצרות"
+
+#: templates/core/project_detail_right.html:111
+#: templates/projects/project_edit_base.html:24
+#: templates/projects/project_translations.html:12
+msgid "Translations"
+msgstr "תרגומים"
+
+#: templates/core/project_detail_right.html:122
+msgid "Sub Projects"
+msgstr "תת־מיזמים"
+
+#: templates/core/project_detail_right.html:132
+msgid "Default Version"
+msgstr "גרסת בררת מחדל"
+
+#: templates/core/project_detail_right.html:135
+msgid "'latest' Version"
+msgstr "גרסת ‚latest’"
+
+#: templates/core/project_details.html:49
+#: templates/projects/project_version_list.html:64
+msgid "No active versions."
+msgstr "אין גרסאות פעילות."
+
+#: templates/core/project_details.html:60
+msgid "Build a version"
+msgstr "בניית גרסה"
+
+#: templates/core/project_details.html:69
+msgctxt "Build is a verb"
+msgid "Build version"
+msgstr "גרסת בנייה"
+
+#: templates/core/project_downloads.html:31
+msgid "No downloads for this project."
+msgstr "אין הורדות למיזם זה."
+
+#: templates/core/project_list_detailed.html:28
+msgid "No builds"
+msgstr "אין בניות"
+
+#: templates/core/project_list_detailed.html:36
+#: templates/core/project_list_featured.html:15
+msgid "No Docs"
+msgstr "אין מסמכים"
+
+#: templates/core/project_list_detailed.html:44
+#: templates/core/project_list_featured.html:23
+msgid "No projects found"
+msgstr "לא נמצאו מיזמים"
+
+#: templates/core/widesearchbar.html:4
+msgid "Search all the docs"
+msgstr "חיפוש בכל המסמכים"
+
+#: templates/core/widesearchbar.html:12
+msgid "Search Read the Docs"
+msgstr "חיפוש ב־Read the Docs"
+
+#. Translators: This is about starting a search
+#: templates/core/widesearchbar.html:16
+msgid "Let's do this."
+msgstr "קדימה."
+
+#: templates/flagging/flag_confirm.html:6
+#: templates/flagging/flag_confirm.html:11
+msgid "Confirm flagging"
+msgstr "אישור הסימון"
+
+#: templates/flagging/flag_confirm.html:17
+msgid "What you are saying:"
+msgstr "מה טענתך:"
+
+#: templates/flagging/flag_confirm.html:21
+#, python-format
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr "לסמן את „%(object)s” בתור „%(flag_type.title)s”?"
+
+#: templates/flagging/flag_confirm.html:23
+#, python-format
+msgid "Yes, this is %(title)s"
+msgstr "כן, זה %(title)s"
+
+#: templates/flagging/flag_confirm.html:24
+msgid "cancel"
+msgstr "ביטול"
+
+#: templates/flagging/flag_success.html:6
+#: templates/flagging/flag_success.html:11
+msgid "Flagging successful"
+msgstr "הסימון הצליח"
+
+#: templates/flagging/flag_success.html:16
+#, python-format
+msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
+msgstr "סימנת את „%(object)s” בתור „%(flag_type.title)s” בהצלחה"
+
+#: templates/flagging/flag_success.html:18
+msgid "Thank you for contributing to the quality of this site!"
+msgstr "תודה לך על תרומתך לאיכות האתר הזה!"
+
+#: templates/homepage.html:9
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+" מיזם Read the Docs מפשט את הליך התיעוד הטכני על ידי יצירת אוטומציה לבנייה, "
+"חלוקה לגרסאות ואירוח המסמכים שלך עבורך. ניתן לבנות תיעוד עדכני לאינטרנט, "
+"להדפסה ולשימוש בלתי מקוון אוטומטית עם כל דחיפה למערכת ניהול גרסאות."
+
+#: templates/homepage.html:12
+msgid "Home"
+msgstr "בית"
+
+#: templates/homepage.html:46
+msgid "Technical documentation lives here"
+msgstr "המקום בו תיעוד טכני חי"
+
+#: templates/homepage.html:48
+msgid ""
+"Read the Docs simplifies software documentation by automating building, "
+"versioning, and hosting of your docs for you."
+msgstr ""
+"מיזם Read the Docs מפשט את הליך התיעוד של תכנה על ידי יצירת אוטומציה לבנייה, "
+"חלוקה לגרסאות ואירוח המסמכים שלך עבורך."
+
+#: templates/homepage.html:60
+#, fuzzy
+#| msgid ""
+#| "We will host your documentation for free forever. There are no tricks. We "
+#| "help %(projects_count_intcomma)s open source projects share their docs."
+msgid ""
+"We will host your documentation for free, forever. There are no tricks. We "
+"help over 100,000 open source projects share their docs, including a custom "
+"domain and theme."
+msgstr ""
+"אנו נארח את התיעוד שלך בחינם לעד. בלי שורות קטנות. אנו מסייעים ל־"
+"%(projects_count_intcomma)s מיזמי קוד פתוח לשתף את המסמכים שלהם.        "
+
+#: templates/homepage.html:71
+#, fuzzy
+#| msgid ""
+#| "Whenever you push code to your favorite version control system, whether "
+#| "that is Git, Mercurial, Bazaar, or Subversion, we will automatically "
+#| "build your docs so your code and documentation are never out of sync."
+msgid ""
+"Whenever you push code to your favorite version control service, whether "
+"that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
+"so your code and documentation are never out of sync."
+msgstr ""
+"עם כל דחיפה של הקוד שלך למערכת ניהול הגרסאות המועדפת עליך, בין אם מדובר ב־"
+"Git, Mercurial, Bazaar או Subversion, אנו נבנה את המסמך שלך אוטומטית כדי "
+"שהקוד והתיעוד שלך תמיד יהיו מסונכרנים.        "
+
+#: templates/homepage.html:86
+#, fuzzy
+#| msgid ""
+#| "Of course we build and host your docs for the web, but they are also "
+#| "vieweable as PDFs, as single page HTML, and for eReaders. No additional "
+#| "configuration is required."
+msgid ""
+"We build and host your docs for the web, but they are also viewable as PDFs, "
+"as single page HTML, and for eReaders. No additional configuration is "
+"required."
+msgstr ""
+"כמובן שאנחנו בונים ומארחים את המסמכים שלך לצפייה ברשת, אך הם זמינים גם בתור "
+"PDF, עמוד יחיד של HTML ועבור קוראים דיגיטליים. לא נדרשות הגדרות נוספות."
+
+#: templates/homepage.html:96
+msgid ""
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+"אנו יכולים לארח ולבנות מגוון גרסאות של המסמכים שלך כדי שהפקת גרסה 1.0 של "
+"המסמכים שלך וגרסה 2.0 של המסמכים שלך תהיה משימה פשוטה ממש כמו ענף או תגית "
+"שונים במערכת בקרת הגרסאות שלך."
+
+#: templates/homepage.html:109
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "Read the Tutorial"
+msgstr "Read the Docs"
+
+#: templates/homepage.html:123
+msgid "Featured Projects"
+msgstr "מיזמים מומלצים"
+
+#: templates/homepage.html:137
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "About Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/homepage.html:140
+msgid ""
+"Read the Docs has grown substantially since its beginning as a weekend "
+"project and is closing in on being a top-1000 site on the internet. Today, "
+"we:"
+msgstr ""
+
+#: templates/homepage.html:148
+msgid ""
+"<ul class=\"donate-about\"> <li>Serve over <b>55 million pages</b> of "
+"documentation a month</li> <li>Serve over <b>40 TB</b> of documentation a "
+"month</li> <li>Host over <b>80,000 open source projects</b> and support over "
+"<b>100,000 users</b></li> <li>Are supported by a <a href=\"https://docs."
+"readthedocs.io/en/latest/team.html\">very small team</a> of dedicated "
+"engineers</li> </ul>"
+msgstr ""
+
+#: templates/homepage.html:160
+msgid "Read the Docs is funded by the community"
+msgstr "מיזם Read the Docs ממומן על ידי הקהילה"
+
+#: templates/homepage.html:166
+#, python-format
+msgid ""
+"We fund our operations through <a href=\"https://www.ethicalads.io/"
+"advertisers/?ref=rtd\">advertising</a>, corporate-hosted documentation with "
+"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a href="
+"\"%(donate_url)s\">donations</a>, and we are supported by a number of "
+"generous <a href=\"https://docs.readthedocs.io/page/sponsors.html"
+"\">sponsors</a>."
+msgstr ""
+
+#: templates/homepage.html:175
+#, fuzzy
+#| msgid ""
+#| "Read the Docs is <strong>community supported</strong>. It depends on "
+#| "users like you to contribute to development, support, and operations. You "
+#| "can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
+#| "latest/contribute.html\">contribute</a> in our docs. Thanks so much to "
+#| "our wonderful <a href=\"https://docs.readthedocs.io/en/latest/team.html"
+#| "\">community team</a> who helps us run the site. Read the Docs wouldn't "
+#| "be possible without them."
+msgid ""
+"Read the Docs is open source and community supported. It depends on users "
+"like you to contribute to development, support, and operations. You can "
+"learn more about how to <a href=\"https://docs.readthedocs.io/page/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
+"who helps us run the site. Read the Docs wouldn't be possible without them."
+msgstr ""
+"מיזם Read the Docs <strong>נתמך על ידי הקהילה</strong>. הוא תלוי במשתמשים "
+"כמוך שיתרמו לפיתוח, לתמיכה ולפעילות השוטפת. ניתן ללמוד עוד על אופן <a href="
+"\"https://docs.readthedocs.io/en/latest/contribute.html\">התרומה</a> במסמכים "
+"שלנו. אנו מודים ל<a href=\"https://docs.readthedocs.io/en/latest/team.html"
+"\">צוות הקהילתי</a> המדהים שמסייע לנו להפעיל את האתר הזה. Read the Docs לא "
+"היה מה שהוא היום לולא האנשים האלה."
+
+#: templates/homepage.html:185
+#, fuzzy
+#| msgid ""
+#| "Hosting for the project is graciously provided by <a href=\"https://azure."
+#| "microsoft.com/\">Microsoft Azure</a>."
+msgid ""
+"Hosting for the project is graciously provided by <a href=\"https://aws."
+"amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
+msgstr ""
+"אירוח המיזם סופק בחסד על ידי <a href=\"https://azure.microsoft.com/"
+"\">Microsoft Azure</a>."
+
+#: templates/notifications/send_notification_form.html:6
+msgid "Send Email"
+msgstr "שליחת דוא״ל"
+
+#: templates/notifications/send_notification_form.html:9
+msgid "An email message will be sent to the following email addresses:"
+msgstr "תישלח הודעה בדוא״ל אל כתובות הדוא״ל הבאות:"
+
+#: templates/notifications/send_notification_form.html:21
+#, python-format
+msgid "And 1 other recipient."
+msgid_plural "And %(counter)s other recipients..."
+msgstr[0] "ונמען אחד נוסף."
+msgstr[1] "ו־%(counter)s נמענים נוספים…"
+msgstr[2] "ו־%(counter)s נמענים נוספים…"
+msgstr[3] "ו־%(counter)s נמענים נוספים…"
+
+#: templates/notifications/send_notification_form.html:32
+msgid "Specify the email content you wish to send:"
+msgstr "נא לציין את תוכן ההודעה שמיועדת לשליחה בדוא״ל:"
+
+#: templates/notifications/send_notification_form.html:41
+msgid "Send Messages"
+msgstr "שליחת הודעות"
+
+#: templates/pagination/pagination.html:6
+#: templates/pagination/pagination.html:8
+#: templates/projects/project_import.html:185
+#: templates/projects/project_import.html:191
+msgid "previous"
+msgstr "הקודם"
+
+#: templates/pagination/pagination.html:22
+#: templates/pagination/pagination.html:24
+#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:201
+msgid "next"
+msgstr "הבא"
+
+#: templates/post_commit.html:5
+msgid "Build Started"
+msgstr "הבנייה החלה"
+
+#: templates/post_commit.html:10
+#, python-format
+msgid "%(project)s is now building."
+msgstr "%(project)s נבנה כעת."
+
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgstr "אפשר לבדוק אותו <a href=\"%(project_url)s\">כאן</a>."
+
+#: templates/post_commit.html:14
+msgid ""
+"This is a post-commit hook. Set it up in your project admin to POST here, "
+"for us to update your doc changes automatically."
+msgstr ""
+"זאת התלייה שלאחר ביצוע. יש להגדיר אותה במסך ניהול המיזם שלך כדי לשלוח POST "
+"לכאן, כדי שנעדכן את השינויים במיזם שלך אוטומטית."
+
+#: templates/profiles/base_profile.html:27
+#: templates/profiles/base_profile_edit.html:30
+msgid "Profile"
+msgstr "פרופיל"
+
+#: templates/profiles/base_profile_edit.html:49
+#: templates/socialaccount/connections.html:5
+#: templates/socialaccount/connections.html:7
+msgid "Connected Services"
+msgstr "שירותים מחוברים"
+
+#: templates/profiles/base_profile_edit.html:53
+#: templates/profiles/private/token_list.html:5
+#: templates/profiles/private/token_list.html:9
+#, fuzzy
+#| msgid "Token"
+msgid "API Tokens"
+msgstr "אסימון"
+
+#: templates/profiles/base_profile_edit.html:54
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:68
+msgid "Delete Account"
+msgstr "מחיקת חשבון"
+
+#: templates/profiles/base_profile_edit.html:55
+#, fuzzy
+#| msgid "Become a Gold Member"
+msgid "Gold Membership"
+msgstr "להפוך ללקוח זהב"
+
+#: templates/profiles/base_profile_edit.html:57
+#: templates/projects/project_edit_base.html:34
+msgid "Advertising"
+msgstr "פרסום"
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr "הגדרת העדפות פרסום"
+
+#: templates/profiles/private/advertising_profile.html:15
+#, fuzzy
+#| msgid ""
+#| "Since you are a Gold Member or Supporter, you are <strong>ad-free</"
+#| "strong> for as long as you are logged-in. Thank you for supporting Read "
+#| "the Docs."
+msgid ""
+"Since you are a Gold member or Supporter, you are <strong>ad-free</strong> "
+"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgstr ""
+"מאחר שרכשת מינוי זהב או שתרמת כסף, <strong>לא תוצגנה</strong> בפניך פרסומות "
+"כל עוד נכנסת עם המשתמש שלך למערכת. תודה לך על תמיכתך ב־Read the Docs."
+
+#: templates/profiles/private/advertising_profile.html:22
+#: templates/projects/project_advertising.html:16
+msgid ""
+"Read the Docs is an open source project. In order to maintain service, we "
+"rely on both the support of our users, and from sponsor support."
+msgstr ""
+"Read the Docs הוא מיזם בקוד פתוח. כדי לשמור על השירות, אנו נסמכים גם על "
+"תמיכת המשתמשים שלנו וגם על תמיכת מממנים."
+
+#: templates/profiles/private/advertising_profile.html:30
+#, fuzzy
+#| msgid ""
+#| "For more details on advertising on Read the Docs including the privacy "
+#| "protections we have in place for users and community advertising we run "
+#| "on behalf of the open source community, see <a href=\"https://docs."
+#| "readthedocs.io/en/latest/ethical-advertising.html\">our documentation</a>."
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and community advertising we run on "
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/page/advertising/ethical-advertising.html\">our documentation</a>."
+msgstr ""
+"לפרטים נוספים בנוגע לפרסום ב־Read the Docs לרבות הגנות הפרטיות שהצבנו לטובת "
+"המשתמשים והפרסום הקהילתי שאנו עורכים לטובת קהילת הקוד הפתוח, ניתן לעיין <a "
+"href=\"https://docs.readthedocs.io/en/latest/ethical-advertising.html"
+"\">בתיעוד שלנו</a>."
+
+#: templates/profiles/private/advertising_profile.html:41
+#, fuzzy, python-format
+#| msgid ""
+#| "You can <strong>go ad-free</strong> by becoming a <a href="
+#| "\"%(gold_detail)s\">Gold Member</a> or <a href=\"%(donate_url)s"
+#| "\">Supporter</a> of Read the Docs</a>."
+msgid ""
+"You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
+"\">Gold member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
+"Docs</a>."
+msgstr ""
+"ניתן <strong>להעלים את הפרסומות</strong> על ידי הצטרפות ל<a href="
+"\"%(gold_detail)s\">מינוי זהב</a> או ל<a href=\"%(donate_url)s\">גורם תמיכה</"
+"a> של Read the Docs</a>."
+
+#: templates/profiles/private/advertising_profile.html:49
+msgid "Update advertisement preference"
+msgstr "עדכון העדפות פרסום"
+
+#: templates/profiles/private/delete_account.html:15
+msgid ""
+"<strong>All projects where you are the only owner will be deleted.</strong> "
+"If you want to keep a project, add another owner or transfer ownership. The "
+"following projects and all their documentation will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:34
+msgid ""
+"<strong>All organizations and its projects where you are the only owner will "
+"be deleted.</strong> If you want to keep an organization, add another owner "
+"or transfer ownership. The following organizations and all their projects "
+"will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:66
+msgid "Be careful! This can not be undone!"
+msgstr "מוטב להיזהר! לא ניתן לבטל פעולה זו!"
+
+#: templates/profiles/private/edit_profile.html:5
+#: templates/profiles/private/edit_profile.html:9
+msgid "Edit your profile"
+msgstr "עריכת הפרופיל שלך"
+
+#: templates/profiles/private/edit_profile.html:14
+msgid "OK, save it!"
+msgstr "או קיי, לשמור אותו!"
+
+#: templates/profiles/private/security_log.html:15
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">user security log</a> allows you to see what "
+"has happened recently in your account. Showing logs from the last "
+"%(days_limit)s days."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:20
+msgid "Generate API Token"
+msgstr ""
+
+#: templates/profiles/private/token_list.html:40
+msgid "Revoke"
+msgstr ""
+
+#: templates/profiles/private/token_list.html:49
+#, fuzzy
+#| msgid "No integrations are currently configured."
+msgid "No API Tokens currently configured."
+msgstr "לא מוגדרים שילובים."
+
+#: templates/profiles/public/profile_detail.html:6
+#, python-format
+msgid "%(user)s's profile"
+msgstr "הפרופיל של %(user)s"
+
+#: templates/projects/domain_confirm_delete.html:5
+#: templates/projects/domain_form.html:5 templates/projects/domain_list.html:5
+msgid "Edit Domains"
+msgstr "עריכת שמות מתחם"
+
+#: templates/projects/domain_confirm_delete.html:13
+msgid "Confirm Delete"
+msgstr "אישור מחיקה"
+
+#: templates/projects/domain_confirm_delete.html:18
+msgid "Confirm"
+msgstr "אישור"
+
+#: templates/projects/domain_form.html:16
+#, fuzzy
+#| msgid "Details"
+msgid "Domain Details"
+msgstr "פרטים"
+
+#: templates/projects/domain_form.html:18
+msgid "Create Domain"
+msgstr "יצירת שם מתחם"
+
+#: templates/projects/domain_form.html:33
+#, python-format
+msgid ""
+"To configure this domain add a CNAME record in your DNS pointing your custom "
+"domain to <code>%(cname_target)s</code>."
+msgstr ""
+
+#: templates/projects/domain_form.html:52
+#, fuzzy
+#| msgid "Create Domain"
+msgid "Save Domain"
+msgstr "יצירת שם מתחם"
+
+#: templates/projects/domain_form.html:54
+msgid "Saving the domain will revalidate the SSL certificate"
+msgstr ""
+
+#: templates/projects/domain_list.html:12
+#: templates/projects/project_edit_base.html:21
+msgid "Domains"
+msgstr "שמות מתחם"
+
+#: templates/projects/domain_list.html:18
+#, python-format
+msgid ""
+"This project is a subproject of <a href=\"%(superproject_url)s\">"
+"%(superproject)s</a>, its documentation will always be served from the <code>"
+"%(domain)s</code> domain. <a href=\"https://docs.readthedocs.io/page/"
+"subprojects.html#custom-domain-on-subprojects\">Learn more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:26
+#, python-format
+msgid ""
+"Configuring a custom domain allows you to serve your documentation from a "
+"domain other than \"%(default_domain)s\". <a href=\"%(docs_url)s\">Learn "
+"more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:33
+msgid "Existing Domains"
+msgstr "שמות מתחם קיימים"
+
+#: templates/projects/domain_list.html:48
+#, fuzzy
+#| msgid "Add new Domain"
+msgid "Add new domain"
+msgstr "הוספת שם מתחם חדש"
+
+#: templates/projects/domain_list.html:56
+#: templates/projects/project_import.html:170
+#: templates/projects/project_notifications.html:79
+#: templates/projects/project_redirects.html:116
+#: templates/projects/project_translations.html:71
+#: templates/projects/project_users.html:49
+msgid "Add"
+msgstr "הוספה"
+
+#: templates/projects/environmentvariable_form.html:5
+#: templates/projects/environmentvariable_form.html:12
+#: templates/projects/environmentvariable_list.html:5
+#: templates/projects/environmentvariable_list.html:12
+#: templates/projects/project_edit_base.html:27
+msgid "Environment Variables"
+msgstr "משתנים סביבתיים"
+
+#: templates/projects/environmentvariable_list.html:22
+msgid "Add Environment Variable"
+msgstr "הוספת משתנה סביבה"
+
+#: templates/projects/environmentvariable_list.html:36
+#, fuzzy
+#| msgid "Public"
+msgid "public"
+msgstr "ציבורי"
+
+#: templates/projects/environmentvariable_list.html:38
+#, fuzzy
+#| msgid "Private"
+msgid "private"
+msgstr "פרט"
+
+#: templates/projects/environmentvariable_list.html:53
+msgid "No environment variables are currently configured."
+msgstr "לא מוגדרים משתני סביבה כרגע."
+
+#: templates/projects/import_base.html:4
+msgid "Add a Project"
+msgstr "הוספת מיזם"
+
+#: templates/projects/import_basics.html:5
+msgid "Project Details"
+msgstr "פרטי המיזם"
+
+#: templates/projects/import_basics.html:8
+#, fuzzy
+#| msgid ""
+#| "To import a project, start by entering a few details about your "
+#| "repository. More advanced project options can be configured if you select "
+#| "<b>Edit advanced project options</b>."
+msgid ""
+"To import a project, start by entering a few details about your repository. "
+"You can set additional configuration options for your documentation in a <a "
+"href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
+"readthedocs.yml</a> file."
+msgstr ""
+"כדי לייבא מיזם, תחילה יש להקליד מספר פרטים על המאגר שלך. ניתן להגדיר "
+"אפשרויות מיזם מתקדמות יותר דרך בחירה ב<b>עריכת אפשרויות מיזם מתקדמות</b>."
+
+#: templates/projects/import_extra.html:5
+msgid "Project Extra Details"
+msgstr "פרטים נוספים על המיזם"
+
+#: templates/projects/import_extra.html:8
+msgid "Here are a few more project options that you may need to configure."
+msgstr "להלן מגוון אפשרויות מיזמים שיהיה עליך להגדיר."
+
+#: templates/projects/includes/feature_disabled.html:5
+#, python-format
+msgid ""
+"This is a beta feature, it can be enabled by <a href=\"%(support_url)s"
+"\">contacting support</a>."
+msgstr ""
+
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#: templates/projects/includes/flagging.html:7
+msgid "Flag this project as"
+msgstr "סימון מיזם זה בתור"
+
+#: templates/projects/includes/flagging.html:8
+msgid "Inappropriate"
+msgstr "בלתי הולם"
+
+#: templates/projects/includes/flagging.html:9
+msgid "Spam"
+msgstr "ספאם"
+
+#: templates/projects/includes/flagging.html:10
+msgid "Duplicate"
+msgstr "שכפול"
+
+#: templates/projects/integration_exchange_detail.html:5
+#: templates/projects/integration_form.html:5
+#: templates/projects/integration_form.html:12
+#: templates/projects/integration_list.html:5
+#: templates/projects/integration_list.html:12
+#: templates/projects/project_edit_base.html:26
+msgid "Integrations"
+msgstr "שילובים"
+
+#: templates/projects/integration_exchange_detail.html:12
+#: templates/projects/webhook_exchange_detail.html:10
+msgid "Exchange"
+msgstr "תחלופה"
+
+#: templates/projects/integration_form.html:21
+#: templates/projects/integration_list.html:20
+msgid "Add integration"
+msgstr "הוספת שילוב"
+
+#: templates/projects/integration_generic_webhook_detail.html:7
+msgid "The following parameters are configured for this integration:"
+msgstr "המשתנים הבאים מוגדרים לשילוב הזה:"
+
+#: templates/projects/integration_generic_webhook_detail.html:14
+msgid "Token"
+msgstr "אסימון"
+
+#: templates/projects/integration_list.html:38
+msgid "No integrations are currently configured."
+msgstr "לא מוגדרים שילובים."
+
+#: templates/projects/integration_webhook_detail.html:5
+msgid "Integration"
+msgstr "שילוב"
+
+#: templates/projects/integration_webhook_detail.html:13
+#, python-format
+msgid "Integration - %(type)s"
+msgstr "שילוב - %(type)s"
+
+#: templates/projects/integration_webhook_detail.html:21
+#, fuzzy
+#| msgid ""
+#| "This webhook was configured when this project was imported. If this "
+#| "integration is not functioning correctly, try resyncing the webhook:"
+msgid ""
+"This integration is being managed automatically by Read the Docs. If it "
+"isn't functioning correctly, try re-syncing the webhook:"
+msgstr ""
+"התלייה זו הוגדרה כאשר המיזם הזה ייובא. אם השילוב הזה אינו מתפקד כראוי, כדאי "
+"לנסות לסנכרן את ההתלייה מחדש:"
+
+#: templates/projects/integration_webhook_detail.html:42
+#, fuzzy
+#| msgid ""
+#| "This integration was created automatically from an existing webhook "
+#| "configured on your repository. To make any changes to this webhook, "
+#| "you'll need to update the configuration there. You can use the following "
+#| "address to manually configure this webhook."
+msgid ""
+"This integration is not managed by Read the Docs currently. If this "
+"integration is not functioning correctly, you can try re-syncing it. "
+"Otherwise you'll need to update the configuration on your repository. You "
+"can use the following address to manually configure this webhook."
+msgstr ""
+"שילוב זה נוצר אוטומטית מהתלייה קיימת שמוגדרת במאגר שלך. כדי לערוך שינויים "
+"להתלייה זו, עליך לעדכן שם את התצורה. ניתן להשתמש בכתובת הבאה כדי להגדיר את "
+"ההתלייה הזאת ידנית.        "
+
+#: templates/projects/integration_webhook_detail.html:52
+msgid ""
+"To manually configure this webhook with your provider, use the following "
+"address:"
+msgstr "כדי להגדיר התלייה זו אוטומטית מול הספק שלך, יש להשתמש בכתובת הבאה:"
+
+#: templates/projects/integration_webhook_detail.html:67
+#, fuzzy
+#| msgid ""
+#| "For more information on manually configuring a webhook, refer to <a href="
+#| "\"https://docs.readthedocs.io/en/latest/webhooks.html\"> our webhook "
+#| "documentation </a>"
+msgid ""
+"For more information on manually configuring a webhook, refer to <a href="
+"\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
+"documentation </a>"
+msgstr ""
+"למידע נוסף על הגדרת התליות אוטומטית, ניתן לגשת אל <a href=\"https://docs."
+"readthedocs.io/en/latest/webhooks.html\">התיעוד שלנו על התליות</a>      "
+
+#: templates/projects/integration_webhook_detail.html:79
+msgid "Resync webhook"
+msgstr "סנכרון ההתלייה מחדש"
+
+#: templates/projects/integration_webhook_detail.html:108
+msgid "Delete webhook"
+msgstr "מחיקת התלייה"
+
+#: templates/projects/legend.html:4
+msgid "External Links"
+msgstr "קישורים חיצוניים"
+
+#: templates/projects/legend.html:5
+msgid "Link text"
+msgstr "טקסט קישור"
+
+#: templates/projects/legend.html:7
+msgid "Internal Links"
+msgstr "קישורים פנימיים"
+
+#: templates/projects/legend.html:10
+msgid "Bold"
+msgstr "מודגש"
+
+#: templates/projects/legend.html:11
+msgid "text to bold"
+msgstr "טקסט להדגשה"
+
+#: templates/projects/legend.html:13
+msgid "Emphasized"
+msgstr "מובלט"
+
+#: templates/projects/legend.html:14
+msgid "text to emphasize"
+msgstr "טקסט להבלטה"
+
+#: templates/projects/legend.html:16
+msgid "Lists"
+msgstr "רשימות"
+
+#: templates/projects/legend.html:19 templates/projects/legend.html:20
+#: templates/projects/legend.html:23 templates/projects/legend.html:24
+msgid "Item"
+msgstr "פריט"
+
+#: templates/projects/legend.html:28
+msgid "Source Code"
+msgstr "קוד מקור"
+
+#: templates/projects/legend.html:30
+msgid "e.g. Check out this code"
+msgstr "לדוגמה: תראו את הקוד הזה"
+
+#: templates/projects/legend.html:31
+msgid "actual code indented"
+msgstr "קוד מוזח"
+
+#: templates/projects/legend.html:34
+msgid "reStructuredText Primer"
+msgstr "מדריך לשימוש ב־reStructuredText"
+
+#: templates/projects/onboard_detail.html:8
+msgid "Start building your documentation"
+msgstr "התחלת בניית התיעוד שלך"
+
+#: templates/projects/onboard_detail.html:10
+msgid ""
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
+msgstr ""
+"מיזם זה לא נבנה עדיין. כדאי לנסות לבנות את הגרסה העדכניות ביותר כעת או אם "
+"עדיף לך לבנות גרסה מסוימת, נא לבחור את הגרסה להלן ובניית התיעוד שלך תחל."
+
+#: templates/projects/onboard_detail.html:21
+msgid "Build latest version"
+msgstr "בניית הגרסה העדכנית ביותר"
+
+#: templates/projects/onboard_detail.html:29
+msgid "Your documentation is ready to use"
+msgstr "התיעוד שלך מוכן לשימוש"
+
+#: templates/projects/onboard_detail.html:33
+#, fuzzy
+#| msgid ""
+#| "Your documentation has been built. Ensure your documentation is kept up "
+#| "to date with every commit to your repository, by <a href=\"http://docs."
+#| "readthedocs.io/en/latest/webhooks.html\">setting up a webhook</a>."
+msgid ""
+"Your documentation has been built. Ensure your documentation is kept up to "
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/page/webhooks.html\">setting up a webhook</a>."
+msgstr ""
+"התיעוד שלך נבנה. נא לוודא שהתיעוד שלך נשאר עדכני עם כל הגשה למאגר שלך על ידי "
+"<a href=\"http://docs.readthedocs.io/en/latest/webhooks.html\">הגדרת התלייה</"
+"a>."
+
+#: templates/projects/onboard_detail.html:41
+msgid "View your documentation"
+msgstr "הצגת התיעוד שלך"
+
+#: templates/projects/onboard_detail.html:46
+msgid "Your documentation failed to build"
+msgstr "בניית התיעוד שלך נכשלה"
+
+#: templates/projects/onboard_detail.html:50
+#, fuzzy
+#| msgid ""
+#| "There was a problem building your documentation, you can see what went "
+#| "wrong in the build output. If you need more help, check out some of the "
+#| "<a href=\"http://docs.readthedocs.io/en/latest/faq.html\">problems "
+#| "frequently encountered</a> during builds."
+msgid ""
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a href="
+"\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
+"encountered</a> during builds."
+msgstr ""
+"חלה תקלה בבניית התיעוד שלך, ניתן לראות מה השתבש בפלט הבנייה. לקבלת עזרה "
+"נוספת מוטב לעיין ב<a href=\"http://docs.readthedocs.io/en/latest/faq.html"
+"\">תקלות הנפוצות ביותר</a> במהלך בנייה."
+
+#: templates/projects/onboard_detail.html:59
+msgid "View build output"
+msgstr "הצגת פלט הבנייה"
+
+#: templates/projects/onboard_detail.html:65
+msgid "Your documentation is building"
+msgstr "התיעוד שלך נבנה"
+
+#: templates/projects/onboard_detail.html:68
+msgid ""
+"You'll be able to view your documentation in a minute or two, once your "
+"project is done building."
+msgstr ""
+"תהיה לך אפשרות לצפות בתיעוד שלך בעוד דקה או שתיים לאחר סיום בניית המיזם."
+
+#: templates/projects/onboard_import.html:5
+msgid "Ready to share your documentation"
+msgstr "התכוננת כראוי לשיתוף התיעוד שלך"
+
+#: templates/projects/onboard_import.html:10
+#, fuzzy, python-format
+#| msgid ""
+#| "You don't have any projects yet, but you can start building documentation "
+#| "by importing one. Not sure how to start documenting your project? Check "
+#| "out the <a href=\"%(getting_started_url)s\">Getting Started Guide</a> to "
+#| "learn how."
+msgid ""
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
+msgstr ""
+"אין לך מיזמים כלל עדיין, אך ניתן להתחיל בבניית התיעוד על ידי ייבוא של מיזם. "
+"חוסר ודאות בנוגע לאופן תחילת תיעוד המיזם שלך? כדאי לעיין ב<a href="
+"\"%(getting_started_url)s\">מדריך למתחילים</a> כדי להבין את היסודות."
+
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"In a hurry? <a href=\"%(template_project_url)s\">Fork our template project</"
+"a> on Github, and <a href=\"%(projects_import_url)s\">import it</a>."
+msgstr ""
+
+#: templates/projects/onboard_import.html:25
+#: templates/projects/project_dashboard_base.html:53
+msgid "Import a Project"
+msgstr "ייבוא מיזם"
+
+#: templates/projects/project_advanced.html:8
+msgid "Edit Advanced Project Settings"
+msgstr "עריכת הגדרות מתקדמות במיזם"
+
+#: templates/projects/project_advanced.html:13
+#: templates/projects/project_edit_base.html:18
+msgid "Advanced Settings"
+msgstr "הגדרות מתקדמות"
+
+#: templates/projects/project_advanced_settings_helptext.html:3
+#, python-format
+msgid ""
+"These settings can be configured using a <a href=\"%(config_file_link)s"
+"\">configuration file</a>. That's the recommended way to set up your "
+"project. <strong>Settings listed here are ignored when using a configuration "
+"file.</strong"
+msgstr ""
+
+#: templates/projects/project_advertising.html:5
+#: templates/projects/project_advertising.html:12
+msgid "Documentation Advertising"
+msgstr "פרסום בתיעוד"
+
+#: templates/projects/project_advertising.html:24
+msgid ""
+"We will periodically run advertisements on built documentation pages for "
+"sponsors, however we have strict guidelines on advertisements:"
+msgstr ""
+"אנו מריצים פרסומות באופן מחזורי על עמודי תיעוד שנבנו לטובת המממנים, עם זאת "
+"יש לנו קווים מנחים מאוד נוקשים בנוגע לפרסום:    "
+
+#: templates/projects/project_advertising.html:32
+#, fuzzy
+#| msgid "We don't give sponsors access to user information"
+msgid "We don't give sponsors access to user information."
+msgstr "אנו לא מעניקים למממנים גישה לפרטי הלקוחות שלנו"
+
+#: templates/projects/project_advertising.html:37
+#, fuzzy
+#| msgid "We only report the number of impressions and number of ad clicks"
+msgid "We only report the number of impressions and number of ad clicks."
+msgstr "אנו מדווחים רק על מספר החשיפות ומספר הלחיצות"
+
+#: templates/projects/project_advertising.html:42
+msgid ""
+"We only allow and image and text ads which we host ourselves. There are no "
+"advertiser-supplied scripts running on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:50
+#, fuzzy
+#| msgid ""
+#| "For more details on advertising on Read the Docs including the privacy "
+#| "protections we have in place for users and community advertising we run "
+#| "on behalf of the open source community, see <a href=\"https://docs."
+#| "readthedocs.io/en/latest/ethical-advertising.html\">our documentation</a>."
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and <a href=\"https://docs."
+"readthedocs.io/page/advertising/ethical-advertising.html#community-ads"
+"\">community advertising</a> we run on behalf of the open source community, "
+"see <a href=\"https://docs.readthedocs.io/page/advertising/ethical-"
+"advertising.html\">our documentation</a>."
+msgstr ""
+"לפרטים נוספים בנוגע לפרסום ב־Read the Docs לרבות הגנות הפרטיות שהצבנו לטובת "
+"המשתמשים והפרסום הקהילתי שאנו עורכים לטובת קהילת הקוד הפתוח, ניתן לעיין <a "
+"href=\"https://docs.readthedocs.io/en/latest/ethical-advertising.html"
+"\">בתיעוד שלנו</a>."
+
+#: templates/projects/project_advertising.html:59
+msgid "Opting out"
+msgstr "הפסקת התמיכה"
+
+#: templates/projects/project_advertising.html:63
+#, python-format
+msgid ""
+"In addition to the advertising preferences we have for <a href="
+"\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways for "
+"projects to opt out of advertising on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:71
+#, fuzzy
+#| msgid ""
+#| "If you are part of a company that uses Read the Docs to host "
+#| "documentation for a commercial product, we offer paid plans that offer "
+#| "email support, additional build resources, and features like CDN support "
+#| "and private documentation."
+msgid ""
+"If you are part of a company that uses Read the Docs to host documentation "
+"for a commercial product, please consider <a href=\"https://readthedocs.com/"
+"\">Read the Docs for Business</a> which offers a completely ad-free "
+"experience, private repositories, private documentation, additional build "
+"resources, and dedicated support."
+msgstr ""
+"אם החברה שמעסיקה אותך משתמשת ב־Read the Docs כדי לארח תיעוד למוצר מסחרי, אנו "
+"מציעים תכניות בתשלום שכוללות תמיכה בדוא״ל, משאבי בנייה מתוגברים ותכונות כגון "
+"תמיכה ב־CDN ותיעוד פרטי.      "
+
+#: templates/projects/project_advertising.html:81
+#, python-format
+msgid ""
+"By becoming a <a href=\"%(gold_detail)s\">Gold member</a> to Read the Docs, "
+"you may remove advertising from your projects for all visitors."
+msgstr ""
+
+#: templates/projects/project_advertising.html:88
+msgid ""
+"Project owners can <a href=\"#removing-paid-advertising\">opt out of paid "
+"advertisements</a> for their projects. Readers will still see community ads "
+"for open source projects and conferences."
+msgstr ""
+
+#: templates/projects/project_advertising.html:96
+#, python-format
+msgid ""
+"If you would like to completely remove advertising from your open source "
+"project, but both Read the Docs for Business and our Gold memberships don't "
+"seem like the right fit, please <a href=\"mailto:ads@readthedocs.org?"
+"subject=Alternatives%%20to%%20advertising\">get in touch</a> to discuss "
+"alternatives to advertising."
+msgstr ""
+
+#: templates/projects/project_advertising.html:113
+#, fuzzy
+#| msgid ""
+#| "If you are a company hosting commercial documentation on our community "
+#| "site, but can't offer support for Read the Docs, we do not allow removing "
+#| "sponsor advertisements on your documentation. This goes against the "
+#| "spirit of supporting the open source community, please find a way to "
+#| "offer your support."
+msgid ""
+"If you are a company hosting commercial documentation on our community site, "
+"we do not allow removing paid advertisements on your documentation. Please "
+"consider Read the Docs for Business or a Gold membership."
+msgstr ""
+"אם אופן השימוש שלך הוא לקוח מסחרי שמארח תיעוד באר הקהילה שלנו, ואין לך "
+"אפשרות להציע תמיכה ב־Read the Docs, לא נוכל לאפשר לך להסיר את פרסומות "
+"המממנים שלנו מהתיעוד שלך. מהלך שכזה מנוגד לרוח התמיכה בקהילת הקוד הפתוח, אנו "
+"נאלץ לבקש ממך למצוא דרך להביע את תמיכתך.    "
+
+#: templates/projects/project_advertising.html:122
+#, fuzzy
+#| msgid "Update advertisement preference"
+msgid "Update advertising preference"
+msgstr "עדכון העדפות פרסום"
+
+#: templates/projects/project_create.html:6
+msgid "Create a new project"
+msgstr "יצירת מיזם חדש"
+
+#: templates/projects/project_create.html:9
+msgid "Create a New Project"
+msgstr "יצירת מיזם חדש"
+
+#: templates/projects/project_create.html:14
+msgid ""
+"Create new documentation here. If you already have docs in a public "
+"repository,"
+msgstr "ניתן ליצור תיעוד חדש דרך כאן. אם כבר יש לך מסמכים במאגר ציבורי."
+
+#: templates/projects/project_create.html:15
+msgid "import an existing project"
+msgstr "ייבוא מיזם קיים"
+
+#: templates/projects/project_create.html:19
+msgid "Create"
+msgstr "יצירה"
+
+#: templates/projects/project_dashboard_base.html:6
+msgid "Project Dashboard"
+msgstr "לוח הבקרה של המיזם"
+
+#: templates/projects/project_dashboard_base.html:20
+#, fuzzy
+#| msgid "Inactive Versions"
+msgid "Important Versions"
+msgstr "גרסאות בלתי פעילות"
+
+#: templates/projects/project_dashboard_base.html:77
+#, fuzzy
+#| msgid "passed"
+msgid "passing"
+msgstr "הצליחה"
+
+#: templates/projects/project_dashboard_base.html:79
+#, fuzzy
+#| msgid "failed"
+msgid "failing"
+msgstr "נכשלה"
+
+#: templates/projects/project_dashboard_base.html:112
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search all docs"
+msgstr "חיפוש בכל המסמכים"
+
+#: templates/projects/project_dashboard_base.html:125
+#: templates/projects/project_dashboard_base.html:134
+#, fuzzy
+#| msgid "Connected account"
+msgid "Connect your Accounts"
+msgstr "חשבון מחובר"
+
+#: templates/projects/project_dashboard_base.html:128
+msgid ""
+"Have a GitHub account? Connect your account and import your existing "
+"projects automatically."
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:144
+msgid "Learn More"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:146
+#, python-format
+msgid ""
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "למחוק את %(name)s?"
+
+#: templates/projects/project_delete.html:13
+#, python-format
+msgid ""
+"This project <a href=\"%(subproject_url)s\">has subprojects</a> under it. "
+"Deleting this project will make them to become regular projects. This will "
+"break the URLs of all its subprojects and they will be served normally as "
+"other projects."
+msgstr ""
+
+#: templates/projects/project_delete.html:21
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "להמשיך?"
+
+#: templates/projects/project_edit.html:8
+msgid "Edit Project"
+msgstr "עריכת מיזם"
+
+#: templates/projects/project_edit.html:18
+#, python-format
+msgid ""
+"You can change how your project is built in your <a href=\"%(advanced_url)s"
+"\">Advanced Settings</a>."
+msgstr ""
+"ניתן לשנות את אופן בניית המיזם שלך ב<a href=\"%(advanced_url)s\">הגדרות "
+"המתקדמות</a> שלך."
+
+#: templates/projects/project_edit.html:23
+msgctxt "The 'or' is in between 'Save' and 'Delete project'"
+msgid "or"
+msgstr "או"
+
+#: templates/projects/project_edit.html:24
+msgid "Delete project"
+msgstr "מחיקת מיזם"
+
+#: templates/projects/project_edit_base.html:20
+#, fuzzy
+#| msgid "Edit Project Versions"
+msgid "Edit Versions"
+msgstr "עריכת גרסאות מיזם"
+
+#: templates/projects/project_edit_base.html:23
+#: templates/projects/project_redirects.html:8
+#: templates/projects/project_redirects.html:80
+msgid "Redirects"
+msgstr "הפניות"
+
+#: templates/projects/project_edit_base.html:25
+#: templates/projects/projectrelationship_form.html:5
+#: templates/projects/projectrelationship_form.html:12
+#: templates/projects/projectrelationship_list.html:5
+#: templates/projects/projectrelationship_list.html:12
+msgid "Subprojects"
+msgstr "תת־מיזמים"
+
+#: templates/projects/project_edit_base.html:29
+#: templates/projects/webhook_exchange_detail.html:5
+#: templates/projects/webhook_form.html:5
+#: templates/projects/webhook_form.html:11
+#: templates/projects/webhook_list.html:5
+#: templates/projects/webhook_list.html:10
+msgid "Webhooks"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:30
+#: templates/projects/project_notifications.html:5
+#: templates/projects/project_notifications.html:12
+#, fuzzy
+#| msgid "New Email Notifications"
+msgid "Email Notifications"
+msgstr "התרעות חדשות בדוא״ל"
+
+#: templates/projects/project_edit_base.html:31
+#: templates/projects/project_traffic_analytics.html:6
+#: templates/projects/project_traffic_analytics.html:11
+#, fuzzy
+#| msgid "Analytics"
+msgid "Traffic Analytics"
+msgstr "ניתוח נתונים"
+
+#: templates/projects/project_edit_base.html:32
+#: templates/projects/projects_search_analytics.html:6
+#: templates/projects/projects_search_analytics.html:11
+#, fuzzy
+#| msgid "Analytics"
+msgid "Search Analytics"
+msgstr "ניתוח נתונים"
+
+#: templates/projects/project_import.html:6
+msgid "Import a Remote Repository"
+msgstr "ייבוא מאגר מרוחק"
+
+#: templates/projects/project_import.html:51
+msgid "There was an error with your request:"
+msgstr "אירעה שגיאה בבקשה שלך:"
+
+#: templates/projects/project_import.html:64
+msgid "Refresh your accounts"
+msgstr "רענון החשבונות שלך"
+
+#: templates/projects/project_import.html:73
+msgid "Import a Repository"
+msgstr "ייבוא מאגר"
+
+#: templates/projects/project_import.html:79
+msgid ""
+"We're only showing public repositories. For private projects and other "
+"features, please use <a href=\"https://readthedocs.com/\">Read the Docs for "
+"Business</a>."
+msgstr ""
+
+#: templates/projects/project_import.html:97
+#, python-format
+msgid ""
+"No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
+"accounts</a>."
+msgstr ""
+"לא נמצאו מאגרים מרוחקים, כדאי לנסות <a href=\"#\" %(binding)s>לרענן את "
+"החשבונות שלך</a>."
+
+#: templates/projects/project_import.html:104
+msgid ""
+"You don't currently have any connected accounts. Connect your account to be "
+"able to easily set up projects."
+msgstr ""
+"אין לך כרגע חשבונות מחוברים. נא לחבר את החשבון שלך כדי שיתאפשר לך להוסיף "
+"מיזמים בקלות."
+
+#: templates/projects/project_import.html:143
+msgid "This repository requires admin access to import"
+msgstr "מאגר זה דורש גישת ניהול לצורך ייבוא"
+
+#: templates/projects/project_import.html:152
+msgid "Locked"
+msgstr "נעול"
+
+#: templates/projects/project_import.html:161
+msgid "This repository has already been imported"
+msgstr "מיזם זה כבר עבר ייבוא"
+
+#: templates/projects/project_import.html:162
+msgctxt "verb, action to see in detail"
+msgid "\"View\""
+msgstr "„הצגה”"
+
+#: templates/projects/project_import.html:214
+msgid ""
+"You can import your project manually if it isn't listed here or connected to "
+"one of your accounts."
+msgstr ""
+"ניתן לייבא את המיזם שלך ידנית אם אינו מופיע כאן או שהוא מחובר לאחד החשבונות "
+"שלך."
+
+#: templates/projects/project_import.html:221
+msgid "Import Manually"
+msgstr "ייבוא ידני"
+
+#: templates/projects/project_import.html:228
+msgid "Filter repositories"
+msgstr "סינון מיזמים"
+
+#: templates/projects/project_list.html:7
+#: templates/projects/project_list.html:13
+#, python-format
+msgid "Projects tagged with %(tag)s"
+msgstr "מיזמים שמתויגים עם %(tag)s"
+
+#: templates/projects/project_list.html:24
+msgid "Browse projects"
+msgstr "עיון במיזמים"
+
+#: templates/projects/project_notifications.html:16
+#, fuzzy
+#| msgid "Configure Notifications to be sent on build failures."
+msgid "Configure email notifications to be sent on build failures."
+msgstr "הגדרת התרעות לשליחה במקרה של כשלים בבנייה."
+
+#: templates/projects/project_notifications.html:22
+#, python-format
+msgid ""
+"Webhooks have been moved to its own page. Go to the <a href="
+"\"%(webhooks_url)s\">Webhooks tab</a> if you are looking for your webhooks."
+msgstr ""
+
+#: templates/projects/project_notifications.html:30
+msgid "Existing Notifications"
+msgstr "התרעות קיימות"
+
+#: templates/projects/project_notifications.html:54
+msgid "Remove Notifications"
+msgstr "הסרת התרעות"
+
+#: templates/projects/project_notifications.html:72
+msgid "New Email Notifications"
+msgstr "התרעות חדשות בדוא״ל"
+
+#: templates/projects/project_notifications.html:74
+msgid "Add an email address to notify"
+msgstr "הוספת כתובת דוא״ל לשליחת התרעות"
+
+#: templates/projects/project_redirects.html:5
+msgid "Edit Redirects"
+msgstr "עריכת הפניות"
+
+#: templates/projects/project_redirects.html:74
+#, fuzzy, python-format
+#| msgid ""
+#| "Add redirects for your project. This allows you to fix links to old pages "
+#| "that are 404ing."
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+"הוספת הפניות למיזם שלך. כך ניתן לתקן קישורים לעמודים ישנים שמחזירים 404."
+
+#: templates/projects/project_resync_webhook.html:12
+msgid "Resync"
+msgstr "סנכרון מחדש"
+
+#: templates/projects/project_traffic_analytics.html:21
+msgid "Top viewed pages in the past 30 days"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:34
+#: templates/projects/project_traffic_analytics.html:66
+#: templates/projects/projects_search_analytics.html:36
+msgid "No data available."
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:44
+msgid "Daily pageview totals"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:48
+#: templates/projects/projects_search_analytics.html:52
+#, fuzzy
+#| msgid "Downloads"
+msgid "Download all data"
+msgstr "הורדות"
+
+#: templates/projects/project_traffic_analytics.html:52
+msgid "Not Found (404) pages"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:75
+msgid ""
+"\n"
+"    * The way that we track 404 pages is on our backend hosting.\n"
+"    It's possible the number of times each page is viewed is undercounted "
+"because of caching in the browser or in a CDN.\n"
+"    "
+msgstr ""
+
+#: templates/projects/project_translations.html:5
+msgid "Edit Translations"
+msgstr "עריכת תרגומים"
+
+#: templates/projects/project_translations.html:16
+msgid "To add a translation to your project, select a project below."
+msgstr "כדי להוסיף תרגום למיזם שלך, יש לבחור מיזם להלן."
+
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
+msgstr ""
+"מיזם זה כבר מוגדר בתור התרגום ל<code>%(language)s</code> של "
+"„%(main_project)s”. אין תמיכה בתרגומים מקוננים."
+
+#: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr "הצגת התרגום של „%(main_project)s”."
+
+#: templates/projects/project_translations.html:36
+msgid "Existing Translations"
+msgstr "תרגומים קיימים"
+
+#: templates/projects/project_translations.html:58
+#, fuzzy
+#| msgid "No integrations are currently configured."
+msgid "No translations are currently configured"
+msgstr "לא מוגדרים שילובים."
+
+#: templates/projects/project_translations.html:67
+msgid "Choose which project you would like to add as a translation."
+msgstr "נא לבחור איזה מיזם ברצונך להוסיף כתרגום."
+
+#: templates/projects/project_users.html:5
+msgid "Edit Maintainers"
+msgstr "עריכת מתחזקים"
+
+#: templates/projects/project_users.html:12
+msgid ""
+"This allows you to add maintainers to your project. It gives them admin "
+"access to the project, so be careful!"
+msgstr ""
+"אפשרות להוסיף מתחזקים למיזם שלך. ניתן להעניק להם גישת ניהול למיזם, כדאי "
+"לנקוט במשנה זהירות עם האפשרות הזאת!"
+
+#: templates/projects/project_users.html:15
+msgid "Existing Maintainers"
+msgstr "מתחזקים קיימים"
+
+#: templates/projects/project_users.html:28
+msgid "Remove Maintainer"
+msgstr "הסרת מתחזק"
+
+#: templates/projects/project_users.html:42
+msgid "Add Maintainer"
+msgstr "הוספת מתחזק"
+
+#: templates/projects/project_users.html:44
+msgid "Choose which user you would like to add."
+msgstr "נא לבחור איזה משתמש ברצונך להוסיף."
+
+#: templates/projects/project_version_detail.html:16
+#, python-format
+msgid "%(version_name)s"
+msgstr "%(version_name)s"
+
+#: templates/projects/project_version_detail.html:28
+msgid ""
+"This version is inactive but its documentation is still available online. "
+"You can <a href=\"#\" onclick=\"document.forms['version_delete_html']."
+"submit();\">delete this version's documentation</a> if you want to remove it "
+"completely."
+msgstr ""
+
+#: templates/projects/project_version_list.html:24
+msgid "Active Versions"
+msgstr "גרסאות פעילות"
+
+#: templates/projects/project_version_list.html:81
+#, fuzzy
+#| msgid "Active Versions"
+msgid "Activate a version"
+msgstr "גרסאות פעילות"
+
+#: templates/projects/project_version_list.html:82
+msgid ""
+"Active versions are built whenever new code is pushed to that branch or tag."
+msgstr ""
+
+#: templates/projects/project_version_list.html:93
+#, fuzzy
+#| msgid "Inactive Versions"
+msgid "Filter Inactive Versions"
+msgstr "גרסאות בלתי פעילות"
+
+#: templates/projects/project_version_list.html:122
+#, fuzzy
+#| msgid "Active"
+msgid "Activate"
+msgstr "פעיל"
+
+#: templates/projects/project_version_list.html:130
+#, fuzzy
+#| msgid "No projects found"
+msgid "No versions found"
+msgstr "לא נמצאו מיזמים"
+
+#: templates/projects/project_version_list.html:144
+#, python-format
+msgid ""
+"Showing the first %(max_inactive_versions)s of "
+"%(total_inactive_versions_count)s inactive versions.</a>."
+msgstr ""
+
+#: templates/projects/project_version_states_help_text.html:4
+#, fuzzy, python-format
+#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
+msgstr "אפשר לבדוק אותו <a href=\"%(project_url)s\">כאן</a>."
+
+#: templates/projects/projectrelationship_form.html:22
+msgid "Update subproject"
+msgstr "עדכון תת־מיזם"
+
+#: templates/projects/projectrelationship_form.html:29
+msgid "Delete subproject"
+msgstr "מחיקת תת־מיזם"
+
+#: templates/projects/projectrelationship_form.html:38
+#: templates/projects/projectrelationship_list.html:41
+msgid "Add subproject"
+msgstr "הוספת תת־מיזם"
+
+#: templates/projects/projectrelationship_list.html:16
+msgid ""
+"Subprojects are projects hosted from the same URL as their parent project. "
+"This is useful for organizing multiple projects under a custom domain."
+msgstr ""
+"תת־מיזמים הם מיזמים שמוגשים מאותה הכתובת כמו מיזם ההורה. מצב כזה משמש לארגון "
+"מספר מיזמים תחת שם מתחם בהתאמה אישית."
+
+#: templates/projects/projectrelationship_list.html:24
+#, python-format
+msgid ""
+"This project is already configured as a subproject of %(project)s. Nested "
+"subprojects are not currently supported."
+msgstr ""
+"מיזם זה כבר מוגדר בתור תת־מיזם של %(project)s. אין תמיכה בקינון תת‏־מיזמים."
+
+#: templates/projects/projectrelationship_list.html:31
+#, python-format
+msgid "View subprojects of %(project)s"
+msgstr "הצגת תת המיזמים של %(project)s"
+
+#: templates/projects/projectrelationship_list.html:79
+msgid "No subprojects are currently configured"
+msgstr "אין תת־מיזמים מוגדרים כרגע"
+
+#: templates/projects/projects_search_analytics.html:21
+msgid "Top queries in the past 30 days"
+msgstr ""
+
+#: templates/projects/projects_search_analytics.html:46
+msgid "Daily search totals"
+msgstr ""
+
+#: templates/projects/samples/getting_started.rst.html:3
+msgid "Here's a place to describe how to get up and running with your project"
+msgstr "להלן מקום לתיאור כיצד להקים את המיזם שלך"
+
+#: templates/projects/samples/installation.rst.html:3
+#, python-format
+msgid "Here is where you can describe how to install %(name)s"
+msgstr "כאן ניתן לתאר איך להתקין את %(name)s"
+
+#: templates/projects/webhook_form.html:16
+#, python-format
+msgid ""
+"We’ll send a <code>POST</code> request to the URL with the JSON payload "
+"below on the selected events. Check <a href=\"%(docs_url)s\">our docs</a> "
+"for more information."
+msgstr ""
+
+#: templates/projects/webhook_form.html:25
+#, python-format
+msgid ""
+"This webhook was created from our old implementation and doesn't have a "
+"custom payload. Check <a href=\"%(docs_url)s\">our docs</a> for the payload "
+"description or edit the payload to set a custom one."
+msgstr ""
+
+#: templates/projects/webhook_list.html:18
+msgid "Add Webhook"
+msgstr ""
+
+#: templates/projects/webhook_list.html:47
+#, fuzzy
+#| msgid "No builds found"
+msgid "No webhooks found."
+msgstr "לא נמצאו בניות"
+
+#: templates/search/elastic_search.html:6
+#, fuzzy, python-format
+#| msgid "Search: %(query)s "
+msgid ""
+"\n"
+"    Search: %(query)s\n"
+"  "
+msgstr "חיפוש: %(query)s "
+
+#: templates/search/elastic_search.html:30
+#, fuzzy
+#| msgid "Redirect Type"
+msgid "Object Type"
+msgstr "סוג ההפניה"
+
+#: templates/search/elastic_search.html:34
+msgid "Files"
+msgstr "קבצים"
+
+#: templates/search/elastic_search.html:87
+msgid "Code API Type"
+msgstr ""
+
+#: templates/search/elastic_search.html:138
+#, python-format
+msgid ""
+"\n"
+"            %(count)s results for `%(query)s`\n"
+"          "
+msgstr ""
+
+#: templates/search/elastic_search.html:230
+#, fuzzy
+#| msgid "No results found. Bummer."
+msgid "No results found."
+msgstr "לא נמצאו תוצאות. באסה."
+
+#: templates/security.html:5
+msgid "Security"
+msgstr "אבטחה"
+
+#: templates/security.html:9
+msgid "Security at Read the Docs"
+msgstr "אבטחה ב־Read the Docs"
+
+#: templates/security.html:11
+#, fuzzy
+#| msgid ""
+#| "For more details on security at Read the Docs or to report a security "
+#| "issue, please see our <a href=\"https://docs.readthedocs.io/en/latest/"
+#| "security.html\">security policy</a>."
+msgid ""
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/page/security.html"
+"\">security policy</a>."
+msgstr ""
+"למידע נוסף על אבטחה ב־Read the Docs או כדי לדווח על בעיית אבטחה, נא לעיין "
+"ב<a href=\"https://docs.readthedocs.io/en/latest/security.html\">מדיניות "
+"הפרטיות</a> שלנו."
+
+#: templates/socialaccount/authentication_error.html:5
+#: templates/socialaccount/authentication_error.html:8
+msgid "Social Network Login Failure"
+msgstr "הכניסה לרשת החברתית נכשלה"
+
+#: templates/socialaccount/authentication_error.html:10
+msgid ""
+"An error occurred while attempting to login via your social network account."
+msgstr "אירעה שגיאה בעת ניסיון להיכנס לחשבון שלך ברשת החברתית."
+
+#: templates/socialaccount/connections.html:16
+msgid "The following services are currently connected to your account:"
+msgstr "השירותים הבאים מקושרים כרגע לחשבון שלך:"
+
+#: templates/socialaccount/connections.html:48
+msgid "Disconnect"
+msgstr "ניתוק"
+
+#: templates/socialaccount/connections.html:55
+msgid ""
+"The API version this connection uses is no longer supported, please "
+"reconnect your Bitbucket account."
+msgstr ""
+"גרסת ה־API בה משתמש חיבור זה אינה נתמכת עוד, נא לחבר מחדש את חשבון ה־"
+"BitBucket שלך."
+
+#: templates/socialaccount/connections.html:71
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr "אין לך חשבונות ברשתות חברתיות שמחוברים לחשבון זה."
+
+#: templates/socialaccount/snippets/provider_list.html:14
+#, python-format
+msgid "%(verbiage)s %(brand_name)s"
+msgstr "%(verbiage)s %(brand_name)s"
+
+#: templates/socialaccount/snippets/provider_list.html:28
+#, python-format
+msgid "%(verbiage)s %(provider_name)s"
+msgstr "%(verbiage)s %(provider_name)s"
+
+#, python-format
+#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
+#~ msgstr "נתוני חיפוש המשאב שסופקו שגויים (סוג בלתי תואם): %(error)s"
+
+#~ msgid "View Version"
+#~ msgstr "הצגת גרסה"
+
+#~ msgid "Project not found"
+#~ msgstr "מיזם לא נמצא"
+
+#~ msgid "Allow email"
+#~ msgstr "לאפשר דוא״ל"
+
+#~ msgid "Show your email on VCS contributions."
+#~ msgstr "הצגת כתובת הדוא״ל שלך בתרומות למערכת ניהול הגרסאות."
+
+#~ msgid "Build environment creation failed"
+#~ msgstr "יצירת סביבת בנייה נכשלה"
+
+#~ msgid ""
+#~ "Choose projects that will have all promos removed, and extra features "
+#~ "added to them. You get to pick one for every $5/mo you support Read the "
+#~ "Docs with."
+#~ msgstr ""
+#~ "נא לבחור מיזמים שכל הקידום המסחרי יוסר מהם ויתווספו אליהם תכונות נוספות. "
+#~ "יש לך אפשרות לבחור אחד על כל 5$ לחודש של תמיכה ב־Read the Docs."
+
+#~ msgid "Existing Projects"
+#~ msgstr "מיזמים קיימים"
+
+#, python-format
+#~ msgid "You can adopt one project with your subscription."
+#~ msgid_plural "You can adopt %(projects)s projects with your subscription."
+#~ msgstr[0] "ניתן לאמץ מיזם אחד עם המינוי שלך."
+#~ msgstr[1] "ניתן לאמץ %(projects)s מיזמים עם המינוי שלך."
+#~ msgstr[2] "ניתן לאמץ %(projects)s מיזמים עם המינוי שלך."
+#~ msgstr[3] "ניתן לאמץ %(projects)s מיזמים עם המינוי שלך."
+
+#~ msgid "Add a project"
+#~ msgstr "הוספת מיזם"
+
+#~ msgid "Submit"
+#~ msgstr "הגשה"
+
+#~ msgid "Are you sure you want to cancel your subscription?"
+#~ msgstr "לבטל את המינוי שלך?"
+
+#~ msgid "Card"
+#~ msgstr "כרטיס"
+
+#~ msgid ""
+#~ "If you are an individual, feel free to give whatever feels right for the "
+#~ "value you get out of Read the Docs."
+#~ msgstr ""
+#~ "הפעילות שלך היא במסגרת עצמאית, תרומה שלדעתך תואמת את הערך שהמיזם Read the "
+#~ "Docs מעניק לך תתקבל בברכה.    "
+
+#~ msgid ""
+#~ "Becoming a Gold Member also makes Read the Docs ad-free for as long as "
+#~ "you are logged-in."
+#~ msgstr ""
+#~ "רכישת מינוי זהב הופכת את המיזם Read the Docs לנטול פרסומות כל עוד נכנסת "
+#~ "לחשבון."
+
+#~ msgid ""
+#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
+#~ "org/sustainability/\">sustainability</a> page."
+#~ msgstr ""
+#~ "ניתן לתרום לנו באופן חד־פעמי דרך עמוד ה<a href=\"https://readthedocs.org/"
+#~ "sustainability/\">קיימות</a> שלנו.    "
+
+#~ msgid ""
+#~ "We ask that folks who use custom Domains give Read the Docs $5 per domain "
+#~ "they are using. This is optional, but it really does help us maintain the "
+#~ "site going forward."
+#~ msgstr ""
+#~ " אנו מבקשים ממשתמשי שמות מתחם בהתאמה אישית לתרום ל־Read the Docs‏ $5 לכל "
+#~ "שם מתחם בשימוש. כמובן שאין זה הכרח, אך תרומה זו ממש מסייעת לנו לתחזק את "
+#~ "האתר ולהמשיך ולצמוח."
+
+#~ msgid "Update Your Subscription"
+#~ msgstr "עדכון המינוי שלך"
+
+#~ msgid "Current card"
+#~ msgstr "כרטיס נוכחי"
+
+#~ msgid "All information is submitted directly to Stripe."
+#~ msgstr "כל המידע מוגש ישירות ל־Stripe."
+
+#~ msgid "Your subscription has been cancelled"
+#~ msgstr "המינוי שלך בוטל"
+
+#~ msgid "Serialized API response"
+#~ msgstr "תגובת API בסידור טורי"
+
+#~ msgid "VAT ID number"
+#~ msgstr "מס׳ מזהה מע״מ"
+
+#~ msgid "Card number"
+#~ msgstr "מספר כרטיס"
+
+#~ msgid "Card expiration"
+#~ msgstr "תפוגת כרטיס"
+
+#~ msgid "Card CVV"
+#~ msgstr "CVV של כרטיס"
+
+#~ msgid "There was a problem communicating with Stripe"
+#~ msgstr "אירעה שגיאה ביצירת קשר עם Stripe"
+
+#~ msgid "Mkdocs (Markdown)"
+#~ msgstr "Mkdocs (Markdown)"
+
+#~ msgid "Protected"
+#~ msgstr "מוג"
+
+#~ msgid "A project can not be a subproject of itself"
+#~ msgstr "מיזם לא יכול להיות תת־מיזם של עצמו"
+
+#~ msgid "Zip file of HTML"
+#~ msgstr "קובץ Zip של ה‏־HTML"
+
+#~ msgid "Overwrite existing HTML?"
+#~ msgstr "לשכתב על ה־HTML הקיים?"
+
+#~ msgid "That version is already active!"
+#~ msgstr "גרסה זו כבר פעילה!"
+
+#~ msgid "Must upload a zip file."
+#~ msgstr "עליך להעלות קובץ zip."
+
+#~ msgid "Version of the project you are uploading HTML for"
+#~ msgstr "גרסת המיזם עבורה בחרת להעלות HTML"
+
+#~ msgid "The reStructuredText description of the project"
+#~ msgstr "תיאור reStructuredText של המיזם"
+
+#~ msgid ""
+#~ "Level of privacy that you want on the repository. Protected means public "
+#~ "but not in listings."
+#~ msgstr "רמת הפרטיות הרצויה למאגר. מוגן משמעו ציבורי אך לא מופיע ברשימות."
+
+#~ msgid "Version Privacy Level"
+#~ msgstr "רמת פרטיות גרסה"
+
+#~ msgid ""
+#~ "Default level of privacy you want on built versions of documentation."
+#~ msgstr ""
+#~ "רמת פרטיות כבררת מחדל אותה ברצונך להחיל על הגרסאות הבנויות של התיעוד."
+
+#~ msgid "View Project"
+#~ msgstr "הצגת המיזם"
+
+#~ msgid "MD5 checksum"
+#~ msgstr "סכום ביקורת MD5"
+
+#~ msgid "Skip git submodule checkout"
+#~ msgstr "דילוג שליפה (checkout) של git submodule"
+
+#~ msgid "Historical default is True"
+#~ msgstr "בררת המחדל ההיסטורית היא אמת"
+
+#~ msgid "Enter a valid domain name value"
+#~ msgstr "נא להקליד ערך תקני לשם מתחם"
+
+#~ msgid "Your demo project is currently being imported"
+#~ msgstr "מיזם ההדגמה שלך עובר ייבוא כרגע"
+
+#~ msgid "There was a problem adding the demo project"
+#~ msgstr "אירעה שגיאה בהוספת מיזם ההדגמה"
+
+#~ msgid "Get Involved"
+#~ msgstr "לקחת חלק"
+
+#~ msgid "Contributing"
+#~ msgstr "תרומה"
+
+#~ msgid "Open Source Philosophy"
+#~ msgstr "פילוסופיית הקוד הפתו"
+
+#~ msgid "Business Info"
+#~ msgstr "פרטי עסק"
+
+#~ msgid "Supporters"
+#~ msgstr "תומכים"
+
+#, python-format
+#~ msgid ""
+#~ "Having trouble with your build environment? Try <a href=\"%(wipe_url)s"
+#~ "\">resetting it</a>."
+#~ msgstr ""
+#~ "סביבת הבנייה שלך לא עובדת כמו שצריך? כדאי לנסות <a href=\"%(wipe_url)s"
+#~ "\">לאפס אותה</a>."
+
+#~ msgid "Project Privacy Level"
+#~ msgstr "רמת פרטיות המיזם"
+
+#~ msgid "Getting started guide"
+#~ msgstr "מדריך למתחילים"
+
+#, python-format
+#~ msgid ""
+#~ "Read the Docs is a huge resource that millions of developers rely on for "
+#~ "software documentation. It would not be possible without the support of "
+#~ "our <a href=\"%(sponsors_url)s\">sponsors</a>, <a href="
+#~ "\"%(advertising_url)s\">advertisers</a>, and <a href=\"%(gold_detail)s"
+#~ "\">readers like you</a>."
+#~ msgstr ""
+#~ "Read the Docs הוא משאב ענק עליו סומכים מיליוני מתכנתים לטובת תיעוד תכנה. "
+#~ "כל זה לא היה מתאפשר ללא תמיכה מצד <a href=\"%(sponsors_url)s\">הממנים "
+#~ "שלנו</a>, <a href=\"%(advertising_url)s\">המפרסמים שלנו</a>, וגם <a href="
+#~ "\"%(gold_detail)s\">קוראים כמוך</a>."
+
+#~ msgid "Gold"
+#~ msgstr "זהב"
+
+#~ msgid "Edit Domain"
+#~ msgstr "עריכת שם מתחם"
+
+#~ msgid ""
+#~ "Recently we added HTTPS support for custom domains. Depending on your "
+#~ "setup, you may need to take action for your domain to support HTTPS. <a "
+#~ "href=\"https://docs.readthedocs.io/en/latest/alternate_domains."
+#~ "html#custom-domain-ssl\">See our docs</a> for details."
+#~ msgstr ""
+#~ "לאחרונה הוספנו תמיכה ב־HTTPS לשמות מתחם מותאמים. בהתאם לתצורה שלך, יכול "
+#~ "להיות שיהיה עליך לבצע פעולות על שם המתחם שלך כדי לתמוך ב־HTTPS. פרטים "
+#~ "נוספים ב<a href=\"https://docs.readthedocs.io/en/latest/alternate_domains."
+#~ "html#custom-domain-ssl\">תיעוד שלנו</a>."
+
+#~ msgid ""
+#~ "This allows you to add domains to your project. This allows them to live "
+#~ "in the same namespace in the URLConf for a subdomain or CNAME."
+#~ msgstr ""
+#~ "אזור זה מאפשר לך להוסיף שמות מתחם למיזם שלך. כך ניתן לאפשר להם לחיות "
+#~ "באותו מתחם השם ב־URLConf עבור תת־מתחם או CNAME."
+
+#, python-format
+#~ msgid "Environment Variable: %(name)s"
+#~ msgstr "משתנה סביבתי: %(name)s"
+
+#~ msgid ""
+#~ "The value of the environment variable is not shown here for sercurity "
+#~ "purposes."
+#~ msgstr "ערך המשתנה הסביבתי לא מופיע כאן מטעמי אבטחה."
+
+#~ msgid "Not built"
+#~ msgstr "לא נבנה"
+
+#, python-format
+#~ msgid ""
+#~ "Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
+#~ "project</a>."
+#~ msgstr ""
+#~ "מעניין אותך להתנסות בהדגמה? <a href=\"%(import_demo_url)s\">ניתן לייבא "
+#~ "מיזם לדוגמה משלך</a>.        "
+
+#~ msgid ""
+#~ "We only allow and image and text, no Javascript besides our existing "
+#~ "tracking"
+#~ msgstr ""
+#~ "אנו מרשים טקסט ותמונה בלבד, אסור JavaScript למעט רכיבי המעקב הקיימים"
+
+#~ msgid ""
+#~ "If you do not wish to support Read the Docs with use of this ad space, we "
+#~ "ask that you help support Read the Docs in one of following ways:"
+#~ msgstr ""
+#~ "אם לא מתחשק לך לתמוך ב־Read the Docs בעזרת שימוש בשטח פרסום זה, אנו "
+#~ "מבקשים את עזרתך לתמוך ב־Read the Docs באחת הדרכים הבאות:    "
+
+#~ msgid ""
+#~ "If you have an open source project, and can contribute financially, "
+#~ "consider a gold subscription. Gold subscribers can disable ads for "
+#~ "projects they author."
+#~ msgstr ""
+#~ "אם יש לך מיזם קוד פתוח ויש לך אפשרות לתרגום כלכלית נמליץ לך לשקול לערוך "
+#~ "מינוי זהב. מנויי זהב יכולים להשבית פרסומות למיזמים שבבעלותם."
+
+#~ msgid "I can contribute financially"
+#~ msgstr "יש לי אפשרות לתרום כסף"
+
+#~ msgid ""
+#~ "If your project is an open source project, you most certainly also lack "
+#~ "funding.  If you can't contribute financially to Read the Docs, consider "
+#~ "donating your time. We can always use help with support requests, "
+#~ "documentation updates, and of course feature development."
+#~ msgstr ""
+#~ "המיזם שלך הוא בקוד פתוח, סביר להניח שגם לך אין מקור מימון אין לך אפשרות "
+#~ "לתרום כלכלית ל־Read the Docs, תמיד יש לך אפשרות לתרום זמן. נשמח לקבל עזרה "
+#~ "עם בקשות תמיכה, תיעוד וכמובן פיתוח תכונות.      "
+
+#~ msgid "I can contribute my time"
+#~ msgstr "יש לי אפשרות לנדב זמן"
+
+#~ msgid "Learn more about a paid plan"
+#~ msgstr "מידע נוסף על תכנית בתשלום"
+
+#~ msgid "Still can't help?"
+#~ msgstr "אין לך איך להציע עזרה?"
+
+#~ msgid ""
+#~ "If you can't contribute your support for your open source project, but "
+#~ "are conflicted by allowing support through advertising, we still would "
+#~ "like to give you the option to disable showing promotions inside your "
+#~ "documentation. We might be in contact in the future to see if you would "
+#~ "reconsider offering your support."
+#~ msgstr ""
+#~ "אם אין לך אפשרות להציע תמיכה עבור מיזם הקוד הפתוח שלך ויש לך חילוקי דעות "
+#~ "בנוגע להצעת תמיכה בעזרת פרסומות, אנו עדיין מעוניינים לתת לך את האפשרות "
+#~ "להשבית הצגת פרסומות בתיעוד שלך. יתכן שניצור אתך קשר בעתיד כדי לראות האם "
+#~ "בכל זאת נוכל לקבל את תמיכתך.    "
+
+#~ msgid "This shows the last 7 days of data from your project."
+#~ msgstr "מציג נתונים של 7 הימים האחרונים מהמיזם שלך."
+
+#~ msgid "Pages"
+#~ msgstr "עמודים"
+
+#~ msgid "Notifications"
+#~ msgstr "התרעות"
+
+#~ msgid "Embed content into any site on the internet dynamically."
+#~ msgstr "הטמעת תוכן לתוך כל אתר באינטרנט באופן דינמי."
+
+#~ msgid "File"
+#~ msgstr "קובץ"
+
+#~ msgid "Select a File"
+#~ msgstr "בחירת קובץ"
+
+#~ msgid "Show content"
+#~ msgstr "הצגת תוכן"
+
+#~ msgid "Example Usage"
+#~ msgstr "שימוש לדוגמה"
+
+#, python-format
+#~ msgid "Projects by %(username)s tagged with %(tag)s"
+#~ msgstr "מיזמים מאת %(username)s שמתויגים עם %(tag)s"
+
+#, python-format
+#~ msgid "Projects by %(username)s"
+#~ msgstr "מיזמים מאת %(username)s"
+
+#~ msgid "Edit Notifications"
+#~ msgstr "עריכת התרעות"
+
+#~ msgid "New Webhook Notifications"
+#~ msgstr "התרעות על התליות חדשות"
+
+#~ msgid "Add a URL to notify"
+#~ msgstr "הוספת כתובת להתרעה"
+
+#~ msgid "wipe "
+#~ msgstr "מחיקה מוחלטת"
+
+#~ msgid "Clean"
+#~ msgstr "ניקוי"
+
+#~ msgid "Choose the version that / will redirect to."
+#~ msgstr "נא לבחור את הגרסה ש־/ יפנה אליה."
+
+#~ msgid "Choose Active Versions"
+#~ msgstr "בחירת גרסאות פעילות"
+
+#~ msgid "Active versions below will show up on the site."
+#~ msgstr "גרסאות פעילות להלן יופיעו באתר."
+
+#, python-format
+#~ msgid "Search results for %(term)s"
+#~ msgstr "תוצאות לחיפוש אחר %(term)s"
+
+#~ msgid "Huh?"
+#~ msgstr "סליחה?"
+
+#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
+#~ msgstr "אין מסמכים שתואמים לתיעוד שלך. ‎¯\\(O_o)/¯‎"
+
+#~ msgid "Import HTML Documentation"
+#~ msgstr "ייבוא תיעוד HTML"
+
+#~ msgid "Upload HTML"
+#~ msgstr "העלאת HTML"
+
+#~ msgid ""
+#~ "Use this to upload pre-existing HTML documentation for versions that "
+#~ "don't build correctly anymore."
+#~ msgstr ""
+#~ "ניתן להשתמש בזה כדי להעלות תיעוד HTML שכבר נכתב לגרסאות שאינן נבנות כראוי "
+#~ "נכון לעכשיו."
+
+#, python-format
+#~ msgid "Results for %(query)s"
+#~ msgstr "תוצאות לחיפוש %(query)s"
+
+#, python-format
+#~ msgid "Remove build environment for <em>%(slug)s</em> version."
+#~ msgstr "הסרת סביבת בנייה לגרסה <em>%(slug)s</em>."
+
+#~ msgid "Your project environment has been wiped."
+#~ msgstr "סביבת המיזם שלך נמחקה."
+
+#~ msgid ""
+#~ "Having trouble getting your documentation build to complete?  By clicking "
+#~ "on the button below you'll clean out your build checkouts and "
+#~ "environment, but not your generated documentation."
+#~ msgstr ""
+#~ "מתרחשות כל מיני תקלות בעת הניסיון להשלמת בניית התיעוד שלך?  לחיצה על "
+#~ "הכפתור שלהלן תנקה את הסביבה והחומרים של הבנייה שלך, אך לא את התיעוד שלך "
+#~ "שנוצר."
+
+#~ msgid "Wipe"
+#~ msgstr "מחיקה מוחלטת"

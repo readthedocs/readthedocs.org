@@ -1,0 +1,5474 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Rifqi Imaduddin Irfan, 2021
+# begini <sompret@yandex.com>, 2017
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"PO-Revision-Date: 2012-10-03 11:28+0000\n"
+"Last-Translator: Rifqi Imaduddin Irfan, 2021\n"
+"Language-Team: Indonesian (Indonesia) (http://www.transifex.com/readthedocs/"
+"readthedocs/language/id_ID/)\n"
+"Language: id_ID\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: analytics/models.py:64 builds/models.py:616 projects/models.py:1380
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:255
+#: templates/search/elastic_search.html:54
+msgid "Version"
+msgstr "Versi"
+
+#: analytics/models.py:71
+#, fuzzy
+#| msgid "No active versions."
+msgid "Path relative to the version."
+msgstr "Tidak ada versi aktif."
+
+#: analytics/models.py:75
+msgid "Full path including the version and language parts."
+msgstr ""
+
+#: analytics/models.py:83
+#, fuzzy
+#| msgid "Status code"
+msgid "HTTP status code"
+msgstr "Kode status"
+
+#: api/v2/templates/restapi/footer.html:18
+#, fuzzy
+#| msgid "Language"
+msgid "Languages"
+msgstr "Bahasa"
+
+#: api/v2/templates/restapi/footer.html:42
+#: templates/core/project_bar_base.html:48
+#: templates/core/project_details.html:17
+msgid "Versions"
+msgstr "Versi"
+
+#: api/v2/templates/restapi/footer.html:55
+#: api/v2/templates/restapi/footer.html:75
+#: templates/core/project_bar_base.html:42
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "Unduhan"
+
+#: api/v2/templates/restapi/footer.html:67
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "On Read the Docs"
+msgstr "Read the Docs"
+
+#: api/v2/templates/restapi/footer.html:69
+#, fuzzy
+#| msgid "Project homepage"
+msgid "Project Home"
+msgstr "Halaman depan proyek"
+
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: templates/core/project_bar_base.html:46
+msgid "Builds"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:84
+msgid "On GitHub"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:86
+#: api/v2/templates/restapi/footer.html:105
+#, fuzzy
+#| msgid "View docs"
+msgid "View"
+msgstr "Lihat docs"
+
+#: api/v2/templates/restapi/footer.html:90
+#: api/v2/templates/restapi/footer.html:98
+#: api/v2/templates/restapi/footer.html:109
+#: templates/core/project_details.html:41
+#: templates/projects/project_version_list.html:49
+#: templates/projects/webhook_list.html:39
+msgid "Edit"
+msgstr "Sunting"
+
+#: api/v2/templates/restapi/footer.html:96
+msgid "On Bitbucket"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:103
+msgid "On GitLab"
+msgstr ""
+
+#. Translators: This is about starting a search
+#: api/v2/templates/restapi/footer.html:118
+#: templates/core/project_bar_base.html:44
+#: templates/search/elastic_search.html:110
+#: templates/search/elastic_search.html:125
+msgid "Search"
+msgstr "Cari"
+
+#: api/v2/templates/restapi/footer.html:123
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search docs"
+msgstr "Pencarian seluruh dokumentasi"
+
+#: api/v2/templates/restapi/footer.html:134
+msgid "Hosted by"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:227
+msgid "Privacy Policy"
+msgstr "Kebijakan Privasi"
+
+#: api/v3/serializers.py:494
+#, python-brace-format
+msgid "Invalid project name \"{0}\": no slug generated."
+msgstr ""
+
+#: api/v3/serializers.py:498
+#, python-brace-format
+msgid "Project with slug \"{0}\" already exists."
+msgstr ""
+
+#: api/v3/serializers.py:699
+#, python-brace-format
+msgid "Project with {slug_name}={value} is not valid as subproject"
+msgstr ""
+
+#: api/v3/serializers.py:707 projects/forms.py:391
+msgid "A subproject with this alias already exists"
+msgstr ""
+
+#: audit/filters.py:22 audit/filters.py:39
+msgid "Authentication success"
+msgstr ""
+
+#: audit/filters.py:23 audit/filters.py:40
+msgid "Authentication failure"
+msgstr ""
+
+#: audit/filters.py:41
+msgid "Page view"
+msgstr ""
+
+#: audit/filters.py:42
+#: organizations/templates/organizations/security_log.html:43
+#: templates/profiles/private/security_log.html:29
+#, fuzzy
+#| msgid "Downloads"
+msgid "Download"
+msgstr "Unduhan"
+
+#: audit/models.py:85 core/models.py:38 gold/models.py:35
+#: projects/models.py:117
+msgid "User"
+msgstr "User"
+
+#: audit/models.py:92
+#, fuzzy
+#| msgid "User"
+msgid "User ID"
+msgstr "User"
+
+#: audit/models.py:98 core/forms.py:55
+msgid "Username"
+msgstr "Nama pengguna"
+
+#: audit/models.py:107 builds/models.py:109 builds/models.py:610
+#: projects/models.py:1374 redirects/models.py:57
+msgid "Project"
+msgstr "Proyek"
+
+#: audit/models.py:114
+#, fuzzy
+#| msgid "Project"
+msgid "Project ID"
+msgstr "Proyek"
+
+#: audit/models.py:120
+#, fuzzy
+#| msgid "Projects"
+msgid "Project slug"
+msgstr "Proyek-proyek"
+
+#: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
+msgid "Organization"
+msgstr "Organisasi"
+
+#: audit/models.py:135
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization ID"
+msgstr "Organisasi"
+
+#: audit/models.py:141
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization slug"
+msgstr "Organisasi"
+
+#: audit/models.py:149 builds/models.py:1120
+#, fuzzy
+#| msgid "Active"
+msgid "Action"
+msgstr "Aktif"
+
+#: audit/models.py:154
+msgid "Auth backend"
+msgstr ""
+
+#: audit/models.py:160 core/history.py:78
+msgid "IP address"
+msgstr ""
+
+#: audit/models.py:166 core/history.py:84
+msgid "Browser user-agent"
+msgstr ""
+
+#: audit/models.py:174
+msgid "Resource"
+msgstr ""
+
+#: audit/models.py:211
+msgid "shared link"
+msgstr ""
+
+#: audit/models.py:212
+#, fuzzy
+#| msgid "Change Password"
+msgid "shared password"
+msgstr "Ubah Sandi"
+
+#: audit/templates/audit/list_logs.html:15
+#, python-format
+msgid "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:19
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(method)s\">authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:26
+#, python-format
+msgid ""
+"User <a href=\"?action=%(action)s\" title=\"%(method)s\">authenticated</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:31
+#, python-format
+msgid ""
+"<a href=\"?action=%(action)s\" title=\"%(method)s\">Authentication failed</a>"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:36
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(path)s\">visited</a> a page"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:43
+#, python-format
+msgid ""
+"A user <a href=\"?action=%(action)s\" title=\"%(path)s\">visited</a> a page"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:49
+#, python-format
+msgid ""
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
+"%(action)s\" title=\"%(path)s\">downloaded</a> a document"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:56
+#, python-format
+msgid ""
+"A user <a href=\"?action=%(action)s\" title=\"%(path)s\">downloaded</a> a "
+"document"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:62
+msgid "from"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:70
+msgid "on"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:82
+#: templates/core/build_list_detailed.html:21
+#: templates/core/project_list_detailed.html:26
+#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/project_dashboard_base.html:74
+#: templates/projects/webhook_form.html:55
+#, python-format
+msgid "%(date)s ago"
+msgstr "%(date)s yang lalu"
+
+#: audit/templates/audit/list_logs.html:90
+msgid "No activity logged yet"
+msgstr ""
+
+#: builds/constants.py:15
+msgid "Triggered"
+msgstr "Dipicu"
+
+#: builds/constants.py:16
+msgid "Cloning"
+msgstr "Membuat klon"
+
+#: builds/constants.py:17
+msgid "Installing"
+msgstr "Menginstal"
+
+#: builds/constants.py:18
+msgid "Building"
+msgstr "Membangun"
+
+#: builds/constants.py:19
+#, fuzzy
+#| msgid "Upload"
+msgid "Uploading"
+msgstr "Unggah"
+
+#: builds/constants.py:20
+msgid "Finished"
+msgstr "Selesai"
+
+#: builds/constants.py:21 templates/core/build_list_detailed.html:7
+#, fuzzy
+#| msgid "cancel"
+msgid "Cancelled"
+msgstr "batal"
+
+#: builds/constants.py:30
+msgid "HTML"
+msgstr "HTML"
+
+#: builds/constants.py:31
+msgid "PDF"
+msgstr "PDF"
+
+#: builds/constants.py:32
+msgid "Epub"
+msgstr "Epub"
+
+#: builds/constants.py:36
+msgid "Manpage"
+msgstr "Manpage"
+
+#: builds/constants.py:37
+msgid "Dash"
+msgstr ""
+
+#: builds/constants.py:46
+#, fuzzy
+#| msgid "External Links"
+msgid "External"
+msgstr "Tautan eksternal"
+
+#: builds/constants.py:49
+msgid "Branch"
+msgstr "Cabang"
+
+#: builds/constants.py:51
+msgid "Tag"
+msgstr "Tag"
+
+#: builds/constants.py:53 projects/constants.py:389
+msgid "Unknown"
+msgstr "Tak dikenal"
+
+#: builds/constants.py:64
+msgid "Open"
+msgstr ""
+
+#: builds/constants.py:65
+msgid "Closed"
+msgstr ""
+
+#: builds/constants.py:132
+#, fuzzy
+#| msgid "Subversion"
+msgid "Any version"
+msgstr "Subversi"
+
+#: builds/constants.py:133
+#, fuzzy
+#| msgid "Versions"
+msgid "SemVer versions"
+msgstr "Versi"
+
+#: builds/constants.py:134
+msgid "Custom match"
+msgstr ""
+
+#: builds/filters.py:18 builds/models.py:144 redirects/models.py:23
+msgid "Active"
+msgstr "Aktif"
+
+#: builds/filters.py:19
+#, fuzzy
+#| msgid "Finished"
+msgid "Build finished"
+msgstr "Selesai"
+
+#: builds/filters.py:20 projects/models.py:1485
+#: templates/builds/build_detail.html:143
+msgid "Build failed"
+msgstr ""
+
+#: builds/filters.py:26 builds/models.py:146 builds/models.py:632
+msgid "State"
+msgstr ""
+
+#: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
+msgid "Any"
+msgstr ""
+
+#: builds/forms.py:45
+msgid "States"
+msgstr ""
+
+#: builds/forms.py:54 projects/filters.py:145
+#, fuzzy
+#| msgid "Private"
+msgid "Privacy"
+msgstr "Privat"
+
+#: builds/forms.py:75
+#, python-brace-format
+msgid "{version} is the default version of the project, it should be active."
+msgstr "{version} adalah versi bawaan dari proyek, yang harus aktif."
+
+#: builds/forms.py:168
+msgid "Custom match should not be empty."
+msgstr ""
+
+#: builds/forms.py:175
+msgid "Invalid Python regular expression."
+msgstr ""
+
+#: builds/models.py:97 core/models.py:26 projects/models.py:1448
+#: projects/models.py:1616
+#, fuzzy
+#| msgid "Create"
+msgid "created"
+msgstr "Buat"
+
+#: builds/models.py:102 core/models.py:31 projects/models.py:1453
+#, fuzzy
+#| msgid "Modified date"
+msgid "modified"
+msgstr "Tanggal dimodifikasi"
+
+#: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
+#: subscriptions/models.py:134
+msgid "Type"
+msgstr "Jenis"
+
+#: builds/models.py:125
+msgid "Identifier"
+msgstr "Identifier"
+
+#: builds/models.py:131
+msgid "Verbose Name"
+msgstr ""
+
+#: builds/models.py:138 oauth/models.py:32 organizations/models.py:48
+#: projects/models.py:122 subscriptions/models.py:35
+msgid "Slug"
+msgstr ""
+
+#: builds/models.py:143
+msgid "Supported"
+msgstr ""
+
+#: builds/models.py:151
+msgid "State of the PR/MR associated to this version."
+msgstr ""
+
+#: builds/models.py:153
+msgid "Built"
+msgstr ""
+
+#: builds/models.py:154
+msgid "Uploaded"
+msgstr "Terunggah"
+
+#: builds/models.py:156 projects/models.py:382
+msgid "Privacy Level"
+msgstr "Level privasi"
+
+#: builds/models.py:160
+msgid "Level of privacy for this Version."
+msgstr "Level privasi untuk Versi ini."
+
+#: builds/models.py:163
+msgid "Hidden"
+msgstr ""
+
+#: builds/models.py:165
+msgid "Hide this version from the version (flyout) menu and search results?"
+msgstr ""
+
+#: builds/models.py:167
+msgid "Machine Created"
+msgstr ""
+
+#: builds/models.py:170
+msgid "Has PDF"
+msgstr ""
+
+#: builds/models.py:171
+msgid "Has ePub"
+msgstr ""
+
+#: builds/models.py:172
+msgid "Has HTML Zip"
+msgstr ""
+
+#: builds/models.py:175 projects/models.py:195
+msgid "Documentation type"
+msgstr "Tipe dokumentasi"
+
+#: builds/models.py:180
+#, fuzzy
+#| msgid "Your documentation is building"
+msgid "Type of documentation the version was built with."
+msgstr "Dokumentasi anda sedang dibangun"
+
+#: builds/models.py:196
+#, python-brace-format
+msgid "Version {version} of {project} ({pk})"
+msgstr "Versi {version} dari {project} ({pk})"
+
+#: builds/models.py:644
+#, fuzzy
+#| msgid "Status code"
+msgid "Status"
+msgstr "Kode status"
+
+#: builds/models.py:651 integrations/models.py:147
+msgid "Date"
+msgstr "Tanggal"
+
+#: builds/models.py:652
+msgid "Success"
+msgstr "Sukses"
+
+#: builds/models.py:657
+msgid "Setup"
+msgstr ""
+
+#: builds/models.py:658
+msgid "Setup error"
+msgstr ""
+
+#: builds/models.py:659
+msgid "Output"
+msgstr "Keluaran"
+
+#: builds/models.py:660 templates/builds/build_detail.html:213
+msgid "Error"
+msgstr "Galat"
+
+#: builds/models.py:661
+msgid "Exit code"
+msgstr "Kode keluar"
+
+#: builds/models.py:666 projects/models.py:1391 sphinx_domains/models.py:43
+msgid "Commit"
+msgstr ""
+
+#: builds/models.py:672
+#, fuzzy
+#| msgid "Versions"
+msgid "Version slug"
+msgstr "Versi"
+
+#: builds/models.py:678
+#, fuzzy
+#| msgid "Version"
+msgid "Version name"
+msgstr "Versi"
+
+#: builds/models.py:684 builds/models.py:1133
+#, fuzzy
+#| msgid "Version"
+msgid "Version type"
+msgstr "Versi"
+
+#: builds/models.py:691
+msgid "Configuration used in the build"
+msgstr ""
+
+#: builds/models.py:696
+msgid "Build Length"
+msgstr ""
+
+#: builds/models.py:699
+msgid "Builder"
+msgstr ""
+
+#: builds/models.py:706
+msgid "Cold Storage"
+msgstr ""
+
+#: builds/models.py:712
+msgid "Celery task id"
+msgstr ""
+
+#: builds/models.py:823
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr ""
+
+#: builds/models.py:1031
+msgid "Build"
+msgstr ""
+
+#: builds/models.py:1036
+msgid "Command"
+msgstr "Perintah"
+
+#: builds/models.py:1037 builds/models.py:1097 oauth/models.py:135
+#: organizations/models.py:62 projects/models.py:124 subscriptions/models.py:30
+#: subscriptions/models.py:137 templates/core/project_details.html:78
+msgid "Description"
+msgstr "Deskripsi"
+
+#: builds/models.py:1038
+msgid "Command output"
+msgstr "Perintah keluaran"
+
+#: builds/models.py:1039
+msgid "Command exit code"
+msgstr "Perintah kode keluar"
+
+#: builds/models.py:1041
+msgid "Start time"
+msgstr "Waktu mulai"
+
+#: builds/models.py:1042
+msgid "End time"
+msgstr "Waktu selesai"
+
+#: builds/models.py:1052
+#, python-brace-format
+msgid "Build command {pk} for build {build}"
+msgstr ""
+
+#: builds/models.py:1076
+#, fuzzy
+#| msgid "No active versions."
+msgid "Activate version"
+msgstr "Tidak ada versi aktif."
+
+#: builds/models.py:1077
+#, fuzzy
+#| msgid "View Version"
+msgid "Hide version"
+msgstr "Lihat versi"
+
+#: builds/models.py:1078
+msgid "Make version public"
+msgstr ""
+
+#: builds/models.py:1079
+#, fuzzy
+#| msgid "Project versions updated"
+msgid "Make version private"
+msgstr "Versi proyek telah diperbarui"
+
+#: builds/models.py:1080
+#, fuzzy
+#| msgid "Project versions updated"
+msgid "Set version as default"
+msgstr "Versi proyek telah diperbarui"
+
+#: builds/models.py:1081
+msgid "Delete version (on branch/tag deletion)"
+msgstr ""
+
+#: builds/models.py:1093
+msgid "Rule priority"
+msgstr ""
+
+#: builds/models.py:1094
+msgid "A lower number (0) means a higher priority"
+msgstr ""
+
+#: builds/models.py:1103
+msgid "Match argument"
+msgstr ""
+
+#: builds/models.py:1104
+msgid "Value used for the rule to match the version"
+msgstr ""
+
+#: builds/models.py:1108
+msgid "Predefined match argument"
+msgstr ""
+
+#: builds/models.py:1110
+msgid ""
+"Match argument defined by us, it is used if is not None, otherwise match_arg "
+"will be used."
+msgstr ""
+
+#: builds/models.py:1121
+msgid "Action to apply to matching versions"
+msgstr ""
+
+#: builds/models.py:1126
+msgid "Action argument"
+msgstr ""
+
+#: builds/models.py:1127
+msgid "Value used for the action to perfom an operation"
+msgstr ""
+
+#: builds/models.py:1134
+msgid "Type of version the rule should be applied to"
+msgstr ""
+
+#: builds/models.py:1358
+msgid "Matched rule"
+msgstr ""
+
+#: builds/tasks.py:562
+#, python-brace-format
+msgid "Failed: {project[name]} ({commit})"
+msgstr ""
+
+#: builds/tasks.py:567
+#, python-brace-format
+msgid "Failed: {project[name]} ({version[verbose_name]})"
+msgstr ""
+
+#: core/admin.py:36
+msgid "user projects"
+msgstr ""
+
+#: core/admin.py:44
+msgid "has active project"
+msgstr "memiliki proyek aktif"
+
+#: core/admin.py:45
+msgid "has built project"
+msgstr "telah membangun proyek"
+
+#: core/admin.py:46
+msgid "has project with recent builds"
+msgstr ""
+
+#: core/forms.py:18
+msgid "First name"
+msgstr "Nama depan"
+
+#: core/forms.py:19
+msgid "Last name"
+msgstr "Nama belakang"
+
+#: core/forms.py:56
+msgid "Please type your username to confirm."
+msgstr "Silakan ketik nama pengguna anda untuk konfirmasi."
+
+#: core/forms.py:67
+msgid "Username does not match!"
+msgstr "Nama pengguna tidak cocok!"
+
+#: core/history.py:66
+msgid "ID"
+msgstr ""
+
+#: core/history.py:72
+#, fuzzy
+#| msgid "Username"
+msgid "username"
+msgstr "Nama pengguna"
+
+#: core/models.py:42
+msgid "Whitelisted"
+msgstr ""
+
+#: core/models.py:43
+msgid "Banned"
+msgstr ""
+
+#: core/models.py:44
+msgid "Homepage"
+msgstr ""
+
+#: core/models.py:46
+msgid "See paid advertising"
+msgstr "Lihat iklan berbayar"
+
+#: core/models.py:47
+msgid "If unchecked, you will still see community ads."
+msgstr ""
+
+#: core/models.py:54
+#, python-format
+msgid "%(username)s's profile"
+msgstr "Profil %(username)s"
+
+#: core/templates/core/dns-404.html:6
+msgid "Maze Found - Invalid Host"
+msgstr ""
+
+#: core/templates/core/dns-404.html:20
+msgid "404 - Invalid Host"
+msgstr ""
+
+#: core/templates/core/dns-404.html:21
+#, python-format
+msgid "The host \"%(host)s\" is unknown to Read the Docs"
+msgstr ""
+
+#: core/templates/core/dns-404.html:25
+#, python-format
+msgid ""
+"If you control this domain and believe this is in error, please review our "
+"<a href=\"%(docsurl)s\">custom domain documentation</a>. In the past, we "
+"allowed custom domains to point to us without configuring the domain in the "
+"Read the Docs dashboard and we attempted to intelligently guess the correct "
+"project based on DNS settings. Now, we believe that explicit is better than "
+"implicit. Below are some steps to help you get your domain working again:"
+msgstr ""
+
+#: core/templates/core/dns-404.html:38
+msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
+msgstr ""
+"Pastikan anda memiliki rekaman CNAME yang mengarah pada <code>readthedocs."
+"io</code>"
+
+#: core/templates/core/dns-404.html:39
+msgid ""
+"Add your desired domain in the Read the Docs dashboard for your project "
+"(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
+msgstr ""
+
+#: doc_builder/director.py:63
+#, python-brace-format
+msgid "Repository type \"{repo_type}\" unknown"
+msgstr ""
+
+#: doc_builder/environments.py:342
+msgid ""
+"\n"
+"\n"
+"Command killed due to timeout or excessive memory consumption\n"
+msgstr ""
+
+#: doc_builder/environments.py:348
+msgid "Command exited abnormally"
+msgstr ""
+
+#: doc_builder/environments.py:631
+msgid "A build environment is currently running for this version"
+msgstr ""
+
+#: doc_builder/environments.py:791
+msgid "Build exited due to time out"
+msgstr ""
+
+#: doc_builder/environments.py:796
+msgid "Build exited due to excessive memory consumption"
+msgstr ""
+
+#: doc_builder/environments.py:802
+#, python-brace-format
+msgid "Build exited due to unknown error: {0}"
+msgstr ""
+
+#: doc_builder/exceptions.py:26
+#, python-brace-format
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please try again later. If this problem persists, report this error to us "
+"with your build id ({build_id})."
+msgstr ""
+
+#: doc_builder/exceptions.py:35
+msgid ""
+"We encountered a problem with a command while building your project. To "
+"resolve this error, double check your project configuration and installed "
+"dependencies are correct and have not changed recently."
+msgstr ""
+
+#: doc_builder/exceptions.py:42
+msgid "Builds for this project are temporarily disabled"
+msgstr ""
+
+#: doc_builder/exceptions.py:47
+#, python-brace-format
+msgid "Problem in your project's configuration. {exception}"
+msgstr "Masalah dalam konfigurasi proyek anda. {exception}"
+
+#: doc_builder/exceptions.py:52
+#, fuzzy, python-brace-format
+#| msgid "Version locked, retrying in 5 minutes."
+msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
+msgstr "Versi terkunci, kembali lagi dalam 5 menit."
+
+#: doc_builder/exceptions.py:56
+#, fuzzy
+#| msgid "Duplicate"
+msgid "Duplicated build."
+msgstr "Duplikat"
+
+#: doc_builder/exceptions.py:63
+msgid "Build cancelled by user."
+msgstr ""
+
+#: doc_builder/exceptions.py:69
+#, python-brace-format
+msgid "Problem parsing MkDocs YAML configuration. {exception}"
+msgstr ""
+
+#: doc_builder/exceptions.py:73
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
+"with relative or absolute path."
+msgstr ""
+
+#: doc_builder/exceptions.py:78
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
+"valid path."
+msgstr ""
+
+#: doc_builder/exceptions.py:83
+#, python-brace-format
+msgid ""
+"The \"{config}\" config from your MkDocs YAML config file has to be a list "
+"of relative paths."
+msgstr ""
+
+#: doc_builder/exceptions.py:88
+msgid "Please make sure the MkDocs YAML configuration file is not empty."
+msgstr ""
+
+#: doc_builder/exceptions.py:92
+msgid ""
+"Your MkDocs YAML config file is incorrect. Please follow the user guide "
+"https://www.mkdocs.org/user-guide/configuration/ to configure the file "
+"properly."
+msgstr ""
+
+#: gold/forms.py:52
+msgid "No project found."
+msgstr "Proyek tidak ditemukan."
+
+#: gold/forms.py:54
+#, fuzzy
+#| msgid "The demo project is already imported!"
+msgid "This project is already Ad-Free."
+msgstr "Demo proyek telah diimpor!"
+
+#: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
+#: organizations/models.py:239 projects/models.py:111
+#: subscriptions/models.py:24 subscriptions/models.py:126
+msgid "Publication date"
+msgstr "Tanggal publikasi"
+
+#: gold/models.py:31 organizations/models.py:30 organizations/models.py:167
+#: organizations/models.py:240 projects/models.py:112 projects/models.py:1393
+#: subscriptions/models.py:25 subscriptions/models.py:127
+#: subscriptions/models.py:183
+msgid "Modified date"
+msgstr "Tanggal dimodifikasi"
+
+#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+msgid "Level"
+msgstr "Level"
+
+#: gold/models.py:48 organizations/models.py:35 organizations/models.py:177
+#: organizations/templates/organizations/team_detail.html:49
+#: organizations/templates/organizations/team_project_edit.html:13
+#: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
+#: templates/projects/project_dashboard_base.html:56
+#: templates/search/elastic_search.html:32
+#: templates/search/elastic_search.html:38
+msgid "Projects"
+msgstr "Proyek-proyek"
+
+#: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
+#, fuzzy
+#| msgid "Projects"
+msgid "Gold Projects"
+msgstr "Proyek-proyek"
+
+#: gold/templates/gold/projects.html:14
+msgid ""
+"Gold members may completely remove advertising for all visitors to their "
+"projects."
+msgstr ""
+
+#: gold/templates/gold/projects.html:20
+#: gold/templates/gold/subscription_detail.html:53
+msgid ""
+"For small businesses or personal projects, we ask for $5 per month to remove "
+"ads from a project."
+msgstr ""
+
+#: gold/templates/gold/projects.html:21
+#: gold/templates/gold/subscription_detail.html:54
+msgid ""
+"For corporate supported open source projects, we ask for a $50 membership in "
+"order to cover our support and operations costs."
+msgstr ""
+
+#: gold/templates/gold/projects.html:24
+#, fuzzy
+#| msgid "Add project"
+msgid "Ad-free projects"
+msgstr "Tambah proyek"
+
+#: gold/templates/gold/projects.html:39
+msgid "Remove Ad-Free Status"
+msgstr ""
+
+#: gold/templates/gold/projects.html:39
+#: organizations/templates/organizations/includes/member_list.html:21
+#: organizations/templates/organizations/includes/team_member_list.html:12
+#: organizations/templates/organizations/team_delete.html:22
+#: templates/account/email.html:38 templates/projects/domain_list.html:40
+#: templates/projects/environmentvariable_list.html:45
+#: templates/projects/project_notifications.html:66
+#: templates/projects/project_redirects.html:100
+#: templates/projects/project_translations.html:50
+#: templates/projects/project_users.html:37
+msgid "Remove"
+msgstr "Hapus"
+
+#: gold/templates/gold/projects.html:47
+msgid "No projects are currently ad-free."
+msgstr ""
+
+#: gold/templates/gold/projects.html:56
+msgid "Make a project ad-free"
+msgstr ""
+
+#: gold/templates/gold/projects.html:59
+#, fuzzy
+#| msgid "Choose which project you would like to add."
+msgid "Choose which project you would like to make ad-free."
+msgstr "Pilih proyek yang ingin anda tambahkan."
+
+#: gold/templates/gold/projects.html:64
+#, fuzzy
+#| msgid "Project deleted"
+msgid "Make Project Ad-Free"
+msgstr "Proyek dihapus"
+
+#: gold/templates/gold/projects.html:69
+#, python-format
+msgid ""
+"You can't make any more projects ad-free with your current Gold membership "
+"of %(gold_level)s. You can either increase the level of your membership or "
+"change which projects you make ad-free."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:35
+#, fuzzy
+#| msgid "Read the Docs Archive"
+msgid "Read the Docs Gold Membership"
+msgstr "Arsip Read the Docs"
+
+#: gold/templates/gold/subscription_detail.html:38
+msgid ""
+"Supporting Read the Docs lets us work more on features that people love. "
+"Your money will go directly to maintenance and development of the product."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:46
+msgid ""
+"Becoming a Gold member makes Read the Docs ad-free when you are logged-in. "
+"Gold members may also completely remove advertising for all visitors to "
+"their projects."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:58
+msgid ""
+"If you are a company using Read the Docs, please consider <a href=\"https://"
+"readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
+"our costs, and provide you with a better experience on the site."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:67
+#, python-format
+msgid ""
+"For any questions about our Gold membership program, please <a href=\"mailto:"
+"rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email us</a>."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:75
+msgid "Your gold membership"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:81
+msgid "Thanks for supporting Read the Docs! It really means a lot to us."
+msgstr ""
+"Terima kasih telah mendukung Read the Docs! Ini sangat berarti bagi kami."
+
+#: gold/templates/gold/subscription_detail.html:93
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Manage subscription"
+msgstr "Batalkan Langganan"
+
+#: gold/templates/gold/subscription_detail.html:96
+#, fuzzy
+#| msgid "Related projects"
+msgid "Gold projects"
+msgstr "Proyek terkait"
+
+#: gold/templates/gold/subscription_detail.html:97
+#, fuzzy
+#| msgid "Choose which project you would like to add."
+msgid "Choose projects you would like to make ad-free."
+msgstr "Pilih proyek yang ingin anda tambahkan."
+
+#: gold/templates/gold/subscription_detail.html:100
+msgid "Select Projects"
+msgstr "Pilih Proyek"
+
+#: gold/templates/gold/subscription_detail.html:104
+#, fuzzy
+#| msgid "Become a Gold Member"
+msgid "Become a Gold member"
+msgstr "Menjadi Gold Member"
+
+#: gold/templates/gold/subscription_detail.html:112
+#: templates/account/signup.html:10 templates/account/signup.html:46
+msgid "Sign Up"
+msgstr ""
+
+#: gold/views.py:190 subscriptions/views.py:150
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes"
+msgstr ""
+
+#: integrations/models.py:150 integrations/models.py:158
+msgid "Request headers"
+msgstr ""
+
+#: integrations/models.py:155
+msgid "Request body"
+msgstr ""
+
+#: integrations/models.py:163
+msgid "Response body"
+msgstr ""
+
+#: integrations/models.py:166
+msgid "Status code"
+msgstr "Kode status"
+
+#: integrations/models.py:176
+#, python-brace-format
+msgid "Exchange {0}"
+msgstr ""
+
+#: integrations/models.py:274
+msgid "GitHub incoming webhook"
+msgstr ""
+
+#: integrations/models.py:275
+msgid "Bitbucket incoming webhook"
+msgstr ""
+
+#: integrations/models.py:276
+msgid "GitLab incoming webhook"
+msgstr ""
+
+#: integrations/models.py:277
+msgid "Generic API incoming webhook"
+msgstr ""
+
+#: integrations/models.py:288
+msgid "Integration type"
+msgstr ""
+
+#: integrations/models.py:293
+msgid "Provider data"
+msgstr "Penyedia data"
+
+#: integrations/models.py:302
+msgid "Secret used to validate the payload of the webhook"
+msgstr ""
+
+#: integrations/models.py:324
+#, python-brace-format
+msgid "{0} for {1}"
+msgstr "{0} untuk {1}"
+
+#: notifications/forms.py:29
+msgid "Notification"
+msgstr "Notifikasi"
+
+#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:183
+msgid "Users"
+msgstr "Pengguna"
+
+#: oauth/models.py:33 oauth/models.py:128 organizations/models.py:46
+#: organizations/models.py:190 projects/filters.py:30 projects/filters.py:114
+#: projects/models.py:121 projects/models.py:1385 sphinx_domains/models.py:51
+#: subscriptions/models.py:28
+msgid "Name"
+msgstr "Nama"
+
+#: oauth/models.py:34 templates/base.html:156
+msgid "Email"
+msgstr "Surel"
+
+#: oauth/models.py:36
+msgid "Avatar image URL"
+msgstr "URL gambar avatar"
+
+#: oauth/models.py:42
+msgid "URL to organization page"
+msgstr "URL ke halaman organisasi"
+
+#: oauth/models.py:53 oauth/models.py:182
+msgid "VCS provider"
+msgstr ""
+
+#: oauth/models.py:93 oauth/models.py:245
+msgid "Connected account"
+msgstr "Akun yang terhubung"
+
+#: oauth/models.py:130
+msgid "Full Name"
+msgstr "Nama Lengkap"
+
+#: oauth/models.py:138
+msgid "Description of the project"
+msgstr "Deskripsi proyek"
+
+#: oauth/models.py:141
+msgid "Owner avatar image URL"
+msgstr "URL gambar avatar pemilik"
+
+#: oauth/models.py:148
+msgid "SSH URL"
+msgstr "SSH URL"
+
+#: oauth/models.py:154
+msgid "Repository clone URL"
+msgstr ""
+
+#: oauth/models.py:161
+msgid "HTML URL"
+msgstr "HTML URL"
+
+#: oauth/models.py:163
+msgid "Private repository"
+msgstr ""
+
+#: oauth/models.py:165
+msgid "vcs"
+msgstr "vcs"
+
+#: oauth/models.py:171
+#, fuzzy
+#| msgid "Default branch"
+msgid "Default branch of the repository"
+msgstr "Cabang bawaan"
+
+#: oauth/models.py:249
+msgid "Has admin privilege"
+msgstr "Memiliki hak administrasi"
+
+#: oauth/notifications.py:16
+msgid "Webhook successfully added."
+msgstr "Webhook telah sukses ditambahkan"
+
+#: oauth/notifications.py:19
+msgid ""
+"Could not add webhook for {{ project.name }}. Make sure <a href="
+"\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"permissions</a>."
+msgstr ""
+
+#: oauth/notifications.py:22
+msgid ""
+"Could not add webhook for {{ project.name }}. Please <a href="
+"\"{{ url_connect_account }}\">connect your {{ provider.name }} account</a>."
+msgstr ""
+
+#: oauth/notifications.py:44
+msgid ""
+"The project {{ project.name }} doesn't have a valid webhook set up, commits "
+"won't trigger new builds for this project. See <a "
+"href='{{ url_integrations }}'>the project integrations</a> for more "
+"information."
+msgstr ""
+
+#: oauth/notifications.py:65
+msgid ""
+"Could not send {{ provider_name }} build status report for {{ project."
+"name }}. Make sure you have the correct {{ provider_name }} repository "
+"permissions</a> and your <a href="
+"\"{{ url_connect_account }}\">{{ provider_name }} account</a> is connected "
+"to Read the Docs."
+msgstr ""
+
+#: oauth/tasks.py:52
+#, python-brace-format
+msgid ""
+"Our access to your following accounts was revoked: {providers}. Please, "
+"reconnect them from your social account connections."
+msgstr ""
+
+#: oauth/utils.py:58
+msgid "Webhook activated"
+msgstr "Webhook diaktifkan"
+
+#: oauth/utils.py:66
+msgid ""
+"Webhook activation failed. Make sure you have the necessary permissions."
+msgstr "Aktivasi Webhook gagal. Pastikan anda memiliki izin yang diperlukan."
+
+#: organizations/constants.py:9
+msgid "Read-only"
+msgstr ""
+
+#: organizations/constants.py:10 templates/core/project_bar_base.html:51
+#: templates/profiles/base_profile.html:29
+#: templates/profiles/base_profile_edit.html:31
+msgid "Admin"
+msgstr "Admin"
+
+#: organizations/forms.py:41 organizations/forms.py:96
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization Name"
+msgstr "Organisasi"
+
+#: organizations/forms.py:42 organizations/forms.py:97
+#, fuzzy
+#| msgid "Change Email"
+msgid "Billing Email"
+msgstr "Ubah Surel"
+
+#: organizations/forms.py:48
+#, fuzzy
+#| msgid "SSH URL"
+msgid "Site URL"
+msgstr "SSH URL"
+
+#: organizations/forms.py:71
+msgid "Invalid organization name: no slug generated"
+msgstr ""
+
+#: organizations/forms.py:74
+#, python-format
+msgid "Organization %(name)s already exists"
+msgstr ""
+
+#: organizations/forms.py:136 organizations/forms.py:219
+msgid "Email address or username"
+msgstr ""
+
+#: organizations/forms.py:154
+#, fuzzy, python-format
+#| msgid "User {name} does not exist"
+msgid "User %(username)s does not exist"
+msgstr "Pengguna {name} tidak ada"
+
+#: organizations/forms.py:159
+#, python-format
+msgid "User %(username)s is already an owner"
+msgstr ""
+
+#: organizations/forms.py:174
+msgid "Team already exists"
+msgstr ""
+
+#: organizations/forms.py:275
+msgid "User is already a team member"
+msgstr ""
+
+#: organizations/forms.py:297
+msgid "An invitation was already sent to this email"
+msgstr ""
+
+#: organizations/models.py:40
+#: organizations/templates/organizations/admin/base.html:13
+msgid "Owners"
+msgstr ""
+
+#: organizations/models.py:55 organizations/models.py:255
+#, fuzzy
+#| msgid "Email"
+msgid "E-mail"
+msgstr "Surel"
+
+#: organizations/models.py:68 templates/core/project_detail_right.html:61
+msgid "Home Page"
+msgstr ""
+
+#: organizations/models.py:75
+msgid "Disabled"
+msgstr ""
+
+#: organizations/models.py:80
+msgid "Artifacts Cleaned"
+msgstr ""
+
+#: organizations/models.py:85
+msgid "Maximum concurrent builds allowed for this organization"
+msgstr ""
+
+#: organizations/models.py:91
+msgid "Stripe customer ID"
+msgstr ""
+
+#: organizations/models.py:155
+#, python-brace-format
+msgid "{org} owner {owner}"
+msgstr ""
+
+#: organizations/models.py:197
+#, fuzzy
+#| msgid "Success"
+msgid "Access"
+msgstr "Sukses"
+
+#: organizations/models.py:250 templates/base.html:192
+msgid "Team"
+msgstr "Tim"
+
+#: organizations/models.py:256
+msgid "Hash"
+msgstr ""
+
+#: organizations/models.py:257
+msgid "Count"
+msgstr ""
+
+#: organizations/models.py:258
+msgid "Total"
+msgstr ""
+
+#: organizations/templates/organizations/admin/base.html:12
+#: organizations/templates/organizations/admin/organization_edit.html:9
+#: organizations/templates/organizations/base.html:31
+#: templates/profiles/base_profile_edit.html:48
+#: templates/projects/domain_list.html:39
+msgid "Details"
+msgstr "Detail"
+
+#: organizations/templates/organizations/admin/base.html:14
+#: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/security_log.html:6
+#: templates/profiles/private/security_log.html:10
+#, fuzzy
+#| msgid "Security"
+msgid "Security Log"
+msgstr "Keamanan"
+
+#: organizations/templates/organizations/admin/organization_delete.html:5
+#: organizations/templates/organizations/admin/organization_delete.html:11
+#, fuzzy
+#| msgid "Organization"
+msgid "Delete Organization"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/admin/organization_delete.html:13
+msgid ""
+"\n"
+"        Deleting this organization will also remove all the organization's\n"
+"        teams, users, projects, and built documentation.  Are you sure that "
+"it\n"
+"        is safe to remove this organization?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_delete.html:23
+#: templates/projects/project_delete.html:24
+msgid "Delete forever"
+msgstr "Hapus selamanya"
+
+#: organizations/templates/organizations/admin/organization_edit.html:5
+#, fuzzy
+#| msgid "Organization"
+msgid "Edit Organization"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/admin/organization_edit.html:15
+#: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
+#: templates/projects/environmentvariable_form.html:20
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_submit.html:4
+#: templates/projects/webhook_form.html:38
+msgid "Save"
+msgstr "Simpan"
+
+#. Translators: The 'or' here is in between 'Save' and 'Delete organization'.
+#: organizations/templates/organizations/admin/organization_edit.html:17
+#: templates/core/home-header.html:19
+msgid "or"
+msgstr "atau"
+
+#: organizations/templates/organizations/admin/organization_edit.html:18
+#, fuzzy
+#| msgid "Organization"
+msgid "Delete organization"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/admin/owners_edit.html:5
+#, fuzzy
+#| msgid "Organization"
+msgid "Edit Organization Owners"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/admin/owners_edit.html:13
+msgid "Owners have full access to this Organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/owners_edit.html:53
+#: organizations/templates/organizations/admin/owners_edit.html:57
+#: organizations/templates/organizations/team_list.html:51
+msgid "Add Owner"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:18
+#: organizations/templates/organizations/base_team.html:19
+#, fuzzy
+#| msgid "Organization"
+msgid "Organizations"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/base.html:32
+#: organizations/templates/organizations/team_list.html:7
+#, fuzzy
+#| msgid "Team"
+msgid "Teams"
+msgstr "Tim"
+
+#: organizations/templates/organizations/base.html:34
+#: organizations/templates/organizations/member_list.html:7
+#: organizations/templates/organizations/team_detail.html:40
+msgid "Members"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:37
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
+#: templates/projects/project_edit_base.html:17
+msgid "Settings"
+msgstr "Pengaturan"
+
+#: organizations/templates/organizations/includes/team_member_list.html:21
+msgid "invite pending"
+msgstr ""
+
+#: organizations/templates/organizations/includes/team_member_list.html:29
+msgid "This team doesn't have any members"
+msgstr ""
+
+#: organizations/templates/organizations/member_list.html:26
+#, python-format
+msgid ""
+"\n"
+"            This is a list of all the team members and owners inside your "
+"organization.\n"
+"            To invite members, <a href=\"%(invite_url)s\">invite them to a "
+"team</a>\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/base.html:24
+#: templates/projects/import_base.html:27
+msgid "Next"
+msgstr "Lanjut"
+
+#: organizations/templates/organizations/onboard/base.html:26
+#: templates/projects/import_base.html:29
+msgid "Finish"
+msgstr "Selesai"
+
+#: organizations/templates/organizations/onboard/base.html:30
+#: templates/projects/import_base.html:33
+msgid "Previous"
+msgstr "Kembali"
+
+#: organizations/templates/organizations/onboard/invite.html:4
+#: organizations/templates/organizations/onboard/organization.html:4
+#: organizations/templates/organizations/onboard/organization.html:7
+#: organizations/templates/organizations/onboard/plan.html:4
+#: organizations/templates/organizations/onboard/team.html:4
+#: organizations/templates/organizations/organization_create.html:5
+#: organizations/templates/organizations/organization_create.html:10
+#, fuzzy
+#| msgid "Organization"
+msgid "Create an Organization"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/onboard/invite.html:7
+msgid "Invite your Company"
+msgstr ""
+
+#: organizations/templates/organizations/onboard/invite.html:11
+msgid ""
+"\n"
+"        Finally, if you'd like to <b>invite your company to join you</b>,\n"
+"        invite some members to share documentation with below.\n"
+"        More members can be invited to your team later,\n"
+"        in the organization admin dashboard.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/organization.html:11
+msgid ""
+"\n"
+"        Before you can add a project or build documentation,\n"
+"        we will help you create an organization.\n"
+"        Access to your documentation is limited to <b>only those inside your "
+"organization</b>,\n"
+"        or inside a team with access.\n"
+"        We'll help set up a team shortly,\n"
+"        <b>start by entering your organization details</b>.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/team.html:7
+#, fuzzy
+#| msgid "Create"
+msgid "Create a Team"
+msgstr "Buat"
+
+#: organizations/templates/organizations/organization_create.html:23
+#, fuzzy
+#| msgid "Getting Started Guide"
+msgid "Get Started"
+msgstr "Panduan Memulai"
+
+#: organizations/templates/organizations/organization_create.html:33
+msgid ""
+"\n"
+"          To start building documentation, we will first help you create an\n"
+"          organization.\n"
+"        "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:42
+msgid ""
+"\n"
+"            Access to your documentation is limited to\n"
+"            <b>only those inside your organization</b>, or inside a team "
+"with access.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:50
+msgid ""
+"\n"
+"            No need to decide now, you can pick a plan that fits your "
+"organization\n"
+"            after a <b>30 day trial</b>.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_detail.html:69
+#: organizations/templates/organizations/team_list.html:69
+msgid "There are no teams currently established."
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:5
+#: organizations/templates/organizations/organization_invite.html:9
+msgid "Invite Members"
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:13
+msgid "Invite members to "
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:20
+msgid "Let them in"
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:6
+#: organizations/templates/organizations/security_log.html:10
+#, fuzzy
+#| msgid "Organization"
+msgid "Organization Security Log"
+msgstr "Organisasi"
+
+#: organizations/templates/organizations/security_log.html:19
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">organization security log</a> allows you to see "
+"what has happened recently in your organization."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:25
+#, python-format
+msgid ""
+"Showing logs from the last %(days_limit)s days. You can upgrade your plan to "
+"increase the time period that is stored."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:30
+msgid "Showing logs from all time."
+msgstr ""
+
+#: organizations/templates/organizations/team_create.html:7
+#: organizations/templates/organizations/team_create.html:14
+#: organizations/templates/organizations/team_create.html:18
+#: organizations/templates/organizations/team_list.html:45
+#, fuzzy
+#| msgid "Team"
+msgid "Add Team"
+msgstr "Tim"
+
+#: organizations/templates/organizations/team_delete.html:5
+#: organizations/templates/organizations/team_delete.html:11
+#: organizations/templates/organizations/team_edit.html:21
+#, fuzzy
+#| msgid "Delete"
+msgid "Delete Team"
+msgstr "Hapus"
+
+#: organizations/templates/organizations/team_delete.html:13
+msgid ""
+"\n"
+"        Deleting this team will revoke access for users that were in the "
+"team.\n"
+"        Are you sure that it is safe to remove these users?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_detail.html:14
+#: organizations/templates/organizations/team_edit.html:7
+#: organizations/templates/organizations/team_edit.html:14
+#, fuzzy
+#| msgid "Edit Card"
+msgid "Edit Team"
+msgstr "Sunting Kartu"
+
+#: organizations/templates/organizations/team_detail.html:19
+#, fuzzy
+#| msgid "My Projects"
+msgid "Manage Projects"
+msgstr "Proyek Saya"
+
+#: organizations/templates/organizations/team_detail.html:24
+#: organizations/templates/organizations/team_member_create.html:11
+msgid "Invite Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_edit.html:18
+msgid "Update Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:5
+msgid "Add Team Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:15
+msgid "Add Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:5
+#, fuzzy
+#| msgid "Projects"
+msgid "Team's Projects"
+msgstr "Proyek-proyek"
+
+#: organizations/templates/organizations/team_project_edit.html:15
+msgid ""
+"\n"
+"        Select the projects that you would like this team to have access "
+"to.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:22
+#, fuzzy
+#| msgid "Update subproject"
+msgid "Update Projects"
+msgstr "Perbarui subproyek"
+
+#: organizations/templates/organizations/verify_email.html:5
+#, fuzzy
+#| msgid "Verify your email address"
+msgid "Verify you email address"
+msgstr "Verifikasi alamat surel anda"
+
+#: organizations/templates/organizations/verify_email.html:10
+#: templates/account/email/email_confirmation_subject.txt:3
+msgid "Verify your email address"
+msgstr "Verifikasi alamat surel anda"
+
+#: organizations/views/private.py:102
+msgid "Owner added"
+msgstr ""
+
+#: organizations/views/private.py:106
+msgid "Owner removed"
+msgstr ""
+
+#: organizations/views/private.py:113
+msgid "Team added"
+msgstr ""
+
+#: organizations/views/private.py:123
+#, fuzzy
+#| msgid "Project deleted"
+msgid "Team deleted"
+msgstr "Proyek dihapus"
+
+#: organizations/views/private.py:140
+msgid "Team updated"
+msgstr ""
+
+#: organizations/views/private.py:145
+#, fuzzy
+#| msgid "Project settings updated"
+msgid "Team projects updated"
+msgstr "Pengaturan proyek telah diperbarui"
+
+#: organizations/views/private.py:150
+msgid "Member added to team"
+msgstr ""
+
+#: organizations/views/private.py:159
+msgid "Member removed from team"
+msgstr ""
+
+#: profiles/views.py:72
+msgid "You have successfully deleted your account"
+msgstr ""
+
+#: profiles/views.py:127
+msgid "Updated your advertising preferences"
+msgstr "Memperbarui preferensi iklan anda"
+
+#: projects/admin.py:111
+msgid "Yes"
+msgstr "Ya"
+
+#: projects/admin.py:112
+msgid "No"
+msgstr ""
+
+#: projects/admin.py:141
+msgid "Not spam (1-{})"
+msgstr ""
+
+#: projects/admin.py:147
+msgid "Don't show Ads ({}-{})"
+msgstr ""
+
+#: projects/admin.py:154
+msgid "Deny on robots ({}-{})"
+msgstr ""
+
+#: projects/admin.py:161
+msgid "Don't show dashboard ({}-{})"
+msgstr ""
+
+#: projects/admin.py:168
+msgid "Don't serve docs ({}-{})"
+msgstr ""
+
+#: projects/admin.py:175
+#, fuzzy
+#| msgid "Delete project"
+msgid "Delete project (>={})"
+msgstr "Hapus proyek"
+
+#: projects/constants.py:19
+msgid "Sphinx Html"
+msgstr "Sphinx Html"
+
+#: projects/constants.py:20
+msgid "Mkdocs"
+msgstr ""
+
+#: projects/constants.py:21
+msgid "Sphinx HtmlDir"
+msgstr "Sphinx HtmlDir"
+
+#: projects/constants.py:22
+msgid "Sphinx Single Page HTML"
+msgstr ""
+
+#: projects/constants.py:24
+msgid "Mkdocs Html Pages"
+msgstr ""
+
+#: projects/constants.py:66
+msgid "Live"
+msgstr ""
+
+#: projects/constants.py:67
+msgid "Deleted"
+msgstr "Terhapus"
+
+#: projects/constants.py:76
+msgid "Git"
+msgstr "Git"
+
+#: projects/constants.py:77
+msgid "Subversion"
+msgstr "Subversi"
+
+#: projects/constants.py:78
+msgid "Mercurial"
+msgstr ""
+
+#: projects/constants.py:79
+msgid "Bazaar"
+msgstr ""
+
+#: projects/constants.py:86 projects/models.py:2004
+msgid "Public"
+msgstr "Publik"
+
+#: projects/constants.py:87
+msgid "Private"
+msgstr "Privat"
+
+#: projects/constants.py:98
+msgid "CPython 2.x"
+msgstr "CPython 2.x"
+
+#: projects/constants.py:99
+msgid "CPython 3.x"
+msgstr "CPython 3.x"
+
+#: projects/constants.py:386
+msgid "Valid and active"
+msgstr ""
+
+#: projects/constants.py:387
+msgid "Invalid"
+msgstr ""
+
+#: projects/constants.py:388
+#, fuzzy
+#| msgid "Branding"
+msgid "Pending"
+msgstr "Penjenamaan"
+
+#: projects/exceptions.py:15
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr ""
+"Berkas konfigurasi tidak dapat ditemukan. Pastikan anda memiliki berkas conf."
+"py di dalam repositori anda."
+
+#: projects/exceptions.py:20
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+
+#: projects/exceptions.py:31
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+"Terdapat masalah saat menyambungkan ke repositori anda, pastikan URL "
+"repositori anda benar."
+
+#: projects/exceptions.py:35
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+
+#: projects/exceptions.py:40
+#, fuzzy
+#| msgid "One or more submodule URLs are not valid: {}."
+msgid ""
+"One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
+"submodules are not supported."
+msgstr "Satu atau lebih URL submodul tidak valid: {}."
+
+#: projects/exceptions.py:44
+msgid "You can not have two versions with the name latest or stable."
+msgstr ""
+
+#: projects/exceptions.py:47
+msgid "Failed to checkout revision: {}"
+msgstr ""
+
+#: projects/exceptions.py:50
+#, fuzzy
+#| msgid ""
+#| "There was a problem connecting to your repository, ensure that your "
+#| "repository URL is correct."
+msgid ""
+"There was a problem cloning your repository. Please check the command output "
+"for more information."
+msgstr ""
+"Terdapat masalah saat menyambungkan ke repositori anda, pastikan URL "
+"repositori anda benar."
+
+#: projects/filters.py:31 projects/filters.py:80
+msgid "Name (descending)"
+msgstr ""
+
+#: projects/filters.py:32 projects/filters.py:83
+msgid "Most recently built"
+msgstr ""
+
+#: projects/filters.py:33 projects/filters.py:84
+msgid "Least recently built"
+msgstr ""
+
+#: projects/filters.py:81
+msgid "Most recently modified"
+msgstr ""
+
+#: projects/filters.py:82
+msgid "Least recently modified"
+msgstr ""
+
+#: projects/filters.py:85
+msgid "Most frequently built"
+msgstr ""
+
+#: projects/filters.py:86
+msgid "Least frequently built"
+msgstr ""
+
+#: projects/filters.py:113 projects/filters.py:162
+msgid "Sort by"
+msgstr ""
+
+#: projects/filters.py:132
+#, fuzzy
+#| msgid "View Version"
+msgid "Hidden versions"
+msgstr "Lihat versi"
+
+#: projects/filters.py:133
+#, fuzzy
+#| msgid "View Version"
+msgid "Visible versions"
+msgstr "Lihat versi"
+
+#: projects/filters.py:137
+#, fuzzy
+#| msgid "Subversion"
+msgid "Public versions"
+msgstr "Subversi"
+
+#: projects/filters.py:138
+#, fuzzy
+#| msgid "Private Hosting"
+msgid "Private versions"
+msgstr "Hos Privat"
+
+#: projects/filters.py:154
+msgid "Visibility"
+msgstr ""
+
+#: projects/filters.py:163
+msgid "Relevance"
+msgstr ""
+
+#: projects/forms.py:99
+msgid "Edit advanced project options"
+msgstr ""
+
+#: projects/forms.py:122
+msgid "Invalid project name, a project already exists with that name"
+msgstr ""
+
+#: projects/forms.py:126
+msgid "Invalid project name"
+msgstr ""
+
+#: projects/forms.py:144
+msgid "Repository invalid"
+msgstr "Repositori invalid"
+
+#: projects/forms.py:185
+msgid "Length of each tag must be less than or equal to 100 characters."
+msgstr "Panjang tag harus kurang dari sasma dengan 100 karakter."
+
+#: projects/forms.py:244
+#, fuzzy
+#| msgid "Settings"
+msgid "Global settings"
+msgstr "Pengaturan"
+
+#: projects/forms.py:248
+#, fuzzy
+#| msgid "Default Version"
+msgid "Default settings"
+msgstr "Versi bawaan"
+
+#: projects/forms.py:280
+msgid ""
+"Your configuration file is invalid, make sure it contains conf.py in it."
+msgstr ""
+
+#: projects/forms.py:328
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr ""
+
+#: projects/forms.py:411
+#, python-brace-format
+msgid "User {name} does not exist"
+msgstr "Pengguna {name} tidak ada"
+
+#: projects/forms.py:486
+msgid "The payload must be a valid JSON object."
+msgstr ""
+
+#: projects/forms.py:664
+msgid "Only one domain can be canonical at a time."
+msgstr ""
+
+#: projects/forms.py:771
+msgid "Variable name can't start with __ (double underscore)"
+msgstr "Nama variable tidak dapat dimulai dengan __ (garis bawah ganda)"
+
+#: projects/forms.py:775
+msgid "Variable name can't start with READTHEDOCS"
+msgstr "Nama variabel tidak bisa dimulai dengan READTHEDOCS"
+
+#: projects/forms.py:780
+msgid "There is already a variable with this name for this project"
+msgstr "Sudah ada variabel dengan nama tersebut untuk proyek ini"
+
+#: projects/forms.py:785
+msgid "Variable name can't contain spaces"
+msgstr "Nama variabel tidak boleh mengandung spasi"
+
+#: projects/forms.py:789
+msgid "Only letters, numbers and underscore are allowed"
+msgstr "Hanya huruf, angka, dan garis bawah yang diperbolehkan"
+
+#: projects/models.py:73
+msgid "Parent"
+msgstr ""
+
+#: projects/models.py:79
+msgid "Child"
+msgstr ""
+
+#: projects/models.py:84
+msgid "Alias"
+msgstr ""
+
+#: projects/models.py:126
+#, fuzzy
+#| msgid "Description of the project"
+msgid "Short description of this project"
+msgstr "Deskripsi proyek"
+
+#: projects/models.py:129
+msgid "Repository URL"
+msgstr "URL repositori"
+
+#: projects/models.py:132
+msgid "Hosted documentation repository URL"
+msgstr ""
+
+#: projects/models.py:136
+msgid "Repository type"
+msgstr "Tipe repositori"
+
+#: projects/models.py:142
+msgid "Project homepage"
+msgstr "Halaman depan proyek"
+
+#: projects/models.py:144
+msgid "The project's homepage"
+msgstr ""
+
+#: projects/models.py:147
+msgid "Canonical URL"
+msgstr ""
+
+#: projects/models.py:149
+msgid "URL that documentation is expected to serve from"
+msgstr ""
+
+#: projects/models.py:152
+msgid "Single version"
+msgstr ""
+
+#: projects/models.py:155
+msgid ""
+"A single version site has no translations and only your \"latest\" version, "
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
+msgstr ""
+
+#: projects/models.py:162
+msgid "Default version"
+msgstr "Versi bawaan"
+
+#: projects/models.py:165
+msgid "The version of your project that / redirects to"
+msgstr "Versi proyek anda yang terdapat/mengarah ke"
+
+#: projects/models.py:170
+msgid "Default branch"
+msgstr "Cabang bawaan"
+
+#: projects/models.py:176
+msgid ""
+"What branch \"latest\" points to. Leave empty to use the default value for "
+"your VCS (eg. <code>trunk</code> or <code>master</code>)."
+msgstr ""
+
+#: projects/models.py:182
+msgid "Requirements file"
+msgstr "Berkas yang dibutuhkan"
+
+#: projects/models.py:188
+msgid ""
+"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
+"\">pip requirements file</a> needed to build your documentation. Path from "
+"the root of your project."
+msgstr ""
+
+#: projects/models.py:200
+msgid ""
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info on sphinx builders</a>."
+msgstr ""
+
+#: projects/models.py:206
+#, fuzzy
+#| msgid "Documentation Advertising"
+msgid "Documentation URL Configuration"
+msgstr "Pengiklanan Dokumentasi"
+
+#: projects/models.py:212
+msgid ""
+"Supports the following keys: $language, $version, $subproject, $filename. An "
+"example: `$language/$version/$filename`."
+msgstr ""
+
+#: projects/models.py:219
+#, fuzzy
+#| msgid "No downloads for this project."
+msgid "Build pull requests for this project"
+msgstr "Tidak ada unduhan pada proyek ini."
+
+#: projects/models.py:221
+msgid ""
+"More information in <a href=\"https://docs.readthedocs.io/page/guides/"
+"autobuild-docs-for-pull-requests.html\">our docs</a>"
+msgstr ""
+
+#: projects/models.py:224
+msgid "Privacy level of Pull Requests"
+msgstr ""
+
+#: projects/models.py:231
+msgid "Should builds from pull requests be public?"
+msgstr ""
+
+#: projects/models.py:236
+msgid "CDN Enabled"
+msgstr ""
+
+#: projects/models.py:238
+msgid "Analytics code"
+msgstr "Kode pelacakan"
+
+#: projects/models.py:243
+msgid ""
+"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
+"down your page loads."
+msgstr ""
+"Google Analytics Tracking ID (contoh <code>UA-22345342-1</code>). Ini "
+"mungkin dapat memperlambat pemuatan halaman anda."
+
+#: projects/models.py:249
+#, fuzzy
+#| msgid "Analytics"
+msgid "Disable Analytics"
+msgstr "Pelacakan"
+
+#: projects/models.py:253
+msgid ""
+"Disable Google Analytics completely for this project (requires rebuilding "
+"documentation)"
+msgstr ""
+
+#: projects/models.py:258
+msgid "Alternative container image"
+msgstr ""
+
+#: projects/models.py:264
+msgid "Container memory limit"
+msgstr ""
+
+#: projects/models.py:269
+msgid ""
+"Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
+"code>"
+msgstr ""
+
+#: projects/models.py:274
+msgid "Container time limit in seconds"
+msgstr ""
+
+#: projects/models.py:279
+msgid "Alternate build queue id"
+msgstr ""
+
+#: projects/models.py:285
+msgid "Maximum concurrent builds allowed for this project"
+msgstr ""
+
+#: projects/models.py:290
+msgid "Allow paid advertising"
+msgstr ""
+
+#: projects/models.py:292
+msgid "If unchecked, users will still see community ads."
+msgstr "Jika centang dihilangkan, pengguna akan terus melihat iklan komunitas."
+
+#: projects/models.py:295
+msgid "Ad-free"
+msgstr "Bebas iklan"
+
+#: projects/models.py:300
+msgid "Is spam?"
+msgstr ""
+
+#: projects/models.py:303
+msgid "Manually marked as (not) spam"
+msgstr ""
+
+#: projects/models.py:306
+msgid "Show version warning"
+msgstr "Lihat peringatan versi"
+
+#: projects/models.py:308
+msgid "Show warning banner in non-stable nor latest versions."
+msgstr ""
+
+#: projects/models.py:313
+msgid "Enable EPUB build"
+msgstr ""
+
+#: projects/models.py:316
+msgid "Create a EPUB version of your documentation with each build."
+msgstr ""
+
+#: projects/models.py:320
+msgid "Enable PDF build"
+msgstr ""
+
+#: projects/models.py:323
+msgid "Create a PDF version of your documentation with each build."
+msgstr ""
+
+#: projects/models.py:329 projects/models.py:1390
+msgid "Path"
+msgstr ""
+
+#: projects/models.py:333
+msgid "The directory where <code>conf.py</code> lives"
+msgstr ""
+
+#: projects/models.py:338
+msgid "Python configuration file"
+msgstr "Berkas konfigurasi Python"
+
+#: projects/models.py:343
+msgid ""
+"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
+"code>). Leave blank if you want us to find it for you."
+msgstr ""
+
+#: projects/models.py:349
+msgid "Featured"
+msgstr ""
+
+#: projects/models.py:350
+msgid "Skip"
+msgstr "Lewat"
+
+#: projects/models.py:352
+msgid "Install Project"
+msgstr "Instal Proyek"
+
+#: projects/models.py:354
+msgid ""
+"Install your project inside a virtualenv using <code>setup.py install</code>"
+msgstr ""
+
+#: projects/models.py:363
+msgid "Python Interpreter"
+msgstr "Interpreter Python"
+
+#: projects/models.py:368
+msgid "The Python interpreter used to create the virtual environment."
+msgstr ""
+
+#: projects/models.py:374
+msgid "Use system packages"
+msgstr "Gunakan paket sistem"
+
+#: projects/models.py:376
+msgid "Give the virtual environment access to the global site-packages dir."
+msgstr ""
+
+#: projects/models.py:387
+msgid "Should the project dashboard be public?"
+msgstr ""
+
+#: projects/models.py:394
+msgid "Related projects"
+msgstr "Proyek terkait"
+
+#: projects/models.py:402 templates/search/elastic_search.html:70
+msgid "Language"
+msgstr "Bahasa"
+
+#: projects/models.py:406
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+
+#: projects/models.py:414
+msgid "Programming Language"
+msgstr "Bahasa Pemrograman"
+
+#: projects/models.py:418
+msgid "The primary programming language the project is written in."
+msgstr ""
+
+#: projects/models.py:434
+msgid "This project has been built with a webhook"
+msgstr ""
+
+#: projects/models.py:438
+msgid "This project has been successfully cloned"
+msgstr ""
+
+#: projects/models.py:467
+msgid "Model must have slug"
+msgstr ""
+
+#: projects/models.py:1276
+msgid "Subproject nesting is not supported"
+msgstr ""
+
+#: projects/models.py:1392 sphinx_domains/models.py:44
+#, fuzzy
+#| msgid "Building"
+msgid "Build id"
+msgstr "Membangun"
+
+#: projects/models.py:1395
+msgid "Page search rank"
+msgstr ""
+
+#: projects/models.py:1400
+msgid "Ignore this file from operations like indexing"
+msgstr ""
+
+#: projects/models.py:1483
+#, fuzzy
+#| msgid "Triggered"
+msgid "Build triggered"
+msgstr "Dipicu"
+
+#: projects/models.py:1484
+msgid "Build passed"
+msgstr ""
+
+#: projects/models.py:1501
+#, fuzzy
+#| msgid "To URL"
+msgid "URL"
+msgstr "Menuju URL"
+
+#: projects/models.py:1503
+msgid "URL to send the webhook to"
+msgstr ""
+
+#: projects/models.py:1506
+msgid "Secret used to sign the payload of the webhook"
+msgstr ""
+
+#: projects/models.py:1514
+msgid "Events to subscribe"
+msgstr ""
+
+#: projects/models.py:1517
+msgid "JSON payload"
+msgstr ""
+
+#: projects/models.py:1519
+msgid ""
+"JSON payload to send to the webhook. Check <a href=\"https://docs."
+"readthedocs.io/page/build-notifications.html#variable-substitutions-reference"
+"\">the docs</a> for available substitutions."
+msgstr ""
+
+#: projects/models.py:1627 sphinx_domains/models.py:47
+msgid "Domain"
+msgstr ""
+
+#: projects/models.py:1634
+msgid "This domain was auto-created"
+msgstr ""
+
+#: projects/models.py:1638
+msgid "This domain is a CNAME for the project"
+msgstr ""
+
+#: projects/models.py:1643
+msgid "This domain is the primary one where the documentation is served from"
+msgstr ""
+
+#: projects/models.py:1647
+msgid "Use HTTPS"
+msgstr "Gunakan HTTPS"
+
+#: projects/models.py:1649
+msgid "Always use HTTPS for this domain"
+msgstr "Selalu menggunakan HTTPS untuk domain ini"
+
+#: projects/models.py:1653
+msgid "Number of times this domain has been hit"
+msgstr ""
+
+#: projects/models.py:1658 templates/projects/domain_form.html:40
+msgid "SSL certificate status"
+msgstr ""
+
+#: projects/models.py:1672
+msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
+msgstr ""
+
+#: projects/models.py:1676
+msgid ""
+"If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1680
+msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1806
+msgid "Allow deprecated webhook views"
+msgstr ""
+
+#: projects/models.py:1810
+msgid "Do not overwrite context vars in conf.py with Read the Docs context"
+msgstr ""
+
+#: projects/models.py:1815
+msgid "Use Read the Docs theme for MkDocs as default theme"
+msgstr "Gunakan tema Read the Docs untuk MkDocs sebagai tema bawaan"
+
+#: projects/models.py:1819
+msgid "Do not shallow clone when cloning git repos"
+msgstr ""
+
+#: projects/models.py:1823
+msgid "Use Docker image labelled as `testing` to build the docs"
+msgstr ""
+
+#: projects/models.py:1827
+msgid "Try alternative method of posting large data"
+msgstr ""
+
+#: projects/models.py:1831
+msgid "Clean all files used in the build process"
+msgstr ""
+
+#: projects/models.py:1835
+msgid "Upgrade conda before creating the environment"
+msgstr ""
+
+#: projects/models.py:1839
+msgid "Append Read the Docs core requirements to environment.yml file"
+msgstr ""
+
+#: projects/models.py:1844
+msgid ""
+"Pass all versions (including private) into the html context when building "
+"with Sphinx"
+msgstr ""
+
+#: projects/models.py:1850
+msgid ""
+"Cache the environment (virtualenv, conda, pip cache, repository) in storage"
+msgstr ""
+
+#: projects/models.py:1854
+msgid "Limit the amount of concurrent builds"
+msgstr ""
+
+#: projects/models.py:1858
+msgid ""
+"CDN support for a project's public versions when privacy levels are enabled."
+msgstr ""
+
+#: projects/models.py:1862
+msgid "Use Docker gVisor runtime to create build container."
+msgstr ""
+
+#: projects/models.py:1866
+msgid "Record 404s page views."
+msgstr ""
+
+#: projects/models.py:1872
+msgid "Skip syncing branches"
+msgstr ""
+
+#: projects/models.py:1876
+msgid "Skip syncing tags"
+msgstr ""
+
+#: projects/models.py:1880
+msgid "Skip sync versions task"
+msgstr ""
+
+#: projects/models.py:1884
+msgid "Always run pip install --upgrade"
+msgstr "Selalu jalankan pip install --upgrade"
+
+#: projects/models.py:1885
+msgid "Use new pip resolver"
+msgstr ""
+
+#: projects/models.py:1888
+msgid "Don't install the latest version of pip"
+msgstr ""
+
+#: projects/models.py:1890
+msgid "Use latest version of Sphinx"
+msgstr ""
+
+#: projects/models.py:1893
+msgid "Install mkdocs 0.17.3 by default"
+msgstr ""
+
+#: projects/models.py:1895
+#, fuzzy
+#| msgid "Build latest version"
+msgid "Use latest version of MkDocs"
+msgstr "Membangun versi terbaru"
+
+#: projects/models.py:1898
+msgid "Use latest version of the Read the Docs Sphinx extension"
+msgstr ""
+
+#: projects/models.py:1904
+msgid "Disable server side search"
+msgstr ""
+
+#: projects/models.py:1908
+msgid "Enable server side search for MkDocs projects"
+msgstr ""
+
+#: projects/models.py:1912
+msgid "Default to fuzzy search for simple search queries"
+msgstr ""
+
+#: projects/models.py:1916
+msgid ""
+"Index content directly from html files instead or relying in other sources"
+msgstr ""
+
+#: projects/models.py:1922
+msgid ""
+"List packages installed in the environment (\"pip list\" or \"conda list\") "
+"on build's output"
+msgstr ""
+
+#: projects/models.py:1928
+msgid ""
+"Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
+msgstr ""
+
+#: projects/models.py:1932
+msgid "Use \"-j auto\" when calling sphinx-build"
+msgstr ""
+
+#: projects/models.py:1936
+msgid "Use regular sphinx builders instead of custom RTD builders"
+msgstr ""
+
+#: projects/models.py:1940
+msgid "Mark duplicated builds as NOOP to be skipped by builders"
+msgstr ""
+
+#: projects/models.py:1944
+msgid "Do not create index.md or README.rst if the project does not have one."
+msgstr ""
+
+#: projects/models.py:1955
+msgid "Feature identifier"
+msgstr ""
+
+#: projects/models.py:1960
+msgid "Date feature was added"
+msgstr ""
+
+#: projects/models.py:1966
+msgid "Default all past projects to True"
+msgstr ""
+
+#: projects/models.py:1970
+msgid "Default all future projects to True"
+msgstr ""
+
+#: projects/models.py:1992
+msgid "Name of the environment variable"
+msgstr ""
+
+#: projects/models.py:1996
+msgid "Value of the environment variable"
+msgstr ""
+
+#: projects/models.py:2001
+msgid "Project where this variable will be used"
+msgstr ""
+
+#: projects/models.py:2007
+msgid "Expose this environment variable in PR builds?"
+msgstr ""
+
+#: projects/notifications.py:27
+msgid ""
+"Your primary email address is not verified. Please <a href="
+"\"{{account_email_url}}\">verify it here</a>."
+msgstr ""
+
+#: projects/tasks/utils.py:120
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({})."
+msgstr ""
+
+#: projects/validators.py:15
+msgid "Enter a valid plain or internationalized domain name value"
+msgstr ""
+
+#: projects/validators.py:46
+msgid "Invalid character in the URL"
+msgstr ""
+
+#: projects/validators.py:67
+msgid "Invalid scheme for URL"
+msgstr ""
+
+#: projects/views/private.py:149 projects/views/private.py:159
+msgid "Project settings updated"
+msgstr "Pengaturan proyek telah diperbarui"
+
+#: projects/views/private.py:168
+msgid "Project deleted"
+msgstr "Proyek dihapus"
+
+#: projects/views/private.py:386
+#, python-brace-format
+msgid ""
+"There is a problem with your {service} account, try reconnecting your "
+"account on your <a href=\"{url}\">connected services page</a>."
+msgstr ""
+
+#: projects/views/private.py:497
+#, python-brace-format
+msgid "{username} is the last owner, can't be removed"
+msgstr ""
+
+#: projects/views/private.py:962
+msgid "Project has been opted out from advertisement support"
+msgstr ""
+
+#: redirects/models.py:18
+msgid "301 - Permanent Redirect"
+msgstr ""
+
+#: redirects/models.py:19
+msgid "302 - Temporary Redirect"
+msgstr ""
+
+#: redirects/models.py:24
+msgid "Inactive"
+msgstr "Non-aktif"
+
+#: redirects/models.py:28
+msgid "Prefix Redirect"
+msgstr ""
+
+#: redirects/models.py:29
+msgid "Page Redirect"
+msgstr ""
+
+#: redirects/models.py:30
+msgid "Exact Redirect"
+msgstr ""
+
+#: redirects/models.py:31
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx HTMLDir -> HTML"
+
+#: redirects/models.py:32
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HTML -> HTMLDir"
+
+#: redirects/models.py:41
+msgid ""
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
+msgstr ""
+
+#: redirects/models.py:45
+msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
+msgstr ""
+
+#: redirects/models.py:48
+msgid "The type of redirect you wish to use."
+msgstr ""
+
+#: redirects/models.py:63
+msgid "Redirect Type"
+msgstr ""
+
+#: redirects/models.py:70
+msgid "From URL"
+msgstr "Dari URL"
+
+#: redirects/models.py:88
+msgid "To URL"
+msgstr "Menuju URL"
+
+#: redirects/models.py:96
+msgid "HTTP Status"
+msgstr "Status HTTP"
+
+#: redirects/models.py:108
+msgid "redirect"
+msgstr ""
+
+#: redirects/models.py:109
+msgid "redirects"
+msgstr ""
+
+#: redirects/models.py:125
+msgid "Redirect: {}"
+msgstr ""
+
+#: search/api.py:89
+msgid "Invalid page"
+msgstr ""
+
+#: search/api.py:174
+msgid "This query param is required"
+msgstr ""
+
+#: search/models.py:33
+msgid "Query"
+msgstr ""
+
+#: search/models.py:37
+msgid "Total results"
+msgstr ""
+
+#: settings/base.py:364
+msgid "Catalan"
+msgstr "Katala"
+
+#: settings/base.py:365
+msgid "English"
+msgstr "Inggris"
+
+#: settings/base.py:366
+msgid "Spanish"
+msgstr "Spanyol"
+
+#: settings/base.py:367
+msgid "Brazilian Portuguese"
+msgstr "Portugis Brasil"
+
+#: settings/base.py:368
+msgid "Norwegian Bokmål"
+msgstr "Norwegia Bokmål"
+
+#: settings/base.py:369
+msgid "French"
+msgstr "Prancis"
+
+#: settings/base.py:370
+msgid "Russian"
+msgstr "Rusia"
+
+#: settings/base.py:371
+msgid "German"
+msgstr "Jerman"
+
+#: settings/base.py:372
+msgid "Galician"
+msgstr "Galisia"
+
+#: settings/base.py:373
+msgid "Vietnamese"
+msgstr "Vietnam"
+
+#: settings/base.py:374
+msgid "Simplified Chinese"
+msgstr "Tionghoa Sederhana"
+
+#: settings/base.py:375
+msgid "Traditional Chinese"
+msgstr "Tionghoa Tradisional"
+
+#: settings/base.py:376
+msgid "Japanese"
+msgstr "Jepang"
+
+#: settings/base.py:377
+msgid "Ukrainian"
+msgstr "Ukraina"
+
+#: settings/base.py:378
+msgid "Italian"
+msgstr "Italia"
+
+#: settings/base.py:379
+msgid "Korean"
+msgstr "Korea"
+
+#: sphinx_domains/models.py:55
+msgid "Display Name"
+msgstr ""
+
+#: sphinx_domains/models.py:63
+msgid "Type Display"
+msgstr ""
+
+#: sphinx_domains/models.py:68
+#, fuzzy
+#| msgid "Name"
+msgid "Doc Name"
+msgstr "Nama"
+
+#: sphinx_domains/models.py:72
+msgid "Doc Display"
+msgstr ""
+
+#: sphinx_domains/models.py:77
+msgid "Anchor"
+msgstr ""
+
+#: subscriptions/forms.py:24
+#, python-brace-format
+msgid ""
+"Check our <a href=\"{pricing_page}\">pricing page</a> for more information "
+"about each plan."
+msgstr ""
+
+#: subscriptions/models.py:36
+msgid "Stripe ID"
+msgstr ""
+
+#: subscriptions/models.py:37
+msgid "Price"
+msgstr ""
+
+#: subscriptions/models.py:38
+msgid "Trial"
+msgstr ""
+
+#: subscriptions/models.py:43
+#, fuzzy
+#| msgid "Organization"
+msgid "For organizations"
+msgstr "Organisasi"
+
+#: subscriptions/models.py:51
+#, fuzzy
+#| msgid "Public"
+msgid "Published"
+msgstr "Publik"
+
+#: subscriptions/models.py:110
+#, fuzzy
+#| msgid "Create Domain"
+msgid "Custom domain"
+msgstr "Buat Domain"
+
+#: subscriptions/models.py:111
+#, fuzzy
+#| msgid "Documentation"
+msgid "CDN public documentation"
+msgstr "Dokumentasi"
+
+#: subscriptions/models.py:112
+#, fuzzy
+#| msgid "Python configuration file"
+msgid "Custom SSL configuration"
+msgstr "Berkas konfigurasi Python"
+
+#: subscriptions/models.py:113
+#, fuzzy
+#| msgid "Support"
+msgid "Support SLA"
+msgstr "Dukungan"
+
+#: subscriptions/models.py:114
+#, fuzzy
+#| msgid "View your documentation"
+msgid "Private documentation"
+msgstr "Lihat dokumentasi anda"
+
+#: subscriptions/models.py:115
+msgid "Embed content via API"
+msgstr ""
+
+#: subscriptions/models.py:116
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search analytics"
+msgstr "Pencarian seluruh dokumentasi"
+
+#: subscriptions/models.py:117
+msgid "Pageview analytics"
+msgstr ""
+
+#: subscriptions/models.py:118
+#, fuzzy
+#| msgid "Current card"
+msgid "Concurrent builds"
+msgstr "Kartu sekarang"
+
+#: subscriptions/models.py:119
+msgid "Single sign on (SSO) with Google"
+msgstr ""
+
+#: subscriptions/models.py:120
+#, fuzzy
+#| msgid "From URL"
+msgid "Custom URLs"
+msgstr "Dari URL"
+
+#: subscriptions/models.py:121
+msgid "Audit logs"
+msgstr ""
+
+#: subscriptions/models.py:122
+msgid "Record every page view"
+msgstr ""
+
+#: subscriptions/models.py:135
+msgid "Numeric value"
+msgstr ""
+
+#: subscriptions/models.py:169
+#: subscriptions/templates/subscriptions/subscription_detail.html:31
+msgid "Plan"
+msgstr ""
+
+#: subscriptions/models.py:179
+#, fuzzy
+#| msgid "Locked"
+msgid "Locked plan"
+msgstr "Terkunci"
+
+#: subscriptions/models.py:181
+msgid "Locked plan for custom contracts"
+msgstr ""
+
+#: subscriptions/models.py:188
+#, fuzzy
+#| msgid "Update Subscription"
+msgid "Stripe subscription ID"
+msgstr "Pembaruan Langganan"
+
+#: subscriptions/models.py:193
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription status"
+msgstr "Pelanggan Emas"
+
+#: subscriptions/models.py:194
+#, fuzzy
+#| msgid "Start time"
+msgid "Start date"
+msgstr "Waktu mulai"
+
+#: subscriptions/models.py:196
+#, fuzzy
+#| msgid "End time"
+msgid "End date"
+msgstr "Waktu selesai"
+
+#: subscriptions/models.py:202
+msgid "Trial end date"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:7
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Organization Subscription"
+msgstr "Batalkan Langganan"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:19
+#, python-format
+msgid ""
+"You are currently on a trial. Please choose a <a href=\"%(pricing_url)s"
+"\">paid plan</a> that fits your organization prior to the end of your trial. "
+"Upgrade your account by clicking on <strong>Manage Subscription</strong> "
+"below."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:37
+msgid "per month"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:42
+msgid "Plan Features:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:53
+#, fuzzy
+#| msgid "Sign up"
+msgid "Signed up"
+msgstr "Daftar"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:55
+#, fuzzy
+#| msgid "Tag"
+msgid "ago"
+msgstr "Tag"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:59
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription Status"
+msgstr "Pelanggan Emas"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:65
+msgid "Trial ends"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:70
+#, fuzzy
+#| msgid "Gold Subscription"
+msgid "Subscription ends"
+msgstr "Pelanggan Emas"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:81
+#, fuzzy
+#| msgid "Cancel Subscription"
+msgid "Manage Subscription"
+msgstr "Batalkan Langganan"
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:85
+msgid ""
+"Use the button above to see past invoices, change your plan, and update your "
+"billing information."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:93
+#, python-format
+msgid ""
+"<strong>You don't currently have an active subscription</strong>. You must "
+"create a subscription for a <a href=\"%(pricing_url)s\">paid plan</a> that "
+"fits your organization to continue using Read the Docs for Business."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:101
+#, fuzzy
+#| msgid "Update Subscription"
+msgid "Create Subscription"
+msgstr "Pembaruan Langganan"
+
+#: subscriptions/views.py:37
+#, fuzzy
+#| msgid "Your subscription has been updated"
+msgid "Your plan has been upgraded!"
+msgstr "Langganan anda telah diperbarui"
+
+#: subscriptions/views.py:92
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes."
+msgstr ""
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "Galat peladen"
+
+#: templates/account/email.html:5 templates/account/email.html:9
+#: templates/profiles/base_profile_edit.html:51
+msgid "Change Email"
+msgstr "Ubah Surel"
+
+#: templates/account/email.html:13
+msgid "The following email addresses are associated with your account:"
+msgstr "Alamat surel berikut terasosiasi dengan akun anda:"
+
+#: templates/account/email.html:26
+msgid "Verified"
+msgstr "Terverifikasi"
+
+#: templates/account/email.html:28
+msgid "Unverified"
+msgstr "Belum diverifikasi"
+
+#: templates/account/email.html:30
+msgid "Primary"
+msgstr ""
+
+#: templates/account/email.html:36
+msgid "Make Primary"
+msgstr ""
+
+#: templates/account/email.html:37
+msgid "Re-send Verification"
+msgstr "Mengirim ulang verifikasi"
+
+#: templates/account/email.html:46
+msgid "Warning:"
+msgstr "Peringatan:"
+
+#: templates/account/email.html:46
+msgid ""
+"You currently do not have any email address set up. You should really add an "
+"email address so you can receive notifications, reset your password, etc."
+msgstr ""
+
+#: templates/account/email.html:50
+msgid "Add E-mail Address"
+msgstr "Tambahkan alamat surel"
+
+#: templates/account/email.html:55
+msgid "Add E-mail"
+msgstr "Tambahkan surel"
+
+#: templates/account/email.html:64
+msgid "Do you really want to remove the selected email address?"
+msgstr "Apakah anda ingin menghapus alamat surel yang dipilih?"
+
+#: templates/account/email/email_confirmation_message.html:7
+#: templates/account/email/email_confirmation_message.txt:6
+msgid ""
+"To verify your email address and finish setting up your account, please go "
+"to:"
+msgstr ""
+"Untuk verifikasi alamat surel anda dan selesai mengatur akun anda, silakan "
+"menuju:"
+
+#: templates/account/email/email_confirmation_message.html:15
+#: templates/account/email/email_confirmation_message.txt:10
+msgid ""
+"If you did not sign up for an account with Read the Docs, you can disregard "
+"this email."
+msgstr ""
+"Jika anda tidak mendaftarkan akun dengan Read the Docs, anda dapat "
+"mengabaikan surel ini."
+
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
+msgid ""
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+"Sebuah permintaan telah dibuat untuk mengganti sandi Read the Docs anda. "
+"Untuk mengonfirmasi permintaan, silakan menuju:"
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
+msgstr ""
+"Jika anda tidak meminta untuk mengganti sandi, anda dapat mengabaikan surel "
+"ini."
+
+#: templates/account/email/password_reset_key_subject.txt:3
+msgid "Password reset"
+msgstr "Ganti sandi"
+
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
+msgid "Sign In"
+msgstr "Masuk"
+
+#: templates/account/login.html:14
+#, python-format
+msgid ""
+"If you have not created an account yet, then please <a href=\"%(signup_url)s"
+"\">sign up</a> first."
+msgstr ""
+"Jika anda belum membuat akun, silakan <a href=\"%(signup_url)s\">daftar</a> "
+"terlebih dahulu."
+
+#: templates/account/login.html:27
+#, python-format
+msgid ""
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
+msgstr ""
+"Jika anda lupa sandi anda, <a href=\"%(password_reset_url)s\">ganti sandi.</"
+"a>"
+
+#: templates/account/login.html:31 templates/account/signup.html:52
+msgid "Or"
+msgstr "Atau"
+
+#: templates/account/password_change.html:5
+#: templates/account/password_change.html:9
+#: templates/account/password_change.html:15
+#: templates/profiles/base_profile_edit.html:50
+msgid "Change Password"
+msgstr "Ubah Sandi"
+
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "Daftar"
+
+#: templates/account/signup.html:13
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr "Sudah memiliki akun? Silakan <a href=\"%(login_url)s\">masuk</a>."
+
+#: templates/account/signup.html:19
+#, python-format
+msgid ""
+"You have been invited to join the organization \"%(organization_name)s\" at "
+"Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:25
+msgid "You have been invited to join an organization at Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:33
+msgid ""
+"Sign up using the following provider. If you don't have an account with this "
+"provider, please contact your organization owner and ask about this."
+msgstr ""
+
+#: templates/account/signup.html:48
+#, fuzzy
+#| msgid ""
+#| "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
+#| "latest/privacy-policy.html\">privacy policy</a>."
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
+"terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
+"readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
+msgstr ""
+"Dengan mendaftar, anda menyetujui <a href=\"https://docs.readthedocs.io/en/"
+"latest/privacy-policy.html\">kebijakan privasi</a> kami."
+
+#: templates/archive/index.html:5
+msgid "Read the Docs Archive"
+msgstr "Arsip Read the Docs"
+
+#: templates/base.html:107
+#, fuzzy
+#| msgid "Notification"
+msgid "Close notification"
+msgstr "Notifikasi"
+
+#: templates/base.html:142
+msgid "Stay Updated"
+msgstr ""
+
+#: templates/base.html:146
+msgid "Blog"
+msgstr "Blog"
+
+#: templates/base.html:150
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+
+#: templates/base.html:163
+msgid "Subscribe"
+msgstr ""
+
+#: templates/base.html:171
+msgid "Thank you!"
+msgstr ""
+
+#: templates/base.html:172
+msgid "You have successfully joined our subscriber list."
+msgstr ""
+
+#: templates/base.html:185
+msgid "Resources"
+msgstr ""
+
+#: templates/base.html:189
+msgid "Tutorial"
+msgstr ""
+
+#: templates/base.html:195
+msgid "Documentation"
+msgstr "Dokumentasi"
+
+#: templates/base.html:198
+#, fuzzy
+#| msgid "Ad-free"
+msgid "Going Ad-free"
+msgstr "Bebas iklan"
+
+#: templates/base.html:201
+#, fuzzy
+#| msgid "Support"
+msgid "Site Support"
+msgstr "Dukungan"
+
+#: templates/base.html:204
+#, fuzzy
+#| msgid "HTTP Status"
+msgid "Site Status"
+msgstr "Status HTTP"
+
+#: templates/base.html:211
+msgid "Company"
+msgstr ""
+
+#: templates/base.html:215
+msgid "Jobs"
+msgstr ""
+
+#: templates/base.html:218
+msgid "Advertise with Us"
+msgstr "Beriklan dengan Kami"
+
+#: templates/base.html:221
+#, fuzzy
+#| msgid "Read the Docs Archive"
+msgid "Read the Docs for Business"
+msgstr "Arsip Read the Docs"
+
+#: templates/base.html:224
+msgid "Branding & Media Kit"
+msgstr ""
+
+#: templates/base.html:230
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/base.html:251
+msgid "Read the Docs, Inc & contributors"
+msgstr "Read the Docs, Inc & kontributor"
+
+#: templates/base.html:274
+msgid "Change Language"
+msgstr "Ubah Bahasa"
+
+#: templates/base_filter.html:14 templates/core/filter_bar.html:8
+msgid "Filter"
+msgstr "Saring"
+
+#: templates/builds/build_detail.html:36
+msgid "Cancel build"
+msgstr ""
+
+#: templates/builds/build_detail.html:44
+msgid "Completed"
+msgstr "Selesai"
+
+#: templates/builds/build_detail.html:49
+msgid "Build took"
+msgstr ""
+
+#: templates/builds/build_detail.html:53
+msgid "seconds"
+msgstr "detik"
+
+#: templates/builds/build_detail.html:59
+msgid "Built on"
+msgstr ""
+
+#: templates/builds/build_detail.html:67
+msgid "View docs"
+msgstr "Lihat docs"
+
+#: templates/builds/build_detail.html:75
+msgid "View raw"
+msgstr ""
+
+#: templates/builds/build_detail.html:98
+#, python-format
+msgid "Build #%(build_id)s"
+msgstr ""
+
+#: templates/builds/build_detail.html:108
+#, python-format
+msgid ""
+"\n"
+"            <b>%(external_version_name)s</b>\n"
+"          "
+msgstr ""
+
+#: templates/builds/build_detail.html:138
+msgid "Build completed"
+msgstr ""
+
+#: templates/builds/build_detail.html:148
+msgid "Build cancelled"
+msgstr ""
+
+#: templates/builds/build_detail.html:157
+#, python-format
+msgid ""
+"Don't want <em>setup.py install</em> called? Change the <strong>Install "
+"Project</strong> setting in your <a href=\"%(advanced_url)s\">advanced "
+"settings</a>."
+msgstr ""
+
+#: templates/builds/build_detail.html:167
+#, python-format
+msgid ""
+"<strong>Configure your documentation builds!</strong> Adding a <a href="
+"\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is the "
+"recommended way to configure your documentation builds. You can declare "
+"dependencies, set up submodules, and many other great features."
+msgstr ""
+
+#: templates/builds/build_detail.html:182
+msgid "Show full build output"
+msgstr ""
+
+#: templates/builds/build_detail.html:188
+msgid "Build Output"
+msgstr ""
+
+#: templates/builds/build_detail.html:192
+msgid "Setup Output"
+msgstr ""
+
+#: templates/builds/build_detail.html:197
+msgid "Environment Standard Error"
+msgstr ""
+
+#: templates/builds/build_detail.html:203
+msgid "Build Errors"
+msgstr ""
+
+#: templates/builds/build_detail.html:221
+#, python-format
+msgid "<a href=\"%(url)s\">Report any build issues here</a>."
+msgstr ""
+
+#: templates/builds/build_detail.html:246
+msgid "Command time:"
+msgstr "Waktu perintah:"
+
+#: templates/builds/build_detail.html:251
+msgid "Return"
+msgstr ""
+
+#: templates/builds/build_list.html:37
+msgid "Build Version:"
+msgstr ""
+
+#: templates/builds/build_list.html:53
+msgid "Recent Builds"
+msgstr ""
+
+#: templates/builds/regexautomationrule_form.html:6
+#: templates/builds/regexautomationrule_form.html:11
+msgid "Automation Rule"
+msgstr ""
+
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "Hapus"
+
+#: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
+#: templates/projects/tag_list.html:7
+msgid "Popular tags"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:6
+#: templates/builds/versionautomationrule_list.html:15
+#: templates/projects/project_edit_base.html:28
+msgid "Automation Rules"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:20
+msgid ""
+"Automate actions on new branches and tags. Check the <a href=\"https://docs."
+"readthedocs.io/page/automation-rules.html\">documentation on automation "
+"rules</a> for more information."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:32
+msgid "Add Rule"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:54
+#: templates/builds/versionautomationrule_list.html:55
+msgid "Move up"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:65
+#: templates/builds/versionautomationrule_list.html:66
+msgid "Move down"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:76
+msgid "No automation rules are currently configured."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:85
+#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/webhook_form.html:47
+msgid "Recent Activity"
+msgstr "Aktivitas Terbaru"
+
+#: templates/builds/versionautomationrule_list.html:91
+#, python-format
+msgid ""
+"%(type)s \"%(version)s\" matched the pattern <span>\"%(pattern)s\"</span>, "
+"and the action <a href=\"%(url)s\">%(action)s</a> was performed %(date)s ago."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:101
+#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/webhook_form.html:63
+msgid "There is no recent activity"
+msgstr "Tidak ada aktivitas terbaru"
+
+#: templates/core/build_list_detailed.html:7
+msgid "This build is still waiting to be built"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:7
+msgid "Passed"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:7
+msgid "Failed"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:11
+#, python-format
+msgid "%(external_version_name)s"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:16
+#, python-format
+msgid "version %(slug)s (%(type)s)"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:29
+msgid "No builds found"
+msgstr ""
+
+#: templates/core/email/base.html:78
+#, fuzzy
+#| msgid "Hello!"
+msgid "Hello,"
+msgstr "Halo!"
+
+#: templates/core/email/base.html:91
+msgid "Keep documenting,"
+msgstr "Terus mendokumentasi,"
+
+#: templates/core/email/base.html:92
+msgid "Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/core/filter_list.html:12
+msgid "No objects found"
+msgstr "Tidak ditemukan objek"
+
+#: templates/core/header.html:28
+msgid "My Projects"
+msgstr "Proyek Saya"
+
+#: templates/core/header.html:30
+msgid "Support"
+msgstr "Dukungan"
+
+#: templates/core/header.html:33
+msgid "Log Out"
+msgstr ""
+
+#: templates/core/header.html:41
+msgid "Log In"
+msgstr ""
+
+#: templates/core/home-header.html:10
+msgid "Create, host, and browse documentation."
+msgstr ""
+
+#: templates/core/home-header.html:19
+msgid "Log in"
+msgstr "Masuk"
+
+#: templates/core/project_bar_base.html:12
+#: templates/core/project_list_detailed.html:34
+#: templates/core/project_list_featured.html:13
+#: templates/projects/project_version_list.html:53
+msgid "View Docs"
+msgstr "Lihat dokuemntasi"
+
+#: templates/core/project_bar_base.html:31
+#, python-format
+msgid ""
+"Your project is currently disabled for abuse of the system. Please make sure "
+"it isn't using unreasonable amounts of resources or triggering lots of "
+"builds in a short amount of time. Please <a href=\"mailto:%(SUPPORT_EMAIL)s"
+"\">contact support</a> to get your project re-enabled."
+msgstr ""
+
+#: templates/core/project_bar_base.html:40
+msgid "Overview"
+msgstr "Ikhtisar"
+
+#: templates/core/project_detail_right.html:9
+msgid "Repository"
+msgstr "Repositori"
+
+#: templates/core/project_detail_right.html:21
+msgid "Used in URL's and in code to represent the project name"
+msgstr ""
+
+#: templates/core/project_detail_right.html:22
+msgid "Project Slug"
+msgstr ""
+
+#: templates/core/project_detail_right.html:29
+msgid "Last Built"
+msgstr ""
+
+#: templates/core/project_detail_right.html:36
+msgid "passed"
+msgstr ""
+
+#: templates/core/project_detail_right.html:38
+msgid "failed"
+msgstr ""
+
+#: templates/core/project_detail_right.html:41
+msgid "Currently Building"
+msgstr ""
+
+#: templates/core/project_detail_right.html:44
+#: templates/projects/project_dashboard_base.html:83
+msgid "No builds yet"
+msgstr ""
+
+#: templates/core/project_detail_right.html:51
+#: templates/projects/project_edit_base.html:22
+#: templates/projects/project_users.html:8
+msgid "Maintainers"
+msgstr ""
+
+#: templates/core/project_detail_right.html:69
+msgid "Badge"
+msgstr ""
+
+#: templates/core/project_detail_right.html:79
+msgid "Tags"
+msgstr ""
+
+#: templates/core/project_detail_right.html:87
+msgid "Project has no tags."
+msgstr ""
+
+#: templates/core/project_detail_right.html:90
+#, python-format
+msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
+msgstr ""
+"Tambahkan beberapa di <a href=\"%(edit_url)s\">pengaturan proyek</a> anda."
+
+#: templates/core/project_detail_right.html:100
+msgid "Short URLs"
+msgstr "URL pendek"
+
+#: templates/core/project_detail_right.html:111
+#: templates/projects/project_edit_base.html:24
+#: templates/projects/project_translations.html:12
+msgid "Translations"
+msgstr "Terjemahan"
+
+#: templates/core/project_detail_right.html:122
+msgid "Sub Projects"
+msgstr "Subproyek"
+
+#: templates/core/project_detail_right.html:132
+msgid "Default Version"
+msgstr "Versi bawaan"
+
+#: templates/core/project_detail_right.html:135
+msgid "'latest' Version"
+msgstr "Versi 'terbaru'"
+
+#: templates/core/project_details.html:49
+#: templates/projects/project_version_list.html:64
+msgid "No active versions."
+msgstr "Tidak ada versi aktif."
+
+#: templates/core/project_details.html:60
+msgid "Build a version"
+msgstr ""
+
+#: templates/core/project_details.html:69
+msgctxt "Build is a verb"
+msgid "Build version"
+msgstr ""
+
+#: templates/core/project_downloads.html:31
+msgid "No downloads for this project."
+msgstr "Tidak ada unduhan pada proyek ini."
+
+#: templates/core/project_list_detailed.html:28
+msgid "No builds"
+msgstr ""
+
+#: templates/core/project_list_detailed.html:36
+#: templates/core/project_list_featured.html:15
+msgid "No Docs"
+msgstr ""
+
+#: templates/core/project_list_detailed.html:44
+#: templates/core/project_list_featured.html:23
+msgid "No projects found"
+msgstr ""
+
+#: templates/core/widesearchbar.html:4
+msgid "Search all the docs"
+msgstr "Pencarian seluruh dokumentasi"
+
+#: templates/core/widesearchbar.html:12
+msgid "Search Read the Docs"
+msgstr "Cari Read the Docs"
+
+#. Translators: This is about starting a search
+#: templates/core/widesearchbar.html:16
+msgid "Let's do this."
+msgstr "Ayo lakukan."
+
+#: templates/flagging/flag_confirm.html:6
+#: templates/flagging/flag_confirm.html:11
+msgid "Confirm flagging"
+msgstr ""
+
+#: templates/flagging/flag_confirm.html:17
+msgid "What you are saying:"
+msgstr "Apa kata anda:"
+
+#: templates/flagging/flag_confirm.html:21
+#, python-format
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr ""
+
+#: templates/flagging/flag_confirm.html:23
+#, python-format
+msgid "Yes, this is %(title)s"
+msgstr "Ya, ini adalah %(title)s"
+
+#: templates/flagging/flag_confirm.html:24
+msgid "cancel"
+msgstr "batal"
+
+#: templates/flagging/flag_success.html:6
+#: templates/flagging/flag_success.html:11
+msgid "Flagging successful"
+msgstr ""
+
+#: templates/flagging/flag_success.html:16
+#, python-format
+msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
+msgstr ""
+
+#: templates/flagging/flag_success.html:18
+msgid "Thank you for contributing to the quality of this site!"
+msgstr "Terima kasih telah berkontribusi dalam kualitas halaman ini!"
+
+#: templates/homepage.html:9
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+"Read the Docs menyederhanakan dokumentasi teknis dengan mengotomatiskan "
+"pembangunan, pembuatan versi, and hosting dokumentasi hanya untuk Anda. "
+"Bangun dokumentasi yang terbaru untuk web, cetak, dan penggunaan luring "
+"dalam setiap kontrol versi secara otomatis."
+
+#: templates/homepage.html:12
+msgid "Home"
+msgstr "Beranda"
+
+#: templates/homepage.html:46
+msgid "Technical documentation lives here"
+msgstr ""
+
+#: templates/homepage.html:48
+msgid ""
+"Read the Docs simplifies software documentation by automating building, "
+"versioning, and hosting of your docs for you."
+msgstr ""
+"Read the Docs menyederhanakan dokumentasi perangkat lunak dengan "
+"mengotomatiskan pembangunan, pembuatan versi, and hosting dokumentasi hanya "
+"untuk Anda"
+
+#: templates/homepage.html:60
+msgid ""
+"We will host your documentation for free, forever. There are no tricks. We "
+"help over 100,000 open source projects share their docs, including a custom "
+"domain and theme."
+msgstr ""
+
+#: templates/homepage.html:71
+msgid ""
+"Whenever you push code to your favorite version control service, whether "
+"that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
+"so your code and documentation are never out of sync."
+msgstr ""
+
+#: templates/homepage.html:86
+msgid ""
+"We build and host your docs for the web, but they are also viewable as PDFs, "
+"as single page HTML, and for eReaders. No additional configuration is "
+"required."
+msgstr ""
+
+#: templates/homepage.html:96
+msgid ""
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+
+#: templates/homepage.html:109
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "Read the Tutorial"
+msgstr "Read the Docs"
+
+#: templates/homepage.html:123
+msgid "Featured Projects"
+msgstr ""
+
+#: templates/homepage.html:137
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "About Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/homepage.html:140
+msgid ""
+"Read the Docs has grown substantially since its beginning as a weekend "
+"project and is closing in on being a top-1000 site on the internet. Today, "
+"we:"
+msgstr ""
+
+#: templates/homepage.html:148
+msgid ""
+"<ul class=\"donate-about\"> <li>Serve over <b>55 million pages</b> of "
+"documentation a month</li> <li>Serve over <b>40 TB</b> of documentation a "
+"month</li> <li>Host over <b>80,000 open source projects</b> and support over "
+"<b>100,000 users</b></li> <li>Are supported by a <a href=\"https://docs."
+"readthedocs.io/en/latest/team.html\">very small team</a> of dedicated "
+"engineers</li> </ul>"
+msgstr ""
+
+#: templates/homepage.html:160
+msgid "Read the Docs is funded by the community"
+msgstr "Read the Docs dibiayai komunitas"
+
+#: templates/homepage.html:166
+#, python-format
+msgid ""
+"We fund our operations through <a href=\"https://www.ethicalads.io/"
+"advertisers/?ref=rtd\">advertising</a>, corporate-hosted documentation with "
+"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a href="
+"\"%(donate_url)s\">donations</a>, and we are supported by a number of "
+"generous <a href=\"https://docs.readthedocs.io/page/sponsors.html"
+"\">sponsors</a>."
+msgstr ""
+
+#: templates/homepage.html:175
+msgid ""
+"Read the Docs is open source and community supported. It depends on users "
+"like you to contribute to development, support, and operations. You can "
+"learn more about how to <a href=\"https://docs.readthedocs.io/page/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
+"who helps us run the site. Read the Docs wouldn't be possible without them."
+msgstr ""
+
+#: templates/homepage.html:185
+msgid ""
+"Hosting for the project is graciously provided by <a href=\"https://aws."
+"amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
+msgstr ""
+
+#: templates/notifications/send_notification_form.html:6
+msgid "Send Email"
+msgstr "Kirim surel"
+
+#: templates/notifications/send_notification_form.html:9
+msgid "An email message will be sent to the following email addresses:"
+msgstr "Pesan surel akan dikirimkan ke alamat surel berikut:"
+
+#: templates/notifications/send_notification_form.html:21
+#, python-format
+msgid "And 1 other recipient."
+msgid_plural "And %(counter)s other recipients..."
+msgstr[0] "Dan %(counter)s penerima lainnya..."
+
+#: templates/notifications/send_notification_form.html:32
+msgid "Specify the email content you wish to send:"
+msgstr "Jelaskan konten surel yang ingin anda kirimkan:"
+
+#: templates/notifications/send_notification_form.html:41
+msgid "Send Messages"
+msgstr "Kirim Pesan"
+
+#: templates/pagination/pagination.html:6
+#: templates/pagination/pagination.html:8
+#: templates/projects/project_import.html:185
+#: templates/projects/project_import.html:191
+msgid "previous"
+msgstr ""
+
+#: templates/pagination/pagination.html:22
+#: templates/pagination/pagination.html:24
+#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:201
+msgid "next"
+msgstr ""
+
+#: templates/post_commit.html:5
+msgid "Build Started"
+msgstr ""
+
+#: templates/post_commit.html:10
+#, python-format
+msgid "%(project)s is now building."
+msgstr ""
+
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgstr ""
+
+#: templates/post_commit.html:14
+msgid ""
+"This is a post-commit hook. Set it up in your project admin to POST here, "
+"for us to update your doc changes automatically."
+msgstr ""
+
+#: templates/profiles/base_profile.html:27
+#: templates/profiles/base_profile_edit.html:30
+msgid "Profile"
+msgstr "Profil"
+
+#: templates/profiles/base_profile_edit.html:49
+#: templates/socialaccount/connections.html:5
+#: templates/socialaccount/connections.html:7
+msgid "Connected Services"
+msgstr "Layanan Terhubung"
+
+#: templates/profiles/base_profile_edit.html:53
+#: templates/profiles/private/token_list.html:5
+#: templates/profiles/private/token_list.html:9
+msgid "API Tokens"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:54
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:68
+msgid "Delete Account"
+msgstr "Hapus Akun"
+
+#: templates/profiles/base_profile_edit.html:55
+#, fuzzy
+#| msgid "Become a Gold Member"
+msgid "Gold Membership"
+msgstr "Menjadi Gold Member"
+
+#: templates/profiles/base_profile_edit.html:57
+#: templates/projects/project_edit_base.html:34
+msgid "Advertising"
+msgstr "Iklan"
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr "Sesuaikan preferensi iklan"
+
+#: templates/profiles/private/advertising_profile.html:15
+msgid ""
+"Since you are a Gold member or Supporter, you are <strong>ad-free</strong> "
+"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:22
+#: templates/projects/project_advertising.html:16
+msgid ""
+"Read the Docs is an open source project. In order to maintain service, we "
+"rely on both the support of our users, and from sponsor support."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:30
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and community advertising we run on "
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/page/advertising/ethical-advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:41
+#, python-format
+msgid ""
+"You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
+"\">Gold member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
+"Docs</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:49
+msgid "Update advertisement preference"
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:15
+msgid ""
+"<strong>All projects where you are the only owner will be deleted.</strong> "
+"If you want to keep a project, add another owner or transfer ownership. The "
+"following projects and all their documentation will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:34
+msgid ""
+"<strong>All organizations and its projects where you are the only owner will "
+"be deleted.</strong> If you want to keep an organization, add another owner "
+"or transfer ownership. The following organizations and all their projects "
+"will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:66
+msgid "Be careful! This can not be undone!"
+msgstr ""
+
+#: templates/profiles/private/edit_profile.html:5
+#: templates/profiles/private/edit_profile.html:9
+msgid "Edit your profile"
+msgstr "Sunting profil anda"
+
+#: templates/profiles/private/edit_profile.html:14
+msgid "OK, save it!"
+msgstr "Baiklah, simpan!"
+
+#: templates/profiles/private/security_log.html:15
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">user security log</a> allows you to see what "
+"has happened recently in your account. Showing logs from the last "
+"%(days_limit)s days."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:20
+msgid "Generate API Token"
+msgstr ""
+
+#: templates/profiles/private/token_list.html:40
+msgid "Revoke"
+msgstr ""
+
+#: templates/profiles/private/token_list.html:49
+msgid "No API Tokens currently configured."
+msgstr ""
+
+#: templates/profiles/public/profile_detail.html:6
+#, python-format
+msgid "%(user)s's profile"
+msgstr "Profil %(user)s's"
+
+#: templates/projects/domain_confirm_delete.html:5
+#: templates/projects/domain_form.html:5 templates/projects/domain_list.html:5
+msgid "Edit Domains"
+msgstr ""
+
+#: templates/projects/domain_confirm_delete.html:13
+msgid "Confirm Delete"
+msgstr "Konfirmasi Hapus"
+
+#: templates/projects/domain_confirm_delete.html:18
+msgid "Confirm"
+msgstr "Konfirmasi"
+
+#: templates/projects/domain_form.html:16
+#, fuzzy
+#| msgid "Details"
+msgid "Domain Details"
+msgstr "Detail"
+
+#: templates/projects/domain_form.html:18
+msgid "Create Domain"
+msgstr "Buat Domain"
+
+#: templates/projects/domain_form.html:33
+#, python-format
+msgid ""
+"To configure this domain add a CNAME record in your DNS pointing your custom "
+"domain to <code>%(cname_target)s</code>."
+msgstr ""
+
+#: templates/projects/domain_form.html:52
+#, fuzzy
+#| msgid "Create Domain"
+msgid "Save Domain"
+msgstr "Buat Domain"
+
+#: templates/projects/domain_form.html:54
+msgid "Saving the domain will revalidate the SSL certificate"
+msgstr ""
+
+#: templates/projects/domain_list.html:12
+#: templates/projects/project_edit_base.html:21
+msgid "Domains"
+msgstr "Domain"
+
+#: templates/projects/domain_list.html:18
+#, python-format
+msgid ""
+"This project is a subproject of <a href=\"%(superproject_url)s\">"
+"%(superproject)s</a>, its documentation will always be served from the <code>"
+"%(domain)s</code> domain. <a href=\"https://docs.readthedocs.io/page/"
+"subprojects.html#custom-domain-on-subprojects\">Learn more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:26
+#, python-format
+msgid ""
+"Configuring a custom domain allows you to serve your documentation from a "
+"domain other than \"%(default_domain)s\". <a href=\"%(docs_url)s\">Learn "
+"more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:33
+msgid "Existing Domains"
+msgstr ""
+
+#: templates/projects/domain_list.html:48
+msgid "Add new domain"
+msgstr ""
+
+#: templates/projects/domain_list.html:56
+#: templates/projects/project_import.html:170
+#: templates/projects/project_notifications.html:79
+#: templates/projects/project_redirects.html:116
+#: templates/projects/project_translations.html:71
+#: templates/projects/project_users.html:49
+msgid "Add"
+msgstr "Tambah"
+
+#: templates/projects/environmentvariable_form.html:5
+#: templates/projects/environmentvariable_form.html:12
+#: templates/projects/environmentvariable_list.html:5
+#: templates/projects/environmentvariable_list.html:12
+#: templates/projects/project_edit_base.html:27
+msgid "Environment Variables"
+msgstr ""
+
+#: templates/projects/environmentvariable_list.html:22
+msgid "Add Environment Variable"
+msgstr ""
+
+#: templates/projects/environmentvariable_list.html:36
+#, fuzzy
+#| msgid "Public"
+msgid "public"
+msgstr "Publik"
+
+#: templates/projects/environmentvariable_list.html:38
+#, fuzzy
+#| msgid "Private"
+msgid "private"
+msgstr "Privat"
+
+#: templates/projects/environmentvariable_list.html:53
+msgid "No environment variables are currently configured."
+msgstr ""
+
+#: templates/projects/import_base.html:4
+msgid "Add a Project"
+msgstr "Tambahkan Proyek"
+
+#: templates/projects/import_basics.html:5
+msgid "Project Details"
+msgstr "Detail Proyek"
+
+#: templates/projects/import_basics.html:8
+msgid ""
+"To import a project, start by entering a few details about your repository. "
+"You can set additional configuration options for your documentation in a <a "
+"href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
+"readthedocs.yml</a> file."
+msgstr ""
+
+#: templates/projects/import_extra.html:5
+msgid "Project Extra Details"
+msgstr ""
+
+#: templates/projects/import_extra.html:8
+msgid "Here are a few more project options that you may need to configure."
+msgstr "Berikut beberapa opsi proyek yang mungkin perlu dikonfigurasi."
+
+#: templates/projects/includes/feature_disabled.html:5
+#, python-format
+msgid ""
+"This is a beta feature, it can be enabled by <a href=\"%(support_url)s"
+"\">contacting support</a>."
+msgstr ""
+
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#: templates/projects/includes/flagging.html:7
+msgid "Flag this project as"
+msgstr ""
+
+#: templates/projects/includes/flagging.html:8
+msgid "Inappropriate"
+msgstr ""
+
+#: templates/projects/includes/flagging.html:9
+msgid "Spam"
+msgstr "Sampah"
+
+#: templates/projects/includes/flagging.html:10
+msgid "Duplicate"
+msgstr "Duplikat"
+
+#: templates/projects/integration_exchange_detail.html:5
+#: templates/projects/integration_form.html:5
+#: templates/projects/integration_form.html:12
+#: templates/projects/integration_list.html:5
+#: templates/projects/integration_list.html:12
+#: templates/projects/project_edit_base.html:26
+msgid "Integrations"
+msgstr "Integrasi"
+
+#: templates/projects/integration_exchange_detail.html:12
+#: templates/projects/webhook_exchange_detail.html:10
+msgid "Exchange"
+msgstr ""
+
+#: templates/projects/integration_form.html:21
+#: templates/projects/integration_list.html:20
+msgid "Add integration"
+msgstr ""
+
+#: templates/projects/integration_generic_webhook_detail.html:7
+msgid "The following parameters are configured for this integration:"
+msgstr ""
+
+#: templates/projects/integration_generic_webhook_detail.html:14
+msgid "Token"
+msgstr ""
+
+#: templates/projects/integration_list.html:38
+msgid "No integrations are currently configured."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:5
+msgid "Integration"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:13
+#, python-format
+msgid "Integration - %(type)s"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:21
+msgid ""
+"This integration is being managed automatically by Read the Docs. If it "
+"isn't functioning correctly, try re-syncing the webhook:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:42
+msgid ""
+"This integration is not managed by Read the Docs currently. If this "
+"integration is not functioning correctly, you can try re-syncing it. "
+"Otherwise you'll need to update the configuration on your repository. You "
+"can use the following address to manually configure this webhook."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:52
+msgid ""
+"To manually configure this webhook with your provider, use the following "
+"address:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:67
+msgid ""
+"For more information on manually configuring a webhook, refer to <a href="
+"\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
+"documentation </a>"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:79
+msgid "Resync webhook"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:108
+msgid "Delete webhook"
+msgstr ""
+
+#: templates/projects/legend.html:4
+msgid "External Links"
+msgstr "Tautan eksternal"
+
+#: templates/projects/legend.html:5
+msgid "Link text"
+msgstr "Teks tautan"
+
+#: templates/projects/legend.html:7
+msgid "Internal Links"
+msgstr "Tautan internal"
+
+#: templates/projects/legend.html:10
+msgid "Bold"
+msgstr "Tebal"
+
+#: templates/projects/legend.html:11
+msgid "text to bold"
+msgstr ""
+
+#: templates/projects/legend.html:13
+msgid "Emphasized"
+msgstr ""
+
+#: templates/projects/legend.html:14
+msgid "text to emphasize"
+msgstr ""
+
+#: templates/projects/legend.html:16
+msgid "Lists"
+msgstr "Daftar"
+
+#: templates/projects/legend.html:19 templates/projects/legend.html:20
+#: templates/projects/legend.html:23 templates/projects/legend.html:24
+msgid "Item"
+msgstr "Item"
+
+#: templates/projects/legend.html:28
+msgid "Source Code"
+msgstr "Kode sumber"
+
+#: templates/projects/legend.html:30
+msgid "e.g. Check out this code"
+msgstr "misalkan Periksa kode ini"
+
+#: templates/projects/legend.html:31
+msgid "actual code indented"
+msgstr ""
+
+#: templates/projects/legend.html:34
+msgid "reStructuredText Primer"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:8
+msgid "Start building your documentation"
+msgstr "Mulai membangun dokumentasi anda"
+
+#: templates/projects/onboard_detail.html:10
+msgid ""
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
+msgstr ""
+
+#: templates/projects/onboard_detail.html:21
+msgid "Build latest version"
+msgstr "Membangun versi terbaru"
+
+#: templates/projects/onboard_detail.html:29
+msgid "Your documentation is ready to use"
+msgstr "Dokumentasi anda siap digunakan"
+
+#: templates/projects/onboard_detail.html:33
+msgid ""
+"Your documentation has been built. Ensure your documentation is kept up to "
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/page/webhooks.html\">setting up a webhook</a>."
+msgstr ""
+
+#: templates/projects/onboard_detail.html:41
+msgid "View your documentation"
+msgstr "Lihat dokumentasi anda"
+
+#: templates/projects/onboard_detail.html:46
+msgid "Your documentation failed to build"
+msgstr "Dokumentasi anda gagal dibangun"
+
+#: templates/projects/onboard_detail.html:50
+msgid ""
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a href="
+"\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
+"encountered</a> during builds."
+msgstr ""
+
+#: templates/projects/onboard_detail.html:59
+msgid "View build output"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:65
+msgid "Your documentation is building"
+msgstr "Dokumentasi anda sedang dibangun"
+
+#: templates/projects/onboard_detail.html:68
+msgid ""
+"You'll be able to view your documentation in a minute or two, once your "
+"project is done building."
+msgstr ""
+"Anda akan dapat melihat dokumentasi anda dalam satu atau dua menit, setelah "
+"proyek anda selesai dibangun."
+
+#: templates/projects/onboard_import.html:5
+msgid "Ready to share your documentation"
+msgstr "Siap untuk membagikan dokumentasi anda"
+
+#: templates/projects/onboard_import.html:10
+#, python-format
+msgid ""
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
+msgstr ""
+
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"In a hurry? <a href=\"%(template_project_url)s\">Fork our template project</"
+"a> on Github, and <a href=\"%(projects_import_url)s\">import it</a>."
+msgstr ""
+
+#: templates/projects/onboard_import.html:25
+#: templates/projects/project_dashboard_base.html:53
+msgid "Import a Project"
+msgstr "Impor Proyek"
+
+#: templates/projects/project_advanced.html:8
+msgid "Edit Advanced Project Settings"
+msgstr ""
+
+#: templates/projects/project_advanced.html:13
+#: templates/projects/project_edit_base.html:18
+msgid "Advanced Settings"
+msgstr "Pengaturan Lanjutan"
+
+#: templates/projects/project_advanced_settings_helptext.html:3
+#, python-format
+msgid ""
+"These settings can be configured using a <a href=\"%(config_file_link)s"
+"\">configuration file</a>. That's the recommended way to set up your "
+"project. <strong>Settings listed here are ignored when using a configuration "
+"file.</strong"
+msgstr ""
+
+#: templates/projects/project_advertising.html:5
+#: templates/projects/project_advertising.html:12
+msgid "Documentation Advertising"
+msgstr "Pengiklanan Dokumentasi"
+
+#: templates/projects/project_advertising.html:24
+msgid ""
+"We will periodically run advertisements on built documentation pages for "
+"sponsors, however we have strict guidelines on advertisements:"
+msgstr ""
+
+#: templates/projects/project_advertising.html:32
+#, fuzzy
+#| msgid "We don't give sponsors access to user information"
+msgid "We don't give sponsors access to user information."
+msgstr "Kami tidak memberikan akses informasi pengguna kepada sponsor"
+
+#: templates/projects/project_advertising.html:37
+#, fuzzy
+#| msgid "We only report the number of impressions and number of ad clicks"
+msgid "We only report the number of impressions and number of ad clicks."
+msgstr "Kami hanya melaporkan jumlah impresi dan jumlah klik iklan."
+
+#: templates/projects/project_advertising.html:42
+msgid ""
+"We only allow and image and text ads which we host ourselves. There are no "
+"advertiser-supplied scripts running on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:50
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and <a href=\"https://docs."
+"readthedocs.io/page/advertising/ethical-advertising.html#community-ads"
+"\">community advertising</a> we run on behalf of the open source community, "
+"see <a href=\"https://docs.readthedocs.io/page/advertising/ethical-"
+"advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/projects/project_advertising.html:59
+msgid "Opting out"
+msgstr ""
+
+#: templates/projects/project_advertising.html:63
+#, python-format
+msgid ""
+"In addition to the advertising preferences we have for <a href="
+"\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways for "
+"projects to opt out of advertising on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:71
+msgid ""
+"If you are part of a company that uses Read the Docs to host documentation "
+"for a commercial product, please consider <a href=\"https://readthedocs.com/"
+"\">Read the Docs for Business</a> which offers a completely ad-free "
+"experience, private repositories, private documentation, additional build "
+"resources, and dedicated support."
+msgstr ""
+
+#: templates/projects/project_advertising.html:81
+#, python-format
+msgid ""
+"By becoming a <a href=\"%(gold_detail)s\">Gold member</a> to Read the Docs, "
+"you may remove advertising from your projects for all visitors."
+msgstr ""
+
+#: templates/projects/project_advertising.html:88
+msgid ""
+"Project owners can <a href=\"#removing-paid-advertising\">opt out of paid "
+"advertisements</a> for their projects. Readers will still see community ads "
+"for open source projects and conferences."
+msgstr ""
+
+#: templates/projects/project_advertising.html:96
+#, python-format
+msgid ""
+"If you would like to completely remove advertising from your open source "
+"project, but both Read the Docs for Business and our Gold memberships don't "
+"seem like the right fit, please <a href=\"mailto:ads@readthedocs.org?"
+"subject=Alternatives%%20to%%20advertising\">get in touch</a> to discuss "
+"alternatives to advertising."
+msgstr ""
+
+#: templates/projects/project_advertising.html:113
+msgid ""
+"If you are a company hosting commercial documentation on our community site, "
+"we do not allow removing paid advertisements on your documentation. Please "
+"consider Read the Docs for Business or a Gold membership."
+msgstr ""
+
+#: templates/projects/project_advertising.html:122
+#, fuzzy
+#| msgid "Updated your advertising preferences"
+msgid "Update advertising preference"
+msgstr "Memperbarui preferensi iklan anda"
+
+#: templates/projects/project_create.html:6
+msgid "Create a new project"
+msgstr "Buat proyek baru"
+
+#: templates/projects/project_create.html:9
+msgid "Create a New Project"
+msgstr "Buat Proyek Baru"
+
+#: templates/projects/project_create.html:14
+msgid ""
+"Create new documentation here. If you already have docs in a public "
+"repository,"
+msgstr ""
+"Buat dokumentasi baru disini. Jika anda telah mempunyai dokumentasi di "
+"repositori publik,"
+
+#: templates/projects/project_create.html:15
+msgid "import an existing project"
+msgstr ""
+
+#: templates/projects/project_create.html:19
+msgid "Create"
+msgstr "Buat"
+
+#: templates/projects/project_dashboard_base.html:6
+msgid "Project Dashboard"
+msgstr "Dasbor Proyek"
+
+#: templates/projects/project_dashboard_base.html:20
+#, fuzzy
+#| msgid "Import a Repository"
+msgid "Important Versions"
+msgstr "Impor repositori"
+
+#: templates/projects/project_dashboard_base.html:77
+msgid "passing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:79
+msgid "failing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:112
+#, fuzzy
+#| msgid "Search all the docs"
+msgid "Search all docs"
+msgstr "Pencarian seluruh dokumentasi"
+
+#: templates/projects/project_dashboard_base.html:125
+#: templates/projects/project_dashboard_base.html:134
+#, fuzzy
+#| msgid "Connected account"
+msgid "Connect your Accounts"
+msgstr "Akun yang terhubung"
+
+#: templates/projects/project_dashboard_base.html:128
+msgid ""
+"Have a GitHub account? Connect your account and import your existing "
+"projects automatically."
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:144
+msgid "Learn More"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:146
+#, python-format
+msgid ""
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "Hapus %(name)s?"
+
+#: templates/projects/project_delete.html:13
+#, python-format
+msgid ""
+"This project <a href=\"%(subproject_url)s\">has subprojects</a> under it. "
+"Deleting this project will make them to become regular projects. This will "
+"break the URLs of all its subprojects and they will be served normally as "
+"other projects."
+msgstr ""
+
+#: templates/projects/project_delete.html:21
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "Anda yakin?"
+
+#: templates/projects/project_edit.html:8
+msgid "Edit Project"
+msgstr "Sunting Proyek"
+
+#: templates/projects/project_edit.html:18
+#, python-format
+msgid ""
+"You can change how your project is built in your <a href=\"%(advanced_url)s"
+"\">Advanced Settings</a>."
+msgstr ""
+"Anda dapat mengubah pembangunan proyek anda di <a href=\"%(advanced_url)s"
+"\">Pengaturan Lanjutan</a> anda."
+
+#: templates/projects/project_edit.html:23
+msgctxt "The 'or' is in between 'Save' and 'Delete project'"
+msgid "or"
+msgstr "atau"
+
+#: templates/projects/project_edit.html:24
+msgid "Delete project"
+msgstr "Hapus proyek"
+
+#: templates/projects/project_edit_base.html:20
+#, fuzzy
+#| msgid "Edit Project Versions"
+msgid "Edit Versions"
+msgstr "Sunting Versi Proyek"
+
+#: templates/projects/project_edit_base.html:23
+#: templates/projects/project_redirects.html:8
+#: templates/projects/project_redirects.html:80
+msgid "Redirects"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:25
+#: templates/projects/projectrelationship_form.html:5
+#: templates/projects/projectrelationship_form.html:12
+#: templates/projects/projectrelationship_list.html:5
+#: templates/projects/projectrelationship_list.html:12
+msgid "Subprojects"
+msgstr "Subproyek"
+
+#: templates/projects/project_edit_base.html:29
+#: templates/projects/webhook_exchange_detail.html:5
+#: templates/projects/webhook_form.html:5
+#: templates/projects/webhook_form.html:11
+#: templates/projects/webhook_list.html:5
+#: templates/projects/webhook_list.html:10
+msgid "Webhooks"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:30
+#: templates/projects/project_notifications.html:5
+#: templates/projects/project_notifications.html:12
+#, fuzzy
+#| msgid "Edit Notifications"
+msgid "Email Notifications"
+msgstr "Sunting Notifikasi"
+
+#: templates/projects/project_edit_base.html:31
+#: templates/projects/project_traffic_analytics.html:6
+#: templates/projects/project_traffic_analytics.html:11
+#, fuzzy
+#| msgid "Analytics"
+msgid "Traffic Analytics"
+msgstr "Pelacakan"
+
+#: templates/projects/project_edit_base.html:32
+#: templates/projects/projects_search_analytics.html:6
+#: templates/projects/projects_search_analytics.html:11
+#, fuzzy
+#| msgid "Analytics"
+msgid "Search Analytics"
+msgstr "Pelacakan"
+
+#: templates/projects/project_import.html:6
+msgid "Import a Remote Repository"
+msgstr ""
+
+#: templates/projects/project_import.html:51
+msgid "There was an error with your request:"
+msgstr ""
+
+#: templates/projects/project_import.html:64
+msgid "Refresh your accounts"
+msgstr ""
+
+#: templates/projects/project_import.html:73
+msgid "Import a Repository"
+msgstr "Impor repositori"
+
+#: templates/projects/project_import.html:79
+msgid ""
+"We're only showing public repositories. For private projects and other "
+"features, please use <a href=\"https://readthedocs.com/\">Read the Docs for "
+"Business</a>."
+msgstr ""
+
+#: templates/projects/project_import.html:97
+#, python-format
+msgid ""
+"No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
+"accounts</a>."
+msgstr ""
+
+#: templates/projects/project_import.html:104
+msgid ""
+"You don't currently have any connected accounts. Connect your account to be "
+"able to easily set up projects."
+msgstr ""
+
+#: templates/projects/project_import.html:143
+msgid "This repository requires admin access to import"
+msgstr "Repositori ini membutuhkan akses admin untuk mengimpor"
+
+#: templates/projects/project_import.html:152
+msgid "Locked"
+msgstr "Terkunci"
+
+#: templates/projects/project_import.html:161
+msgid "This repository has already been imported"
+msgstr "Repositori ini telah diimpor"
+
+#: templates/projects/project_import.html:162
+msgctxt "verb, action to see in detail"
+msgid "\"View\""
+msgstr ""
+
+#: templates/projects/project_import.html:214
+msgid ""
+"You can import your project manually if it isn't listed here or connected to "
+"one of your accounts."
+msgstr ""
+"Anda dapat mengimpor proyek anda secara manual jika tidak terdaftar disini "
+"atau sambungan dengan salah satu akun anda."
+
+#: templates/projects/project_import.html:221
+msgid "Import Manually"
+msgstr "Impor Manual"
+
+#: templates/projects/project_import.html:228
+msgid "Filter repositories"
+msgstr ""
+
+#: templates/projects/project_list.html:7
+#: templates/projects/project_list.html:13
+#, python-format
+msgid "Projects tagged with %(tag)s"
+msgstr ""
+
+#: templates/projects/project_list.html:24
+msgid "Browse projects"
+msgstr ""
+
+#: templates/projects/project_notifications.html:16
+msgid "Configure email notifications to be sent on build failures."
+msgstr ""
+
+#: templates/projects/project_notifications.html:22
+#, python-format
+msgid ""
+"Webhooks have been moved to its own page. Go to the <a href="
+"\"%(webhooks_url)s\">Webhooks tab</a> if you are looking for your webhooks."
+msgstr ""
+
+#: templates/projects/project_notifications.html:30
+msgid "Existing Notifications"
+msgstr ""
+
+#: templates/projects/project_notifications.html:54
+msgid "Remove Notifications"
+msgstr ""
+
+#: templates/projects/project_notifications.html:72
+msgid "New Email Notifications"
+msgstr ""
+
+#: templates/projects/project_notifications.html:74
+msgid "Add an email address to notify"
+msgstr "Tambahkan alamat surel untuk notifikasi"
+
+#: templates/projects/project_redirects.html:5
+msgid "Edit Redirects"
+msgstr ""
+
+#: templates/projects/project_redirects.html:74
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+
+#: templates/projects/project_resync_webhook.html:12
+msgid "Resync"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:21
+msgid "Top viewed pages in the past 30 days"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:34
+#: templates/projects/project_traffic_analytics.html:66
+#: templates/projects/projects_search_analytics.html:36
+msgid "No data available."
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:44
+msgid "Daily pageview totals"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:48
+#: templates/projects/projects_search_analytics.html:52
+#, fuzzy
+#| msgid "Downloads"
+msgid "Download all data"
+msgstr "Unduhan"
+
+#: templates/projects/project_traffic_analytics.html:52
+msgid "Not Found (404) pages"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:75
+msgid ""
+"\n"
+"    * The way that we track 404 pages is on our backend hosting.\n"
+"    It's possible the number of times each page is viewed is undercounted "
+"because of caching in the browser or in a CDN.\n"
+"    "
+msgstr ""
+
+#: templates/projects/project_translations.html:5
+msgid "Edit Translations"
+msgstr ""
+
+#: templates/projects/project_translations.html:16
+msgid "To add a translation to your project, select a project below."
+msgstr ""
+
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
+msgstr ""
+
+#: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr ""
+
+#: templates/projects/project_translations.html:36
+msgid "Existing Translations"
+msgstr ""
+
+#: templates/projects/project_translations.html:58
+msgid "No translations are currently configured"
+msgstr ""
+
+#: templates/projects/project_translations.html:67
+msgid "Choose which project you would like to add as a translation."
+msgstr ""
+
+#: templates/projects/project_users.html:5
+msgid "Edit Maintainers"
+msgstr ""
+
+#: templates/projects/project_users.html:12
+msgid ""
+"This allows you to add maintainers to your project. It gives them admin "
+"access to the project, so be careful!"
+msgstr ""
+
+#: templates/projects/project_users.html:15
+msgid "Existing Maintainers"
+msgstr ""
+
+#: templates/projects/project_users.html:28
+msgid "Remove Maintainer"
+msgstr ""
+
+#: templates/projects/project_users.html:42
+msgid "Add Maintainer"
+msgstr ""
+
+#: templates/projects/project_users.html:44
+msgid "Choose which user you would like to add."
+msgstr ""
+
+#: templates/projects/project_version_detail.html:16
+#, python-format
+msgid "%(version_name)s"
+msgstr ""
+
+#: templates/projects/project_version_detail.html:28
+msgid ""
+"This version is inactive but its documentation is still available online. "
+"You can <a href=\"#\" onclick=\"document.forms['version_delete_html']."
+"submit();\">delete this version's documentation</a> if you want to remove it "
+"completely."
+msgstr ""
+
+#: templates/projects/project_version_list.html:24
+msgid "Active Versions"
+msgstr ""
+
+#: templates/projects/project_version_list.html:81
+#, fuzzy
+#| msgid "No active versions."
+msgid "Activate a version"
+msgstr "Tidak ada versi aktif."
+
+#: templates/projects/project_version_list.html:82
+msgid ""
+"Active versions are built whenever new code is pushed to that branch or tag."
+msgstr ""
+
+#: templates/projects/project_version_list.html:93
+#, fuzzy
+#| msgid "No active versions."
+msgid "Filter Inactive Versions"
+msgstr "Tidak ada versi aktif."
+
+#: templates/projects/project_version_list.html:122
+#, fuzzy
+#| msgid "Active"
+msgid "Activate"
+msgstr "Aktif"
+
+#: templates/projects/project_version_list.html:130
+#, fuzzy
+#| msgid "No objects found"
+msgid "No versions found"
+msgstr "Tidak ditemukan objek"
+
+#: templates/projects/project_version_list.html:144
+#, python-format
+msgid ""
+"Showing the first %(max_inactive_versions)s of "
+"%(total_inactive_versions_count)s inactive versions.</a>."
+msgstr ""
+
+#: templates/projects/project_version_states_help_text.html:4
+#, python-format
+msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
+msgstr ""
+
+#: templates/projects/projectrelationship_form.html:22
+msgid "Update subproject"
+msgstr "Perbarui subproyek"
+
+#: templates/projects/projectrelationship_form.html:29
+msgid "Delete subproject"
+msgstr "Hapus subproyek"
+
+#: templates/projects/projectrelationship_form.html:38
+#: templates/projects/projectrelationship_list.html:41
+msgid "Add subproject"
+msgstr "Tambah subproyek"
+
+#: templates/projects/projectrelationship_list.html:16
+msgid ""
+"Subprojects are projects hosted from the same URL as their parent project. "
+"This is useful for organizing multiple projects under a custom domain."
+msgstr ""
+
+#: templates/projects/projectrelationship_list.html:24
+#, python-format
+msgid ""
+"This project is already configured as a subproject of %(project)s. Nested "
+"subprojects are not currently supported."
+msgstr ""
+
+#: templates/projects/projectrelationship_list.html:31
+#, python-format
+msgid "View subprojects of %(project)s"
+msgstr ""
+
+#: templates/projects/projectrelationship_list.html:79
+msgid "No subprojects are currently configured"
+msgstr ""
+
+#: templates/projects/projects_search_analytics.html:21
+msgid "Top queries in the past 30 days"
+msgstr ""
+
+#: templates/projects/projects_search_analytics.html:46
+msgid "Daily search totals"
+msgstr ""
+
+#: templates/projects/samples/getting_started.rst.html:3
+msgid "Here's a place to describe how to get up and running with your project"
+msgstr ""
+
+#: templates/projects/samples/installation.rst.html:3
+#, python-format
+msgid "Here is where you can describe how to install %(name)s"
+msgstr ""
+
+#: templates/projects/webhook_form.html:16
+#, python-format
+msgid ""
+"We’ll send a <code>POST</code> request to the URL with the JSON payload "
+"below on the selected events. Check <a href=\"%(docs_url)s\">our docs</a> "
+"for more information."
+msgstr ""
+
+#: templates/projects/webhook_form.html:25
+#, python-format
+msgid ""
+"This webhook was created from our old implementation and doesn't have a "
+"custom payload. Check <a href=\"%(docs_url)s\">our docs</a> for the payload "
+"description or edit the payload to set a custom one."
+msgstr ""
+
+#: templates/projects/webhook_list.html:18
+msgid "Add Webhook"
+msgstr ""
+
+#: templates/projects/webhook_list.html:47
+#, fuzzy
+#| msgid "No objects found"
+msgid "No webhooks found."
+msgstr "Tidak ditemukan objek"
+
+#: templates/search/elastic_search.html:6
+#, fuzzy, python-format
+#| msgid "Search: %(query)s "
+msgid ""
+"\n"
+"    Search: %(query)s\n"
+"  "
+msgstr "Cari: %(query)s "
+
+#: templates/search/elastic_search.html:30
+msgid "Object Type"
+msgstr ""
+
+#: templates/search/elastic_search.html:34
+msgid "Files"
+msgstr "Berkas"
+
+#: templates/search/elastic_search.html:87
+msgid "Code API Type"
+msgstr ""
+
+#: templates/search/elastic_search.html:138
+#, python-format
+msgid ""
+"\n"
+"            %(count)s results for `%(query)s`\n"
+"          "
+msgstr ""
+
+#: templates/search/elastic_search.html:230
+#, fuzzy
+#| msgid "No results found. Bummer."
+msgid "No results found."
+msgstr "Tidak ada hasil. Sayang."
+
+#: templates/security.html:5
+msgid "Security"
+msgstr "Keamanan"
+
+#: templates/security.html:9
+msgid "Security at Read the Docs"
+msgstr ""
+
+#: templates/security.html:11
+msgid ""
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/page/security.html"
+"\">security policy</a>."
+msgstr ""
+
+#: templates/socialaccount/authentication_error.html:5
+#: templates/socialaccount/authentication_error.html:8
+msgid "Social Network Login Failure"
+msgstr ""
+
+#: templates/socialaccount/authentication_error.html:10
+msgid ""
+"An error occurred while attempting to login via your social network account."
+msgstr ""
+
+#: templates/socialaccount/connections.html:16
+msgid "The following services are currently connected to your account:"
+msgstr "Layanan berikut sedang terhubung ke akun anda:"
+
+#: templates/socialaccount/connections.html:48
+msgid "Disconnect"
+msgstr "Terputus"
+
+#: templates/socialaccount/connections.html:55
+msgid ""
+"The API version this connection uses is no longer supported, please "
+"reconnect your Bitbucket account."
+msgstr ""
+
+#: templates/socialaccount/connections.html:71
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr ""
+"Anda tidak memiliki akun jaringang sosial yang terhubung dengan akun ini."
+
+#: templates/socialaccount/snippets/provider_list.html:14
+#, python-format
+msgid "%(verbiage)s %(brand_name)s"
+msgstr ""
+
+#: templates/socialaccount/snippets/provider_list.html:28
+#, python-format
+msgid "%(verbiage)s %(provider_name)s"
+msgstr ""
+
+#, python-format
+#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
+#~ msgstr "Data lookup sumber daya tidak valid (jenis tidak cocok). %(error)s"
+
+#~ msgid "Project not found"
+#~ msgstr "Proyek tidak ditemukan"
+
+#~ msgid "Show your email on VCS contributions."
+#~ msgstr "Tampilkan surel anda pada kontribusi VCS."
+
+#~ msgid "Existing Projects"
+#~ msgstr "Proyek yang Tersedia"
+
+#~ msgid "Add a project"
+#~ msgstr "Tambahkan proyek"
+
+#~ msgid "Are you sure you want to cancel your subscription?"
+#~ msgstr "Apakah anda yakin untuk membatalkan langganan anda?"
+
+#~ msgid "Card"
+#~ msgstr "Kartu"
+
+#~ msgid ""
+#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
+#~ "org/sustainability/\">sustainability</a> page."
+#~ msgstr ""
+#~ "Anda dapat membuat donasi sekali pada halaman <a href=\"https://"
+#~ "readthedocs.org/sustainability/\">sustainability</a> kami."
+
+#~ msgid "Update Your Subscription"
+#~ msgstr "Perbarui Langganan Anda"
+
+#~ msgid "Your subscription has been cancelled"
+#~ msgstr "Langganan anda telah dibatalkan"
+
+#~ msgid "VAT ID number"
+#~ msgstr "Nomor Wajib Pajak"
+
+#~ msgid "Card number"
+#~ msgstr "Nomor kartu"
+
+#~ msgid "Card expiration"
+#~ msgstr "Masa berlaku kartu"
+
+#~ msgid "Card CVV"
+#~ msgstr "CVV kartu"
+
+#~ msgid "There was a problem communicating with Stripe"
+#~ msgstr "Terdapat masalah dalam menyambungkan ke Stripe"
+
+#~ msgid "Mkdocs (Markdown)"
+#~ msgstr "Mkdocs (Markdown)"
+
+#~ msgid "Protected"
+#~ msgstr "Terlindungi"
+
+#~ msgid "Zip file of HTML"
+#~ msgstr "Berkas zip dari HTML"
+
+#~ msgid "That version is already active!"
+#~ msgstr "Versi ini sudah aktif!"
+
+#~ msgid "Must upload a zip file."
+#~ msgstr "Harus mengunggah berkas zip"
+
+#~ msgid "The reStructuredText description of the project"
+#~ msgstr "Deskripsi reStructuredText dari proyek"
+
+#~ msgid "Version Privacy Level"
+#~ msgstr "Level Privasi Versi"
+
+#~ msgid "View Project"
+#~ msgstr "Lihat Proyek"
+
+#~ msgid "MD5 checksum"
+#~ msgstr "Checksum MD5"
+
+#~ msgid "Your demo project is currently being imported"
+#~ msgstr "Demo proyek sedang diimpor"
+
+#~ msgid "There was a problem adding the demo project"
+#~ msgstr "Ada masalah dalam menambahkan demo proyek"
+
+#~ msgid "Contributing"
+#~ msgstr "Berkontribusi"
+
+#~ msgid "Open Source Philosophy"
+#~ msgstr "Filosofi Sumber Terbuka"
+
+#~ msgid "Business Info"
+#~ msgstr "Informasi Bisnis"
+
+#~ msgid "Supporters"
+#~ msgstr "Pendukung"
+
+#~ msgid "Project Privacy Level"
+#~ msgstr "Level Privasi Proyek"
+
+#~ msgid "Getting started guide"
+#~ msgstr "Panduan memulai"
+
+#~ msgid "Gold"
+#~ msgstr "Emas"
+
+#~ msgid "Edit Domain"
+#~ msgstr "Sunting Domain"
+
+#, python-format
+#~ msgid ""
+#~ "Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
+#~ "project</a>."
+#~ msgstr ""
+#~ "Mau mencoba demo? <a href=\"%(import_demo_url)s\">Impor proyek demo kami</"
+#~ "a>."
+
+#~ msgid "I can contribute financially"
+#~ msgstr "Saya dapat berkontribusi secara finansial"
+
+#~ msgid "I can contribute my time"
+#~ msgstr "Saya dapat berkontribusi waktu saya"
+
+#~ msgid "Learn more about a paid plan"
+#~ msgstr "Pelajari lebih lanjut tentang rencana berbayar"
+
+#~ msgid "Still can't help?"
+#~ msgstr "Masih belum membantu?"
+
+#~ msgid "This shows the last 7 days of data from your project."
+#~ msgstr "Ini menampilkan data dari proyek anda selama 7 hari terkahir."
+
+#~ msgid "Pages"
+#~ msgstr "Halaman"
+
+#~ msgid "Notifications"
+#~ msgstr "Notifikasi"
+
+#~ msgid "File"
+#~ msgstr "Berkas"
+
+#~ msgid "Select a File"
+#~ msgstr "Pilih berkas"
+
+#~ msgid "Show content"
+#~ msgstr "Tampilkan konten"
+
+#~ msgid "Example Usage"
+#~ msgstr "Contoh Penggunaan"
+
+#~ msgid "Choose Active Versions"
+#~ msgstr "Pilih Versi Aktif"
+
+#~ msgid "Huh?"
+#~ msgstr "Hah?"
+
+#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
+#~ msgstr "Tidak ada dokumentasi yang cocok dengan pencarian anda. ¯\\(O_o)/¯"
+
+#~ msgid "Import HTML Documentation"
+#~ msgstr "Impor Dokumentasi HTML"
+
+#~ msgid "Upload HTML"
+#~ msgstr "Unggah HTML"
+
+#, python-format
+#~ msgid "Results for %(query)s"
+#~ msgstr "Hasil untuk %(query)s"
