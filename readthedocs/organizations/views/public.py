@@ -1,7 +1,6 @@
 """Views that don't require login."""
 # pylint: disable=too-many-ancestors
 import structlog
-
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy

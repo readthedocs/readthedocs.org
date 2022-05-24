@@ -4,9 +4,9 @@
 from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic.base import TemplateView
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.generic.base import TemplateView
 from vanilla import CreateView, DeleteView, ListView, UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
@@ -30,7 +30,9 @@ from readthedocs.organizations.views.base import (
 from readthedocs.projects.utils import get_csv_file
 
 
-class OrganizationTemplateView(PrivateViewMixin, CheckOrganizationsEnabled, TemplateView):
+class OrganizationTemplateView(
+    PrivateViewMixin, CheckOrganizationsEnabled, TemplateView
+):
 
     """Wrapper around `TemplateView` to check if organizations are enabled."""
 

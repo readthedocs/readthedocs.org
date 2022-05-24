@@ -15,9 +15,11 @@ urlpatterns = [
         name='organization_create',
     ),
     re_path(
-        r'^verify-email/$',
-        views.OrganizationTemplateView.as_view(template_name='organizations/verify_email.html'),
-        name='organization_verify_email',
+        r"^verify-email/$",
+        views.OrganizationTemplateView.as_view(
+            template_name="organizations/verify_email.html"
+        ),
+        name="organization_verify_email",
     ),
     re_path(
         r'^(?P<slug>[\w.-]+)/edit/$',

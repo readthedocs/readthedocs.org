@@ -88,7 +88,7 @@ class AnonymousUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
 
     response_data = {
         # Places where we 302 on success.
-        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+        "/organizations/invite/{hash}/redeem/": {"status_code": 302},
     }
 
     def login(self):
@@ -96,6 +96,7 @@ class AnonymousUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
 
     def test_public_urls(self):
         from readthedocs.organizations.urls.public import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -110,7 +111,7 @@ class AnonymousUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
     default_status_code = 404
     response_data = {
         # Places where we 302 on success.
-        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+        "/organizations/invite/{hash}/redeem/": {"status_code": 302},
     }
 
     def login(self):
@@ -118,6 +119,7 @@ class AnonymousUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
 
     def test_public_urls(self):
         from readthedocs.organizations.urls.public import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -137,6 +139,7 @@ class AnonymousUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, Te
 
     def test_private_urls(self):
         from readthedocs.organizations.urls.private import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -144,7 +147,9 @@ class AnonymousUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, Te
     RTD_ALLOW_ORGANIZATIONS=True,
     ALLOW_PRIVATE_REPOS=True,
 )
-class AnonymousUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, TestCase):
+class AnonymousUserWithPrivateOrganizationsPrivateViewsTest(
+    OrganizationMixin, TestCase
+):
 
     """If organizations are private, an anonymous user can't access the private views."""
 
@@ -156,6 +161,7 @@ class AnonymousUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, T
 
     def test_private_urls(self):
         from readthedocs.organizations.urls.private import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -169,7 +175,7 @@ class AnotherUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
 
     response_data = {
         # Places where we 302 on success.
-        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+        "/organizations/invite/{hash}/redeem/": {"status_code": 302},
     }
 
     def login(self):
@@ -177,6 +183,7 @@ class AnotherUserWithPublicOrganizationsTest(OrganizationMixin, TestCase):
 
     def test_public_urls(self):
         from readthedocs.organizations.urls.public import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -191,7 +198,7 @@ class AnotherUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
     default_status_code = 404
     response_data = {
         # Places where we 302 on success.
-        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
+        "/organizations/invite/{hash}/redeem/": {"status_code": 302},
     }
 
     def login(self):
@@ -199,6 +206,7 @@ class AnotherUserWithPrivateOrganizationsTest(OrganizationMixin, TestCase):
 
     def test_public_urls(self):
         from readthedocs.organizations.urls.public import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -213,13 +221,14 @@ class AnotherUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, Test
     default_status_code = 404
     response_data = {
         # All users have access to these views.
-        '/organizations/': {'status_code': 200},
-        '/organizations/create/': {'status_code': 200},
-        '/organizations/verify-email/': {'status_code': 200},
-
+        "/organizations/": {"status_code": 200},
+        "/organizations/create/": {"status_code": 200},
+        "/organizations/verify-email/": {"status_code": 200},
         # 405's where we should be POST'ing
-        '/organizations/{slug}/owners/{owner}/delete/': {'status_code': 405},
-        '/organizations/{slug}/teams/{team}/members/{member}/revoke/': {'status_code': 405},
+        "/organizations/{slug}/owners/{owner}/delete/": {"status_code": 405},
+        "/organizations/{slug}/teams/{team}/members/{member}/revoke/": {
+            "status_code": 405
+        },
     }
 
     def login(self):
@@ -227,6 +236,7 @@ class AnotherUserWithPublicOrganizationsPrivateViewsTest(OrganizationMixin, Test
 
     def test_private_urls(self):
         from readthedocs.organizations.urls.private import urlpatterns
+
         self._test_url(urlpatterns)
 
 
@@ -241,13 +251,14 @@ class AnotherUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, Tes
     default_status_code = 404
     response_data = {
         # All users have access to these views.
-        '/organizations/': {'status_code': 200},
-        '/organizations/create/': {'status_code': 200},
-        '/organizations/verify-email/': {'status_code': 200},
-
+        "/organizations/": {"status_code": 200},
+        "/organizations/create/": {"status_code": 200},
+        "/organizations/verify-email/": {"status_code": 200},
         # 405's where we should be POST'ing
-        '/organizations/{slug}/owners/{owner}/delete/': {'status_code': 405},
-        '/organizations/{slug}/teams/{team}/members/{member}/revoke/': {'status_code': 405},
+        "/organizations/{slug}/owners/{owner}/delete/": {"status_code": 405},
+        "/organizations/{slug}/teams/{team}/members/{member}/revoke/": {
+            "status_code": 405
+        },
     }
 
     def login(self):
@@ -255,4 +266,5 @@ class AnotherUserWithPrivateOrganizationsPrivateViewsTest(OrganizationMixin, Tes
 
     def test_private_urls(self):
         from readthedocs.organizations.urls.private import urlpatterns
+
         self._test_url(urlpatterns)

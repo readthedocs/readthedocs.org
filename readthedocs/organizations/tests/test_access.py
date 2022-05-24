@@ -2,11 +2,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
-from readthedocs.organizations.models import (
-    Organization,
-    OrganizationOwner,
-    Team,
-)
+from readthedocs.organizations.models import Organization, OrganizationOwner, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_user
 
@@ -232,10 +228,10 @@ class OrganizationNonmemberAccess(OrganizationAccessMixin, TestCase):
     """Test organization paths with authed but non-org user."""
 
     url_responses = {
-        '/organizations/': {'status_code': 200},
-        '/organizations/mozilla/': {'status_code': 200},
-        '/organizations/mozilla/members/': {'status_code': 200},
-        '/organizations/mozilla/teams/': {'status_code': 200},
+        "/organizations/": {"status_code": 200},
+        "/organizations/mozilla/": {"status_code": 200},
+        "/organizations/mozilla/members/": {"status_code": 200},
+        "/organizations/mozilla/teams/": {"status_code": 200},
     }
 
     def assertResponse(self, path, method=None, data=None, **kwargs):
