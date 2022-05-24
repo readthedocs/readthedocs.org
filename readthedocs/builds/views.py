@@ -1,11 +1,10 @@
 """Views for builds app."""
 
 import signal
-
-import structlog
 import textwrap
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,7 +15,11 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    BUILD_STATE_TRIGGERED,
+)
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
@@ -24,7 +27,6 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError, BuildCancelled
 from readthedocs.projects.models import Project
 from readthedocs.worker import app
-
 
 log = structlog.get_logger(__name__)
 
@@ -131,9 +133,13 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
     def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
 
-        active_builds = self.get_queryset().exclude(
-            state='finished',
-        ).values('id')
+        active_builds = (
+            self.get_queryset()
+            .exclude(
+                state__in=BUILD_FINAL_STATES,
+            )
+            .values("id")
+        )
 
         context['project'] = self.project
         context['active_builds'] = active_builds
@@ -169,7 +175,7 @@ class BuildDetail(BuildBase, DetailView):
             # Since the task won't be executed at all, we need to update the
             # Build object here.
             terminate = False
-            build.state = BUILD_STATE_FINISHED
+            build.state = BUILD_STATE_CANCELLED
             build.success = False
             build.error = BuildCancelled.message
             build.length = 0

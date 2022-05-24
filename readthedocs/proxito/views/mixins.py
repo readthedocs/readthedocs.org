@@ -203,7 +203,9 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
-        log.info('System Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.debug(
+            "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
+        )
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = 'system'
         return resp

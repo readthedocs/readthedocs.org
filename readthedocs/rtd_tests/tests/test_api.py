@@ -802,7 +802,7 @@ class APITests(TestCase):
             max_concurrent_builds=None,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             get(
                 Build,
                 project=project,
