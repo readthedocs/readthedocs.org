@@ -184,7 +184,7 @@ class OrganizationAccessMixin:
         self.assertEqual(self.organization.teams.count(), 1)
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=False)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=True)
 class OrganizationOwnerAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed org owner."""
@@ -196,7 +196,7 @@ class OrganizationOwnerAccess(OrganizationAccessMixin, TestCase):
         return True
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=False)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=True)
 class OrganizationMemberAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed org member."""
@@ -222,16 +222,13 @@ class OrganizationMemberAccess(OrganizationAccessMixin, TestCase):
         return False
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=False)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True, ALLOW_PRIVATE_REPOS=True)
 class OrganizationNonmemberAccess(OrganizationAccessMixin, TestCase):
 
     """Test organization paths with authed but non-org user."""
 
     url_responses = {
         "/organizations/": {"status_code": 200},
-        "/organizations/mozilla/": {"status_code": 200},
-        "/organizations/mozilla/members/": {"status_code": 200},
-        "/organizations/mozilla/teams/": {"status_code": 200},
     }
 
     def assertResponse(self, path, method=None, data=None, **kwargs):
