@@ -89,6 +89,77 @@
                 "ubuntu-22.04"
               ]
             },
+            "jobs": {
+              "title": "Build jobs",
+              "description": "Run custom commands at any point in the build process",
+              "type": "object",
+              "properties": {
+                "post_checkout": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_system_dependencies": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_system_dependencies": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_create_environment": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_create_environment": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_install": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_install": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_build": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_build": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
             "tools": {
               "title": "Tools",
               "description": "Tools and their version to be used in the build.",
