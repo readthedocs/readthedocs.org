@@ -1,12 +1,9 @@
+import django_dynamic_fixture as fixture
 import pytest
 
-import django_dynamic_fixture as fixture
-from django.conf import settings
-
-from readthedocs.builds.querysets import BuildQuerySet
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Project
 
 
 @pytest.mark.django_db
@@ -18,7 +15,7 @@ class TestBuildQuerySet:
             max_concurrent_builds=None,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             fixture.get(
                 Build,
                 project=project,
@@ -39,7 +36,7 @@ class TestBuildQuerySet:
             max_concurrent_builds=2,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             fixture.get(
                 Build,
                 project=project,
@@ -58,7 +55,7 @@ class TestBuildQuerySet:
             max_concurrent_builds=None,
             main_language_project=project,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             fixture.get(
                 Build,
                 project=project,
@@ -90,7 +87,7 @@ class TestBuildQuerySet:
             organization.projects.add(project)
 
         for project in organization.projects.all():
-            for state in ('triggered', 'building', 'cloning', 'finished'):
+            for state in ("triggered", "building", "cloning", "finished", "cancelled"):
                 fixture.get(
                     Build,
                     project=project,
@@ -124,7 +121,7 @@ class TestBuildQuerySet:
         )
         organization.projects.add(project_with_builds)
         organization.projects.add(project_without_builds)
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             fixture.get(
                 Build,
                 project=project_with_builds,
@@ -151,7 +148,7 @@ class TestBuildQuerySet:
         )
         organization.projects.add(project_limited)
         organization.projects.add(project_not_limited)
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             fixture.get(
                 Build,
                 project=project_limited,

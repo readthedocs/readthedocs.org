@@ -5,13 +5,13 @@ Sphinx_ backend for building docs.
 """
 import codecs
 import itertools
-import structlog
 import os
 import shutil
 import zipfile
 from glob import glob
 from pathlib import Path
 
+import structlog
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
@@ -169,21 +169,21 @@ class BaseSphinx(BaseBuilder):
         )
 
         data = {
-            'html_theme': 'sphinx_rtd_theme',
-            'html_theme_import': 'sphinx_rtd_theme',
-            'current_version': self.version.verbose_name,
-            'project': self.project,
-            'version': self.version,
-            'settings': settings,
-            'conf_py_path': conf_py_path,
-            'api_host': settings.PUBLIC_API_URL,
-            'commit': commit,
-            'versions': versions,
-            'downloads': downloads,
-            'subproject_urls': subproject_urls,
-            'build_url': build_url,
-            'vcs_url': vcs_url,
-
+            "html_theme": "sphinx_rtd_theme",
+            "html_theme_import": "sphinx_rtd_theme",
+            "current_version": self.version.verbose_name,
+            "project": self.project,
+            "version": self.version,
+            "settings": settings,
+            "conf_py_path": conf_py_path,
+            "api_host": settings.PUBLIC_API_URL,
+            "commit": commit,
+            "versions": versions,
+            "downloads": downloads,
+            "subproject_urls": subproject_urls,
+            "build_url": build_url,
+            "vcs_url": vcs_url,
+            "proxied_static_path": self.project.proxied_static_path,
             # GitHub
             'github_user': github_user,
             'github_repo': github_repo,

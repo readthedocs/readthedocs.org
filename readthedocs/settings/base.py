@@ -128,6 +128,7 @@ class CommunityBaseSettings(Settings):
     DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
+    DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
 
     USER_MATURITY_DAYS = 7
 
@@ -175,6 +176,7 @@ class CommunityBaseSettings(Settings):
             'django_filters',
             'polymorphic',
             'simple_history',
+            'djstripe',
 
             # our apps
             'readthedocs.projects',
@@ -198,6 +200,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
+            'readthedocs.telemetry',
 
             # allauth
             'allauth',
@@ -313,6 +316,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -544,23 +548,29 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.12',
-                '3.8': '3.8.12',
-                '3.9': '3.9.7',
-                '3.10': '3.10.0',
-                'pypy3.7': 'pypy3.7-7.3.5',
+                '3.7': '3.7.13',
+                '3.8': '3.8.13',
+                '3.9': '3.9.13',
+                '3.10': '3.10.4',
+                '3.11': '3.11.0b1',
+                'pypy3.7': 'pypy3.7-7.3.9',
+                'pypy3.8': 'pypy3.8-7.3.9',
+                'pypy3.9': 'pypy3.9-7.3.9',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.17.6',
-                '16': '16.9.1',
+                '14': '14.19.3',
+                '16': '16.15.0',
+                '18': '18.2.0',
             },
             'rust': {
                 '1.55': '1.55.0',
+                '1.61': '1.61.0',
             },
             'golang': {
-                '1.17': '1.17.1',
+                '1.17': '1.17.10',
+                '1.18': '1.18.2',
             },
         },
     }
@@ -741,8 +751,23 @@ class CommunityBaseSettings(Settings):
     TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
+    # Existing values we use
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
+
+    # DJStripe values -- **CHANGE THESE IN PRODUCTION**
+    STRIPE_LIVE_SECRET_KEY = None
+    STRIPE_TEST_SECRET_KEY = "sk_test_x" # A default so the `checks` don't fail
+    DJSTRIPE_WEBHOOK_SECRET = None
+    STRIPE_LIVE_MODE = False  # Change to True in production
+    # This is less optimal than setting the webhook secret
+    # However, the app won't start without the secret
+    # with this setting set to the default
+    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+
+    # These values shouldn't need to change..
+    DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+    DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False

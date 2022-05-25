@@ -625,6 +625,11 @@ class Project(models.Model):
         return self.proxied_api_host.strip('/') + '/'
 
     @property
+    def proxied_static_path(self):
+        """Path for static files hosted on the user's doc domain."""
+        return f"{self.proxied_api_host}/static/"
+
+    @property
     def regex_urlconf(self):
         """
         Convert User's URLConf into a proper django URLConf.
@@ -724,6 +729,13 @@ class Project(models.Model):
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
+
+    @property
+    def superproject(self):
+        relationship = self.get_parent_relationship()
+        if relationship:
+            return relationship.parent
+        return None
 
     @property
     def alias(self):
@@ -1156,6 +1168,10 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
+
+        if self.remote_repository and self.remote_repository.default_branch:
+            return self.remote_repository.default_branch
+
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
@@ -1615,17 +1631,16 @@ class Domain(TimeStampedModel, models.Model):
     )
     machine = models.BooleanField(
         default=False,
-        help_text=_('This Domain was auto-created'),
+        help_text=_("This domain was auto-created"),
     )
     cname = models.BooleanField(
         default=False,
-        help_text=_('This Domain is a CNAME for the project'),
+        help_text=_("This domain is a CNAME for the project"),
     )
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            'This Domain is the primary one where the documentation is '
-            'served from',
+            "This domain is the primary one where the documentation is " "served from",
         ),
     )
     https = models.BooleanField(

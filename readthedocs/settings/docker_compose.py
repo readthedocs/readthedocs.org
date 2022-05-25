@@ -121,7 +121,15 @@ class DockerBaseSettings(CommunityDevSettings):
                 "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
                 "HOST": os.environ.get("DB_HOST", "database"),
                 "PORT": "",
-            }
+            },
+            "telemetry": {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": "telemetry",
+                "USER": os.environ.get("DB_USER", "docs_user"),
+                "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
+                "HOST": os.environ.get("DB_HOST", "database"),
+                "PORT": "",
+            },
         }
 
     def show_debug_toolbar(request):
@@ -156,6 +164,7 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildToolsStorage'
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.NoManifestS3StaticStorage'
 
     AWS_ACCESS_KEY_ID = 'admin'
     AWS_SECRET_ACCESS_KEY = 'password'

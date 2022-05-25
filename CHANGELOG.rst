@@ -1,3 +1,62 @@
+Version 8.1.0
+-------------
+
+:Date: May 24, 2022
+
+* `@humitos <https://github.com/humitos>`__: Assets: update `package-lock.json` with newer versions (`#9262 <https://github.com/readthedocs/readthedocs.org/pull/9262>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Improve contributing dev doc (`#9260 <https://github.com/readthedocs/readthedocs.org/pull/9260>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update translations, pull from Transifex (`#9259 <https://github.com/readthedocs/readthedocs.org/pull/9259>`__)
+* `@humitos <https://github.com/humitos>`__: Build: solve problem with sanitized output (`#9257 <https://github.com/readthedocs/readthedocs.org/pull/9257>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Environment Variables" page (`#9256 <https://github.com/readthedocs/readthedocs.org/pull/9256>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce noise on working features (`#9255 <https://github.com/readthedocs/readthedocs.org/pull/9255>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: jsdoc example using `build.jobs` and `build.tools` (`#9241 <https://github.com/readthedocs/readthedocs.org/pull/9241>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker environment: check for None on stdout/stderr response (`#9238 <https://github.com/readthedocs/readthedocs.org/pull/9238>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxied static files: use its own storage class (`#9237 <https://github.com/readthedocs/readthedocs.org/pull/9237>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: gitlab integration update (`#9236 <https://github.com/readthedocs/readthedocs.org/pull/9236>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.0.2 (`#9234 <https://github.com/readthedocs/readthedocs.org/pull/9234>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#9233 <https://github.com/readthedocs/readthedocs.org/pull/9233>`__)
+* `@humitos <https://github.com/humitos>`__: Development: only pull the images required (`#9182 <https://github.com/readthedocs/readthedocs.org/pull/9182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: serve static files from the same domain as the docs (`#9168 <https://github.com/readthedocs/readthedocs.org/pull/9168>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add a new "Cancelled" final state (`#9145 <https://github.com/readthedocs/readthedocs.org/pull/9145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Collect build data (`#9113 <https://github.com/readthedocs/readthedocs.org/pull/9113>`__)
+* `@humitos <https://github.com/humitos>`__: Project: use `RemoteRepository` to define `default_branch` (`#8988 <https://github.com/readthedocs/readthedocs.org/pull/8988>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: forward path to a future builder (`#8190 <https://github.com/readthedocs/readthedocs.org/pull/8190>`__)
+
+Version 8.0.2
+-------------
+
+:Date: May 16, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#9233 <https://github.com/readthedocs/readthedocs.org/pull/9233>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Disable codecov annotations (`#9186 <https://github.com/readthedocs/readthedocs.org/pull/9186>`__)
+* `@choldgraf <https://github.com/choldgraf>`__: Note sub-folders with a single domain. (`#9185 <https://github.com/readthedocs/readthedocs.org/pull/9185>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildCommand: add option to merge or not stderr with stdout (`#9184 <https://github.com/readthedocs/readthedocs.org/pull/9184>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix bumpver issue (`#9181 <https://github.com/readthedocs/readthedocs.org/pull/9181>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 8.0.1 (`#9180 <https://github.com/readthedocs/readthedocs.org/pull/9180>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Spruce up docs on pull request builds (`#9177 <https://github.com/readthedocs/readthedocs.org/pull/9177>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix RTD branding in the code (`#9175 <https://github.com/readthedocs/readthedocs.org/pull/9175>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix copy issues on model fields (`#9170 <https://github.com/readthedocs/readthedocs.org/pull/9170>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: serve static files from the same domain as the docs (`#9168 <https://github.com/readthedocs/readthedocs.org/pull/9168>`__)
+* `@stsewd <https://github.com/stsewd>`__: User: delete organizations where the user is the last owner (`#9164 <https://github.com/readthedocs/readthedocs.org/pull/9164>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a basic djstripe integration (`#9087 <https://github.com/readthedocs/readthedocs.org/pull/9087>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow adding a custom domain on subprojects (`#8953 <https://github.com/readthedocs/readthedocs.org/pull/8953>`__)
+
+Version 8.0.1
+-------------
+
+:Date: May 09, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix RTD branding in the code (`#9175 <https://github.com/readthedocs/readthedocs.org/pull/9175>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove our old out-dated architecture diagram (`#9169 <https://github.com/readthedocs/readthedocs.org/pull/9169>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `ubuntu-22.04` as a valid option (`#9166 <https://github.com/readthedocs/readthedocs.org/pull/9166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial test of adding plan to CDN (`#9163 <https://github.com/readthedocs/readthedocs.org/pull/9163>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix links in docs from the build page refactor (`#9162 <https://github.com/readthedocs/readthedocs.org/pull/9162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: skip requests from bots on 404s (`#9161 <https://github.com/readthedocs/readthedocs.org/pull/9161>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Note build.jobs required other keys (`#9160 <https://github.com/readthedocs/readthedocs.org/pull/9160>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add docs showing pip-tools usage on dependencies (`#9158 <https://github.com/readthedocs/readthedocs.org/pull/9158>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Expierment with pip-tools for our docs.txt requirements (`#9124 <https://github.com/readthedocs/readthedocs.org/pull/9124>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a basic djstripe integration (`#9087 <https://github.com/readthedocs/readthedocs.org/pull/9087>`__)
+
 Version 8.0.0
 -------------
 

@@ -21,6 +21,7 @@ from polymorphic.models import PolymorphicModel
 import readthedocs.builds.automation_actions as actions
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_FINAL_STATES,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
@@ -933,8 +934,8 @@ class Build(models.Model):
 
     @property
     def finished(self):
-        """Return if build has a finished state."""
-        return self.state == BUILD_STATE_FINISHED
+        """Return if build has an end state."""
+        return self.state in BUILD_FINAL_STATES
 
     @property
     def is_stale(self):

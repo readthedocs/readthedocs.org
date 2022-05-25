@@ -1,7 +1,7 @@
 Server Side Search
 ==================
 
-Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
+Read the Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
 All the Search Code is open source and lives in the `GitHub Repository`_.
 Currently we are using `Elasticsearch 6.3`_.
