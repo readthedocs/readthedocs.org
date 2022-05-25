@@ -364,7 +364,10 @@ You can use several interpreters and versions, from CPython, PyPy, Miniconda, an
   - ``3.8``
   - ``3.9``
   - ``3.10``
+  - ``3.11``
   - ``pypy3.7``
+  - ``pypy3.8``
+  - ``pypy3.9``
   - ``miniconda3-4.7``
   - ``mambaforge-4.10``
 
@@ -374,7 +377,10 @@ build.tools.nodejs
 Node.js version to use.
 
 :Type: ``string``
-:Options: ``14``, ``16``
+:Options:
+   - ``14``
+   - ``16``
+   - ``18``
 
 build.tools.rust
 ````````````````
@@ -382,7 +388,9 @@ build.tools.rust
 Rust version to use.
 
 :Type: ``string``
-:Options: ``1.55``
+:Options:
+   - ``1.55``
+   - ``1.61``
 
 build.tools.golang
 ``````````````````
@@ -390,7 +398,9 @@ build.tools.golang
 Go version to use.
 
 :Type: ``string``
-:Options: ``1.17``
+:Options:
+   - ``1.17``
+   - ``1.18``
 
 build.apt_packages
 ``````````````````
