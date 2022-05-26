@@ -46,32 +46,12 @@ class RedirectQuerySet(models.QuerySet):
         :param full_path: Is the full path including the language and version parts.
         :param forced_only: Include only forced redirects in the results.
         """
-
         # Small optimization to skip executing the big query below.
         if forced_only and not self.filter(force=True).exists():
             return None, None
 
-        def normalize_path(path):
-            r"""
-            Normalize path.
-
-            We normalize ``path`` to:
-
-            - Remove the query params.
-            - Remove any invalid URL chars (\r, \n, \t).
-            - Always start the path with ``/``.
-
-            We don't use ``.path`` to avoid parsing the filename as a full url.
-            For example if the path is ``http://example.com/my-path``,
-            ``.path`` would return ``my-path``.
-            """
-            parsed_path = urlparse(path)
-            normalized_path = parsed_path._replace(query="").geturl()
-            normalized_path = "/" + normalized_path.lstrip("/")
-            return normalized_path
-
-        normalized_path = normalize_path(path)
-        normalized_full_path = normalize_path(full_path)
+        normalized_path = self._normalize_path(path)
+        normalized_full_path = self._normalize_path(full_path)
 
         # add extra fields with the ``path`` and ``full_path`` to perform a
         # filter at db level instead with Python.
@@ -133,3 +113,22 @@ class RedirectQuerySet(models.QuerySet):
             if new_path:
                 return new_path, redirect.http_status
         return (None, None)
+
+    def _normalize_path(self, path):
+        r"""
+        Normalize path.
+
+        We normalize ``path`` to:
+
+        - Remove the query params.
+        - Remove any invalid URL chars (\r, \n, \t).
+        - Always start the path with ``/``.
+
+        We don't use ``.path`` to avoid parsing the filename as a full url.
+        For example if the path is ``http://example.com/my-path``,
+        ``.path`` would return ``my-path``.
+        """
+        parsed_path = urlparse(path)
+        normalized_path = parsed_path._replace(query="").geturl()
+        normalized_path = "/" + normalized_path.lstrip("/")
+        return normalized_path
