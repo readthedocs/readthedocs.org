@@ -166,8 +166,8 @@ class GitHubService(Service):
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['id'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=str(fields["id"]),
+            vcs_provider=self.vcs_provider_slug,
         )
         if create_relationship:
             organization.get_remote_organization_relation(self.user, self.account)
