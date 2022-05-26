@@ -163,6 +163,9 @@ class GitHubService(Service):
         Update or create remote organization from GitHub API response.
 
         :param fields: dictionary response of data from API
+        :param bool create_relationship: If a remote relationship should be created for the
+         organization and the current user, if `False`, only the RemoteOrganization object
+         will be created/updated.
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
