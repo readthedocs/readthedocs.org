@@ -59,19 +59,15 @@ class GitHubService(Service):
             for org in orgs:
                 org_details = self.get_session().get(org['url']).json()
                 remote_organization = self.create_organization(org_details)
+                remote_organizations.append(remote_organization)
+
                 org_url = org["url"]
                 org_repos = self.paginate(
                     f"{org_url}/repos",
                     per_page=100,
                 )
-
-                remote_organizations.append(remote_organization)
-
                 for repo in org_repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
+                    remote_repository = self.create_repository(repo)
                     remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
@@ -83,7 +79,7 @@ class GitHubService(Service):
 
         return remote_organizations, remote_repositories
 
-    def create_repository(self, fields, privacy=None, organization=None):
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitHub API response.
 
@@ -105,14 +101,16 @@ class GitHubService(Service):
             )
 
             owner_type = fields["owner"]["type"]
+            organization = None
+            if owner_type == "Organization":
+                # NOTE: create_organization will always create a remote relationship
+                # with the current user, but the sync method will take care of removing
+                # the relationship for organizations where the user isn't a member.
+                organization = self.create_organization(fields=fields["owner"])
 
             # If there is an organization associated with this repository,
             # attach the organization to the repository.
-            if (
-                organization
-                and owner_type == "Organization"
-                and organization.remote_id == str(fields["owner"]["id"])
-            ):
+            if organization and owner_type == "Organization":
                 repo.organization = organization
 
             # If there is no organization and the repository belongs to a user,
