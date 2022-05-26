@@ -57,8 +57,11 @@ class GitHubService(Service):
         try:
             orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
             for org in orgs:
-                org_details = self.get_session().get(org['url']).json()
-                remote_organization = self.create_organization(org_details)
+                org_details = self.get_session().get(org["url"]).json()
+                remote_organization = self.create_organization(
+                    org_details,
+                    create_relationship=True,
+                )
                 remote_organizations.append(remote_organization)
 
                 org_url = org["url"]
@@ -103,10 +106,12 @@ class GitHubService(Service):
             owner_type = fields["owner"]["type"]
             organization = None
             if owner_type == "Organization":
-                # NOTE: create_organization will always create a remote relationship
-                # with the current user, but the sync method will take care of removing
-                # the relationship for organizations where the user isn't a member.
-                organization = self.create_organization(fields=fields["owner"])
+                # NOTE: We shouldn't create a remote relationship with the current user here,
+                # since the user can have access to the repository, but not to the organization.
+                organization = self.create_organization(
+                    fields=fields["owner"],
+                    create_relationship=False,
+                )
 
             # If there is an organization associated with this repository,
             # attach the organization to the repository.
@@ -153,7 +158,7 @@ class GitHubService(Service):
             repository=fields['name'],
         )
 
-    def create_organization(self, fields):
+    def create_organization(self, fields, create_relationship=False):
         """
         Update or create remote organization from GitHub API response.
 
@@ -164,9 +169,8 @@ class GitHubService(Service):
             remote_id=fields['id'],
             vcs_provider=self.vcs_provider_slug
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        if create_relationship:
+            organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get('html_url')
         # fields['login'] contains GitHub Organization slug
