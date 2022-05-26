@@ -25,7 +25,7 @@ Features
   (*404 File Not Found* error), if you need to apply a redirect for files that exist,
   mark the :guilabel:`Force redirect` option.
   **This option is only available on some plan levels**.
-  Please ask support if you need it for some reason. 
+  Please ask support if you need it for some reason.
 - :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
