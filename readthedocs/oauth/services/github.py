@@ -113,9 +113,9 @@ class GitHubService(Service):
             if organization and owner_type == "Organization":
                 repo.organization = organization
 
-            # If there is no organization and the repository belongs to a user,
+            # If the repository belongs to a user,
             # remove the organization linked to the repository.
-            if not organization and owner_type == "User":
+            if owner_type == "User":
                 repo.organization = None
 
             repo.name = fields['name']
