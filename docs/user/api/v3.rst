@@ -694,7 +694,7 @@ Build details
     :>json string created: The ISO-8601 datetime when the build was created.
     :>json string finished: The ISO-8601 datetime when the build has finished.
     :>json integer duration: The length of the build in seconds.
-    :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, or ``finished``)
+    :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, ``finished`` or ``cancelled``)
     :>json string error: An error message if the build was unsuccessful
 
     :query string expand: allows to add/expand some extra fields in the response.

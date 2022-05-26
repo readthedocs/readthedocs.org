@@ -170,7 +170,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 not final_project.single_version,
                 self.version_type != EXTERNAL,
         ]):
-            log.warning(
+            log.debug(
                 'Invalid URL for project with versions.',
                 filename=filename,
             )

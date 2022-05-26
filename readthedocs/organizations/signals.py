@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.organizations.models import Organization, Team, TeamMember
@@ -71,5 +71,5 @@ def mark_organization_assets_not_cleaned(sender, build, **kwargs):
     trigger a Celery task that will be executed in the web and mark the
     organization assets as not cleaned.
     """
-    if build['state'] == BUILD_STATE_FINISHED:
-        mark_organization_assets_not_cleaned_task.delay(build['id'])
+    if build["state"] in BUILD_FINAL_STATES:
+        mark_organization_assets_not_cleaned_task.delay(build["id"])

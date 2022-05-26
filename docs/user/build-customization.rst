@@ -196,3 +196,25 @@ It's possible to use ``post_checkout`` user-defined job for this.
          - ./git-lfs fetch
          # Make local files to have the real content on them
          - ./git-lfs checkout
+
+
+Install Node.js dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's possible to install Node.js together with the required dependencies by using :term:`user-defined build jobs`.
+To setup it, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
+
+.. code:: yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.9"
+       nodejs: "16"
+     jobs:
+       post_install:
+         # Install dependencies defined in your ``package.json``
+         - npm ci
+         # Install any other extra dependencies to build the docs
+         - npm install -g jsdoc
