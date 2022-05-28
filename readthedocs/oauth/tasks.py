@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils.tasks import PublicTask, user_id_matches
+from readthedocs.core.utils.tasks import PublicTask, user_id_matches_or_admin
 from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
     InvalidProjectWebhookNotification,
@@ -25,7 +25,7 @@ from .services import registry
 log = structlog.get_logger(__name__)
 
 
-@PublicTask.permission_check(user_id_matches)
+@PublicTask.permission_check(user_id_matches_or_admin)
 @app.task(
     queue='web',
     base=PublicTask,
