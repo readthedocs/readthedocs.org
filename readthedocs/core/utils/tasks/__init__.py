@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Common task exports."""
 
 from .permission_checks import user_id_matches, user_id_matches_or_admin  # noqa for unused import
