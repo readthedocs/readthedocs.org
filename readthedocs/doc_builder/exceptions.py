@@ -3,6 +3,7 @@
 from django.utils.translation import gettext_noop
 
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED, BUILD_STATUS_DUPLICATED
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 
 class BuildBaseException(Exception):
@@ -37,7 +38,7 @@ class BuildUserError(BuildBaseException):
         "dependencies are correct and have not changed recently."
     )
     BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
-        'No "output/" folder detected on the root of the repository after building the project.'
+        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created after building the project.'
     )
 
 

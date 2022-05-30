@@ -37,6 +37,9 @@ MEDIA_TYPES = (
     MEDIA_TYPE_JSON,
 )
 
+BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
+BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path(BUILD_COMMANDS_OUTPUT_PATH, "html")
+
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
     ('Getting started', 'projects/samples/getting_started.rst.html'),
