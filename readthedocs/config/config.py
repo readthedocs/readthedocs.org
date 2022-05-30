@@ -11,6 +11,7 @@ from functools import lru_cache
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
 from .models import (
@@ -1344,6 +1345,9 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def doctype(self):
+        if getattr(self.build, "commands"):
+            return GENERIC
+
         if self.mkdocs:
             return 'mkdocs'
         return self.sphinx.builder
