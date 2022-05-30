@@ -89,6 +89,77 @@
                 "ubuntu-22.04"
               ]
             },
+            "jobs": {
+              "title": "Build jobs",
+              "description": "Run custom commands at any point in the build process",
+              "type": "object",
+              "properties": {
+                "post_checkout": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_system_dependencies": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_system_dependencies": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_create_environment": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_create_environment": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_install": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_install": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "pre_build": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                },
+                "post_build": {
+                  "type": "array",
+                  "items": {
+                    "title": "Custom commands",
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
             "tools": {
               "title": "Tools",
               "description": "Tools and their version to be used in the build.",
@@ -103,7 +174,10 @@
                     "3.8",
                     "3.9",
                     "3.10",
+                    "3.11",
                     "pypy3.7",
+                    "pypy3.8",
+                    "pypy3.9",
                     "miniconda3-4.7",
                     "mambaforge-4.10"
                   ]
@@ -111,17 +185,20 @@
                 "nodejs": {
                   "enum": [
                     "14",
-                    "16"
+                    "16",
+                    "18"
                   ]
                 },
                 "rust": {
                   "enum": [
-                    "1.55"
+                    "1.55",
+                    "1.61"
                   ]
                 },
                 "golang": {
                   "enum": [
-                    "1.17"
+                    "1.17",
+                    "1.18"
                   ]
                 }
               },

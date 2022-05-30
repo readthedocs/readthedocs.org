@@ -1,3 +1,27 @@
+Version 8.1.0
+-------------
+
+:Date: May 24, 2022
+
+* `@humitos <https://github.com/humitos>`__: Assets: update `package-lock.json` with newer versions (`#9262 <https://github.com/readthedocs/readthedocs.org/pull/9262>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Improve contributing dev doc (`#9260 <https://github.com/readthedocs/readthedocs.org/pull/9260>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update translations, pull from Transifex (`#9259 <https://github.com/readthedocs/readthedocs.org/pull/9259>`__)
+* `@humitos <https://github.com/humitos>`__: Build: solve problem with sanitized output (`#9257 <https://github.com/readthedocs/readthedocs.org/pull/9257>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Environment Variables" page (`#9256 <https://github.com/readthedocs/readthedocs.org/pull/9256>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce noise on working features (`#9255 <https://github.com/readthedocs/readthedocs.org/pull/9255>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: jsdoc example using `build.jobs` and `build.tools` (`#9241 <https://github.com/readthedocs/readthedocs.org/pull/9241>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker environment: check for None on stdout/stderr response (`#9238 <https://github.com/readthedocs/readthedocs.org/pull/9238>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxied static files: use its own storage class (`#9237 <https://github.com/readthedocs/readthedocs.org/pull/9237>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: gitlab integration update (`#9236 <https://github.com/readthedocs/readthedocs.org/pull/9236>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.0.2 (`#9234 <https://github.com/readthedocs/readthedocs.org/pull/9234>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#9233 <https://github.com/readthedocs/readthedocs.org/pull/9233>`__)
+* `@humitos <https://github.com/humitos>`__: Development: only pull the images required (`#9182 <https://github.com/readthedocs/readthedocs.org/pull/9182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: serve static files from the same domain as the docs (`#9168 <https://github.com/readthedocs/readthedocs.org/pull/9168>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add a new "Cancelled" final state (`#9145 <https://github.com/readthedocs/readthedocs.org/pull/9145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Collect build data (`#9113 <https://github.com/readthedocs/readthedocs.org/pull/9113>`__)
+* `@humitos <https://github.com/humitos>`__: Project: use `RemoteRepository` to define `default_branch` (`#8988 <https://github.com/readthedocs/readthedocs.org/pull/8988>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: forward path to a future builder (`#8190 <https://github.com/readthedocs/readthedocs.org/pull/8190>`__)
+
 Version 8.0.2
 -------------
 
