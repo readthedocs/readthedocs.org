@@ -48,7 +48,8 @@ These jobs can be declared by using a :doc:`/config-file/index` with the :ref:`c
 Let's say the project requires commands to be executed *before* installing any dependency into the Python environment and *after* the build has finished.
 In that case, a config file similar to this one can be used:
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -88,7 +89,8 @@ Read the Docs does not perform a full clone on ``checkout`` job to reduce networ
 Because of this, extensions that depend on the full Git history will fail.
 To avoid this, it's possible to unshallow the clone done by Read the Docs:
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -105,7 +107,8 @@ Generate documentation from annotated sources with Doxygen
 
 It's possible to run Doxygen as part of the build process to generate documentation from annotated sources:
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -125,7 +128,8 @@ Use MkDocs extensions with extra required steps
 There are some MkDocs extensions that require specific commands to be run to generate extra pages before performing the build.
 For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>`_
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -146,7 +150,8 @@ In case this happens and the project is using any kind of extension that generat
 this could cause an invalid version number to be generated.
 In that case, the Git index can be updated to ignore the files that Read the Docs has modified.
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -165,7 +170,8 @@ Sphinx comes with a `linkcheck <https://www.sphinx-doc.org/en/master/usage/build
 This helps ensure that all external links are still valid and readers aren't linked to non-existent pages.
 
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -184,7 +190,8 @@ In case the repository contains large files that are tracked with Git LFS,
 there are some extra steps required to be able to download their content.
 It's possible to use ``post_checkout`` user-defined job for this.
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -215,7 +222,8 @@ Install Node.js dependencies
 It's possible to install Node.js together with the required dependencies by using :term:`user-defined build jobs`.
 To setup it, you need to define the version of Node.js to use and install the dependencies by using ``build.jobs.post_install``:
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
@@ -247,7 +255,8 @@ all the default commands can be overwritten to execute only the commands defined
 This can be achieve by using :ref:`config-file/v2:build.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
 
 
-.. code:: yaml
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
    version: 2
    build:
