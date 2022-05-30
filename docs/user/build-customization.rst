@@ -4,7 +4,13 @@ Build customization
 Read the Docs has a :doc:`well-defined build process <builds>` that works for many projects,
 but we offer additional customization to support more uses of our platform.
 This page explains how to extend the build process using :term:`user-defined build jobs` to execute custom commands,
-and also how to :ref:`override the build process completely <build-customization:override the build process completely>`.
+and also how to override the build process completely:
+
+`Extend the build process`_
+    If you are using Sphinx or Mkdocs and need to execute additional commands.
+
+`Override the build process`_
+    If you want full control over your build or are not using Sphinx or Mkdocs.
 
 
 Extend the build process
@@ -225,8 +231,8 @@ To setup it, you need to define the version of Node.js to use and install the de
          - npm install -g jsdoc
 
 
-Override the build process completely
--------------------------------------
+Override the build process
+--------------------------
 
 .. warning::
 
