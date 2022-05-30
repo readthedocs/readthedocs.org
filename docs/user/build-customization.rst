@@ -245,15 +245,17 @@ Override the build process
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
-   However, integrating all of them is part of the plan.
-   Use it under your own responsibility.
+   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, search and ads.
+   However, we do plan to support these features in the future.
+   Use this under your own risk.
 
 
-When :ref:`extending the build process <build-customization:extend the build process>` is not enough for a particular use case,
-all the default commands can be overwritten to execute only the commands defined by the project on its config file.
-This can be achieve by using :ref:`config-file/v2:build.commands` key as shown in the following example building a `Pelican <https://blog.getpelican.com/>`_ site:
+If your project requires full control of the build process,
+and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
+all the commands executed during builds can be overridden using the :ref:`config-file/v2:build.commands` configuration file key.
 
+For example, if your project uses `Pelican <https://blog.getpelican.com/>`_ instead of Sphinx for it's documentation,
+your project could use the following configuration file:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -269,5 +271,5 @@ This can be achieve by using :ref:`config-file/v2:build.commands` key as shown i
 
 
 As Read the Docs does not have control over the build process,
-you are responsible to run all the commands required to install the requirements and build the documentation properly.
+you are responsible for running all the commands required to install requirements and build the documentation properly.
 Once the build process finishes, the ``output/`` folder will be hosted.
