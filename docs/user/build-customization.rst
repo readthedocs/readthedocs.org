@@ -267,9 +267,9 @@ your project could use the following configuration file:
        python: "3.10"
      commands:
        - pip install pelican[markdown]
-       - pelican --settings docs/pelicanconf.py --output output/ docs/
+       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
 
 
 As Read the Docs does not have control over the build process,
 you are responsible for running all the commands required to install requirements and build the documentation properly.
-Once the build process finishes, the ``output/`` folder will be hosted.
+Once the build process finishes, the ``_readthedocs/html/`` folder will be hosted.

@@ -463,7 +463,7 @@ Specify a list of commands that Read the Docs will run on the build process.
 When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
 (see :doc:`/build-customization` for more details).
 This allows you to run custom commands and control the build process completely.
-The ``output/`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
+The ``_readthedocs/html`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
 
 .. warning::
 
@@ -482,7 +482,7 @@ The ``output/`` directory (relative to the checkout's path) will be uploaded and
        python: "3.10"
      commands:
        - pip install pelican
-       - pelican --settings docs/pelicanconf.py --output output/ docs/
+       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
 
 .. note::
 

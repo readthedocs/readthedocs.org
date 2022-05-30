@@ -12,6 +12,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.projects.constants import GENERIC
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
@@ -348,9 +349,9 @@ class BuildDirector:
         # Copy files to artifacts path so they are uploaded to S3
         target = self.data.project.artifact_path(
             version=self.data.version.slug,
-            type_="sphinx",
+            type_=GENERIC,
         )
-        artifacts_path = os.path.join(cwd, "output")
+        artifacts_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
         if not os.path.exists(artifacts_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
 
