@@ -106,8 +106,9 @@ class GitHubService(Service):
             owner_type = fields["owner"]["type"]
             organization = None
             if owner_type == "Organization":
-                # We aren't creating a remote relationship between the current user and the organization,
-                # since the user can have access to the repository, but not to the organization.
+                # We aren't creating a remote relationship between the current user
+                # and the organization, since the user can have access to the repository,
+                # but not to the organization.
                 organization = self.create_organization(
                     fields=fields["owner"],
                     create_user_relationship=False,
