@@ -1,3 +1,15 @@
+Version 8.1.1
+-------------
+
+:Date: May 31, 2022
+
+* `@yarons <https://github.com/yarons>`__: Typo fix (`#9271 <https://github.com/readthedocs/readthedocs.org/pull/9271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update json schema (`#9270 <https://github.com/readthedocs/readthedocs.org/pull/9270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build tools: update versions (`#9268 <https://github.com/readthedocs/readthedocs.org/pull/9268>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9264 <https://github.com/readthedocs/readthedocs.org/pull/9264>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update commmon (`#9248 <https://github.com/readthedocs/readthedocs.org/pull/9248>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#9157 <https://github.com/readthedocs/readthedocs.org/pull/9157>`__)
+
 Version 8.1.0
 -------------
 
