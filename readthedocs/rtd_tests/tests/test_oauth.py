@@ -356,7 +356,7 @@ class GitHubOAuthTests(TestCase):
         )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
-    def test_create_public_repo_when_private_projects_are_enabled_gh(self):
+    def test_create_public_repo_when_private_projects_are_enabled(self):
         """Test ability to import ``public`` repositories under ``private`` level."""
         repo = self.service.create_repository(self.repo_with_org_response_data)
         self.assertEqual(repo.organization, self.org)

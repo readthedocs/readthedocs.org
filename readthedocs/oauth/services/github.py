@@ -60,7 +60,7 @@ class GitHubService(Service):
                 org_details = self.get_session().get(org["url"]).json()
                 remote_organization = self.create_organization(
                     org_details,
-                    create_relationship=True,
+                    create_user_relationship=True,
                 )
                 remote_organizations.append(remote_organization)
 
@@ -106,11 +106,11 @@ class GitHubService(Service):
             owner_type = fields["owner"]["type"]
             organization = None
             if owner_type == "Organization":
-                # NOTE: We shouldn't create a remote relationship with the current user here,
+                # We aren't creating a remote relationship between the current user and the organization,
                 # since the user can have access to the repository, but not to the organization.
                 organization = self.create_organization(
                     fields=fields["owner"],
-                    create_relationship=False,
+                    create_user_relationship=False,
                 )
 
             # If there is an organization associated with this repository,
@@ -158,13 +158,13 @@ class GitHubService(Service):
             repository=fields['name'],
         )
 
-    def create_organization(self, fields, create_relationship=False):
+    def create_organization(self, fields, create_user_relationship=False):
         """
         Update or create remote organization from GitHub API response.
 
         :param fields: dictionary response of data from API
-        :param bool create_relationship: If a remote relationship should be created for the
-         organization and the current user, if `False`, only the RemoteOrganization object
+        :param bool create_relationship: Whether to create a remote relationship between the
+         organization and the current user. If `False`, only the `RemoteOrganization` object
          will be created/updated.
         :rtype: RemoteOrganization
         """
@@ -172,7 +172,7 @@ class GitHubService(Service):
             remote_id=str(fields["id"]),
             vcs_provider=self.vcs_provider_slug,
         )
-        if create_relationship:
+        if create_user_relationship:
             organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get('html_url')
