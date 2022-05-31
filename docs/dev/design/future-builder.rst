@@ -193,7 +193,7 @@ These are some examples where this is useful:
    *All these commands* are executed passing all the exposed environment variables.
 
 If the user only provides a subset of these jobs, we ran our default commands if the user does not provide them
-(see :ref:`Step ran by the builder`).
+(see :ref:`design/future-builder:Steps ran by the builder`).
 For example, the following YAML is enough when the project requires running Doxygen as a pre-build step:
 
 .. code:: yaml
