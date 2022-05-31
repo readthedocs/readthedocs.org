@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Anthony <aj@ohess.org>, 2022\n"
 "Language-Team: German (http://www.transifex.com/readthedocs/readthedocs/"
@@ -45,16 +45,12 @@ msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "HTTP status code"
-msgstr "HTTP-Status"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Sprache"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -70,16 +66,12 @@ msgid "Downloads"
 msgstr "Downloads"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "Projekt"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -92,10 +84,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View Docs"
 msgid "View"
-msgstr "Dokumentation ansehen"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -123,10 +113,8 @@ msgid "Search"
 msgstr "Suche"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search docs"
-msgstr "Durchsuchen Sie alle Dokumente"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -137,10 +125,9 @@ msgid "Privacy Policy"
 msgstr "Datenschutz-Bestimmungen"
 
 #: api/v3/serializers.py:494
-#, fuzzy, python-brace-format
-#| msgid "Invalid project name"
+#, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
-msgstr "Ungültiger Projektname"
+msgstr ""
 
 #: api/v3/serializers.py:498
 #, python-brace-format
@@ -165,18 +152,14 @@ msgid "Authentication failure"
 msgstr ""
 
 #: audit/filters.py:41
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page view"
-msgstr "Seitenbasierte Weiterleitung"
+msgstr ""
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Downloads"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -184,10 +167,8 @@ msgid "User"
 msgstr "Benutzer"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Benutzer"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -199,38 +180,28 @@ msgid "Project"
 msgstr "Projekt"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Projekt"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "Projekte"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organisation"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Organisation"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Organisation"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktiv"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -241,10 +212,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "Projekte durchsuchen"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -255,10 +224,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Passwort ├ñndern"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -350,20 +317,16 @@ msgid "Building"
 msgstr "Erstelle"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Hochladen"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Fertig"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "Abbrechen"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -386,10 +349,8 @@ msgid "Dash"
 msgstr "Armaturenbrett"
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Externe Links"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -412,16 +373,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Einzelversion"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Versionen"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -432,10 +389,8 @@ msgid "Active"
 msgstr "Aktiv"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build finished"
-msgstr "Build fehlgeschlagen"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -448,19 +403,15 @@ msgstr "Status"
 
 #: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
 msgid "Any"
-msgstr ""
+msgstr "Beliebig"
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Status"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Privat"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -477,16 +428,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Erstellen"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Modifizierungsdatum"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -559,10 +506,8 @@ msgid "Documentation type"
 msgstr "Dokumentationstyp"
 
 #: builds/models.py:180
-#, fuzzy
-#| msgid "Your documentation is building"
 msgid "Type of documentation the version was built with."
-msgstr "Deine Dokumentation wird erzeugt"
+msgstr ""
 
 #: builds/models.py:196
 #, python-brace-format
@@ -570,10 +515,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr "Version {version} von {project} ({pk})"
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -608,22 +551,16 @@ msgid "Commit"
 msgstr "Übernehmen"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Versionen"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Version"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Version"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -686,16 +623,12 @@ msgid "Build command {pk} for build {build}"
 msgstr "Build-Befehl {pk} für Build {build}"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate version"
-msgstr "Aktive Versionen"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "Single version"
 msgid "Hide version"
-msgstr "Einzelversion"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -806,10 +739,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Benutzername"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -876,57 +807,41 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\n"
-#| "Command killed due to excessive memory consumption\n"
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
-"\n"
-"\n"
-"Befehl wurde wegen ├╝berm├ñ├ƒigem Speicherbedarf get├Âtet\n"
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr "Eine Buildumgebung läuft gerade für diese Version"
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr "Build beendet aufgrund von Zeitüberschreitung"
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr "Build beendet aufgrund übermäßigen Speicherverbrauchs"
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Build wurde beendet aufgrund eines unbekannten Fehlers: {0}"
 
 #: doc_builder/exceptions.py:26
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There was a problem with Read the Docs while building your documentation. "
-#| "Please try again later. However, if this problem persists, please report "
-#| "this to us with your build id ({build_id})."
+#, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
 "Please try again later. If this problem persists, report this error to us "
 "with your build id ({build_id})."
 msgstr ""
-"Es gab ein problem mit Read the Docs während des Bauens deiner "
-"Dokumentation. Bitte versuche es später erneut. Sollte aber das Problem "
-"weiterhin bestehen,  melde dies bitte an uns mit deiner Build ID "
-"({build_id})."
 
 #: doc_builder/exceptions.py:35
 msgid ""
@@ -950,10 +865,8 @@ msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
 #: doc_builder/exceptions.py:56
-#, fuzzy
-#| msgid "Duplicate"
 msgid "Duplicated build."
-msgstr "Duplikat"
+msgstr ""
 
 #: doc_builder/exceptions.py:63
 msgid "Build cancelled by user."
@@ -1030,10 +943,8 @@ msgid "Projects"
 msgstr "Projekte"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Projekte"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1056,10 +967,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Add project"
 msgid "Ad-free projects"
-msgstr "Projekt hinzufügen"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1079,26 +988,20 @@ msgid "Remove"
 msgstr "Entfernen"
 
 #: gold/templates/gold/projects.html:47
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No projects are currently ad-free."
-msgstr "Derzeit sind keine Teilprojekte konfiguriert"
+msgstr ""
 
 #: gold/templates/gold/projects.html:56
 msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add as a translation."
 msgid "Choose which project you would like to make ad-free."
-msgstr "W├ñhle das Projekt, welches du als ├£bersetzung hinzuf├╝gen m├Âchtest."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Make Project Ad-Free"
-msgstr "Projekt gel├Âscht"
+msgstr ""
 
 #: gold/templates/gold/projects.html:69
 #, python-format
@@ -1109,10 +1012,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs Archiv"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1150,22 +1051,16 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage subscription"
-msgstr "Abonnement kündigen"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Verwandte Projekte"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which user you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "W├ñhlen Sie welchen Benutzer Sie hinzuf├╝gen m├Âchten."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
@@ -1307,10 +1202,8 @@ msgid "vcs"
 msgstr ""
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Standard-Branch"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1381,22 +1274,16 @@ msgid "Admin"
 msgstr "Administration"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
-#, fuzzy
-#| msgid "Change Email"
 msgid "Billing Email"
-msgstr "Email Adresse ├ñndern"
+msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH URL"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1412,10 +1299,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "Username does not match!"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "Benutzername stimmt nicht überein!"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1437,13 +1323,11 @@ msgstr ""
 #: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
-msgstr ""
+msgstr "Eigentümer"
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "E-Mail"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
@@ -1471,10 +1355,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Erfolgreich"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1504,17 +1386,13 @@ msgstr ""
 #: templates/profiles/base_profile_edit.html:52
 #: templates/profiles/private/security_log.html:6
 #: templates/profiles/private/security_log.html:10
-#, fuzzy
-#| msgid "Security"
 msgid "Security Log"
-msgstr "Sicherheit"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1532,10 +1410,8 @@ msgid "Delete forever"
 msgstr "Für immer löschen"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1553,16 +1429,12 @@ msgid "or"
 msgstr "oder"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Edit Translations"
 msgid "Edit Organization Owners"
-msgstr "├£bersetzungen bearbeiten"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1571,17 +1443,13 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:53
 #: organizations/templates/organizations/admin/owners_edit.html:57
 #: organizations/templates/organizations/team_list.html:51
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add Owner"
-msgstr "Entwickler hinzuf├╝gen"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
@@ -1641,10 +1509,8 @@ msgstr "Zur├╝ck"
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1674,16 +1540,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Erstellen"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Build Started"
 msgid "Get Started"
-msgstr "Zusammenstellung initiiert"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1731,10 +1593,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Organisation"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1764,10 +1624,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Team"
-msgstr "Löschen"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1781,16 +1639,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Team"
-msgstr "Bearbeiten"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Meine Projekte"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1810,10 +1664,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Projekte"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1824,15 +1676,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Update subproject"
 msgid "Update Projects"
-msgstr "Unterprojekt aktualisieren"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1851,20 +1698,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Team deleted"
-msgstr "Projekt gel├Âscht"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Projekt-Webseite"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1911,10 +1754,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Delete project"
 msgid "Delete project (>={})"
-msgstr "Projekt löschen"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -1922,7 +1763,7 @@ msgstr "Sphinx-HTML"
 
 #: projects/constants.py:20
 msgid "Mkdocs"
-msgstr ""
+msgstr "Mkdocs"
 
 #: projects/constants.py:21
 msgid "Sphinx HtmlDir"
@@ -1981,16 +1822,12 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Ungültiger Hostname"
+msgstr ""
 
 #: projects/constants.py:388
-#, fuzzy
-#| msgid "Branding"
 msgid "Pending"
-msgstr "Branding"
+msgstr ""
 
 #: projects/exceptions.py:15
 msgid ""
@@ -2047,10 +1884,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "has project with recent builds"
 msgid "Least recently built"
-msgstr "hat Projekt mit den letzten Builds"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2073,28 +1908,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Hidden versions"
-msgstr "Einzelversion"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Einzelversion"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Private versions"
-msgstr "Aktive Versionen"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2125,16 +1952,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Einstellungen"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Voreingestellte Version"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2194,10 +2017,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Short description of this project"
-msgstr "Beschreibung des Projekts (in reStructured Text)"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2276,25 +2097,15 @@ msgstr ""
 "bauen. Pfad vom Wurzelverzeichniss deines Projektes."
 
 #: projects/models.py:200
-#, fuzzy
-#| msgid ""
-#| "Type of documentation you are building. <a href=\"http://www.sphinx-doc."
-#| "org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder"
-#| "\">More info</a>."
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
-"Art der Dokumentation, die du baust. <a href=\"http://www.sphinx-doc.org/en/"
-"stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Mehr "
-"Informationen</a>."
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Dokumentationstyp"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2303,10 +2114,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Keine Downloads für dieses Projekt."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2337,10 +2146,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:249
-#, fuzzy
-#| msgid "Analytics"
 msgid "Disable Analytics"
-msgstr "Analysen"
+msgstr ""
 
 #: projects/models.py:253
 msgid ""
@@ -2514,10 +2321,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build id"
-msgstr "Build fehlgeschlagen"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2528,22 +2333,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Zusammenstellung initiiert"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build passed"
-msgstr "Build fehlgeschlagen"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "Ziel-URL"
+msgstr ""
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2638,10 +2437,8 @@ msgid "Try alternative method of posting large data"
 msgstr ""
 
 #: projects/models.py:1831
-#, fuzzy
-#| msgid "Configuration used in the build"
 msgid "Clean all files used in the build process"
-msgstr "Im Build verwendete Konfiguration"
+msgstr ""
 
 #: projects/models.py:1835
 msgid "Upgrade conda before creating the environment"
@@ -2918,10 +2715,8 @@ msgid "Redirect: {}"
 msgstr "Weiterleiten: {]"
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Ungültiger Hostname"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -3008,10 +2803,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Name"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -3041,74 +2834,56 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Organisation"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "├ûffentlich"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation type"
 msgid "CDN public documentation"
-msgstr "Dokumentationstyp"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python-Konfigurationsdatei"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Supported"
 msgid "Support SLA"
-msgstr "Unterstützt"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Import HTML Documentation"
 msgid "Private documentation"
-msgstr "HTML-Dokumentation importieren"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
 msgstr ""
 
 #: subscriptions/models.py:116
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search analytics"
-msgstr "Durchsuchen Sie alle Dokumente"
+msgstr ""
 
 #: subscriptions/models.py:117
 msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Recent Builds"
 msgid "Concurrent builds"
-msgstr "Neuste Erstellungsprozesse"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "Ursprungs-URL"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3128,48 +2903,36 @@ msgid "Plan"
 msgstr ""
 
 #: subscriptions/models.py:179
-#, fuzzy
-#| msgid "Locked"
 msgid "Locked plan"
-msgstr "Gesperrt"
+msgstr ""
 
 #: subscriptions/models.py:181
 msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Stripe subscription ID"
-msgstr "Abonnement aktualisieren"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription status"
-msgstr "Gold-Abonnement"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Startzeit"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Endzeit"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Organization Subscription"
-msgstr "Abonnement kündigen"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3185,44 +2948,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "Hervorgehoben"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Registrieren"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Anhänger"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription Status"
-msgstr "Gold-Abonnement"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription ends"
-msgstr "Gold-Abonnement"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage Subscription"
-msgstr "Abonnement kündigen"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3239,10 +2990,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Create Subscription"
-msgstr "Abonnement aktualisieren"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3415,10 +3164,8 @@ msgid "Read the Docs Archive"
 msgstr "Read the Docs Archiv"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Remove Notifications"
 msgid "Close notification"
-msgstr "Benachrichtigung l├Âschen"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3463,16 +3210,12 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Supported"
 msgid "Site Support"
-msgstr "Unterstützt"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "HTTP-Status"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3487,10 +3230,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs Archiv"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3513,11 +3254,8 @@ msgid "Filter"
 msgstr "Filter"
 
 #: templates/builds/build_detail.html:36
-#, fuzzy
-#| msgid "1 build"
-#| msgid_plural "%(builds)s builds"
 msgid "Cancel build"
-msgstr "1 Build"
+msgstr ""
 
 #: templates/builds/build_detail.html:44
 msgid "Completed"
@@ -3561,10 +3299,8 @@ msgid "Build completed"
 msgstr "Build fertiggestellt"
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build cancelled"
-msgstr "Build fehlgeschlagen"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3667,10 +3403,8 @@ msgid "Move down"
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:76
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No automation rules are currently configured."
-msgstr "Derzeit sind keine Teilprojekte konfiguriert"
+msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
 #: templates/projects/integration_webhook_detail.html:83
@@ -3704,10 +3438,9 @@ msgid "Failed"
 msgstr "Fehlgeschlagen"
 
 #: templates/core/build_list_detailed.html:11
-#, fuzzy, python-format
-#| msgid "%(version_name)s"
+#, python-format
 msgid "%(external_version_name)s"
-msgstr "%(version_name)s"
+msgstr ""
 
 #: templates/core/build_list_detailed.html:16
 #, python-format
@@ -3996,20 +3729,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Hervorgehobene Projekte"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4054,16 +3783,10 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:185
-#, fuzzy
-#| msgid ""
-#| "Hosting for the project is graciously provided by <a href=\"https://azure."
-#| "microsoft.com/\">Microsoft Azure</a>."
 msgid ""
 "Hosting for the project is graciously provided by <a href=\"https://aws."
 "amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
 msgstr ""
-"Das Hosting für das Projekt wird freundlicherweise von <a href=\"https://"
-"azure.microsoft.com/\">Microsoft Azure</a>bereitgestellt."
 
 #: templates/notifications/send_notification_form.html:6
 msgid "Send Email"
@@ -4140,10 +3863,8 @@ msgstr ""
 #: templates/profiles/base_profile_edit.html:53
 #: templates/profiles/private/token_list.html:5
 #: templates/profiles/private/token_list.html:9
-#, fuzzy
-#| msgid "Token"
 msgid "API Tokens"
-msgstr "Token"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:54
 #: templates/profiles/private/delete_account.html:5
@@ -4244,10 +3965,8 @@ msgid "Revoke"
 msgstr ""
 
 #: templates/profiles/private/token_list.html:49
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No API Tokens currently configured."
-msgstr "Derzeit sind keine Teilprojekte konfiguriert"
+msgstr ""
 
 #: templates/profiles/public/profile_detail.html:6
 #, python-format
@@ -4268,10 +3987,8 @@ msgid "Confirm"
 msgstr ""
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Project Details"
 msgid "Domain Details"
-msgstr "Projekt Details"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4319,10 +4036,8 @@ msgid "Existing Domains"
 msgstr ""
 
 #: templates/projects/domain_list.html:48
-#, fuzzy
-#| msgid "Add integration"
 msgid "Add new domain"
-msgstr "Integration hinzufügen"
+msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
@@ -4346,16 +4061,12 @@ msgid "Add Environment Variable"
 msgstr "Umgebungsvariable hinzufügen"
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "├ûffentlich"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Privat"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4754,10 +4465,8 @@ msgid "Project Dashboard"
 msgstr "Projekt-Dashboard"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Important Versions"
-msgstr "Inaktive Versionen"
+msgstr "Wichtige Versionen"
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4768,17 +4477,13 @@ msgid "failing"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:112
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search all docs"
-msgstr "Durchsuchen Sie alle Dokumente"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:125
 #: templates/projects/project_dashboard_base.html:134
-#, fuzzy
-#| msgid "Refresh your accounts"
 msgid "Connect your Accounts"
-msgstr "Deine Konten aktualisieren"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:128
 msgid ""
@@ -4840,10 +4545,8 @@ msgid "Delete project"
 msgstr "Projekt löschen"
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Edit Project Versions"
 msgid "Edit Versions"
-msgstr "Projektversionen bearbeiten"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4871,26 +4574,20 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "New Email Notifications"
 msgid "Email Notifications"
-msgstr "Neue Benachrichtigungen per Mail"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
 #: templates/projects/project_traffic_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Traffic Analytics"
-msgstr "Analysen"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Search Analytics"
-msgstr "Analysen"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4973,12 +4670,8 @@ msgid "Browse projects"
 msgstr "Projekte durchsuchen"
 
 #: templates/projects/project_notifications.html:16
-#, fuzzy
-#| msgid "Configure Notifications to be sent on build failures."
 msgid "Configure email notifications to be sent on build failures."
 msgstr ""
-"Richten Sie Benachrichtigungen ein, die versandt werden wenn der Aufbau "
-"fehlschl├ñgt."
 
 #: templates/projects/project_notifications.html:22
 #, python-format
@@ -5008,16 +4701,11 @@ msgid "Edit Redirects"
 msgstr "Weiterleitungen bearbeiten"
 
 #: templates/projects/project_redirects.html:74
-#, fuzzy, python-format
-#| msgid ""
-#| "Add redirects for your project. This allows you to fix links to old pages "
-#| "that are 404ing."
+#, python-format
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
 msgstr ""
-"F├╝gen Sie Weiterleitungen zu Ihrem Projekt hinzu. Dies erlaubt Ihnen die "
-"Korrektur von Links zu ├╝berholten Seiten, die einen Fehler 404 erzeugen."
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -5039,10 +4727,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Downloads"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5082,10 +4768,8 @@ msgid "Existing Translations"
 msgstr "Bestehende ├£bersetzungen"
 
 #: templates/projects/project_translations.html:58
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No translations are currently configured"
-msgstr "Derzeit sind keine Teilprojekte konfiguriert"
+msgstr ""
 
 #: templates/projects/project_translations.html:67
 msgid "Choose which project you would like to add as a translation."
@@ -5137,10 +4821,8 @@ msgid "Active Versions"
 msgstr "Aktive Versionen"
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate a version"
-msgstr "Aktive Versionen"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5148,22 +4830,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Filter Inactive Versions"
-msgstr "Inaktive Versionen"
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktiv"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Keine Projekte gefunden."
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5173,10 +4849,9 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_states_help_text.html:4
-#, fuzzy, python-format
-#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+#, python-format
 msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
-msgstr "Sehen Sie es sich <a href=\"%(project_url)s\">hier dr├╝ben</a> an."
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:22
 msgid "Update subproject"
@@ -5251,25 +4926,20 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No project found."
 msgid "No webhooks found."
-msgstr "Kein Projekt gefunden."
+msgstr ""
 
 #: templates/search/elastic_search.html:6
-#, fuzzy, python-format
-#| msgid "Search: %(query)s "
+#, python-format
 msgid ""
 "\n"
 "    Search: %(query)s\n"
 "  "
-msgstr "Suche: %(query)s "
+msgstr ""
 
 #: templates/search/elastic_search.html:30
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Object Type"
-msgstr "Weiterleitungstyp"
+msgstr ""
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
@@ -5288,10 +4958,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No results found. Bummer."
 msgid "No results found."
-msgstr "Schade, es wurden keine Resultate gefunden."
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5346,134 +5014,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr ""
-#~ "Ungültige Daten für die Ressourcenabfrage erhalten (falscher Typ): "
-#~ "%(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Siehe Version"
-
-#~ msgid "Project not found"
-#~ msgstr "Projekt nicht gefunden"
-
-#~ msgid "Allow email"
-#~ msgstr "E-Mail-Adressen erlauben"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "Eigene E-Mail-Adresse in Versionskontrolländerungen anzeigen."
-
-#~ msgid "Build environment creation failed"
-#~ msgstr "Erstellung der Bauumgebung schlug fehl"
-
-#~ msgid "Existing Projects"
-#~ msgstr "Bestehende Projekte"
-
-#~ msgid "Add a project"
-#~ msgstr "Ein Projekt hinzufügen"
-
-#~ msgid "Submit"
-#~ msgstr "Absenden"
-
-#~ msgid "Protected"
-#~ msgstr "Gesch├╝tzt"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Zip-Datei mit HTML-Dateien"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Existierende HTML-Dateien überschreiben?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Diese Version ist schon aktiviert!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Bitte eine Zip-Datei hochladen."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "Version des Projektes zu dem HTML hochgeladen wird"
-
-#~ msgid "View Project"
-#~ msgstr "Projekt ansehen"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5-Prüfsumme"
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Vertraulichkeit des Projekts"
-
-#~ msgid "Not built"
-#~ msgstr "Kein Build"
-
-#~ msgid "This shows the last 7 days of data from your project."
-#~ msgstr "Dies zeigt die Daten der letzten 7 Tage aus Ihrem Projekt."
-
-#~ msgid "Pages"
-#~ msgstr "Seiten"
-
-#~ msgid "Notifications"
-#~ msgstr "Benachrichtigungen"
-
-#~ msgid "File"
-#~ msgstr "Datei"
-
-#~ msgid "Select a File"
-#~ msgstr "Datei wählen"
-
-#~ msgid "Show content"
-#~ msgstr "Inhalt zeigen"
-
-#, python-format
-#~ msgid "Projects by %(username)s tagged with %(tag)s"
-#~ msgstr "Projekte von %(username)s mit dem Tag %(tag)s"
-
-#, python-format
-#~ msgid "Projects by %(username)s"
-#~ msgstr "Projekte von %(username)s"
-
-#~ msgid "Edit Notifications"
-#~ msgstr "Benachrichtigungen bearbeiten"
-
-#~ msgid "New Webhook Notifications"
-#~ msgstr "Neue Benachrichtigung per Webhook"
-
-#~ msgid "Add a URL to notify"
-#~ msgstr "F├╝gen Sie eine neue URL zur Benachrichtigung hinzu"
-
-#~ msgid "Clean"
-#~ msgstr "Leeren"
-
-#~ msgid "Choose the version that / will redirect to."
-#~ msgstr "Wähle die Version aus, die auf die / umgeleitet wird."
-
-#~ msgid "Choose Active Versions"
-#~ msgstr "Aktive Versionen wählen"
-
-#~ msgid "Active versions below will show up on the site."
-#~ msgstr "Aktive Versionen unten werden auf der Website angezeigt."
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "Suchresultate für %(term)s"
-
-#~ msgid "Huh?"
-#~ msgstr "Wie bitte?"
-
-#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
-#~ msgstr "Keine Dokumente stimmten mit Deiner Suche überein. ¯\\\\(O_o)/¯"
-
-#~ msgid "Upload HTML"
-#~ msgstr "HTML hochladen"
-
-#~ msgid ""
-#~ "Use this to upload pre-existing HTML documentation for versions that "
-#~ "don't build correctly anymore."
-#~ msgstr ""
-#~ "Hier k├Ânnen Sie schon existierende HTML-Dokumentationen hochladen, wenn "
-#~ "Sie nicht mehr korrekt automatisch erstellt werden k├Ânnen."
-
-#, python-format
-#~ msgid "Results for %(query)s"
-#~ msgstr "Treffer f├╝r %(query)s"

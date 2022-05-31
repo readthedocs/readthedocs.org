@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Veronika Kabatova <veronicca114@gmail.com>, 2015\n"
 "Language-Team: Slovak (http://www.transifex.com/readthedocs/readthedocs/"
@@ -40,10 +40,8 @@ msgid "HTTP status code"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Jazyk"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -59,16 +57,12 @@ msgid "Downloads"
 msgstr "Stiahnuté"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "Projekt"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -110,10 +104,8 @@ msgid "Search"
 msgstr "Vyhľadať"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search"
 msgid "Search docs"
-msgstr "Vyhľadať"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -157,10 +149,8 @@ msgstr ""
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Stiahnuté"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -168,10 +158,8 @@ msgid "User"
 msgstr "Používateľ"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Používateľ"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -183,38 +171,28 @@ msgid "Project"
 msgstr "Projekt"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Projekt"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "Projekty"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organizácia"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Organizácia"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Organizácia"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktívny"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -237,10 +215,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Zmeniť heslo"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -332,20 +308,16 @@ msgid "Building"
 msgstr ""
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Uploaded"
 msgid "Uploading"
-msgstr "Odoslaný"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Dokončený"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "zrušiť"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -392,16 +364,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Subversion"
 msgid "Any version"
-msgstr "Subversion"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Verzie"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -412,10 +380,8 @@ msgid "Active"
 msgstr "Aktívny"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "Dokončený"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -431,16 +397,12 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Stav"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Súkromný"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -457,16 +419,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Vytvoriť"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Dátum úpravy"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -548,10 +506,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr ""
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Stav"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -586,22 +542,16 @@ msgid "Commit"
 msgstr ""
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Verzie"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Verzia"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Verzia"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -664,16 +614,12 @@ msgid "Build command {pk} for build {build}"
 msgstr ""
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Activate version"
-msgstr "Vybrať Aktívne Verzie"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "View Version"
 msgid "Hide version"
-msgstr "Zobraziť verziu"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -851,30 +797,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -987,10 +933,8 @@ msgid "Projects"
 msgstr "Projekty"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Projekty"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1013,10 +957,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Featured Projects"
 msgid "Ad-free projects"
-msgstr "Vybrané Projekty"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1060,10 +1002,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Archív Read the Docs"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1101,16 +1041,12 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Description"
 msgid "Manage subscription"
-msgstr "Popis"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "No projects found"
 msgid "Gold projects"
-msgstr "Žiadne projekty nenájdene"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
 msgid "Choose projects you would like to make ad-free."
@@ -1256,10 +1192,8 @@ msgid "vcs"
 msgstr ""
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Štandardná vetva"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1326,10 +1260,8 @@ msgid "Admin"
 msgstr "Administrátor"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
 msgid "Billing Email"
@@ -1377,13 +1309,11 @@ msgstr ""
 #: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
-msgstr ""
+msgstr "Vlastník"
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "Email"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
@@ -1411,10 +1341,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Úspech"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1449,10 +1377,8 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1470,10 +1396,8 @@ msgid "Delete forever"
 msgstr "Vymazať navždy"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1491,16 +1415,12 @@ msgid "or"
 msgstr "alebo"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization Owners"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1509,17 +1429,13 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:53
 #: organizations/templates/organizations/admin/owners_edit.html:57
 #: organizations/templates/organizations/team_list.html:51
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add Owner"
-msgstr "Pridať Správcu"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
@@ -1579,10 +1495,8 @@ msgstr ""
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1612,16 +1526,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Vytvoriť"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Build Started"
 msgid "Get Started"
-msgstr "Build Začatý"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1669,10 +1579,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Organizácia"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1702,10 +1610,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Deleted"
 msgid "Delete Team"
-msgstr "Vymazaný"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1723,10 +1629,8 @@ msgid "Edit Team"
 msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Moje Projekty"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1746,10 +1650,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Projekty"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1760,15 +1662,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Featured Projects"
 msgid "Update Projects"
-msgstr "Vybrané Projekty"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1787,20 +1684,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Deleted"
 msgid "Team deleted"
-msgstr "Vymazaný"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Domovská stránka projektu"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1915,10 +1808,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Neplatný názov hostiteľa"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -2003,28 +1894,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "View Version"
 msgid "Hidden versions"
-msgstr "Zobraziť verziu"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "View Version"
 msgid "Visible versions"
-msgstr "Zobraziť verziu"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Default version"
 msgid "Private versions"
-msgstr "Štandardná verzia"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2055,16 +1938,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Nastavenia"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Štandardná verzia"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2122,10 +2001,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Short description of this project"
-msgstr "Popis projektu za pomoci reStructuredText formátu"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2203,10 +2080,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Typ dokumentácie"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2420,10 +2295,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build id"
-msgstr "Build Začatý"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2434,16 +2307,12 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Build Začatý"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build passed"
-msgstr "Build Začatý"
+msgstr ""
 
 #: projects/models.py:1501
 msgid "URL"
@@ -2820,10 +2689,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Neplatný názov hostiteľa"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -2910,10 +2777,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Názov"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -2943,44 +2808,32 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Organizácia"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Verejný"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation type"
 msgid "CDN public documentation"
-msgstr "Typ dokumentácie"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python konfiguračný súbor"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Supported"
 msgid "Support SLA"
-msgstr "Podporovaný"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Private documentation"
-msgstr "Typ dokumentácie"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
@@ -2995,10 +2848,8 @@ msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Recent Builds"
 msgid "Concurrent builds"
-msgstr "Nedávne Buildy"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
@@ -3034,16 +2885,12 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription ID"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription status"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/models.py:194
 msgid "Start date"
@@ -3058,10 +2905,8 @@ msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Subscription"
-msgstr "Organizácia"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3081,36 +2926,28 @@ msgid "Plan Features:"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Zaregistrovať sa"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
 msgid "ago"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription Status"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription ends"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Description"
 msgid "Manage Subscription"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3127,10 +2964,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Description"
 msgid "Create Subscription"
-msgstr "Popis"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3300,10 +3135,8 @@ msgid "Read the Docs Archive"
 msgstr "Archív Read the Docs"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Remove Notifications"
 msgid "Close notification"
-msgstr "Zrušiť upozornenia"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3348,10 +3181,8 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Supported"
 msgid "Site Support"
-msgstr "Podporovaný"
+msgstr ""
 
 #: templates/base.html:204
 msgid "Site Status"
@@ -3370,10 +3201,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Archív Read the Docs"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3441,10 +3270,8 @@ msgid "Build completed"
 msgstr ""
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build cancelled"
-msgstr "Build Začatý"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3582,10 +3409,9 @@ msgid "Failed"
 msgstr ""
 
 #: templates/core/build_list_detailed.html:11
-#, fuzzy, python-format
-#| msgid "%(version_name)s"
+#, python-format
 msgid "%(external_version_name)s"
-msgstr "%(version_name)s"
+msgstr ""
 
 #: templates/core/build_list_detailed.html:16
 #, python-format
@@ -3867,20 +3693,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Vybrané Projekty"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4205,16 +4027,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Verejný"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Súkromný"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4612,10 +4430,8 @@ msgid "Project Dashboard"
 msgstr "Nástenka projektu"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "Verzie"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4692,10 +4508,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Edit Versions"
-msgstr "Verzie"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4723,10 +4537,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "New Email Notifications"
 msgid "Email Notifications"
-msgstr "Nové emailové upozornenia"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
@@ -4737,10 +4549,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Search Analytics"
-msgstr "Analytics kód"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4877,10 +4687,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Stiahnuté"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -4973,10 +4781,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Activate a version"
-msgstr "Vybrať Aktívne Verzie"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -4984,22 +4790,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Filter Inactive Versions"
-msgstr "Vybrať Aktívne Verzie"
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktívny"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Žiadne projekty nenájdene"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5086,10 +4886,8 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No objects found"
 msgid "No webhooks found."
-msgstr "Žiadne objekty nenájdené"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
 #, python-format
@@ -5120,10 +4918,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No projects found"
 msgid "No results found."
-msgstr "Žiadne projekty nenájdene"
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5178,51 +4974,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#~ msgid "Allow email"
-#~ msgstr "Povoliť email"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "Zobraziť váš email vo VCS príspevkoch."
-
-#~ msgid "Protected"
-#~ msgstr "Chránený"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Zip súbor s HTML"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Prepísať existujúce HTML?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Táto verzia je už aktívna!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Musíte odoslať zip súbor."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "Verzia projektu, pre ktorý odosielate HTML"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5 kontrolný súčet"
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Úroveň súkromia projektu"
-
-#~ msgid "Notifications"
-#~ msgstr "Upozornenia"
-
-#~ msgid "File"
-#~ msgstr "Súbor"
-
-#~ msgid "Edit Notifications"
-#~ msgstr "Upraviť upozornenia"
-
-#~ msgid "Choose the version that / will redirect to."
-#~ msgstr "Vyberte verziu projektu, na ktorú sa adresa / presmeruje."
-
-#~ msgid "Active versions below will show up on the site."
-#~ msgstr "Aktívne verzie nižšie sa zobrazia na stránke."
-
-#~ msgid "Upload HTML"
-#~ msgstr "Odoslať HTML"

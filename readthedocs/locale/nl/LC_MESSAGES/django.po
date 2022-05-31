@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jesse Tan, 2017,2021\n"
 "Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs/"
@@ -33,26 +33,20 @@ msgid "Version"
 msgstr "Versie"
 
 #: analytics/models.py:71
-#, fuzzy
-#| msgid "No active versions."
 msgid "Path relative to the version."
-msgstr "Geen actieve versies."
+msgstr ""
 
 #: analytics/models.py:75
 msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "Status code"
 msgid "HTTP status code"
-msgstr "Statuscode"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Taal"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -68,16 +62,12 @@ msgid "Downloads"
 msgstr "Downloads"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project homepage"
 msgid "Project Home"
-msgstr "Startpagina van project"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -90,10 +80,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View Docs"
 msgid "View"
-msgstr "Docs bekijken"
+msgstr "Tonen"
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -121,10 +109,8 @@ msgid "Search"
 msgstr "Zoeken"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search"
 msgid "Search docs"
-msgstr "Zoeken"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -135,10 +121,9 @@ msgid "Privacy Policy"
 msgstr ""
 
 #: api/v3/serializers.py:494
-#, fuzzy, python-brace-format
-#| msgid "Invalid project name"
+#, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
-msgstr "Ongeldige projectnaam"
+msgstr ""
 
 #: api/v3/serializers.py:498
 #, python-brace-format
@@ -169,10 +154,8 @@ msgstr ""
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Downloads"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -180,10 +163,8 @@ msgid "User"
 msgstr "Gebruiker"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Gebruiker"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -195,38 +176,28 @@ msgid "Project"
 msgstr "Project"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Project"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "Projecten"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organisatie"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Organisatie"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Organisatie"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Section"
 msgid "Action"
-msgstr "Sectie"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -249,10 +220,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Wachtwoord wijzigen"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -344,20 +313,16 @@ msgid "Building"
 msgstr "Bezig met samenstellen"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Uploaden"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Voltooid"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "annuleren"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -380,10 +345,8 @@ msgid "Dash"
 msgstr "Dash"
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Externe links"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -406,16 +369,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Enkele versie"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Versies"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -426,10 +385,8 @@ msgid "Active"
 msgstr "Actief"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build finished"
-msgstr "Bouw activiteit gefaald"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -442,19 +399,15 @@ msgstr "Status"
 
 #: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
 msgid "Any"
-msgstr ""
+msgstr "Allemaal"
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Status"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Privé"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -472,16 +425,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Aanmaken"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Aanpassingsdatum"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -554,10 +503,8 @@ msgid "Documentation type"
 msgstr "Documentatie soort"
 
 #: builds/models.py:180
-#, fuzzy
-#| msgid "Your documentation is building"
 msgid "Type of documentation the version was built with."
-msgstr "Je documentatie wordt gebouwd"
+msgstr ""
 
 #: builds/models.py:196
 #, python-brace-format
@@ -565,10 +512,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr "Versie {version} van {project} ({pk}) "
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -603,22 +548,16 @@ msgid "Commit"
 msgstr "Commit"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Versies"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Versie"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Versie"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -681,32 +620,24 @@ msgid "Build command {pk} for build {build}"
 msgstr "Samenstelopdracht {pk} van samenstelling {build}"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate version"
-msgstr "Actieve versies"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "Single version"
 msgid "Hide version"
-msgstr "Enkele versie"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
 msgstr ""
 
 #: builds/models.py:1079
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Make version private"
-msgstr "Projectversies bijgewerkt"
+msgstr ""
 
 #: builds/models.py:1080
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Set version as default"
-msgstr "Projectversies bijgewerkt"
+msgstr ""
 
 #: builds/models.py:1081
 msgid "Delete version (on branch/tag deletion)"
@@ -805,10 +736,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Gebruikersnaam"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -886,56 +815,41 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\n"
-#| "Command killed due to excessive memory consumption\n"
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
-"\n"
-"\n"
-"Commando afgebroken wegens excessief geheugengebruik\n"
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr "Commando abnormaal gestopt"
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr "Een bouw omgeving is momenteel actief voor deze versie"
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr "Bouwen gestopt wegens een time-out"
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr "Bouw is gestopt door overmatig geheugenverbruik"
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Bouw is gestopt door een onbekende fout: {0}"
 
 #: doc_builder/exceptions.py:26
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There was a problem with Read the Docs while building your documentation. "
-#| "Please try again later. However, if this problem persists, please report "
-#| "this to us with your build id ({build_id})."
+#, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
 "Please try again later. If this problem persists, report this error to us "
 "with your build id ({build_id})."
 msgstr ""
-"Er was een probleem met Read the Docs terwijl je documentatie gebouwd werd. "
-"Probeer het later nogmaals. Mocht dit probleem zich blijven voordoen, neem "
-"dan contact met ons op onder vermelding van je bouwnummer ({build_id})."
 
 #: doc_builder/exceptions.py:35
 msgid ""
@@ -954,10 +868,9 @@ msgid "Problem in your project's configuration. {exception}"
 msgstr "Er is een probleem met de configuratie van je project. {exception}"
 
 #: doc_builder/exceptions.py:52
-#, fuzzy, python-brace-format
-#| msgid "Version locked, retrying in 5 minutes."
+#, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
-msgstr "Versie vergrendeld, probeert het opnieuw over 5 minuten."
+msgstr ""
 
 #: doc_builder/exceptions.py:56
 msgid "Duplicated build."
@@ -983,36 +896,21 @@ msgstr ""
 "tekenreeks zijn met een relatief of absoluut pad."
 
 #: doc_builder/exceptions.py:78
-#, fuzzy
-#| msgid ""
-#| "The \"docs_dir\" config from your MkDocs YAML config file has to be a "
-#| "string with relative or absolute path."
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
-"De \"docs_dir\" instelling van je MkDocs YAML configuratiebestand moet een "
-"tekenreeks zijn met een relatief of absoluut pad."
 
 #: doc_builder/exceptions.py:83
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "The \"{config}\" config from your MkDocs YAML config file has to be a a "
-#| "list of relative paths."
+#, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
-"De \"{config}\" instelling van je MkDocs YAML configuratiebestand moet een "
-"lijst van relatieve paden zijn."
 
 #: doc_builder/exceptions.py:88
-#, fuzzy
-#| msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
-"Er is een probleem bij het doorlopen van de MkDocs YAML configuratie. "
-"{exception}"
 
 #: doc_builder/exceptions.py:92
 msgid ""
@@ -1026,10 +924,8 @@ msgid "No project found."
 msgstr "Geen project gevonden."
 
 #: gold/forms.py:54
-#, fuzzy
-#| msgid "The demo project is already imported!"
 msgid "This project is already Ad-Free."
-msgstr "Het demoproject is al geïmporteerd!"
+msgstr ""
 
 #: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
 #: organizations/models.py:239 projects/models.py:111
@@ -1059,10 +955,8 @@ msgid "Projects"
 msgstr "Projecten"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Projecten"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1085,10 +979,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Add project"
 msgid "Ad-free projects"
-msgstr "Voeg project toe"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1108,26 +1000,20 @@ msgid "Remove"
 msgstr "Verwijderen"
 
 #: gold/templates/gold/projects.html:47
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No projects are currently ad-free."
-msgstr "Er zijn momenteel geen subprojecten geconfigureerd"
+msgstr ""
 
 #: gold/templates/gold/projects.html:56
 msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose which project you would like to make ad-free."
-msgstr "Kies welk project u wilt toevoegen."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Make Project Ad-Free"
-msgstr "Project verwijderd"
+msgstr ""
 
 #: gold/templates/gold/projects.html:69
 #, python-format
@@ -1138,10 +1024,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs Archief"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1160,25 +1044,11 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:58
-#, fuzzy
-#| msgid ""
-#| "If you are a company using Read the Docs, please consider getting a <a "
-#| "href=\"https://readthedocs.com/services/#open-source-support\">commercial "
-#| "support contract</a>. This will help us cover our costs, and provide you "
-#| "with a better experience on the site. If you aren't able to do that, we "
-#| "suggest giving at least $20/month to help cover our support and "
-#| "operations costs."
 msgid ""
 "If you are a company using Read the Docs, please consider <a href=\"https://"
 "readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
 "our costs, and provide you with a better experience on the site."
 msgstr ""
-"Ben je een bedrijf dat Read the Docs gebruikt? Overweeg dan om een <a href="
-"\"https://readthedocs.com/services/#open-source-support\">commerciëel "
-"onderhoudscontract af te nemen</a>. Dit helpt ons bij het dekken van alle "
-"operationele kosten en zorgt ervoor dat we jou een betere gebruikerservaring "
-"kunnen bezorgen. Lukt dat niet? Probeer dan tenminste $20/maand te geven "
-"voor onze ondersteuning en operationele kosten."
 
 #: gold/templates/gold/subscription_detail.html:67
 #, python-format
@@ -1197,32 +1067,24 @@ msgstr ""
 "Bedankt voor het ondersteunen van Read the Docs! Het betekent veel voor ons."
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage subscription"
-msgstr "Abonnement annuleren"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Gerelateerde projecten"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "Kies welk project u wilt toevoegen."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
 msgstr "Selecteer projecten"
 
 #: gold/templates/gold/subscription_detail.html:104
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Become a Gold member"
-msgstr "Neem een gouden lidmaatschap af"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:112
 #: templates/account/signup.html:10 templates/account/signup.html:46
@@ -1356,10 +1218,8 @@ msgid "vcs"
 msgstr "vcs"
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Private repository"
 msgid "Default branch of the repository"
-msgstr "Afgeschermde repo"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1435,22 +1295,16 @@ msgid "Admin"
 msgstr "Beheerder"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
-#, fuzzy
-#| msgid "Change Email"
 msgid "Billing Email"
-msgstr "E-mail wijzigen"
+msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH-url"
+msgstr "Website URL"
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1466,10 +1320,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "User {name} does not exist"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "Gebruiker {name} bestaat niet"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1491,23 +1344,19 @@ msgstr ""
 #: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
-msgstr ""
+msgstr "Eigenaren"
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "E-mailadres"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
 msgstr "Homepagina"
 
 #: organizations/models.py:75
-#, fuzzy
-#| msgid "CDN Enabled"
 msgid "Disabled"
-msgstr "CDN ingeschakeld"
+msgstr ""
 
 #: organizations/models.py:80
 msgid "Artifacts Cleaned"
@@ -1527,10 +1376,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Gelukt"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1538,7 +1385,7 @@ msgstr ""
 
 #: organizations/models.py:256
 msgid "Hash"
-msgstr ""
+msgstr "Hash"
 
 #: organizations/models.py:257
 msgid "Count"
@@ -1560,17 +1407,13 @@ msgstr "Details"
 #: templates/profiles/base_profile_edit.html:52
 #: templates/profiles/private/security_log.html:6
 #: templates/profiles/private/security_log.html:10
-#, fuzzy
-#| msgid "Security"
 msgid "Security Log"
-msgstr "Beveiliging"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1588,10 +1431,8 @@ msgid "Delete forever"
 msgstr "Permanent verwijderen"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1609,16 +1450,12 @@ msgid "or"
 msgstr "of"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Edit Translations"
 msgid "Edit Organization Owners"
-msgstr "Vertalingen bewerken"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1627,17 +1464,13 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:53
 #: organizations/templates/organizations/admin/owners_edit.html:57
 #: organizations/templates/organizations/team_list.html:51
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add Owner"
-msgstr "Voeg Onderhouder toe"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
@@ -1697,10 +1530,8 @@ msgstr "Vorige"
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1730,16 +1561,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Aanmaken"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Build Started"
 msgid "Get Started"
-msgstr "Bouw activiteit gestart"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1787,10 +1614,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Organisatie"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1820,10 +1645,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Delete %(name)s?"
 msgid "Delete Team"
-msgstr "%(name)s verwijderen?"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1837,16 +1660,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit Card"
 msgid "Edit Team"
-msgstr "Kaart bewerken"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Mijn projecten"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1866,10 +1685,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Projecten"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1880,15 +1697,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Update subproject"
 msgid "Update Projects"
-msgstr "Werk subproject bij"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1907,20 +1719,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Team deleted"
-msgstr "Project verwijderd"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "De startpagina van het project"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1967,10 +1775,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Delete subproject"
 msgid "Delete project (>={})"
-msgstr "Verwijder subproject"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -2037,10 +1843,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Ongeldige hostnaam"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -2103,10 +1907,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "has project with recent builds"
 msgid "Least recently built"
-msgstr "heeft project met recente samenstelactiviteiten"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2129,28 +1931,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Hidden versions"
-msgstr "Enkele versie"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Enkele versie"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Private versions"
-msgstr "Actieve versies"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2181,16 +1975,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Instellingen"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Standaardversie"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2248,10 +2038,8 @@ msgid "Alias"
 msgstr "Alias"
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "Description of the project"
 msgid "Short description of this project"
-msgstr "Beschrijving van het project"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2332,10 +2120,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Documentatie soort"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2344,10 +2130,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Geen downloads voor dit project."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2378,10 +2162,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:249
-#, fuzzy
-#| msgid "Analytics"
 msgid "Disable Analytics"
-msgstr "Analytics"
+msgstr ""
 
 #: projects/models.py:253
 msgid ""
@@ -2553,10 +2335,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build id"
-msgstr "Bouw activiteit gefaald"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2567,22 +2347,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Bouw activiteit gestart"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build passed"
-msgstr "Bouw activiteit gefaald"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "Naar"
+msgstr "URL"
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2612,16 +2386,12 @@ msgid "Domain"
 msgstr "Domein"
 
 #: projects/models.py:1634
-#, fuzzy
-#| msgid "This Domain was auto-created"
 msgid "This domain was auto-created"
-msgstr "Dit domein is automatisch aangemaakt"
+msgstr ""
 
 #: projects/models.py:1638
-#, fuzzy
-#| msgid "This Domain is a CNAME for the project"
 msgid "This domain is a CNAME for the project"
-msgstr "Dit domein is een CNAME van het project"
+msgstr ""
 
 #: projects/models.py:1643
 msgid "This domain is the primary one where the documentation is served from"
@@ -2681,10 +2451,8 @@ msgid "Try alternative method of posting large data"
 msgstr ""
 
 #: projects/models.py:1831
-#, fuzzy
-#| msgid "Configuration used in the build"
 msgid "Clean all files used in the build process"
-msgstr "De bij het samenstellen gebruikte configuratie"
+msgstr ""
 
 #: projects/models.py:1835
 msgid "Upgrade conda before creating the environment"
@@ -2755,10 +2523,8 @@ msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
 #: projects/models.py:1895
-#, fuzzy
-#| msgid "Build latest version"
 msgid "Use latest version of MkDocs"
-msgstr "Bouw laatste versie"
+msgstr ""
 
 #: projects/models.py:1898
 msgid "Use latest version of the Read the Docs Sphinx extension"
@@ -2964,10 +2730,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Ongeldige hostnaam"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -3054,10 +2818,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Naam"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -3087,76 +2849,56 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Organisatie"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Publiek"
+msgstr ""
 
 #: subscriptions/models.py:110
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Custom domain"
-msgstr "Domein aanmaken"
+msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Start building your documentation"
 msgid "CDN public documentation"
-msgstr "Start met het maken van je documentatie"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python configuratie bestand"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Support"
 msgid "Support SLA"
-msgstr "Ondersteuning"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Import HTML Documentation"
 msgid "Private documentation"
-msgstr "Importeer HTML-documentatie"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
 msgstr ""
 
 #: subscriptions/models.py:116
-#, fuzzy
-#| msgid "Analytics"
 msgid "Search analytics"
-msgstr "Analytics"
+msgstr ""
 
 #: subscriptions/models.py:117
 msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Recent Builds"
 msgid "Concurrent builds"
-msgstr "Recente bouw activiteiten"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "Van URL"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3184,38 +2926,28 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Stripe subscription ID"
-msgstr "Abonnement bijwerken"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription status"
-msgstr "Goud lidmaatschap"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Begintijd"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Eindtijd"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Organization Subscription"
-msgstr "Abonnement annuleren"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3235,38 +2967,28 @@ msgid "Plan Features:"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Aanmelden"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Tag"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription Status"
-msgstr "Goud lidmaatschap"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription ends"
-msgstr "Goud lidmaatschap"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage Subscription"
-msgstr "Abonnement annuleren"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3283,16 +3005,12 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Create Subscription"
-msgstr "Abonnement bijwerken"
+msgstr ""
 
 #: subscriptions/views.py:37
-#, fuzzy
-#| msgid "Your subscription has been updated"
 msgid "Your plan has been upgraded!"
-msgstr "Je abonnement is bijgewerkt"
+msgstr ""
 
 #: subscriptions/views.py:92
 msgid ""
@@ -3458,10 +3176,8 @@ msgid "Read the Docs Archive"
 msgstr "Read the Docs Archief"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Notification"
 msgid "Close notification"
-msgstr "Melding"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3506,16 +3222,12 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Support"
 msgid "Site Support"
-msgstr "Ondersteuning"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "HTTP Status"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3530,10 +3242,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs Archief"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3601,10 +3311,8 @@ msgid "Build completed"
 msgstr "Bouw activiteit afgerond"
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build cancelled"
-msgstr "Bouw activiteit gefaald"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3707,10 +3415,8 @@ msgid "Move down"
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:76
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No automation rules are currently configured."
-msgstr "Er zijn momenteel geen subprojecten geconfigureerd"
+msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
 #: templates/projects/integration_webhook_detail.html:83
@@ -3744,10 +3450,9 @@ msgid "Failed"
 msgstr "Mislukt"
 
 #: templates/core/build_list_detailed.html:11
-#, fuzzy, python-format
-#| msgid "%(version_name)s"
+#, python-format
 msgid "%(external_version_name)s"
-msgstr "%(version_name)s"
+msgstr ""
 
 #: templates/core/build_list_detailed.html:16
 #, python-format
@@ -3759,10 +3464,8 @@ msgid "No builds found"
 msgstr "Geen bouw activiteiten gevonden"
 
 #: templates/core/email/base.html:78
-#, fuzzy
-#| msgid "Hello!"
 msgid "Hello,"
-msgstr "Hallo!"
+msgstr ""
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
@@ -4031,20 +3734,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr ""
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4177,10 +3876,8 @@ msgid "Delete Account"
 msgstr ""
 
 #: templates/profiles/base_profile_edit.html:55
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Gold Membership"
-msgstr "Neem een gouden lidmaatschap af"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:57
 #: templates/projects/project_edit_base.html:34
@@ -4270,10 +3967,8 @@ msgid "Revoke"
 msgstr ""
 
 #: templates/profiles/private/token_list.html:49
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No API Tokens currently configured."
-msgstr "Er zijn momenteel geen subprojecten geconfigureerd"
+msgstr ""
 
 #: templates/profiles/public/profile_detail.html:6
 #, python-format
@@ -4294,10 +3989,8 @@ msgid "Confirm"
 msgstr "Bevestigen"
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Details"
 msgid "Domain Details"
-msgstr "Details"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4311,10 +4004,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/domain_form.html:52
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Save Domain"
-msgstr "Domein aanmaken"
+msgstr ""
 
 #: templates/projects/domain_form.html:54
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4347,10 +4038,8 @@ msgid "Existing Domains"
 msgstr "Bestaande domeinen"
 
 #: templates/projects/domain_list.html:48
-#, fuzzy
-#| msgid "Add new Domain"
 msgid "Add new domain"
-msgstr "Nieuwe domein toevoegen"
+msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
@@ -4374,16 +4063,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Publiek"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Privé"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4781,20 +4466,14 @@ msgid "Project Dashboard"
 msgstr "Projectoverzicht"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Important Versions"
-msgstr "Inactieve versies"
+msgstr "Belangrijke versies"
 
 #: templates/projects/project_dashboard_base.html:77
-#, fuzzy
-#| msgid "passed"
 msgid "passing"
-msgstr "geslaagd"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:79
-#, fuzzy
-#| msgid "failed"
 msgid "failing"
 msgstr "mislukt"
 
@@ -4804,10 +4483,8 @@ msgstr ""
 
 #: templates/projects/project_dashboard_base.html:125
 #: templates/projects/project_dashboard_base.html:134
-#, fuzzy
-#| msgid "Connected account"
 msgid "Connect your Accounts"
-msgstr "Verbonden account"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:128
 msgid ""
@@ -4867,10 +4544,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Edit Project Versions"
 msgid "Edit Versions"
-msgstr "Projectversies bewerken"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4898,26 +4573,20 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "Notification"
 msgid "Email Notifications"
-msgstr "Melding"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
 #: templates/projects/project_traffic_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Traffic Analytics"
-msgstr "Analytics"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Search Analytics"
-msgstr "Analytics"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4997,10 +4666,8 @@ msgid "Browse projects"
 msgstr ""
 
 #: templates/projects/project_notifications.html:16
-#, fuzzy
-#| msgid "Configure Notifications to be sent on build failures."
 msgid "Configure email notifications to be sent on build failures."
-msgstr "Meldingen configureren die verstuurd worden bij bouw fouten."
+msgstr ""
 
 #: templates/projects/project_notifications.html:22
 #, python-format
@@ -5056,10 +4723,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Downloads"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5099,10 +4764,8 @@ msgid "Existing Translations"
 msgstr "Bestaande vertalingen"
 
 #: templates/projects/project_translations.html:58
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No translations are currently configured"
-msgstr "Er zijn momenteel geen subprojecten geconfigureerd"
+msgstr ""
 
 #: templates/projects/project_translations.html:67
 msgid "Choose which project you would like to add as a translation."
@@ -5154,10 +4817,8 @@ msgid "Active Versions"
 msgstr "Actieve versies"
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate a version"
-msgstr "Actieve versies"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5165,22 +4826,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Filter Inactive Versions"
-msgstr "Inactieve versies"
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Actief"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Geen projecten gevonden"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5267,19 +4922,16 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No builds found"
 msgid "No webhooks found."
-msgstr "Geen bouw activiteiten gevonden"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
-#, fuzzy, python-format
-#| msgid "Search: %(query)s "
+#, python-format
 msgid ""
 "\n"
 "    Search: %(query)s\n"
 "  "
-msgstr "Zoeken: %(query)s "
+msgstr ""
 
 #: templates/search/elastic_search.html:30
 msgid "Object Type"
@@ -5302,10 +4954,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No results found. Bummer."
 msgid "No results found."
-msgstr "Geen resultaten gevonden. Jammer."
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5366,220 +5016,3 @@ msgstr "%(verbiage)s %(brand_name)s"
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr "%(verbiage)s %(provider_name)s"
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr ""
-#~ "Ongeldige bronopzoekgegevens opgegeven (type komt niet overeen).: "
-#~ "%(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Bekijk Versie"
-
-#~ msgid "Project not found"
-#~ msgstr "Project niet gevonden"
-
-#~ msgid "Allow email"
-#~ msgstr "E-mail toestaan"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "Toon je e-mailadres bij vcs-bijdragen"
-
-#~ msgid "Build environment creation failed"
-#~ msgstr "Aanmaken bouwomgeving mislukt"
-
-#~ msgid ""
-#~ "Choose projects that will have all promos removed, and extra features "
-#~ "added to them. You get to pick one for every $5/mo you support Read the "
-#~ "Docs with."
-#~ msgstr ""
-#~ "Kies projecten waar alle promoties van verwijdert worden, en die extra "
-#~ "mogelijkheden zullen krijgen. Je mag er een kiezen voor elke $5/maand "
-#~ "waarmee je Read the Docs ondersteunt."
-
-#~ msgid "Existing Projects"
-#~ msgstr "Bestaande projecten"
-
-#, python-format
-#~ msgid "You can adopt one project with your subscription."
-#~ msgid_plural "You can adopt %(projects)s projects with your subscription."
-#~ msgstr[0] "Je kan één project adopteren met je abonnement."
-#~ msgstr[1] "Je kunt %(projects)s projecten adopteren met je abonnement."
-
-#~ msgid "Add a project"
-#~ msgstr "Project toevoegen"
-
-#~ msgid "Submit"
-#~ msgstr "Versturen"
-
-#~ msgid "Are you sure you want to cancel your subscription?"
-#~ msgstr "Weet je zeker dat je je abonnement wilt opzeggen?"
-
-#~ msgid "Card"
-#~ msgstr "Kaart"
-
-#~ msgid ""
-#~ "If you are an individual, feel free to give whatever feels right for the "
-#~ "value you get out of Read the Docs."
-#~ msgstr ""
-#~ "Voel je vrij om als individu zelf bij te dragen naar de waarde die Read "
-#~ "The Docs je geeft."
-
-#~ msgid ""
-#~ "Becoming a Gold Member also makes Read the Docs ad-free for as long as "
-#~ "you are logged-in."
-#~ msgstr ""
-#~ "Als Gouden Abonnee ervaar je Read the Docs helemaal zonder enige vorm van "
-#~ "advertenties, mits je ingelogd bent."
-
-#~ msgid ""
-#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
-#~ "org/sustainability/\">sustainability</a> page."
-#~ msgstr ""
-#~ "Je kunt ook eenmalige donaties doen via deze pagina over <a href="
-#~ "\"https://readthedocs.org/sustainability/\">onze duurzaamheid</a>."
-
-#~ msgid ""
-#~ "We ask that folks who use custom Domains give Read the Docs $5 per domain "
-#~ "they are using. This is optional, but it really does help us maintain the "
-#~ "site going forward."
-#~ msgstr ""
-#~ "We vragen gebruikers van handmatige domeinnamen om Read the Docs $5 per "
-#~ "gebruikte domeinnaam te geven. Dit is niet verplicht, maar helpt ons "
-#~ "ontzettend bij het onderhouden en voortzetten van de website."
-
-#~ msgid "Update Your Subscription"
-#~ msgstr "Werk je abonnement bij"
-
-#~ msgid "Current card"
-#~ msgstr "Actueel toepasselijke kaart"
-
-#~ msgid "All information is submitted directly to Stripe."
-#~ msgstr "Alle informatie wordt direct naar Stripe verstuurd."
-
-#~ msgid "Your subscription has been cancelled"
-#~ msgstr "Je abonnement is geannuleerd"
-
-#~ msgid "Serialized API response"
-#~ msgstr "Geserialiseerd api-antwoord"
-
-#~ msgid "VAT ID number"
-#~ msgstr "BTW-nummer"
-
-#~ msgid "Card number"
-#~ msgstr "Kaartnummer"
-
-#~ msgid "Card expiration"
-#~ msgstr "Kaart vervaldatum"
-
-#~ msgid "Card CVV"
-#~ msgstr "Kaart CVV"
-
-#~ msgid "There was a problem communicating with Stripe"
-#~ msgstr "Er was een probleem met het communiceren met Stripe"
-
-#~ msgid "Mkdocs (Markdown)"
-#~ msgstr "Mkdocs (Markdown)"
-
-#~ msgid "Protected"
-#~ msgstr "Beveiligd"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Zip-bestand of HTML"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Bestaande HTML overschrijven?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Die versie is al geactiveerd!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Moet een zip-bestand uploaden."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "Versie van het project waar u HTML voor upload"
-
-#~ msgid "View Project"
-#~ msgstr "Project weergeven"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5 checksum"
-
-#~ msgid "Enter a valid domain name value"
-#~ msgstr "Vul een geldige domeinnaam in"
-
-#~ msgid "Your demo project is currently being imported"
-#~ msgstr "Uw demoproject wordt momenteel geïmporteerd"
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Hoeveelheid Privacy Project"
-
-#~ msgid "Gold"
-#~ msgstr "Goud"
-
-#~ msgid "Edit Domain"
-#~ msgstr "Domein bewerken"
-
-#~ msgid "Pages"
-#~ msgstr "Pagina's"
-
-#~ msgid "File"
-#~ msgstr "Bestand"
-
-#~ msgid "Select a File"
-#~ msgstr "Selecteer een bestand"
-
-#~ msgid "wipe "
-#~ msgstr "wis"
-
-#~ msgid "Clean"
-#~ msgstr "Schoon op"
-
-#~ msgid "Choose the version that / will redirect to."
-#~ msgstr "Kies de versie waar naar toe verwezen wordt."
-
-#~ msgid "Choose Active Versions"
-#~ msgstr "Kies actieve versies"
-
-#~ msgid "Active versions below will show up on the site."
-#~ msgstr "Actieve versies hieronder worden getoond op de website."
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "Zoekresultaten voor %(term)s"
-
-#~ msgid "Huh?"
-#~ msgstr "Huh?"
-
-#~ msgid "Upload HTML"
-#~ msgstr "HTML uploaden"
-
-#~ msgid ""
-#~ "Use this to upload pre-existing HTML documentation for versions that "
-#~ "don't build correctly anymore."
-#~ msgstr ""
-#~ "Gebruik dit om al bestaande HTML documentatie toe te voegen voor versies "
-#~ "die niet correct meer gebouwd kunnen worden."
-
-#, python-format
-#~ msgid "Results for %(query)s"
-#~ msgstr "Resultaten voor %(query)s"
-
-#, python-format
-#~ msgid "Remove build environment for <em>%(slug)s</em> version."
-#~ msgstr "Verwijder bouw omgeving voor <em>%(slug)s</em> versie."
-
-#~ msgid "Your project environment has been wiped."
-#~ msgstr "Je projectomgeving is geleegd."
-
-#~ msgid ""
-#~ "Having trouble getting your documentation build to complete?  By clicking "
-#~ "on the button below you'll clean out your build checkouts and "
-#~ "environment, but not your generated documentation."
-#~ msgstr ""
-#~ "Heb je problemen om je documentatie te bouwen? Met een klik op "
-#~ "onderstaande knop schoon je de checkouts en de bouw omgeving op, maar "
-#~ "niet reeds gegenereerde documentatie."
-
-#~ msgid "Wipe"
-#~ msgstr "Wissen"
