@@ -185,6 +185,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             forced_only=True,
         )
         if redirect_path and http_status:
+            log.bind(forced_redirect=True)
             try:
                 return self.get_redirect_response(
                     request=request,
