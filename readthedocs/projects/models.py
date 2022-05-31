@@ -1774,6 +1774,7 @@ class Feature(models.Model):
     CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
+    ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1864,6 +1865,10 @@ class Feature(models.Model):
         (
             RECORD_404_PAGE_VIEWS,
             _("Record 404s page views."),
+        ),
+        (
+            ALLOW_FORCED_REDIRECTS,
+            _("Allow forced redirects."),
         ),
 
         # Versions sync related features

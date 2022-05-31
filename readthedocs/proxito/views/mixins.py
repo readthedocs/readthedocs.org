@@ -260,7 +260,9 @@ class ServeRedirectMixin:
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
-    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
+    def get_redirect(
+        self, project, lang_slug, version_slug, filename, full_path, forced_only=False
+    ):
         """
         Check for a redirect for this project that matches ``full_path``.
 
@@ -272,6 +274,7 @@ class ServeRedirectMixin:
             version_slug=version_slug,
             path=filename,
             full_path=full_path,
+            forced_only=forced_only,
         )
         return redirect_path, http_status
 

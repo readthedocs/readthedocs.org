@@ -585,11 +585,19 @@ class RedirectForm(forms.ModelForm):
 
     class Meta:
         model = Redirect
-        fields = ['redirect_type', 'from_url', 'to_url']
+        fields = ["redirect_type", "from_url", "to_url", "force"]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        if self.project.has_feature(Feature.ALLOW_FORCED_REDIRECTS):
+            # Remove the nullable option from the form.
+            # TODO: remove after migration.
+            self.fields["force"].widget = forms.CheckboxInput()
+            self.fields["force"].empty_value = False
+        else:
+            self.fields.pop("force")
 
     def save(self, **_):  # pylint: disable=arguments-differ
         # TODO this should respect the unused argument `commit`. It's not clear
@@ -597,9 +605,10 @@ class RedirectForm(forms.ModelForm):
         # super `save()` call.
         redirect = Redirect.objects.create(
             project=self.project,
-            redirect_type=self.cleaned_data['redirect_type'],
-            from_url=self.cleaned_data['from_url'],
-            to_url=self.cleaned_data['to_url'],
+            redirect_type=self.cleaned_data["redirect_type"],
+            from_url=self.cleaned_data["from_url"],
+            to_url=self.cleaned_data["to_url"],
+            force=self.cleaned_data.get("force", False),
         )
         return redirect
 
