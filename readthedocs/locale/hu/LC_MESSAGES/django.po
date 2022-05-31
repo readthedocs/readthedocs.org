@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Laszlo Matusek <lmatusek@gmail.com>, 2021\n"
 "Language-Team: Hungarian (http://www.transifex.com/readthedocs/readthedocs/"
@@ -26,26 +26,20 @@ msgid "Version"
 msgstr "Verzió"
 
 #: analytics/models.py:71
-#, fuzzy
-#| msgid "No active versions."
 msgid "Path relative to the version."
-msgstr "Nincsenek aktív verziók."
+msgstr ""
 
 #: analytics/models.py:75
 msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "Status code"
 msgid "HTTP status code"
-msgstr "Állapotkód"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Nyelv"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -61,16 +55,12 @@ msgid "Downloads"
 msgstr "Letöltések"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project homepage"
 msgid "Project Home"
-msgstr "Projekt kezdőoldal"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -83,10 +73,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View raw"
 msgid "View"
-msgstr "Nyers nézet"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -114,10 +102,8 @@ msgid "Search"
 msgstr "Keresés"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search docs"
-msgstr "Keresés minden dokumentumban"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -128,10 +114,9 @@ msgid "Privacy Policy"
 msgstr "Adatvédelmi Szabályzat"
 
 #: api/v3/serializers.py:494
-#, fuzzy, python-brace-format
-#| msgid "Invalid project name"
+#, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
-msgstr "Érvénytelen projektnév"
+msgstr ""
 
 #: api/v3/serializers.py:498
 #, python-brace-format
@@ -156,18 +141,14 @@ msgid "Authentication failure"
 msgstr ""
 
 #: audit/filters.py:41
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page view"
-msgstr "Oldal átirányítás"
+msgstr ""
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Letöltések"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -175,10 +156,8 @@ msgid "User"
 msgstr "Felhasználó"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Felhasználó"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -190,38 +169,28 @@ msgid "Project"
 msgstr "projekt"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "projekt"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Project Slug"
 msgid "Project slug"
-msgstr "Projekt Slug"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Szervezet"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Szervezet"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Szervezet"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktív"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -244,10 +213,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Jelszó megváltoztatása"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -339,20 +306,16 @@ msgid "Building"
 msgstr "Építés"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Uploaded"
 msgid "Uploading"
-msgstr "Feltötlve"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Befejezve"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "megszakítás"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -399,16 +362,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Egyetlen verzió"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Verziók"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -419,10 +378,8 @@ msgid "Active"
 msgstr "Aktív"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build finished"
-msgstr "Építés sikertelen"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -438,16 +395,12 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Állapot"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Magán"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -464,16 +417,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Machine Created"
 msgid "created"
-msgstr "Gépi készítésű"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Módosítás dátuma"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -555,10 +504,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr " {project} ({pk}) projekt {version} verziójának megtekintése "
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Állapot"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -593,22 +540,16 @@ msgid "Commit"
 msgstr "Megerősít"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Verziók"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Verzió"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Verzió"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -671,33 +612,24 @@ msgid "Build command {pk} for build {build}"
 msgstr "Build parancs {pk}  {build} buildhez"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "No active versions."
 msgid "Activate version"
-msgstr "Nincsenek aktív verziók."
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgctxt "Build is a verb"
-#| msgid "Build version"
 msgid "Hide version"
-msgstr "Építés verziója"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
 msgstr ""
 
 #: builds/models.py:1079
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Make version private"
-msgstr "Projekt verzió frissítve"
+msgstr ""
 
 #: builds/models.py:1080
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Set version as default"
-msgstr "Projekt verzió frissítve"
+msgstr ""
 
 #: builds/models.py:1081
 msgid "Delete version (on branch/tag deletion)"
@@ -796,10 +728,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Felhasználónév"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -876,56 +806,41 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr " \"{repo_type}\" tároló típus ismeretlen"
 
-#: doc_builder/environments.py:342
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\n"
-#| "Command killed due to excessive memory consumption\n"
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
-"\n"
-"\n"
-"Parancs kilőve túlzott memória fogyasztás miatt\n"
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr "A parancs rendellenesen fejeződött be"
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr "Az építési környezet jelenleg ezen a verzión fut"
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr "Az építés időtúllépés miatt lépett ki"
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr "Az építés túlzott memória fogyasztás miatt lépett ki"
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Az építés ismeretlen hiba miatt lépett ki : {0}"
 
 #: doc_builder/exceptions.py:26
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There was a problem with Read the Docs while building your documentation. "
-#| "Please try again later. However, if this problem persists, please report "
-#| "this to us with your build id ({build_id})."
+#, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
 "Please try again later. If this problem persists, report this error to us "
 "with your build id ({build_id})."
 msgstr ""
-"Probléma lépett fel a Read the Docs-al a dokumentáció építése során. Kérem "
-"próbálja később.Ha azonban a probléma továbbra is fennáll, kérjük, jelezze "
-"ezt nekünk a build azonosítójával:  ({build_id})."
 
 #: doc_builder/exceptions.py:35
 msgid ""
@@ -944,10 +859,9 @@ msgid "Problem in your project's configuration. {exception}"
 msgstr "Probléma a projekt konfigurációjában. {exception}"
 
 #: doc_builder/exceptions.py:52
-#, fuzzy, python-brace-format
-#| msgid "Version locked, retrying in 5 minutes."
+#, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
-msgstr "Zárolt verzió, ismétlés 5 perc múlva."
+msgstr ""
 
 #: doc_builder/exceptions.py:56
 msgid "Duplicated build."
@@ -971,34 +885,21 @@ msgstr ""
 "YAML konfigfájlban."
 
 #: doc_builder/exceptions.py:78
-#, fuzzy
-#| msgid ""
-#| "The \"docs_dir\" config from your MkDocs YAML config file has to be a "
-#| "string with relative or absolute path."
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
-"A \"docs_dir\" relatív vagy abszolút hivatkozási utat tartalmazhat a MkDocs "
-"YAML konfigfájlban."
 
 #: doc_builder/exceptions.py:83
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "The \"{config}\" config from your MkDocs YAML config file has to be a a "
-#| "list of relative paths."
+#, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
-"A \"{config}\" értéke a  MkDocs YAML konfigurációs fájlban relatív útvonalak "
-"listája lehet."
 
 #: doc_builder/exceptions.py:88
-#, fuzzy
-#| msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
-msgstr "Probléma a MkDocs YAML konfigurációban. {exception}"
+msgstr ""
 
 #: doc_builder/exceptions.py:92
 msgid ""
@@ -1012,10 +913,8 @@ msgid "No project found."
 msgstr "Nem található projekt"
 
 #: gold/forms.py:54
-#, fuzzy
-#| msgid "The demo project is already imported!"
 msgid "This project is already Ad-Free."
-msgstr "A demó projekt már importálva van!"
+msgstr ""
 
 #: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
 #: organizations/models.py:239 projects/models.py:111
@@ -1045,10 +944,8 @@ msgid "Projects"
 msgstr "Projektek"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Projektek"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1071,10 +968,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "user projects"
 msgid "Ad-free projects"
-msgstr "felhasználói projektek"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1102,16 +997,12 @@ msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose which project you would like to make ad-free."
-msgstr "Válassza ki melyik projektet szeretné hozzáadni."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Make Project Ad-Free"
-msgstr "Projekt törölve"
+msgstr ""
 
 #: gold/templates/gold/projects.html:69
 #, python-format
@@ -1122,10 +1013,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs Archív"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1144,25 +1033,11 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:58
-#, fuzzy
-#| msgid ""
-#| "If you are a company using Read the Docs, please consider getting a <a "
-#| "href=\"https://readthedocs.com/services/#open-source-support\">commercial "
-#| "support contract</a>. This will help us cover our costs, and provide you "
-#| "with a better experience on the site. If you aren't able to do that, we "
-#| "suggest giving at least $20/month to help cover our support and "
-#| "operations costs."
 msgid ""
 "If you are a company using Read the Docs, please consider <a href=\"https://"
 "readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
 "our costs, and provide you with a better experience on the site."
 msgstr ""
-"Ha Ön A Read the Docs szolgáltatásiat vállakozásként használja, kérjük "
-"fontolja meg <a href=\"https://readthedocs.com/services/#open-source-support"
-"\">kereskedelmi támogatási szerződés kötését</a>. Ez segít fedezni "
-"költségeinket, és jobb élményt nyújt Önnek szolgáltatásaink használata "
-"során. Ha ez nem áll módjában, fontoljon meg egy legalább havi 20 dolláros "
-"támogatást működési és támogatási költségeink fedezésére."
 
 #: gold/templates/gold/subscription_detail.html:67
 #, python-format
@@ -1180,32 +1055,24 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr "Köszönjük a Read the Docs támogatását. Ez igazán sokat jelent nekünk."
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage subscription"
-msgstr "Előfizetés törlése"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Kapcsolódó projektek"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "Válassza ki melyik projektet szeretné hozzáadni."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
 msgstr "Projektek kiválasztása"
 
 #: gold/templates/gold/subscription_detail.html:104
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Become a Gold member"
-msgstr "Legyen Arany Tag"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:112
 #: templates/account/signup.html:10 templates/account/signup.html:46
@@ -1339,10 +1206,8 @@ msgid "vcs"
 msgstr "VCS"
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Alapértelmezett ág"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1421,22 +1286,16 @@ msgid "Admin"
 msgstr "Admin"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
-#, fuzzy
-#| msgid "Change Email"
 msgid "Billing Email"
-msgstr "Email cseréje"
+msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH URL"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1452,10 +1311,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "User {name} does not exist"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "A {name} felhasználó nem létezik"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1480,20 +1338,16 @@ msgid "Owners"
 msgstr ""
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "Email"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
 msgstr "Kezdőlap"
 
 #: organizations/models.py:75
-#, fuzzy
-#| msgid "CDN Enabled"
 msgid "Disabled"
-msgstr "CDN engedélyezve"
+msgstr ""
 
 #: organizations/models.py:80
 msgid "Artifacts Cleaned"
@@ -1513,10 +1367,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Sikeres"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1551,10 +1403,8 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1572,10 +1422,8 @@ msgid "Delete forever"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1593,16 +1441,12 @@ msgid "or"
 msgstr "vagy"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization Owners"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1616,17 +1460,13 @@ msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
-#, fuzzy
-#| msgid "Team"
 msgid "Teams"
-msgstr "Csapat"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
@@ -1681,10 +1521,8 @@ msgstr ""
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1718,10 +1556,8 @@ msgid "Create a Team"
 msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Getting Started Guide"
 msgid "Get Started"
-msgstr "Útmutató kezdéshez"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1769,10 +1605,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Szervezet"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1796,18 +1630,14 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:14
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
-#, fuzzy
-#| msgid "Team"
 msgid "Add Team"
-msgstr "Csapat"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Deleted"
 msgid "Delete Team"
-msgstr "Törölt"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1821,16 +1651,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit Card"
 msgid "Edit Team"
-msgstr "Kártya szerkesztése"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Projektjeim"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1850,10 +1676,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Projektek"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1864,17 +1688,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Featured Projects"
 msgid "Update Projects"
-msgstr "Kiemelt projektek"
+msgstr ""
 
 #: organizations/templates/organizations/verify_email.html:5
-#, fuzzy
-#| msgid "Verify your email address"
-msgid "Verify you email address"
-msgstr "E-mail cím ellenőrzése"
-
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1893,22 +1710,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Team deleted"
-msgstr "Projekt törölve"
+msgstr ""
 
 #: organizations/views/private.py:140
-#, fuzzy
-#| msgid "Stay Updated"
 msgid "Team updated"
-msgstr "Maradjon naprakész"
+msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Projekt kezdőoldala"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1955,10 +1766,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Related projects"
 msgid "Delete project (>={})"
-msgstr "Kapcsolódó projektek"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -2025,16 +1834,12 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Érvénytelen host név"
+msgstr ""
 
 #: projects/constants.py:388
-#, fuzzy
-#| msgid "Branding"
 msgid "Pending"
-msgstr "Márkázás"
+msgstr ""
 
 #: projects/exceptions.py:15
 msgid ""
@@ -2072,12 +1877,10 @@ msgstr ""
 "nem támogatottak."
 
 #: projects/exceptions.py:40
-#, fuzzy
-#| msgid "One or more submodule URLs are not valid: {}."
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
-msgstr "EGy vagy több almodul URL nem érvényes: {}."
+msgstr ""
 
 #: projects/exceptions.py:44
 msgid "You can not have two versions with the name latest or stable."
@@ -2088,16 +1891,10 @@ msgid "Failed to checkout revision: {}"
 msgstr "A következő felülvizsgálat ellenőrzése nem sikerült: {}"
 
 #: projects/exceptions.py:50
-#, fuzzy
-#| msgid ""
-#| "There was a problem connecting to your repository, ensure that your "
-#| "repository URL is correct."
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
 msgstr ""
-"Probléma lépett fel a tárolóhoz kapcsolódás során. Kérjük, ellenőrizze a "
-"tároló URL helyes-e!"
 
 #: projects/filters.py:31 projects/filters.py:80
 msgid "Name (descending)"
@@ -2108,10 +1905,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "has project with recent builds"
 msgid "Least recently built"
-msgstr "legutóbb épített projektek"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2134,29 +1929,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgctxt "Build is a verb"
-#| msgid "Build version"
 msgid "Hidden versions"
-msgstr "Építés verziója"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Egyetlen verzió"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Private Hosting"
 msgid "Private versions"
-msgstr "Privát hoszting"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2187,16 +1973,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "A jelölő hossza nem lehet nagyobb 100 karakternél"
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Beállítások"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Alapértelmezett verzió"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2219,10 +2001,8 @@ msgid "The payload must be a valid JSON object."
 msgstr ""
 
 #: projects/forms.py:664
-#, fuzzy
-#| msgid "Only 1 Domain can be canonical at a time."
 msgid "Only one domain can be canonical at a time."
-msgstr "Csak 1 domain lehet engedélyezett egy időben."
+msgstr ""
 
 #: projects/forms.py:771
 msgid "Variable name can't start with __ (double underscore)"
@@ -2257,10 +2037,8 @@ msgid "Alias"
 msgstr "Álnév"
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "Description of the project"
 msgid "Short description of this project"
-msgstr "Projekt leírása"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2340,25 +2118,15 @@ msgstr ""
 "Útvonal a projekt gyökerétől."
 
 #: projects/models.py:200
-#, fuzzy
-#| msgid ""
-#| "Type of documentation you are building. <a href=\"http://www.sphinx-doc."
-#| "org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder"
-#| "\">More info</a>."
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
-"Az épített dokumentáció típusa. <a href=\"http://www.sphinx-doc.org/en/"
-"stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">További "
-"információ</a>."
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Dokumentáció típusa"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2367,10 +2135,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Nincs letöltés ehhez a projekthez."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2585,10 +2351,8 @@ msgid "Subproject nesting is not supported"
 msgstr "Alprojekt beágyazása nem támogatott."
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build id"
-msgstr "Építés sikertelen"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2599,22 +2363,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Triggered"
 msgid "Build triggered"
-msgstr "Triggerelt"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build passed"
-msgstr "Építés sikertelen"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "URL címre"
+msgstr ""
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2644,24 +2402,16 @@ msgid "Domain"
 msgstr "Tartomány"
 
 #: projects/models.py:1634
-#, fuzzy
-#| msgid "This Domain was auto-created"
 msgid "This domain was auto-created"
-msgstr "Ez automatikusan létrehozott tartomány"
+msgstr ""
 
 #: projects/models.py:1638
-#, fuzzy
-#| msgid "This Domain is a CNAME for the project"
 msgid "This domain is a CNAME for the project"
-msgstr "Ez a tartomány a projekt CNAME "
+msgstr ""
 
 #: projects/models.py:1643
-#, fuzzy
-#| msgid ""
-#| "This Domain is the primary one where the documentation is served from"
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
-"Ez az elsődleges tartomány, ahonnan a dokumentáció kiszolgálása történik."
 
 #: projects/models.py:1647
 msgid "Use HTTPS"
@@ -2722,10 +2472,8 @@ msgid "Try alternative method of posting large data"
 msgstr "Próbálja ki a nagyméretű adatok kiküldésének alternatív módszerét"
 
 #: projects/models.py:1831
-#, fuzzy
-#| msgid "Configuration used in the build"
 msgid "Clean all files used in the build process"
-msgstr "A build-hez használt konfiguráció"
+msgstr ""
 
 #: projects/models.py:1835
 msgid "Upgrade conda before creating the environment"
@@ -2784,10 +2532,8 @@ msgid "Use new pip resolver"
 msgstr ""
 
 #: projects/models.py:1888
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Don't install the latest version of pip"
-msgstr "Használja a Sphinx legutolsó verzióját!"
+msgstr ""
 
 #: projects/models.py:1890
 msgid "Use latest version of Sphinx"
@@ -2798,16 +2544,12 @@ msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
 #: projects/models.py:1895
-#, fuzzy
-#| msgid "Use latest version of setuptools"
 msgid "Use latest version of MkDocs"
-msgstr "Használja a setuptool legutolsó verzióját!"
+msgstr ""
 
 #: projects/models.py:1898
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Use latest version of the Read the Docs Sphinx extension"
-msgstr "Használja a Sphinx legutolsó verzióját!"
+msgstr ""
 
 #: projects/models.py:1904
 msgid "Disable server side search"
@@ -2882,10 +2624,8 @@ msgid "Project where this variable will be used"
 msgstr "Projektek ahol a változó használt"
 
 #: projects/models.py:2007
-#, fuzzy
-#| msgid "Name of the environment variable"
 msgid "Expose this environment variable in PR builds?"
-msgstr "Környezeti változó neve"
+msgstr ""
 
 #: projects/notifications.py:27
 msgid ""
@@ -3020,16 +2760,12 @@ msgid "Redirect: {}"
 msgstr "Átirányítás: {}"
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Érvénytelen host név"
+msgstr ""
 
 #: search/api.py:174
-#, fuzzy
-#| msgid "This field is required."
 msgid "This query param is required"
-msgstr "Ez a mező kötelező."
+msgstr ""
 
 #: search/models.py:33
 msgid "Query"
@@ -3112,10 +2848,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Név"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -3145,74 +2879,56 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Szervezet"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Nyilvános"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation"
 msgid "CDN public documentation"
-msgstr "Dokumentáció"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python konfigurációs fájl"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Support"
 msgid "Support SLA"
-msgstr "Támogatás"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Documentation"
 msgid "Private documentation"
-msgstr "Dokumentáció"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
 msgstr ""
 
 #: subscriptions/models.py:116
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search analytics"
-msgstr "Keresés minden dokumentumban"
+msgstr ""
 
 #: subscriptions/models.py:117
 msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Currently Building"
 msgid "Concurrent builds"
-msgstr "Jelenleg építés alatt"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "URL címről"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3240,38 +2956,28 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Stripe subscription ID"
-msgstr "Előfizetés frissítése"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription status"
-msgstr "Arany előfizetés"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Kezdés"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Befejezés"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Organization Subscription"
-msgstr "Előfizetés törlése"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3287,44 +2993,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "Kiemelt"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Regisztráció"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Címke"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription Status"
-msgstr "Arany előfizetés"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription ends"
-msgstr "Arany előfizetés"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage Subscription"
-msgstr "Előfizetés törlése"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3341,16 +3035,12 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Create Subscription"
-msgstr "Előfizetés frissítése"
+msgstr ""
 
 #: subscriptions/views.py:37
-#, fuzzy
-#| msgid "Your subscription has been updated"
 msgid "Your plan has been upgraded!"
-msgstr "Előfizetése frissült."
+msgstr ""
 
 #: subscriptions/views.py:92
 msgid ""
@@ -3519,27 +3209,19 @@ msgid ""
 msgstr ""
 
 #: templates/account/signup.html:48
-#, fuzzy
-#| msgid ""
-#| "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
-#| "latest/privacy-policy.html\">privacy policy</a>."
 msgid ""
 "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
 "terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
 "readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
 msgstr ""
-"Regisztrációjával elfogadja <a href=\"https://docs.readthedocs.io/en/latest/"
-"privacy-policy.html\">adatvédelmi szabályainkat</a>."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Read the Docs Archív"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Notification"
 msgid "Close notification"
-msgstr "Figyelmeztetés"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3582,22 +3264,16 @@ msgid "Documentation"
 msgstr "Dokumentáció"
 
 #: templates/base.html:198
-#, fuzzy
-#| msgid "Ad-free"
 msgid "Going Ad-free"
-msgstr "Hirdetés mentes"
+msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Support"
 msgid "Site Support"
-msgstr "Támogatás"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "HTTP státusz"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3612,10 +3288,8 @@ msgid "Advertise with Us"
 msgstr "Hirdessen minket"
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs Archív"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3683,10 +3357,8 @@ msgid "Build completed"
 msgstr "Építés befejezve"
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build cancelled"
-msgstr "Építés sikertelen"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3841,10 +3513,8 @@ msgid "No builds found"
 msgstr "NEm található építés"
 
 #: templates/core/email/base.html:78
-#, fuzzy
-#| msgid "Hello!"
 msgid "Hello,"
-msgstr "Hello!"
+msgstr ""
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
@@ -3890,24 +3560,13 @@ msgid "View Docs"
 msgstr "Dokumentációk megtekintése"
 
 #: templates/core/project_bar_base.html:31
-#, fuzzy, python-format
-#| msgid ""
-#| "Your project is currently disabled for abuse of the system. Please make "
-#| "sure it isn't using unreasonable amounts of resources or triggering lots "
-#| "of builds in a short amount of time. Please <a href=\"https://github.com/"
-#| "rtfd/readthedocs.org/issues\">file a ticket</a> to get your project re-"
-#| "enabled."
+#, python-format
 msgid ""
 "Your project is currently disabled for abuse of the system. Please make sure "
 "it isn't using unreasonable amounts of resources or triggering lots of "
 "builds in a short amount of time. Please <a href=\"mailto:%(SUPPORT_EMAIL)s"
 "\">contact support</a> to get your project re-enabled."
 msgstr ""
-"Az Ön projektje jelenleg le van tiltva a rendszerrel való visszaélés miatt. "
-"Kérjük, győződjön meg róla, hogy nem használ indokolatlanul sok erőforrást, "
-"vagy nem indít el sok építést rövid idő alatt. Kérjük<a href=\"https://"
-"github.com/rtfd/readthedocs.org/issues\">rögzítsen egy jegyet</a> projektje "
-"újraengedélyezéséhez."
 
 #: templates/core/project_bar_base.html:40
 msgid "Overview"
@@ -4104,48 +3763,25 @@ msgstr ""
 "tárhelyét."
 
 #: templates/homepage.html:60
-#, fuzzy
-#| msgid ""
-#| "We will host your documentation for free forever. There are no tricks. We "
-#| "help %(projects_count_intcomma)s open source projects share their docs."
 msgid ""
 "We will host your documentation for free, forever. There are no tricks. We "
 "help over 100,000 open source projects share their docs, including a custom "
 "domain and theme."
 msgstr ""
-"Dokumentációját örökre ingyenesen fogjuk elhelyezni. Nincsenek trükkök. "
-"Segítünk %(projects_count_intcomma)s a nyílt forráskódú projekteknek "
-"megosztani dokumentumaikat."
 
 #: templates/homepage.html:71
-#, fuzzy
-#| msgid ""
-#| "Whenever you push code to your favorite version control system, whether "
-#| "that is Git, Mercurial, Bazaar, or Subversion, we will automatically "
-#| "build your docs so your code and documentation are never out of sync."
 msgid ""
 "Whenever you push code to your favorite version control service, whether "
 "that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
 "so your code and documentation are never out of sync."
 msgstr ""
-"Amikor kódot tölt be a kedvenc verziókezelő rendszerébe, legyen az Git, "
-"Mercurial, Bazaar vagy Subversion, mi automatikusan elkészítjük a "
-"dokumentációját, így a kód és a dokumentáció soha nem esik ki a  szinkronból."
 
 #: templates/homepage.html:86
-#, fuzzy
-#| msgid ""
-#| "Of course we build and host your docs for the web, but they are also "
-#| "vieweable as PDFs, as single page HTML, and for eReaders. No additional "
-#| "configuration is required."
 msgid ""
 "We build and host your docs for the web, but they are also viewable as PDFs, "
 "as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
-"Természetesen elkészítjük és hosztoljuk a dokumentumokat az internetre, de "
-"azok PDF-ben, egyoldalas HTML-ben és eReaderen is megtekinthetők. Nincs "
-"szükség további konfigurációra."
 
 #: templates/homepage.html:96
 msgid ""
@@ -4158,20 +3794,16 @@ msgstr ""
 "címke a verziókezelő rendszerben."
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Kiemelt projektek"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4206,15 +3838,6 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:175
-#, fuzzy
-#| msgid ""
-#| "Read the Docs is <strong>community supported</strong>. It depends on "
-#| "users like you to contribute to development, support, and operations. You "
-#| "can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
-#| "latest/contribute.html\">contribute</a> in our docs. Thanks so much to "
-#| "our wonderful <a href=\"https://docs.readthedocs.io/en/latest/team.html"
-#| "\">community team</a> who helps us run the site. Read the Docs wouldn't "
-#| "be possible without them."
 msgid ""
 "Read the Docs is open source and community supported. It depends on users "
 "like you to contribute to development, support, and operations. You can "
@@ -4223,25 +3846,12 @@ msgid ""
 "wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
 "who helps us run the site. Read the Docs wouldn't be possible without them."
 msgstr ""
-"A Read the Docs <strong>közösségi támogatású</strong>. A fejlesztéshez, "
-"támogatáshoz és üzemeltetéshez való hozzájárulás az Önhöz hasonló "
-"felhasználóktól függ. Többet megtudhat arról, hogyan <a href=\"https://docs."
-"readthedocs.io/en/latest/contribute.html\">járulhat hozzá</a> "
-"dokumentációnkból. Köszönet a csodálatos közreműködői <a href=\"https://docs."
-"readthedocs.io/en/latest/team.html\">közösségnek</a> akik segítenek a "
-"működtetni az oldalt. A Read the Docs nem létezhetne nélkülük."
 
 #: templates/homepage.html:185
-#, fuzzy
-#| msgid ""
-#| "Hosting for the project is graciously provided by <a href=\"https://azure."
-#| "microsoft.com/\">Microsoft Azure</a>."
 msgid ""
 "Hosting for the project is graciously provided by <a href=\"https://aws."
 "amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
 msgstr ""
-"A projekthez a tárhelyet a következő cégek biztosítják: <a href=\"https://"
-"azure.microsoft.com/\">Microsoft Azure</a>."
 
 #: templates/notifications/send_notification_form.html:6
 msgid "Send Email"
@@ -4326,10 +3936,8 @@ msgid "Delete Account"
 msgstr ""
 
 #: templates/profiles/base_profile_edit.html:55
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Gold Membership"
-msgstr "Legyen Arany Tag"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:57
 #: templates/projects/project_edit_base.html:34
@@ -4441,10 +4049,8 @@ msgid "Confirm"
 msgstr ""
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Domain"
 msgid "Domain Details"
-msgstr "Tartomány"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4458,10 +4064,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/domain_form.html:52
-#, fuzzy
-#| msgid "Domain"
 msgid "Save Domain"
-msgstr "Tartomány"
+msgstr ""
 
 #: templates/projects/domain_form.html:54
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4519,16 +4123,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Nyilvános"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Magán"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4896,10 +4496,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:122
-#, fuzzy
-#| msgid "Updated your advertising preferences"
 msgid "Update advertising preference"
-msgstr "Hirdetési preferenciák frissítve"
+msgstr ""
 
 #: templates/projects/project_create.html:6
 msgid "Create a new project"
@@ -4928,35 +4526,25 @@ msgid "Project Dashboard"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "Verziók"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
-#, fuzzy
-#| msgid "passed"
 msgid "passing"
-msgstr "sikeres"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:79
-#, fuzzy
-#| msgid "failed"
 msgid "failing"
-msgstr "sikertelen"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:112
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search all docs"
-msgstr "Keresés minden dokumentumban"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:125
 #: templates/projects/project_dashboard_base.html:134
-#, fuzzy
-#| msgid "Connected account"
 msgid "Connect your Accounts"
-msgstr "Csatlakoztatott fiók"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:128
 msgid ""
@@ -5016,10 +4604,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Edit Versions"
-msgstr "Verziók"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -5047,10 +4633,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "Notification"
 msgid "Email Notifications"
-msgstr "Figyelmeztetés"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
@@ -5061,10 +4645,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search Analytics"
-msgstr "Keresés minden dokumentumban"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -5201,10 +4783,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Letöltések"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5295,10 +4875,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "No active versions."
 msgid "Activate a version"
-msgstr "Nincsenek aktív verziók."
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5306,22 +4884,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "No active versions."
 msgid "Filter Inactive Versions"
-msgstr "Nincsenek aktív verziók."
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktív"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Nem található projekt"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5408,10 +4980,8 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No builds found"
 msgid "No webhooks found."
-msgstr "NEm található építés"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
 #, python-format
@@ -5422,10 +4992,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:30
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Object Type"
-msgstr "Átirányítás típusa"
+msgstr ""
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
@@ -5444,10 +5012,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No projects found"
 msgid "No results found."
-msgstr "Nem található projekt"
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5502,218 +5068,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr ""
-#~ "Helytelen forrás hivatkozás\n"
-#~ "(nem egyező típus).: 1 %(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Verzió megtekintése"
-
-#~ msgid "Project not found"
-#~ msgstr "Projekt nem található"
-
-#~ msgid "Allow email"
-#~ msgstr "E-mail engedélyezve"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "E-mail cím megjelenítése a VCS közreműködésekben."
-
-#~ msgid "Build environment creation failed"
-#~ msgstr "Építési környezet létrehozása sikertelen"
-
-#~ msgid ""
-#~ "Choose projects that will have all promos removed, and extra features "
-#~ "added to them. You get to pick one for every $5/mo you support Read the "
-#~ "Docs with."
-#~ msgstr ""
-#~ "Válassza a hirdetések eltávolítását és adjon extra szolgáltatásokat "
-#~ "projektjeihez. Választásával 5 dollárral támogatja a REad the DOcs-ot "
-#~ "havonta."
-
-#~ msgid "Existing Projects"
-#~ msgstr "Létező projektek"
-
-#, python-format
-#~ msgid "You can adopt one project with your subscription."
-#~ msgid_plural "You can adopt %(projects)s projects with your subscription."
-#~ msgstr[0] "Az előfizetéssel elfogadhatja a projektjeit."
-#~ msgstr[1] "Az előfizetéssel elfogadhatja a %(projects)s  projektjeit."
-
-#~ msgid "Add a project"
-#~ msgstr "Projekt hozzáadása"
-
-#~ msgid "Submit"
-#~ msgstr "Beküldés"
-
-#~ msgid "Are you sure you want to cancel your subscription?"
-#~ msgstr "Valóban törli az előfizetését?"
-
-#~ msgid "Card"
-#~ msgstr "Kártya"
-
-#~ msgid ""
-#~ "If you are an individual, feel free to give whatever feels right for the "
-#~ "value you get out of Read the Docs."
-#~ msgstr ""
-#~ "Ha magánszemély, bátran ossza meg milyen értéket képvisel az Ön számára a "
-#~ "Read the Docs."
-
-#~ msgid ""
-#~ "Becoming a Gold Member also makes Read the Docs ad-free for as long as "
-#~ "you are logged-in."
-#~ msgstr ""
-#~ "Az Arany Tagság hirdetés mentessé teszi a REad the Docs használatát."
-
-#~ msgid ""
-#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
-#~ "org/sustainability/\">sustainability</a> page."
-#~ msgstr ""
-#~ "Egyszeri adományt is adhat a <a href=\"https://readthedocs.org/"
-#~ "sustainability/\"> fenntarthatósági </a> oldalunkon."
-
-#~ msgid ""
-#~ "We ask that folks who use custom Domains give Read the Docs $5 per domain "
-#~ "they are using. This is optional, but it really does help us maintain the "
-#~ "site going forward."
-#~ msgstr ""
-#~ "Arra kérjük az egyéni domaineket használókat, hogy az általuk használt "
-#~ "domainenként 5 dollárt adjanak a Read the Docs-nak. Ez opcionális, de "
-#~ "valóban segít fenntartani a webhelyet."
-
-#~ msgid "Update Your Subscription"
-#~ msgstr "Frissítse előfizetését"
-
-#~ msgid "Current card"
-#~ msgstr "Jelenlegi kártya"
-
-#~ msgid "All information is submitted directly to Stripe."
-#~ msgstr "Minden információ közvetlenül a Stripe-nak küldve."
-
-#~ msgid "Your subscription has been cancelled"
-#~ msgstr "Előfizetése törlésre került"
-
-#~ msgid "Serialized API response"
-#~ msgstr "Szerializált API válasz"
-
-#~ msgid "VAT ID number"
-#~ msgstr "Adószám"
-
-#~ msgid "Card number"
-#~ msgstr "Kártyaszám"
-
-#~ msgid "Card expiration"
-#~ msgstr "Kártya lejárati dátuma"
-
-#~ msgid "Card CVV"
-#~ msgstr "Kártya CVV"
-
-#~ msgid "There was a problem communicating with Stripe"
-#~ msgstr "Probléma lépett fel a Stripe kommunikációban"
-
-#~ msgid "Mkdocs (Markdown)"
-#~ msgstr "Mkdocs (Markdown)"
-
-#~ msgid "Protected"
-#~ msgstr "Védett"
-
-#~ msgid "A project can not be a subproject of itself"
-#~ msgstr "A projekt nem lehet önmaga alprojektje."
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "HTML Zip fájlja"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Felülírjuk a létező HTML-t?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Ez a verzió már aktív!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Egy zip file-t kell feltölteni."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "A projekt vetrziója ahova a HTML feltöltésre kerül: "
-
-#~ msgid "The reStructuredText description of the project"
-#~ msgstr "A projekt reStructuredText leírása"
-
-#~ msgid ""
-#~ "Level of privacy that you want on the repository. Protected means public "
-#~ "but not in listings."
-#~ msgstr ""
-#~ "Az adatvédelmi szint, amelyet az adattárban szeretne elérni. A védett azt "
-#~ "jelenti, hogy nyilvános, de nem szerepel a listákban."
-
-#~ msgid "Version Privacy Level"
-#~ msgstr "Verzió adatvédelmi szint"
-
-#~ msgid ""
-#~ "Default level of privacy you want on built versions of documentation."
-#~ msgstr "A megépített dokumentáció alapértelmezett adatvédelmi szintje."
-
-#~ msgid "View Project"
-#~ msgstr "Projekt megtekintése"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5 checksum"
-
-#~ msgid "Skip git submodule checkout"
-#~ msgstr "A git almodulok ellenőrzésének kihagyása"
-
-#~ msgid "Historical default is True"
-#~ msgstr "Történelmileg alapértelmezett a True"
-
-#~ msgid "Enter a valid domain name value"
-#~ msgstr "Adjon meg egy érvényes tartománynév értéket"
-
-#~ msgid "Your demo project is currently being imported"
-#~ msgstr "Az Ön demó projektje most kerül importálásra"
-
-#~ msgid "There was a problem adding the demo project"
-#~ msgstr "Probléma adódott a demo projekt hozzáadásával"
-
-#~ msgid "Get Involved"
-#~ msgstr "Vegyen részt"
-
-#~ msgid "Contributing"
-#~ msgstr "Részvétel"
-
-#~ msgid "Open Source Philosophy"
-#~ msgstr "Nyílt forrás filozófia"
-
-#~ msgid "Business Info"
-#~ msgstr "Üzleti információk"
-
-#~ msgid "Supporters"
-#~ msgstr "Támogatók"
-
-#, python-format
-#~ msgid ""
-#~ "Having trouble with your build environment? Try <a href=\"%(wipe_url)s"
-#~ "\">resetting it</a>."
-#~ msgstr ""
-#~ "Gondjai vannak az építési környezetével? Próbálja <a href=\"%(wipe_url)s"
-#~ "\">visszaállítani</a>."
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Projekt Adatvédelmi Szint"
-
-#~ msgid "Getting started guide"
-#~ msgstr "Bevezető"
-
-#, python-format
-#~ msgid ""
-#~ "Read the Docs is a huge resource that millions of developers rely on for "
-#~ "software documentation. It would not be possible without the support of "
-#~ "our <a href=\"%(sponsors_url)s\">sponsors</a>, <a href="
-#~ "\"%(advertising_url)s\">advertisers</a>, and <a href=\"%(gold_detail)s"
-#~ "\">readers like you</a>."
-#~ msgstr ""
-#~ "A Read the Docs egy hatalmas forrás, amelyre fejlesztők milliói "
-#~ "támaszkodnak a szoftverdokumentáció tekintetében. Ez nem lenne lehetséges "
-#~ "a <a href=\"%(sponsors_url)s\">szponzorok</a>, <a href="
-#~ "\"%(advertising_url)s\">hirdetők</a>, és <a href=\"%(gold_detail)s\">az "
-#~ "olyan olvasók, mint ÖN</a> támogatása nélkül. ."

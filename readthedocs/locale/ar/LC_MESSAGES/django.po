@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Mustafa <mustafasheref8@gmail.com>, 2020\n"
 "Language-Team: Arabic (http://www.transifex.com/readthedocs/readthedocs/"
@@ -43,10 +43,8 @@ msgid "HTTP status code"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "اللغة"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -62,16 +60,12 @@ msgid "Downloads"
 msgstr "التنزيلات"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "اقرأ التعليمات"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "المشروع"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -113,10 +107,8 @@ msgid "Search"
 msgstr "البحث"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search"
 msgid "Search docs"
-msgstr "البحث"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -160,10 +152,8 @@ msgstr ""
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "التنزيلات"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -171,10 +161,8 @@ msgid "User"
 msgstr "المستخدم"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "المستخدم"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -186,38 +174,28 @@ msgid "Project"
 msgstr "المشروع"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "المشروع"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "مشاريع"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "المنظمة"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "المنظمة"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "المنظمة"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "فعّال"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -228,10 +206,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "تصفّح المشاريع"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -242,10 +218,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "تغير كلمة المرور"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -337,20 +311,16 @@ msgid "Building"
 msgstr "البناء"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Uploaded"
 msgid "Uploading"
-msgstr "تم الرفع"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "انتهى"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "إلغاء"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -373,10 +343,8 @@ msgid "Dash"
 msgstr "فراغ"
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "روابط خارجية"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -399,16 +367,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Subversion"
 msgid "Any version"
-msgstr "Subversion"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "الإصدارات"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -419,10 +383,8 @@ msgid "Active"
 msgstr "فعّال"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "انتهى"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -438,16 +400,12 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "الوضعية"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "خاص"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -464,16 +422,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "إنشاء"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "تاريخ التعديل"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -555,10 +509,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr ""
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "الوضعية"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -593,22 +545,16 @@ msgid "Commit"
 msgstr "تقديم"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "الإصدارات"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "الإصدار"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "الإصدار"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -671,16 +617,12 @@ msgid "Build command {pk} for build {build}"
 msgstr "أمر البناء {pk} للبناء {build}"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Default version"
 msgid "Activate version"
-msgstr "الإصدار الإفتراضي"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "View Version"
 msgid "Hide version"
-msgstr "أظهر النسخة"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -791,10 +733,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "اسم المستخدم"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -860,30 +800,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -996,10 +936,8 @@ msgid "Projects"
 msgstr "مشاريع"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "مشاريع"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1022,10 +960,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Ad-free projects"
-msgstr "تصفّح المشاريع"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1069,10 +1005,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs Gold Membership"
-msgstr "اقرأ التعليمات"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1110,16 +1044,12 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Description"
 msgid "Manage subscription"
-msgstr "الوصف"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Gold projects"
-msgstr "تصفّح المشاريع"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
 msgid "Choose projects you would like to make ad-free."
@@ -1333,20 +1263,16 @@ msgid "Admin"
 msgstr ""
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
 msgid "Billing Email"
 msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "Short URLs"
 msgid "Site URL"
-msgstr "العناوين القصيرة"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1418,10 +1344,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "نجاح"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1456,10 +1380,8 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1477,10 +1399,8 @@ msgid "Delete forever"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1498,16 +1418,12 @@ msgid "or"
 msgstr "أو"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization Owners"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1521,17 +1437,13 @@ msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
-#, fuzzy
-#| msgid "Team"
 msgid "Teams"
-msgstr "الفريق"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
@@ -1586,10 +1498,8 @@ msgstr ""
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1619,10 +1529,8 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "إنشاء"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
 msgid "Get Started"
@@ -1674,10 +1582,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "المنظمة"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1701,18 +1607,14 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:14
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
-#, fuzzy
-#| msgid "Team"
 msgid "Add Team"
-msgstr "الفريق"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Deleted"
 msgid "Delete Team"
-msgstr "حُذف"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1726,16 +1628,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Team"
 msgid "Edit Team"
-msgstr "الفريق"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "مشاريعي"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1755,10 +1653,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "مشاريع"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1769,15 +1665,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Projects"
 msgid "Update Projects"
-msgstr "مشاريع"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1796,20 +1687,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Deleted"
 msgid "Team deleted"
-msgstr "حُذف"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "الصفحة الرئيسية للمشروع"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1924,10 +1811,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "اسم مضيف غير صالح"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -1988,10 +1873,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "Last Built"
 msgid "Least recently built"
-msgstr "آخر بناء"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2014,28 +1897,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "View Version"
 msgid "Hidden versions"
-msgstr "أظهر النسخة"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "View Version"
 msgid "Visible versions"
-msgstr "أظهر النسخة"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Default version"
 msgid "Private versions"
-msgstr "الإصدار الإفتراضي"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2066,16 +1941,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "الإعدادات"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default version"
 msgid "Default settings"
-msgstr "الإصدار الإفتراضي"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2133,10 +2004,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "Description of the project"
 msgid "Short description of this project"
-msgstr "وصف المشروع"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2429,10 +2298,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Building"
 msgid "Build id"
-msgstr "البناء"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2443,16 +2310,12 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Triggered"
 msgid "Build triggered"
-msgstr "أثار"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Builds"
 msgid "Build passed"
-msgstr "البناء"
+msgstr ""
 
 #: projects/models.py:1501
 msgid "URL"
@@ -2829,10 +2692,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "اسم مضيف غير صالح"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -2919,10 +2780,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "الاسم"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -2952,16 +2811,12 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "المنظمة"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "للعامة"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
@@ -2976,10 +2831,8 @@ msgid "Custom SSL configuration"
 msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Support"
 msgid "Support SLA"
-msgstr "الدعم"
+msgstr ""
 
 #: subscriptions/models.py:114
 msgid "Private documentation"
@@ -3035,16 +2888,12 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription ID"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription status"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/models.py:194
 msgid "Start date"
@@ -3059,10 +2908,8 @@ msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Subscription"
-msgstr "المنظمة"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3078,44 +2925,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "مميز"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "التسجيل"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "وسم"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription Status"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription ends"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Description"
 msgid "Manage Subscription"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3132,10 +2967,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Description"
 msgid "Create Subscription"
-msgstr "الوصف"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3351,10 +3184,8 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Support"
 msgid "Site Support"
-msgstr "الدعم"
+msgstr ""
 
 #: templates/base.html:204
 msgid "Site Status"
@@ -3373,10 +3204,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs for Business"
-msgstr "اقرأ التعليمات"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3867,20 +3696,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "اقرأ التعليمات"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr ""
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "اقرأ التعليمات"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4130,10 +3955,8 @@ msgid "Confirm"
 msgstr ""
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Details"
 msgid "Domain Details"
-msgstr "التفاصيل"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4147,10 +3970,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/domain_form.html:52
-#, fuzzy
-#| msgid "Domain"
 msgid "Save Domain"
-msgstr "النطاق"
+msgstr ""
 
 #: templates/projects/domain_form.html:54
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4208,16 +4029,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "للعامة"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "خاص"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4615,10 +4432,8 @@ msgid "Project Dashboard"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "الإصدارات"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4695,10 +4510,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Edit Versions"
-msgstr "الإصدارات"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4738,10 +4551,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Search Analytics"
-msgstr "رمز الإحصائيات"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4878,10 +4689,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "التنزيلات"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -4972,10 +4781,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Default version"
 msgid "Activate a version"
-msgstr "الإصدار الإفتراضي"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -4987,10 +4794,8 @@ msgid "Filter Inactive Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "فعّال"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
 msgid "No versions found"
@@ -5169,31 +4974,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr "بيانات البحث الموارد المعطاة غير صالحة (نوع اللا تطابق).: %(error)s"
-
-#~ msgid "Allow email"
-#~ msgstr "السماح لبريد"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "عرض بريدك الإلكتروني في صفحة مساهمات VCS"
-
-#~ msgid "Add a project"
-#~ msgstr "إضافة مشروع"
-
-#~ msgid "Submit"
-#~ msgstr "أرسل"
-
-#~ msgid "Protected"
-#~ msgstr "مُؤمَّن"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "ملف مضغوط من ملفات HTML"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "يجب رفع ملف مضغوط."
-
-#~ msgid "Contributing"
-#~ msgstr "المساهمة"
