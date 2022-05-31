@@ -1,10 +1,11 @@
 Custom Domains
 ==============
 
-With custom domains you can serve your documentation from your own domain.
-By default your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>`:
-``<slug>.readthedocs.io`` or ``<slug>.readthedocs-hosted.com``,
-for example ``https://pip.readthedocs.io``.
+Custom domains allow you to serve your documentation from your own domain.
+
+By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's slug:
+``<slug>.readthedocs.io`` or ``<slug>.readthedocs-hosted.com`` for |com_brand|.
+For example if you import your project as ``docs``, it will be served from ``https://docs.readthedocs.io``.
 
 .. contents::
     :local:
@@ -20,7 +21,7 @@ To setup your custom domain, follow these steps:
 #. Mark the :guilabel:`Canonical` option if you want use this domain
    as your :doc:`canonical domain </canonical-urls>`.
 #. Click on :guilabel:`Add`.
-#. At the top of the next page you'll find the value of the CNAME record that you need to point your domain to.
+#. At the top of the next page you'll find the value of the DNS record that you need to point your domain to.
    For |org_brand| this is ``readthedocs.io``, and for :doc:`/commercial/index`
    the record is in the form of ``<hash>.domains.readthedocs.com``.
 
@@ -34,11 +35,11 @@ this service is provided by Cloudflare.
 The SSL certificate issuance can take about one hour,
 you can see the status of the certificate on the domain page in your project.
 
-As an example, fabric's DNS record looks like this:
+As an example, our blog's DNS record looks like this:
 
 .. prompt:: bash $, auto
 
-   $ dig CNAME +short docs.fabfile.org
+   $ dig +short blog.readthedocs.com CNAME
      readthedocs.io.
 
 .. warning::
@@ -104,23 +105,29 @@ This is done by setting CAA DNS records for your domain.
 The readthedocs domains that you'll point your domains to already
 have the proper CAA records.
 
-.. prompt:: bash $, auto
+.. tabs::
 
-   $ dig +short readthedocs.io CAA
-     0 issue "digicert.com; cansignhttpexchanges=yes"
-     0 issuewild "digicert.com; cansignhttpexchanges=yes"
-     0 issue "comodoca.com"
-     0 issue "letsencrypt.org"
-     0 issuewild "comodoca.com"
-     0 issuewild "letsencrypt.org"
+  .. tab:: |org_brand|
 
-.. prompt:: bash $, auto
+     .. prompt:: bash $, auto
 
-   $ dig +short 0acba22b.domains.readthedocs.com CAA
-     proxy-fallback.readthedocs-hosted.com.
-     0 issue "digicert.com"
-     0 issue "comodoca.com"
-     0 issue "letsencrypt.org"
+        $ dig +short readthedocs.io CAA
+          0 issue "digicert.com; cansignhttpexchanges=yes"
+          0 issuewild "digicert.com; cansignhttpexchanges=yes"
+          0 issue "comodoca.com"
+          0 issue "letsencrypt.org"
+          0 issuewild "comodoca.com"
+          0 issuewild "letsencrypt.org"
+
+  .. tab:: |com_brand|
+
+     .. prompt:: bash $, auto
+
+        $ dig +short 0acba22b.domains.readthedocs.com CAA
+          proxy-fallback.readthedocs-hosted.com.
+          0 issue "digicert.com"
+          0 issue "comodoca.com"
+          0 issue "letsencrypt.org"
 
 In case that there are CAA records for your domain that do not allow the certificate authorities that Read the Docs uses,
 you may see an error message like ``pending_validation: caa_error: YOURDOMAIN.TLD``

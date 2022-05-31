@@ -1,9 +1,17 @@
 Canonical URLs
 ==============
 
-Canonical URLs allow you to have consistent page URLs across all your domains.
-This is mainly useful for search engines,
-so that they can send users to the correct version and domain of your documentation.
+`Canonical URLs`_ allow you to specify the preferred version of a web page to prevent duplicated content.
+They are mainly used by search engines to link users to the correct
+version and domain of your documentation.
+
+.. _Canonical URLs: https://datatracker.ietf.org/doc/html/rfc6596
+
+.. contents:: Contents
+    :local:
+
+Example
+-------
 
 The canonical URL is generated based on:
 
@@ -11,20 +19,14 @@ The canonical URL is generated based on:
 * The canonical :doc:`custom domain </custom-domains>` if you have one,
   otherwise the default :ref:`subdomain <hosting:subdomain support>` will be used.
 
-.. contents::
-    :local:
+For example, if you have a project named ``docs``
+with a custom domain ``https://docs.example.com``.
+A search engine like Google will index both domains, ``http://docs.readthedocs.io`` and
+``https://docs.example.com``.
 
-Example
--------
-
-Fabric hosts their docs on Read the Docs,
-but they use their own domain ``http://docs.fabfile.org``.
-This means that Google will index both ``http://fabric-docs.readthedocs.io`` and
-``http://docs.fabfile.org`` for their documentation.
-
-Fabric will want to set ``http://docs.fabfile.org`` as their canonical domain,
-this means that when Google indexes ``http://fabric-docs.readthedocs.io``,
-it will know that it should really point at ``http://docs.fabfile.org``.
+But you'll want to use ``https://docs.example.com`` as your canonical domain,
+this means that when Google indexes a page like ``https://docs.readthedocs.io/en/9.0/``,
+it will know that it should really point at ``https://docs.example.com/en/latest/``.
 
 Implementation
 --------------
@@ -46,7 +48,7 @@ you should see a bit of HTML like this:
 
    <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />
 
-.. note::
+.. warning::
 
    If you change your default version or canonical domain,
    you'll need to re-build all your versions in order to update their
