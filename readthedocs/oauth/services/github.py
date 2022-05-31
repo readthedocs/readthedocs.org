@@ -57,21 +57,20 @@ class GitHubService(Service):
         try:
             orgs = self.paginate("https://api.github.com/user/orgs", per_page=100)
             for org in orgs:
-                org_details = self.get_session().get(org['url']).json()
-                remote_organization = self.create_organization(org_details)
+                org_details = self.get_session().get(org["url"]).json()
+                remote_organization = self.create_organization(
+                    org_details,
+                    create_user_relationship=True,
+                )
+                remote_organizations.append(remote_organization)
+
                 org_url = org["url"]
                 org_repos = self.paginate(
                     f"{org_url}/repos",
                     per_page=100,
                 )
-
-                remote_organizations.append(remote_organization)
-
                 for repo in org_repos:
-                    remote_repository = self.create_repository(
-                        repo,
-                        organization=remote_organization,
-                    )
+                    remote_repository = self.create_repository(repo)
                     remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
@@ -83,7 +82,7 @@ class GitHubService(Service):
 
         return remote_organizations, remote_repositories
 
-    def create_repository(self, fields, privacy=None, organization=None):
+    def create_repository(self, fields, privacy=None):
         """
         Update or create a repository from GitHub API response.
 
@@ -100,36 +99,30 @@ class GitHubService(Service):
         ]):
 
             repo, _ = RemoteRepository.objects.get_or_create(
-                remote_id=fields['id'],
-                vcs_provider=self.vcs_provider_slug
-            )
-            remote_repository_relation = repo.get_remote_repository_relation(
-                self.user, self.account
+                remote_id=str(fields["id"]),
+                vcs_provider=self.vcs_provider_slug,
             )
 
-            # It's possible that a user has access to a repository from within
-            # an organization without being member of that organization
-            # (external contributor). In this case, the repository will be
-            # listed under the ``/repos`` endpoint but not under ``/orgs``
-            # endpoint. Then, when calling this method (``create_repository``)
-            # we will have ``organization=None`` but we don't have to skip the
-            # creation of the ``RemoteRepositoryRelation``.
-            if repo.organization and organization and repo.organization != organization:
-                log.debug(
-                    'Not importing repository because mismatched orgs.',
-                    repository=fields['name'],
+            owner_type = fields["owner"]["type"]
+            organization = None
+            if owner_type == "Organization":
+                # We aren't creating a remote relationship between the current user
+                # and the organization, since the user can have access to the repository,
+                # but not to the organization.
+                organization = self.create_organization(
+                    fields=fields["owner"],
+                    create_user_relationship=False,
                 )
-                return None
 
-            if any([
-                # There is an organization associated with this repository:
-                # attach the organization to the repository
-                organization is not None,
-                # There is no organization and the repository belongs to a
-                # user: removes the organization linked to the repository
-                not organization and fields['owner']['type'] == 'User',
-            ]):
+            # If there is an organization associated with this repository,
+            # attach the organization to the repository.
+            if organization and owner_type == "Organization":
                 repo.organization = organization
+
+            # If the repository belongs to a user,
+            # remove the organization linked to the repository.
+            if owner_type == "User":
+                repo.organization = None
 
             repo.name = fields['name']
             repo.full_name = fields['full_name']
@@ -151,7 +144,12 @@ class GitHubService(Service):
 
             repo.save()
 
-            remote_repository_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_repository_relation = repo.get_remote_repository_relation(
+                self.user, self.account
+            )
+            remote_repository_relation.admin = fields.get("permissions", {}).get(
+                "admin", False
+            )
             remote_repository_relation.save()
 
             return repo
@@ -161,20 +159,22 @@ class GitHubService(Service):
             repository=fields['name'],
         )
 
-    def create_organization(self, fields):
+    def create_organization(self, fields, create_user_relationship=False):
         """
         Update or create remote organization from GitHub API response.
 
         :param fields: dictionary response of data from API
+        :param bool create_relationship: Whether to create a remote relationship between the
+         organization and the current user. If `False`, only the `RemoteOrganization` object
+         will be created/updated.
         :rtype: RemoteOrganization
         """
         organization, _ = RemoteOrganization.objects.get_or_create(
-            remote_id=fields['id'],
-            vcs_provider=self.vcs_provider_slug
+            remote_id=str(fields["id"]),
+            vcs_provider=self.vcs_provider_slug,
         )
-        organization.get_remote_organization_relation(
-            self.user, self.account
-        )
+        if create_user_relationship:
+            organization.get_remote_organization_relation(self.user, self.account)
 
         organization.url = fields.get('html_url')
         # fields['login'] contains GitHub Organization slug
