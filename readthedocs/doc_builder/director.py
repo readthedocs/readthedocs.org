@@ -341,10 +341,32 @@ class BuildDirector:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
 
     def run_build_commands(self):
+        reshim_commands = (
+            ("pip", "install"),
+            ("conda", "create"),
+            ("conda", "install"),
+            ("mamba", "create"),
+            ("mamba", "install"),
+            ("poetry", "install"),
+        )
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
         for command in self.data.config.build.commands:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
+
+            # Execute ``asdf reshim python`` if the user is installing a
+            # package since the package may contain an executable
+            for reshim_command in reshim_commands:
+                # Convert tuple/list into set to check reshim command is a
+                # subset of the command itself. This is to find ``pip install``
+                # but also ``pip -v install`` and ``python -m pip install``
+                if set(reshim_command).issubset(command.split()):
+                    environment.run(
+                        *["asdf", "reshim", "python"],
+                        escape_command=False,
+                        cwd=cwd,
+                        record=False,
+                    )
 
         # Copy files to artifacts path so they are uploaded to S3
         target = self.data.project.artifact_path(
