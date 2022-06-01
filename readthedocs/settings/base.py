@@ -176,7 +176,7 @@ class CommunityBaseSettings(Settings):
             'django_filters',
             'polymorphic',
             'simple_history',
-            'djstripe',
+            # 'djstripe',
 
             # our apps
             'readthedocs.projects',
