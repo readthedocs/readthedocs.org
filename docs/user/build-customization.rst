@@ -10,7 +10,7 @@ and also how to override the build process completely:
     If you are using Sphinx or Mkdocs and need to execute additional commands.
 
 `Override the build process`_
-    If you want full control over your build or are not using Sphinx or Mkdocs.
+    If you want full control over your build. This option supports any tool that generates HTML as part of the build.
 
 
 Extend the build process
@@ -247,7 +247,7 @@ Override the build process
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
    It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, search and ads.
    However, we do plan to support these features in the future.
-   Use this under your own risk.
+   Use this feature at your own risk.
 
 
 If your project requires full control of the build process,
