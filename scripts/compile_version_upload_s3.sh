@@ -36,12 +36,13 @@
 #
 # USAGE
 #
-#  ./scripts/compile_version_upload.sh $TOOL $VERSION
+#  ./scripts/compile_version_upload.sh $TOOL $VERSION [OUTDIR]
 #
 # ARGUMENTS
 #
 #  $TOOL is the name of the tool (found by `asdf plugin list all`)
 #  $VERSION is the version of the tool (found by `asdf list all <tool>`)
+#  OUTDIR where to copy the final assets, defaults to the current directory.
 #
 # EXAMPLES
 #
@@ -57,6 +58,7 @@ OS="${OS:-ubuntu-22.04}" # Docker image name
 
 TOOL=$1
 VERSION=$2
+OUTDIR="${3:-.}"
 
 # https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -110,8 +112,10 @@ fi
 # Compress it as a .tar.gz without include the full path in the compressed file
 docker exec $CONTAINER_ID tar --create --gzip --directory=/home/docs/.asdf/installs/$TOOL --file=$OS-$TOOL-$VERSION.tar.gz $VERSION
 
+# Make sure the output directory exists
+mkdir --parents $OUTDIR
 # Copy the .tar.gz from the container to the host
-docker cp $CONTAINER_ID:/home/docs/$OS-$TOOL-$VERSION.tar.gz .
+docker cp $CONTAINER_ID:/home/docs/$OS-$TOOL-$VERSION.tar.gz $OUTDIR
 
 # Kill the container
 docker container kill $CONTAINER_ID
@@ -126,10 +130,10 @@ then
     AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
     AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
 
-    aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
+    aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OUTDIR/$OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 
     # Delete the .tar.gz file from the host
-    rm $OS-$TOOL-$VERSION.tar.gz
+    rm $OUTDIR/$OS-$TOOL-$VERSION.tar.gz
 else
     echo "Skip uploading .tar.gz file because it's being run from inside CircleCI."
     echo "It should be uploaded by orbs/aws automatically."
