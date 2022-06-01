@@ -1,7 +1,6 @@
 """Tasks for OAuth services."""
 
 import structlog
-
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +19,6 @@ from readthedocs.sso.models import SSOIntegration
 from readthedocs.worker import app
 
 from .services import registry
-
 
 log = structlog.get_logger(__name__)
 

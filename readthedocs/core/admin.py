@@ -79,7 +79,7 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
         'is_banned',
     )
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
-    actions = ['ban_user', 'sync_remote_repositories_action']
+    actions = ["ban_user", "sync_remote_repositories_action"]
     inlines = [UserProjectInline]
 
     def is_banned(self, obj):
@@ -101,28 +101,24 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     def sync_remote_repositories_action(self, request, queryset):
         formatted_task_urls = []
 
-        for user_id, username in queryset.values_list('id', 'username'):
+        for user_id, username in queryset.values_list("id", "username"):
             result = sync_remote_repositories.delay(user_id=user_id)
             job_status_url = reverse(
-                'api_job_status', kwargs={'task_id': result.task_id}
+                "api_job_status", kwargs={"task_id": result.task_id}
             )
             formatted_task_urls.append(
-                format_html(
-                    "<a href='{}'>{} task</a>",
-                    job_status_url,
-                    username
-                )
+                format_html("<a href='{}'>{} task</a>", job_status_url, username)
             )
 
         self.message_user(
             request,
             mark_safe(
-                'Following sync remote repository tasks were '
-                'triggered: {}'.format(', '.join(formatted_task_urls))
-            )
+                "Following sync remote repository tasks were "
+                "triggered: {}".format(", ".join(formatted_task_urls))
+            ),
         )
 
-    sync_remote_repositories_action.short_description = 'Sync remote repositories'
+    sync_remote_repositories_action.short_description = "Sync remote repositories"
 
 
 class UserProfileAdmin(ExtraSimpleHistoryAdmin):
