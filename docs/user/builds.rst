@@ -15,7 +15,8 @@ It also allows you customize the steps of the build process.
 
 .. note::
 
-   All the steps are run inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`.
+   All the steps are run inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`,
+   and all the :doc:`/environment-variables` defined are exposed to them.
 
 
 The following are the pre-defined jobs executed by Read the Docs:
@@ -30,7 +31,7 @@ The following are the pre-defined jobs executed by Read the Docs:
    Installs operating system & system-level dependencies.
    This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
 
-   At this point, :ref:`config-file/v2:build.tools` can be used to define a  language version,
+   At this point, :ref:`config-file/v2:build.tools` can be used to define a language version,
    and :ref:`config-file/v2:build.apt_packages` to define ``apt`` packages.
 
 :create_environment:
@@ -58,7 +59,6 @@ The following are the pre-defined jobs executed by Read the Docs:
 
    Once the build process finishes successfully,
    the resulting artifacts are uploaded to our servers, and the CDN is purged so the newer version of the documentation is served.
-
 
 
 .. seealso::
@@ -97,32 +97,3 @@ Currently, these build limits are:
 
       If you are having trouble with your documentation builds,
       you can reach our support at support@readthedocs.com.
-
-
-Default environment variables
------------------------------
-
-The Read the Docs builder sets the following environment variables when building your documentation:
-
-.. csv-table:: Environment Variables
-   :header: Environment variable, Description, Example value
-   :widths: 15, 10, 30
-
-   ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
-   ``READTHEDOCS_VERSION``, The RTD slug of the version which is being built, ``latest``
-   ``READTHEDOCS_VERSION_NAME``, Corresponding version name as displayed in RTD's version switch menu, ``stable``
-   ``READTHEDOCS_VERSION_TYPE``, Type of the event triggering the build, ``branch`` | ``tag`` | ``external`` (for :doc:`pull request builds </pull-requests>`) | ``unknown``
-   ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
-   ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
-
-.. note::
-
-   The term slug is used to refer to a unique string across projects/versions containing ASCII characters only.
-   This value is used in the URLs of your documentation.
-
-
-.. tip::
-
-   If extra environment variables are needed in the build process (like an API token),
-   you can add them going to :guilabel:`Admin` > :guilabel:`Environment Variables` in your project.
-   See :doc:`/environment-variables`.

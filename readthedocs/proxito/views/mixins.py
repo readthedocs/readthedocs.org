@@ -203,7 +203,9 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
-        log.info('System Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.debug(
+            "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
+        )
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = 'system'
         return resp
@@ -258,7 +260,9 @@ class ServeRedirectMixin:
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
-    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
+    def get_redirect(
+        self, project, lang_slug, version_slug, filename, full_path, forced_only=False
+    ):
         """
         Check for a redirect for this project that matches ``full_path``.
 
@@ -270,6 +274,7 @@ class ServeRedirectMixin:
             version_slug=version_slug,
             path=filename,
             full_path=full_path,
+            forced_only=forced_only,
         )
         return redirect_path, http_status
 

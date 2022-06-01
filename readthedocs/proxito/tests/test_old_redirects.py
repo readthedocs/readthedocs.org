@@ -164,6 +164,24 @@ class InternalRedirectTests(BaseDocServing):
     ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
+    def test_forced_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
 
     def test_redirect_prefix_infinite(self):
         """
@@ -531,6 +549,267 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 '/en/latest/section/file-not-found',
                 HTTP_HOST='project.dev.readthedocs.io',
             )
+
+
+@override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
+class UserForcedRedirectTests(BaseDocServing):
+    def test_no_forced_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=False,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_prefix_redirect(self):
+        """
+        Test prefix redirect.
+
+        Prefix redirects don't match a version,
+        so they will return 404, and the redirect will
+        be handled there.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/woot/",
+            force=True,
+        )
+        r = self.client.get(
+            "/woot/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 404)
+
+    def test_infinite_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_redirect_page(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_with_query_params(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?foo=bar",
+        )
+
+    def test_redirect_exact(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_exact_with_rest(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/$rest",
+            to_url="/en/version/",
+            force=True,
+        )
+        self.assertEqual(self.project.redirects.count(), 1)
+        r = self.client.get(
+            "/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/version/guides/install.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.translation,
+            redirect_type="exact",
+            from_url="/es/latest/$rest",
+            to_url="/en/master/",
+            force=True,
+        )
+        r = self.client.get(
+            "/es/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/master/guides/install.html",
+        )
+
+    def test_redirect_keeps_language(self):
+        self.project.language = "de"
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/how_to_install.html",
+            to_url="/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/de/latest/how_to_install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/de/latest/install.html",
+        )
+
+    def test_redirect_recognizes_custom_cname(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="docs.project.io",
+            HTTP_X_RTD_SLUG="project",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://docs.project.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_html(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq/",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+
+    def test_redirect_html_index(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq/index.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+
+    def test_redirect_htmldir(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_htmldir",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq/",
+        )
+
+    def test_redirect_with_301_status(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            http_status=301,
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
 
 
 @override_settings(

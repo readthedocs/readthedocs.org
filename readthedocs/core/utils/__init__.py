@@ -11,6 +11,8 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
@@ -121,7 +123,7 @@ def prepare_build(
                 version=version,
                 commit=commit,
             ).exclude(
-                state=BUILD_STATE_FINISHED,
+                state__in=BUILD_FINAL_STATES,
             ).exclude(
                 pk=build.pk,
             ).exists()
@@ -161,7 +163,7 @@ def prepare_build(
         build.status = DuplicatedBuildError.status
         build.exit_code = DuplicatedBuildError.exit_code
         build.success = False
-        build.state = BUILD_STATE_FINISHED
+        build.state = BUILD_STATE_CANCELLED
         build.save()
 
     # Start the build in X minutes and mark it as limited

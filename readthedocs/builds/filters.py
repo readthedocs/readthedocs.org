@@ -1,10 +1,9 @@
 import structlog
-
 from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 from django_filters import CharFilter, ChoiceFilter, FilterSet
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_FINAL_STATES, BUILD_STATE_FINISHED
 
 log = structlog.get_logger(__name__)
 
@@ -37,7 +36,7 @@ class BuildListFilter(FilterSet):
             queryset = queryset.filter(state=BUILD_STATE_FINISHED, success=True)
         elif value == self.STATE_FAILED:
             queryset = queryset.filter(
-                state=BUILD_STATE_FINISHED,
+                state__in=BUILD_FINAL_STATES,
                 success=False,
             )
         return queryset

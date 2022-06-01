@@ -255,7 +255,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
-        self.assertIsNone(cmd.error)
+        self.assertEqual(cmd.error, "")
 
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
