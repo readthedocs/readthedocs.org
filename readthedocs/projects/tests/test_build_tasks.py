@@ -185,6 +185,32 @@ class TestBuildTask(BuildEnvironmentBase):
         build_docs_class.assert_called_once_with("mkdocs")  # HTML builder
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_updates_documentation_type(self, load_yaml_config):
+        assert self.version.documentation_type == "sphinx"
+        load_yaml_config.return_value = self._config_file(
+            {
+                "version": 2,
+                "mkdocs": {
+                    "configuration": "mkdocs.yml",
+                },
+                "formats": ["epub", "pdf"],
+            }
+        )
+
+        self._trigger_update_docs_task()
+
+        # Update version state
+        assert self.requests_mock.request_history[7]._request.method == "PATCH"
+        assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[7].json() == {
+            "built": True,
+            "documentation_type": "mkdocs",
+            "has_pdf": False,
+            "has_epub": False,
+            "has_htmlzip": False,
+        }
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     @pytest.mark.skip()
     # NOTE: find a way to test we are passing all the environment variables to all the commands
     def test_get_env_vars_default(self, load_yaml_config):
@@ -846,6 +872,72 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call("asdf", "global", "golang", golang_version),
                 mock.call("asdf", "reshim", "golang", record=False),
                 mock.ANY,
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_commands(self, load_yaml_config):
+        config = BuildConfigV2(
+            {},
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3.10",
+                    },
+                    "commands": [
+                        "pip install pelican[markdown]",
+                        "pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/",
+                    ],
+                },
+            },
+            source_file="readthedocs.yml",
+        )
+        config.validate()
+        load_yaml_config.return_value = config
+
+        self._trigger_update_docs_task()
+
+        python_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.10"]
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call("asdf", "install", "python", python_version),
+                mock.call("asdf", "global", "python", python_version),
+                mock.call("asdf", "reshim", "python", record=False),
+                mock.call(
+                    "python",
+                    "-mpip",
+                    "install",
+                    "-U",
+                    "virtualenv",
+                    "setuptools<58.3.0",
+                ),
+                mock.call(
+                    "pip",
+                    "install",
+                    "pelican[markdown]",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "asdf",
+                    "reshim",
+                    "python",
+                    escape_command=False,
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    "pelican",
+                    "--settings",
+                    "docs/pelicanconf.py",
+                    "--output",
+                    "_readthedocs/html/",
+                    "docs/",
+                    escape_command=False,
+                    cwd=mock.ANY,
+                ),
             ]
         )
 
