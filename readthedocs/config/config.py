@@ -1345,7 +1345,7 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def doctype(self):
-        if self._config["build"]["commands"]:
+        if "commands" in self._config["build"] and self._config["build"]["commands"]:
             return GENERIC
 
         if self.mkdocs:
