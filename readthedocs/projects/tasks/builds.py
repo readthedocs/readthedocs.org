@@ -480,7 +480,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 api_v2.version(self.data.version.pk).patch(
                     {
                         "built": True,
-                        "documentation_type": self.data.version.documentation_type,
+                        "documentation_type": self.data.config.doctype,
                         "has_pdf": pdf,
                         "has_epub": epub,
                         "has_htmlzip": localmedia,
