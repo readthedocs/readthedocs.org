@@ -254,7 +254,7 @@ If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
 all the commands executed during builds can be overridden using the :ref:`config-file/v2:build.commands` configuration file key.
 
-For example, if your project uses `Pelican <https://blog.getpelican.com/>`_ instead of Sphinx for it's documentation,
+For example, if your project uses `Pelican <https://blog.getpelican.com/>`_ instead of Sphinx for its documentation,
 your project could use the following configuration file:
 
 .. code-block:: yaml
