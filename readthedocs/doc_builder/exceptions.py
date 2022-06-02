@@ -38,7 +38,7 @@ class BuildUserError(BuildBaseException):
         "dependencies are correct and have not changed recently."
     )
     BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
-        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created after building the project.'
+        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
 
 
