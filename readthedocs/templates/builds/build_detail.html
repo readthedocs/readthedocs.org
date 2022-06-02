@@ -175,6 +175,17 @@ $(document).ready(function () {
       {% endif %}
     {% endif %}
 
+    {% if build.finished and build.config.build.commands %}
+    <div class="build-ideas">
+      <p>
+        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process-completely" %}
+        <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
+        Read more at <a href="{{ config_file_link }}">our documentation</a> to find out its limitations and potential issues.
+        {% endblocktrans %}
+      </p>
+    </div>
+    {% endif %}
+
     {% if build.output %}
       {# If we have build output, this is an old build #}
       <p>
