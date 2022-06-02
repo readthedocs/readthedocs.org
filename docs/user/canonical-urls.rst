@@ -5,7 +5,7 @@ Canonical URLs
 They are mainly used by search engines to link users to the correct
 version and domain of your documentation.
 
-.. _Canonical URLs: https://datatracker.ietf.org/doc/html/rfc6596
+.. _Canonical URLs: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
 .. contents:: Contents
     :local:
@@ -19,14 +19,15 @@ The canonical URL is generated based on:
 * The canonical :doc:`custom domain </custom-domains>` if you have one,
   otherwise the default :ref:`subdomain <hosting:subdomain support>` will be used.
 
-For example, if you have a project named ``docs``
+For example, if you have a project named ``example-docs``
 with a custom domain ``https://docs.example.com``.
-A search engine like Google will index both domains, ``http://docs.readthedocs.io`` and
+A search engine like Google will index both domains, ``http://example-docs.readthedocs.io`` and
 ``https://docs.example.com``.
 
 But you'll want to use ``https://docs.example.com`` as your canonical domain,
-this means that when Google indexes a page like ``https://docs.readthedocs.io/en/9.0/``,
-it will know that it should really point at ``https://docs.example.com/en/latest/``.
+this means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/9.0/``,
+it will know that it should really point at ``https://docs.example.com/en/latest/``,
+thus avoiding duplicating the content.
 
 Implementation
 --------------
@@ -46,7 +47,7 @@ you should see a bit of HTML like this:
 
 .. code-block:: html
 
-   <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />
+   <link rel="canonical" href="https://docs.example.com/en/latest/" />
 
 .. warning::
 

@@ -5,7 +5,7 @@ Custom domains allow you to serve your documentation from your own domain.
 
 By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's slug:
 ``<slug>.readthedocs.io`` or ``<slug>.readthedocs-hosted.com`` for |com_brand|.
-For example if you import your project as ``docs``, it will be served from ``https://docs.readthedocs.io``.
+For example if you import your project as ``example-docs``, it will be served from ``https://example-docs.readthedocs.io``.
 
 .. contents::
     :local:
@@ -47,6 +47,13 @@ As an example, our blog's DNS record looks like this:
    We don't support pointing subdomains or root domains to a project using A records.
    DNS A records require a static IP address and our IPs may change without notice.
 
+.. note::
+
+   On |com_brand| some older setups configured a CNAME record pointing to a different
+   domain or required adding two records, this process has been simplified.
+   If you have doubts about deleting some of the old records,
+   please reach out to :ref:`support <support:user support>`.
+
 Strict Transport Security
 -------------------------
 
@@ -58,18 +65,6 @@ We always return the HSTS header with a max-age of at least one year
 for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
 
 .. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-
-Legacy domains on |com_brand|
------------------------------
-
-Some older setups configured a CNAME record pointing to
-``<organization-slug>.users.readthedocs.com``,
-these domains will continue to resolve.
-
-Previously you were asked to add two records,
-this process has been simplified.
-If you have doubts about deleting some of the old records,
-please reach out to :ref:`support <support:user support>`.
 
 Multiple documentation sites as sub-folders of a domain
 -------------------------------------------------------
@@ -95,51 +90,9 @@ and then update DNS hours or days later,
 this can cause a delay in validating because there is an exponential back-off in validation.
 Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
 
-Certificate authority authorization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Migrating from GitBook
+~~~~~~~~~~~~~~~~~~~~~~
 
-Certificate authority authorization (CAA) is a security feature that allows domain owners to limit
-which certificate authorities (CAs) can issue certificates for a domain.
-This is done by setting CAA DNS records for your domain.
-
-The readthedocs domains that you'll point your domains to already
-have the proper CAA records.
-
-.. tabs::
-
-  .. tab:: |org_brand|
-
-     .. prompt:: bash $, auto
-
-        $ dig +short readthedocs.io CAA
-          0 issue "digicert.com; cansignhttpexchanges=yes"
-          0 issuewild "digicert.com; cansignhttpexchanges=yes"
-          0 issue "comodoca.com"
-          0 issue "letsencrypt.org"
-          0 issuewild "comodoca.com"
-          0 issuewild "letsencrypt.org"
-
-  .. tab:: |com_brand|
-
-     .. prompt:: bash $, auto
-
-        $ dig +short 0acba22b.domains.readthedocs.com CAA
-          proxy-fallback.readthedocs-hosted.com.
-          0 issue "digicert.com"
-          0 issue "comodoca.com"
-          0 issue "letsencrypt.org"
-
-In case that there are CAA records for your domain that do not allow the certificate authorities that Read the Docs uses,
-you may see an error message like ``pending_validation: caa_error: YOURDOMAIN.TLD``
-in the Read the Docs dashboard for your domain.
-You will need to update your CAA records to allow us to issue the certificate.
-
-We use Cloudflare, which uses Digicert as a CA. See the `Cloudflare CAA FAQ`_ for details.
-
-.. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
-
-.. note::
-
-   If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
-   to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
-   else it will always redirect to GitBook.
+If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
+to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
+else it will always redirect to GitBook.
