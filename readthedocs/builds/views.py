@@ -162,7 +162,7 @@ class BuildDetail(BuildBase, DetailView):
     @method_decorator(login_required)
     def post(self, request, project_slug, build_pk):
         project = get_object_or_404(Project, slug=project_slug)
-        build = get_object_or_404(Build, pk=build_pk)
+        build = get_object_or_404(project.builds, pk=build_pk)
 
         if not AdminPermission.is_admin(request.user, project):
             return HttpResponseForbidden()
