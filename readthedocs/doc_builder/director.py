@@ -382,6 +382,11 @@ class BuildDirector:
             target,
         )
 
+        # Update the `Version.documentation_type` to match the doctype defined
+        # by the config file. When using `build.commands` it will be `GENERIC`
+        self.data.version.documentation_type = self.data.config.doctype
+
+        # Mark HTML as the only outcome available for this type of builder
         self.data.outcomes = defaultdict(lambda: False)
         self.data.outcomes["html"] = True
 
