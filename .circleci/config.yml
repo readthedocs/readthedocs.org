@@ -62,7 +62,7 @@ workflows:
     jobs:
       - checks
       - tests
-      - tests-embedapi
+      - tests-embedapi:
         requires:
           - checks
           - tests
