@@ -1013,6 +1013,59 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.version'
 
+    def test_commands_build_config(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithTools)
+        assert build.build.commands == ["pip install pelican", "pelican content"]
+
+    def test_commands_build_config_invalid_command(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "commands": "command as string",
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.commands"
+
+    def test_commands_build_config_invalid_no_os(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.commands"
+
+    def test_commands_build_config_invalid_no_tools(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.tools"
+
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
         build = self.get_build_config(
@@ -2379,6 +2432,7 @@ class TestBuildConfigV2:
                         'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
                     },
                 },
+                "commands": [],
                 "jobs": {
                     "pre_checkout": [],
                     "post_checkout": [],

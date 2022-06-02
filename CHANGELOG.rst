@@ -1,8 +1,12 @@
 Version 8.1.1
 -------------
 
-:Date: May 31, 2022
+:Date: Jun 1, 2022
 
+* `@stsewd <https://github.com/stsewd>`__: Cancel build: get build from the current project (`#9287 <https://github.com/readthedocs/readthedocs.org/pull/9287>`__)
+* `@stsewd <https://github.com/stsewd>`__: Disable djstripe (`#9282 <https://github.com/readthedocs/readthedocs.org/pull/9282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: increase 3.11 beta version (`#9284 <https://github.com/readthedocs/readthedocs.org/pull/9284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: use 3.11.0b2 (`#9278 <https://github.com/readthedocs/readthedocs.org/pull/9278>`__)
 * `@yarons <https://github.com/yarons>`__: Typo fix (`#9271 <https://github.com/readthedocs/readthedocs.org/pull/9271>`__)
 * `@stsewd <https://github.com/stsewd>`__: Update json schema (`#9270 <https://github.com/readthedocs/readthedocs.org/pull/9270>`__)
 * `@stsewd <https://github.com/stsewd>`__: Build tools: update versions (`#9268 <https://github.com/readthedocs/readthedocs.org/pull/9268>`__)
@@ -377,7 +381,7 @@ Version 7.1.0
 Version 7.0.0
 -------------
 
-This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**. 
+This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**.
 
 :Date: January 17, 2022
 
@@ -585,7 +589,7 @@ Version 6.0.0
 
 This release includes the upgrade of some base dependencies:
 
-- Python version from 3.6 to 3.8 
+- Python version from 3.6 to 3.8
 - Ubuntu version from 18.04 LTS to 20.04 LTS
 
 Starting from this release, all the Read the Docs code will be tested and QAed on these versions.
