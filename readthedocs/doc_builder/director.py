@@ -341,14 +341,14 @@ class BuildDirector:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
 
     def run_build_commands(self):
-        reshim_commands = {
-            ("pip", "install"),
-            ("conda", "create"),
-            ("conda", "install"),
-            ("mamba", "create"),
-            ("mamba", "install"),
-            ("poetry", "install"),
-        }
+        reshim_commands = (
+            {"pip", "install"},
+            {"conda", "create"},
+            {"conda", "install"},
+            {"mamba", "create"},
+            {"mamba", "install"},
+            {"poetry", "install"},
+        )
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.vcs_environment
         for command in self.data.config.build.commands:
