@@ -836,9 +836,10 @@ div.project-import-remote button.remote-sync:before {
 }
 
 button.socialaccount-provider {
-    padding: 6px 10px;
+    padding: 6px 10px 6px 10px;
     font-size: 16px;
-    margin: 10px 0px;
+    margin: 10px 5px 10px 0px;
+    line-height: 24px;
 }
 
 button.socialaccount-provider.github:before {
