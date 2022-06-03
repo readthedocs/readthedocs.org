@@ -835,6 +835,12 @@ div.project-import-remote button.remote-sync:before {
     content: "\f021";
 }
 
+button.socialaccount-provider {
+    padding: 6px 10px;
+    font-size: 16px;
+    margin: 10px 0px;
+}
+
 button.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
@@ -1387,3 +1393,4 @@ div.highlight pre .vc { color: #bb60d5 } /* Name.Variable.Class */
 div.highlight pre .vg { color: #bb60d5 } /* Name.Variable.Global */
 div.highlight pre .vi { color: #bb60d5 } /* Name.Variable.Instance */
 div.highlight pre .il { color: #40a070 } /* Literal.Number.Integer.Long */
+
