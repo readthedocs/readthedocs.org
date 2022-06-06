@@ -4,7 +4,7 @@ Roadmap
 Process
 -------
 
-We publicly organize our product roadmap, on our `Roadmap`_ on GitHub project.
+We publicly organize our product roadmap, on our `GitHub Roadmap`_.
 Here, you will find several views into our roadmap:
 
 `Current sprint <https://github.com/orgs/readthedocs/projects/156/views/1>`_
@@ -18,7 +18,7 @@ Here, you will find several views into our roadmap:
 The focus of the core team will be on roadmap and sprint items. These items are
 promoted from our backlog before each sprint begins.
 
-.. _Roadmap: https://github.com/orgs/readthedocs/projects/156/views/1
+.. _GitHub Roadmap: https://github.com/orgs/readthedocs/projects/156/views/1
 
 Triaging issues
 ~~~~~~~~~~~~~~~
