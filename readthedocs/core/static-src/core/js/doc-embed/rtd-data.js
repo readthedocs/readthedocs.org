@@ -9,7 +9,7 @@ var constants = require('./constants');
 var configMethods = {
     is_rtd_like_theme: function () {
         // Returns true for the Read the Docs theme on both sphinx and mkdocs
-        if ($('div.rst-other-versions').length === 1) {
+        if (document.querySelectorAll('div.rst-other-versions').length === 1) {
             // Crappy heuristic, but people change the theme name
             // So we have to do some duck typing.
             return true;
@@ -60,7 +60,7 @@ function get() {
         ad_free: false,
     };
 
-    $.extend(config, defaults, window.READTHEDOCS_DATA);
+    Object.assign(config, defaults, window.READTHEDOCS_DATA);
 
     if (!("proxied_api_host" in config)) {
         // Use direct proxied API host
