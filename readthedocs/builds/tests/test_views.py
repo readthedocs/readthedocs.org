@@ -92,7 +92,8 @@ class CancelBuildViewTests(TestCase):
 
     def _get_project(self, owners, **kwargs):
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            project = get(Project, **kwargs)
+            # TODO: don't set `users=owners` when using orgs, it's redundant.
+            project = get(Project, users=owners, **kwargs)
             get(Organization, projects=[project], owners=owners)
             return project
         return get(Project, users=owners, **kwargs)
