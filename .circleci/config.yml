@@ -63,6 +63,6 @@ workflows:
       - checks
       - tests
       - tests-embedapi:
-        requires:
-          - checks
-          - tests
+          requires:
+            - checks
+            - tests
