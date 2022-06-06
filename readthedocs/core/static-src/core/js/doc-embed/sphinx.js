@@ -11,7 +11,7 @@ function init() {
     var rtd = rtddata.get();
 
     /// Click tracking on flyout
-    $(document).on('click', "[data-toggle='rst-current-version']", function () {
+    document.addEventListener('click', "[data-toggle='rst-current-version']", function () {
         var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed';
 
         // Only report back if analytics is enabled
