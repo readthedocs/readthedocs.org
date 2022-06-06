@@ -71,7 +71,7 @@ function create_ad_placement() {
         // Assumes the ad would be ~200px high
         element = $("<div />").appendTo(selector);
         offset = element.offset();
-        if (!offset || (offset.top - $(window).scrollTop() + 200) > $(window).height()) {
+        if (!offset || (offset.top - window.scrollTop + 200) > window.offsetHeight) {
             if (rtd.is_rtd_like_theme()) {
                 selector = $('<div />').insertAfter('footer hr');
                 class_name = 'ethical-rtd';
@@ -199,7 +199,7 @@ function init() {
             } else {
                 // The ad client hasn't loaded yet which could happen due to a variety of issues
                 // Add an event listener for it to load
-                $("#ethicaladsjs").on("load", function () {
+                document.getElementById("ethicaladsjs").addEventListener("load", function () {
                     if (typeof ethicalads !== "undefined") {
                         ethicalads.load();
                     }
