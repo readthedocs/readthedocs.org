@@ -637,6 +637,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
+    SOCIALACCOUNT_STORE_TOKENS = True
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
