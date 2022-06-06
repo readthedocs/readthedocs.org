@@ -77,7 +77,7 @@ class PageView(models.Model):
         blank=True,
     )
     view_count = models.PositiveIntegerField(default=0)
-    date = models.DateField(default=datetime.date.today, db_index=True)
+    date = models.DateField(default=datetime.date.today)
     status = models.PositiveIntegerField(
         default=200,
         help_text=_("HTTP status code"),

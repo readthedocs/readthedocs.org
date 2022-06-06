@@ -11,6 +11,7 @@ from functools import lru_cache
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
 from .models import (
@@ -791,6 +792,11 @@ class BuildConfigV2(BuildConfigBase):
                     BuildJobs.__slots__,
                 )
 
+        commands = []
+        with self.catch_validation_error("build.commands"):
+            commands = self.pop_config("build.commands", default=[])
+            validate_list(commands)
+
         if not tools:
             self.error(
                 key='build.tools',
@@ -802,12 +808,24 @@ class BuildConfigV2(BuildConfigBase):
                 code=CONFIG_REQUIRED,
             )
 
+        if commands and jobs:
+            self.error(
+                key="build.commands",
+                message="The keys build.jobs and build.commands can't be used together.",
+                code=INVALID_KEYS_COMBINATION,
+            )
+
         build["jobs"] = {}
         for job, commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
                     validate_string(command) for command in validate_list(commands)
                 ]
+
+        build["commands"] = []
+        for command in commands:
+            with self.catch_validation_error("build.commands"):
+                build["commands"].append(validate_string(command))
 
         build['tools'] = {}
         for tool, version in tools.items():
@@ -1293,6 +1311,7 @@ class BuildConfigV2(BuildConfigBase):
                 os=build['os'],
                 tools=tools,
                 jobs=BuildJobs(**build["jobs"]),
+                commands=build["commands"],
                 apt_packages=build["apt_packages"],
             )
         return Build(**build)
@@ -1326,6 +1345,9 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def doctype(self):
+        if "commands" in self._config["build"] and self._config["build"]["commands"]:
+            return GENERIC
+
         if self.mkdocs:
             return 'mkdocs'
         return self.sphinx.builder

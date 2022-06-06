@@ -91,6 +91,12 @@ class Redirect(models.Model):
         help_text=to_url_helptext,
         blank=True,
     )
+    force = models.BooleanField(
+        _("Force redirect"),
+        null=True,
+        default=False,
+        help_text=_("Apply the redirect even if the page exists."),
+    )
 
     http_status = models.SmallIntegerField(
         _('HTTP Status'),

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Sigmund Petersen <sigmund.petersen@gmail.com>, 2018\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/readthedocs/"
@@ -35,16 +35,12 @@ msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "HTTP status code"
-msgstr "HTTP-status"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Språk"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -60,16 +56,12 @@ msgid "Downloads"
 msgstr "Last ned"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "Prosjekt"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -82,10 +74,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View Docs"
 msgid "View"
-msgstr "Vis dokumentasjon"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -113,10 +103,8 @@ msgid "Search"
 msgstr "Søk"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search"
 msgid "Search docs"
-msgstr "Søk"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -154,18 +142,14 @@ msgid "Authentication failure"
 msgstr ""
 
 #: audit/filters.py:41
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page view"
-msgstr "Sidebasert videresending"
+msgstr ""
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Last ned"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -173,10 +157,8 @@ msgid "User"
 msgstr "Bruker"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Bruker"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -188,38 +170,28 @@ msgid "Project"
 msgstr "Prosjekt"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Prosjekt"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "Prosjekter"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organisasjon"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Organisasjon"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Organisasjon"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktiv"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -230,10 +202,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "Finn prosjekter"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -244,10 +214,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Endre passord"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -339,20 +307,16 @@ msgid "Building"
 msgstr "Bygger"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Last opp"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Ferdig"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "avbryt"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -375,10 +339,8 @@ msgid "Dash"
 msgstr "Dash"
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Eksterne lenker"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -401,16 +363,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Enkeltversjon"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Versjoner"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -421,10 +379,8 @@ msgid "Active"
 msgstr "Aktiv"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "Ferdig"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -440,16 +396,12 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Tilstand"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Privat"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -466,16 +418,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Opprett"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Endringsdato"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -557,10 +505,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr "Versjon {version} av {project} ({pk})"
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Tilstand"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -595,22 +541,16 @@ msgid "Commit"
 msgstr "Commit"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Versjoner"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Versjon"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Versjon"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -673,16 +613,12 @@ msgid "Build command {pk} for build {build}"
 msgstr "Byggekommando {pk} for bygg {build}"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Activate version"
-msgstr "Velg aktive versjoner"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "Single version"
 msgid "Hide version"
-msgstr "Enkeltversjon"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -793,10 +729,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Brukernavn"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -862,30 +796,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -920,10 +854,8 @@ msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
 #: doc_builder/exceptions.py:56
-#, fuzzy
-#| msgid "Duplicate"
 msgid "Duplicated build."
-msgstr "Duplikat"
+msgstr ""
 
 #: doc_builder/exceptions.py:63
 msgid "Build cancelled by user."
@@ -1000,10 +932,8 @@ msgid "Projects"
 msgstr "Prosjekter"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Prosjekter"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1026,10 +956,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Ad-free projects"
-msgstr "Finn prosjekter"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1057,10 +985,8 @@ msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add as a translation."
 msgid "Choose which project you would like to make ad-free."
-msgstr "Velg hvilket prosjekt du vil legge til som en oversettelse."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
 msgid "Make Project Ad-Free"
@@ -1075,10 +1001,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Read The Docs-arkiv"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1116,22 +1040,16 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Description"
 msgid "Manage subscription"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Relaterte prosjekter"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which user you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "Velg hvilken bruker du vil legge til."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
@@ -1273,10 +1191,8 @@ msgid "vcs"
 msgstr ""
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Hovedgren"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1343,20 +1259,16 @@ msgid "Admin"
 msgstr "Admin"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
 msgid "Billing Email"
 msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH-URL"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1372,10 +1284,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "Username does not match!"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "Brukernavn stemmer ikke overens!"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1397,13 +1308,11 @@ msgstr ""
 #: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
-msgstr ""
+msgstr "Eiere"
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "Epost"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
@@ -1431,10 +1340,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Suksess"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1469,10 +1376,8 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1490,10 +1395,8 @@ msgid "Delete forever"
 msgstr "Slett for alltid"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1511,16 +1414,12 @@ msgid "or"
 msgstr "eller"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Edit Translations"
 msgid "Edit Organization Owners"
-msgstr "Rediger oversettelser"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1529,17 +1428,13 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:53
 #: organizations/templates/organizations/admin/owners_edit.html:57
 #: organizations/templates/organizations/team_list.html:51
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add Owner"
-msgstr "Legg til vedlikeholder"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
@@ -1599,10 +1494,8 @@ msgstr "Forrige"
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1632,16 +1525,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Opprett"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Build Started"
 msgid "Get Started"
-msgstr "Bygg startet"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1689,10 +1578,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Organisasjon"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1722,10 +1609,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Delete %(name)s?"
 msgid "Delete Team"
-msgstr "Slett %(name)s?"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1739,16 +1624,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Team"
-msgstr "Rediger"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Mine prosjekter"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1768,10 +1649,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Prosjekter"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1782,15 +1661,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Featured Projects"
 msgid "Update Projects"
-msgstr "Aktuelle prosjekter"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1809,20 +1683,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Deleted"
 msgid "Team deleted"
-msgstr "Slettet"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Prosjektets hjemmeside"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1869,10 +1739,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Related projects"
 msgid "Delete project (>={})"
-msgstr "Relaterte prosjekter"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -1939,10 +1807,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Ugyldig hostnavn"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -2003,10 +1869,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "has project with recent builds"
 msgid "Least recently built"
-msgstr "har prosjekt med nylige bygg"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2029,28 +1893,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Hidden versions"
-msgstr "Enkeltversjon"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Enkeltversjon"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Single version"
 msgid "Private versions"
-msgstr "Enkeltversjon"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2081,16 +1937,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Instillinger"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Standard versjon"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2148,10 +2000,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Short description of this project"
-msgstr "Beskrivelse av prosjektet i reStructuredText-format"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2232,10 +2082,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Dokumentasjonstype"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2244,10 +2092,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Ingen nedlastninger er tilgjengelig for dette prosjektet."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2454,10 +2300,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build"
 msgid "Build id"
-msgstr "Bygg"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2468,22 +2312,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Bygg startet"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build passed"
-msgstr "Bygg startet"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "Til URL"
+msgstr ""
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2857,10 +2695,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Ugyldig hostnavn"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -2947,10 +2783,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Navn"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -2980,44 +2814,32 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Organisasjon"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Offentlig"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation type"
 msgid "CDN public documentation"
-msgstr "Dokumentasjonstype"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python-konfigurasjonsfil"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Supported"
 msgid "Support SLA"
-msgstr "Støttet"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Import HTML Documentation"
 msgid "Private documentation"
-msgstr "Importer HTML-dokumentasjon"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
@@ -3032,20 +2854,16 @@ msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Recent Builds"
 msgid "Concurrent builds"
-msgstr "Nylige bygg"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "Fra URL"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3073,38 +2891,28 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription ID"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription status"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Starttid"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Sluttid"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Subscription"
-msgstr "Organisasjon"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3120,44 +2928,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "Aktuell"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Registrering"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Tagg"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription Status"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription ends"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Description"
 msgid "Manage Subscription"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3174,10 +2970,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Description"
 msgid "Create Subscription"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3347,10 +3141,8 @@ msgid "Read the Docs Archive"
 msgstr "Read The Docs-arkiv"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Remove Notifications"
 msgid "Close notification"
-msgstr "Fjern varslinger"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3395,16 +3187,12 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Supported"
 msgid "Site Support"
-msgstr "Støttet"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "HTTP-status"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3419,10 +3207,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Read The Docs-arkiv"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3490,10 +3276,8 @@ msgid "Build completed"
 msgstr ""
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build cancelled"
-msgstr "Bygg startet"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3631,10 +3415,9 @@ msgid "Failed"
 msgstr "Feilet"
 
 #: templates/core/build_list_detailed.html:11
-#, fuzzy, python-format
-#| msgid "%(version_name)s"
+#, python-format
 msgid "%(external_version_name)s"
-msgstr "%(version_name)s"
+msgstr ""
 
 #: templates/core/build_list_detailed.html:16
 #, python-format
@@ -3917,20 +3700,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Aktuelle prosjekter"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4253,16 +4032,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Offentlig"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Privat"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4662,10 +4437,8 @@ msgid "Project Dashboard"
 msgstr "Prosjektoversikt"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "Versjoner"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4742,10 +4515,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Edit Project Versions"
 msgid "Edit Versions"
-msgstr "Rediger prosjektversjoner"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4773,10 +4544,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "New Email Notifications"
 msgid "Email Notifications"
-msgstr "Nye epostvarsler"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
@@ -4787,10 +4556,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Search Analytics"
-msgstr "Analytics-kode"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4870,10 +4637,8 @@ msgid "Browse projects"
 msgstr "Finn prosjekter"
 
 #: templates/projects/project_notifications.html:16
-#, fuzzy
-#| msgid "Configure Notifications to be sent on build failures."
 msgid "Configure email notifications to be sent on build failures."
-msgstr "Konfigurer varsling ved byggfeil"
+msgstr ""
 
 #: templates/projects/project_notifications.html:22
 #, python-format
@@ -4903,16 +4668,11 @@ msgid "Edit Redirects"
 msgstr "Rediger videresendinger"
 
 #: templates/projects/project_redirects.html:74
-#, fuzzy, python-format
-#| msgid ""
-#| "Add redirects for your project. This allows you to fix links to old pages "
-#| "that are 404ing."
+#, python-format
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
 msgstr ""
-"Legg til videresendinger for prosjektet ditt. Dette lar deg fikse linker til "
-"gamle sider som nå returnerer 404."
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -4934,10 +4694,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Last ned"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5030,10 +4788,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Build a version"
 msgid "Activate a version"
-msgstr "Bygg en versjon"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5041,22 +4797,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Filter Inactive Versions"
-msgstr "Velg aktive versjoner"
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktiv"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Ingen prosjekter funnet"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5066,10 +4816,9 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_states_help_text.html:4
-#, fuzzy, python-format
-#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+#, python-format
 msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
-msgstr "Ta en titt <a href=\"%(project_url)s\">på prosjektet</a>."
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:22
 msgid "Update subproject"
@@ -5144,25 +4893,20 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No builds found"
 msgid "No webhooks found."
-msgstr "Ingen bygg funnet"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
-#, fuzzy, python-format
-#| msgid "Search: %(query)s "
+#, python-format
 msgid ""
 "\n"
 "    Search: %(query)s\n"
 "  "
-msgstr "Søk: %(query)s"
+msgstr ""
 
 #: templates/search/elastic_search.html:30
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Object Type"
-msgstr "Videresendingstype"
+msgstr ""
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
@@ -5181,10 +4925,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No results found. Bummer."
 msgid "No results found."
-msgstr "Ingen resultater funnet. Søren."
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5240,108 +4982,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr "Ugyldig ressursoppslagsdata benyttet (upassende type).: %(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Vis versjon"
-
-#~ msgid "Allow email"
-#~ msgstr "Tillat epost"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "Vis din epostadresse på VCS-bidrag."
-
-#~ msgid "Submit"
-#~ msgstr "Send inn"
-
-#~ msgid "Protected"
-#~ msgstr "Beskyttet"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Zip-fil eller HTML"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Overskriv eksisterende HTML?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Den versjonen er allerede aktiv!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Du må laste opp en zip-fil."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "Versjon av prosjektet du laster opp HTML for"
-
-#~ msgid "Version Privacy Level"
-#~ msgstr "Versjonstilgangsnivå"
-
-#~ msgid "View Project"
-#~ msgstr "Vis prosjekt"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5-sjekksum"
-
-#~ msgid "Enter a valid domain name value"
-#~ msgstr "Fyll inn en gyldig verdi for domenenavn"
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Prosjekttilgangsnivå"
-
-#~ msgid "Not built"
-#~ msgstr "Ikke bygget"
-
-#~ msgid "Notifications"
-#~ msgstr "Varslinger"
-
-#~ msgid "File"
-#~ msgstr "Fil"
-
-#, python-format
-#~ msgid "Projects by %(username)s tagged with %(tag)s"
-#~ msgstr "Prosjekter av %(username)s tagget med %(tag)s"
-
-#, python-format
-#~ msgid "Projects by %(username)s"
-#~ msgstr "Prosjekter av %(username)s"
-
-#~ msgid "Edit Notifications"
-#~ msgstr "Rediger varsler"
-
-#~ msgid "New Webhook Notifications"
-#~ msgstr "Nye webhook-varsler"
-
-#~ msgid "Add a URL to notify"
-#~ msgstr "Legg til en URL å varsle"
-
-#~ msgid "Choose the version that / will redirect to."
-#~ msgstr "Velg versjonen som \"/\" videresendes til."
-
-#~ msgid "Active versions below will show up on the site."
-#~ msgstr "Aktive versjoner nedenfor vil bli vist på siden."
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "Søketreff for %(term)s"
-
-#~ msgid "Huh?"
-#~ msgstr "Hæ?"
-
-#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
-#~ msgstr "Ingen dokumenter passet til søket ditt. ¯\\(O_o)/¯"
-
-#~ msgid "Upload HTML"
-#~ msgstr "Last opp HTML"
-
-#~ msgid ""
-#~ "Use this to upload pre-existing HTML documentation for versions that "
-#~ "don't build correctly anymore."
-#~ msgstr ""
-#~ "Bruk dette til å laste opp eksisterende HTML-dokumentasjon som ikke "
-#~ "bygger korrekt lenger."
-
-#, python-format
-#~ msgid "Results for %(query)s"
-#~ msgstr "Resultater for %(query)s"

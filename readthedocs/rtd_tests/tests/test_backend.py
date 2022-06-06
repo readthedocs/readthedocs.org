@@ -59,6 +59,7 @@ class TestGitBackend(TestCase):
             '2.0.X',
             'release/2.0.0',
             'release/foo/bar',
+            "with\xa0space",
         ]
         for branch in branches:
             create_git_branch(repo_path, branch)

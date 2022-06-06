@@ -3,35 +3,39 @@ User-defined Redirects
 
 You can set up redirects for a project in your project dashboard's :guilabel:`Redirects` page.
 
-Quick Summary
+.. contents:: Table of contents
+   :local:
+
+Quick summary
 -------------
 
-* Log into your readthedocs.org account.
-* From your dashboard, select the project on which you wish to add redirects.
-* From the project's top navigation bar, select the :guilabel:`Admin` tab.
+* Go to the :guilabel:`Admin` tab of your project.
 * From the left navigation menu, select :guilabel:`Redirects`.
-* In the form box "Redirect Type" select the type of redirect you want. See below for detail.
-* Depending on the redirect type you select, enter FROM and/or TO URL as needed.
+* In the form box "Redirect Type" select the type of redirect you want.
+  :ref:`See below <user-defined-redirects:redirect types>` for detail.
+* Depending on the redirect type you select, enter ``From URL`` and/or ``To URL`` as needed.
 * When finished, click the :guilabel:`Add` button.
 
 Your redirects will be effective immediately.
 
-Limitations
-~~~~~~~~~~~
+Features
+--------
 
-Redirects are only implemented in case of a *404 File Not Found* error.
-If you need to redirect a large number of files that still exist,
-please reach out to :doc:`/support`.
+- By default, redirects are followed only if the requested page doesn't exist
+  (*404 File Not Found* error), if you need to apply a redirect for files that exist,
+  mark the :guilabel:`Force redirect` option.
+  **This option is only available on some plan levels**.
+  Please ask support if you need it for some reason.
+- :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
+  can redirect to URLs outside Read the Docs,
+  just include the protocol in ``To URL``, e.g ``https://example.com``.
 
-Page & Exact Redirects can redirect to URLs outside Read the Docs.
-Define the `To URL` as the absolute URL you want to redirect to.
-
-Redirect Types
+Redirect types
 --------------
 
 We offer a few different type of redirects based on what you want to do.
 
-Prefix Redirects
+Prefix redirects
 ~~~~~~~~~~~~~~~~
 
 The most useful and requested feature of redirects was when migrating to Read the Docs from an old host.
@@ -63,7 +67,7 @@ Where ``en`` and ``latest`` are the default language and version values for your
    which will prepend ``/$lang/$version/`` to all incoming URLs.
 
 
-Page Redirects
+Page redirects
 ~~~~~~~~~~~~~~
 
 A more specific case is when you move a page around in your docs.
@@ -82,14 +86,23 @@ You would set the following configuration::
 Because of this,
 the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
 ``/en/latest``), but just the version-specific part of the URL.
-If you want to set directs only for some languages or some versions, you should use
+If you want to set redirects only for some languages or some versions, you should use
 :ref:`user-defined-redirects:exact redirects` with the fully-specified path.
 
-Exact Redirects
+Exact redirects
 ~~~~~~~~~~~~~~~
 
 *Exact Redirects* are for redirecting a single URL,
-and take into account the full URL (including language & version).
+taking into account the full URL (including language and version).
+
+You can also redirect a subset of URLs by including the ``$rest`` keyword
+at the end of the ``From URL``.
+
+Exact redirects examples
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Redirecting a single URL
+````````````````````````
 
 Say you're moving ``docs.example.com`` to Read the Docs and want to redirect traffic
 from an old page at ``https://docs.example.com/dev/install.html`` to a new URL
@@ -108,6 +121,9 @@ Your users query would now redirect in the following manner::
 
 Note that you should insert the desired language for "en" and version for "latest" to
 achieve the desired redirect.
+
+Redirecting a whole sub-path to a different one
+```````````````````````````````````````````````
 
 *Exact Redirects* could be also useful to redirect a whole sub-path to a different one by using a special ``$rest`` keyword in the "From URL".
 Let's say that you want to redirect your readers of your version ``2.0`` of your documentation under ``/en/2.0/`` because it's deprecated,
@@ -128,8 +144,22 @@ Similarly, if you maintain several branches of your documentation (e.g. ``3.0`` 
 ``latest``) and decide to move pages in ``latest`` but not the older branches, you can use
 *Exact Redirects* to do so.
 
+Migrating your documentation to another domain
+``````````````````````````````````````````````
 
-Sphinx Redirects
+You can use an exact redirect to migrate your documentation to another domain,
+for example::
+
+  Type: Exact Redirect
+  From URL: /$rest
+  To URL: https://newdocs.example.com/
+  Force Redirect: True
+
+Then all pages will redirect to the new domain, for example
+``https://docs.example.com/en/latest/install.html`` will redirect to
+``https://newdocs.example.com/en/latest/install.html``.
+
+Sphinx redirects
 ~~~~~~~~~~~~~~~~
 
 We also support redirects for changing the type of documentation Sphinx is building.

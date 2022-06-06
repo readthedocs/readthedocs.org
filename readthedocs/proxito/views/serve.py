@@ -176,16 +176,26 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             )
             raise Http404('Invalid URL for project with versions')
 
-        # TODO: un-comment when ready to perform redirect here
-        # redirect_path, http_status = self.get_redirect(
-        #     final_project,
-        #     lang_slug,
-        #     version_slug,
-        #     filename,
-        #     request.path,
-        # )
-        # if redirect_path and http_status:
-        #     return self.get_redirect_response(request, redirect_path, http_status)
+        redirect_path, http_status = self.get_redirect(
+            project=final_project,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+            full_path=request.path,
+            forced_only=True,
+        )
+        if redirect_path and http_status:
+            log.bind(forced_redirect=True)
+            try:
+                return self.get_redirect_response(
+                    request=request,
+                    redirect_path=redirect_path,
+                    proxito_path=request.path,
+                    http_status=http_status,
+                )
+            except InfiniteRedirectException:
+                # Continue with our normal serve.
+                pass
 
         # Check user permissions and return an unauthed response if needed
         if not self.allowed_user(request, final_project, version_slug):
@@ -304,26 +314,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     # (from URL == to URL)
                     return HttpResponseRedirect(redirect_url)
 
-        # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
-        # without query, starting with a ``/``. This matches our old logic:
-        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60   # noqa
-        #
-        # We parse ``filename`` to:
-        # - Remove the query params (probably it doesn't contain any query params at this point)
-        # - Remove any invalid URL chars (\r, \n, \t).
-        #
-        # We don't use ``.path`` to avoid parsing the filename as a full url.
-        # For example if the filename is ``http://example.com/my-path``,
-        # ``.path`` would return ``my-path``.
-        parsed = urlparse(filename)
-        redirect_filename = parsed._replace(query="").geturl()
-
-        # We can't check for lang and version here to decide if we need to add
-        # the ``/`` or not because ``/install.html`` is a valid path to use as
-        # redirect and does not include lang and version on it. It should be
-        # fine always adding the ``/`` to the beginning.
-        redirect_filename = '/' + redirect_filename.lstrip('/')
-
         # Check and perform redirects on 404 handler
         # NOTE: this redirect check must be done after trying files like
         # ``index.html`` and ``README.html`` to emulate the behavior we had when
@@ -332,7 +322,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             project=final_project,
             lang_slug=lang_slug,
             version_slug=version_slug,
-            filename=redirect_filename,
+            filename=filename,
             full_path=proxito_path,
         )
         if redirect_path and http_status:
@@ -389,7 +379,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     self._register_broken_link(
                         project=final_project,
                         version=version,
-                        path=redirect_filename,
+                        path=filename,
                         full_path=proxito_path,
                     )
                     return resp
@@ -397,7 +387,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         self._register_broken_link(
             project=final_project,
             version=version,
-            path=redirect_filename,
+            path=filename,
             full_path=proxito_path,
         )
         raise Http404('No custom 404 page found.')

@@ -1,8 +1,7 @@
-from allauth.socialaccount.models import SocialAccount, SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 import django_dynamic_fixture as fixture
 import requests_mock
-
+from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -13,9 +12,7 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.oauth.services import (
-    GitHubService,
-)
+from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
 
@@ -173,7 +170,7 @@ class GitHubOAuthSyncTests(TestCase):
         """
         Sync repositories relations for a user where the RemoteRepository and RemoteOrganization already exist.
 
-        Note that ``repository.owner.type == 'Organzation'`` in the GitHub response.
+        Note that ``repository.owner.type == 'Organization'`` in the GitHub response.
         """
         self.payload_user_repos[0]['owner']['type'] = 'Organization'
         mock_request.get('https://api.github.com/user/repos', json=self.payload_user_repos)

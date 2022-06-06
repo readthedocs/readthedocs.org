@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Xuân Sâm Đinh <xuansamdinh.n2i@gmail.com>, 2016\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/readthedocs/"
@@ -35,16 +35,12 @@ msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "HTTP status code"
-msgstr "Trạng thái HTTP"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Ngôn ngữ"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -60,16 +56,12 @@ msgid "Downloads"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "Dự án"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -82,10 +74,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View Docs"
 msgid "View"
-msgstr "Xem tài liệu"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -152,10 +142,8 @@ msgid "Authentication failure"
 msgstr ""
 
 #: audit/filters.py:41
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page view"
-msgstr "Trang tái định hướng"
+msgstr ""
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
@@ -169,10 +157,8 @@ msgid "User"
 msgstr "Người sử dụng"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Người sử dụng"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -184,38 +170,28 @@ msgid "Project"
 msgstr "Dự án"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Dự án"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Project"
 msgid "Project slug"
-msgstr "Dự án"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Tổ chức"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Tổ chức"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Tổ chức"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Đang hoạt động"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -226,10 +202,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "Xem qua các dự án"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -240,10 +214,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Thay đổi mật khẩu"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -335,10 +307,8 @@ msgid "Building"
 msgstr "Đang xây dựng"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Tải lên"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
@@ -369,10 +339,8 @@ msgid "Dash"
 msgstr ""
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Liên kết ngoài"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -395,16 +363,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Các phiên ban"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -415,10 +379,8 @@ msgid "Active"
 msgstr "Đang hoạt động"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "Đã hoàn thành"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -431,19 +393,15 @@ msgstr "Trạng thái"
 
 #: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
 msgid "Any"
-msgstr ""
+msgstr "Bất kỳ"
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Trạng thái"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Riêng tư"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -464,10 +422,8 @@ msgid "created"
 msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Ngày thay đổi"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -549,10 +505,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr ""
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Trạng thái"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -587,22 +541,16 @@ msgid "Commit"
 msgstr ""
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Các phiên ban"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Phiên bản"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Phiên bản"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -665,16 +613,12 @@ msgid "Build command {pk} for build {build}"
 msgstr ""
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Single version"
 msgid "Activate version"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "Single version"
 msgid "Hide version"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -852,30 +796,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -910,10 +854,8 @@ msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
 #: doc_builder/exceptions.py:56
-#, fuzzy
-#| msgid "Duplicate"
 msgid "Duplicated build."
-msgstr "Trùng lặp"
+msgstr ""
 
 #: doc_builder/exceptions.py:63
 msgid "Build cancelled by user."
@@ -990,10 +932,8 @@ msgid "Projects"
 msgstr ""
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "My Projects"
 msgid "Gold Projects"
-msgstr "Dự án của tôi"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1016,10 +956,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Ad-free projects"
-msgstr "Xem qua các dự án"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1063,10 +1001,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1104,16 +1040,12 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Description"
 msgid "Manage subscription"
-msgstr "Miêu tả"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Các dự án liên quan"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
 msgid "Choose projects you would like to make ad-free."
@@ -1259,10 +1191,8 @@ msgid "vcs"
 msgstr ""
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Nhánh mặc định"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1329,20 +1259,16 @@ msgid "Admin"
 msgstr ""
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
 msgid "Billing Email"
 msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "Short URLs"
 msgid "Site URL"
-msgstr "URL ngắn"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1414,10 +1340,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Thành công"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1452,10 +1376,8 @@ msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1473,10 +1395,8 @@ msgid "Delete forever"
 msgstr "Xóa mãi mãi"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1494,16 +1414,12 @@ msgid "or"
 msgstr "hoặc"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization Owners"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1517,10 +1433,8 @@ msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
@@ -1580,10 +1494,8 @@ msgstr ""
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1613,16 +1525,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create a new project"
 msgid "Create a Team"
-msgstr "Tạo một dự án mới"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Build Started"
 msgid "Get Started"
-msgstr "Quá trình xây dựng đã bắt đầu"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1670,10 +1578,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Tổ chức"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1703,10 +1609,8 @@ msgstr ""
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Deleted"
 msgid "Delete Team"
-msgstr "Đã xóa"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1720,16 +1624,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Team"
-msgstr "Chỉnh sửa"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Dự án của tôi"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1749,10 +1649,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "My Projects"
 msgid "Team's Projects"
-msgstr "Dự án của tôi"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1763,15 +1661,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Featured Projects"
 msgid "Update Projects"
-msgstr "Những dự án nên xem qua"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1790,20 +1683,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Deleted"
 msgid "Team deleted"
-msgstr "Đã xóa"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Trang chủ của dự án"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1850,10 +1739,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Related projects"
 msgid "Delete project (>={})"
-msgstr "Các dự án liên quan"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -1920,10 +1807,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Hostname không đúng"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -1984,10 +1869,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "Last Built"
 msgid "Least recently built"
-msgstr "Lần xây dựng gần đây nhất"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2010,28 +1893,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Hidden versions"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Single version"
 msgid "Private versions"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2066,10 +1941,8 @@ msgid "Global settings"
 msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Phiên bản mặc định"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2128,10 +2001,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Short description of this project"
-msgstr "Miêu tả chi tiết dự án bằng reStructureText"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2209,10 +2080,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation URL Configuration"
-msgstr "Kiểu tài liệu"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2426,10 +2295,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Building"
 msgid "Build id"
-msgstr "Đang xây dựng"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2440,22 +2307,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Quá trình xây dựng đã bắt đầu"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build passed"
-msgstr "Quá trình xây dựng đã bắt đầu"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "Đến URL"
+msgstr ""
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2828,10 +2689,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Hostname không đúng"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -2918,10 +2777,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Tên"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -2951,44 +2808,32 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Tổ chức"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Công cộng"
+msgstr ""
 
 #: subscriptions/models.py:110
 msgid "Custom domain"
 msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation type"
 msgid "CDN public documentation"
-msgstr "Kiểu tài liệu"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Tập tin thiết lập bằng Python"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Supported"
 msgid "Support SLA"
-msgstr "Không hỗ trợ"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Import HTML Documentation"
 msgid "Private documentation"
-msgstr "Nhập tài liệu HTML"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
@@ -3011,10 +2856,8 @@ msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "Từ URL"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3042,16 +2885,12 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription ID"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription status"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/models.py:194
 msgid "Start date"
@@ -3066,10 +2905,8 @@ msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Subscription"
-msgstr "Tổ chức"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3085,44 +2922,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "Tính năng"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Tạo tài khoản"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Tag"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription Status"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription ends"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Description"
 msgid "Manage Subscription"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3139,10 +2964,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Description"
 msgid "Create Subscription"
-msgstr "Miêu tả"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3358,16 +3181,12 @@ msgid "Going Ad-free"
 msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Supported"
 msgid "Site Support"
-msgstr "Không hỗ trợ"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "Trạng thái HTTP"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3382,10 +3201,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3453,10 +3270,8 @@ msgid "Build completed"
 msgstr ""
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build cancelled"
-msgstr "Quá trình xây dựng đã bắt đầu"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3878,20 +3693,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Những dự án nên xem qua"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4210,16 +4021,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Công cộng"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Riêng tư"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4618,10 +4425,8 @@ msgid "Project Dashboard"
 msgstr "Trang tổng hợp của dự án"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "Các phiên ban"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4698,10 +4503,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Edit Versions"
-msgstr "Các phiên ban"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4741,10 +4544,8 @@ msgstr ""
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Search Analytics"
-msgstr "Mã Analytics"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -4973,10 +4774,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Single version"
 msgid "Activate a version"
-msgstr "Phiên bản đơn lẻ"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -4988,16 +4787,12 @@ msgid "Filter Inactive Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Đang hoạt động"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Không tìm thấy dự án nào"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5086,10 +4881,8 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No projects found"
 msgid "No webhooks found."
-msgstr "Không tìm thấy dự án nào"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
 #, python-format
@@ -5100,10 +4893,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:30
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Object Type"
-msgstr "Kiểu tái định hướng"
+msgstr ""
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
@@ -5122,10 +4913,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No projects found"
 msgid "No results found."
-msgstr "Không tìm thấy dự án nào"
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5180,57 +4969,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr ""
-#~ "Cung cấp sai nguồn tài nguyên tìm kiếm dữ liệu (không đúng loại).: "
-#~ "%(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Xem phiên bản"
-
-#~ msgid "Allow email"
-#~ msgstr "Cho phép email"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr ""
-#~ "Hiển thị email của bạn trên những đóng góp qua PM quản lý phiên bản (VCS)."
-
-#~ msgid "Protected"
-#~ msgstr "Bảo vệ"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Tập Zip chứa HTML"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Bạn có muốn ghi đè HTML đã có sẵn?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Phiên bản này đã được kích hoạt sẵn rồi!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Bắt buộc phải tải lên một tập tin zip."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "Phiên bản của dự án mà bạn đang tải HTML lên"
-
-#~ msgid "View Project"
-#~ msgstr "Xem dự án"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "Mã checksum MD5"
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "Kết quả tìm kiếm cho %(term)s"
-
-#~ msgid "Huh?"
-#~ msgstr "Gì vậy?"
-
-#~ msgid ""
-#~ "Use this to upload pre-existing HTML documentation for versions that "
-#~ "don't build correctly anymore."
-#~ msgstr ""
-#~ "Sử dụng tính năng này để tải những tài liệu HTML sẵn có cho những phiên "
-#~ "bản mà bạn không hỗ trợ nữa."

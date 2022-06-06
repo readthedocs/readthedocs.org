@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Rifqi Imaduddin Irfan, 2021\n"
 "Language-Team: Indonesian (Indonesia) (http://www.transifex.com/readthedocs/"
@@ -27,26 +27,20 @@ msgid "Version"
 msgstr "Versi"
 
 #: analytics/models.py:71
-#, fuzzy
-#| msgid "No active versions."
 msgid "Path relative to the version."
-msgstr "Tidak ada versi aktif."
+msgstr ""
 
 #: analytics/models.py:75
 msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "Status code"
 msgid "HTTP status code"
-msgstr "Kode status"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Bahasa"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -62,16 +56,12 @@ msgid "Downloads"
 msgstr "Unduhan"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project homepage"
 msgid "Project Home"
-msgstr "Halaman depan proyek"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -84,10 +74,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgid "View docs"
 msgid "View"
-msgstr "Lihat docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -115,10 +103,8 @@ msgid "Search"
 msgstr "Cari"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search docs"
-msgstr "Pencarian seluruh dokumentasi"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -162,10 +148,8 @@ msgstr ""
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "Unduhan"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -173,10 +157,8 @@ msgid "User"
 msgstr "User"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "User"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -188,38 +170,28 @@ msgid "Project"
 msgstr "Proyek"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Proyek"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Projects"
 msgid "Project slug"
-msgstr "Proyek-proyek"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organisasi"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Organisasi"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Organisasi"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktif"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -242,10 +214,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Ubah Sandi"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -337,20 +307,16 @@ msgid "Building"
 msgstr "Membangun"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Unggah"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Selesai"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "batal"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -373,10 +339,8 @@ msgid "Dash"
 msgstr ""
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Tautan eksternal"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -399,16 +363,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Subversion"
 msgid "Any version"
-msgstr "Subversi"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Versi"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -419,10 +379,8 @@ msgid "Active"
 msgstr "Aktif"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "Selesai"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -442,10 +400,8 @@ msgid "States"
 msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Privat"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -462,16 +418,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Buat"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Tanggal dimodifikasi"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -544,10 +496,8 @@ msgid "Documentation type"
 msgstr "Tipe dokumentasi"
 
 #: builds/models.py:180
-#, fuzzy
-#| msgid "Your documentation is building"
 msgid "Type of documentation the version was built with."
-msgstr "Dokumentasi anda sedang dibangun"
+msgstr ""
 
 #: builds/models.py:196
 #, python-brace-format
@@ -555,10 +505,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr "Versi {version} dari {project} ({pk})"
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "Status code"
 msgid "Status"
-msgstr "Kode status"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -593,22 +541,16 @@ msgid "Commit"
 msgstr ""
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Versi"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Versi"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Versi"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -671,32 +613,24 @@ msgid "Build command {pk} for build {build}"
 msgstr ""
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "No active versions."
 msgid "Activate version"
-msgstr "Tidak ada versi aktif."
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "View Version"
 msgid "Hide version"
-msgstr "Lihat versi"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
 msgstr ""
 
 #: builds/models.py:1079
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Make version private"
-msgstr "Versi proyek telah diperbarui"
+msgstr ""
 
 #: builds/models.py:1080
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Set version as default"
-msgstr "Versi proyek telah diperbarui"
+msgstr ""
 
 #: builds/models.py:1081
 msgid "Delete version (on branch/tag deletion)"
@@ -795,10 +729,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Nama pengguna"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -866,30 +798,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -919,16 +851,13 @@ msgid "Problem in your project's configuration. {exception}"
 msgstr "Masalah dalam konfigurasi proyek anda. {exception}"
 
 #: doc_builder/exceptions.py:52
-#, fuzzy, python-brace-format
-#| msgid "Version locked, retrying in 5 minutes."
+#, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
-msgstr "Versi terkunci, kembali lagi dalam 5 menit."
+msgstr ""
 
 #: doc_builder/exceptions.py:56
-#, fuzzy
-#| msgid "Duplicate"
 msgid "Duplicated build."
-msgstr "Duplikat"
+msgstr ""
 
 #: doc_builder/exceptions.py:63
 msgid "Build cancelled by user."
@@ -974,10 +903,8 @@ msgid "No project found."
 msgstr "Proyek tidak ditemukan."
 
 #: gold/forms.py:54
-#, fuzzy
-#| msgid "The demo project is already imported!"
 msgid "This project is already Ad-Free."
-msgstr "Demo proyek telah diimpor!"
+msgstr ""
 
 #: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
 #: organizations/models.py:239 projects/models.py:111
@@ -1007,10 +934,8 @@ msgid "Projects"
 msgstr "Proyek-proyek"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Proyek-proyek"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1033,10 +958,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Add project"
 msgid "Ad-free projects"
-msgstr "Tambah proyek"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1064,16 +987,12 @@ msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose which project you would like to make ad-free."
-msgstr "Pilih proyek yang ingin anda tambahkan."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Make Project Ad-Free"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: gold/templates/gold/projects.html:69
 #, python-format
@@ -1084,10 +1003,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Arsip Read the Docs"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1126,32 +1043,24 @@ msgstr ""
 "Terima kasih telah mendukung Read the Docs! Ini sangat berarti bagi kami."
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage subscription"
-msgstr "Batalkan Langganan"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "Proyek terkait"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "Pilih proyek yang ingin anda tambahkan."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
 msgstr "Pilih Proyek"
 
 #: gold/templates/gold/subscription_detail.html:104
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Become a Gold member"
-msgstr "Menjadi Gold Member"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:112
 #: templates/account/signup.html:10 templates/account/signup.html:46
@@ -1285,10 +1194,8 @@ msgid "vcs"
 msgstr "vcs"
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Cabang bawaan"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1355,22 +1262,16 @@ msgid "Admin"
 msgstr "Admin"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
-#, fuzzy
-#| msgid "Change Email"
 msgid "Billing Email"
-msgstr "Ubah Surel"
+msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH URL"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1386,10 +1287,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "User {name} does not exist"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "Pengguna {name} tidak ada"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1414,10 +1314,8 @@ msgid "Owners"
 msgstr ""
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "Surel"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
@@ -1445,10 +1343,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Sukses"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1478,17 +1374,13 @@ msgstr "Detail"
 #: templates/profiles/base_profile_edit.html:52
 #: templates/profiles/private/security_log.html:6
 #: templates/profiles/private/security_log.html:10
-#, fuzzy
-#| msgid "Security"
 msgid "Security Log"
-msgstr "Keamanan"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1506,10 +1398,8 @@ msgid "Delete forever"
 msgstr "Hapus selamanya"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1527,16 +1417,12 @@ msgid "or"
 msgstr "atau"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization Owners"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1550,17 +1436,13 @@ msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
-#, fuzzy
-#| msgid "Team"
 msgid "Teams"
-msgstr "Tim"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
@@ -1615,10 +1497,8 @@ msgstr "Kembali"
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1648,16 +1528,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Buat"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Getting Started Guide"
 msgid "Get Started"
-msgstr "Panduan Memulai"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1705,10 +1581,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Organisasi"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1732,18 +1606,14 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:14
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
-#, fuzzy
-#| msgid "Team"
 msgid "Add Team"
-msgstr "Tim"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Team"
-msgstr "Hapus"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1757,16 +1627,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit Card"
 msgid "Edit Team"
-msgstr "Sunting Kartu"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Proyek Saya"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1786,10 +1652,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Proyek-proyek"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1800,17 +1664,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Update subproject"
 msgid "Update Projects"
-msgstr "Perbarui subproyek"
+msgstr ""
 
 #: organizations/templates/organizations/verify_email.html:5
-#, fuzzy
-#| msgid "Verify your email address"
-msgid "Verify you email address"
-msgstr "Verifikasi alamat surel anda"
-
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1829,20 +1686,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Team deleted"
-msgstr "Proyek dihapus"
+msgstr ""
 
 #: organizations/views/private.py:140
 msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "Project settings updated"
 msgid "Team projects updated"
-msgstr "Pengaturan proyek telah diperbarui"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1889,10 +1742,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Delete project"
 msgid "Delete project (>={})"
-msgstr "Hapus proyek"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -1963,10 +1814,8 @@ msgid "Invalid"
 msgstr ""
 
 #: projects/constants.py:388
-#, fuzzy
-#| msgid "Branding"
 msgid "Pending"
-msgstr "Penjenamaan"
+msgstr ""
 
 #: projects/exceptions.py:15
 msgid ""
@@ -1999,12 +1848,10 @@ msgid ""
 msgstr ""
 
 #: projects/exceptions.py:40
-#, fuzzy
-#| msgid "One or more submodule URLs are not valid: {}."
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
-msgstr "Satu atau lebih URL submodul tidak valid: {}."
+msgstr ""
 
 #: projects/exceptions.py:44
 msgid "You can not have two versions with the name latest or stable."
@@ -2015,16 +1862,10 @@ msgid "Failed to checkout revision: {}"
 msgstr ""
 
 #: projects/exceptions.py:50
-#, fuzzy
-#| msgid ""
-#| "There was a problem connecting to your repository, ensure that your "
-#| "repository URL is correct."
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
 msgstr ""
-"Terdapat masalah saat menyambungkan ke repositori anda, pastikan URL "
-"repositori anda benar."
 
 #: projects/filters.py:31 projects/filters.py:80
 msgid "Name (descending)"
@@ -2059,28 +1900,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "View Version"
 msgid "Hidden versions"
-msgstr "Lihat versi"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "View Version"
 msgid "Visible versions"
-msgstr "Lihat versi"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversi"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Private Hosting"
 msgid "Private versions"
-msgstr "Hos Privat"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2111,16 +1944,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "Panjang tag harus kurang dari sasma dengan 100 karakter."
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Pengaturan"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Versi bawaan"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2178,10 +2007,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "Description of the project"
 msgid "Short description of this project"
-msgstr "Deskripsi proyek"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2259,10 +2086,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation Advertising"
 msgid "Documentation URL Configuration"
-msgstr "Pengiklanan Dokumentasi"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2271,10 +2096,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Tidak ada unduhan pada proyek ini."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2307,10 +2130,8 @@ msgstr ""
 "mungkin dapat memperlambat pemuatan halaman anda."
 
 #: projects/models.py:249
-#, fuzzy
-#| msgid "Analytics"
 msgid "Disable Analytics"
-msgstr "Pelacakan"
+msgstr ""
 
 #: projects/models.py:253
 msgid ""
@@ -2482,10 +2303,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Building"
 msgid "Build id"
-msgstr "Membangun"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2496,20 +2315,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Triggered"
 msgid "Build triggered"
-msgstr "Dipicu"
+msgstr ""
 
 #: projects/models.py:1484
 msgid "Build passed"
 msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "Menuju URL"
+msgstr "URL"
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2676,10 +2491,8 @@ msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
 #: projects/models.py:1895
-#, fuzzy
-#| msgid "Build latest version"
 msgid "Use latest version of MkDocs"
-msgstr "Membangun versi terbaru"
+msgstr ""
 
 #: projects/models.py:1898
 msgid "Use latest version of the Read the Docs Sphinx extension"
@@ -2972,10 +2785,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Nama"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -3005,76 +2816,56 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Organisasi"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Publik"
+msgstr ""
 
 #: subscriptions/models.py:110
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Custom domain"
-msgstr "Buat Domain"
+msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation"
 msgid "CDN public documentation"
-msgstr "Dokumentasi"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Berkas konfigurasi Python"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Support"
 msgid "Support SLA"
-msgstr "Dukungan"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "View your documentation"
 msgid "Private documentation"
-msgstr "Lihat dokumentasi anda"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
 msgstr ""
 
 #: subscriptions/models.py:116
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search analytics"
-msgstr "Pencarian seluruh dokumentasi"
+msgstr ""
 
 #: subscriptions/models.py:117
 msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Current card"
 msgid "Concurrent builds"
-msgstr "Kartu sekarang"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "Dari URL"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3094,48 +2885,36 @@ msgid "Plan"
 msgstr ""
 
 #: subscriptions/models.py:179
-#, fuzzy
-#| msgid "Locked"
 msgid "Locked plan"
-msgstr "Terkunci"
+msgstr ""
 
 #: subscriptions/models.py:181
 msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Stripe subscription ID"
-msgstr "Pembaruan Langganan"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription status"
-msgstr "Pelanggan Emas"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Waktu mulai"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Waktu selesai"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Organization Subscription"
-msgstr "Batalkan Langganan"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3155,38 +2934,28 @@ msgid "Plan Features:"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Daftar"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Tag"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription Status"
-msgstr "Pelanggan Emas"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription ends"
-msgstr "Pelanggan Emas"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage Subscription"
-msgstr "Batalkan Langganan"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3203,16 +2972,12 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Create Subscription"
-msgstr "Pembaruan Langganan"
+msgstr ""
 
 #: subscriptions/views.py:37
-#, fuzzy
-#| msgid "Your subscription has been updated"
 msgid "Your plan has been upgraded!"
-msgstr "Langganan anda telah diperbarui"
+msgstr ""
 
 #: subscriptions/views.py:92
 msgid ""
@@ -3379,27 +3144,19 @@ msgid ""
 msgstr ""
 
 #: templates/account/signup.html:48
-#, fuzzy
-#| msgid ""
-#| "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
-#| "latest/privacy-policy.html\">privacy policy</a>."
 msgid ""
 "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
 "terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
 "readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
 msgstr ""
-"Dengan mendaftar, anda menyetujui <a href=\"https://docs.readthedocs.io/en/"
-"latest/privacy-policy.html\">kebijakan privasi</a> kami."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Arsip Read the Docs"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Notification"
 msgid "Close notification"
-msgstr "Notifikasi"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3440,22 +3197,16 @@ msgid "Documentation"
 msgstr "Dokumentasi"
 
 #: templates/base.html:198
-#, fuzzy
-#| msgid "Ad-free"
 msgid "Going Ad-free"
-msgstr "Bebas iklan"
+msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Support"
 msgid "Site Support"
-msgstr "Dukungan"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "Status HTTP"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3470,10 +3221,8 @@ msgid "Advertise with Us"
 msgstr "Beriklan dengan Kami"
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Arsip Read the Docs"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3694,10 +3443,8 @@ msgid "No builds found"
 msgstr ""
 
 #: templates/core/email/base.html:78
-#, fuzzy
-#| msgid "Hello!"
 msgid "Hello,"
-msgstr "Halo!"
+msgstr ""
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
@@ -3974,20 +3721,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr ""
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4119,10 +3862,8 @@ msgid "Delete Account"
 msgstr "Hapus Akun"
 
 #: templates/profiles/base_profile_edit.html:55
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Gold Membership"
-msgstr "Menjadi Gold Member"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:57
 #: templates/projects/project_edit_base.html:34
@@ -4234,10 +3975,8 @@ msgid "Confirm"
 msgstr "Konfirmasi"
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Details"
 msgid "Domain Details"
-msgstr "Detail"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4251,10 +3990,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/domain_form.html:52
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Save Domain"
-msgstr "Buat Domain"
+msgstr ""
 
 #: templates/projects/domain_form.html:54
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4312,16 +4049,12 @@ msgid "Add Environment Variable"
 msgstr ""
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Publik"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Privat"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4615,16 +4348,12 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:32
-#, fuzzy
-#| msgid "We don't give sponsors access to user information"
 msgid "We don't give sponsors access to user information."
-msgstr "Kami tidak memberikan akses informasi pengguna kepada sponsor"
+msgstr ""
 
 #: templates/projects/project_advertising.html:37
-#, fuzzy
-#| msgid "We only report the number of impressions and number of ad clicks"
 msgid "We only report the number of impressions and number of ad clicks."
-msgstr "Kami hanya melaporkan jumlah impresi dan jumlah klik iklan."
+msgstr ""
 
 #: templates/projects/project_advertising.html:42
 msgid ""
@@ -4695,10 +4424,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:122
-#, fuzzy
-#| msgid "Updated your advertising preferences"
 msgid "Update advertising preference"
-msgstr "Memperbarui preferensi iklan anda"
+msgstr ""
 
 #: templates/projects/project_create.html:6
 msgid "Create a new project"
@@ -4729,10 +4456,8 @@ msgid "Project Dashboard"
 msgstr "Dasbor Proyek"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Import a Repository"
 msgid "Important Versions"
-msgstr "Impor repositori"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4743,17 +4468,13 @@ msgid "failing"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:112
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search all docs"
-msgstr "Pencarian seluruh dokumentasi"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:125
 #: templates/projects/project_dashboard_base.html:134
-#, fuzzy
-#| msgid "Connected account"
 msgid "Connect your Accounts"
-msgstr "Akun yang terhubung"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:128
 msgid ""
@@ -4815,10 +4536,8 @@ msgid "Delete project"
 msgstr "Hapus proyek"
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Edit Project Versions"
 msgid "Edit Versions"
-msgstr "Sunting Versi Proyek"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4846,26 +4565,20 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "Edit Notifications"
 msgid "Email Notifications"
-msgstr "Sunting Notifikasi"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
 #: templates/projects/project_traffic_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Traffic Analytics"
-msgstr "Pelacakan"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Search Analytics"
-msgstr "Pelacakan"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -5004,10 +4717,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "Unduhan"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5098,10 +4809,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "No active versions."
 msgid "Activate a version"
-msgstr "Tidak ada versi aktif."
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5109,22 +4818,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "No active versions."
 msgid "Filter Inactive Versions"
-msgstr "Tidak ada versi aktif."
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktif"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No objects found"
 msgid "No versions found"
-msgstr "Tidak ditemukan objek"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5211,19 +4914,16 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No objects found"
 msgid "No webhooks found."
-msgstr "Tidak ditemukan objek"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
-#, fuzzy, python-format
-#| msgid "Search: %(query)s "
+#, python-format
 msgid ""
 "\n"
 "    Search: %(query)s\n"
 "  "
-msgstr "Cari: %(query)s "
+msgstr ""
 
 #: templates/search/elastic_search.html:30
 msgid "Object Type"
@@ -5246,10 +4946,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No results found. Bummer."
 msgid "No results found."
-msgstr "Tidak ada hasil. Sayang."
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5305,170 +5003,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr "Data lookup sumber daya tidak valid (jenis tidak cocok). %(error)s"
-
-#~ msgid "Project not found"
-#~ msgstr "Proyek tidak ditemukan"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "Tampilkan surel anda pada kontribusi VCS."
-
-#~ msgid "Existing Projects"
-#~ msgstr "Proyek yang Tersedia"
-
-#~ msgid "Add a project"
-#~ msgstr "Tambahkan proyek"
-
-#~ msgid "Are you sure you want to cancel your subscription?"
-#~ msgstr "Apakah anda yakin untuk membatalkan langganan anda?"
-
-#~ msgid "Card"
-#~ msgstr "Kartu"
-
-#~ msgid ""
-#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
-#~ "org/sustainability/\">sustainability</a> page."
-#~ msgstr ""
-#~ "Anda dapat membuat donasi sekali pada halaman <a href=\"https://"
-#~ "readthedocs.org/sustainability/\">sustainability</a> kami."
-
-#~ msgid "Update Your Subscription"
-#~ msgstr "Perbarui Langganan Anda"
-
-#~ msgid "Your subscription has been cancelled"
-#~ msgstr "Langganan anda telah dibatalkan"
-
-#~ msgid "VAT ID number"
-#~ msgstr "Nomor Wajib Pajak"
-
-#~ msgid "Card number"
-#~ msgstr "Nomor kartu"
-
-#~ msgid "Card expiration"
-#~ msgstr "Masa berlaku kartu"
-
-#~ msgid "Card CVV"
-#~ msgstr "CVV kartu"
-
-#~ msgid "There was a problem communicating with Stripe"
-#~ msgstr "Terdapat masalah dalam menyambungkan ke Stripe"
-
-#~ msgid "Mkdocs (Markdown)"
-#~ msgstr "Mkdocs (Markdown)"
-
-#~ msgid "Protected"
-#~ msgstr "Terlindungi"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "Berkas zip dari HTML"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Versi ini sudah aktif!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Harus mengunggah berkas zip"
-
-#~ msgid "The reStructuredText description of the project"
-#~ msgstr "Deskripsi reStructuredText dari proyek"
-
-#~ msgid "Version Privacy Level"
-#~ msgstr "Level Privasi Versi"
-
-#~ msgid "View Project"
-#~ msgstr "Lihat Proyek"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "Checksum MD5"
-
-#~ msgid "Your demo project is currently being imported"
-#~ msgstr "Demo proyek sedang diimpor"
-
-#~ msgid "There was a problem adding the demo project"
-#~ msgstr "Ada masalah dalam menambahkan demo proyek"
-
-#~ msgid "Contributing"
-#~ msgstr "Berkontribusi"
-
-#~ msgid "Open Source Philosophy"
-#~ msgstr "Filosofi Sumber Terbuka"
-
-#~ msgid "Business Info"
-#~ msgstr "Informasi Bisnis"
-
-#~ msgid "Supporters"
-#~ msgstr "Pendukung"
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Level Privasi Proyek"
-
-#~ msgid "Getting started guide"
-#~ msgstr "Panduan memulai"
-
-#~ msgid "Gold"
-#~ msgstr "Emas"
-
-#~ msgid "Edit Domain"
-#~ msgstr "Sunting Domain"
-
-#, python-format
-#~ msgid ""
-#~ "Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
-#~ "project</a>."
-#~ msgstr ""
-#~ "Mau mencoba demo? <a href=\"%(import_demo_url)s\">Impor proyek demo kami</"
-#~ "a>."
-
-#~ msgid "I can contribute financially"
-#~ msgstr "Saya dapat berkontribusi secara finansial"
-
-#~ msgid "I can contribute my time"
-#~ msgstr "Saya dapat berkontribusi waktu saya"
-
-#~ msgid "Learn more about a paid plan"
-#~ msgstr "Pelajari lebih lanjut tentang rencana berbayar"
-
-#~ msgid "Still can't help?"
-#~ msgstr "Masih belum membantu?"
-
-#~ msgid "This shows the last 7 days of data from your project."
-#~ msgstr "Ini menampilkan data dari proyek anda selama 7 hari terkahir."
-
-#~ msgid "Pages"
-#~ msgstr "Halaman"
-
-#~ msgid "Notifications"
-#~ msgstr "Notifikasi"
-
-#~ msgid "File"
-#~ msgstr "Berkas"
-
-#~ msgid "Select a File"
-#~ msgstr "Pilih berkas"
-
-#~ msgid "Show content"
-#~ msgstr "Tampilkan konten"
-
-#~ msgid "Example Usage"
-#~ msgstr "Contoh Penggunaan"
-
-#~ msgid "Choose Active Versions"
-#~ msgstr "Pilih Versi Aktif"
-
-#~ msgid "Huh?"
-#~ msgstr "Hah?"
-
-#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
-#~ msgstr "Tidak ada dokumentasi yang cocok dengan pencarian anda. ¯\\(O_o)/¯"
-
-#~ msgid "Import HTML Documentation"
-#~ msgstr "Impor Dokumentasi HTML"
-
-#~ msgid "Upload HTML"
-#~ msgstr "Unggah HTML"
-
-#, python-format
-#~ msgid "Results for %(query)s"
-#~ msgstr "Hasil untuk %(query)s"

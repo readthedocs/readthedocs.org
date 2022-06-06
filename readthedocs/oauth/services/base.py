@@ -221,27 +221,6 @@ class Service:
             .delete()
         )
 
-    def create_repository(self, fields, privacy=None, organization=None):
-        """
-        Update or create a repository from API response.
-
-        :param fields: dictionary of response data from API
-        :param privacy: privacy level to support
-        :param organization: remote organization to associate with
-        :type organization: RemoteOrganization
-        :rtype: RemoteRepository
-        """
-        raise NotImplementedError
-
-    def create_organization(self, fields):
-        """
-        Update or create remote organization from API response.
-
-        :param fields: dictionary response of data from API
-        :rtype: RemoteOrganization
-        """
-        raise NotImplementedError
-
     def get_next_url_to_paginate(self, response):
         """
         Return the next url to feed the `paginate` method.
