@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: BouRock, 2020\n"
 "Language-Team: Turkish (http://www.transifex.com/readthedocs/readthedocs/"
@@ -27,26 +27,20 @@ msgid "Version"
 msgstr "Sürüm"
 
 #: analytics/models.py:71
-#, fuzzy
-#| msgid "No active versions."
 msgid "Path relative to the version."
-msgstr "Etkin sürümler yok."
+msgstr ""
 
 #: analytics/models.py:75
 msgid "Full path including the version and language parts."
 msgstr ""
 
 #: analytics/models.py:83
-#, fuzzy
-#| msgid "Status code"
 msgid "HTTP status code"
-msgstr "Durum kodu"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
-#, fuzzy
-#| msgid "Language"
 msgid "Languages"
-msgstr "Dil"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:48
@@ -62,16 +56,12 @@ msgid "Downloads"
 msgstr "İndirilenler"
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project homepage"
 msgid "Project Home"
-msgstr "Proje anasayfası"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -84,11 +74,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgctxt "verb, action to see in detail"
-#| msgid "\"View\""
 msgid "View"
-msgstr "\"Görüntüle\""
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -116,10 +103,8 @@ msgid "Search"
 msgstr "Ara"
 
 #: api/v2/templates/restapi/footer.html:123
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search docs"
-msgstr "Tüm belgelerde ara"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
@@ -130,10 +115,9 @@ msgid "Privacy Policy"
 msgstr "Gizlilik İlkesi"
 
 #: api/v3/serializers.py:494
-#, fuzzy, python-brace-format
-#| msgid "Invalid project name"
+#, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
-msgstr "Geçersiz proje adı"
+msgstr ""
 
 #: api/v3/serializers.py:498
 #, python-brace-format
@@ -158,18 +142,14 @@ msgid "Authentication failure"
 msgstr ""
 
 #: audit/filters.py:41
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page view"
-msgstr "Sayfa Yönlendirme"
+msgstr ""
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download"
-msgstr "İndirilenler"
+msgstr ""
 
 #: audit/models.py:85 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
@@ -177,10 +157,8 @@ msgid "User"
 msgstr "Kullanıcı"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Kullanıcı"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -192,38 +170,28 @@ msgid "Project"
 msgstr "Proje"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Proje"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Project Slug"
 msgid "Project slug"
-msgstr "Proje Başlık Bilgisi"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Kuruluş"
 
 #: audit/models.py:135
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization ID"
-msgstr "Kuruluş"
+msgstr ""
 
 #: audit/models.py:141
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization slug"
-msgstr "Kuruluş"
+msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Section"
 msgid "Action"
-msgstr "Bölüm"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -234,10 +202,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "Projelere gözat"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -248,10 +214,8 @@ msgid "shared link"
 msgstr ""
 
 #: audit/models.py:212
-#, fuzzy
-#| msgid "Change Password"
 msgid "shared password"
-msgstr "Parolayı Değiştir"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
@@ -343,20 +307,16 @@ msgid "Building"
 msgstr "Oluşturuluyor"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Upload"
 msgid "Uploading"
-msgstr "Gönder"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
 msgstr "Tamamlandı"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
-#, fuzzy
-#| msgid "cancel"
 msgid "Cancelled"
-msgstr "iptal"
+msgstr ""
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -379,10 +339,8 @@ msgid "Dash"
 msgstr "Tire"
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Harici Bağlantılar"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -405,16 +363,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Single version"
 msgid "Any version"
-msgstr "Tek sürüm"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Sürümler"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -425,10 +379,8 @@ msgid "Active"
 msgstr "Etkin"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build finished"
-msgstr "Oluşturma başarısız oldu"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -444,16 +396,12 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Durum"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
-#, fuzzy
-#| msgid "Private"
 msgid "Privacy"
-msgstr "Özel"
+msgstr ""
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -470,16 +418,12 @@ msgstr ""
 
 #: builds/models.py:97 core/models.py:26 projects/models.py:1448
 #: projects/models.py:1616
-#, fuzzy
-#| msgid "Create"
 msgid "created"
-msgstr "Oluştur"
+msgstr ""
 
 #: builds/models.py:102 core/models.py:31 projects/models.py:1453
-#, fuzzy
-#| msgid "Modified date"
 msgid "modified"
-msgstr "Değiştirilme tarihi"
+msgstr ""
 
 #: builds/models.py:114 builds/models.py:622 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -552,10 +496,8 @@ msgid "Documentation type"
 msgstr "Belgelendirme türü"
 
 #: builds/models.py:180
-#, fuzzy
-#| msgid "Your documentation is building"
 msgid "Type of documentation the version was built with."
-msgstr "Belgelendirmeniz oluşturuluyor"
+msgstr ""
 
 #: builds/models.py:196
 #, python-brace-format
@@ -563,10 +505,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr "{project} projesinin sürümü {version} ({pk})"
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Durum"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -601,22 +541,16 @@ msgid "Commit"
 msgstr "İşle"
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Sürümler"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Sürüm"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Sürüm"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -679,33 +613,24 @@ msgid "Build command {pk} for build {build}"
 msgstr "{build} oluşturması için oluşturma komutu {pk}"
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate version"
-msgstr "Etkin Sürümler"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgctxt "Build is a verb"
-#| msgid "Build version"
 msgid "Hide version"
-msgstr "Sürüm oluştur"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
 msgstr ""
 
 #: builds/models.py:1079
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Make version private"
-msgstr "Proje sürümleri güncellendi"
+msgstr ""
 
 #: builds/models.py:1080
-#, fuzzy
-#| msgid "Project versions updated"
 msgid "Set version as default"
-msgstr "Proje sürümleri güncellendi"
+msgstr ""
 
 #: builds/models.py:1081
 msgid "Delete version (on branch/tag deletion)"
@@ -804,10 +729,8 @@ msgid "ID"
 msgstr ""
 
 #: core/history.py:72
-#, fuzzy
-#| msgid "Username"
 msgid "username"
-msgstr "Kullanıcı adı"
+msgstr ""
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -884,56 +807,41 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr "Depo türü \"{repo_type}\" bilinmiyor"
 
-#: doc_builder/environments.py:342
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\n"
-#| "Command killed due to excessive memory consumption\n"
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
-"\n"
-"\n"
-"Aşırı bellek tüketiminden dolayı komut sonlandırıldı\n"
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr "Komuttan anormal olarak çıkıldı"
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr "Bu sürüm için şu anda bir oluşturma ortamı çalışıyor"
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr "Zaman aşımından dolayı oluşturmadan çıkıldı"
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr "Aşırı bellek tüketiminden dolayı oluşturmadan çıkıldı"
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Bilinmeyen hatadan dolayı oluşturmadan çıkıldı: {0}"
 
 #: doc_builder/exceptions.py:26
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "There was a problem with Read the Docs while building your documentation. "
-#| "Please try again later. However, if this problem persists, please report "
-#| "this to us with your build id ({build_id})."
+#, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
 "Please try again later. If this problem persists, report this error to us "
 "with your build id ({build_id})."
 msgstr ""
-"Belgelendirmeniz oluşturulurken Read the Docs ile ilgili bir sorun oldu. "
-"Lütfen daha sonra tekrar deneyin. Ancak, bu sorun devam ederse, lütfen bunu "
-"oluşturma kimliğinizle ({build_id}) birlikte bize bildirin."
 
 #: doc_builder/exceptions.py:35
 msgid ""
@@ -952,16 +860,13 @@ msgid "Problem in your project's configuration. {exception}"
 msgstr "Projenizin yapılandırmasında sorun var. {exception}"
 
 #: doc_builder/exceptions.py:52
-#, fuzzy, python-brace-format
-#| msgid "Version locked, retrying in 5 minutes."
+#, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
-msgstr "Sürüm kilitlendi, 5 dakika içinde yeniden deneniyor."
+msgstr ""
 
 #: doc_builder/exceptions.py:56
-#, fuzzy
-#| msgid "Duplicate"
 msgid "Duplicated build."
-msgstr "Kopya"
+msgstr ""
 
 #: doc_builder/exceptions.py:63
 msgid "Build cancelled by user."
@@ -981,34 +886,21 @@ msgstr ""
 "ya da tam yolu olan bir dizgi olmak zorundadır."
 
 #: doc_builder/exceptions.py:78
-#, fuzzy
-#| msgid ""
-#| "The \"docs_dir\" config from your MkDocs YAML config file has to be a "
-#| "string with relative or absolute path."
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
-"MkDocs YAML yapılandırma dosyanızdaki \"docs_dir\" yapılandırması, göreceli "
-"ya da tam yolu olan bir dizgi olmak zorundadır."
 
 #: doc_builder/exceptions.py:83
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "The \"{config}\" config from your MkDocs YAML config file has to be a a "
-#| "list of relative paths."
+#, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
-"MkDocs YAML yapılandırma dosyanızdaki \"{config}\" yapılandırması, göreceli "
-"yolların bir listesi olmak zorundadır."
 
 #: doc_builder/exceptions.py:88
-#, fuzzy
-#| msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
-msgstr "MkDocs YAML yapılandırmasını ayrıştırmada sorun var. {exception}"
+msgstr ""
 
 #: doc_builder/exceptions.py:92
 msgid ""
@@ -1022,10 +914,8 @@ msgid "No project found."
 msgstr "Bulunan proje yok."
 
 #: gold/forms.py:54
-#, fuzzy
-#| msgid "The demo project is already imported!"
 msgid "This project is already Ad-Free."
-msgstr "Tanıtım projesi zaten içe aktarıldı!"
+msgstr ""
 
 #: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
 #: organizations/models.py:239 projects/models.py:111
@@ -1055,10 +945,8 @@ msgid "Projects"
 msgstr "Projeler"
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Projects"
 msgid "Gold Projects"
-msgstr "Projeler"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -1081,10 +969,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Add project"
 msgid "Ad-free projects"
-msgstr "Proje ekle"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1104,26 +990,20 @@ msgid "Remove"
 msgstr "Kaldır"
 
 #: gold/templates/gold/projects.html:47
-#, fuzzy
-#| msgid "No subprojects are currently configured"
 msgid "No projects are currently ad-free."
-msgstr "Şu anda yapılandırılmış alt projeler yok"
+msgstr ""
 
 #: gold/templates/gold/projects.html:56
 msgid "Make a project ad-free"
 msgstr ""
 
 #: gold/templates/gold/projects.html:59
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose which project you would like to make ad-free."
-msgstr "Eklemek istediğiniz projeyi seçin."
+msgstr ""
 
 #: gold/templates/gold/projects.html:64
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Make Project Ad-Free"
-msgstr "Proje silindi"
+msgstr ""
 
 #: gold/templates/gold/projects.html:69
 #, python-format
@@ -1134,10 +1014,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs Arşivi"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1156,25 +1034,11 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:58
-#, fuzzy
-#| msgid ""
-#| "If you are a company using Read the Docs, please consider getting a <a "
-#| "href=\"https://readthedocs.com/services/#open-source-support\">commercial "
-#| "support contract</a>. This will help us cover our costs, and provide you "
-#| "with a better experience on the site. If you aren't able to do that, we "
-#| "suggest giving at least $20/month to help cover our support and "
-#| "operations costs."
 msgid ""
 "If you are a company using Read the Docs, please consider <a href=\"https://"
 "readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
 "our costs, and provide you with a better experience on the site."
 msgstr ""
-"Read the Docs'u kullanan bir şirketseniz, lütfen <a href=\"https://"
-"readthedocs.com/services/#open-source-support\">ticari bir destek "
-"sözleşmesi</a> almayı düşünün. Bu, maliyetlerimizi karşılamamıza ve size "
-"sitede daha iyi bir deneyim sunmamıza yardımcı olacaktır. Bunu "
-"yapamıyorsanız, destek ve faaliyet maliyetlerimizi karşılamamıza yardımcı "
-"olmak için en az $20/ay vermenizi öneririz."
 
 #: gold/templates/gold/subscription_detail.html:67
 #, python-format
@@ -1194,32 +1058,24 @@ msgstr ""
 "ediyor."
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage subscription"
-msgstr "Aboneliği İptal Et"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Related projects"
 msgid "Gold projects"
-msgstr "İlgili projeler"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
-#, fuzzy
-#| msgid "Choose which project you would like to add."
 msgid "Choose projects you would like to make ad-free."
-msgstr "Eklemek istediğiniz projeyi seçin."
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:100
 msgid "Select Projects"
 msgstr "Projeleri Seç"
 
 #: gold/templates/gold/subscription_detail.html:104
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Become a Gold member"
-msgstr "Altın Üye Olun"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:112
 #: templates/account/signup.html:10 templates/account/signup.html:46
@@ -1353,10 +1209,8 @@ msgid "vcs"
 msgstr "vcs"
 
 #: oauth/models.py:171
-#, fuzzy
-#| msgid "Default branch"
 msgid "Default branch of the repository"
-msgstr "Varsayılan dal"
+msgstr ""
 
 #: oauth/models.py:249
 msgid "Has admin privilege"
@@ -1435,22 +1289,16 @@ msgid "Admin"
 msgstr "Yönetici"
 
 #: organizations/forms.py:41 organizations/forms.py:96
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Name"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/forms.py:42 organizations/forms.py:97
-#, fuzzy
-#| msgid "Change Email"
 msgid "Billing Email"
-msgstr "E-postayı Değiştir"
+msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "SSH URL"
 msgid "Site URL"
-msgstr "SSH URL"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1466,10 +1314,9 @@ msgid "Email address or username"
 msgstr ""
 
 #: organizations/forms.py:154
-#, fuzzy, python-format
-#| msgid "User {name} does not exist"
+#, python-format
 msgid "User %(username)s does not exist"
-msgstr "Kullanıcı {name} mevcut değil"
+msgstr ""
 
 #: organizations/forms.py:159
 #, python-format
@@ -1494,20 +1341,16 @@ msgid "Owners"
 msgstr ""
 
 #: organizations/models.py:55 organizations/models.py:255
-#, fuzzy
-#| msgid "Email"
 msgid "E-mail"
-msgstr "E-posta"
+msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
 msgstr "Ana Sayfa"
 
 #: organizations/models.py:75
-#, fuzzy
-#| msgid "CDN Enabled"
 msgid "Disabled"
-msgstr "CDN Etkinleştirildi"
+msgstr ""
 
 #: organizations/models.py:80
 msgid "Artifacts Cleaned"
@@ -1527,10 +1370,8 @@ msgid "{org} owner {owner}"
 msgstr ""
 
 #: organizations/models.py:197
-#, fuzzy
-#| msgid "Success"
 msgid "Access"
-msgstr "Başarılı"
+msgstr ""
 
 #: organizations/models.py:250 templates/base.html:192
 msgid "Team"
@@ -1560,17 +1401,13 @@ msgstr "Ayrıntılar"
 #: templates/profiles/base_profile_edit.html:52
 #: templates/profiles/private/security_log.html:6
 #: templates/profiles/private/security_log.html:10
-#, fuzzy
-#| msgid "Security"
 msgid "Security Log"
-msgstr "Güvenlik"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete Organization"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1588,10 +1425,8 @@ msgid "Delete forever"
 msgstr "Kalıcı sil"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
-#, fuzzy
-#| msgid "Organization"
 msgid "Edit Organization"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:254 templates/builds/regexautomationrule_form.html:28
@@ -1609,16 +1444,12 @@ msgid "or"
 msgstr "ya da"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
-#, fuzzy
-#| msgid "Organization"
 msgid "Delete organization"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
-#, fuzzy
-#| msgid "Edit Translations"
 msgid "Edit Organization Owners"
-msgstr "Çevirileri Düzenle"
+msgstr ""
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1627,24 +1458,18 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:53
 #: organizations/templates/organizations/admin/owners_edit.html:57
 #: organizations/templates/organizations/team_list.html:51
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add Owner"
-msgstr "Bakımcı Ekle"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
-#, fuzzy
-#| msgid "Organization"
 msgid "Organizations"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
-#, fuzzy
-#| msgid "Team"
 msgid "Teams"
-msgstr "Takım"
+msgstr ""
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
@@ -1699,10 +1524,8 @@ msgstr "Önceki"
 #: organizations/templates/organizations/onboard/team.html:4
 #: organizations/templates/organizations/organization_create.html:5
 #: organizations/templates/organizations/organization_create.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Create an Organization"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/onboard/invite.html:7
 msgid "Invite your Company"
@@ -1732,16 +1555,12 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
-#, fuzzy
-#| msgid "Create"
 msgid "Create a Team"
-msgstr "Oluştur"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
-#, fuzzy
-#| msgid "Getting Started Guide"
 msgid "Get Started"
-msgstr "Başlangıç Kılavuzu"
+msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1789,10 +1608,8 @@ msgstr ""
 
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
-#, fuzzy
-#| msgid "Organization"
 msgid "Organization Security Log"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1816,18 +1633,14 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:14
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
-#, fuzzy
-#| msgid "Team"
 msgid "Add Team"
-msgstr "Takım"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Team"
-msgstr "Sil"
+msgstr ""
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -1841,16 +1654,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit Card"
 msgid "Edit Team"
-msgstr "Kartı Düzenle"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "My Projects"
 msgid "Manage Projects"
-msgstr "Projelerim"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1870,10 +1679,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "Projects"
 msgid "Team's Projects"
-msgstr "Projeler"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1884,17 +1691,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "Update subproject"
 msgid "Update Projects"
-msgstr "Alt projeyi güncelle"
+msgstr ""
 
 #: organizations/templates/organizations/verify_email.html:5
-#, fuzzy
-#| msgid "Verify your email address"
-msgid "Verify you email address"
-msgstr "E-posta adresinizi doğrulayın"
-
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1913,22 +1713,16 @@ msgid "Team added"
 msgstr ""
 
 #: organizations/views/private.py:123
-#, fuzzy
-#| msgid "Project deleted"
 msgid "Team deleted"
-msgstr "Proje silindi"
+msgstr ""
 
 #: organizations/views/private.py:140
-#, fuzzy
-#| msgid "Stay Updated"
 msgid "Team updated"
-msgstr "Güncel Kalın"
+msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Projenin anasayfası"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1975,10 +1769,8 @@ msgid "Don't serve docs ({}-{})"
 msgstr ""
 
 #: projects/admin.py:175
-#, fuzzy
-#| msgid "Delete project"
 msgid "Delete project (>={})"
-msgstr "Projeyi sil"
+msgstr ""
 
 #: projects/constants.py:19
 msgid "Sphinx Html"
@@ -2045,16 +1837,12 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Geçersiz anamakine adı"
+msgstr ""
 
 #: projects/constants.py:388
-#, fuzzy
-#| msgid "Branding"
 msgid "Pending"
-msgstr "Marka"
+msgstr ""
 
 #: projects/exceptions.py:15
 msgid ""
@@ -2093,12 +1881,10 @@ msgstr ""
 "desteklenmez."
 
 #: projects/exceptions.py:40
-#, fuzzy
-#| msgid "One or more submodule URLs are not valid: {}."
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
-msgstr "Bir veya daha fazla alt modül URL'si geçerli değil: {}."
+msgstr ""
 
 #: projects/exceptions.py:44
 msgid "You can not have two versions with the name latest or stable."
@@ -2109,16 +1895,10 @@ msgid "Failed to checkout revision: {}"
 msgstr "Düzeltmeyi kullanıma alma başarısız: {}"
 
 #: projects/exceptions.py:50
-#, fuzzy
-#| msgid ""
-#| "There was a problem connecting to your repository, ensure that your "
-#| "repository URL is correct."
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
 msgstr ""
-"Deponuza bağlanırken bir sorun oldu, depo URL'nizin doğru olduğundan emin "
-"olun."
 
 #: projects/filters.py:31 projects/filters.py:80
 msgid "Name (descending)"
@@ -2129,10 +1909,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "has project with recent builds"
 msgid "Least recently built"
-msgstr "son oluşturmaları olan projeye sahip"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -2155,29 +1933,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgctxt "Build is a verb"
-#| msgid "Build version"
 msgid "Hidden versions"
-msgstr "Sürüm oluştur"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "Single version"
 msgid "Visible versions"
-msgstr "Tek sürüm"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Subversion"
 msgid "Public versions"
-msgstr "Subversion"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "Private Hosting"
 msgid "Private versions"
-msgstr "Özel Barındrıma"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2208,16 +1977,12 @@ msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "Her etiketin uzunluğu 100 karakterden az veya eşit olmak zorundadır."
 
 #: projects/forms.py:244
-#, fuzzy
-#| msgid "Settings"
 msgid "Global settings"
-msgstr "Ayarlar"
+msgstr ""
 
 #: projects/forms.py:248
-#, fuzzy
-#| msgid "Default Version"
 msgid "Default settings"
-msgstr "Varsayılan Sürüm"
+msgstr ""
 
 #: projects/forms.py:280
 msgid ""
@@ -2240,10 +2005,8 @@ msgid "The payload must be a valid JSON object."
 msgstr ""
 
 #: projects/forms.py:664
-#, fuzzy
-#| msgid "Only 1 Domain can be canonical at a time."
 msgid "Only one domain can be canonical at a time."
-msgstr "Aynı anda sadece 1 Etki Alanı kurallı olabilir."
+msgstr ""
 
 #: projects/forms.py:771
 msgid "Variable name can't start with __ (double underscore)"
@@ -2278,10 +2041,8 @@ msgid "Alias"
 msgstr "Kod adı"
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "Description of the project"
 msgid "Short description of this project"
-msgstr "Projenin tanımı"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2361,25 +2122,15 @@ msgstr ""
 "gerekir. Projenizin kök dizininden gelen yol."
 
 #: projects/models.py:200
-#, fuzzy
-#| msgid ""
-#| "Type of documentation you are building. <a href=\"http://www.sphinx-doc."
-#| "org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder"
-#| "\">More info</a>."
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
-"Oluşturmakta olduğunuz belgelendirme türü. <a href=\"http://www.sphinx-doc."
-"org/en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Daha "
-"fazla bilgi</a>."
 
 #: projects/models.py:206
-#, fuzzy
-#| msgid "Documentation Advertising"
 msgid "Documentation URL Configuration"
-msgstr "Belgelendirme Reklamı"
+msgstr ""
 
 #: projects/models.py:212
 msgid ""
@@ -2388,10 +2139,8 @@ msgid ""
 msgstr ""
 
 #: projects/models.py:219
-#, fuzzy
-#| msgid "No downloads for this project."
 msgid "Build pull requests for this project"
-msgstr "Bu proje için indirmeler yok."
+msgstr ""
 
 #: projects/models.py:221
 msgid ""
@@ -2424,10 +2173,8 @@ msgstr ""
 "yüklemelerinizi yavaşlatabilir."
 
 #: projects/models.py:249
-#, fuzzy
-#| msgid "Analytics"
 msgid "Disable Analytics"
-msgstr "Çözümleme"
+msgstr ""
 
 #: projects/models.py:253
 msgid ""
@@ -2607,10 +2354,8 @@ msgid "Subproject nesting is not supported"
 msgstr "Alt proje iç içe geçme desteklenmiyor"
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build id"
-msgstr "Oluşturma başarısız oldu"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2621,22 +2366,16 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build triggered"
-msgstr "Oluşturma Başlatıldı"
+msgstr ""
 
 #: projects/models.py:1484
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build passed"
-msgstr "Oluşturma başarısız oldu"
+msgstr ""
 
 #: projects/models.py:1501
-#, fuzzy
-#| msgid "To URL"
 msgid "URL"
-msgstr "URL'ye"
+msgstr ""
 
 #: projects/models.py:1503
 msgid "URL to send the webhook to"
@@ -2666,23 +2405,16 @@ msgid "Domain"
 msgstr "Etki Alanı"
 
 #: projects/models.py:1634
-#, fuzzy
-#| msgid "This Domain was auto-created"
 msgid "This domain was auto-created"
-msgstr "Bu Etki Alanı otomatik oluşturuldu"
+msgstr ""
 
 #: projects/models.py:1638
-#, fuzzy
-#| msgid "This Domain is a CNAME for the project"
 msgid "This domain is a CNAME for the project"
-msgstr "Bu Etki Alanı proje için bir CNAME'dir"
+msgstr ""
 
 #: projects/models.py:1643
-#, fuzzy
-#| msgid ""
-#| "This Domain is the primary one where the documentation is served from"
 msgid "This domain is the primary one where the documentation is served from"
-msgstr "Bu Etki Alanı, belgelendirmenin sunulduğu birincil alandır"
+msgstr ""
 
 #: projects/models.py:1647
 msgid "Use HTTPS"
@@ -2741,10 +2473,8 @@ msgid "Try alternative method of posting large data"
 msgstr "Büyük verilerin yazımı için alternatif yöntem dene"
 
 #: projects/models.py:1831
-#, fuzzy
-#| msgid "Configuration used in the build"
 msgid "Clean all files used in the build process"
-msgstr "Oluşturmada kullanılan yapılandırma"
+msgstr ""
 
 #: projects/models.py:1835
 msgid "Upgrade conda before creating the environment"
@@ -2803,10 +2533,8 @@ msgid "Use new pip resolver"
 msgstr ""
 
 #: projects/models.py:1888
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Don't install the latest version of pip"
-msgstr "Sphinx'in en son sürümünü kullan"
+msgstr ""
 
 #: projects/models.py:1890
 msgid "Use latest version of Sphinx"
@@ -2817,16 +2545,12 @@ msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
 #: projects/models.py:1895
-#, fuzzy
-#| msgid "Use latest version of setuptools"
 msgid "Use latest version of MkDocs"
-msgstr "Setuptools'un en son sürümünü kullan"
+msgstr ""
 
 #: projects/models.py:1898
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Use latest version of the Read the Docs Sphinx extension"
-msgstr "Sphinx'in en son sürümünü kullan"
+msgstr ""
 
 #: projects/models.py:1904
 msgid "Disable server side search"
@@ -2901,10 +2625,8 @@ msgid "Project where this variable will be used"
 msgstr "Bu değişkenin kullanılacağı proje"
 
 #: projects/models.py:2007
-#, fuzzy
-#| msgid "Name of the environment variable"
 msgid "Expose this environment variable in PR builds?"
-msgstr "Ortam değişkeninin adı"
+msgstr ""
 
 #: projects/notifications.py:27
 msgid ""
@@ -3037,16 +2759,12 @@ msgid "Redirect: {}"
 msgstr "Yönlendirme: {}"
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Geçersiz anamakine adı"
+msgstr ""
 
 #: search/api.py:174
-#, fuzzy
-#| msgid "This field is required."
 msgid "This query param is required"
-msgstr "Bu alan gereklidir."
+msgstr ""
 
 #: search/models.py:33
 msgid "Query"
@@ -3129,10 +2847,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Adı"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -3162,78 +2878,56 @@ msgid "Trial"
 msgstr ""
 
 #: subscriptions/models.py:43
-#, fuzzy
-#| msgid "Organization"
 msgid "For organizations"
-msgstr "Kuruluş"
+msgstr ""
 
 #: subscriptions/models.py:51
-#, fuzzy
-#| msgid "Public"
 msgid "Published"
-msgstr "Ortak"
+msgstr ""
 
 #: subscriptions/models.py:110
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Custom domain"
-msgstr "Etki Alanı Oluştur"
+msgstr ""
 
 #: subscriptions/models.py:111
-#, fuzzy
-#| msgid "Documentation"
 msgid "CDN public documentation"
-msgstr "Belgelendirme"
+msgstr ""
 
 #: subscriptions/models.py:112
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Custom SSL configuration"
-msgstr "Python yapılandırma dosyası"
+msgstr ""
 
 #: subscriptions/models.py:113
-#, fuzzy
-#| msgid "Support"
 msgid "Support SLA"
-msgstr "Destek"
+msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "View your documentation"
 msgid "Private documentation"
-msgstr "Belgelendirmenizi görüntüleyin"
+msgstr ""
 
 #: subscriptions/models.py:115
-#, fuzzy
-#| msgid "Embed API"
 msgid "Embed content via API"
-msgstr "API'yi Göm"
+msgstr ""
 
 #: subscriptions/models.py:116
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search analytics"
-msgstr "Tüm belgelerde ara"
+msgstr ""
 
 #: subscriptions/models.py:117
 msgid "Pageview analytics"
 msgstr ""
 
 #: subscriptions/models.py:118
-#, fuzzy
-#| msgid "Currently Building"
 msgid "Concurrent builds"
-msgstr "Şu Anda Oluşturulan"
+msgstr ""
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
 msgstr ""
 
 #: subscriptions/models.py:120
-#, fuzzy
-#| msgid "From URL"
 msgid "Custom URLs"
-msgstr "URL'den"
+msgstr ""
 
 #: subscriptions/models.py:121
 msgid "Audit logs"
@@ -3253,48 +2947,36 @@ msgid "Plan"
 msgstr ""
 
 #: subscriptions/models.py:179
-#, fuzzy
-#| msgid "Locked"
 msgid "Locked plan"
-msgstr "Kilitli"
+msgstr ""
 
 #: subscriptions/models.py:181
 msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Stripe subscription ID"
-msgstr "Aboneliği Güncelle"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription status"
-msgstr "Altın Abonelik"
+msgstr ""
 
 #: subscriptions/models.py:194
-#, fuzzy
-#| msgid "Start time"
 msgid "Start date"
-msgstr "Başlama zamanı"
+msgstr ""
 
 #: subscriptions/models.py:196
-#, fuzzy
-#| msgid "End time"
 msgid "End date"
-msgstr "Bitiş zamanı"
+msgstr ""
 
 #: subscriptions/models.py:202
 msgid "Trial end date"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Organization Subscription"
-msgstr "Aboneliği İptal Et"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
@@ -3310,44 +2992,32 @@ msgid "per month"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:42
-#, fuzzy
-#| msgid "Featured"
 msgid "Plan Features:"
-msgstr "Öne Çıkanlar"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Kaydol"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
-#, fuzzy
-#| msgid "Tag"
 msgid "ago"
-msgstr "Etiket"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription Status"
-msgstr "Altın Abonelik"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Gold Subscription"
 msgid "Subscription ends"
-msgstr "Altın Abonelik"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Cancel Subscription"
 msgid "Manage Subscription"
-msgstr "Aboneliği İptal Et"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3364,16 +3034,12 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Update Subscription"
 msgid "Create Subscription"
-msgstr "Aboneliği Güncelle"
+msgstr ""
 
 #: subscriptions/views.py:37
-#, fuzzy
-#| msgid "Your subscription has been updated"
 msgid "Your plan has been upgraded!"
-msgstr "Aboneliğiniz güncellendi"
+msgstr ""
 
 #: subscriptions/views.py:92
 msgid ""
@@ -3545,27 +3211,19 @@ msgid ""
 msgstr ""
 
 #: templates/account/signup.html:48
-#, fuzzy
-#| msgid ""
-#| "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
-#| "latest/privacy-policy.html\">privacy policy</a>."
 msgid ""
 "By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
 "terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
 "readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
 msgstr ""
-"Kaydolarak, <a href=\"https://docs.readthedocs.io/en/latest/privacy-policy."
-"html\">gizlilik ilkemizi</a> kabul etmiş olursunuz."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Read the Docs Arşivi"
 
 #: templates/base.html:107
-#, fuzzy
-#| msgid "Remove Notifications"
 msgid "Close notification"
-msgstr "Bildirimleri Kaldır"
+msgstr ""
 
 #: templates/base.html:142
 msgid "Stay Updated"
@@ -3608,22 +3266,16 @@ msgid "Documentation"
 msgstr "Belgelendirme"
 
 #: templates/base.html:198
-#, fuzzy
-#| msgid "Ad-free"
 msgid "Going Ad-free"
-msgstr "Reklamsız"
+msgstr ""
 
 #: templates/base.html:201
-#, fuzzy
-#| msgid "Support"
 msgid "Site Support"
-msgstr "Destek"
+msgstr ""
 
 #: templates/base.html:204
-#, fuzzy
-#| msgid "HTTP Status"
 msgid "Site Status"
-msgstr "HTTP Durumu"
+msgstr ""
 
 #: templates/base.html:211
 msgid "Company"
@@ -3638,10 +3290,8 @@ msgid "Advertise with Us"
 msgstr "Bizimle Reklam Verin"
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs Archive"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs Arşivi"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3664,11 +3314,8 @@ msgid "Filter"
 msgstr "Süz"
 
 #: templates/builds/build_detail.html:36
-#, fuzzy
-#| msgid "1 build"
-#| msgid_plural "%(builds)s builds"
 msgid "Cancel build"
-msgstr "1 oluşturma"
+msgstr ""
 
 #: templates/builds/build_detail.html:44
 msgid "Completed"
@@ -3712,10 +3359,8 @@ msgid "Build completed"
 msgstr "Oluşturma tamamlandı"
 
 #: templates/builds/build_detail.html:148
-#, fuzzy
-#| msgid "Build failed"
 msgid "Build cancelled"
-msgstr "Oluşturma başarısız oldu"
+msgstr ""
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3822,10 +3467,8 @@ msgid "Move down"
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:76
-#, fuzzy
-#| msgid "No integrations are currently configured."
 msgid "No automation rules are currently configured."
-msgstr "Şu anda yapılandırılmış bütünleştirmeler yok."
+msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
 #: templates/projects/integration_webhook_detail.html:83
@@ -3859,10 +3502,9 @@ msgid "Failed"
 msgstr "Başarısız Oldu"
 
 #: templates/core/build_list_detailed.html:11
-#, fuzzy, python-format
-#| msgid "%(version_name)s"
+#, python-format
 msgid "%(external_version_name)s"
-msgstr "%(version_name)s"
+msgstr ""
 
 #: templates/core/build_list_detailed.html:16
 #, python-format
@@ -3874,10 +3516,8 @@ msgid "No builds found"
 msgstr "Bulunan oluşturmalar yok"
 
 #: templates/core/email/base.html:78
-#, fuzzy
-#| msgid "Hello!"
 msgid "Hello,"
-msgstr "Merhaba!"
+msgstr ""
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
@@ -3923,24 +3563,13 @@ msgid "View Docs"
 msgstr "Belgeleri Görüntüle"
 
 #: templates/core/project_bar_base.html:31
-#, fuzzy, python-format
-#| msgid ""
-#| "Your project is currently disabled for abuse of the system. Please make "
-#| "sure it isn't using unreasonable amounts of resources or triggering lots "
-#| "of builds in a short amount of time. Please <a href=\"https://github.com/"
-#| "rtfd/readthedocs.org/issues\">file a ticket</a> to get your project re-"
-#| "enabled."
+#, python-format
 msgid ""
 "Your project is currently disabled for abuse of the system. Please make sure "
 "it isn't using unreasonable amounts of resources or triggering lots of "
 "builds in a short amount of time. Please <a href=\"mailto:%(SUPPORT_EMAIL)s"
 "\">contact support</a> to get your project re-enabled."
 msgstr ""
-"Projeniz şu anda sistemin kötüye kullanımı nedeniyle etkisizleştirildi. "
-"Lütfen projenizin makul olmayan miktarda kaynak kullanmadığından veya kısa "
-"bir süre içinde çok sayıda oluşturmayı tetiklemediğinden emin olun. "
-"Projenizin yeniden etkinleştirilmesi için lütfen <a href=\"https://github."
-"com/rtfd/readthedocs.org/issues\">bir çağrı gönderin</a>."
 
 #: templates/core/project_bar_base.html:40
 msgid "Overview"
@@ -4139,49 +3768,25 @@ msgstr ""
 "otomatikleştirerek ve barındırarak yazılım belgelendirmeyi basitleştirir."
 
 #: templates/homepage.html:60
-#, fuzzy
-#| msgid ""
-#| "We will host your documentation for free forever. There are no tricks. We "
-#| "help %(projects_count_intcomma)s open source projects share their docs."
 msgid ""
 "We will host your documentation for free, forever. There are no tricks. We "
 "help over 100,000 open source projects share their docs, including a custom "
 "domain and theme."
 msgstr ""
-"Belgelendirmenizi sonsuza kadar ücretsiz olarak barındıracağız. Numara falan "
-"yok. %(projects_count_intcomma)s açık kaynak projenin belgelerini "
-"paylaşmalarına yardımcı oluyoruz."
 
 #: templates/homepage.html:71
-#, fuzzy
-#| msgid ""
-#| "Whenever you push code to your favorite version control system, whether "
-#| "that is Git, Mercurial, Bazaar, or Subversion, we will automatically "
-#| "build your docs so your code and documentation are never out of sync."
 msgid ""
 "Whenever you push code to your favorite version control service, whether "
 "that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
 "so your code and documentation are never out of sync."
 msgstr ""
-"İster Git, Mercurial, Bazaar veya Subversion olsun, en sık kullandığınız "
-"sürüm denetim sistemine kod yolladığınızda, kodunuzu ve belgelendirmenizin "
-"hiçbir zaman eşitlenmemiş olmaması için belgelerinizi otomatik olarak "
-"oluşturacağız."
 
 #: templates/homepage.html:86
-#, fuzzy
-#| msgid ""
-#| "Of course we build and host your docs for the web, but they are also "
-#| "vieweable as PDFs, as single page HTML, and for eReaders. No additional "
-#| "configuration is required."
 msgid ""
 "We build and host your docs for the web, but they are also viewable as PDFs, "
 "as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
-"Tabii ki biz web için belgelerinizi oluşturur ve barındırırız, ama aynı "
-"zamanda bunlar da PDF'ler olarak, tek sayfa HTML olarak ve eOkuyucularda "
-"görüntülenebilirler. İlave yapılandırma gerekmez."
 
 #: templates/homepage.html:96
 msgid ""
@@ -4194,20 +3799,16 @@ msgstr ""
 "sisteminizde ayrı bir dala veya etikete sahip olmak kadar kolaydır."
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr "Öne Çıkan Projeler"
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4242,15 +3843,6 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:175
-#, fuzzy
-#| msgid ""
-#| "Read the Docs is <strong>community supported</strong>. It depends on "
-#| "users like you to contribute to development, support, and operations. You "
-#| "can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
-#| "latest/contribute.html\">contribute</a> in our docs. Thanks so much to "
-#| "our wonderful <a href=\"https://docs.readthedocs.io/en/latest/team.html"
-#| "\">community team</a> who helps us run the site. Read the Docs wouldn't "
-#| "be possible without them."
 msgid ""
 "Read the Docs is open source and community supported. It depends on users "
 "like you to contribute to development, support, and operations. You can "
@@ -4259,25 +3851,12 @@ msgid ""
 "wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
 "who helps us run the site. Read the Docs wouldn't be possible without them."
 msgstr ""
-"Read the Docs <strong>topluluk desteklidir</strong>. Geliştirme, destek ve "
-"işlemlere katkıda bulunmak sizin gibi kullanıcılara bağlıdır. Belgelerimize "
-"nasıl <a href=\"https://docs.readthedocs.io/en/latest/contribute.html"
-"\">katkıda bulunabileceğiniz</a> hakkında daha fazla bilgi edinebilirsiniz. "
-"Bize siteyi çalıştırmamızda yardımcı olan harika <a href=\"https://docs."
-"readthedocs.io/en/latest/team.html\">topluluk ekibine</a> çok teşekkür "
-"ederiz. Read the Docs bunlar olmadan mümkün olmazdı."
 
 #: templates/homepage.html:185
-#, fuzzy
-#| msgid ""
-#| "Hosting for the project is graciously provided by <a href=\"https://azure."
-#| "microsoft.com/\">Microsoft Azure</a>."
 msgid ""
 "Hosting for the project is graciously provided by <a href=\"https://aws."
 "amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
 msgstr ""
-"Proje için barındırma, <a href=\"https://azure.microsoft.com/\">Microsoft "
-"Azure</a> tarafından özenle sağlanır."
 
 #: templates/notifications/send_notification_form.html:6
 msgid "Send Email"
@@ -4353,10 +3932,8 @@ msgstr "Bağlı Hizmetler"
 #: templates/profiles/base_profile_edit.html:53
 #: templates/profiles/private/token_list.html:5
 #: templates/profiles/private/token_list.html:9
-#, fuzzy
-#| msgid "Token"
 msgid "API Tokens"
-msgstr "Belirteç"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:54
 #: templates/profiles/private/delete_account.html:5
@@ -4366,10 +3943,8 @@ msgid "Delete Account"
 msgstr "Hesabı sil"
 
 #: templates/profiles/base_profile_edit.html:55
-#, fuzzy
-#| msgid "Become a Gold Member"
 msgid "Gold Membership"
-msgstr "Altın Üye Olun"
+msgstr ""
 
 #: templates/profiles/base_profile_edit.html:57
 #: templates/projects/project_edit_base.html:34
@@ -4382,18 +3957,10 @@ msgid "Set advertising preferences"
 msgstr "Reklam tercihlerini ayarla"
 
 #: templates/profiles/private/advertising_profile.html:15
-#, fuzzy
-#| msgid ""
-#| "Since you are a Gold Member or Supporter, you are <strong>ad-free</"
-#| "strong> for as long as you are logged-in. Thank you for supporting Read "
-#| "the Docs."
 msgid ""
 "Since you are a Gold member or Supporter, you are <strong>ad-free</strong> "
 "for as long as you are logged-in. Thank you for supporting Read the Docs."
 msgstr ""
-"Altın Üye veya Destekçi olduğunuz için oturum açtığınız sürece "
-"<strong>reklamsızsınız</strong>. Read the Docs'u desteklediğiniz için "
-"teşekkür ederiz."
 
 #: templates/profiles/private/advertising_profile.html:22
 #: templates/projects/project_advertising.html:16
@@ -4405,37 +3972,20 @@ msgstr ""
 "kullanıcılarımızın desteğine hem de sponsor desteğine güveniyoruz."
 
 #: templates/profiles/private/advertising_profile.html:30
-#, fuzzy
-#| msgid ""
-#| "For more details on advertising on Read the Docs including the privacy "
-#| "protections we have in place for users and community advertising we run "
-#| "on behalf of the open source community, see <a href=\"https://docs."
-#| "readthedocs.io/en/latest/ethical-advertising.html\">our documentation</a>."
 msgid ""
 "For more details on advertising on Read the Docs including the privacy "
 "protections we have in place for users and community advertising we run on "
 "behalf of the open source community, see <a href=\"https://docs.readthedocs."
 "io/page/advertising/ethical-advertising.html\">our documentation</a>."
 msgstr ""
-"Açık kaynak topluluğu adına yürüttüğümüz kullanıcılar ve topluluk reklamları "
-"için sahip olduğumuz gizlilik korumaları da dahil olmak üzere Read the "
-"Docs'da reklam verme ile ilgili daha fazla bilgi için <a href=\"https://docs."
-"readthedocs.io/en/latest/ethical-advertising.html\">belgelerimize</a> bakın."
 
 #: templates/profiles/private/advertising_profile.html:41
-#, fuzzy, python-format
-#| msgid ""
-#| "You can <strong>go ad-free</strong> by becoming a <a href="
-#| "\"%(gold_detail)s\">Gold Member</a> or <a href=\"%(donate_url)s"
-#| "\">Supporter</a> of Read the Docs</a>."
+#, python-format
 msgid ""
 "You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
 "\">Gold member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
 "Docs</a>."
 msgstr ""
-"Read the Docs <a href=\"%(gold_detail)s\">Altın Üyesi</a> veya <a href="
-"\"%(donate_url)s\">Destekçisi</a> olarak <strong>reklamsız devam "
-"edebilirsiniz</strong></a>."
 
 #: templates/profiles/private/advertising_profile.html:49
 msgid "Update advertisement preference"
@@ -4486,10 +4036,8 @@ msgid "Revoke"
 msgstr ""
 
 #: templates/profiles/private/token_list.html:49
-#, fuzzy
-#| msgid "No integrations are currently configured."
 msgid "No API Tokens currently configured."
-msgstr "Şu anda yapılandırılmış bütünleştirmeler yok."
+msgstr ""
 
 #: templates/profiles/public/profile_detail.html:6
 #, python-format
@@ -4510,10 +4058,8 @@ msgid "Confirm"
 msgstr "Onayla"
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Details"
 msgid "Domain Details"
-msgstr "Ayrıntılar"
+msgstr ""
 
 #: templates/projects/domain_form.html:18
 msgid "Create Domain"
@@ -4527,10 +4073,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/domain_form.html:52
-#, fuzzy
-#| msgid "Create Domain"
 msgid "Save Domain"
-msgstr "Etki Alanı Oluştur"
+msgstr ""
 
 #: templates/projects/domain_form.html:54
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4563,10 +4107,8 @@ msgid "Existing Domains"
 msgstr "Varolan Etki Alanları"
 
 #: templates/projects/domain_list.html:48
-#, fuzzy
-#| msgid "Add new Domain"
 msgid "Add new domain"
-msgstr "Yeni Etki Alanı Ekle"
+msgstr ""
 
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
@@ -4590,16 +4132,12 @@ msgid "Add Environment Variable"
 msgstr "Ortam Değişkeni ekle"
 
 #: templates/projects/environmentvariable_list.html:36
-#, fuzzy
-#| msgid "Public"
 msgid "public"
-msgstr "Ortak"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:38
-#, fuzzy
-#| msgid "Private"
 msgid "private"
-msgstr "Özel"
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:53
 msgid "No environment variables are currently configured."
@@ -4614,20 +4152,12 @@ msgid "Project Details"
 msgstr "Proje Ayrıntıları"
 
 #: templates/projects/import_basics.html:8
-#, fuzzy
-#| msgid ""
-#| "To import a project, start by entering a few details about your "
-#| "repository. More advanced project options can be configured if you select "
-#| "<b>Edit advanced project options</b>."
 msgid ""
 "To import a project, start by entering a few details about your repository. "
 "You can set additional configuration options for your documentation in a <a "
 "href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
 "readthedocs.yml</a> file."
 msgstr ""
-"Bir projeyi içe aktarmak için deponuz la ilgili birkaç ayrıntı girerek "
-"başlayın. <b>Gelişmiş proje seçeneklerini düzenle</b>'yi seçerseniz daha "
-"gelişmiş proje seçenekleri yapılandırılabilir."
 
 #: templates/projects/import_extra.html:5
 msgid "Project Extra Details"
@@ -4702,34 +4232,18 @@ msgid "Integration - %(type)s"
 msgstr "Bütünleştirme - %(type)s"
 
 #: templates/projects/integration_webhook_detail.html:21
-#, fuzzy
-#| msgid ""
-#| "This webhook was configured when this project was imported. If this "
-#| "integration is not functioning correctly, try resyncing the webhook:"
 msgid ""
 "This integration is being managed automatically by Read the Docs. If it "
 "isn't functioning correctly, try re-syncing the webhook:"
 msgstr ""
-"Bu web kancası, bu proje içe aktarıldığında yapılandırıldı. Eğer bu "
-"bütünleştirme düzgün çalışmıyorsa, web kancasını yeniden eşitlemeyi deneyin:"
 
 #: templates/projects/integration_webhook_detail.html:42
-#, fuzzy
-#| msgid ""
-#| "This integration was created automatically from an existing webhook "
-#| "configured on your repository. To make any changes to this webhook, "
-#| "you'll need to update the configuration there. You can use the following "
-#| "address to manually configure this webhook."
 msgid ""
 "This integration is not managed by Read the Docs currently. If this "
 "integration is not functioning correctly, you can try re-syncing it. "
 "Otherwise you'll need to update the configuration on your repository. You "
 "can use the following address to manually configure this webhook."
 msgstr ""
-"Bu bütünleştirme, deponuzda yapılandırılan varolan bir web kancasından "
-"otomatik olarak oluşturuldu. Bu web kancasına herhangi bir değişiklik yapmak "
-"için orada yapılandırmayı güncellemeniz gerekecek. Bu web kancasını el ile "
-"yapılandırmak için aşağıdaki adresi kullanabilirsiniz."
 
 #: templates/projects/integration_webhook_detail.html:52
 msgid ""
@@ -4740,19 +4254,11 @@ msgstr ""
 "kullanın:"
 
 #: templates/projects/integration_webhook_detail.html:67
-#, fuzzy
-#| msgid ""
-#| "For more information on manually configuring a webhook, refer to <a href="
-#| "\"https://docs.readthedocs.io/en/latest/webhooks.html\"> our webhook "
-#| "documentation </a>"
 msgid ""
 "For more information on manually configuring a webhook, refer to <a href="
 "\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
 "documentation </a>"
 msgstr ""
-"Bir web kancasını el ile yapılandırma hakkında daha fazla bilgi için <a href="
-"\"https://docs.readthedocs.io/en/latest/webhooks.html\">web kancası "
-"belgelerimize</a> bakın"
 
 #: templates/projects/integration_webhook_detail.html:79
 msgid "Resync webhook"
@@ -4838,19 +4344,11 @@ msgid "Your documentation is ready to use"
 msgstr "Belgelendirmeniz kullanıma hazır"
 
 #: templates/projects/onboard_detail.html:33
-#, fuzzy
-#| msgid ""
-#| "Your documentation has been built. Ensure your documentation is kept up "
-#| "to date with every commit to your repository, by <a href=\"http://docs."
-#| "readthedocs.io/en/latest/webhooks.html\">setting up a webhook</a>."
 msgid ""
 "Your documentation has been built. Ensure your documentation is kept up to "
 "date with every commit to your repository, by <a href=\"http://docs."
 "readthedocs.io/page/webhooks.html\">setting up a webhook</a>."
 msgstr ""
-"Belgelendirmeniz oluşturuldu. <a href=\"http://docs.readthedocs.io/en/latest/"
-"webhooks.html\">Bir web kancası ayarlayarak</a>, belgelendirmenizin deponuza "
-"her işlenmesiyle güncel tutulduğundan emin olun."
 
 #: templates/projects/onboard_detail.html:41
 msgid "View your documentation"
@@ -4861,22 +4359,12 @@ msgid "Your documentation failed to build"
 msgstr "Belgelendirmenizi oluşturma başarısız oldu"
 
 #: templates/projects/onboard_detail.html:50
-#, fuzzy
-#| msgid ""
-#| "There was a problem building your documentation, you can see what went "
-#| "wrong in the build output. If you need more help, check out some of the "
-#| "<a href=\"http://docs.readthedocs.io/en/latest/faq.html\">problems "
-#| "frequently encountered</a> during builds."
 msgid ""
 "There was a problem building your documentation, you can see what went wrong "
 "in the build output. If you need more help, check out some of the <a href="
 "\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
 "encountered</a> during builds."
 msgstr ""
-"Belgelendirmenizi oluştururken bir sorun oldu, oluşturma çıktısında neyin "
-"yanlış gittiğini görebilirsiniz. Daha fazla yardıma ihtiyacınız varsa, "
-"oluşturmalar sırasında <a href=\"http://docs.readthedocs.io/en/latest/faq."
-"html\">sıkça karşılaşılan sorunların</a> bazılarına göz atın."
 
 #: templates/projects/onboard_detail.html:59
 msgid "View build output"
@@ -4899,21 +4387,12 @@ msgid "Ready to share your documentation"
 msgstr "Belgelendirmeniz paylaşmaya hazır"
 
 #: templates/projects/onboard_import.html:10
-#, fuzzy, python-format
-#| msgid ""
-#| "You don't have any projects yet, but you can start building documentation "
-#| "by importing one. Not sure how to start documenting your project? Check "
-#| "out the <a href=\"%(getting_started_url)s\">Getting Started Guide</a> to "
-#| "learn how."
+#, python-format
 msgid ""
 "You don't have any projects yet, but you can start building documentation by "
 "importing one. Not sure how to start documenting your project? Check out the "
 "<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
 msgstr ""
-"Henüz herhangi bir projeniz yok, ancak bir tane içe aktararak "
-"belgelendirmeyi oluşturmaya başlayabilirsiniz. Projenizi belgelendirmeye "
-"nasıl başlayacağınızdan emin değil misiniz? Nasıl yapılacağını öğrenmek için "
-"<a href=\"%(getting_started_url)s\">Başlangıç Kılavuzu</a>'na göz atın."
 
 #: templates/projects/onboard_import.html:19
 #, python-format
@@ -4959,17 +4438,12 @@ msgstr ""
 "yayınlayacağız, ancak reklamlar üzerine katı kurallarımız var:"
 
 #: templates/projects/project_advertising.html:32
-#, fuzzy
-#| msgid "We don't give sponsors access to user information"
 msgid "We don't give sponsors access to user information."
-msgstr "Sponsorlara kullanıcı bilgilerine erişim izni vermiyoruz"
+msgstr ""
 
 #: templates/projects/project_advertising.html:37
-#, fuzzy
-#| msgid "We only report the number of impressions and number of ad clicks"
 msgid "We only report the number of impressions and number of ad clicks."
 msgstr ""
-"Sadece gösterim sayısını ve reklam tıklamalarının sayısını bildiriyoruz"
 
 #: templates/projects/project_advertising.html:42
 msgid ""
@@ -4978,12 +4452,6 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:50
-#, fuzzy
-#| msgid ""
-#| "For more details on advertising on Read the Docs including the privacy "
-#| "protections we have in place for users and community advertising we run "
-#| "on behalf of the open source community, see <a href=\"https://docs."
-#| "readthedocs.io/en/latest/ethical-advertising.html\">our documentation</a>."
 msgid ""
 "For more details on advertising on Read the Docs including the privacy "
 "protections we have in place for users and <a href=\"https://docs."
@@ -4992,10 +4460,6 @@ msgid ""
 "see <a href=\"https://docs.readthedocs.io/page/advertising/ethical-"
 "advertising.html\">our documentation</a>."
 msgstr ""
-"Açık kaynak topluluğu adına yürüttüğümüz kullanıcılar ve topluluk reklamları "
-"için sahip olduğumuz gizlilik korumaları da dahil olmak üzere Read the "
-"Docs'da reklam verme ile ilgili daha fazla bilgi için <a href=\"https://docs."
-"readthedocs.io/en/latest/ethical-advertising.html\">belgelerimize</a> bakın."
 
 #: templates/projects/project_advertising.html:59
 msgid "Opting out"
@@ -5010,12 +4474,6 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:71
-#, fuzzy
-#| msgid ""
-#| "If you are part of a company that uses Read the Docs to host "
-#| "documentation for a commercial product, we offer paid plans that offer "
-#| "email support, additional build resources, and features like CDN support "
-#| "and private documentation."
 msgid ""
 "If you are part of a company that uses Read the Docs to host documentation "
 "for a commercial product, please consider <a href=\"https://readthedocs.com/"
@@ -5023,10 +4481,6 @@ msgid ""
 "experience, private repositories, private documentation, additional build "
 "resources, and dedicated support."
 msgstr ""
-"Eğer ticari bir ürünün belgelendirmesini barındırmak için Read the Docs'u "
-"kullanan bir şirketin parçasıysanız, e-posta desteği, ilave oluşturma "
-"kaynakları ve CDN desteği ve özel belgelendirme gibi özellikler sunan "
-"ücretli planlar sunuyoruz."
 
 #: templates/projects/project_advertising.html:81
 #, python-format
@@ -5053,28 +4507,15 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_advertising.html:113
-#, fuzzy
-#| msgid ""
-#| "If you are a company hosting commercial documentation on our community "
-#| "site, but can't offer support for Read the Docs, we do not allow removing "
-#| "sponsor advertisements on your documentation. This goes against the "
-#| "spirit of supporting the open source community, please find a way to "
-#| "offer your support."
 msgid ""
 "If you are a company hosting commercial documentation on our community site, "
 "we do not allow removing paid advertisements on your documentation. Please "
 "consider Read the Docs for Business or a Gold membership."
 msgstr ""
-"Eğer topluluk sitemizde ticari belgelendirme barındıran bir şirketseniz, "
-"ancak Read the Docs'a destek sunamıyorsanız, belgelendirmenizdeki sponsor "
-"reklamlarının kaldırılmasına izin vermeyiz. Bu, açık kaynak topluluğunu "
-"destekleyen ruha aykırı, lütfen desteğinizi sunmak için bir yol bulun."
 
 #: templates/projects/project_advertising.html:122
-#, fuzzy
-#| msgid "Update advertisement preference"
 msgid "Update advertising preference"
-msgstr "Reklam tercihini güncelle"
+msgstr ""
 
 #: templates/projects/project_create.html:6
 msgid "Create a new project"
@@ -5105,35 +4546,25 @@ msgid "Project Dashboard"
 msgstr "Proje Paneli"
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Important Versions"
-msgstr "Etkin Olmayan Sürümler"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
-#, fuzzy
-#| msgid "passed"
 msgid "passing"
-msgstr "geçti"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:79
-#, fuzzy
-#| msgid "failed"
 msgid "failing"
-msgstr "başarısız oldu"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:112
-#, fuzzy
-#| msgid "Search all the docs"
 msgid "Search all docs"
-msgstr "Tüm belgelerde ara"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:125
 #: templates/projects/project_dashboard_base.html:134
-#, fuzzy
-#| msgid "Connected account"
 msgid "Connect your Accounts"
-msgstr "Bağlı hesap"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:128
 msgid ""
@@ -5195,10 +4626,8 @@ msgid "Delete project"
 msgstr "Projeyi sil"
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Edit Project Versions"
 msgid "Edit Versions"
-msgstr "Proje Sürümlerini Düzenle"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -5226,26 +4655,20 @@ msgstr ""
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
 #: templates/projects/project_notifications.html:12
-#, fuzzy
-#| msgid "New Email Notifications"
 msgid "Email Notifications"
-msgstr "Yeni E-posta Bildirimleri"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:31
 #: templates/projects/project_traffic_analytics.html:6
 #: templates/projects/project_traffic_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Traffic Analytics"
-msgstr "Çözümleme"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:32
 #: templates/projects/projects_search_analytics.html:6
 #: templates/projects/projects_search_analytics.html:11
-#, fuzzy
-#| msgid "Analytics"
 msgid "Search Analytics"
-msgstr "Çözümleme"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
@@ -5331,10 +4754,8 @@ msgid "Browse projects"
 msgstr "Projelere gözat"
 
 #: templates/projects/project_notifications.html:16
-#, fuzzy
-#| msgid "Configure Notifications to be sent on build failures."
 msgid "Configure email notifications to be sent on build failures."
-msgstr "Oluşturma hatalarında gönderilmesi için Bildirimleri yapılandırın."
+msgstr ""
 
 #: templates/projects/project_notifications.html:22
 #, python-format
@@ -5364,16 +4785,11 @@ msgid "Edit Redirects"
 msgstr "Yönlendirmeleri Düzenle"
 
 #: templates/projects/project_redirects.html:74
-#, fuzzy, python-format
-#| msgid ""
-#| "Add redirects for your project. This allows you to fix links to old pages "
-#| "that are 404ing."
+#, python-format
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
 msgstr ""
-"Projeniz için yönlendirmeler ekleyin. Bu, 404'lenen eski sayfalara "
-"bağlantıları düzeltmenizi sağlar."
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
@@ -5395,10 +4811,8 @@ msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
-#, fuzzy
-#| msgid "Downloads"
 msgid "Download all data"
-msgstr "İndirilenler"
+msgstr ""
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5440,10 +4854,8 @@ msgid "Existing Translations"
 msgstr "Varolan Çeviriler"
 
 #: templates/projects/project_translations.html:58
-#, fuzzy
-#| msgid "No integrations are currently configured."
 msgid "No translations are currently configured"
-msgstr "Şu anda yapılandırılmış bütünleştirmeler yok."
+msgstr ""
 
 #: templates/projects/project_translations.html:67
 msgid "Choose which project you would like to add as a translation."
@@ -5495,10 +4907,8 @@ msgid "Active Versions"
 msgstr "Etkin Sürümler"
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "Active Versions"
 msgid "Activate a version"
-msgstr "Etkin Sürümler"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -5506,22 +4916,16 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_list.html:93
-#, fuzzy
-#| msgid "Inactive Versions"
 msgid "Filter Inactive Versions"
-msgstr "Etkin Olmayan Sürümler"
+msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Etkin"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
-#, fuzzy
-#| msgid "No projects found"
 msgid "No versions found"
-msgstr "Bulunan projeler yok"
+msgstr ""
 
 #: templates/projects/project_version_list.html:144
 #, python-format
@@ -5531,10 +4935,9 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_version_states_help_text.html:4
-#, fuzzy, python-format
-#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+#, python-format
 msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
-msgstr "<a href=\"%(project_url)s\">Tam buradan</a> bir göz atın."
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:22
 msgid "Update subproject"
@@ -5615,25 +5018,20 @@ msgid "Add Webhook"
 msgstr ""
 
 #: templates/projects/webhook_list.html:47
-#, fuzzy
-#| msgid "No builds found"
 msgid "No webhooks found."
-msgstr "Bulunan oluşturmalar yok"
+msgstr ""
 
 #: templates/search/elastic_search.html:6
-#, fuzzy, python-format
-#| msgid "Search: %(query)s "
+#, python-format
 msgid ""
 "\n"
 "    Search: %(query)s\n"
 "  "
-msgstr "Arama: %(query)s "
+msgstr ""
 
 #: templates/search/elastic_search.html:30
-#, fuzzy
-#| msgid "Redirect Type"
 msgid "Object Type"
-msgstr "Yönlendirme Türü"
+msgstr ""
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
@@ -5652,10 +5050,8 @@ msgid ""
 msgstr ""
 
 #: templates/search/elastic_search.html:230
-#, fuzzy
-#| msgid "No results found. Bummer."
 msgid "No results found."
-msgstr "Bulunan sonuç yok. Hayret."
+msgstr ""
 
 #: templates/security.html:5
 msgid "Security"
@@ -5666,19 +5062,11 @@ msgid "Security at Read the Docs"
 msgstr "Read the Docs'da Güvenlik"
 
 #: templates/security.html:11
-#, fuzzy
-#| msgid ""
-#| "For more details on security at Read the Docs or to report a security "
-#| "issue, please see our <a href=\"https://docs.readthedocs.io/en/latest/"
-#| "security.html\">security policy</a>."
 msgid ""
 "For more details on security at Read the Docs or to report a security issue, "
 "please see our <a href=\"https://docs.readthedocs.io/page/security.html"
 "\">security policy</a>."
 msgstr ""
-"Read the Docs'da güvenlik hakkında daha fazla bilgi almak veya bir güvenlik "
-"sorununu bildirmek için lütfen <a href=\"https://docs.readthedocs.io/en/"
-"latest/security.html\">güvenlik ilkemize</a> bakın."
 
 #: templates/socialaccount/authentication_error.html:5
 #: templates/socialaccount/authentication_error.html:8
@@ -5722,431 +5110,3 @@ msgstr "%(verbiage)s %(brand_name)s"
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr "%(verbiage)s %(provider_name)s"
-
-#, python-format
-#~ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-#~ msgstr ""
-#~ "Sağlanan geçersiz kaynak arama verileri (eşleşmeyen tür).: %(error)s"
-
-#~ msgid "View Version"
-#~ msgstr "Sürümü Görüntüle"
-
-#~ msgid "Project not found"
-#~ msgstr "Proje bulunamadı"
-
-#~ msgid "Allow email"
-#~ msgstr "E-postaya izin ver"
-
-#~ msgid "Show your email on VCS contributions."
-#~ msgstr "VCS katkılarında e-postanızı gösterin."
-
-#~ msgid "Build environment creation failed"
-#~ msgstr "Oluşturma ortamını yaratma başarısız oldu"
-
-#~ msgid ""
-#~ "Choose projects that will have all promos removed, and extra features "
-#~ "added to them. You get to pick one for every $5/mo you support Read the "
-#~ "Docs with."
-#~ msgstr ""
-#~ "Tüm tanıtımları kaldırılacak ve bunlara fazladan özellikler eklenecek "
-#~ "projeleri seçin. Read the Docs'u desteklediğiniz her $5/ay için bir tane "
-#~ "seçin."
-
-#~ msgid "Existing Projects"
-#~ msgstr "Varolan Projeler"
-
-#, python-format
-#~ msgid "You can adopt one project with your subscription."
-#~ msgid_plural "You can adopt %(projects)s projects with your subscription."
-#~ msgstr[0] "Aboneliğiniz ile bir projeyi sahiplenebilirsiniz."
-#~ msgstr[1] "Aboneliğiniz ile %(projects)s projeyi sahiplenebilirsiniz."
-
-#~ msgid "Add a project"
-#~ msgstr "Bir proje ekle"
-
-#~ msgid "Submit"
-#~ msgstr "Gönder"
-
-#~ msgid "Are you sure you want to cancel your subscription?"
-#~ msgstr "Aboneliğinizi iptal etmek istediğinize emin misiniz?"
-
-#~ msgid "Card"
-#~ msgstr "Kart"
-
-#~ msgid ""
-#~ "If you are an individual, feel free to give whatever feels right for the "
-#~ "value you get out of Read the Docs."
-#~ msgstr ""
-#~ "Eğer bir bireyseniz, Read the Docs'dan sağladığınız değer için doğru "
-#~ "hissettiren her şeyi vermekten çekinmeyin."
-
-#~ msgid ""
-#~ "Becoming a Gold Member also makes Read the Docs ad-free for as long as "
-#~ "you are logged-in."
-#~ msgstr ""
-#~ "Altın Üye olmak, oturum açtığınız sürece Read the Docs'u reklamsız da "
-#~ "yapar."
-
-#~ msgid ""
-#~ "You can also make one-time donations on our <a href=\"https://readthedocs."
-#~ "org/sustainability/\">sustainability</a> page."
-#~ msgstr ""
-#~ "Ayrıca <a href=\"https://readthedocs.org/sustainability/"
-#~ "\">sürdürülebilirlik</a> sayfamızdan tek seferlik bağışlar da "
-#~ "yapabilirsiniz."
-
-#~ msgid ""
-#~ "We ask that folks who use custom Domains give Read the Docs $5 per domain "
-#~ "they are using. This is optional, but it really does help us maintain the "
-#~ "site going forward."
-#~ msgstr ""
-#~ "Özel Etki Alanları kullananların, kullandıkları etki alanı başına Read "
-#~ "the Docs'a $5 vermesini istiyoruz. Bu isteğe bağlıdır, ama gerçekten bize "
-#~ "ileride sitenin bakımında yardımcı olacaktır."
-
-#~ msgid "Update Your Subscription"
-#~ msgstr "Aboneliğinizi Güncelleyin"
-
-#~ msgid "Current card"
-#~ msgstr "Şu anki kart"
-
-#~ msgid "All information is submitted directly to Stripe."
-#~ msgstr "Tüm bilgiler doğrudan Stripe'a gönderilir."
-
-#~ msgid "Your subscription has been cancelled"
-#~ msgstr "Aboneliğiniz iptal edildi"
-
-#~ msgid "Serialized API response"
-#~ msgstr "Serileştirilmiş API yanıtı"
-
-#~ msgid "VAT ID number"
-#~ msgstr "VAT Kimlik numarası"
-
-#~ msgid "Card number"
-#~ msgstr "Kart numarası"
-
-#~ msgid "Card expiration"
-#~ msgstr "Kart sona erme tarihi"
-
-#~ msgid "Card CVV"
-#~ msgstr "Kart CVV"
-
-#~ msgid "There was a problem communicating with Stripe"
-#~ msgstr "Stripe ile iletişim kurulurken bir sorun oldu"
-
-#~ msgid "Mkdocs (Markdown)"
-#~ msgstr "Mkdocs (Markdown)"
-
-#~ msgid "Protected"
-#~ msgstr "Korumalı"
-
-#~ msgid "A project can not be a subproject of itself"
-#~ msgstr "Bir proje kendisinin alt projesi olamaz"
-
-#~ msgid "Zip file of HTML"
-#~ msgstr "HTML zip dosyası"
-
-#~ msgid "Overwrite existing HTML?"
-#~ msgstr "Varolan HTML'nin üzerine yazılsın mı?"
-
-#~ msgid "That version is already active!"
-#~ msgstr "Bu sürüm zaten etkin!"
-
-#~ msgid "Must upload a zip file."
-#~ msgstr "Bir zip dosyası gönderilmek zorunda."
-
-#~ msgid "Version of the project you are uploading HTML for"
-#~ msgstr "HTML gönderdiğiniz projenin sürümü"
-
-#~ msgid "The reStructuredText description of the project"
-#~ msgstr "Projenin reStructuredText tanımı"
-
-#~ msgid ""
-#~ "Level of privacy that you want on the repository. Protected means public "
-#~ "but not in listings."
-#~ msgstr ""
-#~ "Depodaki istediğiniz gizlilik seviyesi. Korumalı, herkese açık ancak "
-#~ "listelemelerde değil anlamına gelir."
-
-#~ msgid "Version Privacy Level"
-#~ msgstr "Sürüm Gizlilik Seviyesi"
-
-#~ msgid ""
-#~ "Default level of privacy you want on built versions of documentation."
-#~ msgstr ""
-#~ "Belgelendirmenin oluşturulmuş sürümlerinde istediğiniz varsayılan "
-#~ "gizlilik seviyesi."
-
-#~ msgid "View Project"
-#~ msgstr "Projeyi Görüntüle"
-
-#~ msgid "MD5 checksum"
-#~ msgstr "MD5 sağlaması"
-
-#~ msgid "Skip git submodule checkout"
-#~ msgstr "Git alt modülünü kullanıma almayı atla"
-
-#~ msgid "Historical default is True"
-#~ msgstr "Geçmiş varsayılanı True"
-
-#~ msgid "Enter a valid domain name value"
-#~ msgstr "Geçerli bir etki alanı adı değeri girin"
-
-#~ msgid "Your demo project is currently being imported"
-#~ msgstr "Tanıtım projeniz şu anda içe aktarılıyor"
-
-#~ msgid "There was a problem adding the demo project"
-#~ msgstr "Tanıtım projesi eklenirken bir sorun oldu"
-
-#~ msgid "Get Involved"
-#~ msgstr "Dahil Olun"
-
-#~ msgid "Contributing"
-#~ msgstr "Katkıda Bulunma"
-
-#~ msgid "Open Source Philosophy"
-#~ msgstr "Açık Kaynak Felsefesi"
-
-#~ msgid "Business Info"
-#~ msgstr "İşletme Bilgileri"
-
-#~ msgid "Supporters"
-#~ msgstr "Destekçiler"
-
-#, python-format
-#~ msgid ""
-#~ "Having trouble with your build environment? Try <a href=\"%(wipe_url)s"
-#~ "\">resetting it</a>."
-#~ msgstr ""
-#~ "Oluşturma ortamınızla ilgili sorun mu yaşıyorsunuz? <a href=\"%(wipe_url)s"
-#~ "\">Sıfırlamayı</a> deneyin."
-
-#~ msgid "Project Privacy Level"
-#~ msgstr "Proje Gizlilik Seviyesi"
-
-#~ msgid "Getting started guide"
-#~ msgstr "Başlangıç kılavuzu"
-
-#, python-format
-#~ msgid ""
-#~ "Read the Docs is a huge resource that millions of developers rely on for "
-#~ "software documentation. It would not be possible without the support of "
-#~ "our <a href=\"%(sponsors_url)s\">sponsors</a>, <a href="
-#~ "\"%(advertising_url)s\">advertisers</a>, and <a href=\"%(gold_detail)s"
-#~ "\">readers like you</a>."
-#~ msgstr ""
-#~ "Read the Docs, milyonlarca geliştiricinin yazılım belgelendirme için "
-#~ "güvendiği büyük bir kaynaktır. <a href=\"%(sponsors_url)s"
-#~ "\">Sponsorlarımızın</a>, <a href=\"%(advertising_url)s\">reklam "
-#~ "verenlerimizin</a> ve <a href=\"%(gold_detail)s\">sizin gibi "
-#~ "okuyucularımızın</a> desteği olmadan bu mümkün olmazdı."
-
-#~ msgid "Gold"
-#~ msgstr "Altın"
-
-#~ msgid "Edit Domain"
-#~ msgstr "Etki Alanını Düzenle"
-
-#~ msgid ""
-#~ "Recently we added HTTPS support for custom domains. Depending on your "
-#~ "setup, you may need to take action for your domain to support HTTPS. <a "
-#~ "href=\"https://docs.readthedocs.io/en/latest/alternate_domains."
-#~ "html#custom-domain-ssl\">See our docs</a> for details."
-#~ msgstr ""
-#~ "Son zamanlarda özel etki alanları için HTTPS desteğini ekledik. "
-#~ "Kurulumunuza bağlı olarak, etki alanınızın HTTPS'yi desteklemesi için "
-#~ "harekete geçmeniz gerekebilir. Ayrıntılar için <a href=\"https://docs."
-#~ "readthedocs.io/en/latest/alternate_domains.html#custom-domain-ssl"
-#~ "\">belgelerimize bakın</a>."
-
-#~ msgid ""
-#~ "This allows you to add domains to your project. This allows them to live "
-#~ "in the same namespace in the URLConf for a subdomain or CNAME."
-#~ msgstr ""
-#~ "Bu, projenize etki alanları eklemenize olanak tanır. Bu, bir alt etki "
-#~ "alanı veya CNAME için URLConf içinde aynı ad alanında bulunmalarını "
-#~ "sağlar."
-
-#, python-format
-#~ msgid "Environment Variable: %(name)s"
-#~ msgstr "Ortam Değişkenleri: %(name)s"
-
-#~ msgid ""
-#~ "The value of the environment variable is not shown here for sercurity "
-#~ "purposes."
-#~ msgstr "Ortam değişkeninin değeri burada güvenlik amacıyla gösterilmez."
-
-#~ msgid "Not built"
-#~ msgstr "Oluşturulmadı"
-
-#, python-format
-#~ msgid ""
-#~ "Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
-#~ "project</a>."
-#~ msgstr ""
-#~ "Bir tanıtım denemek ister misiniz? <a href=\"%(import_demo_url)s\">Kendi "
-#~ "tanıtım projemizi içe aktarın</a>."
-
-#~ msgid ""
-#~ "We only allow and image and text, no Javascript besides our existing "
-#~ "tracking"
-#~ msgstr ""
-#~ "Sadece metin ve resime izin veriyoruz, mevcut izleme dışında Javascript "
-#~ "yok"
-
-#~ msgid ""
-#~ "If you do not wish to support Read the Docs with use of this ad space, we "
-#~ "ask that you help support Read the Docs in one of following ways:"
-#~ msgstr ""
-#~ "Eğer bu reklam alanını kullanarak Read the Docs'u desteklemek "
-#~ "istemezseniz, Read the Docs'u aşağıdaki yollardan birinde desteklemenizi "
-#~ "istiyoruz:"
-
-#~ msgid ""
-#~ "If you have an open source project, and can contribute financially, "
-#~ "consider a gold subscription. Gold subscribers can disable ads for "
-#~ "projects they author."
-#~ msgstr ""
-#~ "Açık kaynak bir projeniz varsa ve maddi olarak katkıda "
-#~ "bulunabiliyorsanız, bir altın aboneliği düşünün. Altın aboneleri, "
-#~ "hazırladıkları projeler için reklamları etkisizleştirebilirler."
-
-#~ msgid "I can contribute financially"
-#~ msgstr "Maddi olarak katkıda bulunabilirim"
-
-#~ msgid ""
-#~ "If your project is an open source project, you most certainly also lack "
-#~ "funding.  If you can't contribute financially to Read the Docs, consider "
-#~ "donating your time. We can always use help with support requests, "
-#~ "documentation updates, and of course feature development."
-#~ msgstr ""
-#~ "Eğer projeniz açık kaynak bir proje ise, kesinlikle finansman eksikliği "
-#~ "de yoktur. Read the Docs'a maddi olarak katkıda bulunamıyorsanız, "
-#~ "zamanınızı bağışlamayı düşünün. Destek istekleri, belgelendirme "
-#~ "güncellemeleri ve tabii ki özellik geliştirme ile her zaman yardım "
-#~ "kullanabiliriz."
-
-#~ msgid "I can contribute my time"
-#~ msgstr "Zamanımla katkıda bulunabilirim"
-
-#~ msgid "Learn more about a paid plan"
-#~ msgstr "Ücretli plan hakkında daha fazla bilgi edinin"
-
-#~ msgid "Still can't help?"
-#~ msgstr "Hala yardımı olmadı mı?"
-
-#~ msgid ""
-#~ "If you can't contribute your support for your open source project, but "
-#~ "are conflicted by allowing support through advertising, we still would "
-#~ "like to give you the option to disable showing promotions inside your "
-#~ "documentation. We might be in contact in the future to see if you would "
-#~ "reconsider offering your support."
-#~ msgstr ""
-#~ "Eğer açık kaynak projeniz için desteğinizle katkıda bulunamıyorsanız, ama "
-#~ "reklam yoluyla destek sağlamak çelişse de, yine de belgelendirmeniz "
-#~ "içinde tanıtımları göstermeyi etkisizleştirmek için size seçenek sunmak "
-#~ "istiyoruz. Desteğinizi yeniden sunmayı düşünüp düşünmediğinizi görmek "
-#~ "için gelecekte sizinle iletişime geçebiliriz."
-
-#~ msgid "This shows the last 7 days of data from your project."
-#~ msgstr "Bu, projenizdeki son 7 günlük verileri gösterir."
-
-#~ msgid "Pages"
-#~ msgstr "Sayfalar"
-
-#~ msgid "Notifications"
-#~ msgstr "Bildirimler"
-
-#~ msgid "Embed content into any site on the internet dynamically."
-#~ msgstr "İçeriği internetteki herhangi bir siteye değişken olarak göm."
-
-#~ msgid "File"
-#~ msgstr "Dosya"
-
-#~ msgid "Select a File"
-#~ msgstr "Bir Dosya Seçin"
-
-#~ msgid "Show content"
-#~ msgstr "İçeriği göster"
-
-#~ msgid "Example Usage"
-#~ msgstr "Örnek Kullanım"
-
-#, python-format
-#~ msgid "Projects by %(username)s tagged with %(tag)s"
-#~ msgstr " %(username)s tarafından %(tag)s ile etiketlenen projeler"
-
-#, python-format
-#~ msgid "Projects by %(username)s"
-#~ msgstr "%(username)s kullanıcısının projeleri"
-
-#~ msgid "Edit Notifications"
-#~ msgstr "Bildirimleri Düzenle"
-
-#~ msgid "New Webhook Notifications"
-#~ msgstr "Yeni Web Kancası Bildirimleri"
-
-#~ msgid "Add a URL to notify"
-#~ msgstr "Bildirmek için bir URL ekleyin"
-
-#~ msgid "wipe "
-#~ msgstr "sil"
-
-#~ msgid "Clean"
-#~ msgstr "Temizle"
-
-#~ msgid "Choose the version that / will redirect to."
-#~ msgstr "/ işaretinin yönlendireceği sürümü seçin"
-
-#~ msgid "Choose Active Versions"
-#~ msgstr "Etkin Sürümleri Seçin"
-
-#~ msgid "Active versions below will show up on the site."
-#~ msgstr "Aşağıdaki etkin sürümler sitede gösterilecektir."
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "%(term)s için arama sonuçları"
-
-#~ msgid "Huh?"
-#~ msgstr "Değil mi?"
-
-#~ msgid "No docs matched your search. ¯\\(O_o)/¯"
-#~ msgstr "Aramanızla eşleşen belgeler yok. ¯\\(O_o)/¯"
-
-#~ msgid "Import HTML Documentation"
-#~ msgstr "HTML Belgelendirmeyi İçe Aktar"
-
-#~ msgid "Upload HTML"
-#~ msgstr "HTML Gönder"
-
-#~ msgid ""
-#~ "Use this to upload pre-existing HTML documentation for versions that "
-#~ "don't build correctly anymore."
-#~ msgstr ""
-#~ "Artık doğru oluşturulmayan sürümler için önceden varolan HTML "
-#~ "belgelendirmelerini göndermek için bunu kullanın."
-
-#, python-format
-#~ msgid "Results for %(query)s"
-#~ msgstr "%(query)s için sonuçlar"
-
-#, python-format
-#~ msgid "Remove build environment for <em>%(slug)s</em> version."
-#~ msgstr "<em>%(slug)s</em> sürümü için oluşturma ortamını kaldırın."
-
-#~ msgid "Your project environment has been wiped."
-#~ msgstr "Proje ortamınız silindi."
-
-#~ msgid ""
-#~ "Having trouble getting your documentation build to complete?  By clicking "
-#~ "on the button below you'll clean out your build checkouts and "
-#~ "environment, but not your generated documentation."
-#~ msgstr ""
-#~ "Belgelendirme oluşturmanızın tamamlanmasında sorun mu yaşıyorsunuz? "
-#~ "Aşağıdaki düğmeye tıklayarak oluşturmanızın kullanıma almalarını ve "
-#~ "ortamını temizleyeceksiniz, ancak oluşturulan belgelendirmeyi "
-#~ "temizlemezsiniz."
-
-#~ msgid "Wipe"
-#~ msgstr "Sil"

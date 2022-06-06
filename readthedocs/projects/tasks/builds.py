@@ -610,13 +610,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build_director.create_build_environment()
         with self.data.build_director.build_environment:
             try:
-                # Installing
-                self.update_build(state=BUILD_STATE_INSTALLING)
-                self.data.build_director.setup_environment()
+                if getattr(self.data.config.build, "commands", False):
+                    self.update_build(state=BUILD_STATE_INSTALLING)
+                    self.data.build_director.install_build_tools()
 
-                # Building
-                self.update_build(state=BUILD_STATE_BUILDING)
-                self.data.build_director.build()
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.run_build_commands()
+                else:
+                    # Installing
+                    self.update_build(state=BUILD_STATE_INSTALLING)
+                    self.data.build_director.setup_environment()
+
+                    # Building
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.build()
             finally:
                 self.data.build_data = self.collect_build_data()
 

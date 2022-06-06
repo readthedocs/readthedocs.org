@@ -3,6 +3,7 @@
 from django.utils.translation import gettext_noop
 
 from readthedocs.builds.constants import BUILD_STATE_CANCELLED, BUILD_STATUS_DUPLICATED
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 
 class BuildBaseException(Exception):
@@ -35,6 +36,9 @@ class BuildUserError(BuildBaseException):
         "We encountered a problem with a command while building your project. "
         "To resolve this error, double check your project configuration and installed "
         "dependencies are correct and have not changed recently."
+    )
+    BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
+        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
 
 

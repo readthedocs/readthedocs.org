@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-23 14:08-0700\n"
+"POT-Creation-Date: 2022-05-31 08:39-0700\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Asier Iturralde Sarasola <asier.iturralde@gmail.com>, 2018\n"
 "Language-Team: Basque (http://www.transifex.com/readthedocs/readthedocs/"
@@ -56,16 +56,12 @@ msgid "Downloads"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:67
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "On Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:69
-#, fuzzy
-#| msgid "Project"
 msgid "Project Home"
-msgstr "Proiektua"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -78,11 +74,8 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
-#, fuzzy
-#| msgctxt "verb, action to see in detail"
-#| msgid "\"View\""
 msgid "View"
-msgstr "\"Ikusi\""
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
@@ -164,10 +157,8 @@ msgid "User"
 msgstr "Erabiltzailea"
 
 #: audit/models.py:92
-#, fuzzy
-#| msgid "User"
 msgid "User ID"
-msgstr "Erabiltzailea"
+msgstr ""
 
 #: audit/models.py:98 core/forms.py:55
 msgid "Username"
@@ -179,16 +170,12 @@ msgid "Project"
 msgstr "Proiektua"
 
 #: audit/models.py:114
-#, fuzzy
-#| msgid "Project"
 msgid "Project ID"
-msgstr "Proiektua"
+msgstr ""
 
 #: audit/models.py:120
-#, fuzzy
-#| msgid "Project"
 msgid "Project slug"
-msgstr "Proiektua"
+msgstr ""
 
 #: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
@@ -203,10 +190,8 @@ msgid "Organization slug"
 msgstr ""
 
 #: audit/models.py:149 builds/models.py:1120
-#, fuzzy
-#| msgid "Active"
 msgid "Action"
-msgstr "Aktibo"
+msgstr ""
 
 #: audit/models.py:154
 msgid "Auth backend"
@@ -217,10 +202,8 @@ msgid "IP address"
 msgstr ""
 
 #: audit/models.py:166 core/history.py:84
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Browser user-agent"
-msgstr "Arakatu proiektuak"
+msgstr ""
 
 #: audit/models.py:174
 msgid "Resource"
@@ -324,10 +307,8 @@ msgid "Building"
 msgstr "Eraikitzen"
 
 #: builds/constants.py:19
-#, fuzzy
-#| msgid "Uploaded"
 msgid "Uploading"
-msgstr "Igota"
+msgstr ""
 
 #: builds/constants.py:20
 msgid "Finished"
@@ -358,10 +339,8 @@ msgid "Dash"
 msgstr ""
 
 #: builds/constants.py:46
-#, fuzzy
-#| msgid "External Links"
 msgid "External"
-msgstr "Kanpo-estekak"
+msgstr ""
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -384,16 +363,12 @@ msgid "Closed"
 msgstr ""
 
 #: builds/constants.py:132
-#, fuzzy
-#| msgid "Version"
 msgid "Any version"
-msgstr "Bertsioa"
+msgstr ""
 
 #: builds/constants.py:133
-#, fuzzy
-#| msgid "Versions"
 msgid "SemVer versions"
-msgstr "Bertsioak"
+msgstr ""
 
 #: builds/constants.py:134
 msgid "Custom match"
@@ -404,10 +379,8 @@ msgid "Active"
 msgstr "Aktibo"
 
 #: builds/filters.py:19
-#, fuzzy
-#| msgid "Finished"
 msgid "Build finished"
-msgstr "Amaituta"
+msgstr ""
 
 #: builds/filters.py:20 projects/models.py:1485
 #: templates/builds/build_detail.html:143
@@ -423,10 +396,8 @@ msgid "Any"
 msgstr ""
 
 #: builds/forms.py:45
-#, fuzzy
-#| msgid "State"
 msgid "States"
-msgstr "Egoera"
+msgstr ""
 
 #: builds/forms.py:54 projects/filters.py:145
 msgid "Privacy"
@@ -534,10 +505,8 @@ msgid "Version {version} of {project} ({pk})"
 msgstr ""
 
 #: builds/models.py:644
-#, fuzzy
-#| msgid "State"
 msgid "Status"
-msgstr "Egoera"
+msgstr ""
 
 #: builds/models.py:651 integrations/models.py:147
 msgid "Date"
@@ -572,22 +541,16 @@ msgid "Commit"
 msgstr ""
 
 #: builds/models.py:672
-#, fuzzy
-#| msgid "Versions"
 msgid "Version slug"
-msgstr "Bertsioak"
+msgstr ""
 
 #: builds/models.py:678
-#, fuzzy
-#| msgid "Version"
 msgid "Version name"
-msgstr "Bertsioa"
+msgstr ""
 
 #: builds/models.py:684 builds/models.py:1133
-#, fuzzy
-#| msgid "Version"
 msgid "Version type"
-msgstr "Bertsioa"
+msgstr ""
 
 #: builds/models.py:691
 msgid "Configuration used in the build"
@@ -650,16 +613,12 @@ msgid "Build command {pk} for build {build}"
 msgstr ""
 
 #: builds/models.py:1076
-#, fuzzy
-#| msgid "View Version"
 msgid "Activate version"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: builds/models.py:1077
-#, fuzzy
-#| msgid "View Version"
 msgid "Hide version"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: builds/models.py:1078
 msgid "Make version public"
@@ -837,30 +796,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:342
+#: doc_builder/environments.py:340
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:348
+#: doc_builder/environments.py:346
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:631
+#: doc_builder/environments.py:629
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:791
+#: doc_builder/environments.py:789
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:796
+#: doc_builder/environments.py:794
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:802
+#: doc_builder/environments.py:800
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -973,10 +932,8 @@ msgid "Projects"
 msgstr ""
 
 #: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
-#, fuzzy
-#| msgid "Project"
 msgid "Gold Projects"
-msgstr "Proiektua"
+msgstr ""
 
 #: gold/templates/gold/projects.html:14
 msgid ""
@@ -999,10 +956,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/projects.html:24
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Ad-free projects"
-msgstr "Arakatu proiektuak"
+msgstr ""
 
 #: gold/templates/gold/projects.html:39
 msgid "Remove Ad-Free Status"
@@ -1046,10 +1001,8 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:35
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs Gold Membership"
-msgstr "Read the Docs"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:38
 msgid ""
@@ -1087,16 +1040,12 @@ msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:93
-#, fuzzy
-#| msgid "Description"
 msgid "Manage subscription"
-msgstr "Deskribapena"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:96
-#, fuzzy
-#| msgid "Browse projects"
 msgid "Gold projects"
-msgstr "Arakatu proiektuak"
+msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:97
 msgid "Choose projects you would like to make ad-free."
@@ -1318,10 +1267,8 @@ msgid "Billing Email"
 msgstr ""
 
 #: organizations/forms.py:48
-#, fuzzy
-#| msgid "Short URLs"
 msgid "Site URL"
-msgstr "URL laburrak"
+msgstr ""
 
 #: organizations/forms.py:71
 msgid "Invalid organization name: no slug generated"
@@ -1677,16 +1624,12 @@ msgstr ""
 #: organizations/templates/organizations/team_detail.html:14
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
-#, fuzzy
-#| msgid "Edit"
 msgid "Edit Team"
-msgstr "Editatu"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:19
-#, fuzzy
-#| msgid "View Project"
 msgid "Manage Projects"
-msgstr "Ikusi proiektua"
+msgstr ""
 
 #: organizations/templates/organizations/team_detail.html:24
 #: organizations/templates/organizations/team_member_create.html:11
@@ -1706,10 +1649,8 @@ msgid "Add Member"
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:5
-#, fuzzy
-#| msgid "View Project"
 msgid "Team's Projects"
-msgstr "Ikusi proiektua"
+msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:15
 msgid ""
@@ -1720,15 +1661,10 @@ msgid ""
 msgstr ""
 
 #: organizations/templates/organizations/team_project_edit.html:22
-#, fuzzy
-#| msgid "View Project"
 msgid "Update Projects"
-msgstr "Ikusi proiektua"
-
-#: organizations/templates/organizations/verify_email.html:5
-msgid "Verify you email address"
 msgstr ""
 
+#: organizations/templates/organizations/verify_email.html:5
 #: organizations/templates/organizations/verify_email.html:10
 #: templates/account/email/email_confirmation_subject.txt:3
 msgid "Verify your email address"
@@ -1755,10 +1691,8 @@ msgid "Team updated"
 msgstr ""
 
 #: organizations/views/private.py:145
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Team projects updated"
-msgstr "Proiektuaren webgunea"
+msgstr ""
 
 #: organizations/views/private.py:150
 msgid "Member added to team"
@@ -1873,10 +1807,8 @@ msgid "Valid and active"
 msgstr ""
 
 #: projects/constants.py:387
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid"
-msgstr "Ostalari-izen baliogabea"
+msgstr ""
 
 #: projects/constants.py:388
 msgid "Pending"
@@ -1937,10 +1869,8 @@ msgid "Most recently built"
 msgstr ""
 
 #: projects/filters.py:33 projects/filters.py:84
-#, fuzzy
-#| msgid "Last Built"
 msgid "Least recently built"
-msgstr "Azken aldiz eraikia"
+msgstr ""
 
 #: projects/filters.py:81
 msgid "Most recently modified"
@@ -1963,28 +1893,20 @@ msgid "Sort by"
 msgstr ""
 
 #: projects/filters.py:132
-#, fuzzy
-#| msgid "View Version"
 msgid "Hidden versions"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: projects/filters.py:133
-#, fuzzy
-#| msgid "View Version"
 msgid "Visible versions"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: projects/filters.py:137
-#, fuzzy
-#| msgid "Versions"
 msgid "Public versions"
-msgstr "Bertsioak"
+msgstr ""
 
 #: projects/filters.py:138
-#, fuzzy
-#| msgid "View Version"
 msgid "Private versions"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: projects/filters.py:154
 msgid "Visibility"
@@ -2078,10 +2000,8 @@ msgid "Alias"
 msgstr ""
 
 #: projects/models.py:126
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Short description of this project"
-msgstr "Proiektuaren deskribapena reStructuredText formatuan"
+msgstr ""
 
 #: projects/models.py:129
 msgid "Repository URL"
@@ -2374,10 +2294,8 @@ msgid "Subproject nesting is not supported"
 msgstr ""
 
 #: projects/models.py:1392 sphinx_domains/models.py:44
-#, fuzzy
-#| msgid "Building"
 msgid "Build id"
-msgstr "Eraikitzen"
+msgstr ""
 
 #: projects/models.py:1395
 msgid "Page search rank"
@@ -2388,10 +2306,8 @@ msgid "Ignore this file from operations like indexing"
 msgstr ""
 
 #: projects/models.py:1483
-#, fuzzy
-#| msgid "Building"
 msgid "Build triggered"
-msgstr "Eraikitzen"
+msgstr ""
 
 #: projects/models.py:1484
 msgid "Build passed"
@@ -2772,10 +2688,8 @@ msgid "Redirect: {}"
 msgstr ""
 
 #: search/api.py:89
-#, fuzzy
-#| msgid "Invalid hostname"
 msgid "Invalid page"
-msgstr "Ostalari-izen baliogabea"
+msgstr ""
 
 #: search/api.py:174
 msgid "This query param is required"
@@ -2862,10 +2776,8 @@ msgid "Type Display"
 msgstr ""
 
 #: sphinx_domains/models.py:68
-#, fuzzy
-#| msgid "Name"
 msgid "Doc Name"
-msgstr "Izena"
+msgstr ""
 
 #: sphinx_domains/models.py:72
 msgid "Doc Display"
@@ -2919,10 +2831,8 @@ msgid "Support SLA"
 msgstr ""
 
 #: subscriptions/models.py:114
-#, fuzzy
-#| msgid "Import HTML Documentation"
 msgid "Private documentation"
-msgstr "Inportatu HTML dokumentazioa"
+msgstr ""
 
 #: subscriptions/models.py:115
 msgid "Embed content via API"
@@ -2974,16 +2884,12 @@ msgid "Locked plan for custom contracts"
 msgstr ""
 
 #: subscriptions/models.py:188
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription ID"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/models.py:193
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription status"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/models.py:194
 msgid "Start date"
@@ -3019,36 +2925,28 @@ msgid "Plan Features:"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:53
-#, fuzzy
-#| msgid "Sign up"
 msgid "Signed up"
-msgstr "Erregistratu"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:55
 msgid "ago"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:59
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription Status"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:65
 msgid "Trial ends"
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:70
-#, fuzzy
-#| msgid "Description"
 msgid "Subscription ends"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:81
-#, fuzzy
-#| msgid "Description"
 msgid "Manage Subscription"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:85
 msgid ""
@@ -3065,10 +2963,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:101
-#, fuzzy
-#| msgid "Description"
 msgid "Create Subscription"
-msgstr "Deskribapena"
+msgstr ""
 
 #: subscriptions/views.py:37
 msgid "Your plan has been upgraded!"
@@ -3304,10 +3200,8 @@ msgid "Advertise with Us"
 msgstr ""
 
 #: templates/base.html:221
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Docs for Business"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/base.html:224
 msgid "Branding & Media Kit"
@@ -3798,20 +3692,16 @@ msgid ""
 msgstr ""
 
 #: templates/homepage.html:109
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "Read the Tutorial"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
 msgstr ""
 
 #: templates/homepage.html:137
-#, fuzzy
-#| msgid "Read the Docs"
 msgid "About Read the Docs"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/homepage.html:140
 msgid ""
@@ -4534,10 +4424,8 @@ msgid "Project Dashboard"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Important Versions"
-msgstr "Bertsioak"
+msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4614,10 +4502,8 @@ msgid "Delete project"
 msgstr ""
 
 #: templates/projects/project_edit_base.html:20
-#, fuzzy
-#| msgid "Versions"
 msgid "Edit Versions"
-msgstr "Bertsioak"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_redirects.html:8
@@ -4887,10 +4773,8 @@ msgid "Active Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:81
-#, fuzzy
-#| msgid "View Version"
 msgid "Activate a version"
-msgstr "Ikusi bertsioa"
+msgstr ""
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -4902,10 +4786,8 @@ msgid "Filter Inactive Versions"
 msgstr ""
 
 #: templates/projects/project_version_list.html:122
-#, fuzzy
-#| msgid "Active"
 msgid "Activate"
-msgstr "Aktibo"
+msgstr ""
 
 #: templates/projects/project_version_list.html:130
 msgid "No versions found"
@@ -5084,7 +4966,3 @@ msgstr ""
 #, python-format
 msgid "%(verbiage)s %(provider_name)s"
 msgstr ""
-
-#, python-format
-#~ msgid "Search results for %(term)s"
-#~ msgstr "%(term)s terminoaren bilaketa-emaitzak"

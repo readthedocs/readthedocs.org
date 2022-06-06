@@ -353,12 +353,13 @@ As a result, you need to follow some extra steps
 to make Jupyter Book work on Read the Docs.
 
 As described in :doc:`the official documentation <jupyterbook:publish/readthedocs>`,
-you can manually convert your Jupyter Book project to Sphinx with the following command:
+you can manually convert your Jupyter Book project to Sphinx with the following configuration:
 
-.. code-block:: console
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
-   $ jupyter-book config sphinx path/to/book
-
-and then commit the resulting ``conf.py`` to git.
-Alternatively, you can set up some automation that does it for every change,
-for example :ref:`using pre-commit <jupyterbook:sphinx:convert:pre-commit>`.
+    build:
+        jobs:
+            pre_build:
+            # Generate the Sphinx configuration for this Jupyter Book so it builds.
+            - "jupyter-book config sphinx docs/"
