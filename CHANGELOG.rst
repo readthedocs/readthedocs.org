@@ -1,3 +1,21 @@
+Version 8.1.2
+-------------
+
+:Date: June 06, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Docs CI (`#9299 <https://github.com/readthedocs/readthedocs.org/pull/9299>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update mentions of our roadmap to be current (`#9293 <https://github.com/readthedocs/readthedocs.org/pull/9293>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: set max split when parsing remotes (`#9292 <https://github.com/readthedocs/readthedocs.org/pull/9292>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: make `tests-embedapi` require regular `tests` first (`#9289 <https://github.com/readthedocs/readthedocs.org/pull/9289>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update 8.1.1 changelog with hotfixes (`#9288 <https://github.com/readthedocs/readthedocs.org/pull/9288>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cancel build: get build from the current project (`#9287 <https://github.com/readthedocs/readthedocs.org/pull/9287>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: increase 3.11 beta version (`#9284 <https://github.com/readthedocs/readthedocs.org/pull/9284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Disable djstripe (`#9282 <https://github.com/readthedocs/readthedocs.org/pull/9282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: use 3.11.0b2 (`#9278 <https://github.com/readthedocs/readthedocs.org/pull/9278>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remote repository: Add user admin action for syncing remote repositories (`#9272 <https://github.com/readthedocs/readthedocs.org/pull/9272>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: update django-allauth (`#9249 <https://github.com/readthedocs/readthedocs.org/pull/9249>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implementation of `build.commands` (`#9150 <https://github.com/readthedocs/readthedocs.org/pull/9150>`__)
+
 Version 8.1.1
 -------------
 
