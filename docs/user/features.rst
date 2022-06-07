@@ -1,91 +1,87 @@
 Read the Docs features
 ======================
 
+.. TODO:
+
+   We are linking to feature pages that are not already reviewed/reworked and some of them are not great.
+   That's some work we could add to the follow sprints to make the main page and its links consistent.
+   However, that amount of work is not trivial :)
+
+
+.. TODO: Missing features in this page
+
+   - Build customization
+   - CDN
+   - Business:
+     - SSO
+     - Auth Auditing
+
 Read the Docs offers a number of platform features that are possible because we both build and host documentation for you.
+This page shows some highlights for the main ones and points to external pages to learn more about them.
 
 
-Automatic Documentation Deployment
-----------------------------------
+Continuous documentation
+------------------------
+
+.. TODO: rework this paragraph
 
 We integrate with GitHub, BitBucket, and GitLab.
 We automatically create webhooks in your repository,
 which tell us whenever you push a commit.
 We will then build and deploy your docs every time you push a commit.
 This enables a workflow that we call *Continuous Documentation*:
-
-**Once you set up your Read the Docs project,
-your users will always have up-to-date documentation.**
+once you set up your Read the Docs project,
+your users will always have up-to-date documentation.
 
 Learn more about :doc:`/integrations`.
 
-Custom Domains & White Labeling
+
+Pull requests previews
+----------------------
+
+.. TODO:
+
+
+Custom domains with SSL support
 -------------------------------
 
-When you import a project to Read the Docs,
-we assign you a URL based on your project name.
-You are welcome to use this URL,
-but we also fully support custom domains for all our documentation projects.
+:ref:`We assign your project a URL based on its name </hosting:subdomain-support>` so you can immediately start hosting your documentation.
+However, if you prefer to use a domain that you already own, :doc:`you can configure Read the Docs to serve the documentation under your custom domain </custom-domains>`.
 
-Learn more about :doc:`/custom_domains`.
 
-Versioned Documentation
+Versioned documentation
 -----------------------
 
-We support multiple versions of your documentation,
-so that users can find the exact docs for the version they are using.
-We build this on top of the version control system that you're already using.
-Each version on Read the Docs is just a tag or branch in your repository.
+Read the Docs can serve :doc:`multiple versions of your project's documentation </versions>`.
+This allows you to serve, for example, ``v1.0``, ``v2.0`` and ``v3.0`` together with some alias that we create automatically: ``latest`` and ``stable``.
+In this example, ``latest`` will point to the default branch of your repository and ``stable`` will point to ``v3.0``.
+With this setup, your users will find the exact documentation for the version of your project they are using.
 
-You don't need to change how you version your code,
-we work with whatever process you are already using.
-If you don't have a process,
-we can recommend one.
 
-Learn more about :doc:`/versions`.
-
-Downloadable Documentation
+Downloadable documentation
 --------------------------
 
-Read the Docs supports building multiple formats for Sphinx-based projects:
+Read the Docs supports building :doc:`downloadable formats </downloadable-documentation>` like PDF, ePub and Zipped HTML for Sphinx-based projects.
+All these formats will be kept in sync with the HTML version since they are built at the same time.
 
-* PDF
-* ePub
-* Zipped HTML
 
-This means that every commit that you push will automatically update your PDFs as well as your HTML.
-
-This feature is great for users who are about to get on a plane and want offline docs,
-as well as being able to ship your entire set of documentation as one file.
-
-Learn more about :doc:`/downloadable-documentation`.
-
-Full-Text Search
+Full-Text search
 ----------------
 
-We provide search across all the projects that we host.
-This actually comes in two different search experiences:
-dashboard search on the Read the Docs dashboard and in-doc search on documentation sites, using your own theme and our search results.
+We provide a :doc:`powerful search engine </server-side-search>` that understands projects' documentations.
+It's able to differentiate a Python function's name from a module's name from the same function's name used on a narrative paragraph,
+giving readers such a power that will help them always to find what they are looking for.
 
-We offer a number of search features:
 
-* Search across :doc:`subprojects </subprojects>`
-* Search results land on the exact content you were looking for
-* Search across projects you have access to (available on |com_brand|)
-* A full range of :doc:`search operators </guides/advanced-search>` including exact matching and excluding phrases.
-
-Learn more about :doc:`/server-side-search`.
-
-Open Source and Customer Focused
+Open Source and customer focused
 --------------------------------
 
 Read the Docs cares deeply about our customers and our community.
 As part of that commitment,
-all of the source code for Read the Docs is open source.
+all of the source code for :doc:`Read the Docs is open source </about>`.
 This means there's no vendor lock-in,
 and you are welcome to :doc:`contribute <rtd-dev:contribute>` the features you want or run your own instance.
 
 Our bootstrapped company is owned and controlled by the founders,
 and fully funded by our customers and advertisers.
 That allows us to focus 100% of our attention on building the best possible product for you.
-
-Learn more :doc:`/about`.

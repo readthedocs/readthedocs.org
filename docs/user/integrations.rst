@@ -29,9 +29,10 @@ To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrat
 dashboard page and select the integration type you'd like to add.
 After you have added the integration, you'll see a link to information about the integration.
 
-As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
+As an example, the URL pattern looks like this: ``https://readthedocs.org/api/v2/webhook/<project-slug>/<id>/``.
 
-Use this URL when setting up a new integration with your provider -- these steps vary depending on the provider.
+Use this URL when setting up a new integration with your provider.
+These steps vary depending on the provider and are explained in the following sections.
 
 .. note::
 
