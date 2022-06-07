@@ -816,10 +816,11 @@ class BuildConfigV2(BuildConfigBase):
             )
 
         build["jobs"] = {}
-        for job, commands in jobs.items():
+        for job, job_commands in jobs.items():
             with self.catch_validation_error(f"build.jobs.{job}"):
                 build["jobs"][job] = [
-                    validate_string(command) for command in validate_list(commands)
+                    validate_string(job_command)
+                    for job_command in validate_list(job_commands)
                 ]
 
         build["commands"] = []
