@@ -32,28 +32,29 @@ from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
-GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
-GITHUB_PUSH = 'push'
-GITHUB_PULL_REQUEST = 'pull_request'
-GITHUB_PULL_REQUEST_OPENED = 'opened'
-GITHUB_PULL_REQUEST_CLOSED = 'closed'
-GITHUB_PULL_REQUEST_REOPENED = 'reopened'
-GITHUB_PULL_REQUEST_SYNC = 'synchronize'
-GITHUB_CREATE = 'create'
-GITHUB_DELETE = 'delete'
-GITLAB_MERGE_REQUEST = 'merge_request'
-GITLAB_MERGE_REQUEST_CLOSE = 'close'
-GITLAB_MERGE_REQUEST_MERGE = 'merge'
-GITLAB_MERGE_REQUEST_OPEN = 'open'
-GITLAB_MERGE_REQUEST_REOPEN = 'reopen'
-GITLAB_MERGE_REQUEST_UPDATE = 'update'
-GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
-GITLAB_PUSH = 'push'
-GITLAB_NULL_HASH = '0' * 40
-GITLAB_TAG_PUSH = 'tag_push'
-BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
-BITBUCKET_PUSH = 'repo:push'
+GITHUB_EVENT_HEADER = "HTTP_X_GITHUB_EVENT"
+GITHUB_SIGNATURE_HEADER = "HTTP_X_HUB_SIGNATURE"
+GITHUB_PING = "ping"
+GITHUB_PUSH = "push"
+GITHUB_PULL_REQUEST = "pull_request"
+GITHUB_PULL_REQUEST_OPENED = "opened"
+GITHUB_PULL_REQUEST_CLOSED = "closed"
+GITHUB_PULL_REQUEST_REOPENED = "reopened"
+GITHUB_PULL_REQUEST_SYNC = "synchronize"
+GITHUB_CREATE = "create"
+GITHUB_DELETE = "delete"
+GITLAB_MERGE_REQUEST = "merge_request"
+GITLAB_MERGE_REQUEST_CLOSE = "close"
+GITLAB_MERGE_REQUEST_MERGE = "merge"
+GITLAB_MERGE_REQUEST_OPEN = "open"
+GITLAB_MERGE_REQUEST_REOPEN = "reopen"
+GITLAB_MERGE_REQUEST_UPDATE = "update"
+GITLAB_TOKEN_HEADER = "HTTP_X_GITLAB_TOKEN"
+GITLAB_PUSH = "push"
+GITLAB_NULL_HASH = "0" * 40
+GITLAB_TAG_PUSH = "tag_push"
+BITBUCKET_EVENT_HEADER = "HTTP_X_EVENT_KEY"
+BITBUCKET_PUSH = "repo:push"
 
 
 ExternalVersionData = namedtuple(
@@ -415,6 +416,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
             data=self.data,
             event=event,
         )
+
+        if event == GITHUB_PING:
+            return {"detail": "Webhook configured correctly"}
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
