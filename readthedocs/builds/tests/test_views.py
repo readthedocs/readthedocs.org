@@ -1,7 +1,8 @@
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
@@ -11,14 +12,16 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
 @mock.patch("readthedocs.builds.views.app")
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class CancelBuildViewTests(TestCase):
     def setUp(self):
         self.user = get(User, username="test")
-        self.project = get(Project, users=[self.user])
+        self.project = self._get_project(owners=[self.user])
         self.version = get(Version, project=self.project)
         self.build = get(
             Build,
@@ -63,7 +66,7 @@ class CancelBuildViewTests(TestCase):
 
     def test_cancel_build_from_another_project(self, app):
         another_user = get(User)
-        another_project = get(Project, users=[another_user])
+        another_project = self._get_project(owners=[another_user])
         another_build = get(
             Build, project=another_project, version=another_project.versions.first()
         )
@@ -86,3 +89,17 @@ class CancelBuildViewTests(TestCase):
         app.control.revoke.assert_called_once_with(
             another_build.task_id, signal=mock.ANY, terminate=True
         )
+
+    def _get_project(self, owners, **kwargs):
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            # TODO: don't set `users=owners` when using orgs, it's redundant.
+            project = get(Project, users=owners, **kwargs)
+            get(Organization, projects=[project], owners=owners)
+            return project
+        return get(Project, users=owners, **kwargs)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
+
+    pass
