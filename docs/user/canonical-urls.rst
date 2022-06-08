@@ -1,7 +1,7 @@
 Canonical URLs
 ==============
 
-A `Canonical URL`__
+A `Canonical URL`_
 allows you to specify the preferred version of a web page to prevent duplicated content.
 They are mainly used by search engines to link users to the correct
 version and domain of your documentation.
