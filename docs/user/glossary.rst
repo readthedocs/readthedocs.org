@@ -25,6 +25,9 @@ Glossary
    project page
       Another name for :term:`project home`.
 
+   slug
+      The lower case & hyphenated name of your project that is used in URL's. You can find this on the project :guilabel:`Overview` section of your documentation under ``Project Slug``.
+
    root URL
       Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
       For projects without custom domains, the one ending in ``.readthedocs.io/``

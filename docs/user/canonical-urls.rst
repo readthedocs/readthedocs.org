@@ -5,15 +5,18 @@ Canonical URLs
 They are mainly used by search engines to link users to the correct
 version and domain of your documentation.
 
+If canonical URL's aren't used,
+it's easy for outdated documentation to be the top search result for various pages in your documentation.
+This is not a perfect solution for this problem,
+but generally people finding outdated documentation is a big problem,
+and this is one of the suggested ways to solve it from search engines.
+
 .. _Canonical URLs: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
-.. contents:: Contents
-    :local:
+How Read the Docs generates canonical URLs
+------------------------------------------
 
-Example
--------
-
-The canonical URL is generated based on:
+The canonical URL takes into account:
 
 * The default version of your project (usually "latest" or "stable").
 * The canonical :doc:`custom domain </custom-domains>` if you have one,
@@ -21,33 +24,44 @@ The canonical URL is generated based on:
 
 For example, if you have a project named ``example-docs``
 with a custom domain ``https://docs.example.com``.
-A search engine like Google will index both domains, ``http://example-docs.readthedocs.io`` and
+A search engine like Google will index both domains, ``https://example-docs.readthedocs.io`` and
 ``https://docs.example.com``.
 
-But you'll want to use ``https://docs.example.com`` as your canonical domain,
-this means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/9.0/``,
+You'll want to use ``https://docs.example.com`` as your canonical domain,
+this means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/latest/``,
 it will know that it should really point at ``https://docs.example.com/en/latest/``,
 thus avoiding duplicating the content.
+
+.. note::
+
+   If you want your custom domain to be set as the canonical, you need to set ``Canonical:  This domain is the primary one where the documentation is served from`` in the :guilabel:`Admin` > :guilabel:`Domains` section of your project settings.
 
 Implementation
 --------------
 
-If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
-Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
-
-.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
-
-For :doc:`MkDocs </intro/getting-started-with-mkdocs>` this isn't done automatically,
-but you can use the site_url_ setting.
-
-.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
-
-If you look at the source code for the documentation built after you set your canonical URL,
-you should see a bit of HTML like this:
+The canonical URL is set in HTML with a ``link`` element.
+For example, this page has a canonical URL of:
 
 .. code-block:: html
 
-   <link rel="canonical" href="https://docs.example.com/en/latest/" />
+   <link rel="canonical" href="https://docs.readthedocs.io/en/stable/canonical-urls.html" />
+
+Sphinx
+~~~~~~
+
+If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
+Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
+If you already have ``html_baseurl`` set, you need to ensure that the value is correct.
+
+.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
+
+Mkdocs
+~~~~~~
+
+For :doc:`MkDocs </intro/getting-started-with-mkdocs>` this isn't done automatically,
+but you can use the site_url_ setting to set a similar value.
+
+.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
 
 .. warning::
 

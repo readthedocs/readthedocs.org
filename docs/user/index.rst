@@ -109,7 +109,6 @@ and some of the core features of Read the Docs.
    /config-file/index
    /integrations
    /custom-domains
-   /canonical-urls
    /versions
    /downloadable-documentation
    /hosting
@@ -210,6 +209,7 @@ out of your documentation and Read the Docs.
    automatic-redirects
 
    automation-rules
+   canonical-urls
 
 
    api/index

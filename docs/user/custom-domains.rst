@@ -2,12 +2,16 @@ Custom Domains
 ==============
 
 Custom domains allow you to serve your documentation from your own domain.
+This is great for maintaining a consistent brand for your documentation and application.
 
-By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's slug:
-``<slug>.readthedocs.io`` or ``<slug>.readthedocs-hosted.com`` for |com_brand|.
-For example if you import your project as ``example-docs``, it will be served from ``https://example-docs.readthedocs.io``.
+By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
 
-.. contents::
+* ``<slug>.readthedocs.io`` for |org_brand|
+* ``<slug>.readthedocs-hosted.com`` for |com_brand|.
+
+For example if you import your project and it gets the :term:`slug` ``example-docs``, it will be served from ``https://example-docs.readthedocs.io``.
+
+.. contents:: Contents
     :local:
 
 Adding a custom domain
@@ -31,15 +35,16 @@ To setup your custom domain, follow these steps:
       and for a root domain like ``example.com`` use an ANAME or ALIAS record.
 
 By default, we provide a validated SSL certificate for the domain,
-this service is provided by Cloudflare.
-The SSL certificate issuance can take about one hour,
-you can see the status of the certificate on the domain page in your project.
+managed by Cloudflare.
+The SSL certificate issuance should happen within a few minutes,
+but might take up to one hour.
+See `SSL certificate issue delays`_ for more troubleshooting options.
 
 As an example, our blog's DNS record looks like this:
 
 .. prompt:: bash $, auto
 
-   $ dig +short blog.readthedocs.com CNAME
+   $ dig +short CNAME blog.readthedocs.com
      readthedocs.io.
 
 .. warning::
@@ -47,22 +52,32 @@ As an example, our blog's DNS record looks like this:
    We don't support pointing subdomains or root domains to a project using A records.
    DNS A records require a static IP address and our IPs may change without notice.
 
-.. note::
 
-   On |com_brand| some older setups configured a CNAME record pointing to a different
-   domain or required adding two records, this process has been simplified.
-   If you have doubts about deleting some of the old records,
-   please reach out to :ref:`support <support:user support>`.
+Removing a custom domain
+------------------------
 
-Strict Transport Security
--------------------------
+To remove a custom domain:
+
+#. Go the :guilabel:`Admin` tab of your project.
+#. Click on :guilabel:`Domains`.
+#. Click the :guilabel:`Remove` button next to the domain
+#. Click :guilabel:`Confirm` on the confirmation page
+
+**Once a domain is removed,
+your previous documentation domain is no longer served by Read the Docs,
+and any request for it will return a 404 Not Found!**
+
+Strict Transport Security and other custom headers
+--------------------------------------------------
 
 By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
 This is a conscious decision as it can be misconfigured in a not easily reversible way.
-For both |org_brand| and |com_brand|, HSTS for custom domains can be set upon request.
+For both |org_brand| and |com_brand|, HSTS and other custom headers can be set upon request.
 
 We always return the HSTS header with a max-age of at least one year
 for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
+
+Please contact :doc:`support` if you want to add a custom header to your domain.
 
 .. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 
@@ -88,7 +103,8 @@ Domains are usually validated and a certificate issued within minutes.
 However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes
 and then update DNS hours or days later,
 this can cause a delay in validating because there is an exponential back-off in validation.
-Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
+
+**Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.**
 
 Migrating from GitBook
 ~~~~~~~~~~~~~~~~~~~~~~
