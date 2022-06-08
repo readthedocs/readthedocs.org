@@ -1,8 +1,8 @@
 Canonical URLs
 ==============
 
-`Canonical URLs <https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls>`_
-allow you to specify the preferred version of a web page to prevent duplicated content.
+A `Canonical URL`__
+allows you to specify the preferred version of a web page to prevent duplicated content.
 They are mainly used by search engines to link users to the correct
 version and domain of your documentation.
 
@@ -11,6 +11,8 @@ it's easy for outdated documentation to be the top search result for various pag
 This is not a perfect solution for this problem,
 but generally people finding outdated documentation is a big problem,
 and this is one of the suggested ways to solve it from search engines.
+
+.. _Canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
 How Read the Docs generates canonical URLs
 ------------------------------------------
