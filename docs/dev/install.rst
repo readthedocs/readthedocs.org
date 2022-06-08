@@ -23,6 +23,22 @@ Set up your environment
 
 #. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
 
+   .. tip::
+
+      If you run an Ubuntu-flavoured system, you can try the following:
+
+      .. prompt:: bash
+
+         sudo apt install docker.io
+         sudo adduser $(whoami) docker
+
+      This will install Docker Community Edition maintained by an Ubuntu/Canonical team.
+
+   .. warning::
+
+      While setting up a Read the Docs development is fairly simple, it does consume a bit of resources: Expect to use ~10 GB for storing Docker images and run the environment on a system with 8+ GB of memory.
+
+
 #. clone the ``readthedocs.org`` repository:
 
    .. prompt:: bash
