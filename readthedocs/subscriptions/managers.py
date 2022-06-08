@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+import stripe
 import structlog
 from django.conf import settings
 from django.db import models
@@ -43,7 +44,8 @@ class SubscriptionManager(models.Manager):
             return None
 
         stripe_customer = get_or_create_stripe_customer(organization)
-        stripe_subscription = stripe_customer.subscriptions.create(
+        stripe_subscription = stripe.Subscription.create(
+            customer=stripe_customer.id,
             plan=plan.stripe_id,
             trial_period_days=plan.trial,
         )
@@ -53,7 +55,7 @@ class SubscriptionManager(models.Manager):
             stripe_id=stripe_subscription.id,
             status=stripe_subscription.status,
             start_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.start)),
+                datetime.fromtimestamp(int(stripe_subscription.start_date)),
             ),
             end_date=timezone.make_aware(
                 datetime.fromtimestamp(int(stripe_subscription.current_period_end)),

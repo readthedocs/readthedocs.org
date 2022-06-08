@@ -754,6 +754,7 @@ class CommunityBaseSettings(Settings):
     # Stripe
     # Existing values we use
     STRIPE_SECRET = None
+    STRIPE_VERSION = "2020-08-27"
     STRIPE_PUBLISHABLE = None
 
     # DJStripe values -- **CHANGE THESE IN PRODUCTION**
