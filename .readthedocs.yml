@@ -23,3 +23,5 @@ search:
 
     # Useful content, but not something we want most users finding
     changelog.html: -6
+  ignore:
+    - dmca/archive/*
