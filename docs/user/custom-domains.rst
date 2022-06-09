@@ -63,12 +63,14 @@ To remove a custom domain:
 #. Click the :guilabel:`Remove` button next to the domain
 #. Click :guilabel:`Confirm` on the confirmation page
 
-**Once a domain is removed,
-your previous documentation domain is no longer served by Read the Docs,
-and any request for it will return a 404 Not Found!**
+.. warning::
 
-Strict Transport Security and other custom headers
---------------------------------------------------
+    Once a domain is removed,
+    your previous documentation domain is no longer served by Read the Docs,
+    and any request for it will return a 404 Not Found!
+
+Strict Transport Security (HSTS) and other custom headers
+---------------------------------------------------------
 
 By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
 This is a conscious decision as it can be misconfigured in a not easily reversible way.
@@ -104,7 +106,9 @@ However, if you setup the domain in Read the Docs without provisioning the neces
 and then update DNS hours or days later,
 this can cause a delay in validating because there is an exponential back-off in validation.
 
-**Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.**
+.. tip::
+
+    Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
 
 Migrating from GitBook
 ~~~~~~~~~~~~~~~~~~~~~~

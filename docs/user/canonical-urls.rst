@@ -1,7 +1,7 @@
 Canonical URLs
 ==============
 
-A `Canonical URL`_
+A `canonical URL`_
 allows you to specify the preferred version of a web page to prevent duplicated content.
 They are mainly used by search engines to link users to the correct
 version and domain of your documentation.
@@ -12,7 +12,7 @@ This is not a perfect solution for this problem,
 but generally people finding outdated documentation is a big problem,
 and this is one of the suggested ways to solve it from search engines.
 
-.. _Canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
+.. _canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
 How Read the Docs generates canonical URLs
 ------------------------------------------
@@ -24,12 +24,12 @@ The canonical URL takes into account:
   otherwise the default :ref:`subdomain <hosting:subdomain support>` will be used.
 
 For example, if you have a project named ``example-docs``
-with a custom domain ``https://docs.example.com``.
-A search engine like Google will index both domains, ``https://example-docs.readthedocs.io`` and
-``https://docs.example.com``.
+with a custom domain ``https://docs.example.com``,
+then your documentation will be served at ``https://example-docs.readthedocs.io`` and ``https://docs.example.com``.
+Without specifying a canonical URL, a search engine like Google will index both domains.
 
-You'll want to use ``https://docs.example.com`` as your canonical domain,
-this means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/latest/``,
+You'll want to use ``https://docs.example.com`` as your canonical domain.
+This means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/latest/``,
 it will know that it should really point at ``https://docs.example.com/en/latest/``,
 thus avoiding duplicating the content.
 
