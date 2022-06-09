@@ -60,8 +60,8 @@ To remove a custom domain:
 
 #. Go the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Domains`.
-#. Click the :guilabel:`Remove` button next to the domain
-#. Click :guilabel:`Confirm` on the confirmation page
+#. Click the :guilabel:`Remove` button next to the domain.
+#. Click :guilabel:`Confirm` on the confirmation page.
 
 .. warning::
 
