@@ -8,7 +8,6 @@ import structlog
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
-from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
@@ -16,8 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
-from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.core.unresolver import unresolve
+from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_links
 from readthedocs.projects.constants import PUBLIC
@@ -26,7 +24,7 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
-class EmbedAPIBase(CDNCacheTagsMixin, APIView):
+class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
     # pylint: disable=no-self-use
@@ -48,13 +46,6 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
 
     permission_classes = [AllowAny]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-
-    @cached_property
-    def unresolved_url(self):
-        url = self.request.GET.get('url')
-        if not url:
-            return None
-        return unresolve(url)
 
     def _download_page_content(self, url):
         # Sanitize the URL before requesting it

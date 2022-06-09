@@ -1,6 +1,12 @@
-import structlog
+import functools
 
+import structlog
+from django.shortcuts import get_object_or_404
+from django.utils.functional import cached_property
+
+from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -55,3 +61,36 @@ class CDNCacheTagsMixin:
         if project and self.project_cache_tag:
             tags.append(get_cache_tag(project.slug, self.project_cache_tag))
         return tags
+
+
+class EmbedAPIMixin:
+    @cached_property
+    def unresolved_url(self):
+        url = self.request.GET.get("url")
+        if not url:
+            return None
+        return unresolve(url)
+
+    @functools.lru_cache(maxsize=1)
+    def _get_project(self):
+        if self.unresolved_url:
+            project_slug = self.unresolved_url.project.slug
+        else:
+            project_slug = self.request.GET.get("project")
+        return get_object_or_404(Project, slug=project_slug)
+
+    @functools.lru_cache(maxsize=1)
+    def _get_version(self):
+        if self.unresolved_url:
+            version_slug = self.unresolved_url.version_slug
+        else:
+            version_slug = self.request.GET.get("version", "latest")
+        project = self._get_project()
+        return get_object_or_404(project.versions.all(), slug=version_slug)
+
+    @cached_property
+    def unresolved_url(self):
+        url = self.request.GET.get("url")
+        if not url:
+            return None
+        return unresolve(url)
