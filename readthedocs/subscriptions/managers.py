@@ -189,6 +189,7 @@ class SubscriptionManager(models.Manager):
         rtd_subscription.save()
         return rtd_subscription
 
+    # pylint: disable=no-self-use
     def _get_plan(self, stripe_plan):
         from readthedocs.subscriptions.models import Plan
 
