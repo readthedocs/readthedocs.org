@@ -4,54 +4,60 @@ Development Installation
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are adhered to by the core development team while
-developing Read the Docs and related services. If you are a contributor to Read the Docs,
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
 
-To follow these instructions you will need a Unix-like operating system,
-or `Windows Subsystem for Linux (WSL) <https://docs.microsoft.com/en-us/windows/wsl/>`_.
-Other operating systems are not supported.
+Requirements
+------------
+
+A development setup can be hosted by your laptop, in a VM, on a separate server etc. Any such scenario should work fine, as long as it can satisfy the following:
+
+* Is Unix-like system (Linux, BSD, Mac OSX) which **supports Docker**. Windows systems should have WSL+Docker or Docker Desktop.
+* Has ``>=10 GB`` of **free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
+* Can spare ``2 GB`` of **system memory** for running Read the Docs, this typically means that a development laptop should have ``>=8 GB`` of memory in total.
 
 .. note::
 
-   We do not recommend to follow this guide to deploy an instance of Read the Docs for production usage.
-   Take into account that this setup is only useful for developing purposes.
+   Take into account that this setup is intended for development purposes. We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
+
+
+Installing Docker
+-----------------
+
+You need `Docker <https://www.docker.com/>`_ to run a development setup of Read the Docs. The easiest place to start is `Docker's installation guide <https://docs.docker.com/install/>`_, however there might be other more specific ways to get Docker for your exact system.
+
+If you run Windows, you can run Docker on `Windows Subsystem for Linux (WSL) <https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers>`_ or `Docker Desktop for Windows <https://docs.docker.com/desktop/windows/install/>`_.
+
+   .. tip::
+
+      We always support Docker CE for the latest Ubuntu LTS. On Ubuntu 22.04, we are therefore supporting Docker 20.x, the version of the ``docker.io`` package.
+
+      The following will install Docker Community Edition maintained by a Ubuntu/Canonical team:
+
+      .. prompt:: bash
+
+         # Install the docker.io package
+         sudo apt install docker.io
+         # Add the current user to the Docker group. After this, you should log out and back in for the group membership to be effective.
+         sudo adduser $(whoami) docker
 
 
 Set up your environment
 -----------------------
 
-#. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
-
-   .. tip::
-
-      If you run an Ubuntu-flavoured system, you can try the following:
-
-      .. prompt:: bash
-
-         sudo apt install docker.io
-         sudo adduser $(whoami) docker
-
-      This will install Docker Community Edition maintained by an Ubuntu/Canonical team.
-
-   .. warning::
-
-      While setting up a Read the Docs development is fairly simple, it does consume a bit of resources: Expect to use ~10 GB for storing Docker images and run the environment on a system with 8+ GB of memory.
-
-
-#. clone the ``readthedocs.org`` repository:
+#. Clone the ``readthedocs.org`` repository:
 
    .. prompt:: bash
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-#. install the requirements from ``common`` submodule:
+#. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
 
       pip install -r common/dockerfiles/requirements.txt
 
-#. build the Docker image for the servers:
+#. Build the Docker image for the servers:
 
    .. warning::
 
@@ -59,40 +65,53 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.build
+      COMPOSE_PROJECT_NAME=community inv docker.build
 
    .. tip::
 
       If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
       it will add support for readthedocs-ext.
 
-#. pull down Docker images for the builders:
+#. Pull down Docker images for the builders:
 
    .. prompt:: bash
 
       inv docker.pull --only-required
 
-#. start all the containers:
+#. Start all the containers:
 
    .. prompt:: bash
 
-      inv docker.up  --init  # --init is only needed the first time
+      COMPOSE_PROJECT_NAME=community inv docker.up  --init  # --init is only needed the first time
 
-#. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+#. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs. On newer versions of Firefox and Chrome, use a fresh Private/Incognito session.
+
+Notice that two commands use the environment variable ``COMPOSE_PROJECT_NAME=community``. You might want to configure this globally. Running these commands without specifying ``COMPOSE_PROJECT_NAME`` currently `does not work <https://github.com/readthedocs/readthedocs.org/issues/9318>`_.
+
+
+Setting up MinIO
+----------------
+
+This manual step is intended to be made redundant.
+
+#. MinIO buckets need to be configured. Visit MinIO: http://127.0.0.1:9000
+
+#. Login as ``admin`` /  ``password``. Here you should see a list of "buckets".
+
+#. Click "Manage" on each bucket and change the policy from Private to Public.
 
 
 Check that everything works
 ---------------------------
 
-#. go to http://community.dev.readthedocs.io and check that the appearance and style looks correct
-   (otherwise the MinIO buckets might be misconfigured, see above)
+#. In a private/incognito session, visit http://community.dev.readthedocs.io
 
-#. login as ``admin`` /  ``admin`` and verify that the project list appears
+#. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
-#. go to the "Read the Docs" project, click on the "Build version" button to build ``latest``,
-   and wait until it finishes
+#. Go to the "Read the Docs" project, under section "Build a version", click on the "Build version" button selecting "latest",
+   and wait until it finishes (this can take several minutes).
 
-#. click on the "View docs" button to browse the documentation, and verify that it works
+#. Click on the "View docs" button to browse the documentation, and verify that it works.
 
 
 Working with Docker Compose
