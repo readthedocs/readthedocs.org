@@ -754,6 +754,10 @@ class CommunityBaseSettings(Settings):
     # Stripe
     # Existing values we use
     STRIPE_SECRET = None
+    # NOTE: Remove this when enabling djstripe,
+    # since isn't recommended to set this value,
+    # we should always use the default version
+    # that djstripe works with.
     STRIPE_VERSION = "2020-08-27"
     STRIPE_PUBLISHABLE = None
 
