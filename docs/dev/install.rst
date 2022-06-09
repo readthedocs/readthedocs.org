@@ -13,8 +13,8 @@ Requirements
 A development setup can be hosted by your laptop, in a VM, on a separate server etc. Any such scenario should work fine, as long as it can satisfy the following:
 
 * Is Unix-like system (Linux, BSD, Mac OSX) which **supports Docker**. Windows systems should have WSL+Docker or Docker Desktop.
-* Has ``>=10 GB`` of **free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
-* Can spare ``2 GB`` of **system memory** for running Read the Docs, this typically means that a development laptop should have ``>=8 GB`` of memory in total.
+* Has **10 GB or more of free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
+* Can spare *2 GB of system memory* for running Read the Docs, this typically means that a development laptop should have **8 GB or more of memory** in total.
 
 .. note::
 
