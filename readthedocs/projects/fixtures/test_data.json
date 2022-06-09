@@ -6,7 +6,7 @@
             "modified_date": "2010-08-15T14:36:46+00:00",
             "description": "",
             "project_url": "",
-            "repo": "https://github.com/rtfd/readthedocs.org",
+            "repo": "https://github.com/readthedocs/readthedocs.org",
             "users": [
         1
         ],
@@ -212,7 +212,7 @@
             "built": true,
             "project": 1,
             "active": true,
-            "identifier": "master",
+            "identifier": "main",
             "verbose_name": "latest",
             "slug": "latest"
         }
