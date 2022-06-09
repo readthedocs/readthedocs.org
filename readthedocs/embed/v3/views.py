@@ -96,8 +96,8 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
-        if external:
+    def _get_content_by_fragment(self, url, fragment, doctool, doctoolversion):
+        if self.external:
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
@@ -229,10 +229,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can't find the project in our database
-        external = self.unresolved_url is None
-        if external:
+        if self.external:
             for allowed_domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
                 if re.match(allowed_domain, domain):
                     break
@@ -273,7 +270,6 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             content_requested = self._get_content_by_fragment(
                 url,
                 fragment,
-                external,
                 doctool,
                 doctoolversion,
             )
@@ -326,20 +322,22 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         )
 
         response = {
-            'url': url,
-            'fragment': fragment if fragment else None,
-            'content': content,
-            'external': external,
+            "url": url,
+            "fragment": fragment if fragment else None,
+            "content": content,
+            "external": self.external,
         }
         log.info(
-            'EmbedAPI successful response.',
-            project_slug=self.unresolved_url.project.slug if not external else None,
-            domain=domain if external else None,
+            "EmbedAPI successful response.",
+            project_slug=self.unresolved_url.project.slug
+            if not self.external
+            else None,
+            domain=domain if self.external else None,
             doctool=doctool,
             doctoolversion=doctoolversion,
             url=url,
             referer=request.META.get('HTTP_REFERER'),
-            external=external,
+            external=self.external,
             hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
         )
         return Response(response)
