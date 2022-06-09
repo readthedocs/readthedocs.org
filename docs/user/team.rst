@@ -23,19 +23,19 @@ and we are supported by a number of generous :doc:`sponsors </sponsors>`.
 
 .. rst-class:: team-roster
 
-============================ ============================
-|eric| Eric Holscher         |anthony| Anthony Johnson
-============================ ============================
-*All teams*                  *All teams*
+================================ ============================
+|eric| Eric Holscher             |anthony| Anthony Johnson
+================================ ============================
+*All teams*                      *All teams*
 
-|manuel| Manuel Kaufmann     |santos| Santos Gallegos
+|manuel| Manuel Kaufmann         |santos| Santos Gallegos
 
-Backend, Operations, Support Backend, Operations, Support
+Backend, Operations, Support     Backend, Operations, Support
 
-|juanlu| Juan Luis Cano      |ana| Ana Costa
+|benjamin| Benjamin Balder Bach
 
-Advocacy, Support            Frontend
-============================ ============================
+Backend, Operations, Support
+================================ ============================
 
 Teams
 ~~~~~
@@ -60,8 +60,7 @@ Teams
 .. _Anthony Johnson: https://github.com/agjohnson
 .. _Manuel Kaufmann: https://github.com/humitos
 .. _Santos Gallegos: https://github.com/stsewd
-.. _Juan Luis Cano: https://github.com/astrojuanlu
-.. _Ana Costa: https://github.com/nienn
+.. _Benjamin Balder Bach: https://github.com/benjaoming
 
 .. |eric| image:: https://avatars.githubusercontent.com/u/25510?v=4
           :width: 100px
@@ -83,15 +82,10 @@ Teams
             :alt: Santos Gallegos
             :target: `Santos Gallegos`_
 
-.. |juanlu| image:: https://avatars.githubusercontent.com/u/316517?v=4
-            :width: 100px
-            :alt: Juan Luis Cano
-            :target: `Juan Luis Cano`_
-
-.. |ana| image:: https://avatars.githubusercontent.com/u/4049894?v=4
+.. |benjamin| image:: https://avatars.githubusercontent.com/u/374612?v=4
          :width: 100px
-         :alt: Ana Costa
-         :target: `Ana Costa`_
+         :alt: Benjamin Balder Bach
+         :target: `Benjamin Balder Bach`_
 
 .. _major-contributors:
 
