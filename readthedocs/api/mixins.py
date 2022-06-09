@@ -25,7 +25,7 @@ class CDNCacheTagsMixin:
         response = super().dispatch(request, *args, **kwargs)
         cache_tags = self._get_cache_tags()
         if cache_tags:
-            response['Cache-Tag'] = ','.join(cache_tags)
+            response["Cache-Tag"] = ",".join(cache_tags)
         return response
 
     def _get_cache_tags(self):

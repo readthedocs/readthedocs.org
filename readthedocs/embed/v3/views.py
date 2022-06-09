@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
-from readthedocs.api.v2.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_links

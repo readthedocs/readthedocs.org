@@ -15,7 +15,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from readthedocs.api.v2.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
