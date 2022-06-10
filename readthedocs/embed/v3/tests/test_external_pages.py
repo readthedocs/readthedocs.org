@@ -37,12 +37,18 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
+        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
+        if sphinx.version_info < (5, 0, 0):
+            title = "Permalink to this headline"
+        else:
+            title = "Permalink to this heading"
+
         # The output is different because docutils is outputting this,
         # and we're not sanitizing it, but just passing it through.
         if Version(docutils.__version__) >= Version('0.17'):
-            content = '<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
+            content = f'<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
         else:
-            content = '<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="Permalink to this headline">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
+            content = f'<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
 
         assert response.json() == {
             'url': 'https://docs.project.com',
@@ -65,10 +71,16 @@ class TestEmbedAPIv3ExternalPages:
         response = client.get(self.api_url, params)
         assert response.status_code == 200
 
-        if Version(docutils.__version__) >= Version('0.17'):
-            content = '<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>'
+        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
+        if sphinx.version_info < (5, 0, 0):
+            title = "Permalink to this headline"
         else:
-            content = '<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="Permalink to this headline">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>'
+            title = "Permalink to this heading"
+
+        if Version(docutils.__version__) >= Version("0.17"):
+            content = f'<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>'
+        else:
+            content = f'<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>'
 
         assert response.json() == {
             'url': 'https://docs.project.com#sub-title',
