@@ -108,7 +108,7 @@ Check that everything works
 
 #. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
-#. Go to the "Read the Docs" project, under section "Build a version", click on the "Build version" button selecting "latest",
+#. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
    and wait until it finishes (this can take several minutes).
 
 #. Click on the "View docs" button to browse the documentation, and verify that it works.
