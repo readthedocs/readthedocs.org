@@ -18,7 +18,8 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
 
 .. note::
 
-   Take into account that this setup is intended for development purposes. We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
+   Take into account that this setup is intended for development purposes.
+   We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
 Installing Docker
@@ -111,7 +112,7 @@ Check that everything works
 #. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
    and wait until it finishes (this can take several minutes).
 
-#. Click on the "View docs" button to browse the documentation, and verify that it works.
+#. Click on the "View docs" button to browse the documentation, and verify that it shows the Read the Docs documentation page.
 
 
 Working with Docker Compose
