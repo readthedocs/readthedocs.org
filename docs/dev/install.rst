@@ -15,32 +15,13 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
 * Is Unix-like system (Linux, BSD, Mac OSX) which **supports Docker**. Windows systems should have WSL+Docker or Docker Desktop.
 * Has **10 GB or more of free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
 * Can spare *2 GB of system memory* for running Read the Docs, this typically means that a development laptop should have **8 GB or more of memory** in total.
+* Your system should *ideally* match the production system which uses the **latest official+stable Docker** distribution for `Ubuntu <https://docs.docker.com/engine/install/ubuntu/>`_ (the ``docker-ce`` package). If you are on Windows or Mac, you may also want to try `Docker Desktop <https://docs.docker.com/desktop/>`_.
+* We use the latest stable `docker-compose 1.x <https://pypi.org/project/docker-compose/>`_ (this can be installed and run through a virtual environment).
 
 .. note::
 
    Take into account that this setup is intended for development purposes.
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
-
-
-Installing Docker
------------------
-
-You need `Docker <https://www.docker.com/>`_ to run a development setup of Read the Docs. The easiest place to start is `Docker's installation guide <https://docs.docker.com/install/>`_, however there might be other more specific ways to get Docker for your exact system.
-
-If you run Windows, you can run Docker on `Windows Subsystem for Linux (WSL) <https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-containers>`_ or `Docker Desktop for Windows <https://docs.docker.com/desktop/windows/install/>`_.
-
-   .. tip::
-
-      We always support Docker CE for the latest Ubuntu LTS. On Ubuntu 22.04, we are therefore supporting Docker 20.x, the version of the ``docker.io`` package.
-
-      The following will install Docker Community Edition maintained by a Ubuntu/Canonical team:
-
-      .. prompt:: bash
-
-         # Install the docker.io package
-         sudo apt install docker.io
-         # Add the current user to the Docker group. After this, you should log out and back in for the group membership to be effective.
-         sudo adduser $(whoami) docker
 
 
 Set up your environment
@@ -85,7 +66,8 @@ Set up your environment
 
       COMPOSE_PROJECT_NAME=community inv docker.up  --init  # --init is only needed the first time
 
-#. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs. On newer versions of Firefox and Chrome, use a fresh Private/Incognito session.
+#. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+   Because HSTS is enabled on ``*.readthedocs.io`` and because some browsers have HTTPS-only modes enabled, you should potentially use a fresh private/incognito session.
 
 Notice that two commands use the environment variable ``COMPOSE_PROJECT_NAME=community``. You might want to configure this globally. Running these commands without specifying ``COMPOSE_PROJECT_NAME`` currently `does not work <https://github.com/readthedocs/readthedocs.org/issues/9318>`_.
 
@@ -105,7 +87,8 @@ This manual step is intended to be made redundant.
 Check that everything works
 ---------------------------
 
-#. In a private/incognito session, visit http://community.dev.readthedocs.io
+#. Visit http://community.dev.readthedocs.io
+   (if your browser automatically redirect to ``https://``, use a private/incognito session)
 
 #. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
