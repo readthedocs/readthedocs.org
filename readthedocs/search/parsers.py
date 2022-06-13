@@ -313,7 +313,7 @@ class GenericParser:
             if content:
                 return self._process_content(page, content)
         except Exception as e:
-            log.info("Failed to index page.", path=page, exception=str(e))
+            log.info("Failed to index page.", path=page, exc_info=True)
         return {
             "path": page,
             "title": "",
