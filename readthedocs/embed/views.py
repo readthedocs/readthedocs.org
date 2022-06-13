@@ -63,6 +63,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
+    @property
+    def external(self):
+        # Always return False because APIv2 does not support external domains
+        return False
+
     def get(self, request):
         """Handle the get request."""
         project = self._get_project()

@@ -64,12 +64,6 @@ class CDNCacheTagsMixin:
 
 
 class EmbedAPIMixin:
-    @property
-    def external(self):
-        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can't find the project in our database
-        return self.unresolved_url is None
-
     @cached_property
     def unresolved_url(self):
         url = self.request.GET.get("url")

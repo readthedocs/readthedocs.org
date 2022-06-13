@@ -47,6 +47,12 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     permission_classes = [AllowAny]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
+    @property
+    def external(self):
+        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
+        # it can't find the project in our database
+        return self.unresolved_url is None
+
     def _download_page_content(self, url):
         # Sanitize the URL before requesting it
         url = urlparse(url)._replace(fragment='', query='').geturl()
