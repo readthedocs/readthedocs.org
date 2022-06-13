@@ -137,10 +137,10 @@ class SubscriptionManager(models.Manager):
         # A miss here just won't update the UI, but this shouldn't happen for most users.
         # NOTE: Previously we were using stripe_subscription.plan,
         # but that attribute is deprecated, and it's null if the subscription has more than
-        # one item/plan, we have a couple of subscriptions that have more than
+        # one item, we have a couple of subscriptions that have more than
         # one item, so we use the first that is found in our DB.
         for stripe_item in stripe_subscription["items"].data:
-            plan = self._get_plan(stripe_item.plan)
+            plan = self._get_plan(stripe_item.price)
             if plan:
                 rtd_subscription.plan = plan
                 break
@@ -190,7 +190,7 @@ class SubscriptionManager(models.Manager):
         return rtd_subscription
 
     # pylint: disable=no-self-use
-    def _get_plan(self, stripe_plan):
+    def _get_plan(self, stripe_price):
         from readthedocs.subscriptions.models import Plan
 
         try:
@@ -201,13 +201,13 @@ class SubscriptionManager(models.Manager):
                 # filter on here.
                 .exclude(slug__contains="custom")
                 .exclude(name__icontains="Custom")
-                .get(stripe_id=stripe_plan.id)
+                .get(stripe_id=stripe_price.id)
             )
             return plan
         except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):
             log.info(
                 "Plan lookup failed.",
-                stripe_plan=stripe_plan.id,
+                stripe_price=stripe_price.id,
             )
         return None
 
