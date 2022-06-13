@@ -1,0 +1,14 @@
+[
+  {
+    "title": "My first web page",
+    "path": "basic.html",
+    "sections": [
+      {
+        "id": "",
+        "title": "My first web page",
+        "content": "My first web page!"
+      }
+    ],
+    "domain_data": {}
+  }
+]
