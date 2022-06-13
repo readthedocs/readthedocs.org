@@ -35,7 +35,7 @@ To setup your custom domain, follow these steps:
       and for a root domain like ``example.com`` use an ANAME or ALIAS record.
 
 By default, we provide a validated SSL certificate for the domain,
-managed by Cloudflare.
+managed by `Cloudflare <https://www.cloudflare.com/>`_.
 The SSL certificate issuance should happen within a few minutes,
 but might take up to one hour.
 See `SSL certificate issue delays`_ for more troubleshooting options.
