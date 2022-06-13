@@ -157,7 +157,8 @@ hoverxref_auto_ref = True
 hoverxref_domains = ["py"]
 hoverxref_roles = [
     "option",
-    "doc",
+    "doc",  # Documentation pages
+    "term",  # Glossary terms
 ]
 hoverxref_role_types = {
     "mod": "modal",  # for Python Sphinx Domain

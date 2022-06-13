@@ -76,7 +76,7 @@ and some of the core features of Read the Docs.
 
 * **Overview of core features**:
   :doc:`/integrations` |
-  :doc:`/custom_domains` |
+  :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
@@ -108,7 +108,7 @@ and some of the core features of Read the Docs.
 
    /config-file/index
    /integrations
-   /custom_domains
+   /custom-domains
    /versions
    /downloadable-documentation
    /hosting
@@ -209,6 +209,7 @@ out of your documentation and Read the Docs.
    automatic-redirects
 
    automation-rules
+   canonical-urls
 
 
    api/index
