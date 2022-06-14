@@ -74,6 +74,7 @@ class EmbedAPIMixin:
     Note that these methods are cached (``lru_cache`` and ``cached_property``)
     to avoid hitting the database multiple times on the same request.
     """
+
     @cached_property
     def unresolved_url(self):
         url = self.request.GET.get("url")
