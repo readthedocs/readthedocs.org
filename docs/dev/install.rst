@@ -16,7 +16,6 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
 * Has **10 GB or more of free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
 * Can spare *2 GB of system memory* for running Read the Docs, this typically means that a development laptop should have **8 GB or more of memory** in total.
 * Your system should *ideally* match the production system which uses the **latest official+stable Docker** distribution for `Ubuntu <https://docs.docker.com/engine/install/ubuntu/>`_ (the ``docker-ce`` package). If you are on Windows or Mac, you may also want to try `Docker Desktop <https://docs.docker.com/desktop/>`_.
-* We use the latest stable `docker-compose 1.x <https://pypi.org/project/docker-compose/>`_ (this can be installed and run through a virtual environment).
 
 .. note::
 
