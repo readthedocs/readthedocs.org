@@ -236,7 +236,7 @@ class StripeEventView(APIView):
                     # Gold Membership
                     user = User.objects.get(username=username)
                     subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-                    stripe_price = subscription["items"].data[0].price
+                    stripe_price = self._get_stripe_price(subscription)
                     log.bind(stripe_price=stripe_price.id)
                     log.info('Gold Membership subscription.')
                     gold, _ = GoldUser.objects.get_or_create(
@@ -277,7 +277,7 @@ class StripeEventView(APIView):
 
             elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
                 subscription = event.data.object
-                stripe_price = subscription["items"].data[0].price
+                stripe_price = self._get_stripe_price(subscription)
                 log.info(
                     'Gold User subscription updated.',
                     stripe_price=stripe_price.id,
@@ -307,3 +307,12 @@ class StripeEventView(APIView):
         return Response({
             'OK': True,
         })
+
+    def _get_stripe_price(self, stripe_subscription):
+        subscription_items = stripe_subscription["items"].data
+        if len(subscription_items) > 1:
+            log.info(
+                "Subscription with more than one item.",
+                subscription_items=subscription_items,
+            )
+        return subscription_items[0].price
