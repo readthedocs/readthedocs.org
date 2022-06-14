@@ -47,7 +47,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      COMPOSE_PROJECT_NAME=community inv docker.build
+      inv docker.build
 
    .. tip::
 
@@ -64,12 +64,10 @@ Set up your environment
 
    .. prompt:: bash
 
-      COMPOSE_PROJECT_NAME=community inv docker.up  --init  # --init is only needed the first time
+      inv docker.up  --init  # --init is only needed the first time
 
 #. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
    Because HSTS is enabled on ``*.readthedocs.io`` and because some browsers have HTTPS-only modes enabled, you should potentially use a fresh private/incognito session.
-
-Notice that two commands use the environment variable ``COMPOSE_PROJECT_NAME=community``. You might want to configure this globally. Running these commands without specifying ``COMPOSE_PROJECT_NAME`` currently `does not work <https://github.com/readthedocs/readthedocs.org/issues/9318>`_.
 
 
 Setting up MinIO
