@@ -64,6 +64,16 @@ class CDNCacheTagsMixin:
 
 
 class EmbedAPIMixin:
+
+    """
+    Helper for EmbedAPI v2 and v3.
+
+    Used in combination with ``CDNCacheTagsMixin`` to add project/version slug
+    in the response to be cached.
+
+    Note that these methods are cached (``lru_cache`` and ``cached_property``)
+    to avoid hitting the database multiple times on the same request.
+    """
     @cached_property
     def unresolved_url(self):
         url = self.request.GET.get("url")
