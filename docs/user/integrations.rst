@@ -61,9 +61,6 @@ You can verify if the webhook is working at the bottom of the GitHub page under 
 If you see a Response 200, then the webhook is correctly configured.
 For a 403 error, it's likely that the Payload URL is incorrect.
 
-GitHub will emit an initial HTTP request (`X-GitHub-Event: ping`) upon creating the webhook and you may notice that the Read the Docs responds with `{"detail":"Unhandled webhook event"}` – this is normal and expected.
-Push changes to your repository and webhooks will work from this point.
-
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
 .. _webhook-integration-bitbucket:

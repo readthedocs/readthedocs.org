@@ -9,7 +9,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.api.v2.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project

@@ -1,3 +1,26 @@
+Version 8.2.0
+-------------
+
+:Date: June 14, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Small edits to add a couple keywords and clarify headings (`#9329 <https://github.com/readthedocs/readthedocs.org/pull/9329>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: integrate Transifex into our Docker tasks (`#9326 <https://github.com/readthedocs/readthedocs.org/pull/9326>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPIv3: make usage of CDN (`#9321 <https://github.com/readthedocs/readthedocs.org/pull/9321>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: handle subscriptions with multiple products/plans/items (`#9320 <https://github.com/readthedocs/readthedocs.org/pull/9320>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Update the team page (`#9309 <https://github.com/readthedocs/readthedocs.org/pull/9309>`__)
+* `@stsewd <https://github.com/stsewd>`__: Stripe: use new api version (`#9308 <https://github.com/readthedocs/readthedocs.org/pull/9308>`__)
+* `@humitos <https://github.com/humitos>`__: Build: avoid overwriting a variable (`#9305 <https://github.com/readthedocs/readthedocs.org/pull/9305>`__)
+* `@humitos <https://github.com/humitos>`__: Integrations: handle `ping` event on GitHub (`#9303 <https://github.com/readthedocs/readthedocs.org/pull/9303>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.1.2 (`#9300 <https://github.com/readthedocs/readthedocs.org/pull/9300>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Docs CI (`#9299 <https://github.com/readthedocs/readthedocs.org/pull/9299>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: test build views with organizations (`#9298 <https://github.com/readthedocs/readthedocs.org/pull/9298>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update mentions of our roadmap to be current (`#9293 <https://github.com/readthedocs/readthedocs.org/pull/9293>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: set max split when parsing remotes (`#9292 <https://github.com/readthedocs/readthedocs.org/pull/9292>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: make `tests-embedapi` require regular `tests` first (`#9289 <https://github.com/readthedocs/readthedocs.org/pull/9289>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Truncate output that we log from commands to 10 lines (`#9286 <https://github.com/readthedocs/readthedocs.org/pull/9286>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update custom domains docs (`#9266 <https://github.com/readthedocs/readthedocs.org/pull/9266>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: update django-allauth (`#9249 <https://github.com/readthedocs/readthedocs.org/pull/9249>`__)
+
 Version 8.1.2
 -------------
 

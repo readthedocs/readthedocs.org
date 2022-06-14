@@ -65,6 +65,10 @@ pytz==2022.1
 django-kombu==0.9.4
 stripe==2.74.0
 regex==2022.4.24
+# NOTE: djstripe overrides the stripe api version
+# globally, when updating make sure our code is compatible
+# with the version used by djstripe.
+# See STRIPE_API_VERSION https://dj-stripe.dev/reference/settings/.
 dj-stripe==2.6.1
 markdown==3.3.6
 
