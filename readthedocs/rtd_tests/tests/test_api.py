@@ -16,6 +16,7 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITHUB_PING,
     GITHUB_PULL_REQUEST,
     GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
@@ -1084,6 +1085,22 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+
+    @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
+    def test_github_ping_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PING}
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_payload,
+            format="json",
+            **headers,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(resp.data, {"detail": "Webhook configured correctly"})
+        trigger_build.assert_not_called()
+        sync_repository_task.assert_not_called()
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_create_event(self, sync_repository_task, trigger_build):

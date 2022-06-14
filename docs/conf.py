@@ -67,7 +67,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "2010, Read the Docs, Inc & contributors"
-version = "8.1.2"
+version = "8.2.0"
 release = version
 exclude_patterns = ["_build"]
 default_role = "obj"
@@ -157,7 +157,8 @@ hoverxref_auto_ref = True
 hoverxref_domains = ["py"]
 hoverxref_roles = [
     "option",
-    "doc",
+    "doc",  # Documentation pages
+    "term",  # Glossary terms
 ]
 hoverxref_role_types = {
     "mod": "modal",  # for Python Sphinx Domain

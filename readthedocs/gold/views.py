@@ -1,9 +1,9 @@
 """Gold subscription views."""
 
 import json
-import structlog
-import stripe
 
+import stripe
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -12,19 +12,17 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
-from vanilla import DetailView, FormView, GenericView
-from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from vanilla import DetailView, FormView, GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
 from .models import GoldUser
-
 
 log = structlog.get_logger(__name__)
 
@@ -238,13 +236,14 @@ class StripeEventView(APIView):
                     # Gold Membership
                     user = User.objects.get(username=username)
                     subscription = stripe.Subscription.retrieve(event.data.object.subscription)
-                    log.bind(stripe_plan=subscription.plan.id)
+                    stripe_price = subscription["items"].data[0].price
+                    log.bind(stripe_price=stripe_price.id)
                     log.info('Gold Membership subscription.')
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
                         stripe_id=stripe_customer,
                     )
-                    gold.level = subscription.plan.id
+                    gold.level = stripe_price.id
                     gold.subscribed = True
                     gold.save()
                 elif mode == 'payment':
@@ -278,16 +277,16 @@ class StripeEventView(APIView):
 
             elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
                 subscription = event.data.object
-                level = subscription.plan.id
+                stripe_price = subscription["items"].data[0].price
                 log.info(
                     'Gold User subscription updated.',
-                    stripe_plan=level,
+                    stripe_price=stripe_price.id,
                 )
                 (
                     GoldUser.objects
                     .filter(stripe_id=stripe_customer)
                     .update(
-                        level=level,
+                        level=stripe_price.id,
                         modified_date=timezone.now(),
                     )
                 )

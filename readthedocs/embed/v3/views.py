@@ -8,7 +8,6 @@ import structlog
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
-from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
@@ -16,8 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
-from readthedocs.api.v2.mixins import CDNCacheTagsMixin
-from readthedocs.core.unresolver import unresolve
+from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_links
 from readthedocs.projects.constants import PUBLIC
@@ -26,7 +24,7 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
-class EmbedAPIBase(CDNCacheTagsMixin, APIView):
+class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
     # pylint: disable=no-self-use
@@ -49,12 +47,11 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
     permission_classes = [AllowAny]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    @cached_property
-    def unresolved_url(self):
-        url = self.request.GET.get('url')
-        if not url:
-            return None
-        return unresolve(url)
+    @property
+    def external(self):
+        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
+        # it can't find the project in our database
+        return self.unresolved_url is None
 
     def _download_page_content(self, url):
         # Sanitize the URL before requesting it
@@ -105,8 +102,8 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
-        if external:
+    def _get_content_by_fragment(self, url, fragment, doctool, doctoolversion):
+        if self.external:
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
@@ -238,10 +235,7 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can't find the project in our database
-        external = self.unresolved_url is None
-        if external:
+        if self.external:
             for allowed_domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
                 if re.match(allowed_domain, domain):
                     break
@@ -282,7 +276,6 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
             content_requested = self._get_content_by_fragment(
                 url,
                 fragment,
-                external,
                 doctool,
                 doctoolversion,
             )
@@ -335,20 +328,22 @@ class EmbedAPIBase(CDNCacheTagsMixin, APIView):
         )
 
         response = {
-            'url': url,
-            'fragment': fragment if fragment else None,
-            'content': content,
-            'external': external,
+            "url": url,
+            "fragment": fragment if fragment else None,
+            "content": content,
+            "external": self.external,
         }
         log.info(
-            'EmbedAPI successful response.',
-            project_slug=self.unresolved_url.project.slug if not external else None,
-            domain=domain if external else None,
+            "EmbedAPI successful response.",
+            project_slug=self.unresolved_url.project.slug
+            if not self.external
+            else None,
+            domain=domain if self.external else None,
             doctool=doctool,
             doctoolversion=doctoolversion,
             url=url,
             referer=request.META.get('HTTP_REFERER'),
-            external=external,
+            external=self.external,
             hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
         )
         return Response(response)

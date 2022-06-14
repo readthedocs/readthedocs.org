@@ -12,7 +12,7 @@ from django.views import View
 from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
-from readthedocs.api.v2.mixins import CDNCacheTagsMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin

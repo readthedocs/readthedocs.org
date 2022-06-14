@@ -57,9 +57,18 @@ class SubscriptionTests(TestCase):
                 'current_period_start': 120778389,
                 'current_period_end': 123456789,
                 'trial_end': 1475437877,
-                'plan': {
-                    'id': 'advanced',
-                }
+                "items": {
+                    "object": "list",
+                    "data": [
+                        {
+                            "id": "si_KOcEsHCktPUedU",
+                            "object": "subscription_item",
+                            "price": {
+                                "id": "advanced",
+                            },
+                        },
+                    ],
+                },
             },
             None,
         )
@@ -88,9 +97,18 @@ class SubscriptionTests(TestCase):
             {
                 'id': 'sub_foo',
                 'status': 'unpaid',
-                'plan': {
-                    'id': 'advanced',
-                }
+                "items": {
+                    "object": "list",
+                    "data": [
+                        {
+                            "id": "si_KOcEsHCktPUedU",
+                            "object": "subscription_item",
+                            "price": {
+                                "id": "advanced",
+                            },
+                        },
+                    ],
+                },
             },
             None,
         )
@@ -111,9 +129,18 @@ class SubscriptionTests(TestCase):
             {
                 'id': 'sub_bar',
                 'status': 'active',
-                'plan': {
-                    'id': 'advanced',
-                }
+                "items": {
+                    "object": "list",
+                    "data": [
+                        {
+                            "id": "si_KOcEsHCktPUedU",
+                            "object": "subscription_item",
+                            "price": {
+                                "id": "advanced",
+                            },
+                        },
+                    ],
+                },
             },
             None,
         )
