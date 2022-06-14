@@ -1443,6 +1443,8 @@ class HTMLFile(ImportedFile):
             log.warning(
                 "Invalid documentation type",
                 documentation_type=self.version.documentation_type,
+                version_slug=self.version.slug,
+                project_slug=self.project.slug,
             )
             return {}
         parser = parser_class(self.version)
