@@ -12,6 +12,7 @@ RUN apt-get -y update
 RUN apt-get -y install \
         curl \
         g++ \
+        gettext \
         git-core \
         libevent-dev \
         libpq-dev \
