@@ -29,6 +29,10 @@ def delete_customer(customer_id):
 def cancel_subscription(subscription_id):
     """Cancel Stripe subscription, if it exists."""
     try:
+        log.info(
+            "Canceling stripe subscription.",
+            stripe_subscription=subscription_id,
+        )
         return stripe.Subscription.delete(subscription_id)
     except stripe.error.StripeError:
         log.exception(
