@@ -303,3 +303,22 @@ class TestParsers:
         parsed_json = [file.processed_json]
         expected_json = json.load(open(data_path / "generic/out/basic.json"))
         assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_generic_pelican_default_theme(self, storage_open, storage_exists):
+        file = data_path / "pelican/in/default/index.html"
+        storage_exists.return_value = True
+        self.version.documentation_type = GENERIC
+        self.version.save()
+
+        storage_open.side_effect = self._mock_open(file.open().read())
+        file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="index.html",
+        )
+        parsed_json = [file.processed_json]
+        expected_json = json.load(open(data_path / "pelican/out/default.json"))
+        assert parsed_json == expected_json
