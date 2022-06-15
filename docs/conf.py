@@ -94,6 +94,9 @@ intersphinx_mapping = {
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
 }
+# Redundant in Sphinx 5.0
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
+intersphinx_disabled_reftypes = ["std:doc"]
 myst_enable_extensions = [
     "deflist",
 ]
