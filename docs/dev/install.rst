@@ -69,18 +69,6 @@ Set up your environment
    Because HSTS is enabled on ``*.readthedocs.io`` and because some browsers have HTTPS-only modes enabled, you should potentially use a fresh private/incognito session.
 
 
-Setting up MinIO
-----------------
-
-This manual step is intended to be made redundant.
-
-#. MinIO buckets need to be configured. Visit MinIO: http://127.0.0.1:9000
-
-#. Login as ``admin`` /  ``password``. Here you should see a list of "buckets".
-
-#. Click "Manage" on each bucket and change the policy from Private to Public.
-
-
 Check that everything works
 ---------------------------
 
