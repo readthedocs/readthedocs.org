@@ -12,6 +12,7 @@ RUN apt-get -y update
 RUN apt-get -y install \
         curl \
         g++ \
+        gettext \
         git-core \
         libevent-dev \
         libpq-dev \
@@ -29,6 +30,13 @@ RUN apt-get -y install \
         netcat \
         telnet \
         lsb-release
+
+# Gets the MinIO mc client used to add buckets upon initialization
+# If this client should have issues running inside this image, it is also
+# fine to defer it to a separate image.
+# The current minio/mc Docker image could be a lot smaller
+RUN curl -s -q https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
+    chmod +x /usr/bin/mc
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
