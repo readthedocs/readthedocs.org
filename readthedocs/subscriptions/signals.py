@@ -51,22 +51,3 @@ def update_billing_information(sender, instance, created, **kwargs):
         log.exception('Unable to update the Organization billing email on Stripe.')
     except Exception:
         log.exception('Unknown error when updating Organization billing email on Stripe.')
-
-
-# pylint: disable=unused-argument
-@receiver(pre_delete, sender=Organization)
-def remove_subscription(sender, instance, using, **kwargs):
-    """
-    Deletes the subscription object and cancels it from Stripe.
-
-    This is used as complement to ``remove_organization_completely``.
-    """
-    organization = instance
-    try:
-        subscription = organization.subscription
-        subscription.delete()
-    except Subscription.DoesNotExist:
-        log.error(
-            "Organization doesn't have a subscription to cancel.",
-            organization_slug=organization.slug,
-        )
