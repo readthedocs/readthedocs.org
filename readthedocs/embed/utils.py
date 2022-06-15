@@ -1,6 +1,7 @@
 """Embed utils."""
 
 from urllib.parse import urlparse
+
 from pyquery import PyQuery as PQ  # noqa
 
 
@@ -15,7 +16,7 @@ def recurse_while_none(element):
     return {element.text: href}
 
 
-def clean_links(obj, url, html_raw_response=False):
+def clean_references(obj, url, html_raw_response=False):
     """
     Rewrite (internal) links to make them absolute.
 

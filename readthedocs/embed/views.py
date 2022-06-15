@@ -17,7 +17,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import clean_links, recurse_while_none
+from readthedocs.embed.utils import clean_references, recurse_while_none
 from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)
@@ -312,10 +312,7 @@ def parse_sphinx(content, section, url):
             return obj.parent().outerHtml()
         return obj.outerHtml()
 
-    ret = [
-        dump(clean_links(obj, url))
-        for obj in query_result
-    ]
+    ret = [dump(clean_references(obj, url)) for obj in query_result]
     return ret, headers, section
 
 
