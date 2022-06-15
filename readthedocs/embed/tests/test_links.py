@@ -90,12 +90,36 @@ dirhtmldata = [
     ),
 ]
 
+imagedata = [
+    URLData(
+        html_base_url,
+        "/_images/image.png",
+        "/_images/image.png",
+    ),
+    URLData(
+        html_base_url,
+        "relative/section/image.png",
+        "https://t.readthedocs.io/en/latest/relative/section/image.png",
+    ),
+    URLData(
+        "https://t.readthedocs.io/en/latest/internal/deep/page/topic.html",
+        "../../../_images/image.png",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/../../../_images/image.png",
+    ),
+]
 
 @pytest.mark.parametrize('url', htmldata + dirhtmldata)
 def test_clean_links(url):
     pq = PyQuery(f'<body><a href="{url.ref}">Click here</a></body>')
     response = clean_references(pq, url.docurl)
     assert response.find('a').attr['href'] == url.expected
+
+
+@pytest.mark.parametrize("url", imagedata)
+def test_clean_images(url):
+    pq = PyQuery(f'<body><img alt="image alt content" src="{url.ref}"></img></body>')
+    response = clean_references(pq, url.docurl)
+    assert response.find("img").attr["src"] == url.expected
 
 
 def test_two_links():
