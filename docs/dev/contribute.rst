@@ -87,15 +87,22 @@ projects, feel free to suggest the language on Transifex to start the process.
 
 .. _our projects on Transifex: https://www.transifex.com/projects/p/readthedocs/
 
-Triaging tickets
-----------------
+Triaging issues
+---------------
 
-Core team uses the following guidelines for issue triage on all of our projects.
-These guidelines describe the issue lifecycle, and what is required at each step
-of this lifecycle.
+Everyone is encouraged to help improving, refining, verifying and prioritizing
+issues on Github. The Read the Docs core :external+rtd:doc:`team` uses the following
+guidelines for issue triage on all of our projects. These guidelines describe
+the issue lifecycle step-by-step.
 
 .. note:: You will need Triage permission on the project in order to do this.
-          You can ask one of the members of the :doc:`team` to give you access.
+          You can ask one of the members of the :external+rtd:doc:`team` to give you access.
+
+.. tip:: Triaging helps identify problems and solutions and ultimately what
+         issues that are ready to be worked on. The core
+         :external+rtd:doc:`team` maintains a separate :doc:`/roadmap`
+         of prioritized issues - issues will only end up on that Roadmap after
+         they have been triaged.
 
 Initial triage
 ~~~~~~~~~~~~~~
