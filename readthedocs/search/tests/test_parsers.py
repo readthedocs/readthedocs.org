@@ -7,8 +7,8 @@ import pytest
 from django_dynamic_fixture import get
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
-from readthedocs.projects.constants import MKDOCS, SPHINX
-from readthedocs.projects.models import HTMLFile, Project, Feature
+from readthedocs.projects.constants import GENERIC, MKDOCS, SPHINX
+from readthedocs.projects.models import Feature, HTMLFile, Project
 
 data_path = Path(__file__).parent.resolve() / 'data'
 
@@ -283,4 +283,23 @@ class TestParsers:
 
         parsed_json = page_file.processed_json
         expected_json = json.load(open(data_path / 'sphinx/out/no-title.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_generic_simple_page(self, storage_open, storage_exists):
+        file = data_path / "generic/in/basic.html"
+        storage_exists.return_value = True
+        self.version.documentation_type = GENERIC
+        self.version.save()
+
+        storage_open.side_effect = self._mock_open(file.open().read())
+        file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="basic.html",
+        )
+        parsed_json = [file.processed_json]
+        expected_json = json.load(open(data_path / "generic/out/basic.json"))
         assert parsed_json == expected_json

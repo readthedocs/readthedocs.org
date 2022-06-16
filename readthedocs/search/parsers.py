@@ -14,7 +14,7 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
-class BaseParser:
+class GenericParser:
 
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
@@ -73,6 +73,7 @@ class BaseParser:
         - Try the first ``h1`` node and return its parent
           Usually all sections are neighbors,
           so they are children of the same parent node.
+        - Return the body element itself if all checks above fail.
         """
         body = html.body
         main_node = body.css_first('[role=main]')
@@ -85,11 +86,11 @@ class BaseParser:
 
         # TODO: this could be done in smarter way,
         # checking for common parents between all h nodes.
-        first_header = body.css_first('h1')
+        first_header = body.css_first("h1")
         if first_header:
             return first_header.parent
 
-        return None
+        return body
 
     def _parse_content(self, content):
         """Converts all new line characters and multiple spaces to a single space."""
@@ -248,7 +249,7 @@ class BaseParser:
                 contents.append(content)
             next_tag = next_tag.next
 
-        return self._parse_content(''.join(contents)), section_found
+        return self._parse_content("".join(contents)), section_found
 
     def _is_code_section(self, tag):
         """
@@ -307,10 +308,42 @@ class BaseParser:
             'domain_data': {},
         }
         """
-        raise NotImplementedError
+        try:
+            content = self._get_page_content(page)
+            if content:
+                return self._process_content(page, content)
+        except Exception:
+            log.info("Failed to index page.", path=page, exc_info=True)
+        return {
+            "path": page,
+            "title": "",
+            "sections": [],
+            "domain_data": {},
+        }
+
+    def _process_content(self, page, content):
+        """Parses the content into a structured dict."""
+        html = HTMLParser(content)
+        body = self._get_main_node(html)
+        title = ""
+        sections = []
+        if body:
+            title = self._get_page_title(body, html) or page
+            sections = self._get_sections(title=title, body=body)
+        else:
+            log.info(
+                "Page doesn't look like it has valid content, skipping.",
+                page=page,
+            )
+        return {
+            "path": page,
+            "title": title,
+            "sections": sections,
+            "domain_data": {},
+        }
 
 
-class SphinxParser(BaseParser):
+class SphinxParser(GenericParser):
 
     """
     Parser for Sphinx generated html pages.
@@ -384,7 +417,7 @@ class SphinxParser(BaseParser):
 
         if 'body' in data:
             try:
-                body = HTMLParser(data['body'])
+                body = HTMLParser(data["body"])
                 sections = self._get_sections(title=title, body=body.body)
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
@@ -506,57 +539,15 @@ class SphinxParser(BaseParser):
         return docstring
 
 
-class MkDocsParser(BaseParser):
+class MkDocsParser(GenericParser):
 
     """
     MkDocs parser.
 
-    Index from the json index file or directly from the html content.
+    Index using the json index file instead of the html content.
     """
 
     def parse(self, page):
-        # Avoid circular import
-        from readthedocs.projects.models import Feature
-        if self.project.has_feature(Feature.INDEX_FROM_HTML_FILES):
-            return self.parse_from_html(page)
-        return self.parse_from_index_file(page)
-
-    def parse_from_html(self, page):
-        try:
-            content = self._get_page_content(page)
-            if content:
-                return self._process_content(page, content)
-        except Exception as e:
-            log.info('Failed to index page.', path=page, exception=str(e))
-        return {
-            'path': page,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
-    def _process_content(self, page, content):
-        """Parses the content into a structured dict."""
-        html = HTMLParser(content)
-        body = self._get_main_node(html)
-        title = ""
-        sections = []
-        if body:
-            title = self._get_page_title(body, html) or page
-            sections = self._get_sections(title=title, body=body)
-        else:
-            log.info(
-                "Page doesn't look like it has valid content, skipping.",
-                page=page,
-            )
-        return {
-            'path': page,
-            'title': title,
-            'sections': sections,
-            'domain_data': {},
-        }
-
-    def parse_from_index_file(self, page):
         storage_path = self.project.get_storage_path(
             type_='html',
             version_slug=self.version.slug,
