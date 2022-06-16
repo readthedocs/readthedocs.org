@@ -88,9 +88,22 @@ class GenericParser:
         # checking for common parents between all h nodes.
         first_header = body.css_first("h1")
         if first_header:
-            return first_header.parent
+            return self._get_header_container(first_header).parent
 
         return body
+
+    def _get_header_container(self, h_tag):
+        """
+        Get the *real* container of a header tag or title.
+
+        If the parent of the ``h`` tag is a ``header`` tag,
+        then we return the ``header`` tag,
+        since the header tag acts as a container for the title of the section.
+        Otherwise, we return the tag itself.
+        """
+        if h_tag.parent.tag == "header":
+            return h_tag.parent
+        return h_tag
 
     def _parse_content(self, content):
         """Converts all new line characters and multiple spaces to a single space."""
@@ -110,8 +123,6 @@ class GenericParser:
         We can have pages that have content before the first title or that don't have a title,
         we index that content first under the title of the original page.
         """
-        body = self._clean_body(body)
-
         # Index content for pages that don't start with a title.
         # We check for sections till 3 levels to avoid indexing all the content
         # in this step.
@@ -135,7 +146,8 @@ class GenericParser:
             for tag in tags:
                 try:
                     title, id = self._parse_section_title(tag)
-                    content, _ = self._parse_section_content(tag.next, depth=2)
+                    next_tag = self._get_header_container(tag).next
+                    content, _ = self._parse_section_content(next_tag, depth=2)
                     yield {
                         'id': id,
                         'title': title,
@@ -186,10 +198,10 @@ class GenericParser:
         """
         Check if `tag` is a section (linkeable header).
 
-        The tag is a section if it's a ``h`` tag.
+        The tag is a section if it's a ``h`` or a ``header`` tag.
         """
-        is_header_tag = re.match(r'h\d$', tag.tag)
-        return is_header_tag
+        is_h_tag = re.match(r"h\d$", tag.tag)
+        return is_h_tag or tag.tag == "header"
 
     def _parse_section_title(self, tag):
         """
@@ -199,15 +211,7 @@ class GenericParser:
 
         - Get the id from the node itself.
         - Get the id from the parent node.
-
-        Additionally:
-
-        - Removes permalink values
         """
-        nodes_to_be_removed = tag.css('.headerlink')
-        for node in nodes_to_be_removed:
-            node.decompose()
-
         section_id = tag.attributes.get('id', '')
         if not section_id:
             parent = tag.parent
@@ -328,6 +332,7 @@ class GenericParser:
         title = ""
         sections = []
         if body:
+            body = self._clean_body(body)
             title = self._get_page_title(body, html) or page
             sections = self._get_sections(title=title, body=body)
         else:
@@ -417,7 +422,7 @@ class SphinxParser(GenericParser):
 
         if 'body' in data:
             try:
-                body = HTMLParser(data["body"])
+                body = self._clean_body(HTMLParser(data["body"]))
                 sections = self._get_sections(title=title, body=body.body)
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
