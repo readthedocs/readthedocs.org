@@ -17,7 +17,7 @@ from selectolax.parser import HTMLParser
 
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import clean_links
+from readthedocs.embed.utils import clean_references
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
@@ -359,7 +359,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         # Sanitize the URL before requesting it
         sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()
         # Make links from the content to be absolute
-        content = clean_links(
+        content = clean_references(
             content_requested,
             sanitized_url,
             html_raw_response=True,
