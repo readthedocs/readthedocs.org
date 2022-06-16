@@ -17,6 +17,10 @@ log = structlog.get_logger(__name__)
 def delete_customer(customer_id):
     """Delete customer from Stripe, cancelling subscriptions."""
     try:
+        log.info(
+            "Deleting stripe customer.",
+            stripe_customer=customer_id,
+        )
         customer = stripe.Customer.retrieve(customer_id)
         return customer.delete()
     except stripe.error.InvalidRequestError:
