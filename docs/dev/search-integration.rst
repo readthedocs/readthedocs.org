@@ -30,7 +30,7 @@ Read the Docs makes use of ARIA_ roles and other heuristics in order to process 
 Main content node
 ~~~~~~~~~~~~~~~~~
 
-The main content should be inside a ``main`` tag or an element with the role ``main``,
+The main content should be inside a ``<main>`` tag or an element with ``role=main``,
 and there should only be one per page.
 This node is the one that contains all the page content to be indexed. Example:
 
@@ -137,7 +137,7 @@ Sections are composed of a title, and a content.
 A section title can be a ``h`` tag, or a ``header`` tag containing a ``h`` tag,
 the ``h`` tag or its parent can contain an ``id`` attribute, which will be used to link to the section.
 
-All content bellow the title, till a new section is found will be indexed as part of the section content.
+All content below the title, until a new section is found, will be indexed as part of the section content.
 Example:
 
 .. code-block:: html
