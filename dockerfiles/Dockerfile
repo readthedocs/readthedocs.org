@@ -29,7 +29,8 @@ RUN apt-get -y install \
         sqlite \
         netcat \
         telnet \
-        lsb-release
+        lsb-release \
+        npm
 
 # Gets the MinIO mc client used to add buckets upon initialization
 # If this client should have issues running inside this image, it is also
@@ -37,6 +38,8 @@ RUN apt-get -y install \
 # The current minio/mc Docker image could be a lot smaller
 RUN curl -s -q https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
     chmod +x /usr/bin/mc
+
+RUN npm install -g nodemon
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
