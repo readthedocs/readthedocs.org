@@ -1,5 +1,4 @@
 import structlog
-
 from dateutil.parser import parse
 from django.apps import apps
 from django.conf import settings
@@ -161,11 +160,21 @@ def delete_old_search_queries_from_db():
 @app.task(queue='web')
 def record_search_query(project_slug, version_slug, query, total_results, time_string):
     """Record/update a search query for analytics."""
-    if not project_slug or not version_slug or not query:
+
+    log.bind(
+        project_slug=project_slug,
+        version_slug=version_slug,
+    )
+
+    # Ignore some queries that generate errors on our code.
+    # I found some of these on Sentry
+    ignored_queries = [
+        "\x00",
+    ]
+
+    if not project_slug or not version_slug or not query or query in ignored_queries:
         log.debug(
             'Not recording the search query.',
-            project_slug=project_slug,
-            version_slug=version_slug,
             query=query,
             total_results=total_results,
             time=time_string,
@@ -199,8 +208,6 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     if not version:
         log.debug(
             'Not recording the search query because project does not exist.',
-            project_slug=project_slug,
-            version_slug=version_slug,
         )
         return
 
