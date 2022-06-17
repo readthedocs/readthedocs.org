@@ -730,8 +730,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             from pathlib import Path
             binds = {
                 settings.RTD_DOCKER_COMPOSE_VOLUME: {
-                    'bind': str(Path(self.project.doc_path).parent),
-                    'mode': 'rw',
+                    "bind": str(Path(settings.DOCROOT).parent),
+                    "mode": "rw",
                 },
             }
         else:
