@@ -213,8 +213,11 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
                     if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
                         cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
                         cmd["output"] = (
-                            "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n"
-                            + cmd["output"]
+                            "\n\n"
+                            "... (truncated) ..."
+                            "\n\n"
+                            "Command output too long. Truncated to last 1MB."
+                            "\n\n" + cmd["output"]
                         )  # noqa
                         log.debug(
                             "Truncating build command for build.", build_id=build.id
