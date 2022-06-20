@@ -277,15 +277,23 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        integrations = list(self.instance.integrations.all())
+        has_supported_integration = self.has_supported_integration(integrations)
+        can_build_external_versions = self.can_build_external_versions(integrations)
+
+        # External builds are supported for this project,
+        # don't disable the option.
+        if has_supported_integration and can_build_external_versions:
+            return
+
         msg = None
         url = reverse("projects_integrations", args=[self.instance.slug])
-        integrations = list(self.instance.integrations.all())
-        if not self.has_supported_integration(integrations):
+        if not has_supported_integration:
             msg = _(
                 "To build from pull requests you need a "
-                'GitHub or GitLab <a href="{url}">integration</a>.'
+                f'GitHub or GitLab <a href="{url}">integration</a>.'
             )
-        elif not self.can_build_external_versions(integrations):
+        if not can_build_external_versions:
             # If there is only one integration, link directly to it.
             if len(integrations) == 1:
                 url = reverse(
@@ -301,7 +309,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         if msg:
             field = self.fields["external_builds_enabled"]
             field.disabled = True
-            field.help_text = msg + " " + field.help_text
+            field.help_text = f"{msg} {field.help_text}"
 
     def has_supported_integration(self, integrations):
         supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
