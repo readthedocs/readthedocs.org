@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 from rest_framework import serializers
 
-from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
+from readthedocs.projects.constants import GENERIC, MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
 # Structures used for storing cached data of a version mostly.
@@ -134,7 +134,8 @@ class PageSearchSerializer(serializers.Serializer):
 
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
-            if obj.doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            # For a generic doctype we just strip the index.html part if it exists.
+            if obj.doctype in {SPHINX_HTMLDIR, MKDOCS, GENERIC}:
                 path = re.sub('(^|/)index.html$', '/', path)
 
             return docs_url.rstrip('/') + '/' + path.lstrip('/')

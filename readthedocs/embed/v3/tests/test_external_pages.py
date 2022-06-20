@@ -46,9 +46,9 @@ class TestEmbedAPIv3ExternalPages:
         # The output is different because docutils is outputting this,
         # and we're not sanitizing it, but just passing it through.
         if Version(docutils.__version__) >= Version('0.17'):
-            content = f'<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
+            content = f'<div class="body" role="main">\n            \n  <section id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<section id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</section>\n<section id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</section>\n</section>\n\n\n          </div>'
         else:
-            content = f'<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
+            content = f'<div class="body" role="main">\n            \n  <div class="section" id="title">\n<h1>Title<a class="headerlink" href="https://docs.project.com#title" title="{title}">¶</a></h1>\n<p>This is an example page used to test EmbedAPI parsing features.</p>\n<div class="section" id="sub-title">\n<h2>Sub-title<a class="headerlink" href="https://docs.project.com#sub-title" title="{title}">¶</a></h2>\n<p>This is a reference to <a class="reference internal" href="https://docs.project.com#sub-title"><span class="std std-ref">Sub-title</span></a>.</p>\n</div>\n<div class="section" id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</div>\n</div>\n\n\n          </div>'
 
         assert response.json() == {
             'url': 'https://docs.project.com',
@@ -269,4 +269,56 @@ class TestEmbedAPIv3ExternalPages:
             'content': content,
             'fragment': fragment,
             'external': True,
+        }
+
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
+    def test_manual_references(self, app, client, requests_mock):
+        app.build()
+        path = app.outdir / "index.html"
+        assert path.exists() is True
+        content = open(path).read()
+        requests_mock.get("https://docs.project.com/", text=content)
+
+        # Calling the API without doctool
+        fragment = "manual-reference"
+        url = f"https://docs.project.com/#{fragment}"
+        params = {
+            "url": url,
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+
+        content = f'<span id="{fragment}"></span>'
+        assert response.json() == {
+            "url": url,
+            "fragment": fragment,
+            "content": content,
+            "external": True,
+        }
+
+        # Calling the API with doctool
+        params = {
+            "url": url,
+            "doctool": "sphinx",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+
+        # https://github.com/sphinx-doc/sphinx/commit/bc635627d32b52e8e1381f23cddecf26429db1ae
+        if sphinx.version_info < (5, 0, 0):
+            title = "Permalink to this headline"
+        else:
+            title = "Permalink to this heading"
+
+        # Note the difference between `<section>` and `<div class="section">`
+        if Version(docutils.__version__) >= Version("0.17"):
+            content = f'<section id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com/#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com/#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</section>'
+        else:
+            content = f'<div class="section" id="manual-reference-section">\n<span id="manual-reference"></span><h2>Manual Reference Section<a class="headerlink" href="https://docs.project.com/#manual-reference-section" title="{title}">¶</a></h2>\n<p>This is a reference to a manual reference <a class="reference internal" href="https://docs.project.com/#manual-reference"><span class="std std-ref">Manual Reference Section</span></a>.</p>\n</div>'
+
+        assert response.json() == {
+            "url": url,
+            "content": content,
+            "fragment": fragment,
+            "external": True,
         }

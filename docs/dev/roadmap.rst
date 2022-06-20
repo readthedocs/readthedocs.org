@@ -12,7 +12,7 @@ Here, you will find several views into our roadmap:
 
 `Backlog <https://github.com/orgs/readthedocs/projects/156/views/4>`_
     Work that we have planned for future sprints. Items with an assigned
-    timeframe have generally been discussed already by the team. Iteams that do
+    timeframe have generally been discussed already by the team. Items that do
     not yet have a timeframe assigned are not yet a priority of the core team.
 
 The focus of the core team will be on roadmap and sprint items. These items are
@@ -20,11 +20,13 @@ promoted from our backlog before each sprint begins.
 
 .. _GitHub Roadmap: https://github.com/orgs/readthedocs/projects/156/views/1
 
-Triaging issues
-~~~~~~~~~~~~~~~
+Triaging issues for the Roadmap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Much of this is already covered in our guide on :doc:`contribute`, however to
-summarize the important pieces:
+Issues are triaged before they are worked on, involving a number of steps that
+are covered in :doc:`/contribute`. Everyone can take part in helping to
+triage issues, read more in :ref:`contribute:Triaging issues`. Additionally, issues are
+considered for the Roadmap according to the following process:
 
 * New issues coming in will be triaged, but won't yet be considered part of our
   roadmap.

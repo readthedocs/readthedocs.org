@@ -67,7 +67,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "2010, Read the Docs, Inc & contributors"
-version = "8.2.0"
+version = "8.3.0"
 release = version
 exclude_patterns = ["_build"]
 default_role = "obj"
@@ -94,6 +94,9 @@ intersphinx_mapping = {
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
 }
+# Redundant in Sphinx 5.0
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
+intersphinx_disabled_reftypes = ["std:doc"]
 myst_enable_extensions = [
     "deflist",
 ]

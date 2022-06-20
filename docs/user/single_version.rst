@@ -26,6 +26,6 @@ rather than redirecting to ``https://pip.readthedocs.io/en/latest/``.
 .. warning::
 
    Documentation at ``/<language>/<default_version>/`` will stop working.
-   Remember to set :ref:`custom_domains:Canonical URLs`
+   Remember to set :doc:`canonical URLs </canonical-urls>`
    to tell search engines like Google what to index,
    and to create :doc:`user-defined-redirects` to avoid broken incoming links.
