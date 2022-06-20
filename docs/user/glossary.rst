@@ -8,8 +8,8 @@ Glossary
       and import a new project.
 
    flyout menu
-      Menu displayed on the documentation, readily accessible for readers, containing the list active versions,
-      links to the static downloads, and other useful information.
+      Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
+      Read more in our :doc:`/flyout-menu` page.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
