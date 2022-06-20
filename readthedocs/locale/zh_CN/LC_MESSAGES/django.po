@@ -5,6 +5,7 @@
 # Translators:
 # bu lumu <huiyana@foxmail.com>, 2019
 # Eana Hufwe <ilove@1a23.com>, 2020
+# Contextualist <harzjc@gmail.com>, 2022
 # Henry Zhang <henry.zhang.hust@gmail.com>, 2019
 # Ivan.Tang <imivan.tang@outlook.com>, 2020
 # JY3, 2022
@@ -27,9 +28,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-31 08:39-0700\n"
+"POT-Creation-Date: 2022-06-14 08:00+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: JY3, 2022\n"
+"Last-Translator: Contextualist <harzjc@gmail.com>, 2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -243,8 +244,8 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:19
 #, python-format
 msgid ""
-"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
-"%(action)s\" title=\"%(method)s\">authenticated</a>"
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
+"action=%(action)s\" title=\"%(method)s\">authenticated</a>"
 msgstr ""
 
 #: audit/templates/audit/list_logs.html:26
@@ -262,8 +263,8 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:36
 #, python-format
 msgid ""
-"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
-"%(action)s\" title=\"%(path)s\">visited</a> a page"
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
+"action=%(action)s\" title=\"%(path)s\">visited</a> a page"
 msgstr ""
 
 #: audit/templates/audit/list_logs.html:43
@@ -275,8 +276,8 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:49
 #, python-format
 msgid ""
-"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?action="
-"%(action)s\" title=\"%(path)s\">downloaded</a> a document"
+"<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
+"action=%(action)s\" title=\"%(path)s\">downloaded</a> a document"
 msgstr ""
 
 #: audit/templates/audit/list_logs.html:56
@@ -368,7 +369,7 @@ msgstr "分支"
 msgid "Tag"
 msgstr "标签"
 
-#: builds/constants.py:53 projects/constants.py:389
+#: builds/constants.py:53 projects/constants.py:397
 msgid "Unknown"
 msgstr "未知"
 
@@ -546,7 +547,7 @@ msgstr "安装错误"
 msgid "Output"
 msgstr "输出"
 
-#: builds/models.py:660 templates/builds/build_detail.html:213
+#: builds/models.py:660 templates/builds/build_detail.html:224
 msgid "Error"
 msgstr "错误"
 
@@ -710,19 +711,19 @@ msgstr ""
 msgid "Failed: {project[name]} ({version[verbose_name]})"
 msgstr ""
 
-#: core/admin.py:36
+#: core/admin.py:40
 msgid "user projects"
 msgstr "用户项目"
 
-#: core/admin.py:44
+#: core/admin.py:48
 msgid "has active project"
 msgstr "进行中项目"
 
-#: core/admin.py:45
+#: core/admin.py:49
 msgid "has built project"
 msgstr "已完成项目"
 
-#: core/admin.py:46
+#: core/admin.py:50
 msgid "has project with recent builds"
 msgstr "有新近版本的项目"
 
@@ -736,7 +737,7 @@ msgstr "姓氏"
 
 #: core/forms.py:56
 msgid "Please type your username to confirm."
-msgstr "请确认输入您的用户名"
+msgstr "请输入您的用户名以确认"
 
 #: core/forms.py:67
 msgid "Username does not match!"
@@ -811,7 +812,7 @@ msgstr ""
 "在Read the Docs控制面板为你的项目添加自定义域名 (点击指定项目&gt;&gt; 管理 "
 "&gt;&gt; 域)"
 
-#: doc_builder/director.py:63
+#: doc_builder/director.py:68
 #, python-brace-format
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
@@ -827,24 +828,24 @@ msgstr ""
 msgid "Command exited abnormally"
 msgstr "程序终止异常"
 
-#: doc_builder/environments.py:629
+#: doc_builder/environments.py:634
 msgid "A build environment is currently running for this version"
 msgstr "当前版本的创建环境正在运行"
 
-#: doc_builder/environments.py:789
+#: doc_builder/environments.py:794
 msgid "Build exited due to time out"
 msgstr "版本创建因超时终止"
 
-#: doc_builder/environments.py:794
+#: doc_builder/environments.py:799
 msgid "Build exited due to excessive memory consumption"
 msgstr "构建因超过内存占用限制而终止"
 
-#: doc_builder/environments.py:800
+#: doc_builder/environments.py:805
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "构建因未知错误: {0} 而退出"
 
-#: doc_builder/exceptions.py:26
+#: doc_builder/exceptions.py:27
 #, python-brace-format
 msgid ""
 "There was a problem with Read the Docs while building your documentation. "
@@ -852,64 +853,71 @@ msgid ""
 "with your build id ({build_id})."
 msgstr ""
 
-#: doc_builder/exceptions.py:35
+#: doc_builder/exceptions.py:36
 msgid ""
 "We encountered a problem with a command while building your project. To "
 "resolve this error, double check your project configuration and installed "
 "dependencies are correct and have not changed recently."
 msgstr ""
 
-#: doc_builder/exceptions.py:42
+#: doc_builder/exceptions.py:41
+#, python-brace-format
+msgid ""
+"No \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" folder was created during this "
+"build."
+msgstr ""
+
+#: doc_builder/exceptions.py:46
 msgid "Builds for this project are temporarily disabled"
 msgstr "此项目创建被临时禁用"
 
-#: doc_builder/exceptions.py:47
+#: doc_builder/exceptions.py:51
 #, python-brace-format
 msgid "Problem in your project's configuration. {exception}"
 msgstr "项目配置中的问题. {exception}"
 
-#: doc_builder/exceptions.py:52
+#: doc_builder/exceptions.py:56
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
-#: doc_builder/exceptions.py:56
+#: doc_builder/exceptions.py:60
 msgid "Duplicated build."
 msgstr ""
 
-#: doc_builder/exceptions.py:63
+#: doc_builder/exceptions.py:67
 msgid "Build cancelled by user."
 msgstr ""
 
-#: doc_builder/exceptions.py:69
+#: doc_builder/exceptions.py:73
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr "解析 MkDocs YAML 配置时的问题。{exception}"
 
-#: doc_builder/exceptions.py:73
+#: doc_builder/exceptions.py:77
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
 msgstr ""
 
-#: doc_builder/exceptions.py:78
+#: doc_builder/exceptions.py:82
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:87
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
 
-#: doc_builder/exceptions.py:88
+#: doc_builder/exceptions.py:92
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 
-#: doc_builder/exceptions.py:92
+#: doc_builder/exceptions.py:96
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
@@ -1224,15 +1232,16 @@ msgstr "成功添加了Webhook。"
 
 #: oauth/notifications.py:19
 msgid ""
-"Could not add webhook for {{ project.name }}. Make sure <a href="
-"\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"Could not add webhook for {{ project.name }}. Make sure <a "
+"href=\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
 "permissions</a>."
 msgstr ""
 
 #: oauth/notifications.py:22
 msgid ""
-"Could not add webhook for {{ project.name }}. Please <a href="
-"\"{{ url_connect_account }}\">connect your {{ provider.name }} account</a>."
+"Could not add webhook for {{ project.name }}. Please <a "
+"href=\"{{ url_connect_account }}\">connect your {{ provider.name }} account</"
+"a>."
 msgstr ""
 
 #: oauth/notifications.py:44
@@ -1247,12 +1256,12 @@ msgstr ""
 msgid ""
 "Could not send {{ provider_name }} build status report for {{ project."
 "name }}. Make sure you have the correct {{ provider_name }} repository "
-"permissions</a> and your <a href="
-"\"{{ url_connect_account }}\">{{ provider_name }} account</a> is connected "
-"to Read the Docs."
+"permissions</a> and your <a "
+"href=\"{{ url_connect_account }}\">{{ provider_name }} account</a> is "
+"connected to Read the Docs."
 msgstr ""
 
-#: oauth/tasks.py:52
+#: oauth/tasks.py:50
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {providers}. Please, "
@@ -1392,7 +1401,7 @@ msgstr "详细"
 #: templates/profiles/private/security_log.html:6
 #: templates/profiles/private/security_log.html:10
 msgid "Security Log"
-msgstr ""
+msgstr "安全日志"
 
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
@@ -1599,7 +1608,7 @@ msgstr ""
 #: organizations/templates/organizations/security_log.html:6
 #: organizations/templates/organizations/security_log.html:10
 msgid "Organization Security Log"
-msgstr ""
+msgstr "组织安全日志"
 
 #: organizations/templates/organizations/security_log.html:19
 #, python-format
@@ -1607,6 +1616,7 @@ msgid ""
 "The <a href=\"%(docs_url)s\">organization security log</a> allows you to see "
 "what has happened recently in your organization."
 msgstr ""
+"在<a href=\"%(docs_url)s\">组织安全日志</a>中，您可以查看组织中的最近活动。"
 
 #: organizations/templates/organizations/security_log.html:25
 #, python-format
@@ -1762,75 +1772,79 @@ msgstr ""
 msgid "Delete project (>={})"
 msgstr ""
 
-#: projects/constants.py:19
+#: projects/constants.py:21
 msgid "Sphinx Html"
 msgstr "Sphinx Html"
 
-#: projects/constants.py:20
+#: projects/constants.py:22
 msgid "Mkdocs"
 msgstr ""
 
-#: projects/constants.py:21
+#: projects/constants.py:23
 msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
-#: projects/constants.py:22
+#: projects/constants.py:24
 msgid "Sphinx Single Page HTML"
 msgstr "Sphinx 单页 HTML"
 
-#: projects/constants.py:24
+#: projects/constants.py:27
 msgid "Mkdocs Html Pages"
 msgstr ""
 
-#: projects/constants.py:66
+#: projects/constants.py:28
+msgid "Generic"
+msgstr ""
+
+#: projects/constants.py:74
 msgid "Live"
 msgstr "Live"
 
-#: projects/constants.py:67
+#: projects/constants.py:75
 msgid "Deleted"
 msgstr "已删除"
 
-#: projects/constants.py:76
+#: projects/constants.py:84
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:77
+#: projects/constants.py:85
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:78
+#: projects/constants.py:86
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:79
+#: projects/constants.py:87
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:86 projects/models.py:2004
+#: projects/constants.py:94 projects/models.py:2009
 msgid "Public"
 msgstr "公开"
 
-#: projects/constants.py:87
+#: projects/constants.py:95
 msgid "Private"
 msgstr "私有"
 
-#: projects/constants.py:98
+#: projects/constants.py:106
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:99
+#: projects/constants.py:107
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/constants.py:386
+#: projects/constants.py:394
 msgid "Valid and active"
 msgstr ""
 
-#: projects/constants.py:387
+#: projects/constants.py:395
 msgid "Invalid"
 msgstr ""
 
-#: projects/constants.py:388
+#: projects/constants.py:396
 msgid "Pending"
 msgstr ""
 
@@ -1983,27 +1997,27 @@ msgstr "用户{name}不存在"
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:664
+#: projects/forms.py:673
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:771
+#: projects/forms.py:780
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "变量名不能以__开头(双下划线)"
 
-#: projects/forms.py:775
+#: projects/forms.py:784
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "变量名不能以 READTHEDOCS 开头"
 
-#: projects/forms.py:780
+#: projects/forms.py:789
 msgid "There is already a variable with this name for this project"
 msgstr "该项目已经有一个具有此名称的变量"
 
-#: projects/forms.py:785
+#: projects/forms.py:794
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:789
+#: projects/forms.py:798
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2090,9 +2104,9 @@ msgstr "所需求的文件"
 
 #: projects/models.py:188
 msgid ""
-"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
-"\">pip requirements file</a> needed to build your documentation. Path from "
-"the root of your project."
+"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
+"files\">pip requirements file</a> needed to build your documentation. Path "
+"from the root of your project."
 msgstr ""
 "需要 <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip 要求文件</a> 来构建你的文档。 路径从你项目的根目录开始。"
@@ -2366,8 +2380,8 @@ msgstr ""
 #: projects/models.py:1519
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
-"readthedocs.io/page/build-notifications.html#variable-substitutions-reference"
-"\">the docs</a> for available substitutions."
+"readthedocs.io/page/build-notifications.html#variable-substitutions-"
+"reference\">the docs</a> for available substitutions."
 msgstr ""
 
 #: projects/models.py:1627 sphinx_domains/models.py:47
@@ -2415,190 +2429,194 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1806
+#: projects/models.py:1807
 msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/models.py:1810
+#: projects/models.py:1811
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 
-#: projects/models.py:1815
+#: projects/models.py:1816
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1819
+#: projects/models.py:1820
 msgid "Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1823
+#: projects/models.py:1824
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 
-#: projects/models.py:1827
+#: projects/models.py:1828
 msgid "Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1831
+#: projects/models.py:1832
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1835
+#: projects/models.py:1836
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1839
+#: projects/models.py:1840
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1844
+#: projects/models.py:1845
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1850
+#: projects/models.py:1851
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1854
+#: projects/models.py:1855
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1858
+#: projects/models.py:1859
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1862
+#: projects/models.py:1863
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1866
+#: projects/models.py:1867
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1872
+#: projects/models.py:1871
+msgid "Allow forced redirects."
+msgstr ""
+
+#: projects/models.py:1877
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1876
+#: projects/models.py:1881
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1880
+#: projects/models.py:1885
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1884
+#: projects/models.py:1889
 msgid "Always run pip install --upgrade"
 msgstr "一直运行run pip install --upgrade"
 
-#: projects/models.py:1885
+#: projects/models.py:1890
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1888
+#: projects/models.py:1893
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1890
+#: projects/models.py:1895
 msgid "Use latest version of Sphinx"
 msgstr "使用最新版本的 Sphinx"
 
-#: projects/models.py:1893
+#: projects/models.py:1898
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1895
+#: projects/models.py:1900
 msgid "Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:1898
+#: projects/models.py:1903
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1904
+#: projects/models.py:1909
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1913
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1917
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1916
+#: projects/models.py:1921
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:1922
+#: projects/models.py:1927
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:1928
+#: projects/models.py:1933
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:1932
+#: projects/models.py:1937
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:1936
+#: projects/models.py:1941
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:1940
+#: projects/models.py:1945
 msgid "Mark duplicated builds as NOOP to be skipped by builders"
 msgstr ""
 
-#: projects/models.py:1944
+#: projects/models.py:1949
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:1955
+#: projects/models.py:1960
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:1960
+#: projects/models.py:1965
 msgid "Date feature was added"
 msgstr "添加了日期功能"
 
-#: projects/models.py:1966
+#: projects/models.py:1971
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:1970
+#: projects/models.py:1975
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:1992
+#: projects/models.py:1997
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:1996
+#: projects/models.py:2001
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2006
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2007
+#: projects/models.py:2012
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
 #: projects/notifications.py:27
 msgid ""
-"Your primary email address is not verified. Please <a href="
-"\"{{account_email_url}}\">verify it here</a>."
+"Your primary email address is not verified. Please <a "
+"href=\"{{account_email_url}}\">verify it here</a>."
 msgstr ""
 
 #: projects/tasks/utils.py:120
@@ -2703,19 +2721,29 @@ msgstr "从 URL"
 msgid "To URL"
 msgstr "至 URL"
 
-#: redirects/models.py:96
+#: redirects/models.py:95
+#, fuzzy
+#| msgid "redirect"
+msgid "Force redirect"
+msgstr "重定向"
+
+#: redirects/models.py:98
+msgid "Apply the redirect even if the page exists."
+msgstr ""
+
+#: redirects/models.py:102
 msgid "HTTP Status"
 msgstr "HTTP 状态"
 
-#: redirects/models.py:108
+#: redirects/models.py:114
 msgid "redirect"
 msgstr "重定向"
 
-#: redirects/models.py:109
+#: redirects/models.py:115
 msgid "redirects"
 msgstr "重定向"
 
-#: redirects/models.py:125
+#: redirects/models.py:131
 msgid "Redirect: {}"
 msgstr ""
 
@@ -2942,10 +2970,10 @@ msgstr ""
 #: subscriptions/templates/subscriptions/subscription_detail.html:19
 #, python-format
 msgid ""
-"You are currently on a trial. Please choose a <a href=\"%(pricing_url)s"
-"\">paid plan</a> that fits your organization prior to the end of your trial. "
-"Upgrade your account by clicking on <strong>Manage Subscription</strong> "
-"below."
+"You are currently on a trial. Please choose a <a "
+"href=\"%(pricing_url)s\">paid plan</a> that fits your organization prior to "
+"the end of your trial. Upgrade your account by clicking on <strong>Manage "
+"Subscription</strong> below."
 msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:37
@@ -3010,6 +3038,10 @@ msgstr ""
 #: templates/401.html:6 templates/404.html:6
 msgid "Maze Found"
 msgstr "未找到"
+
+#: templates/429.html:6
+msgid "Too many requests"
+msgstr ""
 
 #: templates/500.html:5
 msgid "Server Error"
@@ -3107,8 +3139,8 @@ msgstr "登录"
 #: templates/account/login.html:14
 #, python-format
 msgid ""
-"If you have not created an account yet, then please <a href=\"%(signup_url)s"
-"\">sign up</a> first."
+"If you have not created an account yet, then please <a "
+"href=\"%(signup_url)s\">sign up</a> first."
 msgstr ""
 
 #: templates/account/login.html:27
@@ -3137,7 +3169,7 @@ msgstr "注册"
 #, python-format
 msgid ""
 "Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
-msgstr ""
+msgstr "已有账号? 请<a href=\"%(login_url)s\">登录</a>。"
 
 #: templates/account/signup.html:19
 #, python-format
@@ -3317,42 +3349,51 @@ msgstr ""
 #: templates/builds/build_detail.html:167
 #, python-format
 msgid ""
-"<strong>Configure your documentation builds!</strong> Adding a <a href="
-"\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is the "
-"recommended way to configure your documentation builds. You can declare "
+"<strong>Configure your documentation builds!</strong> Adding a <a "
+"href=\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is "
+"the recommended way to configure your documentation builds. You can declare "
 "dependencies, set up submodules, and many other great features."
 msgstr ""
 
-#: templates/builds/build_detail.html:182
+#: templates/builds/build_detail.html:181
+#, python-format
+msgid ""
+"<strong>The <code>\"build.commands\"</code> feature is in beta, and could "
+"have backwards incompatible changes while in beta.</strong> Read more at <a "
+"href=\"%(config_file_link)s\">our documentation</a> to find out its "
+"limitations and potential issues."
+msgstr ""
+
+#: templates/builds/build_detail.html:193
 msgid "Show full build output"
 msgstr "显示完成构建输出"
 
-#: templates/builds/build_detail.html:188
+#: templates/builds/build_detail.html:199
 msgid "Build Output"
 msgstr "构建输出"
 
-#: templates/builds/build_detail.html:192
+#: templates/builds/build_detail.html:203
 msgid "Setup Output"
 msgstr "安装输出"
 
-#: templates/builds/build_detail.html:197
+#: templates/builds/build_detail.html:208
 msgid "Environment Standard Error"
 msgstr "环境标准错误"
 
-#: templates/builds/build_detail.html:203
+#: templates/builds/build_detail.html:214
 msgid "Build Errors"
 msgstr "构建错误"
 
-#: templates/builds/build_detail.html:221
+#: templates/builds/build_detail.html:232
 #, python-format
 msgid "<a href=\"%(url)s\">Report any build issues here</a>."
 msgstr ""
 
-#: templates/builds/build_detail.html:246
+#: templates/builds/build_detail.html:257
 msgid "Command time:"
 msgstr "命令耗时："
 
-#: templates/builds/build_detail.html:251
+#: templates/builds/build_detail.html:262
 msgid "Return"
 msgstr "返回"
 
@@ -3372,7 +3413,7 @@ msgstr ""
 #: templates/builds/regexautomationrule_form.html:34
 #: templates/projects/webhook_form.html:44
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
@@ -3507,8 +3548,8 @@ msgstr "阅读文档"
 msgid ""
 "Your project is currently disabled for abuse of the system. Please make sure "
 "it isn't using unreasonable amounts of resources or triggering lots of "
-"builds in a short amount of time. Please <a href=\"mailto:%(SUPPORT_EMAIL)s"
-"\">contact support</a> to get your project re-enabled."
+"builds in a short amount of time. Please <a href=\"mailto:"
+"%(SUPPORT_EMAIL)s\">contact support</a> to get your project re-enabled."
 msgstr ""
 
 #: templates/core/project_bar_base.html:40
@@ -3564,12 +3605,12 @@ msgstr "标签"
 
 #: templates/core/project_detail_right.html:87
 msgid "Project has no tags."
-msgstr ""
+msgstr "此项目没有标签。"
 
 #: templates/core/project_detail_right.html:90
 #, python-format
 msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
-msgstr ""
+msgstr "在<a href=\"%(edit_url)s\">项目设置</a>中添加一些吧。"
 
 #: templates/core/project_detail_right.html:100
 msgid "Short URLs"
@@ -3763,10 +3804,10 @@ msgstr "Read the Docs 由社区资助"
 msgid ""
 "We fund our operations through <a href=\"https://www.ethicalads.io/"
 "advertisers/?ref=rtd\">advertising</a>, corporate-hosted documentation with "
-"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a href="
-"\"%(donate_url)s\">donations</a>, and we are supported by a number of "
-"generous <a href=\"https://docs.readthedocs.io/page/sponsors.html"
-"\">sponsors</a>."
+"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a "
+"href=\"%(donate_url)s\">donations</a>, and we are supported by a number of "
+"generous <a href=\"https://docs.readthedocs.io/page/sponsors."
+"html\">sponsors</a>."
 msgstr ""
 
 #: templates/homepage.html:175
@@ -3859,14 +3900,14 @@ msgstr "已连接的服务"
 #: templates/profiles/private/token_list.html:5
 #: templates/profiles/private/token_list.html:9
 msgid "API Tokens"
-msgstr ""
+msgstr "API 令牌"
 
 #: templates/profiles/base_profile_edit.html:54
 #: templates/profiles/private/delete_account.html:5
 #: templates/profiles/private/delete_account.html:9
 #: templates/profiles/private/delete_account.html:68
 msgid "Delete Account"
-msgstr ""
+msgstr "删除账号"
 
 #: templates/profiles/base_profile_edit.html:55
 msgid "Gold Membership"
@@ -3906,9 +3947,9 @@ msgstr ""
 #: templates/profiles/private/advertising_profile.html:41
 #, python-format
 msgid ""
-"You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
-"\">Gold member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
-"Docs</a>."
+"You can <strong>go ad-free</strong> by becoming a <a "
+"href=\"%(gold_detail)s\">Gold member</a> or <a "
+"href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:49
@@ -3921,6 +3962,8 @@ msgid ""
 "If you want to keep a project, add another owner or transfer ownership. The "
 "following projects and all their documentation will be deleted."
 msgstr ""
+"<strong>任何仅属于您的项目将被删除。</strong>如果您想保留某个项目，添加一名所"
+"有者或移交项目所有权。以下的项目及其所有文档将被删除。 "
 
 #: templates/profiles/private/delete_account.html:34
 msgid ""
@@ -3929,10 +3972,12 @@ msgid ""
 "or transfer ownership. The following organizations and all their projects "
 "will be deleted."
 msgstr ""
+"<strong>任何仅属于您的组织和其中的项目将被删除。</strong>如果您想保留某个组"
+"织，添加一名所有者或移交组织所有权。以下的组织及其中的所有项目将被删除。 "
 
 #: templates/profiles/private/delete_account.html:66
 msgid "Be careful! This can not be undone!"
-msgstr ""
+msgstr "注意！此操作无法撤销！"
 
 #: templates/profiles/private/edit_profile.html:5
 #: templates/profiles/private/edit_profile.html:9
@@ -3953,7 +3998,7 @@ msgstr ""
 
 #: templates/profiles/private/token_list.html:20
 msgid "Generate API Token"
-msgstr ""
+msgstr "生成 API 令牌"
 
 #: templates/profiles/private/token_list.html:40
 msgid "Revoke"
@@ -3961,7 +4006,7 @@ msgstr ""
 
 #: templates/profiles/private/token_list.html:49
 msgid "No API Tokens currently configured."
-msgstr ""
+msgstr "没有已设置的 API 令牌。"
 
 #: templates/profiles/public/profile_detail.html:6
 #, python-format
@@ -4012,10 +4057,11 @@ msgstr "域"
 #: templates/projects/domain_list.html:18
 #, python-format
 msgid ""
-"This project is a subproject of <a href=\"%(superproject_url)s\">"
-"%(superproject)s</a>, its documentation will always be served from the <code>"
-"%(domain)s</code> domain. <a href=\"https://docs.readthedocs.io/page/"
-"subprojects.html#custom-domain-on-subprojects\">Learn more</a>."
+"This project is a subproject of <a "
+"href=\"%(superproject_url)s\">%(superproject)s</a>, its documentation will "
+"always be served from the <code>%(domain)s</code> domain. <a href=\"https://"
+"docs.readthedocs.io/page/subprojects.html#custom-domain-on-"
+"subprojects\">Learn more</a>."
 msgstr ""
 
 #: templates/projects/domain_list.html:26
@@ -4094,8 +4140,8 @@ msgstr ""
 #: templates/projects/includes/feature_disabled.html:5
 #, python-format
 msgid ""
-"This is a beta feature, it can be enabled by <a href=\"%(support_url)s"
-"\">contacting support</a>."
+"This is a beta feature, it can be enabled by <a "
+"href=\"%(support_url)s\">contacting support</a>."
 msgstr ""
 
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
@@ -4177,8 +4223,8 @@ msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:67
 msgid ""
-"For more information on manually configuring a webhook, refer to <a href="
-"\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
+"For more information on manually configuring a webhook, refer to <a "
+"href=\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
 "documentation </a>"
 msgstr ""
 
@@ -4280,8 +4326,8 @@ msgstr "您的文档构建失败"
 #: templates/projects/onboard_detail.html:50
 msgid ""
 "There was a problem building your documentation, you can see what went wrong "
-"in the build output. If you need more help, check out some of the <a href="
-"\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
+"in the build output. If you need more help, check out some of the <a "
+"href=\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
 "encountered</a> during builds."
 msgstr ""
 
@@ -4335,10 +4381,10 @@ msgstr "高级设置"
 #: templates/projects/project_advanced_settings_helptext.html:3
 #, python-format
 msgid ""
-"These settings can be configured using a <a href=\"%(config_file_link)s"
-"\">configuration file</a>. That's the recommended way to set up your "
-"project. <strong>Settings listed here are ignored when using a configuration "
-"file.</strong"
+"These settings can be configured using a <a "
+"href=\"%(config_file_link)s\">configuration file</a>. That's the recommended "
+"way to set up your project. <strong>Settings listed here are ignored when "
+"using a configuration file.</strong"
 msgstr ""
 
 #: templates/projects/project_advertising.html:5
@@ -4371,10 +4417,10 @@ msgstr ""
 msgid ""
 "For more details on advertising on Read the Docs including the privacy "
 "protections we have in place for users and <a href=\"https://docs."
-"readthedocs.io/page/advertising/ethical-advertising.html#community-ads"
-"\">community advertising</a> we run on behalf of the open source community, "
-"see <a href=\"https://docs.readthedocs.io/page/advertising/ethical-"
-"advertising.html\">our documentation</a>."
+"readthedocs.io/page/advertising/ethical-advertising.html#community-"
+"ads\">community advertising</a> we run on behalf of the open source "
+"community, see <a href=\"https://docs.readthedocs.io/page/advertising/"
+"ethical-advertising.html\">our documentation</a>."
 msgstr ""
 
 #: templates/projects/project_advertising.html:59
@@ -4384,9 +4430,9 @@ msgstr "退出"
 #: templates/projects/project_advertising.html:63
 #, python-format
 msgid ""
-"In addition to the advertising preferences we have for <a href="
-"\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways for "
-"projects to opt out of advertising on Read the Docs."
+"In addition to the advertising preferences we have for <a "
+"href=\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways "
+"for projects to opt out of advertising on Read the Docs."
 msgstr ""
 
 #: templates/projects/project_advertising.html:71
@@ -4465,11 +4511,11 @@ msgstr ""
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
-msgstr "通过"
+msgstr "成功"
 
 #: templates/projects/project_dashboard_base.html:79
 msgid "failing"
-msgstr "下降"
+msgstr "失败"
 
 #: templates/projects/project_dashboard_base.html:112
 msgid "Search all docs"
@@ -4524,8 +4570,8 @@ msgstr "编辑项目"
 #: templates/projects/project_edit.html:18
 #, python-format
 msgid ""
-"You can change how your project is built in your <a href=\"%(advanced_url)s"
-"\">Advanced Settings</a>."
+"You can change how your project is built in your <a "
+"href=\"%(advanced_url)s\">Advanced Settings</a>."
 msgstr ""
 
 #: templates/projects/project_edit.html:23
@@ -4535,7 +4581,7 @@ msgstr ""
 
 #: templates/projects/project_edit.html:24
 msgid "Delete project"
-msgstr ""
+msgstr "删除项目"
 
 #: templates/projects/project_edit_base.html:20
 msgid "Edit Versions"
@@ -4666,8 +4712,9 @@ msgstr ""
 #: templates/projects/project_notifications.html:22
 #, python-format
 msgid ""
-"Webhooks have been moved to its own page. Go to the <a href="
-"\"%(webhooks_url)s\">Webhooks tab</a> if you are looking for your webhooks."
+"Webhooks have been moved to its own page. Go to the <a "
+"href=\"%(webhooks_url)s\">Webhooks tab</a> if you are looking for your "
+"webhooks."
 msgstr ""
 
 #: templates/projects/project_notifications.html:30
@@ -4962,8 +5009,8 @@ msgstr ""
 #: templates/security.html:11
 msgid ""
 "For more details on security at Read the Docs or to report a security issue, "
-"please see our <a href=\"https://docs.readthedocs.io/page/security.html"
-"\">security policy</a>."
+"please see our <a href=\"https://docs.readthedocs.io/page/security."
+"html\">security policy</a>."
 msgstr ""
 
 #: templates/socialaccount/authentication_error.html:5
@@ -4994,13 +5041,3 @@ msgstr ""
 msgid ""
 "You currently have no social network accounts connected to this account."
 msgstr "您当前没有连接社交媒体账号到此账户。"
-
-#: templates/socialaccount/snippets/provider_list.html:14
-#, python-format
-msgid "%(verbiage)s %(brand_name)s"
-msgstr ""
-
-#: templates/socialaccount/snippets/provider_list.html:28
-#, python-format
-msgid "%(verbiage)s %(provider_name)s"
-msgstr ""

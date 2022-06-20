@@ -637,6 +637,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
+    SOCIALACCOUNT_STORE_TOKENS = True
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -753,6 +754,11 @@ class CommunityBaseSettings(Settings):
     # Stripe
     # Existing values we use
     STRIPE_SECRET = None
+    # NOTE: Remove this when enabling djstripe,
+    # since isn't recommended to set this value,
+    # we should always use the default version
+    # that djstripe works with.
+    STRIPE_VERSION = "2020-08-27"
     STRIPE_PUBLISHABLE = None
 
     # DJStripe values -- **CHANGE THESE IN PRODUCTION**

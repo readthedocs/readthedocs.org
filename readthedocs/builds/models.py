@@ -74,6 +74,8 @@ from readthedocs.projects.constants import (
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
     MEDIA_TYPES,
+    MKDOCS,
+    MKDOCS_HTML,
     PRIVACY_CHOICES,
     PRIVATE,
     SPHINX,
@@ -378,6 +380,10 @@ class Version(TimeStampedModel):
     @property
     def is_sphinx_type(self):
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+
+    @property
+    def is_mkdocs_type(self):
+        return self.documentation_type in {MKDOCS, MKDOCS_HTML}
 
     def get_subdomain_url(self):
         external = self.type == EXTERNAL

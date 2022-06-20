@@ -12,6 +12,8 @@ and also how to override the build process completely:
 `Override the build process`_
     If you want full control over your build. This option supports any tool that generates HTML as part of the build.
 
+.. contents:: Table of contents
+   :local:
 
 Extend the build process
 ------------------------
@@ -245,7 +247,7 @@ Override the build process
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, search and ads.
+   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, and ads.
    However, we do plan to support these features in the future.
    Use this feature at your own risk.
 
@@ -273,3 +275,18 @@ your project could use the following configuration file:
 As Read the Docs does not have control over the build process,
 you are responsible for running all the commands required to install requirements and build the documentation properly.
 Once the build process finishes, the ``_readthedocs/html/`` folder will be hosted.
+
+Search support
+++++++++++++++
+
+Read the Docs will automatically index the content of all your HTML files,
+respecting the :ref:`search <config-file/v2:search>` options from your config file.
+
+You can access the search results from the :guilabel:`Search` tab of your project,
+or by using the :ref:`search API <server-side-search:api>`.
+
+.. note::
+
+   In order for Read the Docs to index your HTML files correctly,
+   they should follow some of the conventions described
+   at :doc:`rtd-dev:search-integration`.

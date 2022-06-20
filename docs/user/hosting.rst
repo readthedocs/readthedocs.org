@@ -8,6 +8,16 @@ We support a number of important features that you would expect for a documentat
    :local:
    :depth: 1
 
+Subdomain support
+-----------------
+
+Every project has a subdomain that is available to serve its documentation based on it's :term:`slug`.
+If you go to ``<slug>.readthedocs.io``, it should show you the latest version of your documentation,
+for example https://docs.readthedocs.io.
+For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
+
+.. seealso:: :doc:`/custom-domains`.
+
 Content Delivery Network (CDN)
 ------------------------------
 

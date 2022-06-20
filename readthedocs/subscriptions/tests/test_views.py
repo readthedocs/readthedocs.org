@@ -56,25 +56,24 @@ class SubscriptionViewTests(TestCase):
             fetch_redirect_response=False,
         )
 
-    @mock.patch('readthedocs.subscriptions.utils.stripe.Customer.retrieve')
-    @mock.patch('readthedocs.subscriptions.utils.stripe.Customer.create')
-    def test_user_without_subscription(self, customer_create_mock, customer_retrieve_mock):
-        subscriptions = mock.MagicMock()
-        subscriptions.create.return_value = stripe.Subscription.construct_from(
+    @mock.patch("readthedocs.subscriptions.managers.stripe.Subscription.create")
+    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.retrieve")
+    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
+    def test_user_without_subscription(
+        self, customer_create_mock, customer_retrieve_mock, subscription_create_mock
+    ):
+        subscription_create_mock.return_value = stripe.Subscription.construct_from(
             values={
-                'id': 'sub_a1b2c3',
-                'start': 1610532715.085267,
-                'current_period_end': 1610532715.085267,
-                'trial_end': 1610532715.085267,
-                'status': 'active',
+                "id": "sub_a1b2c3",
+                "start_date": 1610532715.085267,
+                "current_period_end": 1610532715.085267,
+                "trial_end": 1610532715.085267,
+                "status": "active",
             },
             key=None,
         )
         customer_retrieve_mock.return_value = stripe.Customer.construct_from(
-            values={
-                'id': 'cus_a1b2c3',
-                'subscriptions': subscriptions,
-            },
+            values={"id": "cus_a1b2c3"},
             key=None,
         )
         self.subscription.delete()
@@ -89,25 +88,24 @@ class SubscriptionViewTests(TestCase):
         customer_retrieve_mock.assert_called_once()
         customer_create_mock.assert_not_called()
 
-    @mock.patch('readthedocs.subscriptions.utils.stripe.Customer.retrieve')
-    @mock.patch('readthedocs.subscriptions.utils.stripe.Customer.create')
-    def test_user_without_subscription_and_customer(self, customer_create_mock, customer_retrieve_mock):
-        subscriptions = mock.MagicMock()
-        subscriptions.create.return_value = stripe.Subscription.construct_from(
+    @mock.patch("readthedocs.subscriptions.managers.stripe.Subscription.create")
+    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.retrieve")
+    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
+    def test_user_without_subscription_and_customer(
+        self, customer_create_mock, customer_retrieve_mock, subscription_create_mock
+    ):
+        subscription_create_mock.return_value = stripe.Subscription.construct_from(
             values={
-                'id': 'sub_a1b2c3',
-                'start': 1610532715.085267,
-                'current_period_end': 1610532715.085267,
-                'trial_end': 1610532715.085267,
-                'status': 'active',
+                "id": "sub_a1b2c3",
+                "start_date": 1610532715.085267,
+                "current_period_end": 1610532715.085267,
+                "trial_end": 1610532715.085267,
+                "status": "active",
             },
             key=None,
         )
         customer_create_mock.return_value = stripe.Customer.construct_from(
-            values={
-                'id': 'cus_a1b2c3',
-                'subscriptions': subscriptions,
-            },
+            values={"id": "cus_a1b2c3"},
             key=None,
         )
         # When stripe_id is None, a new customer is created.

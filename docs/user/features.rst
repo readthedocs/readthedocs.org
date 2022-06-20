@@ -1,5 +1,5 @@
-Read the Docs features
-======================
+Feature Overview
+================
 
 Read the Docs offers a number of platform features that are possible because we both build and host documentation for you.
 
@@ -26,7 +26,7 @@ we assign you a URL based on your project name.
 You are welcome to use this URL,
 but we also fully support custom domains for all our documentation projects.
 
-Learn more about :doc:`/custom_domains`.
+Learn more about :doc:`/custom-domains`.
 
 Versioned Documentation
 -----------------------

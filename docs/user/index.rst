@@ -6,11 +6,12 @@ Read the Docs: Documentation Simplified
 
 `Read the Docs`_ simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
-Think of it as *Continuous Documentation*.
+This enables many "docs like code" workflows,
+keeping your code & documentation as close as possible.
 
 Never out of sync |:arrows_counterclockwise:|
     Whenever you push code to your favorite version control system,
-    whether that is Git, Mercurial, Bazaar, or Subversion,
+    whether that is Git or Mercurial,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
     Read more about :doc:`/integrations`.
@@ -47,7 +48,7 @@ to help you create fantastic documentation for your project.
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
   :doc:`Feature Overview </features>` |
-  :doc:`/choosing-a-site` | :doc:`/glossary`
+  :doc:`/choosing-a-site`
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
@@ -76,7 +77,7 @@ and some of the core features of Read the Docs.
 
 * **Overview of core features**:
   :doc:`/integrations` |
-  :doc:`/custom_domains` |
+  :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
@@ -108,7 +109,7 @@ and some of the core features of Read the Docs.
 
    /config-file/index
    /integrations
-   /custom_domains
+   /custom-domains
    /versions
    /downloadable-documentation
    /hosting
@@ -209,6 +210,7 @@ out of your documentation and Read the Docs.
    automatic-redirects
 
    automation-rules
+   canonical-urls
 
 
    api/index
@@ -246,6 +248,7 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Policy for abandoned projects <abandoned-projects>` |
   :doc:`Release notes & changelog <changelog>`
 
+
 * **The people and philosophy behind Read the Docs**:
   :doc:`About Us </about>` |
   :doc:`Team <team>` |
@@ -262,8 +265,9 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Data processing agreement <legal/dpa/index>`
 
 * **Getting involved with Read the Docs**:
-  :doc:`Developer Documentation <rtd-dev:index>` |
+  :doc:`/glossary`
   :doc:`/gsoc`
+  :doc:`Developer Documentation <rtd-dev:index>` |
 
 
 .. toctree::

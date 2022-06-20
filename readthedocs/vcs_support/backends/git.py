@@ -228,7 +228,7 @@ class Backend(BaseVCS):
         all_tags = {}
         light_tags = {}
         for line in stdout.splitlines():
-            commit, ref = line.split()
+            commit, ref = line.split(maxsplit=1)
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
