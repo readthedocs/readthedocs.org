@@ -194,6 +194,7 @@ class ReferrerPolicyMiddleware:
 
 
 class NullCharactersMiddleware:
+
     """
     Block all requests that contains NULL characters (0x00) on their GET attributes.
 
@@ -211,6 +212,6 @@ class NullCharactersMiddleware:
         for key, value in request.GET.items():
             if "\x00" in value:
                 raise SuspiciousOperation(
-                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the requests."
+                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the request."  # noqa
                 )
         return self.get_response(request)
