@@ -196,6 +196,12 @@ class ReferrerPolicyMiddleware:
 class NullCharactersMiddleware:
     """
     Block all requests that contains NULL characters (0x00) on their GET attributes.
+
+    Requests containing NULL characters make our code to break. In particular,
+    when trying to save the content containing a NULL character into the
+    database, producing a 500 and creating an event in Sentry.
+
+    NULL characters are also used as an explotation technique, known as "Null Byte Injection".
     """
 
     def __init__(self, get_response):
