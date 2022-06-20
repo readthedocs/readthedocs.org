@@ -1,3 +1,24 @@
+Version 8.3.0
+-------------
+
+:Date: June 20, 2022
+
+* `@humitos <https://github.com/humitos>`__: Security: avoid requests with NULL characters (0x00) on GET (`#9350 <https://github.com/readthedocs/readthedocs.org/pull/9350>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce log verbosity (`#9348 <https://github.com/readthedocs/readthedocs.org/pull/9348>`__)
+* `@humitos <https://github.com/humitos>`__: Build: truncate command output (`#9346 <https://github.com/readthedocs/readthedocs.org/pull/9346>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#9345 <https://github.com/readthedocs/readthedocs.org/pull/9345>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: log subscription id when canceling (`#9340 <https://github.com/readthedocs/readthedocs.org/pull/9340>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: support section titles inside header tags (`#9339 <https://github.com/readthedocs/readthedocs.org/pull/9339>`__)
+* `@humitos <https://github.com/humitos>`__: Local development: use `nodemon` to watch files instead of `watchmedo` (`#9338 <https://github.com/readthedocs/readthedocs.org/pull/9338>`__)
+* `@humitos <https://github.com/humitos>`__:  EmbedAPI: clean images (`src`) properly from inside a tooltip  (`#9337 <https://github.com/readthedocs/readthedocs.org/pull/9337>`__)
+* `@humitos <https://github.com/humitos>`__: Development: update `common/` submodule (`#9336 <https://github.com/readthedocs/readthedocs.org/pull/9336>`__)
+* `@stsewd <https://github.com/stsewd>`__: Gold: log if the subscription has more than one item (`#9334 <https://github.com/readthedocs/readthedocs.org/pull/9334>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: handle special case for Sphinx manual references (`#9333 <https://github.com/readthedocs/readthedocs.org/pull/9333>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Add `mc` client to `web` container (`#9331 <https://github.com/readthedocs/readthedocs.org/pull/9331>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: migrate `.tx/config` to new client's version format (`#9327 <https://github.com/readthedocs/readthedocs.org/pull/9327>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index generic doctype (`#9322 <https://github.com/readthedocs/readthedocs.org/pull/9322>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Improve scoping of two potentially overlapping Triage sections (`#9302 <https://github.com/readthedocs/readthedocs.org/pull/9302>`__)
+
 Version 8.2.0
 -------------
 

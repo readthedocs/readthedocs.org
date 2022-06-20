@@ -210,12 +210,22 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
             commands = BuildCommandSerializer(build.commands, many=True).data
             if commands:
                 for cmd in commands:
-                    if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
-                        cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                        cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                        log.warning('Truncating build command for build.', build_id=build.id)
-                output = BytesIO(json.dumps(commands).encode('utf8'))
-                filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                        cmd["output"] = (
+                            "\n\n"
+                            "... (truncated) ..."
+                            "\n\n"
+                            "Command output too long. Truncated to last 1MB."
+                            "\n\n" + cmd["output"]
+                        )  # noqa
+                        log.debug(
+                            "Truncating build command for build.", build_id=build.id
+                        )
+                output = BytesIO(json.dumps(commands).encode("utf8"))
+                filename = "{date}/{id}.json".format(
+                    date=str(build.date.date()), id=build.id
+                )
                 try:
                     build_commands_storage.save(name=filename, content=output)
                     if delete:

@@ -30,8 +30,9 @@ Read the Docs makes use of ARIA_ roles and other heuristics in order to process 
 Main content node
 ~~~~~~~~~~~~~~~~~
 
-The main content node should have a main role (or a ``main`` tag), and there should only be one per page.
-This node is the one that contains all the page content. Example:
+The main content should be inside a ``<main>`` tag or an element with ``role=main``,
+and there should only be one per page.
+This node is the one that contains all the page content to be indexed. Example:
 
 .. code-block:: html
    :emphasize-lines: 10-12
@@ -52,6 +53,51 @@ This node is the one that contains all the page content. Example:
          <footer>
             This content isn't processed
          </footer>
+      </body>
+   </html>
+
+If a main node isn't found,
+we try to infer the main node from the parent of the first section with a ``h1`` tag.
+Example:
+
+.. code-block:: html
+   :emphasize-lines: 10-20
+
+   <html>
+      <head>
+         ...
+      </head>
+      <body>
+         <div>
+            This content isn't processed
+         </div>
+
+         <div id="parent">
+            <h1>First title</h1>
+            <p>
+               The parent of the h1 title will
+               be taken as the main node,
+               this is the div tag.
+            </p>
+
+            <h2>Second title</h2>
+            <p>More content</p>
+         </div>
+      </body>
+   </html>
+
+If a section title isn't found, we default to the ``body`` tag.
+Example:
+
+.. code-block:: html
+   :emphasize-lines: 5-7
+
+   <html>
+      <head>
+         ...
+      </head>
+      <body>
+         <p>Content</p>
       </body>
    </html>
 
@@ -87,12 +133,15 @@ Example:
 Sections
 ~~~~~~~~
 
-Sections are ``h`` tags, and sections of the same level should be neighbors.
-Additionally, sections should have an unique ``id`` attribute per page (this is used to link to the section).
-All content below the section, till the new section will be indexed as part of the section. Example:
+Sections are composed of a title, and a content.
+A section title can be a ``h`` tag, or a ``header`` tag containing a ``h`` tag,
+the ``h`` tag or its parent can contain an ``id`` attribute, which will be used to link to the section.
+
+All content below the title, until a new section is found, will be indexed as part of the section content.
+Example:
 
 .. code-block:: html
-   :emphasize-lines: 2-10
+   :emphasize-lines: 2-10, 12-17, 21-26
 
    <div role="main">
       <h1 id="section-title">
@@ -114,17 +163,17 @@ All content below the section, till the new section will be indexed as part of t
 
       ...
 
-      <h1 id="neigbor-section">
-         This section is neighbor of "section-title"
-      </h1>
+      <header>
+         <h1 id="3">This is also a valid section title</h1>
+      </header>
       <p>
-         ...
+         Thi is the content of the third section.
       </p>
    </div>
 
-Sections can be inside till two nested tags (and have nested sections),
-and its immediate parent can contain the ``id`` attribute.
-Note that the section content still needs to be below the ``h`` tag. Example:
+Sections can be contained in up to two nested tags, and can contain other sections (nested sections).
+Note that the section content still needs to be below the section title.
+Example:
 
 .. code-block:: html
    :emphasize-lines: 3-11,14-21

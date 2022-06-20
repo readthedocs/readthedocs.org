@@ -17,7 +17,7 @@ from selectolax.parser import HTMLParser
 
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import clean_links
+from readthedocs.embed.utils import clean_references
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
@@ -150,6 +150,44 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             return
 
         if doctool == 'sphinx':
+            # Handle manual reference special cases
+            # See https://github.com/readthedocs/sphinx-hoverxref/issues/199
+            if node.tag == "span" and not node.text():
+                if any(
+                    [
+                        # docutils <0.18
+                        all(
+                            [
+                                node.parent.tag == "div",
+                                "section" in node.parent.attributes.get("class", []),
+                            ]
+                        ),
+                        # docutils >=0.18
+                        all(
+                            [
+                                node.parent.tag == "section",
+                                node.parent.attributes.get("id", None),
+                            ]
+                        ),
+                    ]
+                ):
+                    # Sphinx adds an empty ``<span id="my-reference"></span>``
+                    # HTML tag when using manual references (``..
+                    # _my-reference:``). Then, when users refer to it via
+                    # ``:ref:`my-referece``` the API will return the empty
+                    # span. If the parent node is a section, we have to return
+                    # the parent node that will have the content expected.
+
+                    # Structure:
+                    # <section id="ref-section">
+                    # <span id="ref-manual"></span>
+                    # <h2>Ref Section<a class="headerlink" href="#ref-section">¶</a></h2>
+                    # <p>This is a reference to
+                    # <a class="reference internal" href="#ref-manual"><span>Ref Section</span></a>.
+                    # </p>
+                    # </section>
+                    node = node.parent
+
             # Handle ``dt`` special cases
             if node.tag == 'dt':
                 if any([
@@ -321,7 +359,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         # Sanitize the URL before requesting it
         sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()
         # Make links from the content to be absolute
-        content = clean_links(
+        content = clean_references(
             content_requested,
             sanitized_url,
             html_raw_response=True,
