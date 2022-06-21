@@ -12,13 +12,13 @@ Are you the copyright owner or authorized to act on the copyright owner's behalf
     Yes
 
 What work was allegedly infringed? If possible, please provide a URL:
-    https://www.dicomstandard.org/current 
+    https://www.dicomstandard.org/current
 
 What files or project should be taken down? You should list URLs to each piece of infringing content. If you allege that the entire project is infringing on copyrights you hold, please specify the entire project as infringing:
     https://dicom-standard.readthedocs.io/en/latest/index.html
 
 Is the work licensed under an open source license?
-    No 
+    No
 
 What would be the best solution for the alleged infringement?
     Complete Removal.
