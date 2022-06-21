@@ -47,7 +47,6 @@ to help you create fantastic documentation for your project.
 * **Getting started**:
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
-  :doc:`Feature Overview </features>` |
   :doc:`/choosing-a-site`
 
 * **Importing your existing documentation**:
@@ -75,6 +74,7 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
+  :doc:`/features` |
   :doc:`/integrations` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
