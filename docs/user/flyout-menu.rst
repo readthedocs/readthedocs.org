@@ -41,9 +41,9 @@ We support both of these use cases for themes.
 Defining where the flyout menu is injected
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The flyout menu injection looks for a specific selector (``#readthedocs-embed-placement``),
+The flyout menu injection looks for a specific selector (``#readthedocs-embed-flyout``),
 in order to inject the flyout.
-You can add ``<div id="readthedocs-embed-placement">`` in your theme,
+You can add ``<div id="readthedocs-embed-flyout">`` in your theme,
 and our JavaScript code will inject the flyout there.
 All other themes except for the ``sphinx_rtd_theme`` have the flyout appended to the ``<body>``.
 

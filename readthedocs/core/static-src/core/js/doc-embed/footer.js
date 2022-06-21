@@ -1,7 +1,7 @@
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
-var EXPLICIT_FLYOUT_PLACEMENT_SELECTOR = '#readthedocs-embed-placement';
+var EXPLICIT_FLYOUT_PLACEMENT_SELECTOR = '#readthedocs-embed-flyout';
 
 
 function injectFooter(data) {
