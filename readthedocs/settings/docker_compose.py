@@ -53,7 +53,7 @@ class DockerBaseSettings(CommunityDevSettings):
         # Add an extra directory level using the container's hostname.
         # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
         # and avoid the builders overwritting each others when building the same project/version
-        return os.path.join(self.SITE_ROOT, 'user_builds', socket.gethostname())
+        return os.path.join(super().DOCROOT, socket.gethostname())
 
     # New templates
     @property
