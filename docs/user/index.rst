@@ -64,7 +64,6 @@ to help you create fantastic documentation for your project.
    /intro/getting-started-with-mkdocs
 
    /intro/import-guide
-   /features
    /choosing-a-site
    /glossary
 
@@ -105,8 +104,9 @@ and some of the core features of Read the Docs.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Feature Overview
+   :caption: Features
 
+   /features
    /config-file/index
    /integrations
    /custom-domains
