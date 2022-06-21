@@ -313,7 +313,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         try:
             project = Project.objects.get(slug=request.host_project_slug)
         except Project.DoesNotExist:
-            log.warning('No host_project_slug set on project')
+            log.debug("No host_project_slug set on project")
             return None
 
         # This is hacky because Django wants a module for the URLConf,

@@ -458,9 +458,9 @@ class BaseEnvironment:
                 msg = "Command failed"
                 build_output = ""
                 if build_cmd.output:
-                    build_output += "\n".join(build_cmd.output.split("\n")[10:])
-                    build_output += "\n ..Output Truncated.."
                     build_output += "\n".join(build_cmd.output.split("\n")[:10])
+                    build_output += "\n ..Output Truncated.. \n"
+                    build_output += "\n".join(build_cmd.output.split("\n")[-10:])
                 log.warning(
                     msg,
                     command=build_cmd.get_command(),

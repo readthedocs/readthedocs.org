@@ -69,7 +69,7 @@ The issue was found by the Read the Docs team.
 Version 5.14.0
 ~~~~~~~~~~~~~~
 
-:ref:`changelog:Version 5.14.0` fixes an issue where that affected new code that removed multiple slashes in URL paths. The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain on Read the Docs (either `*.readthedocs.io` or a [custom docs domain](https://docs.readthedocs.io/en/stable/custom_domains.html)) but instead went to a different domain.
+:ref:`changelog:Version 5.14.0` fixes an issue where that affected new code that removed multiple slashes in URL paths. The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain on Read the Docs (either `*.readthedocs.io` or a :doc:`custom docs domain </custom-domains>`)) but instead went to a different domain.
 
 This issue was reported by Splunk after it was reported by a security audit.
 
