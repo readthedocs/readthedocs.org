@@ -41,11 +41,11 @@ We support both of these use cases for themes.
 Defining where the flyout menu is injected
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The flyout menu injection follows this logic:
-
-* When a ``<div id="readthedocs-embed-placement">`` is defined, inject the flyout menu there.
-* If a page is an old version of the Read the Docs Sphinx theme, update the place where the theme expected it to be injected.
-* All other pages have the flyout appended to the ``<body>``
+The flyout menu injection looks for a specific selector (``#readthedocs-embed-placement``),
+in order to inject the flyout.
+You can add ``<div id="readthedocs-embed-placement">`` in your theme,
+and our JavaScript code will inject the flyout there.
+All other themes except for the ``sphinx_rtd_theme`` have the flyout appended to the ``<body>``.
 
 Styling the flyout
 ~~~~~~~~~~~~~~~~~~
@@ -53,8 +53,6 @@ Styling the flyout
 HTML themes can style the flyout to make it match the overall style of the HTML.
 By default the flyout has it's `own CSS file <https://github.com/readthedocs/sphinx_rtd_theme/blob/master/src/sass/_theme_badge.sass>`_,
 which you can look at to see the basic CSS class names.
-It also uses fontawesome to define some basic UI elements,
-which are exposed in the HTML with ``fa-`` classes.
 
 The example HTML that the flyout uses is included here,
 so that you can style it in your HTML theme:

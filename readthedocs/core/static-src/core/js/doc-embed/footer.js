@@ -12,8 +12,9 @@ function injectFooter(data) {
     // * All other pages just get it appended to the <body>
 
     var config = rtddata.get();
-    if ($(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR).length > 0) {
-        $(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR).html(data['html']);
+    var placement = $(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
+    if (placement.length > 0) {
+        placement.html(data['html']);
     }
     else if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
         $("div.rst-other-versions").html(data['html']);
