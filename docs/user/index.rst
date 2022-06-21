@@ -66,7 +66,6 @@ to help you create fantastic documentation for your project.
    /intro/import-guide
    /features
    /choosing-a-site
-   /glossary
 
 
 Read the Docs feature overview
@@ -265,9 +264,9 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Data processing agreement <legal/dpa/index>`
 
 * **Getting involved with Read the Docs**:
-  :doc:`/glossary`
-  :doc:`/gsoc`
-  :doc:`Developer Documentation <rtd-dev:index>` |
+  :doc:`/glossary` |
+  :doc:`/gsoc`|
+  :doc:`Developer Documentation <rtd-dev:index>`
 
 
 .. toctree::
@@ -291,4 +290,5 @@ of Read the Docs and the larger software documentation ecosystem.
    legal/index
 
    Developer Documentation <https://dev.readthedocs.io>
+   glossary
    gsoc
