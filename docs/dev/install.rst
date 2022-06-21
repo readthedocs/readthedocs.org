@@ -4,38 +4,41 @@ Development Installation
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are adhered to by the core development team while
-developing Read the Docs and related services. If you are a contributor to Read the Docs,
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
 it might a be a good idea to follow these guidelines as well.
 
-To follow these instructions you will need a Unix-like operating system,
-or `Windows Subsystem for Linux (WSL) <https://docs.microsoft.com/en-us/windows/wsl/>`_.
-Other operating systems are not supported.
+Requirements
+------------
+
+A development setup can be hosted by your laptop, in a VM, on a separate server etc. Any such scenario should work fine, as long as it can satisfy the following:
+
+* Is Unix-like system (Linux, BSD, Mac OSX) which **supports Docker**. Windows systems should have WSL+Docker or Docker Desktop.
+* Has **10 GB or more of free disk space** on the drive where Docker's cache and volumes are stored. If you want to experiment with customizing Docker containers, you'll likely need more.
+* Can spare *2 GB of system memory* for running Read the Docs, this typically means that a development laptop should have **8 GB or more of memory** in total.
+* Your system should *ideally* match the production system which uses the **latest official+stable Docker** distribution for `Ubuntu <https://docs.docker.com/engine/install/ubuntu/>`_ (the ``docker-ce`` package). If you are on Windows or Mac, you may also want to try `Docker Desktop <https://docs.docker.com/desktop/>`_.
 
 .. note::
 
-   We do not recommend to follow this guide to deploy an instance of Read the Docs for production usage.
-   Take into account that this setup is only useful for developing purposes.
+   Take into account that this setup is intended for development purposes.
+   We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
 Set up your environment
 -----------------------
 
-#. install `Docker <https://www.docker.com/>`_ following `their installation guide <https://docs.docker.com/install/>`_.
-
-#. clone the ``readthedocs.org`` repository:
+#. Clone the ``readthedocs.org`` repository:
 
    .. prompt:: bash
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
-#. install the requirements from ``common`` submodule:
+#. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
 
       pip install -r common/dockerfiles/requirements.txt
 
-#. build the Docker image for the servers:
+#. Build the Docker image for the servers:
 
    .. warning::
 
@@ -50,33 +53,34 @@ Set up your environment
       If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
       it will add support for readthedocs-ext.
 
-#. pull down Docker images for the builders:
+#. Pull down Docker images for the builders:
 
    .. prompt:: bash
 
       inv docker.pull --only-required
 
-#. start all the containers:
+#. Start all the containers:
 
    .. prompt:: bash
 
       inv docker.up  --init  # --init is only needed the first time
 
-#. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+#. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+   Because HSTS is enabled on ``*.readthedocs.io`` and because some browsers have HTTPS-only modes enabled, you should potentially use a fresh private/incognito session.
 
 
 Check that everything works
 ---------------------------
 
-#. go to http://community.dev.readthedocs.io and check that the appearance and style looks correct
-   (otherwise the MinIO buckets might be misconfigured, see above)
+#. Visit http://community.dev.readthedocs.io
+   (if your browser automatically redirect to ``https://``, use a private/incognito session)
 
-#. login as ``admin`` /  ``admin`` and verify that the project list appears
+#. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
-#. go to the "Read the Docs" project, click on the "Build version" button to build ``latest``,
-   and wait until it finishes
+#. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
+   and wait until it finishes (this can take several minutes).
 
-#. click on the "View docs" button to browse the documentation, and verify that it works
+#. Click on the "View docs" button to browse the documentation, and verify that it shows the Read the Docs documentation page.
 
 
 Working with Docker Compose
