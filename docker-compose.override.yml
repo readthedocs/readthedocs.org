@@ -34,6 +34,9 @@ services:
     networks:
       readthedocs:
         ipv4_address: 10.10.0.100
+    environment:
+      - NGINX_WEB_SERVER_NAME=${NGINX_WEB_SERVER_NAME:-community.dev.readthedocs.io}
+      - NGINX_PROXITO_SERVER_NAME=${NGINX_PROXITO_SERVER_NAME:-*.community.dev.readthedocs.io *.org.dev.readthedocs.build}
 
   proxito:
     image: community_server:latest
@@ -53,6 +56,7 @@ services:
       - HOSTIP=${HOSTIP:-}
     extra_hosts:
       - "community.dev.readthedocs.io:10.10.0.100"
+      - "${NGINX_WEB_SERVER_NAME}:10.5.0.100"
 
   celery:
     image: community_server:latest

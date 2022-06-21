@@ -99,6 +99,7 @@ save some work while typing docker compose commands. This section explains these
     * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
+    * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
