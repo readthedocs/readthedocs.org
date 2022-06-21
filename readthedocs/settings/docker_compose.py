@@ -48,6 +48,13 @@ class DockerBaseSettings(CommunityDevSettings):
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    @property
+    def DOCROOT(self):
+        # Add an extra directory level using the container's hostname.
+        # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
+        # and avoid the builders overwritting each others when building the same project/version
+        return os.path.join(super().DOCROOT, socket.gethostname())
+
     # New templates
     @property
     def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
