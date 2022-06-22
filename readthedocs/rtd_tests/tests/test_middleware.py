@@ -2,7 +2,6 @@ from unittest import mock
 
 from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
@@ -272,4 +271,9 @@ class TestNullCharactersMiddleware(TestCase):
 
     def test_request_with_null_chars(self):
         request = self.factory.get("/?language=en\x00es&project_slug=myproject")
-        self.assertRaises(SuspiciousOperation, lambda: self.middleware(request))
+        response = self.middleware(request)
+        self.assertContains(
+            response,
+            "There are NULL (0x00) characters in at least one of the parameters (language) passed to the request.",
+            status_code=400,
+        )
