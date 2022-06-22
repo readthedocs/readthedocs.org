@@ -55,8 +55,7 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web_docker
       - HOSTIP=${HOSTIP:-}
     extra_hosts:
-      - "community.dev.readthedocs.io:10.10.0.100"
-      - "${NGINX_WEB_SERVER_NAME}:10.5.0.100"
+      - "${NGINX_WEB_SERVER_NAME:-community.dev.readthedocs.io}:10.10.0.100"
 
   celery:
     image: community_server:latest
