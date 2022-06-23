@@ -425,9 +425,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
-            log.exception('Build failed with unhandled exception.')
-            self.data.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
-                build_id=self.data.build['id'],
+            log.exception("Build failed with unhandled exception.", exc_info=exc)
+            self.data.build["error"] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.data.build["id"],
             )
 
         # Send notifications for unhandled errors
