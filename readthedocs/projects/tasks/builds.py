@@ -146,7 +146,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             )
         else:
             # Catch unhandled errors when syncing
-            log.exception('An unhandled exception was raised during VCS syncing.')
+            log.exception(
+                "An unhandled exception was raised during VCS syncing.", exc_info=exc
+            )
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         clean_build(self.data.version)
