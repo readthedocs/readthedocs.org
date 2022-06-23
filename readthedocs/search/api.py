@@ -2,6 +2,7 @@ from functools import lru_cache, namedtuple
 from math import ceil
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -10,8 +11,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
+from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
@@ -120,36 +121,52 @@ class SearchPagination(PageNumberPagination):
 class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
     """
-    Main entry point to perform a search using Elasticsearch.
+    Server side search API.
 
     Required query params:
 
-    - q (search term)
-    - project
-    - version
+    - **q**: Search term
+    - **project**: List of projects to search, they can be in the form
+      of `{project}` or `{project}:{version}`.
+      If no version is passed, its default version is used.
+    - **version** (deprecated): Use the `project` parameter with the
+      `{project}:{version}` syntax instead.
 
-    .. note::
-
-       The methods `_get_project` and `_get_version`
-       are called many times, so a basic cache is implemented.
-    """
+    Check our [docs](https://docs.readthedocs.io/en/stable/server-side-search.html#api) for more information.
+    """  # noqa
 
     http_method_names = ['get']
-    permission_classes = [IsAuthorizedToViewVersion]
+    # Access is decided while listing results from a version.
+    # If a user doesn't have access to a version,
+    # we just don't include results from that version
+    # instead of returning an error.
+    permission_classes = []
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
-    project_cache_tag = 'rtd-search'
+    project_cache_tag = "rtd-search"
 
     @lru_cache(maxsize=1)
     def _get_project(self):
+        """
+        Get the current project (deprecated).
+
+        This method is deprecated, the request
+        could be attached to more than one project.
+        """
         project_slug = self.request.GET.get('project', None)
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
     @lru_cache(maxsize=1)
     def _get_version(self):
-        version_slug = self.request.GET.get('version', None)
+        """
+        Get the current version (deprecated).
+
+        This method is deprecated, the request
+        could be attached to more than one version.
+        """
         project = self._get_project()
+        version_slug = self.request.GET.get("version")
         version = get_object_or_404(
             project.versions.all(),
             slug=version_slug,
@@ -158,27 +175,44 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
     def _validate_query_params(self):
         """
-        Validate all required query params are passed on the request.
+        Validate all query params that are passed in the request.
 
-        Query params required are: ``q``, ``project`` and ``version``.
+        Required parameters are: ``q``, and ``project``.
+        The query param ``version`` can only be used with one single project.
 
-        :rtype: None
-
-        :raises: ValidationError if one of them is missing.
+        :raises: ValidationError
         """
         errors = {}
-        required_query_params = {'q', 'project', 'version'}
-        request_params = set(self.request.query_params.keys())
-        missing_params = required_query_params - request_params
-        for param in missing_params:
-            errors[param] = [_("This query param is required")]
+        required_query_params = ["q", "project"]
+        for param in required_query_params:
+            param_value = self.request.GET.get(param)
+            if not param_value:
+                errors[param] = [_("This parameter is required")]
+
+        has_version = self.request.GET.get("version")
+        if has_version:
+            projects_slug = self.request.GET.getlist("project")
+            if len(projects_slug) > 1:
+                errors["version"] = [
+                    _("The version parameter can't be used with more than one project")
+                ]
+            if len(projects_slug) == 1:
+                __, version_slug = self._split_project_and_version(projects_slug[0])
+                if version_slug is not None:
+                    errors["project"] = [
+                        _(
+                            "The `{project}:{version}` syntax can't be used "
+                            "with the `version` parameter"
+                        )
+                    ]
+
         if errors:
             raise ValidationError(errors)
 
     @lru_cache(maxsize=1)
     def _get_all_projects_data(self):
         """
-        Return a dictionary of the project itself and all its subprojects.
+        Return a dictionary of all projects/versions that will be used in the search.
 
         Example:
 
@@ -205,90 +239,167 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
         :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
+        if self._is_old_request():
+            return self._get_single_project_data()
+        return self._get_multiple_projects_data()
+
+    def _is_old_request(self):
+        """
+        Check if the request is using the old API syntax.
+
+        With the old syntax, only one project and version
+        are allowed, and results will always include results
+        from subprojects.
+        """
+        return self.request.GET.get("version")
+
+    def _get_single_project_data(self):
+        """
+        Get project data from a single project (old API syntax).
+
+        This includes the subprojects of the main project
+        that have the same version as the main project,
+        if there isn't a match, the default version will be used.
+
+        .. note::
+
+           We exlude hidden versions when matching the versions
+           from subprojects.
+        """
         main_version = self._get_version()
         main_project = self._get_project()
 
+        if not self._has_permission(self.request.user, main_version):
+            return {}
+
         projects_data = {
-            main_project.slug: ProjectData(
-                alias=None,
-                version=VersionData(
-                    slug=main_version.slug,
-                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
-                ),
-            )
+            main_project.slug: self._get_project_data(main_project, main_version),
         }
 
-        subprojects = Project.objects.filter(
-            superprojects__parent_id=main_project.id,
-        )
+        subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
         for subproject in subprojects:
-            version = self._get_subproject_version(
+            version = self._get_project_version(
+                project=subproject,
                 version_slug=main_version.slug,
-                subproject=subproject,
+                include_hidden=False,
             )
 
             # Fallback to the default version of the subproject.
             if not version and subproject.default_version:
-                version = self._get_subproject_version(
+                version = self._get_project_version(
+                    project=subproject,
                     version_slug=subproject.default_version,
-                    subproject=subproject,
+                    include_hidden=False,
                 )
 
             if version and self._has_permission(self.request.user, version):
-                url = subproject.get_docs_url(version_slug=version.slug)
-                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
-                version_data = VersionData(
-                    slug=version.slug,
-                    docs_url=url,
-                )
-                projects_data[subproject.slug] = ProjectData(
-                    alias=project_alias,
-                    version=version_data,
+                projects_data[subproject.slug] = self._get_project_data(
+                    subproject, version
                 )
 
         return projects_data
 
-    def _get_subproject_version(self, version_slug, subproject):
-        """Get a version from the subproject."""
+    def _get_multiple_projects_data(self):
+        """
+        Get project data from all projects/versions the current user has access to.
+
+        No additional projects/versions from the explicitly requested are added
+        (no subprojects).
+        """
+        projects_slug = self.request.GET.getlist("project")
+        projects_data = {}
+        for project_slug in projects_slug:
+            project_slug, version_slug = self._split_project_and_version(project_slug)
+            project = Project.objects.filter(slug=project_slug).first()
+            if not project:
+                continue
+
+            if not version_slug and project.default_version:
+                version_slug = project.default_version
+
+            version = self._get_project_version(
+                project=project,
+                version_slug=version_slug,
+            )
+            if version and self._has_permission(self.request.user, version):
+                projects_data[project.slug] = self._get_project_data(project, version)
+
+        return projects_data
+
+    def _get_project_version(self, project, version_slug, include_hidden=True):
+        """
+        Get a version from a given project.
+
+        :param project: A `Project` object.
+        :param version_slug: The version slug.
+        :param include_hidden: If hidden versions should be considered.
+        """
         return (
             Version.internal
             .public(
                 user=self.request.user,
-                project=subproject,
-                include_hidden=False,
+                project=project,
                 only_built=True,
+                include_hidden=include_hidden,
             )
             .filter(slug=version_slug)
             .first()
+        )
+
+    def _split_project_and_version(self, term):
+        """
+        Split a term of the form ``{project}:{version}``.
+
+        :returns: A tuple of project and version.
+         If the version part isn't found, `None` will be returned in its place.
+        """
+        parts = term.split(":", maxsplit=1)
+        if len(parts) > 1:
+            return parts
+        return parts[0], None
+
+    def _get_project_data(self, project, version):
+        """Build a `ProjectData` object given a project and its version."""
+        url = project.get_docs_url(version_slug=version.slug)
+        project_alias = project.superprojects.values_list("alias", flat=True).first()
+        version_data = VersionData(
+            slug=version.slug,
+            docs_url=url,
+        )
+        return ProjectData(
+            alias=project_alias,
+            version=version_data,
         )
 
     def _has_permission(self, user, version):
         """
         Check if `user` is authorized to access `version`.
 
-        The queryset from `_get_subproject_version` already filters public
+        The queryset from `_get_project_version` already filters public
         projects. This is mainly to be overridden in .com to make use of
         the auth backends in the proxied API.
         """
         return True
 
     def _record_query(self, response):
-        project_slug = self._get_project().slug
-        version_slug = self._get_version().slug
+        """
+        Record the current query for analytics.
+
+        We record the same query for every
+        project involved in the request.
+        """
         total_results = response.data.get('count', 0)
         time = timezone.now()
-
         query = self.request.query_params['q']
         query = query.lower().strip()
-
-        # Record the query with a celery task
-        tasks.record_search_query.delay(
-            project_slug,
-            version_slug,
-            query,
-            total_results,
-            time.isoformat(),
-        )
+        for project_slug, project_data in self._get_all_projects_data().items():
+            tasks.record_search_query.delay(
+                project_slug=project_slug,
+                version_slug=project_data.version.slug,
+                query=query,
+                total_results=total_results,
+                time_string=time.isoformat(),
+            )
 
     def get_queryset(self):
         """
@@ -300,9 +411,6 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
-        main_project = self._get_project()
-        projects = {}
-
         projects = {
             project: project_data.version.slug
             for project, project_data in self._get_all_projects_data().items()
@@ -312,12 +420,20 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             log.info('Unable to find a version to search')
             return []
 
+        # TODO: we should make this a parameter in the API,
+        # we are checking if the first project has this feature for now.
+        first_project = next(iter(projects.keys()))
+        main_project = Project.objects.get(slug=first_project)
+        use_advanced_query = not main_project.has_feature(
+            Feature.DEFAULT_TO_FUZZY_SEARCH
+        )
+
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
             projects=projects,
             aggregate_results=False,
-            use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
+            use_advanced_query=use_advanced_query,
         )
         return queryset
 
@@ -332,6 +448,19 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         self._record_query(result)
         return result
 
+    def _get_cache_tags(self):
+        """Overriden from `CDNCacheTagsMixin` to return tags for all projects."""
+        try:
+            projects_data = self._get_all_projects_data()
+        except Http404:
+            return []
+        tags = []
+        for project_slug, project_data in projects_data.items():
+            tags.append(project_slug)
+            tags.append(get_cache_tag(project_slug, project_data.version.slug))
+            tags.append(get_cache_tag(project_slug, self.project_cache_tag))
+        return tags
+
     def list(self):
         """List the results using pagination."""
         queryset = self.get_queryset()
@@ -339,4 +468,22 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             queryset, self.request, view=self,
         )
         serializer = self.get_serializer(page, many=True)
-        return self.paginator.get_paginated_response(serializer.data)
+        response = self.paginator.get_paginated_response(serializer.data)
+        self._insert_additional_metadata(response)
+        return response
+
+    def _insert_additional_metadata(self, response):
+        """
+        Insert additional metadata about the search.
+
+        Currently, we insert:
+
+        - The final projects and its versions that were used in the search.
+        """
+        response.data["versions"] = [
+            {
+                "slug": project_data.version.slug,
+                "project": {"slug": project_slug},
+            }
+            for project_slug, project_data in self._get_all_projects_data().items()
+        ]

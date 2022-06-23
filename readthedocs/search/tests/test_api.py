@@ -229,9 +229,9 @@ class BaseTestDocumentSearch:
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
-        """Hitting Document Search endpoint without project and version should return 404."""
+        """Hitting Document Search endpoint without project and version should return an error."""
         resp = self.get_search(api_client, {})
-        assert resp.status_code == 404
+        assert resp.status_code == 400
 
     def test_doc_search_without_query(self, api_client, project):
         """Hitting Document Search endpoint without a query should return error."""
@@ -806,6 +806,78 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 0
+
+    def test_search_mix_several_projects_and_version(self, api_client, project):
+        search_params = {
+            "q": "documentation",
+            "project": [project.slug, "another"],
+            "version": "latest",
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 400
+        assert "version" in resp.data
+
+    def test_search_mix_project_version_syntax_and_version(self, api_client, project):
+        search_params = {
+            "q": "documentation",
+            "project": f"{project.slug}:latest",
+            "version": "latest",
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 400
+        assert "project" in resp.data
+
+    def test_single_project_default_version(self, api_client, project):
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        searched_versions = [{"slug": "latest", "project": {"slug": project.slug}}]
+        search_params = {
+            "q": query,
+            "project": project.slug,
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        assert resp.data["results"]
+        assert resp.data["versions"] == searched_versions
+
+        for result in resp.data["results"]:
+            assert result["project"] == project.slug
+            assert result["version"] == "latest"
+
+    def test_single_project_explicit_version(self, api_client, project):
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        searched_versions = [{"slug": "latest", "project": {"slug": project.slug}}]
+        search_params = {
+            "q": query,
+            "project": f"{project.slug}:latest",
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        assert resp.data["results"]
+        assert resp.data["versions"] == searched_versions
+
+        for result in resp.data["results"]:
+            assert result["project"] == project.slug
+            assert result["version"] == "latest"
+
+    def test_search_several_projects(self, api_client):
+        project_docs = Project.objects.get(slug="docs")
+        project_kuma = Project.objects.get(slug="kuma")
+        searched_versions = [
+            {"slug": "latest", "project": {"slug": project_docs.slug}},
+            {"slug": "latest", "project": {"slug": project_kuma.slug}},
+        ]
+        search_params = {
+            "q": "docker support",
+            "project": [f"{project_docs.slug}:latest", f"{project_kuma.slug}:latest"],
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        assert len(resp.data["results"]) >= 2
+        assert resp.data["versions"] == searched_versions
+
+        for result in resp.data["results"]:
+            assert result["project"] in {project_docs.slug, project_kuma.slug}
+            assert result["version"] == "latest"
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
