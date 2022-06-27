@@ -1,3 +1,27 @@
+Version 8.3.1
+-------------
+
+:Date: June 27, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Properly log build exceptions in Celery (`#9375 <https://github.com/readthedocs/readthedocs.org/pull/9375>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove old FAQ entry (`#9374 <https://github.com/readthedocs/readthedocs.org/pull/9374>`__)
+* `@humitos <https://github.com/humitos>`__: CSP header: enforce mode (`#9373 <https://github.com/readthedocs/readthedocs.org/pull/9373>`__)
+* `@humitos <https://github.com/humitos>`__: Development: default value for environment variable (`#9370 <https://github.com/readthedocs/readthedocs.org/pull/9370>`__)
+* `@humitos <https://github.com/humitos>`__: Middleware: use regular `HttpResponse` and log the suspicious operation (`#9366 <https://github.com/readthedocs/readthedocs.org/pull/9366>`__)
+* `@humitos <https://github.com/humitos>`__: Development: remove silent and use long attribute name (`#9363 <https://github.com/readthedocs/readthedocs.org/pull/9363>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix glossary ordering (`#9362 <https://github.com/readthedocs/readthedocs.org/pull/9362>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not list feature overview twice (`#9361 <https://github.com/readthedocs/readthedocs.org/pull/9361>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 8.3.0 (`#9358 <https://github.com/readthedocs/readthedocs.org/pull/9358>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an explicit flyout placement option (`#9357 <https://github.com/readthedocs/readthedocs.org/pull/9357>`__)
+* `@humitos <https://github.com/humitos>`__: Development: allow to pass `--ngrok` when starting up (`#9353 <https://github.com/readthedocs/readthedocs.org/pull/9353>`__)
+* `@humitos <https://github.com/humitos>`__: Development: avoid path collision when running multiple builders (`#9352 <https://github.com/readthedocs/readthedocs.org/pull/9352>`__)
+* `@humitos <https://github.com/humitos>`__: Security: avoid requests with NULL characters (0x00) on GET (`#9350 <https://github.com/readthedocs/readthedocs.org/pull/9350>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce log verbosity (`#9348 <https://github.com/readthedocs/readthedocs.org/pull/9348>`__)
+* `@humitos <https://github.com/humitos>`__: Build: handle 422 response on send build status (`#9347 <https://github.com/readthedocs/readthedocs.org/pull/9347>`__)
+* `@humitos <https://github.com/humitos>`__: Build: truncate command output (`#9346 <https://github.com/readthedocs/readthedocs.org/pull/9346>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Updates and fixes to Development Install guide (`#9319 <https://github.com/readthedocs/readthedocs.org/pull/9319>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add DMCA takedown request for project dicom-standard (`#9311 <https://github.com/readthedocs/readthedocs.org/pull/9311>`__)
+
 Version 8.3.0
 -------------
 
