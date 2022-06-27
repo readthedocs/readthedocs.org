@@ -176,6 +176,7 @@ out of your documentation and Read the Docs.
 * **Advanced project configuration**:
   :doc:`subprojects` |
   :doc:`Single version docs <single_version>` |
+  :doc:`flyout-menu` |
   :doc:`feature-flags`
 
 * **Multi-language documentation**:
@@ -201,6 +202,7 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
+   flyout-menu
    feature-flags
 
    localization
