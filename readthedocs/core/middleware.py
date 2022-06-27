@@ -9,6 +9,7 @@ from django.core.exceptions import (
     MiddlewareNotUsed,
     SuspiciousOperation,
 )
+from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
 from django.utils.http import http_date
 
@@ -211,7 +212,14 @@ class NullCharactersMiddleware:
     def __call__(self, request):
         for key, value in request.GET.items():
             if "\x00" in value:
-                raise SuspiciousOperation(
-                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the request."  # noqa
+                log.info(
+                    "NULL (0x00) characters in GET attributes.",
+                    attribute=key,
+                    value=value,
+                    url=request.build_absolute_uri(),
+                )
+                return HttpResponse(
+                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the request.",  # noqa
+                    status=400,
                 )
         return self.get_response(request)
