@@ -14,8 +14,5 @@ pillow==9.1.0
 # run tests
 tox==3.25.0
 
-# AWS utilities to use against MinIO
-awscli==1.23.5
-
 # Used together with structlog to have nicer logs locally
 rich==12.3.0

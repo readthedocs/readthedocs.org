@@ -47,7 +47,6 @@ to help you create fantastic documentation for your project.
 * **Getting started**:
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
-  :doc:`Feature Overview </features>` |
   :doc:`/choosing-a-site`
 
 * **Importing your existing documentation**:
@@ -64,9 +63,7 @@ to help you create fantastic documentation for your project.
    /intro/getting-started-with-mkdocs
 
    /intro/import-guide
-   /features
    /choosing-a-site
-   /glossary
 
 
 Read the Docs feature overview
@@ -76,6 +73,7 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
+  :doc:`/features` |
   :doc:`/integrations` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
@@ -105,8 +103,9 @@ and some of the core features of Read the Docs.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Feature Overview
+   :caption: Features
 
+   /features
    /config-file/index
    /integrations
    /custom-domains
@@ -177,6 +176,7 @@ out of your documentation and Read the Docs.
 * **Advanced project configuration**:
   :doc:`subprojects` |
   :doc:`Single version docs <single_version>` |
+  :doc:`flyout-menu` |
   :doc:`feature-flags`
 
 * **Multi-language documentation**:
@@ -202,6 +202,7 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
+   flyout-menu
    feature-flags
 
    localization
@@ -265,9 +266,9 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Data processing agreement <legal/dpa/index>`
 
 * **Getting involved with Read the Docs**:
-  :doc:`/glossary`
-  :doc:`/gsoc`
-  :doc:`Developer Documentation <rtd-dev:index>` |
+  :doc:`/glossary` |
+  :doc:`/gsoc`|
+  :doc:`Developer Documentation <rtd-dev:index>`
 
 
 .. toctree::
@@ -291,4 +292,5 @@ of Read the Docs and the larger software documentation ecosystem.
    legal/index
 
    Developer Documentation <https://dev.readthedocs.io>
+   glossary
    gsoc
