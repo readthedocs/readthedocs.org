@@ -146,7 +146,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             )
         else:
             # Catch unhandled errors when syncing
-            # Note we are using `log.error(exc_info=...)` instead of `log.exception` 
+            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
             # because this is not executed inside a try/except block.
             log.error(
                 "An unhandled exception was raised during VCS syncing.", exc_info=exc
@@ -429,7 +429,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
-            # Note we are using `log.error(exc_info=...)` instead of `log.exception` 
+            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
             # because this is not executed inside a try/except block.
             log.error("Build failed with unhandled exception.", exc_info=exc)
             self.data.build["error"] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
