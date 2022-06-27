@@ -71,12 +71,12 @@ Hidden
 
 - **Not hidden and Active**
 
-  - This version is listed on the version (flyout) menu on the docs site
+  - This version is listed on the :term:`flyout menu` on the docs site
   - This version is shown in search results on the docs site
 
 - **Hidden and Active**
 
-  - This version isn't listed on the version (flyout) menu on the docs site
+  - This version isn't listed on the :term:`flyout menu` on the docs site
   - This version isn't shown in search results from another version on the docs site
     (like on search results from a superproject)
 
@@ -118,7 +118,7 @@ Logging out
 '''''''''''
 
 When you log in to a documentation site, you will be logged in until close your browser.
-To log out, click on the :guilabel:`Log out` link in your documentation's flyout menu.
+To log out, click on the :guilabel:`Log out` link in your documentation's :term:`flyout menu`.
 This is usually located in the bottom right or bottom left, depending on the theme design.
 This will log you out from the current domain,
 but not end any other session that you have active.
