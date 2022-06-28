@@ -40,6 +40,20 @@ function attach_elastic_search_query_sphinx(data) {
         /**
          * Build a section with its matching results.
          *
+         * A section has the form:
+         *
+         *   <div>
+         *     <a href={link}>{title}<a>
+         *   </div>
+         *   <div>
+         *     {contents[0]}
+         *   </div>
+         *   <div>
+         *     {contents[1]}
+         *   </div>
+         *
+         *   ...
+         *
          * @param {String} title.
          * @param {String} link.
          * @param {Array} contents.
@@ -61,6 +75,14 @@ function attach_elastic_search_query_sphinx(data) {
 
         /**
          * Build a domain section.
+         * A domain section has the form:
+         *
+         *   <div>
+         *     <a href={link}>{title}<a>
+         *   </div>
+         *   <div>
+         *     {content}
+         *   </div>
          *
          * @param {String} title.
          * @param {String} link.

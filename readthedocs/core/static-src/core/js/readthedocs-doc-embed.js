@@ -7,8 +7,9 @@ var sphinx = require('./doc-embed/sphinx');
 var search = require('./doc-embed/search');
 
 
-// While much of this script relies on jQuery (which Sphinx relies on),
-// we purposefully do not use it before DOMContentLoaded in case scripts are loaded out of order
+// Parts of this script rely on jQuery,
+// since Sphinx no longer includes it,
+// we must inject it if isn't found before executing our script.
 (function () {
     function domReady(fn) {
         // If the DOM is already done parsing
@@ -26,15 +27,19 @@ var search = require('./doc-embed/search');
         sponsorship.init();
     }
 
-    // Inject JQuery if isn't present already.
-    if (!window.jQuery) {
-        console.log("JQuery not found. Injecting.");
-        var script = document.createElement("script");
-        script.type = 'text/javascript';
-        script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js";
-        script.onload = function () { domReady(init); };
-        document.head.appendChild(script);
-    } else {
-        domReady(init);
-    }
+    domReady(function () {
+      // Inject JQuery if isn't present already.
+      if (!window.jQuery) {
+          console.log("JQuery not found. Injecting.");
+          var script = document.createElement("script");
+          script.type = "text/javascript";
+          script.src = "https://code.jquery.com/jquery-3.6.0.min.js";
+          script.integrity = "sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==";
+          script.crossOrigin = "anonymous";
+          script.onload = init;
+          document.head.appendChild(script);
+      } else {
+          init();
+      }
+    });
 }());
