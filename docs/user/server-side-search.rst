@@ -82,30 +82,38 @@ Check :ref:`server-side-search:authentication and authorization` if you are usin
 
 .. http:get:: /api/v2/search/
 
-   Return a list of search results for a project,
-   including results from its :doc:`/subprojects`.
+   Return a list of search results for a group of versions.
    Results are divided into sections with highlights of the matching term.
 
    .. Request
 
-   :query q: Search query
-   :query project: Project slug
-   :query version: Version slug
-   :query page: Jump to a specific page
-   :query page_size: Limits the results per page, default is 50
+   :query string q: Search query.
+   :query string | array project: A project or list of projects to search,
+    they can be in the form of ``{project}`` or ``{project}:{version}``.
+    If no version is passed, its default version is used.
+   :query number page: Jump to a specific page.
+   :query number page_size: Limits the results per page, default is 50.
+   :query string version: Deprecated, use the ``project`` parameter with the
+    `{project}:{version}` syntax instead.
 
    .. Response
 
-   :>json string type: The type of the result, currently page is the only type.
-   :>json string project: The project slug
-   :>json string project_alias: Alias of the project if it's a subproject.
-   :>json string version: The version slug
-   :>json string title: The title of the page
-   :>json string domain: Canonical domain of the resulting page
-   :>json string path: Path to the resulting page
-   :>json object highlights: An object containing a list of substrings with matching terms.
+   :>json number count: Total number of results.
+   :>json string next: URL to next page of results.
+   :>json string previous: URL to previous page of results.
+   :>json array versions: The final versions that were used in the search.
+   :>json array results: Array of results (described below).
+
+   :>jsonarr string type: The type of the result, currently page is the only type.
+   :>jsonarr string project: The project slug
+   :>jsonarr string project_alias: Alias of the project if it's a subproject.
+   :>jsonarr string version: The version slug
+   :>jsonarr string title: The title of the page
+   :>jsonarr string domain: Canonical domain of the resulting page
+   :>jsonarr string path: Path to the resulting page
+   :>jsonarr object highlights: An object containing a list of substrings with matching terms.
                              Note that the text is HTML escaped with the matching terms inside a <span> tag.
-   :>json object blocks:
+   :>jsonarr array blocks:
 
     A list of block objects containing search results from the page.
     Currently, there are two types of blocks:
@@ -121,7 +129,7 @@ Check :ref:`server-side-search:authentication and authorization` if you are usin
 
       .. code-tab:: bash
 
-         $ curl "https://readthedocs.org/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
+         $ curl "https://readthedocs.org/api/v2/search/?project=docs:latest&q=server%20side%20search"
 
       .. code-tab:: python
 
@@ -129,8 +137,7 @@ Check :ref:`server-side-search:authentication and authorization` if you are usin
          URL = 'https://readthedocs.org/api/v2/search/'
          params = {
             'q': 'server side search',
-            'project': 'docs',
-            'version': 'latest',
+            'project': 'docs:latest',
          }
          response = requests.get(URL, params=params)
          print(response.json())
@@ -143,6 +150,14 @@ Check :ref:`server-side-search:authentication and authorization` if you are usin
           "count": 41,
           "next": "https://readthedocs.org/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
           "previous": null,
+          "versions": [
+              {
+                  "slug": "latest",
+                  "project": {
+                       "slug": "docs"
+                  }
+              }
+          ],
           "results": [
               {
                   "type": "page",
@@ -188,11 +203,33 @@ Check :ref:`server-side-search:authentication and authorization` if you are usin
           ]
       }
 
+   **Searching several projects at the same time**:
+
+   The following request will return results
+   from both projects, ``docs`` and ``dev``.
+
+   .. tabs::
+
+      .. code-tab:: bash
+
+         $ curl "https://readthedocs.org/api/v2/search/?project=docs:latest&project=dev:latest&q=server%20side%20search"
+
+      .. code-tab:: python
+
+         import requests
+         URL = 'https://readthedocs.org/api/v2/search/'
+         params = {
+            'q': 'server side search',
+            'project': ['docs:latest', 'dev:latest'],
+         }
+         response = requests.get(URL, params=params)
+         print(response.json())
+
 Authentication and authorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are using :ref:`private versions <versions:privacy levels>`,
-users will only be allowed to search projects they have permissions over.
+users will only be allowed to search versions they have permissions over.
 Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
@@ -200,3 +237,9 @@ To be able to use the user's current session you need to use the API from the do
 (``<you-docs-domain>/_/api/v2/search/``).
 This is ``https://docs.readthedocs-hosted.com/_/api/v2/search/``
 for the ``https://docs.readthedocs-hosted.com/`` project, for example.
+
+Including results from subprojects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To include results from subprojects,
+you'll need to pass each subproject explicitly in the ``project`` parameter.
