@@ -218,7 +218,9 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_(
+            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
+        ),
     )
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
