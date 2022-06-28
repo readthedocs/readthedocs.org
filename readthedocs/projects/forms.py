@@ -293,7 +293,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 "To build from pull requests you need a "
                 f'GitHub or GitLab <a href="{url}">integration</a>.'
             )
-        if not can_build_external_versions:
+        if has_supported_integration and not can_build_external_versions:
             # If there is only one integration, link directly to it.
             if len(integrations) == 1:
                 url = reverse(
