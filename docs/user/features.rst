@@ -1,5 +1,5 @@
-Feature Overview
-================
+Main Features
+=============
 
 Read the Docs offers a number of platform features that are possible because we both build and host documentation for you.
 

@@ -15,8 +15,8 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
-    PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'community.dev.readthedocs.io')
+    PUBLIC_DOMAIN = PRODUCTION_DOMAIN
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
@@ -47,6 +47,13 @@ class DockerBaseSettings(CommunityDevSettings):
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
+
+    @property
+    def DOCROOT(self):
+        # Add an extra directory level using the container's hostname.
+        # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
+        # and avoid the builders overwritting each others when building the same project/version
+        return os.path.join(super().DOCROOT, socket.gethostname())
 
     # New templates
     @property
@@ -173,8 +180,8 @@ class DockerBaseSettings(CommunityDevSettings):
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
     S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
-    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
-    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
+    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False

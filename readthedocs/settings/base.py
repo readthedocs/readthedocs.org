@@ -105,7 +105,7 @@ class CommunityBaseSettings(Settings):
     CSP_FRAME_ANCESTORS = ("'none'",)
     CSP_OBJECT_SRC = ("'none'",)
     CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = (
         "/admin/",
     )
@@ -236,6 +236,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
+        'readthedocs.core.middleware.NullCharactersMiddleware',
         'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',

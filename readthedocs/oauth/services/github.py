@@ -475,6 +475,18 @@ class GitHubService(Service):
                 log.info('GitHub project does not exist or user does not have permissions.')
                 return False
 
+            if (
+                resp.status_code == 422
+                and "No commit found for SHA" in resp.json()["message"]
+            ):
+                # This happens when the user force-push a branch or similar
+                # that changes the Git history and SHA does not exist anymore.
+                #
+                # We return ``True`` here because otherwise our logic will try
+                # with different users. However, all of them will fail since
+                # it's not a permission issue.
+                return True
+
             try:
                 debug_data = resp.json()
             except ValueError:
