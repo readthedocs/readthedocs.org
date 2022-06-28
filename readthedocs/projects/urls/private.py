@@ -20,6 +20,7 @@ from readthedocs.projects.views.private import (
     EnvironmentVariableDelete,
     EnvironmentVariableList,
     ImportView,
+    IntegrationConnectProject,
     IntegrationCreate,
     IntegrationDelete,
     IntegrationDetail,
@@ -199,6 +200,13 @@ integration_urls = [
         ),
         IntegrationWebhookSync.as_view(),
         name='projects_integrations_webhooks_sync',
+    ),
+    re_path(
+        r"^(?P<project_slug>{project_slug})/integrations/connect/$".format(
+            **pattern_opts
+        ),
+        IntegrationConnectProject.as_view(),
+        name="projects_integrations_connect_project",
     ),
     re_path(
         (

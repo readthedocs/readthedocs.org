@@ -14,6 +14,14 @@
 {% block project_edit_content %}
   <div class="button-bar">
     <ul>
+      {% if connect_vcs_repository %}
+      <li>
+        <form style="float: left" method="post" action="{% url 'projects_integrations_connect_project' project_slug=project.slug %}">
+          {% csrf_token %}
+          <input type="submit" value="{% trans "Connect VCS repository" %}">
+        </form>
+      </li>
+      {% endif %}
       <li>
         <a class="button"
            href="{% url 'projects_integrations_create' project_slug=project.slug %}">

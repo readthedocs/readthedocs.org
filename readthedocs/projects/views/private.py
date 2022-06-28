@@ -1,5 +1,6 @@
 """Project views for authenticated users."""
 
+import requests
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -41,6 +42,7 @@ from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
@@ -861,7 +863,21 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class IntegrationList(IntegrationMixin, ListView):
 
-    pass
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        if not project.remote_repository:
+            url = IntegrationConnectProject.get_final_url(project)
+            remote_repository = IntegrationConnectProject.get_remote_repository(
+                project, url, self.request.user
+            )
+            context["connect_vcs_repository"] = all(
+                [
+                    url,
+                    remote_repository,
+                ]
+            )
+        return context
 
 
 class IntegrationCreate(IntegrationMixin, CreateView):
@@ -953,6 +969,80 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
 
     def get_success_url(self):
         return reverse('projects_integrations', args=[self.get_project().slug])
+
+
+class IntegrationConnectProject(IntegrationMixin, GenericView):
+
+    """
+    Connect a ``Project`` to a ``RemoteRepository``.
+
+    Useful when the Project has been imported manually or got disconnected from
+    the ``RemoteRepository`` instance for some reason.
+
+    Connecting the repository will allow people to handle permissions access
+    permissions (VCS SSO) and also when sending build status notifications,
+    among others.
+    """
+
+    @staticmethod
+    def get_final_url(project):
+        final_url = None
+        url = project.repo
+        if "@" in url:
+            # NOTE: Do we need to convert this? After checking with
+            # community/commercial data it seems it's not required and it will
+            # match with `RemoteRepository.ssh_url`
+            #
+            # url = convert_to_https(url)
+            final_url = url
+        if url.startswith("http"):
+            try:
+                response = requests.head(project.repo, allow_redirects=True)
+                final_url = response.url
+            except requests.exceptions.TooManyRedirects:
+                pass
+        return final_url
+
+    @staticmethod
+    def get_remote_repository(project, url, user):
+        return RemoteRepository.objects.filter(
+            Q(html_url=url) | Q(ssh_url=url),
+            remote_repository_relations__user=user,
+            remote_repository_relations__admin=True,
+        ).first()
+
+    def post(self, request, project_slug, *args, **kwargs):
+        project = self.get_project()
+        url = self.get_final_url(project)
+        remote_repository = self.get_remote_repository(project, url, request.user)
+        log.bind(
+            project_slug=project_slug,
+            repository_url=url,
+            user_username=request.user.username,
+        )
+        if url and remote_repository:
+            log.info(
+                "Project connected to a RemoteRepository",
+                remote_repository_full_name=remote_repository.full_name,
+                remote_repository_id=remote_repository.pk,
+            )
+            project.remote_repository = remote_repository
+            project.save()
+
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _(f'Project successfully connected to "{url}".'),
+            )
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                _(f"There was a problem connect your project."),
+            )
+            log.warning("Project not connected to RemoteRepository")
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
