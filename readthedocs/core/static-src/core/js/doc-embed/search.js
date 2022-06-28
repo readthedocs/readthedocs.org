@@ -73,34 +73,6 @@ function attach_elastic_search_query_sphinx(data) {
             return html;
         };
 
-        /**
-         * Build a domain section.
-         * A domain section has the form:
-         *
-         *   <div>
-         *     <a href={link}>{title}<a>
-         *   </div>
-         *   <div>
-         *     {content}
-         *   </div>
-         *
-         * @param {String} title.
-         * @param {String} link.
-         * @param {String} content.
-         */
-        var buildDomain = function (title, link, content) {
-            var div_title = document.createElement("div");
-            var a_element = document.createElement("a");
-            a_element.href = link;
-            a_element.innerHTML = title;
-            div_title.appendChild(a_element);
-
-            var div_content = document.createElement("div");
-            div_content.innerHTML = content;
-
-            return div_title.outerHTML + div_content.outerHTML;
-        };
-
         search_def
             .then(function (data) {
                 var results = data.results || [];
@@ -189,10 +161,10 @@ function attach_elastic_search_query_sphinx(data) {
 
                                 var domain_subtitle = "[" + domain_role_name + "]: " + domain_name;
 
-                                contents.append(buildDomain(
+                                contents.append(buildSection(
                                     domain_subtitle,
                                     domain_subtitle_link,
-                                    domain_content
+                                    [domain_content]
                                 ));
                             }
 
