@@ -2,8 +2,9 @@
 
 import structlog
 from allauth.account.forms import SignupForm
-from core.models import UserProfile
 from django import forms
+
+from readthedocs.core.models import UserProfile
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -31,9 +32,8 @@ class SignupFormWithNewsletter(SignupForm):
         user = super().save(request)
 
         receive_newsletter = self.cleaned_data.get("receive_newsletter")
-        profile = UserProfile.objects.get_or_create(user=user)
+        profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.mailing_list = receive_newsletter
         profile.save()
-
 
         return user

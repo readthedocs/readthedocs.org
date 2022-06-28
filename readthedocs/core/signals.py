@@ -1,5 +1,6 @@
 """Signal handling for core app."""
 
+import requests
 import structlog
 from allauth.account.signals import email_confirmed
 from corsheaders import signals
@@ -12,6 +13,7 @@ from simple_history.signals import pre_create_historical_record
 
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.models import Version
+from readthedocs.core.models import UserProfile
 from readthedocs.core.unresolver import unresolve
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
