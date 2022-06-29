@@ -271,17 +271,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     Request = BuildRequest
 
-    def _setup_sigterm(self):
-        def sigterm_received(*args, **kwargs):
-            log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
-
+    def _setup_signals(self):
         def sigint_received(*args, **kwargs):
             log.warning('SIGINT received. Canceling the build running.')
             raise BuildCancelled
-
-        # Do not send the SIGTERM signal to children (pip is automatically killed when
-        # receives SIGTERM and make the build to fail one command and stop build)
-        signal.signal(signal.SIGTERM, sigterm_received)
 
         signal.signal(signal.SIGINT, sigint_received)
 
@@ -371,10 +364,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # (e.g. cleanup task failed for some reason)
         clean_build(self.data.version)
 
-        # NOTE: this is never called. I didn't find anything in the logs, so we
-        # can probably remove it
-        self._setup_sigterm()
-
+        self._setup_signals()
         self._check_project_disabled()
         self._check_duplicated_build()
         self._check_concurrency_limit()
