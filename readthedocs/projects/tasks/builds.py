@@ -9,6 +9,7 @@ import socket
 
 import structlog
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import timezone
 from slumber.exceptions import HttpClientError
@@ -416,6 +417,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             if hasattr(exc, "state"):
                 self.data.build["state"] = exc.state
+        elif isinstance(exc, SoftTimeLimitExceeded):
+            # Celery task soft timed out. We communicate this to the user at
+            # this point. There is high probabilities this task fails and can
+            # not be updated on time, tho.
+            self.data.build["error"] = BuildUserError.TIMEOUT
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
