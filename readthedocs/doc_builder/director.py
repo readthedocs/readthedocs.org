@@ -132,12 +132,7 @@ class BuildDirector:
         """
         # Environment used for building code, usually with Docker
         language_environment_cls = Virtualenv
-        if any(
-            [
-                self.data.config.conda is not None,
-                self.data.config.python_interpreter in ("conda", "mamba"),
-            ]
-        ):
+        if self.data.config.is_using_conda:
             language_environment_cls = Conda
 
         self.language_environment = language_environment_cls(
