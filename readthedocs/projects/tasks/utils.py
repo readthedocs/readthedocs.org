@@ -153,11 +153,26 @@ class BuildRequest(Request):
 
         log.bind(
             task_name=self.task.name,
-            project_slug=self.task.data.project.slug,
-            build_id=self.task.data.build['id'],
             timeout=timeout,
             soft=soft,
         )
+
+        # NOTE: we don't have access to ``self.task.data`` because it's not the
+        # same instance. However, we can get the attributes which it was called
+        # to log them.
+        if self.task.name.endswith("update_docs_task"):
+            version_id, build_id = self.args
+            log.bind(
+                version_id=version_id,
+                build_id=build_id,
+                build_commit=self.kwargs.get("build_commit"),
+            )
+        elif self.task.name.endswith("sync_repository_task"):
+            (version_id,) = self.args
+            log.bind(
+                version_id=version_id,
+            )
+
         if soft:
             log.warning('Build is taking too much time. Risk to be killed soon.')
         else:
