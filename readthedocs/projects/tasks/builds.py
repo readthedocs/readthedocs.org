@@ -41,6 +41,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildAppError,
     BuildCancelled,
     BuildMaxConcurrencyError,
+    BuildTimeoutCancelled,
     BuildUserError,
     DuplicatedBuildError,
     MkDocsYAMLParseError,
@@ -243,6 +244,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         ConfigError,
         YAMLParseError,
         BuildCancelled,
+        BuildTimeoutCancelled,
         BuildUserError,
         RepositoryError,
         MkDocsYAMLParseError,
@@ -255,12 +257,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         BuildMaxConcurrencyError,
         DuplicatedBuildError,
         ProjectBuildsSkippedError,
+        SoftTimeLimitExceeded,
     )
 
     # Do not send external build status on failure builds for these exceptions.
     exceptions_without_external_build_status = (
         BuildMaxConcurrencyError,
         DuplicatedBuildError,
+        SoftTimeLimitExceeded,
     )
 
     acks_late = True
@@ -273,11 +277,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     Request = BuildRequest
 
     def _setup_signals(self):
-        def sigint_received(*args, **kwargs):
-            log.warning('SIGINT received. Canceling the build running.')
-            raise BuildCancelled
+        def sigusr1_received(num, stack_frame):
+            if num == signal.SIGUSR1:
+                log.warning(
+                    "SIGUSR1 received. Canceling the build running as requested by the user."
+                )
+                raise BuildCancelled
 
-        signal.signal(signal.SIGINT, sigint_received)
+        def sigusr2_received(num, stack_frame):
+            if num == signal.SIGUSR2:
+                log.warning(
+                    "SIGUSR2 received. Canceling the build running due to soft timeout."
+                )
+                raise BuildTimeoutCancelled
+
+        signal.signal(signal.SIGUSR1, sigusr1_received)
+        signal.signal(signal.SIGUSR2, sigusr2_received)
 
     def _check_concurrency_limit(self):
         try:
@@ -418,10 +433,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             if hasattr(exc, "state"):
                 self.data.build["state"] = exc.state
         elif isinstance(exc, SoftTimeLimitExceeded):
-            # Celery task soft timed out. We communicate this to the user at
-            # this point. There is high probabilities this task fails and can
-            # not be updated on time, tho.
-            self.data.build["error"] = BuildUserError.TIMEOUT
+            # Celery task soft timed out. There is high probabilities this task fails and can
+            # not be updated on time. So, we cancel this task at this point and update the error message accordingly.
+            # Ignore this exception because it will be handled as cancelled
+            return
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.

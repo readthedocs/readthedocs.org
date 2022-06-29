@@ -72,6 +72,11 @@ class BuildCancelled(BuildUserError):
     state = BUILD_STATE_CANCELLED
 
 
+class BuildTimeoutCancelled(BuildUserError):
+    message = gettext_noop("Build cancelled due timeout.")
+    state = BUILD_STATE_CANCELLED
+
+
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',

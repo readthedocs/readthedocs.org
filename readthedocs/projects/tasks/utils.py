@@ -1,6 +1,7 @@
 import datetime
 import os
 import shutil
+import signal
 
 import structlog
 from celery.worker.request import Request
@@ -174,6 +175,9 @@ class BuildRequest(Request):
             )
 
         if soft:
-            log.warning('Build is taking too much time. Risk to be killed soon.')
+            log.warning("Canceling build due to soft timeout.")
+            self.app.control.revoke(
+                self.task_id, signal=signal.SIGUSR2, terminate=False
+            )
         else:
             log.warning('A timeout was enforced for task.')

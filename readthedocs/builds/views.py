@@ -193,7 +193,7 @@ class BuildDetail(BuildBase, DetailView):
             build_task_id=build.task_id,
             terminate=terminate,
         )
-        app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
+        app.control.revoke(build.task_id, signal=signal.SIGUSR1, terminate=terminate)
 
         return HttpResponseRedirect(
             reverse('builds_detail', args=[project.slug, build.pk]),
