@@ -40,6 +40,10 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
         f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
+    TIMEOUT = gettext_noop("Build exited due to time out")
+    EXCESSIVE_MEMORY_CONSUMPTION = gettext_noop(
+        "Build exited due to excessive memory consumption"
+    )
 
 
 class ProjectBuildsSkippedError(BuildUserError):

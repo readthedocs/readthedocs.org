@@ -791,12 +791,12 @@ class DockerBuildEnvironment(BuildEnvironment):
         if state is not None and state.get('Running') is False:
             if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
                 raise BuildUserError(
-                    _('Build exited due to time out'),
+                    BuildUserError.TIMEOUT,
                 )
 
             if state.get('OOMKilled', False):
                 raise BuildUserError(
-                    _('Build exited due to excessive memory consumption'),
+                    BuildUserError.EXCESSIVE_MEMORY_CONSUMPTION,
                 )
 
             if state.get('Error'):
