@@ -28,9 +28,9 @@ var search = require('./doc-embed/search');
     }
 
     domReady(function () {
-      // Inject JQuery if isn't present already.
+      // Inject jQuery if isn't present already.
       if (!window.jQuery) {
-          console.log("JQuery not found. Injecting.");
+          console.log("jQuery not found. Injecting.");
           var script = document.createElement("script");
           script.type = "text/javascript";
           script.src = "https://code.jquery.com/jquery-3.6.0.min.js";
