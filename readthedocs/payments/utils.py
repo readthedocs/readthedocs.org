@@ -10,7 +10,6 @@ import structlog
 from django.conf import settings
 
 stripe.api_key = settings.STRIPE_SECRET
-stripe.api_version = settings.STRIPE_VERSION
 log = structlog.get_logger(__name__)
 
 
