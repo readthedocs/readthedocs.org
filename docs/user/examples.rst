@@ -7,12 +7,22 @@ Example projects
 
 The following example projects show a rich variety of uses of Read the Docs. You can use them for inspiration, for learning and for recipies to start your own documentation projects.
 
-======  =========  ==============================  ======
-Topic   Framework  Description                     Links
-======  =========  ==============================  ======
-Sphinx  Sphinx     Basic example of using Sphinx   `[Git] <https://github.com/readthedocs-examples/example-sphinx-basic/>`__ `[Rendered] <https://example-sphinx-basic.readthedocs.io/en/latest/>`__
-MkDocs  MkDocs     Basic example of using MkDocs   `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
-======  =========  ==============================  ======
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 40 20
+
+   * - Topic
+     - Framework
+     - Description
+     - Links
+   * - Sphinx
+     - Sphinx
+     - Basic example of using Sphinx
+     - `[Git] <https://github.com/readthedocs-examples/example-sphinx-basic/>`__ `[Rendered] <https://example-sphinx-basic.readthedocs.io/en/latest/>`__
+   * - MkDocs
+     - MkDocs
+     - Basic example of using MkDocs
+     - `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
 
 
 Real-life examples
@@ -22,7 +32,7 @@ Real-life examples
   :alt: Awesome List badge
   :target: https://github.com/readthedocs-examples/
 
-We maintain an Awesome List where you can contribute new shiny examples of using Read the Docs. Please refer to the instructions on how to submit new entries.
+We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs. Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
 
 
 New example projects
