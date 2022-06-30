@@ -267,7 +267,7 @@ class BuildConfigBase:
     def is_using_conda(self):
         if self.using_build_tools:
             return self.python_interpreter in ("conda", "mamba")
-        return self.conda
+        return self.conda is not None
 
     @property
     def python_interpreter(self):
