@@ -38,7 +38,8 @@ We maintain an **Awesome List** where you can contribute new shiny examples of u
 New example projects
 --------------------
 
-We would love to add more examples that showcase documentation options. We don't want your example project to break quickly, therefore we require that your example project...
+We would love to add more examples that showcase feature of Read the Docs, or great documentation projects.
+We want to ensure these are useful for other community members, so we have the following requirements for building an example project:
 
 * is **hosted and maintained *by you*** in its own Git repository, ``example-<topic>``
 * uses a ``.readthedocs.yaml`` configuration
