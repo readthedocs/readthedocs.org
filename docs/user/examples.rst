@@ -41,14 +41,16 @@ New example projects
 We would love to add more examples that showcase feature of Read the Docs, or great documentation projects.
 We want to ensure these are useful for other community members, so we have the following requirements for building an example project:
 
-* is **hosted and maintained *by you*** in its own Git repository, ``example-<topic>``
+* is **hosted and maintained by you** in its own Git repository, ``example-<topic>``
 * uses a ``.readthedocs.yaml`` configuration
 * has **continuous integration and PR builds**
 * is **versioned** as a real software project
-* is finally added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_
+* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_
 
 We **recommend** that your project...
 
 * covers basic features, but references real-life projects whenever possible
 * has a minimal tech stack -- or whatever you feel comfortable about maintaining
 * copies from an existing example project as a template to get started
+
+We're excited to see what you come up with!
