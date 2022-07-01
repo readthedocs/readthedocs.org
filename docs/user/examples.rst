@@ -7,6 +7,9 @@ Example projects
 
 The following example projects show a rich variety of uses of Read the Docs. You can use them for inspiration, for learning and for recipies to start your own documentation projects.
 
+Sphinx and MkDocs examples
+--------------------------
+
 .. list-table::
    :header-rows: 1
    :widths: 20 20 40 20
@@ -38,19 +41,20 @@ We maintain an **Awesome List** where you can contribute new shiny examples of u
 New example projects
 --------------------
 
-We would love to add more examples that showcase feature of Read the Docs, or great documentation projects.
-We want to ensure these are useful for other community members, so we have the following requirements for building an example project:
+We would love to add more examples that showcase features of Read the Docs or great tools or methods to build documentation projects.
+To ensure that they are useful for other community members and maintainable over time, so we have the following requirements for building an example project:
 
-* is **hosted and maintained by you** in its own Git repository, ``example-<topic>``
-* uses a ``.readthedocs.yaml`` configuration
-* has **continuous integration and PR builds**
-* is **versioned** as a real software project
-* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_
+* is **hosted and maintained by you** in its own Git repository, ``example-<topic>``.
+* contains a README.
+* uses a ``.readthedocs.yaml`` configuration.
+* has **continuous integration and PR builds**.
+* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_.
 
 We **recommend** that your project...
 
-* covers basic features, but references real-life projects whenever possible
-* has a minimal tech stack -- or whatever you feel comfortable about maintaining
-* copies from an existing example project as a template to get started
+* is **versioned** as a real software project, i.e. using git tags.
+* covers basic features, but references real-life projects whenever possible.
+* has a minimal tech stack -- or whatever you feel comfortable about maintaining.
+* copies from an existing example project as a template to get started.
 
 We're excited to see what you come up with!
