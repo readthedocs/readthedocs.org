@@ -48,7 +48,6 @@ to help you create fantastic documentation for your project.
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
   :doc:`/choosing-a-site`
-  :doc:`/examples`
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
@@ -62,7 +61,6 @@ to help you create fantastic documentation for your project.
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-   /examples
    /intro/import-guide
    /choosing-a-site
 
@@ -166,6 +164,7 @@ and how to write successful documentation.
  /guides/authors
  /guides/administrators
  /guides/developers
+ /examples
 
 Advanced features of Read the Docs
 ----------------------------------
