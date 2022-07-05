@@ -26,10 +26,6 @@ Sphinx and MkDocs examples
      - MkDocs
      - `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
      - Basic example of using MkDocs
-   * - Layout elements
-     - Sphinx
-     - `[Git] <https://github.com/readthedocs/sphinx_rtd_theme/blob/master/docs/demo/demo.rst>`__ `[Rendered] <https://sphinx-rtd-theme.readthedocs.io/en/stable/index.html>`__
-     -  A list of layout elements (a style guide) displayed with Read the Docs' default theme ``sphinx_rtd_theme``
 
 
 Real-life examples
