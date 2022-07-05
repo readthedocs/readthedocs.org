@@ -1,3 +1,21 @@
+Version 8.3.2
+-------------
+
+:Date: July 05, 2022
+
+* `@neilnaveen <https://github.com/neilnaveen>`__: chore: Set permissions for GitHub actions (`#9394 <https://github.com/readthedocs/readthedocs.org/pull/9394>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: do not log the token itself (`#9393 <https://github.com/readthedocs/readthedocs.org/pull/9393>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test explicitly with/out organizations (`#9391 <https://github.com/readthedocs/readthedocs.org/pull/9391>`__)
+* `@stsewd <https://github.com/stsewd>`__: Telemetry: skip listing conda packages on non-conda envs (`#9390 <https://github.com/readthedocs/readthedocs.org/pull/9390>`__)
+* `@stsewd <https://github.com/stsewd>`__: Enable djstripe again (`#9385 <https://github.com/readthedocs/readthedocs.org/pull/9385>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: UX: Improve DUPLICATED_RESERVED_VERSIONS error (`#9383 <https://github.com/readthedocs/readthedocs.org/pull/9383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.1 (`#9379 <https://github.com/readthedocs/readthedocs.org/pull/9379>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove old feature flags (`#9377 <https://github.com/readthedocs/readthedocs.org/pull/9377>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Properly log build exceptions in Celery (`#9375 <https://github.com/readthedocs/readthedocs.org/pull/9375>`__)
+* `@humitos <https://github.com/humitos>`__: Middleware: use regular `HttpResponse` and log the suspicious operation (`#9366 <https://github.com/readthedocs/readthedocs.org/pull/9366>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an explicit flyout placement option (`#9357 <https://github.com/readthedocs/readthedocs.org/pull/9357>`__)
+* `@stsewd <https://github.com/stsewd>`__: PR previews: Warn users when enabling the feature on incompatible projects (`#9291 <https://github.com/readthedocs/readthedocs.org/pull/9291>`__)
+
 Version 8.3.1
 -------------
 

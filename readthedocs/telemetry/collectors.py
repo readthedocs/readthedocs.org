@@ -57,13 +57,16 @@ class BuildDataCollector:
         data["python"] = self._get_python_version()
 
         user_apt_packages, all_apt_packages = self._get_apt_packages()
+        conda_packages = (
+            self._get_all_conda_packages() if self.config.is_using_conda else {}
+        )
         data["packages"] = {
             "pip": {
                 "user": self._get_pip_packages(include_all=False),
                 "all": self._get_pip_packages(include_all=True),
             },
             "conda": {
-                "all": self._get_all_conda_packages(),
+                "all": conda_packages,
             },
             "apt": {
                 "user": user_apt_packages,

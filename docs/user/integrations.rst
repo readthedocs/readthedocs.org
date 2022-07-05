@@ -82,7 +82,8 @@ GitLab
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
-* Leave the default **Push events** selected and mark **Tag push events** also
+* Leave the default **Push events** selected,
+  additionally mark **Tag push events** and **Merge request events**.
 * Finish by clicking **Add Webhook**
 
 Gitea

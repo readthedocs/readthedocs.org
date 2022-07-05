@@ -126,7 +126,7 @@ class Service:
                 datetime.fromtimestamp(data['expires_at']),
             )
             token.save()
-            log.info('Updated token.', token=token)
+            log.info("Updated token.", token_id=token.pk)
 
         return _updater
 
