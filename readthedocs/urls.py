@@ -57,7 +57,7 @@ rtd_urls = [
     # For testing the 500's with DEBUG on.
     re_path(r'^500/$', handler500),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
-    # re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
+    re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
 
 project_urls = [
