@@ -264,6 +264,12 @@ class BuildConfigBase:
         return isinstance(self.build, BuildWithTools)
 
     @property
+    def is_using_conda(self):
+        if self.using_build_tools:
+            return self.python_interpreter in ("conda", "mamba")
+        return self.conda is not None
+
+    @property
     def python_interpreter(self):
         if self.using_build_tools:
             tool = self.build.tools.get('python')
