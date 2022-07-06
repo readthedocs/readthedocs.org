@@ -124,6 +124,9 @@ class CommunityBaseSettings(Settings):
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
+    # Keep BuildData models on database during this time
+    RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
@@ -417,6 +420,11 @@ class CommunityBaseSettings(Settings):
         'every-day-delete-old-page-views': {
             'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
             'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
+        'every-day-delete-old-buildata-models': {
+            'task': 'readthedocs.telemetry.tasks.delete_old_build_data',
+            'schedule': crontab(minute=0, hour=2),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
