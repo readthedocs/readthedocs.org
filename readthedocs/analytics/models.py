@@ -87,6 +87,15 @@ class PageView(models.Model):
 
     class Meta:
         unique_together = ("project", "version", "path", "date", "status")
+        # Make sure we have only one record with ``version=None``.
+        # https://stackoverflow.com/questions/33307892/django-unique-together-with-nullable-foreignkey.
+        constraints = [
+            models.UniqueConstraint(
+                fields=("project", "path", "date", "status"),
+                condition=models.Q(version=None),
+                name="analytics_pageview_constraint_unique_without_optional",
+            ),
+        ]
 
     def __str__(self):
         return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
