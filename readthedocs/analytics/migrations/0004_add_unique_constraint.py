@@ -6,12 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('analytics', '0003_remove_index'),
+        ("analytics", "0003_remove_index"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='pageview',
-            constraint=models.UniqueConstraint(condition=models.Q(('version', None)), fields=('project', 'path', 'date', 'status'), name='analytics_pageview_constraint_unique_without_optional'),
+            model_name="pageview",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("version", None)),
+                fields=("project", "path", "date", "status"),
+                name="analytics_pageview_constraint_unique_without_optional",
+            ),
         ),
     ]
