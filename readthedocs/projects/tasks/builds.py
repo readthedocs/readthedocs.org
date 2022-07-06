@@ -68,6 +68,8 @@ from .utils import BuildRequest, clean_build, send_external_build_status
 log = structlog.get_logger(__name__)
 
 
+# With slots=True we can't add additional attributes
+# than the ones declared in the dataclass.
 @dataclass(slots=True)
 class TaskData:
 
@@ -85,6 +87,11 @@ class TaskData:
     `self.data` inside the Celery task itself.
 
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
+
+    .. note::
+
+       Dataclasses require type annotations, this doesn't mean we are using
+       type hints or enforcing them in our codebase.
     """
 
     # Arguments from the task.
@@ -101,9 +108,9 @@ class TaskData:
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
-    # If HTML, PDF, ePub, etc formats were build.
+    # If HTML, PDF, ePub, etc formats were built.
     outcomes: dict = field(default_factory=lambda: defaultdict(lambda: False))
-    # Build data for analytics.
+    # Build data for analytics (telemetry).
     build_data: dict = field(default_factory=dict)
 
 
@@ -490,7 +497,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.build_commit and not isinstance(
             exc, self.exceptions_without_external_build_status
         ):
-            version_type = self.data.version and self.data.version.type
+            version_type = None
+            if self.data.version:
+                version_type = self.data.version.type
             send_external_build_status(
                 version_type=version_type,
                 build_pk=self.data.build['id'],
@@ -600,6 +609,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         build_state = None
+        # The state key might not be defined
+        # previous to finishing the task.
         if self.data.build.get("state") not in BUILD_FINAL_STATES:
             build_state = BUILD_STATE_FINISHED
 
