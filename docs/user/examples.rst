@@ -38,8 +38,8 @@ Real-life examples
 We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs. Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
 
 
-Contributing an example projects
---------------------------------
+Contributing an example project
+-------------------------------
 
 We would love to add more examples that showcase features of Read the Docs or great tools or methods to build documentation projects.
 
