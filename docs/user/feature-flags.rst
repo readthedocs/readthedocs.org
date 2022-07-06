@@ -11,22 +11,12 @@ or reaching out to the administrator of your service.
 Available Flags
 ---------------
 
-``PIP_ALWAYS_UPGRADE``: :featureflags:`PIP_ALWAYS_UPGRADE`
-
-``UPDATE_CONDA_STARTUP``: :featureflags:`UPDATE_CONDA_STARTUP`
-
-The version of ``conda`` used in the build process could not be the latest one.
-This is because we use Miniconda, which its release process is a little more slow than ``conda`` itself.
-In case you prefer to use the latest ``conda`` version available, this is the flag you need.
-
 ``CONDA_APPEND_CORE_REQUIREMENTS``: :featureflags:`CONDA_APPEND_CORE_REQUIREMENTS`
 
 Makes Read the Docs to install all the requirements at once on ``conda create`` step.
 This helps users to pin dependencies on conda and to improve build time.
 
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
-
-``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
 
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`
 

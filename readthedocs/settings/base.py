@@ -124,6 +124,9 @@ class CommunityBaseSettings(Settings):
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
+    # Keep BuildData models on database during this time
+    RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
@@ -176,7 +179,7 @@ class CommunityBaseSettings(Settings):
             'django_filters',
             'polymorphic',
             'simple_history',
-            # 'djstripe',
+            'djstripe',
 
             # our apps
             'readthedocs.projects',
@@ -417,6 +420,11 @@ class CommunityBaseSettings(Settings):
         'every-day-delete-old-page-views': {
             'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
             'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
+        'every-day-delete-old-buildata-models': {
+            'task': 'readthedocs.telemetry.tasks.delete_old_build_data',
+            'schedule': crontab(minute=0, hour=2),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -755,11 +763,6 @@ class CommunityBaseSettings(Settings):
     # Stripe
     # Existing values we use
     STRIPE_SECRET = None
-    # NOTE: Remove this when enabling djstripe,
-    # since isn't recommended to set this value,
-    # we should always use the default version
-    # that djstripe works with.
-    STRIPE_VERSION = "2020-08-27"
     STRIPE_PUBLISHABLE = None
 
     # DJStripe values -- **CHANGE THESE IN PRODUCTION**
