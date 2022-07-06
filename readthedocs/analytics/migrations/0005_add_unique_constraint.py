@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("analytics", "0003_remove_index"),
+        ("analytics", "0004_merge_duplicate_records"),
     ]
 
     operations = [

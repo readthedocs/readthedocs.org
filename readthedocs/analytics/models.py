@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve, resolve_path
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 
 
 def _last_30_days_iter():
@@ -26,6 +26,10 @@ class PageViewManager(models.Manager):
     """Manager for PageView model."""
 
     def register_page_view(self, project, version, path, full_path, status):
+        # TODO: remove after the migration of duplicate records has been completed.
+        if project.has_feature(Feature.DISABLE_PAGEVIEWS):
+            return
+
         # Normalize paths to avoid duplicates.
         path = "/" + path.lstrip("/")
         full_path = "/" + full_path.lstrip("/")
