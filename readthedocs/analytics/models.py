@@ -26,6 +26,7 @@ class PageViewManager(models.Manager):
     """Manager for PageView model."""
 
     def register_page_view(self, project, version, path, full_path, status):
+        """Track page view with the given parameters."""
         # TODO: remove after the migration of duplicate records has been completed.
         if project.has_feature(Feature.DISABLE_PAGEVIEWS):
             return
