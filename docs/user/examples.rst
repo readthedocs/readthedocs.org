@@ -5,7 +5,9 @@ Example projects
 * Want to bootstrap a new documentation project?
 * Want to showcase your own solution?
 
-The following example projects show a rich variety of uses of Read the Docs. You can use them for inspiration, for learning and for recipies to start your own documentation projects. View the *rendered* version of each project and then head over to the Git source to see how it's done and reuse the code.
+The following example projects show a rich variety of uses of Read the Docs.
+You can use them for inspiration, for learning and for recipies to start your own documentation projects.
+View the *rendered* version of each project and then head over to the Git source to see how it's done and reuse the code.
 
 Sphinx and MkDocs examples
 --------------------------
@@ -35,7 +37,8 @@ Real-life examples
   :alt: Awesome List badge
   :target: https://github.com/readthedocs-examples/
 
-We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs. Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
+We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs.
+Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
 
 
 Contributing an example project
@@ -43,20 +46,20 @@ Contributing an example project
 
 We would love to add more examples that showcase features of Read the Docs or great tools or methods to build documentation projects.
 
-.. admonition:: We **require** that an example project:
+We **require** that an example project:
 
-    * ...is **hosted and maintained by you** in its own Git repository, ``example-<topic>``.
-    * ...contains a README.
-    * ...uses a ``.readthedocs.yaml`` configuration.
-    * ...is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_.
+* is **hosted and maintained by you** in its own Git repository, ``example-<topic>``.
+* contains a README.
+* uses a ``.readthedocs.yaml`` configuration.
+* is added to the above list by **opening a PR** targeting `examples.rst <https://github.com/readthedocs/readthedocs.org/blob/main/docs/user/examples.rst>`_.
 
 
-.. admonition:: We **recommend** that your project:
+We **recommend** that your project:
 
-    * ...has **continuous integration and PR builds**.
-    * ...is **versioned** as a real software project, i.e. using git tags.
-    * ...covers your most important scenarios, but references external real-life projects whenever possible.
-    * ...has a minimal tech stack -- or whatever you feel comfortable about maintaining.
-    * ...copies from an existing example project as a template to get started.
+* has **continuous integration and PR builds**.
+* is **versioned** as a real software project, i.e. using git tags.
+* covers your most important scenarios, but references external real-life projects whenever possible.
+* has a minimal tech stack -- or whatever you feel comfortable about maintaining.
+* copies from an existing example project as a template to get started.
 
 We're excited to see what you come up with!
