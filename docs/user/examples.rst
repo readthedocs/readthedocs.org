@@ -21,7 +21,7 @@ Sphinx and MkDocs examples
    * - Basic Sphinx
      - Sphinx
      - `[Git] <https://github.com/readthedocs-examples/example-sphinx-basic/>`__ `[Rendered] <https://example-sphinx-basic.readthedocs.io/en/latest/>`__
-     - Basic example of using Sphinx
+     - Sphinx example with versioning and Python doc autogeneration
    * - Basic MkDocs
      - MkDocs
      - `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
