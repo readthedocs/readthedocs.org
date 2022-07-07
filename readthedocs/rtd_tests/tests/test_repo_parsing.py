@@ -1,14 +1,16 @@
+from django.core.management import call_command
 from django.test import TestCase
 
 from readthedocs.projects.models import Project
 
 
 class TestRepoParsing(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
-        self.pip = Project.objects.get(slug='pip')
+        call_command("fixtures_projects")
+        self.client.login(username="eric", password="test")
+        self.pip = Project.objects.get(slug="pip")
         self.version = self.pip.versions.create_latest()
 
     def test_github(self):
