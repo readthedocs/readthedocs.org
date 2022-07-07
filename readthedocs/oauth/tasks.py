@@ -1,8 +1,12 @@
 """Tasks for OAuth services."""
 
+import datetime
+
 import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
+from django.db.models.functions import ExtractIsoWeekDay
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.permissions import AdminPermission
@@ -104,6 +108,30 @@ def sync_remote_repositories_organizations(organization_slugs=None):
 
 
 @app.task(queue='web')
+def sync_active_users_remote_repositories():
+    """
+    Sync ``RemoteRepository`` for active users.
+
+    We consider active users those that logged in at least once in the last 90 days.
+
+    This task is thought to be executed daily. It checks the weekday of the
+    last login of the user with today's weekday. If they match, the re-sync is
+    triggered. This logic guarantees us the re-sync to be done once a week per user.
+    """
+    today_weekday = timezone.now().isoweekday()
+    three_months_ago = timezone.now() - datetime.timedelta(days=90)
+    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+        last_login__gt=three_months_ago,
+        socialaccount__isnull=False,
+        weekday=today_weekday,
+    )
+
+    log.info("Re-syncing RemoteRepository for active users.", users=users.count())
+    for user in users:
+        sync_remote_repositories.delay(user.pk)
+
+
+@app.task(queue="web")
 def attach_webhook(project_pk, user_pk, integration=None):
     """
     Add post-commit hook on project import.
