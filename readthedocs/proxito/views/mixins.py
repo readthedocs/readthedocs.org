@@ -287,8 +287,15 @@ class ServeRedirectMixin:
         """
         # `proxito_path` doesn't include query params.
         query = urlparse(request.get_full_path()).query
-        # Pass the query params from the original request to the redirect.
-        new_path = urlparse(redirect_path)._replace(query=query).geturl()
+
+        # Combine the query params from the original request with the ones from the redirect.
+        redirect_parsed = urlparse(redirect_path)
+        redirect_query = redirect_parsed.query
+        if redirect_query:
+            if query:
+                query += "&"
+            query += redirect_query
+        new_path = redirect_parsed._replace(query=query).geturl()
 
         # Re-use the domain and protocol used in the current request.
         # Redirects shouldn't change the domain, version or language.
