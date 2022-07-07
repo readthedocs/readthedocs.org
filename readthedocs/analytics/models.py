@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve, resolve_path
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 
 
 def _last_30_days_iter():
@@ -26,6 +26,11 @@ class PageViewManager(models.Manager):
     """Manager for PageView model."""
 
     def register_page_view(self, project, version, path, full_path, status):
+        """Track page view with the given parameters."""
+        # TODO: remove after the migration of duplicate records has been completed.
+        if project.has_feature(Feature.DISABLE_PAGEVIEWS):
+            return
+
         # Normalize paths to avoid duplicates.
         path = "/" + path.lstrip("/")
         full_path = "/" + full_path.lstrip("/")
@@ -87,6 +92,15 @@ class PageView(models.Model):
 
     class Meta:
         unique_together = ("project", "version", "path", "date", "status")
+        # Make sure we have only one record with ``version=None``.
+        # https://stackoverflow.com/questions/33307892/django-unique-together-with-nullable-foreignkey.
+        constraints = [
+            models.UniqueConstraint(
+                fields=("project", "path", "date", "status"),
+                condition=models.Q(version=None),
+                name="analytics_pageview_constraint_unique_without_optional",
+            ),
+        ]
 
     def __str__(self):
         return f"PageView: [{self.project.slug}] - {self.full_path or self.path} for {self.date}"
