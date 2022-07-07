@@ -66,6 +66,8 @@ class AuditLog(TimeStampedModel):
     and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     PAGEVIEW = 'pageview'
     DOWNLOAD = 'download'
     AUTHN = 'authentication'
