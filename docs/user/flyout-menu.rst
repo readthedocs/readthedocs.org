@@ -21,15 +21,17 @@ Closed
 ~~~~~~
 
 .. figure:: /_static/images/flyout-closed.png
+   :align: center
 
-    The flyout when it's closed
+   The flyout when it's closed
 
 Open
 ~~~~
 
 .. figure:: /_static/images/flyout-open.png
+   :align: center
 
-    The opened flyout
+   The opened flyout
 
 Information for theme authors
 -----------------------------
