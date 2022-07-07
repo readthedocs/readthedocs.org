@@ -39,6 +39,11 @@ class Service:
         self.session = None
         self.user = user
         self.account = account
+        log.bind(
+            user_username=self.user.username,
+            social_provider=self.provider_id,
+            social_account_id=self.account.pk,
+        )
 
     @classmethod
     def for_user(cls, user):
