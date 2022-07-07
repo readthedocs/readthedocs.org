@@ -5,12 +5,12 @@ from readthedocs.projects.models import Project
 
 
 class TestRepoParsing(TestCase):
-    fixtures = ["eric"]
+    fixtures = ['eric']
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.client.login(username="eric", password="test")
-        self.pip = Project.objects.get(slug="pip")
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
         self.version = self.pip.versions.create_latest()
 
     def test_github(self):
