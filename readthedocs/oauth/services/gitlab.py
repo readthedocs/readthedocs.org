@@ -87,8 +87,9 @@ class GitLabService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab repositories')
             raise SyncServiceError(
-                'Could not sync your GitLab repositories, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_repositories
@@ -157,8 +158,9 @@ class GitLabService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
-                'Could not sync your GitLab organization, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_organizations, remote_repositories
