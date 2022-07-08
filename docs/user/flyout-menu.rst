@@ -21,15 +21,17 @@ Closed
 ~~~~~~
 
 .. figure:: /_static/images/flyout-closed.png
+   :align: center
 
-    The flyout when it's closed
+   The flyout when it's closed
 
 Open
 ~~~~
 
 .. figure:: /_static/images/flyout-open.png
+   :align: center
 
-    The opened flyout
+   The opened flyout
 
 Information for theme authors
 -----------------------------
@@ -67,6 +69,18 @@ so that you can style it in your HTML theme:
           <span class="fa fa-caret-down"></span>
           </span>
           <div class="rst-other-versions">
+             <!-- "Languages" section (``dl`` tag) is not included if the project does not have translations -->
+             <dl>
+                <dt>Languages</dt>
+                <dd class="rtd-current-item">
+                   <a href="https://flask.palletsproject.com/en/2.1.x">en</a>
+                </dd>
+                <dd>
+                   <a href="https://flask.palletsproject.com/es/2.1.x">es</a>
+                </dd>
+             </dl>
+
+             <!-- "Versions" section (``dl`` tag) is not included if the project is single version -->
              <dl>
                 <dt>Versions</dt>
                 <dd>
@@ -76,8 +90,19 @@ so that you can style it in your HTML theme:
                    <a href="https://flask.palletsprojects.com/en/2.1.x/">2.1.x</a>
                 </dd>
              </dl>
+
+             <!-- "Downloads" section (``dl`` tag) is not included if the project does not have artifacts to download -->
              <dl>
-                <!-- These are kept as relative links for internal installs that are http -->
+                <dt>Downloads</dt>
+                <dd>
+                   <a href="//flask.palletsprojects.com/_/downloads/en/2.1.x/pdf/">PDF</a>
+                 </dd>
+                <dd>
+                   <a href="//flask.palletsprojects.com/_/downloads/en/2.1.x/htmlzip/">HTML</a>
+                 </dd>
+             </dl>
+
+             <dl>
                 <dt>On Read the Docs</dt>
                 <dd>
                    <a href="//readthedocs.org/projects/flask/">Project Home</a>
@@ -89,6 +114,7 @@ so that you can style it in your HTML theme:
                    <a href="//readthedocs.org/projects/flask/downloads/">Downloads</a>
                 </dd>
              </dl>
+
              <dl>
                 <dt>On GitHub</dt>
                 <dd>
@@ -98,6 +124,7 @@ so that you can style it in your HTML theme:
                    <a href="https://github.com/pallets/flask/edit/2.1.x/docs/index.rst">Edit</a>
                 </dd>
              </dl>
+
              <dl>
                 <dt>Search</dt>
                 <dd>
@@ -108,10 +135,11 @@ so that you can style it in your HTML theme:
                    </div>
                 </dd>
              </dl>
+
              <hr>
              <small>
              <span>Hosted by <a href="https://readthedocs.org">Read the Docs</a></span>
-             <span> · </span>
+             <span> &middot; </span>
              <a href="https://docs.readthedocs.io/page/privacy-policy.html">Privacy Policy</a>
              </small>
           </div>
