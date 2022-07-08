@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
@@ -17,6 +18,11 @@ log = structlog.get_logger(__name__)
 class SyncServiceError(Exception):
 
     """Error raised when a service failed to sync."""
+
+    INVALID_OR_REVOKED_ACCESS_TOKEN = _(
+        "Our access to your following accounts was revoked: {provider}. "
+        "Please, reconnect them from your social account connections."
+    )
 
 
 class Service:
@@ -157,10 +163,9 @@ class Service:
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
                 raise SyncServiceError(
-                    'Our access to your {provider} account was revoked. '
-                    'Please, reconnect it from your social account connections.'.format(
-                        provider=self.provider_name,
-                    ),
+                    SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                        provider=self.provider_name
+                    )
                 )
 
             next_url = self.get_next_url_to_paginate(resp)
@@ -170,8 +175,12 @@ class Service:
             return results
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
-            log.warning('access_token or refresh_token failed.', url=url)
-            raise Exception('You should reconnect your account')
+            log.warning("access_token or refresh_token failed.", url=url)
+            raise SyncServiceError(
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.provider_name
+                )
+            )
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             # Response data should always be JSON, still try to log if not
