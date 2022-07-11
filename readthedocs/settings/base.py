@@ -447,6 +447,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-remote-repositories': {
+            'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
+            'schedule': crontab(minute=30, hour=2),
+            'options': {'queue': 'web'},
+        }
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]

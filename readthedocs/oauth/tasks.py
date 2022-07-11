@@ -1,8 +1,12 @@
 """Tasks for OAuth services."""
 
+import datetime
+
 import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
+from django.db.models.functions import ExtractIsoWeekDay
+from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.tasks import PublicTask, user_id_matches_or_superuser
@@ -100,7 +104,55 @@ def sync_remote_repositories_organizations(organization_slugs=None):
             )
 
 
-@app.task(queue='web')
+@app.task(
+    queue="web",
+    time_limit=60 * 60 * 3,  # 3h
+    soft_time_limit=(60 * 60 * 3) - 5 * 60,  # 2h 55m
+)
+def sync_active_users_remote_repositories():
+    """
+    Sync ``RemoteRepository`` for active users.
+
+    We consider active users those that logged in at least once in the last 90 days.
+
+    This task is thought to be executed daily. It checks the weekday of the
+    last login of the user with today's weekday. If they match, the re-sync is
+    triggered. This logic guarantees us the re-sync to be done once a week per user.
+
+    Note this is a long running task syncronizhing all the users in the same Celery process,
+    and it will require a pretty high ``time_limit`` and ``soft_time_limit``.
+    """
+    today_weekday = timezone.now().isoweekday()
+    three_months_ago = timezone.now() - datetime.timedelta(days=90)
+    users = User.objects.annotate(weekday=ExtractIsoWeekDay("last_login")).filter(
+        last_login__gt=three_months_ago,
+        socialaccount__isnull=False,
+        weekday=today_weekday,
+    )
+
+    users_count = users.count()
+    log.bind(total_users=users_count)
+    log.info("Triggering re-sync of RemoteRepository for active users.")
+
+    for i, user in enumerate(users):
+        log.bind(
+            user_username=user.username,
+            progress=f"{i}/{users_count}",
+        )
+
+        # Log an update every 50 users
+        if i % 50 == 0:
+            log.info("Progress on re-syncing RemoteRepository for active users.")
+
+        try:
+            # NOTE: sync all the users/repositories in the same Celery process.
+            # Do not trigger a new task per user.
+            sync_remote_repositories(user.pk)
+        except Exception:
+            log.exception("There was a problem re-syncing RemoteRepository.")
+
+
+@app.task(queue="web")
 def attach_webhook(project_pk, user_pk, integration=None):
     """
     Add post-commit hook on project import.
