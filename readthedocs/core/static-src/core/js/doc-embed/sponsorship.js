@@ -53,13 +53,7 @@ function create_ad_placement() {
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        if (Math.random() <= 0.1) {
-          // Use the stickybox placement 10% of the time during rollout
-          style_name = 'stickybox';
-          ad_type = 'image';
-        } else {
-          class_name = 'ethical-rtd ethical-dark-theme';
-        }
+        class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
@@ -75,6 +69,13 @@ function create_ad_placement() {
             if (rtd.is_rtd_like_theme()) {
                 selector = $('<div />').insertAfter('footer hr');
                 class_name = 'ethical-rtd';
+
+                // Use the stickybox placement 25% of the time during rollout
+                // But only when the ad would be in the footer
+                if (Math.random() <= 0.25) {
+                    style_name = 'stickybox';
+                    ad_type = 'image';
+                }
             } else if (rtd.is_alabaster_like_theme()) {
                 selector = 'div.bodywrapper .body';
                 class_name = 'ethical-alabaster';
