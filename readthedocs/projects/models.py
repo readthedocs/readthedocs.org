@@ -164,8 +164,8 @@ class Project(models.Model):
         default=LATEST,
         help_text=_('The version of your project that / redirects to'),
     )
-    # In default_branch, None means the backend should choose the
-    # appropriate branch. Eg 'master' for git
+    # In default_branch, ``None`` means the backend will use the default branch
+    # clonned for each backend.
     default_branch = models.CharField(
         _('Default branch'),
         max_length=255,
@@ -174,8 +174,7 @@ class Project(models.Model):
         blank=True,
         help_text=_(
             'What branch "latest" points to. Leave empty '
-            'to use the default value for your VCS (eg. '
-            '<code>trunk</code> or <code>master</code>).',
+            "to use the default value for your VCS.",
         ),
     )
     requirements_file = models.CharField(
@@ -468,19 +467,10 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        try:
-            latest = self.versions.filter(slug=LATEST).first()
-            default_branch = self.get_default_branch()
-            if latest and latest.identifier != default_branch:
-                latest.identifier = default_branch
-                latest.save()
-        except Exception:
-            log.exception('Failed to update latest identifier')
 
         try:
-            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest(identifier=branch)
+                self.versions.create_latest()
         except Exception:
             log.exception('Error creating default branches')
 

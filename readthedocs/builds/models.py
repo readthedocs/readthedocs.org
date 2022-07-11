@@ -120,11 +120,14 @@ class Version(TimeStampedModel):
     )
     # used by the vcs backend
 
-    #: The identifier is the ID for the revision this is version is for. This
-    #: might be the revision number (e.g. in SVN), or the commit hash (e.g. in
-    #: Git). If the this version is pointing to a branch, then ``identifier``
-    #: will contain the branch name.
-    identifier = models.CharField(_('Identifier'), max_length=255)
+    # The identifier is the ID for the revision this is version is for. This
+    # might be the revision number (e.g. in SVN), or the commit hash (e.g. in
+    # Git). If the this version is pointing to a branch, then ``identifier``
+    # will contain the branch name. NULL value means it will use the VCS
+    # default branch cloned.
+    identifier = models.CharField(
+        _("Identifier"), max_length=255, null=True, blank=True
+    )
 
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.

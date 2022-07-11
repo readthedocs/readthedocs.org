@@ -174,11 +174,7 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
-    def checkout_revision(self, revision=None):
-        if not revision:
-            branch = self.default_branch or self.fallback_branch
-            revision = 'origin/%s' % branch
-
+    def checkout_revision(self, revision):
         try:
             code, out, err = self.run('git', 'checkout', '--force', revision)
             return [code, out, err]
@@ -322,12 +318,12 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
-        # Find proper identifier
+
+        # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:
-            identifier = self.default_branch or self.fallback_branch
+            return
 
         identifier = self.find_ref(identifier)
-
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
 

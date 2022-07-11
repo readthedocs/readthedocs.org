@@ -1,7 +1,6 @@
 """Build and Version class model Managers."""
 
 import structlog
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from polymorphic.managers import PolymorphicManager
@@ -62,7 +61,6 @@ class VersionManager(models.Manager):
             'verbose_name': LATEST_VERBOSE_NAME,
             'machine': True,
             'active': True,
-            'identifier': LATEST,
             'type': BRANCH,
         }
         defaults.update(kwargs)
