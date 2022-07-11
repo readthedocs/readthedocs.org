@@ -1791,6 +1791,7 @@ class Feature(models.Model):
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
+    DISABLE_PAGEVIEWS = "disable_pageviews"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1885,6 +1886,10 @@ class Feature(models.Model):
         (
             ALLOW_FORCED_REDIRECTS,
             _("Allow forced redirects."),
+        ),
+        (
+            DISABLE_PAGEVIEWS,
+            _("Disable all page views"),
         ),
 
         # Versions sync related features
