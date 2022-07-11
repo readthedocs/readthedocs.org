@@ -449,7 +449,7 @@ class CommunityBaseSettings(Settings):
         },
         'every-day-resync-remote-repositories': {
             'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
-            'schedule': crontab(minute=0, hour=5),
+            'schedule': crontab(minute=30, hour=2),
             'options': {'queue': 'web'},
         }
     }
