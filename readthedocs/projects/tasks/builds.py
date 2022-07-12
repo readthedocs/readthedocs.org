@@ -6,6 +6,8 @@ rebuilding documentation.
 """
 import signal
 import socket
+from collections import defaultdict
+from dataclasses import dataclass, field
 
 import structlog
 from celery import Task
@@ -27,10 +29,11 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
 )
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config import ConfigError
+from readthedocs.config.config import BuildConfigV1, BuildConfigV2
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
@@ -65,6 +68,9 @@ from .utils import BuildRequest, clean_build, send_external_build_status
 log = structlog.get_logger(__name__)
 
 
+# With slots=True we can't add additional attributes
+# than the ones declared in the dataclass.
+@dataclass(slots=True)
 class TaskData:
 
     """
@@ -81,7 +87,31 @@ class TaskData:
     `self.data` inside the Celery task itself.
 
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
+
+    .. note::
+
+       Dataclasses require type annotations, this doesn't mean we are using
+       type hints or enforcing them in our codebase.
     """
+
+    # Arguments from the task.
+    version_pk: int = None
+    build_pk: int = None
+    build_commit: str = None
+
+    start_time: timezone.datetime = None
+    environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
+    build_director: BuildDirector = None
+    config: BuildConfigV1 | BuildConfigV2 = None
+    project: APIProject = None
+    version: APIVersion = None
+
+    # Dictionary returned from the API.
+    build: dict = field(default_factory=dict)
+    # If HTML, PDF, ePub, etc formats were built.
+    outcomes: dict = field(default_factory=lambda: defaultdict(lambda: False))
+    # Build data for analytics (telemetry).
+    build_data: dict = field(default_factory=dict)
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
@@ -119,10 +149,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
         # Comes from the signature of the task and it's the only required
         # argument
-        version_id, = args
+        self.data.version_pk = args[0]
 
         # load all data from the API required for the build
-        self.data.version = self.get_version(version_id)
+        self.data.version = self.get_version(self.data.version_pk)
         self.data.project = self.data.version.project
 
         # Also note there are builds that are triggered without a commit
@@ -153,7 +183,16 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             )
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        clean_build(self.data.version)
+        """
+        Celery handler to be executed after a task runs.
+
+        .. note::
+
+           This handler is called even if the task has failed,
+           so some attributes from the `self.data` object may not be defined.
+        """
+        if self.data.version:
+            clean_build(self.data.version)
 
     def execute(self):
         environment = self.data.environment_class(
@@ -352,9 +391,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Reset any previous build error reported to the user
         self.data.build['error'] = ''
-
-        self.data.build_data = None
-
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get('build_commit')
@@ -387,8 +423,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """
+        Celery handler to be executed when a task fails.
+
+        .. note::
+
+           Since the task has failed, some attributes from the `self.data`
+           object may not be defined.
+        """
         log.info("Task failed.")
-        if not hasattr(self.data, 'build'):
+        if not self.data.build:
             # NOTE: use `self.data.build_id` (passed to the task) instead
             # `self.data.build` (retrieved from the API) because it's not present,
             # probably due the API failed when retrieving it.
@@ -439,7 +483,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Send notifications for unhandled errors
         if not isinstance(exc, self.exceptions_without_notifications):
             self.send_notifications(
-                self.data.version.pk,
+                self.data.version_pk,
                 self.data.build['id'],
                 event=WebHookEvent.BUILD_FAILED,
             )
@@ -453,8 +497,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.build_commit and not isinstance(
             exc, self.exceptions_without_external_build_status
         ):
+            version_type = None
+            if self.data.version:
+                version_type = self.data.version.type
             send_external_build_status(
-                version_type=self.data.version.type,
+                version_type=version_type,
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_FAILURE,
@@ -550,11 +597,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        """
+        Celery handler to be executed after a task runs.
+
+        .. note::
+
+           This handler is called even if the task has failed,
+           so some attributes from the `self.data` object may not be defined.
+        """
         # Update build object
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
         build_state = None
-        if self.data.build["state"] not in BUILD_FINAL_STATES:
+        # The state key might not be defined
+        # previous to finishing the task.
+        if self.data.build.get("state") not in BUILD_FINAL_STATES:
             build_state = BUILD_STATE_FINISHED
 
         self.update_build(build_state)

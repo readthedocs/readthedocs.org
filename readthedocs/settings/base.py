@@ -75,7 +75,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
-    SESSION_SAVE_EVERY_REQUEST = True
+    SESSION_SAVE_EVERY_REQUEST = False
 
     @property
     def SESSION_COOKIE_SAMESITE(self):
@@ -89,7 +89,7 @@ class CommunityBaseSettings(Settings):
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
@@ -123,6 +123,9 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
+
+    # Keep BuildData models on database during this time
+    RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -419,6 +422,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-buildata-models': {
+            'task': 'readthedocs.telemetry.tasks.delete_old_build_data',
+            'schedule': crontab(minute=0, hour=2),
+            'options': {'queue': 'web'},
+        },
         'every-day-resync-sso-organization-users': {
             'task': 'readthedocs.oauth.tasks.sync_remote_repositories_organizations',
             'schedule': crontab(minute=0, hour=4),
@@ -439,6 +447,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-remote-repositories': {
+            'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
+            'schedule': crontab(minute=30, hour=2),
+            'options': {'queue': 'web'},
+        }
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]

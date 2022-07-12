@@ -68,6 +68,11 @@ you can start using Read the Docs by :doc:`importing your docs </intro/import-gu
    We strongly recommend to :ref:`pin the MkDocs version <guides/reproducible-builds:pinning dependencies>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
+Get inspired!
+-------------
+
+You might learn more and find the first ingredients for starting your own documentation project by looking at :doc:`/examples` - view live example renditions and copy & paste from the accompanying source code.
+
 External resources
 ------------------
 
