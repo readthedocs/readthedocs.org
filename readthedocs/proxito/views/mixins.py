@@ -1,6 +1,6 @@
 import copy
 import mimetypes
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import structlog
 from django.conf import settings
@@ -290,7 +290,7 @@ class ServeRedirectMixin:
 
         # Combine the query params from the original request with the ones from the redirect.
         redirect_parsed = urlparse(redirect_path)
-        redirect_query = redirect_parsed.query
+        redirect_query = urlencode(parse_qs(redirect_parsed.query))
         if redirect_query:
             if query:
                 query += "&"
