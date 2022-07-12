@@ -124,6 +124,9 @@ class CommunityBaseSettings(Settings):
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
+    # Number of days the validation process for a domain will be retried.
+    RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD = 30
+
     # Keep BuildData models on database during this time
     RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
 
@@ -204,6 +207,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.search',
             'readthedocs.embed',
             'readthedocs.telemetry',
+            'readthedocs.domains',
 
             # allauth
             'allauth',
@@ -450,6 +454,11 @@ class CommunityBaseSettings(Settings):
         'every-day-resync-remote-repositories': {
             'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
             'schedule': crontab(minute=30, hour=2),
+            'options': {'queue': 'web'},
+        },
+        'every-day-email-pending-custom-domains': {
+            'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
+            'schedule': crontab(minute=0, hour=3),
             'options': {'queue': 'web'},
         }
     }
