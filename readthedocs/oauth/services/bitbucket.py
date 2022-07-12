@@ -48,8 +48,9 @@ class BitbucketService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing Bitbucket repositories')
             raise SyncServiceError(
-                'Could not sync your Bitbucket repositories, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         # Because privileges aren't returned with repository data, run query
@@ -104,8 +105,9 @@ class BitbucketService(Service):
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
             raise SyncServiceError(
-                'Could not sync your Bitbucket workspace repositories, '
-                'try reconnecting your account',
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_organizations, remote_repositories

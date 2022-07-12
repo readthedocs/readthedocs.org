@@ -44,8 +44,9 @@ class GitHubService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
-                'Could not sync your GitHub repositories, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
         return remote_repositories
 
@@ -76,8 +77,9 @@ class GitHubService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
-                'Could not sync your GitHub organizations, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_organizations, remote_repositories
