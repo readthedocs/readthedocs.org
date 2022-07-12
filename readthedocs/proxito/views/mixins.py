@@ -1,6 +1,6 @@
 import copy
 import mimetypes
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 import structlog
 from django.conf import settings
@@ -286,15 +286,15 @@ class ServeRedirectMixin:
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
         # `proxito_path` doesn't include query params.
-        query = urlparse(request.get_full_path()).query
+        query_list = parse_qsl(
+            urlparse(request.get_full_path()).query,
+            keep_blank_values=True,
+        )
 
         # Combine the query params from the original request with the ones from the redirect.
         redirect_parsed = urlparse(redirect_path)
-        redirect_query = urlencode(parse_qs(redirect_parsed.query))
-        if redirect_query:
-            if query:
-                query += "&"
-            query += redirect_query
+        query_list.extend(parse_qsl(redirect_parsed.query, keep_blank_values=True))
+        query = urlencode(query_list)
         new_path = redirect_parsed._replace(query=query).geturl()
 
         # Re-use the domain and protocol used in the current request.
