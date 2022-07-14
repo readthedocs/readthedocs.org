@@ -4,15 +4,15 @@
 -r debug.txt
 
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-psycopg2-binary==2.9.2  # pyup: ignore
+psycopg2-binary==2.9.3  # pyup: ignore
 
 django-redis-cache==3.0.1
 
 # For resizing images
-pillow==9.1.0
+pillow==9.2.0
 
 # run tests
-tox==3.25.0
+tox==3.25.1
 
 # Used together with structlog to have nicer logs locally
-rich==12.3.0
+rich==12.5.1
