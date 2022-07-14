@@ -7,12 +7,28 @@ to users and handling any other URLs from the user documentation domain.
 The current implementation has some problems that are discussed in this document,
 and an alternative implementation is proposed to solve those problems.
 
+Goals
+-----
+
+* Removing reserved paths and ambiguities from URLs
+* Simplifying our parsing logic for URLs
+
+Non-goals
+---------
+
+* Allowing fully arbitrary URL generation for projects.
+
+  .. note::
+
+     This is taken into consideration in the current implementation,
+     but
+
 Current implementation
 ----------------------
 
 The current implementation is based on Django URLs
 trying to match a pattern that looks like a single project, a versioned project,
-or a subproject, this means that a couple or URLs are *reserved*,
+or a subproject, this means that a couple of URLs are *reserved*,
 and won't resolve to the correct file if it exists
 (https://github.com/readthedocs/readthedocs.org/issues/8399, https://github.com/readthedocs/readthedocs.org/issues/2292),
 this usually happens with single version projects.
@@ -287,7 +303,7 @@ Projects:
 - project-es (latest, 1.0)
 - subproject (latest)
 
-.. list-table:: 
+.. list-table::
    :header-rows: 1
 
    * - Request
@@ -331,7 +347,7 @@ Project with custom prefix
 
 ``project`` has the ``prefix`` prefix, and ``sub`` subproject prefix.
 
-.. list-table:: 
+.. list-table::
    :header-rows: 1
 
    * - Request
@@ -368,7 +384,7 @@ Project with custom subproject prefix (empty)
 ``project`` has the ``/`` subproject prefix,
 this allow us to serve subprojects without using a prefix.
 
-.. list-table:: 
+.. list-table::
    :header-rows: 1
 
    * - Request
@@ -391,6 +407,95 @@ this allow us to serve subprojects without using a prefix.
      - /latest/manual/index.html
      - project
      - The subproject/file doesn't exist
+
+Code example
+------------
+
+This is a simplified version of the implementation.
+
+.. code-block:: python
+
+   from readthedocs.projects.models import Project
+
+   LANGUAGES = {"es", "en"}
+
+
+   def resolve(canonical_project: Project, path_parts: list[str], check_subprojects=True):
+      # Multiversion project.
+      language = path_parts[0]
+      version_slug = path_parts[1]
+      if not canonical_project.single_version and language in LANGUAGES:
+         if canonical_project.language == language:
+               project = canonical_project
+         else:
+               project = canonical_project.translations.filter(language=language).first()
+         if project:
+               version = project.versions.filter(slug=version_slug).first()
+               if version:
+                  return project, version, "/".join(path_parts[2:])
+               return project, None, None
+
+      # Subprojects.
+      prefix = path_parts[0]
+      project_slug = path_parts[1]
+      if check_subprojects and prefix == "projects":
+         project = canonical_project.subprojects.filter(alias=project_slug).first()
+         if project:
+               return resolve(
+                  canonical_project=project,
+                  path_parts=path_parts[2:],
+                  check_subprojects=False,
+               )
+
+      # Single project.
+      if canonical_project.single_version:
+         version = canonical_project.versions.filter(
+               slug=canonical_project.default_version
+         ).first()
+         if version:
+               return canonical_project, version, "/".join(path_parts)
+         return canonical_project, None, None
+
+      return None, None, None
+
+
+   def view(canonical_project, path):
+      current_project, version, file = resolve(
+         canonical_project=canonical_project, path_parts=path.split("/")
+      )
+      if current_project and version:
+         return serve(current_project, version, file)
+
+      if current_project:
+         return serve_404(current_project)
+
+      return serve_404(canonical_project)
+
+
+   def serve_404(project, version=None):
+      pass
+
+
+   def serve(project, version, file):
+      pass
+
+
+Number of db lookups, best case and worst case:
+
+- A single version project:
+
+  - '/index.html': 1, the version!
+  - '/projects/index.html': 2, the version and one additional lookup for a path that looks like a subproject.
+
+- A multi version project:
+
+  - '/en/latest/index.html': 1, the version!
+  - '/es/latest/index.html': 2, the translation and the version!
+  - '/br/latest/index.html': 1, the translation (it doesn't exist)
+
+- A project with subprojects:
+
+  - '/projects/subproject/index.html': 2, the subproject and its version.
 
 Questions
 ---------
