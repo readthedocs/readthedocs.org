@@ -258,7 +258,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
-    def test_redirect_with_query_params(self):
+    def test_redirect_with_query_params_from_url(self):
         self._storage_exists([
             '/media/html/project/latest/tutorial/install.html',
         ])
@@ -276,6 +276,38 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html?foo=bar',
+        )
+
+    def test_redirect_with_query_params_to_url(self):
+        self._storage_exists(
+            [
+                "/media/html/project/latest/tutorial/install.html",
+            ]
+        )
+        Redirect.objects.create(
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html?query=one",
+        )
+        r = self.client.get(
+            "/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=one",
+        )
+
+        r = self.client.get(
+            "/install.html?query=two",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=two&query=one",
         )
 
     def test_redirect_exact(self):
