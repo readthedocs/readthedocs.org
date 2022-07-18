@@ -6,6 +6,7 @@ from unittest import mock
 from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
@@ -86,9 +87,10 @@ class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
 
-    fixtures = ['test_data', 'eric']
+    fixtures = ["eric"]
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.project = Project.objects.get(slug='pip')
         self.version = Version(slug='foo', verbose_name='foobar')
         self.project.versions.add(self.version, bulk=False)

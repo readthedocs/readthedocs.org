@@ -6,6 +6,7 @@ from unittest.mock import patch
 import py
 import pytest
 import yaml
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -36,9 +37,10 @@ from readthedocs.rtd_tests.tests.test_config_integration import create_load
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
 class SphinxBuilderTest(TestCase):
 
-    fixtures = ['test_data', 'eric']
+    fixtures = ["eric"]
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.project = Project.objects.get(slug='pip')
         self.version = self.project.versions.first()
 

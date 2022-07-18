@@ -4,6 +4,7 @@ from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -63,7 +64,11 @@ class Testmaker(TestCase):
 
 
 class PrivateViewsAreProtectedTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
+
+    def setUp(self):
+        call_command("fixtures_projects")
+
 
     def assertRedirectToLogin(self, response):
         self.assertEqual(response.status_code, 302)
@@ -224,10 +229,11 @@ class SubprojectViewTests(TestCase):
 
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        call_command("fixtures_projects")
         self.pip = Project.objects.get(slug='pip')
         self.pip.privacy_level = PUBLIC
         self.pip.external_builds_privacy_level = PUBLIC

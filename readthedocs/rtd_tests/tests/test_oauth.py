@@ -4,6 +4,7 @@ from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -21,11 +22,12 @@ from readthedocs.projects.models import Project
 
 class GitHubOAuthTests(TestCase):
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
+        call_command("fixtures_projects")
         self.project = Project.objects.get(slug="pip")
         self.org = RemoteOrganization.objects.create(
             slug="organization",

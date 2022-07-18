@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 import re
 
+from django.core.management import call_command
 from django.test import TestCase
 
 from readthedocs.builds.models import Version
@@ -27,9 +27,10 @@ class VersionSlugPatternTests(TestCase):
 
 
 class VersionSlugFieldTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.pip = Project.objects.get(slug='pip')
 
     def test_saving(self):

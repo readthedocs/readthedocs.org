@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.test import TestCase
 
 from readthedocs.api.v2.views.footer_views import get_version_compare_data
@@ -6,9 +7,10 @@ from readthedocs.projects.models import Project
 
 
 class VersionCompareTests(TestCase):
-    fixtures = ['eric.json', 'test_data.json']
+    fixtures = ["eric.json"]
 
     def setUp(self):
+        call_command("fixtures_projects")
         Project.objects.update(show_version_warning=True)
 
     def test_not_highest(self):

@@ -31,7 +31,6 @@ class BuildEnvironmentBase:
     def setup(self, requests_mock):
         # Save the reference to query it from inside the test
         self.requests_mock = requests_mock
-
         self.project = fixture.get(
             Project,
             slug="project",

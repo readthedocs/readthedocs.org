@@ -5,6 +5,7 @@ from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
@@ -65,10 +66,11 @@ eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 
 
 class APIBuildTests(TestCase):
-    fixtures = ['eric.json', 'test_data.json']
+    fixtures = ["eric.json"]
 
     def setUp(self):
         self.user = User.objects.get(username='eric')
+        call_command("fixtures_projects")
         self.project = get(Project, users=[self.user])
         self.version = self.project.versions.get(slug=LATEST)
 

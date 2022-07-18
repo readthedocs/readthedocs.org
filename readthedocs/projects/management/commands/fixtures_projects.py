@@ -1,5 +1,5 @@
 """
-Fixture Projects
+Fixture Projects.
 
 This command intends to replace the fixtures file
 which is used and instead create projects directly.
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             ("Django Test Utils", "https://github.com/ericholscher/django-test-utils"),
             ("Fabric", "https://github.com/fabric/fabric"),
             ("South", "http://github.com/dmishe/django-south"),
-            ("Pip", "https://github.com/pypa/pip"),
+            ("Pip", "http://github.com/pypa/pip"),
             ("Kong", "https://github.com/ericholscher/django-kong"),
             ("Djangoembed", "https://github.com/worldcompany/djangoembed"),
             ("Tastypie", "http://github.com/codysoyland/django-tastypie"),

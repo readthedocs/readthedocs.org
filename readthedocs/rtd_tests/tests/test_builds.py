@@ -2,6 +2,7 @@ import datetime
 from unittest import mock
 
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
@@ -21,13 +22,13 @@ from readthedocs.projects.models import Feature, Project
 
 class BuildModelTests(TestCase):
 
-    fixtures = ['test_data', 'eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         self.eric = User.objects.get(username='eric')
         self.eric.set_password('test')
         self.eric.save()
-
+        call_command("fixtures_projects")
         self.project = get(Project)
         self.project.users.add(self.eric)
         self.version = get(

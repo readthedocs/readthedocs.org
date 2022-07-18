@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
@@ -30,10 +31,11 @@ from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 class ProjectMixin:
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        call_command("fixtures_projects")
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: pull/merge request Version.
         self.external_version = get(

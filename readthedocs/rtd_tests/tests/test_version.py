@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -9,10 +10,11 @@ from readthedocs.projects.models import Project
 
 class VersionMixin:
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        call_command("fixtures_projects")
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: pull/merge request Version.
         self.external_version = get(

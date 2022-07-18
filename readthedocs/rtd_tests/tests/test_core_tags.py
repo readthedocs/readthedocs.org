@@ -1,5 +1,5 @@
-from unittest import mock
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -10,9 +10,10 @@ from readthedocs.projects.models import Project
 
 @override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ["eric"]
 
     def setUp(self):
+        call_command("fixtures_projects")
         url_base = 'http://{domain}/docs/pip{{version}}'.format(
             domain=settings.PRODUCTION_DOMAIN,
         )
