@@ -21,7 +21,7 @@ Non-goals
   .. note::
 
      This is taken into consideration in the current implementation,
-     but
+     but isn't the main goal.
 
 Current implementation
 ----------------------
@@ -408,10 +408,12 @@ this allow us to serve subprojects without using a prefix.
      - project
      - The subproject/file doesn't exist
 
-Code example
-------------
+Implementation example
+----------------------
 
-This is a simplified version of the implementation.
+This is a simplified version of the implementation,
+there are some small optimizations and validations that will be in the
+final implementation.
 
 .. code-block:: python
 
@@ -479,23 +481,37 @@ This is a simplified version of the implementation.
    def serve(project, version, file):
       pass
 
+Performance
+~~~~~~~~~~~
 
-Number of db lookups, best case and worst case:
+Performance is mainly driven by the number of database lookups.
+There is an additional impact of splitting and joining the paths,
+but those are linear operations, and can be optimized to make then constant (i.e. using ``maxsplit=4``).
 
 - A single version project:
 
-  - '/index.html': 1, the version!
-  - '/projects/index.html': 2, the version and one additional lookup for a path that looks like a subproject.
+  - ``/index.html``: 1, the version.
+  - ``/projects/guides/index.html``: 2, the version and one additional lookup for a path that looks like a subproject.
 
 - A multi version project:
 
-  - '/en/latest/index.html': 1, the version!
-  - '/es/latest/index.html': 2, the translation and the version!
-  - '/br/latest/index.html': 1, the translation (it doesn't exist)
+  - ``/en/latest/index.html``: 1, the version.
+  - ``/es/latest/index.html``: 2, the translation and the version.
+  - ``/br/latest/index.html``: 1, the translation (it doesn't exist).
 
-- A project with subprojects:
+- A project with single version subprojects:
 
-  - '/projects/subproject/index.html': 2, the subproject and its version.
+  - ``/projects/subproject/index.html``: 2, the subproject and its version.
+
+- A project with multi version subprojects:
+
+  - ``/projects/subproject/en/latest/index.html``: 2, the subproject and its version.
+  - ``/projects/subproject/es/latest/index.html``: 3, the subproject, the translation, and its version.
+  - ``/projects/subproject/br/latest/index.html``: 2, the subproject and the translation (it doesn't exist).
+
+As seen, the number of database lookups are the minimal
+required to get the current project and version,
+this is a minimum of 1, and maximum of 3.
 
 Questions
 ---------
