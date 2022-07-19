@@ -15,8 +15,8 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'devthedocs.org')
-    PUBLIC_DOMAIN = PRODUCTION_DOMAIN
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'www.devthedocs.org')
+    PUBLIC_DOMAIN = os.environ.get('RTD_PUBLIC_DOMAIN', 'devthedocs.org')
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
