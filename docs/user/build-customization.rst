@@ -256,8 +256,23 @@ If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
 all the commands executed during builds can be overridden using the :ref:`config-file/v2:build.commands` configuration file key.
 
-For example, if your project uses `Pelican <https://blog.getpelican.com/>`_ instead of Sphinx for its documentation,
-your project could use the following configuration file:
+As Read the Docs does not have control over the build process,
+you are responsible for running all the commands required to install requirements and build your project properly.
+Once the build process finishes, the content of the ``_readthedocs/html/`` directory will be hosted.
+
+
+Examples
+++++++++
+
+This section contains some examples that can be seen as showcase of what it's possible to do with :ref:`config-file/v2:build.commands`.
+Note that you may need to modify and adapt them depending your needs.
+
+
+Pelican
+~~~~~~~
+
+`Pelican <https://blog.getpelican.com/>`_ is a well-known static site generator that's commonly used for blogs and landing pages.
+If you are building your project with Pelican you could use a configuration file similar to the following:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -272,9 +287,24 @@ your project could use the following configuration file:
        - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
 
 
-As Read the Docs does not have control over the build process,
-you are responsible for running all the commands required to install requirements and build the documentation properly.
-Once the build process finishes, the ``_readthedocs/html/`` folder will be hosted.
+Docsify
+~~~~~~~
+
+`Docsify <https://docsify.js.org/>`_ generates documentation websites on the fly, without the need of building static HTML.
+These projects can be built using a configuration file like this:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "16"
+     commands:
+       - mkdir --parents _readthedocs/html/
+       - cp --recursive docs/* _readthedocs/html/
+
 
 Search support
 ++++++++++++++
