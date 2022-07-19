@@ -15,7 +15,7 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'community.dev.readthedocs.io')
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'www.devthedocs.org')
     PUBLIC_DOMAIN = PRODUCTION_DOMAIN
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
@@ -23,7 +23,7 @@ class DockerBaseSettings(CommunityDevSettings):
     SLUMBER_USERNAME = 'admin'
     SLUMBER_PASSWORD = 'admin'
 
-    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 
     STATIC_URL = '/static/'
 
@@ -63,7 +63,7 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.community.dev.readthedocs.io:10001"
+            return "http://assets.www.devthedocs.org:10001"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
