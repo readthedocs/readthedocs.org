@@ -619,7 +619,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         build_complete.send(sender=Build, build=self.data.build)
 
-        clean_build(self.data.version)
+        if self.data.version:
+            clean_build(self.data.version)
 
         log.info(
             'Build finished.',

@@ -1,3 +1,14 @@
+Version 8.3.4
+-------------
+
+:Date: July 19, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9432 <https://github.com/readthedocs/readthedocs.org/pull/9432>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: check for self.data.version being None (`#9430 <https://github.com/readthedocs/readthedocs.org/pull/9430>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.3 (`#9427 <https://github.com/readthedocs/readthedocs.org/pull/9427>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: merge query params from the redirect and original request (`#9420 <https://github.com/readthedocs/readthedocs.org/pull/9420>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit logs: truncate browser (`#9417 <https://github.com/readthedocs/readthedocs.org/pull/9417>`__)
+
 Version 8.3.3
 -------------
 

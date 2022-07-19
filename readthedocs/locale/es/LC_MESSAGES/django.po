@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-12 14:41+0000\n"
+"POT-Creation-Date: 2022-07-19 10:03+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Manuel Viera <manuel.viera.tirado@gmail.com>, 2013\n"
 "Language-Team: Spanish (http://www.transifex.com/readthedocs/readthedocs/"
@@ -169,69 +169,69 @@ msgstr "Vista de pagina"
 msgid "Download"
 msgstr "Descarga"
 
-#: audit/models.py:85 core/models.py:38 gold/models.py:35
+#: audit/models.py:87 core/models.py:38 gold/models.py:35
 #: projects/models.py:117
 msgid "User"
 msgstr "Usuario"
 
-#: audit/models.py:92
+#: audit/models.py:94
 msgid "User ID"
 msgstr "ID de usuario"
 
-#: audit/models.py:98 core/forms.py:55
+#: audit/models.py:100 core/forms.py:55
 msgid "Username"
 msgstr "Nombre de usuario"
 
-#: audit/models.py:107 builds/models.py:111 builds/models.py:616
+#: audit/models.py:109 builds/models.py:111 builds/models.py:616
 #: projects/models.py:1376 redirects/models.py:57
 msgid "Project"
 msgstr "Proyecto"
 
-#: audit/models.py:114
+#: audit/models.py:116
 msgid "Project ID"
 msgstr "ID de Proyecto"
 
-#: audit/models.py:120
+#: audit/models.py:122
 msgid "Project slug"
 msgstr "Slug de proyecto"
 
-#: audit/models.py:129 oauth/models.py:122 subscriptions/models.py:175
+#: audit/models.py:131 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organización"
 
-#: audit/models.py:135
+#: audit/models.py:137
 msgid "Organization ID"
 msgstr "ID de Organización"
 
-#: audit/models.py:141
+#: audit/models.py:143
 msgid "Organization slug"
 msgstr "Slug de Organización"
 
-#: audit/models.py:149 builds/models.py:1126
+#: audit/models.py:151 builds/models.py:1126
 msgid "Action"
 msgstr "Acción"
 
-#: audit/models.py:154
+#: audit/models.py:156
 msgid "Auth backend"
 msgstr "Backend de autenticación"
 
-#: audit/models.py:160 core/history.py:78
+#: audit/models.py:162 core/history.py:78
 msgid "IP address"
 msgstr "Dirección IP"
 
-#: audit/models.py:166 core/history.py:84
+#: audit/models.py:168 core/history.py:84
 msgid "Browser user-agent"
 msgstr "Agente de usuario del navegador"
 
-#: audit/models.py:174
+#: audit/models.py:176
 msgid "Resource"
 msgstr "Recurso"
 
-#: audit/models.py:211
+#: audit/models.py:223
 msgid "shared link"
 msgstr "enlace compartido"
 
-#: audit/models.py:212
+#: audit/models.py:224
 msgid "shared password"
 msgstr "contraseña compartida"
 
