@@ -14,7 +14,7 @@ from readthedocs.core.utils import slugify
 from . import constants
 from .managers import TeamManager, TeamMemberManager
 from .querysets import OrganizationQuerySet
-from .utils import send_team_add_email, send_team_invite_email
+from .utils import send_team_add_email
 
 
 class Organization(models.Model):
@@ -134,8 +134,10 @@ class Organization(models.Model):
         team
             Team instance to add user to
         """
-        if not team.members.filter(pk=user.pk).exists():
-            TeamMember.objects.create(team=team, member=user)
+        member = team.members.filter(pk=user.pk).first()
+        if not member:
+            member = TeamMember.objects.create(team=team, member=user)
+        return member
 
 
 class OrganizationOwner(models.Model):
@@ -355,8 +357,5 @@ class TeamMember(models.Model):
         return self.member is None and self.invite is not None
 
     def send_add_notification(self, request):
-        """Notify member or invite of being added to a team."""
-        if self.invite is None and self.member is not None:
-            send_team_add_email(team_member=self, request=request)
-        elif self.member is None and self.invite is not None:
-            send_team_invite_email(invite=self.invite, request=request)
+        """Notify member of being added to a team."""
+        send_team_add_email(team_member=self, request=request)

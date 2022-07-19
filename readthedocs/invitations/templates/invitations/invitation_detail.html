@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Accept or decline invitation" %}
+{% endblock %}
+
+{% block content %}
+<h2>
+  {% url "profiles_profile_detail" invitation.from_user.username as profile_url %}
+  {% with from_name=invitation.from_user.get_full_name|default:invitation.from_user.username %}
+    {% if invitation.object_type == "project" %}
+      {% url "projects_detail" invitation.object.slug as project_url %}
+
+      {% blocktrans trimmed with from_name=from_name profile_url=profile_url project_url=project_url project_name=invitation.object.name %}
+        <a href="{{ profile_url }}">{{ from_name }}</a>
+        has invite you to join the
+        <a href="{{ project_url }}">{{ project_name }}</a>
+        project.
+      {% endblocktrans %}
+
+    {% elif invitation.object_type == "organization" %}
+      {% url "organization_detail" invitation.object.slug as organization_url %}
+
+      {% blocktrans trimmed with from_name=from_name profile_url=profile_url organization_url=organization_url organization_name=invitation.object.name %}
+        <a href="{{ profile_url }}">{{ from_name }}</a>
+        has invite you to join the
+        <a href="{{ organization_url }}">{{ organization_name }}</a>
+        organization.
+      {% endblocktrans %}
+
+    {% elif invitation.object_type == "team" %}
+      {% url "organization_team_detail" invitation.object.organization.slug invitation.object.slug as team_url %}
+      {% url "organization_detail" invitation.object.organization.slug as organization_url %}
+
+      {% blocktrans trimmed with from_name=from_name profile_url=profile_url team_url=team_url team_name=invitation.object.name organization_url=organization_url organization_name=invitation.object.organization.name %}
+        <a href="{{ profile_url }}">{{ from_name }}</a>
+        has invite you to join the
+        <a href="{{ team_url }}">{{ team_name }}</a>
+        team from the
+        <a href="{{ organization_url }}">{{ organization_name }}</a>
+        organization.
+      {% endblocktrans %}
+    {% endif %}
+  {% endwith %}
+</h2>
+
+{% if invitation.expired %}
+<p>
+  {% trans "Your invitation has expired." %}
+  {% if invitation.object_type == "organization" or invitation.object_type == "team" %}
+    {% trans "Ask the admin of the organization to invite you again." %}
+  {% else %}
+    {% trans "Ask the admin of the project to invite you again." %}
+  {% endif %}
+</p>
+{% endif %}
+
+<form action="" method="post">
+  {% csrf_token %}
+  <input type="submit" name="accept" value="{% trans "Accept" %}" {% if invitation.expired%}disabled{% endif %}>
+  <input type="submit" name="decline" value="{% trans "Decline" %}">
+</form>
+{% endblock %}
