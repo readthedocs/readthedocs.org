@@ -77,3 +77,21 @@ class TestAuditModels(TestCase):
         self.assertEqual(log.organization, self.organization)
         self.assertEqual(log.log_organization_id, self.organization.id)
         self.assertEqual(log.log_organization_slug, self.organization.slug)
+
+    def test_truncate_browser(self):
+        text = "a" * 250
+        log = get(
+            AuditLog,
+            user=self.user,
+            browser=text,
+        )
+        self.assertEqual(log.browser, text)
+
+        text = "a" * 300
+        log = get(
+            AuditLog,
+            user=self.user,
+            browser=text,
+        )
+        self.assertNotEqual(log.browser, text)
+        self.assertTrue(log.browser.endswith(" - Truncated"))
