@@ -271,7 +271,7 @@ Note that you may need to modify and adapt these examples depending on your need
 Pelican
 ~~~~~~~
 
-`Pelican <https://blog.getpelican.com/>`_ is a well-known static site generator that's commonly used for blogs and landing pages.
+`Pelican <https://blog.getpelican.com/>`__ is a well-known static site generator that's commonly used for blogs and landing pages.
 If you are building your project with Pelican you could use a configuration file similar to the following:
 
 .. code-block:: yaml
@@ -290,7 +290,7 @@ If you are building your project with Pelican you could use a configuration file
 Docsify
 ~~~~~~~
 
-`Docsify <https://docsify.js.org/>`_ generates documentation websites on the fly, without the need to build static HTML.
+`Docsify <https://docsify.js.org/>`__ generates documentation websites on the fly, without the need to build static HTML.
 These projects can be built using a configuration file like this:
 
 .. code-block:: yaml
