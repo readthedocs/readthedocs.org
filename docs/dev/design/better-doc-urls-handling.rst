@@ -418,68 +418,89 @@ final implementation.
 .. code-block:: python
 
    from readthedocs.projects.models import Project
-
+   
    LANGUAGES = {"es", "en"}
-
-
-   def resolve(canonical_project: Project, path_parts: list[str], check_subprojects=True):
-      # Multiversion project.
-      language = path_parts[0]
-      version_slug = path_parts[1]
-      if not canonical_project.single_version and language in LANGUAGES:
-         if canonical_project.language == language:
-               project = canonical_project
-         else:
+   
+   def pop_parts(path, n):
+       if path[0] == '/':
+          path  = path[1:]
+       parts = path.split('/', maxsplit=n)
+       start, end = parts[:n], parts[n:]
+       end = end[0] if end else ''
+       return start, end
+   
+   
+   def resolve(canonical_project: Project, path: str, check_subprojects=True):
+       prefix = '/'
+       if canonical_project.prefix:
+           prefix = canonical_project.prefix
+       subproject_prefix = "/projects"
+       if canonical_project.subproject_prefix:
+           subproject_prefix = canonical_project.subproject_prefix
+   
+       # Multiversion project.
+       if path.startswith(prefix):
+           new_path = path.removeprefix(prefix)
+           parts, new_path = pop_parts(new_path, 2)
+           language, version_slug = parts
+           if not canonical_project.single_version and language in LANGUAGES:
+               if canonical_project.language == language:
+                   project = canonical_project
+           else:
                project = canonical_project.translations.filter(language=language).first()
-         if project:
-               version = project.versions.filter(slug=version_slug).first()
-               if version:
-                  return project, version, "/".join(path_parts[2:])
-               return project, None, None
-
-      # Subprojects.
-      prefix = path_parts[0]
-      project_slug = path_parts[1]
-      if check_subprojects and prefix == "projects":
-         project = canonical_project.subprojects.filter(alias=project_slug).first()
-         if project:
+               if project:
+                   version = project.versions.filter(slug=version_slug).first()
+                   if version:
+                       return project, version, new_path
+                   return project, None, None
+   
+       # Subprojects.
+       if check_subprojects and path.startswith(subproject_prefix):
+           new_path = path.removeprefix(subproject_prefix)
+           parts, new_path = pop_parts(new_path, 1)
+           project_slug = parts[0]
+           project = canonical_project.subprojects.filter(alias=project_slug).first()
+           if project:
                return resolve(
-                  canonical_project=project,
-                  path_parts=path_parts[2:],
-                  check_subprojects=False,
+                   canonical_project=project,
+                   path=new_path,
+                   check_subprojects=False,
                )
-
-      # Single project.
-      if canonical_project.single_version:
-         version = canonical_project.versions.filter(
-               slug=canonical_project.default_version
-         ).first()
-         if version:
-               return canonical_project, version, "/".join(path_parts)
-         return canonical_project, None, None
-
-      return None, None, None
-
-
+   
+       # Single project.
+       if path.startswith(prefix):
+           new_path = path.removeprefix(prefix)
+           if canonical_project.single_version:
+               version = canonical_project.versions.filter(
+                   slug=canonical_project.default_version
+               ).first()
+               if version:
+                   return canonical_project, version, new_path
+               return canonical_project, None, None
+   
+       return None, None, None
+   
+   
    def view(canonical_project, path):
-      current_project, version, file = resolve(
-         canonical_project=canonical_project, path_parts=path.split("/")
-      )
-      if current_project and version:
-         return serve(current_project, version, file)
-
-      if current_project:
-         return serve_404(current_project)
-
-      return serve_404(canonical_project)
-
-
+       current_project, version, file = resolve(
+           canonical_project=canonical_project, path_parts=path.split("/")
+       )
+       if current_project and version:
+           return serve(current_project, version, file)
+   
+       if current_project:
+           return serve_404(current_project)
+   
+       return serve_404(canonical_project)
+   
+   
    def serve_404(project, version=None):
-      pass
-
-
+       pass
+   
+   
    def serve(project, version, file):
-      pass
+       pass
+
 
 Performance
 ~~~~~~~~~~~
