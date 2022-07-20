@@ -23,6 +23,16 @@ validate_domain_name = DomainNameValidator()
 
 
 @deconstructible
+class NoIPValidator(RegexValidator):
+    message = _("The domain name can't be an IP address.")
+    regex = re.compile(r"^(\d+\.)+\d+$")
+    inverse_match = True
+
+
+validate_no_ip = NoIPValidator()
+
+
+@deconstructible
 class RepositoryURLValidator:
 
     disallow_relative_url = True
