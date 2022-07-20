@@ -76,8 +76,8 @@ There are some caveats to knowing when using user-defined jobs:
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
-Examples
-++++++++
+``build.jobs`` examples
++++++++++++++++++++++++
 
 We've included some common examples where using :ref:`config-file/v2:build.jobs` will be useful.
 These examples may require some adaptation for each projects' use case,
@@ -261,8 +261,8 @@ you are responsible for running all the commands required to install requirement
 Once the build process finishes, the contents of the ``_readthedocs/html/`` directory will be hosted.
 
 
-Examples
-++++++++
+``build.commands`` examples
++++++++++++++++++++++++++++
 
 This section contains some examples that showcase what is possible with :ref:`config-file/v2:build.commands`.
 Note that you may need to modify and adapt these examples depending on your needs.
