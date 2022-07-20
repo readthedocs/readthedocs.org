@@ -483,7 +483,8 @@ final implementation.
    
    def view(canonical_project, path):
        current_project, version, file = resolve(
-           canonical_project=canonical_project, path_parts=path.split("/")
+           canonical_project=canonical_project,
+           path=path,
        )
        if current_project and version:
            return serve(current_project, version, file)
