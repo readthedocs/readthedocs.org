@@ -10,18 +10,15 @@ and an alternative implementation is proposed to solve those problems.
 Goals
 -----
 
-* Removing reserved paths and ambiguities from URLs
 * Simplifying our parsing logic for URLs
+* Removing reserved paths and ambiguities from URLs
+* Allow serving docs from a different prefix and subproject prefix.
 
 Non-goals
 ---------
 
-* Allowing fully arbitrary URL generation for projects.
-
-  .. note::
-
-     This is taken into consideration in the current implementation,
-     but isn't the main goal.
+* Allowing fully arbitrary URL generation for projects,
+  like changing the order of the elements or removing them.
 
 Current implementation
 ----------------------
