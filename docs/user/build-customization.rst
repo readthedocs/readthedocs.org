@@ -258,14 +258,14 @@ all the commands executed during builds can be overridden using the :ref:`config
 
 As Read the Docs does not have control over the build process,
 you are responsible for running all the commands required to install requirements and build your project properly.
-Once the build process finishes, the content of the ``_readthedocs/html/`` directory will be hosted.
+Once the build process finishes, the contents of the ``_readthedocs/html/`` directory will be hosted.
 
 
 Examples
 ++++++++
 
-This section contains some examples that can be seen as showcase of what it's possible to do with :ref:`config-file/v2:build.commands`.
-Note that you may need to modify and adapt them depending your needs.
+This section contains some examples that showcase what is possible with :ref:`config-file/v2:build.commands`.
+Note that you may need to modify and adapt these examples depending on your needs.
 
 
 Pelican
@@ -290,7 +290,7 @@ If you are building your project with Pelican you could use a configuration file
 Docsify
 ~~~~~~~
 
-`Docsify <https://docsify.js.org/>`_ generates documentation websites on the fly, without the need of building static HTML.
+`Docsify <https://docsify.js.org/>`_ generates documentation websites on the fly, without the need to build static HTML.
 These projects can be built using a configuration file like this:
 
 .. code-block:: yaml
