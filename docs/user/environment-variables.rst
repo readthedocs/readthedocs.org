@@ -22,7 +22,7 @@ Read the Docs builders set the following environment variables automatically for
 .. envvar:: READTHEDOCS_VERSION
 
     The :term:`slug` of the version being built, such as ``latest``, ``stable``,
-    or a branch name like ``feature-1234``. For `pull request builds </pull-requests>`,
+    or a branch name like ``feature-1234``. For :doc:`pull request builds </pull-requests>`,
     the value will be the pull request number.
 
 .. envvar:: READTHEDOCS_VERSION_NAME
