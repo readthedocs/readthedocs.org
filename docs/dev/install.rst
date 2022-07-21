@@ -65,13 +65,13 @@ Set up your environment
 
       inv docker.up  --init  # --init is only needed the first time
 
-#. Go to http://www.devthedocs.org to access your local instance of Read the Docs.
+#. Go to http://devthedocs.org to access your local instance of Read the Docs.
 
 
 Check that everything works
 ---------------------------
 
-#. Visit http://www.devthedocs.org
+#. Visit http://devthedocs.org
 
 #. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
@@ -211,11 +211,11 @@ For others, the webhook will simply fail to connect when there are new commits t
     Configuring an OAuth consumer for local development on Bitbucket
 
 * Configure the applications on GitHub, Bitbucket, and GitLab.
-  For each of these, the callback URI is ``http://www.devthedocs.org/accounts/<provider>/login/callback/``
+  For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
   where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
 * Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
-  ``http://www.devthedocs.org/admin/socialaccount/socialapp/``.
+  ``http://devthedocs.org/admin/socialaccount/socialapp/``.
   Make sure to apply it to the "Site".
 
 
