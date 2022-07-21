@@ -6,7 +6,10 @@ Read the Docs supports two types of environment variables in project builds:
 * `Default environment variables`_
 * `User-defined environment variables`_
 
-Both are merged together during the build process and are exposed to all of the executed commands.
+Both are merged together during the build process and are exposed to all of the executed commands. There are two exceptions for user-defined environment variables however:
+
+* User-defined variables are not available during the checkout step of the :doc:`build process </builds>`
+* User-defined variables that are not marked as public will not be available in :docs:`pull request builds </pull-requests>`
 
 Default environment variables
 -----------------------------
