@@ -244,8 +244,8 @@ To setup it, you need to define the version of Node.js to use and install the de
 Install dependencies with Poetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In case the project is managing Python dependencies with `Poetry <https://python-poetry.org/>`__,
-it can use ``post_create_environment`` user-defined job to install them while building the documentation.
+Projects managed with `Poetry <https://python-poetry.org/>`__,
+can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
 Take a look at the following example:
 
 
