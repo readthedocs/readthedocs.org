@@ -105,7 +105,7 @@ class GitHubService(Service):
                 vcs_provider=self.vcs_provider_slug,
             )
 
-            # TODO: Just for debugging, remove after #xxx is solved.
+            # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
             if created:
                 _old_remote_repository = RemoteRepository.objects.filter(
                     full_name=fields["full_name"], vcs_provider=self.vcs_provider_slug
