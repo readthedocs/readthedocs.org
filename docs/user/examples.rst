@@ -31,7 +31,7 @@ Sphinx and MkDocs examples
    * - Jupyter Book
      - Jupyter Book and Sphinx
      - `[Git] <https://github.com/readthedocs-examples/example-jupyter-book/>`__ `[Rendered] <https://example-jupyter-book.readthedocs.io/>`__
-     - Jupyter Book w/ popular integrations configured for RTD
+     - Jupyter Book with popular integrations configured
 
 
 Real-life examples
