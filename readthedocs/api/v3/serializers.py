@@ -485,7 +485,6 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
         If we cannot ensure the relationship here, this method should raise a
         `ValidationError`.
         """
-        pass
 
     def validate_name(self, value):
         potential_slug = slugify(value)
