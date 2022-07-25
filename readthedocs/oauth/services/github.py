@@ -100,10 +100,21 @@ class GitHubService(Service):
             (fields['private'] is False and privacy == 'public'),
         ]):
 
-            repo, _ = RemoteRepository.objects.get_or_create(
+            repo, created = RemoteRepository.objects.get_or_create(
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
             )
+
+            if created:
+                _old_remote_repository = RemoteRepository.objects.filter(
+                    full_name=fields["full_name"], vcs_provider=self.vcs_provider_slug
+                ).first()
+                if _old_remote_repository:
+                    log.warning(
+                        "GitHub repository created with different remote_id but exact full_name.",
+                        fields=fields,
+                        old_remote_repository=_old_remote_repository.__dict__,
+                    )
 
             owner_type = fields["owner"]["type"]
             organization = None
