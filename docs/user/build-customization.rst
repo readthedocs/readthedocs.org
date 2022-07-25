@@ -241,6 +241,37 @@ To setup it, you need to define the version of Node.js to use and install the de
          - npm install -g jsdoc
 
 
+Install dependencies with Poetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Projects managed with `Poetry <https://python-poetry.org/>`__,
+can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_create_environment:
+         # Install poetry
+         # https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions
+         - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+         # Tell poetry to not use a virtual environment
+         - $HOME/.poetry/bin/poetry config virtualenvs.create false
+         # Install project's dependencies
+         - $HOME/.poetry/bin/poetry install
+
+   sphinx:
+     configuration: docs/conf.py
+
+
 Override the build process
 --------------------------
 
