@@ -623,9 +623,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
             # 'active_versions',
-
-            '_links',
-            'users',
+            "_links",
+            "users",
         ]
 
         expandable_fields = {
@@ -655,7 +654,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if settings.RTD_ALLOW_ORGANIZATIONS:
-            self.fields.pop('users', None)
+            self.fields.pop("users", None)
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

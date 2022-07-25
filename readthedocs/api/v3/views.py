@@ -3,10 +3,7 @@ from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import (
-    SessionAuthentication,
-    TokenAuthentication,
-)
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -20,11 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import (
-    GenericViewSet,
-    ModelViewSet,
-    ReadOnlyModelViewSet,
-)
+from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
@@ -431,10 +424,7 @@ class OrganizationsViewSet(
 
 
 class OrganizationsProjectsViewSet(
-    APIv3Settings,
-    NestedViewSetMixin,
-    OrganizationQuerySetMixin,
-    ReadOnlyModelViewSet
+    APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
 ):
 
     model = Project

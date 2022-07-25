@@ -3,10 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from readthedocs.builds.models import Version
-from readthedocs.core.history import (
-    safe_update_change_reason,
-    set_change_reason,
-)
+from readthedocs.core.history import safe_update_change_reason, set_change_reason
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -193,8 +190,7 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
 
     def is_admin_member(self, user, organization):
         return (
-            Project.objects
-            .for_admin_user(user=user)
+            Project.objects.for_admin_user(user=user)
             .filter(organizations__in=[organization])
             .exists()
         )

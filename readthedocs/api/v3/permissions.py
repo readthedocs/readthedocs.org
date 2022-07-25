@@ -63,7 +63,6 @@ class IsOrganizationAdmin(BasePermission):
 
 
 class IsOrganizationAdminMember(BasePermission):
-
     def has_permission(self, request, view):
         organization = view._get_parent_organization()
         if view.is_admin_member(request.user, organization):
