@@ -1,7 +1,7 @@
 Server Side Search
 ==================
 
-Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
+Read the Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
 All the Search Code is open source and lives in the `GitHub Repository`_.
 Currently we are using `Elasticsearch 6.3`_.
@@ -113,7 +113,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
-.. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/search
+.. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/main/readthedocs/search
 .. _the Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: https://elasticsearch-dsl.readthedocs.io/en/latest/

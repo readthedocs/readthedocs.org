@@ -1,12 +1,10 @@
 """Views for the embed app."""
 
-import functools
 import json
 import re
 
-from django.shortcuts import get_object_or_404
+import structlog
 from django.template.defaultfilters import slugify
-from django.utils.functional import cached_property
 from docutils.nodes import make_id
 from pyquery import PyQuery as PQ  # noqa
 from rest_framework import status
@@ -14,16 +12,12 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import structlog
-
-from readthedocs.api.v2.mixins import CachedResponseMixin
+from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
-from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none, clean_links
-from readthedocs.projects.models import Project
+from readthedocs.embed.utils import clean_references, recurse_while_none
 from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)
@@ -36,7 +30,7 @@ def escape_selector(selector):
     return ret
 
 
-class EmbedAPIBase(CachedResponseMixin, APIView):
+class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
 
@@ -69,29 +63,10 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    @functools.lru_cache(maxsize=1)
-    def _get_project(self):
-        if self.unresolved_url:
-            project_slug = self.unresolved_url.project.slug
-        else:
-            project_slug = self.request.GET.get('project')
-        return get_object_or_404(Project, slug=project_slug)
-
-    @functools.lru_cache(maxsize=1)
-    def _get_version(self):
-        if self.unresolved_url:
-            version_slug = self.unresolved_url.version_slug
-        else:
-            version_slug = self.request.GET.get('version', 'latest')
-        project = self._get_project()
-        return get_object_or_404(project.versions.all(), slug=version_slug)
-
-    @cached_property
-    def unresolved_url(self):
-        url = self.request.GET.get('url')
-        if not url:
-            return None
-        return unresolve(url)
+    @property
+    def external(self):
+        # Always return False because APIv2 does not support external domains
+        return False
 
     def get(self, request):
         """Handle the get request."""
@@ -337,10 +312,7 @@ def parse_sphinx(content, section, url):
             return obj.parent().outerHtml()
         return obj.outerHtml()
 
-    ret = [
-        dump(clean_links(obj, url))
-        for obj in query_result
-    ]
+    ret = [dump(clean_references(obj, url)) for obj in query_result]
     return ret, headers, section
 
 

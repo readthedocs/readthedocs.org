@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import gettext_noop
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
+
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED, BUILD_STATUS_DUPLICATED
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 
 class BuildBaseException(Exception):
@@ -37,6 +37,9 @@ class BuildUserError(BuildBaseException):
         "To resolve this error, double check your project configuration and installed "
         "dependencies are correct and have not changed recently."
     )
+    BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
+        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
+    )
 
 
 class ProjectBuildsSkippedError(BuildUserError):
@@ -57,10 +60,12 @@ class DuplicatedBuildError(BuildUserError):
     message = gettext_noop('Duplicated build.')
     exit_code = 1
     status = BUILD_STATUS_DUPLICATED
+    state = BUILD_STATE_CANCELLED
 
 
 class BuildCancelled(BuildUserError):
     message = gettext_noop('Build cancelled by user.')
+    state = BUILD_STATE_CANCELLED
 
 
 class MkDocsYAMLParseError(BuildUserError):

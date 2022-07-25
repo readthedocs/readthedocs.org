@@ -299,7 +299,7 @@ This has several advantages:
 - Some configurations are only available using the config file.
 
 Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <builds:Default versions of dependencies>`.
+by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
 For example, what Python version to use, how to install the requirements, and others.
 
 .. tip::
@@ -467,7 +467,7 @@ For that, first navigate to your GitHub repository, click on the branch selector
 type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
 (more information `on their documentation`__).
 
-__  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
+__ https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
 
 Next, go to your :term:`project home`, click on the :guilabel:`Versions` button,
 and under "Active Versions" you will see two entries:
@@ -670,6 +670,7 @@ and Read the Docs:
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- Display example projects and read the source code in :doc:`/examples`.
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.

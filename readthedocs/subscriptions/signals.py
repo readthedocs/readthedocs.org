@@ -19,9 +19,9 @@ def remove_stripe_subscription(sender, instance, using, **kwargs):
     subscription = instance
     try:
         log.bind(organization_slug=subscription.organization.slug)
-        if subscription.stripe_id and subscription.organization.stripe_id:
+        if subscription.stripe_id:
             log.info('Removing organization Stripe subscription.')
-            cancel_subscription(subscription.organization.stripe_id, subscription.stripe_id)
+            cancel_subscription(subscription.stripe_id)
         else:
             log.exception("Can't remove Stripe subscription. Organization didn't have ID.")
 

@@ -3,6 +3,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -473,6 +474,19 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
             'homepage',
         )
 
+    def _validate_remote_repository(self, data):
+        """
+        Validate connection between `Project` and `RemoteRepository`.
+
+        We don't do anything in community, but we do ensure this relationship
+        is posible before creating the `Project` on commercial when the
+        organization has VCS SSO enabled.
+
+        If we cannot ensure the relationship here, this method should raise a
+        `ValidationError`.
+        """
+        pass
+
     def validate_name(self, value):
         potential_slug = slugify(value)
         if not potential_slug:
@@ -484,6 +498,36 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
                 _('Project with slug "{0}" already exists.').format(potential_slug),
             )
         return value
+
+    def validate(self, data):  # pylint: disable=arguments-differ
+        repo = data.get('repo')
+        try:
+            # We are looking for an exact match of the repository URL entered
+            # by the user and any of the known URLs (ssh, clone, html) we have
+            # in our database for this remote repository.
+            #
+            # If the `RemoteRepository` is found, we save it to link with
+            # `Project` object after performing its creating.
+            query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
+            remote_repository = RemoteRepository.objects.get(query)
+            data.update({
+                'remote_repository': remote_repository,
+            })
+        except RemoteRepository.DoesNotExist:
+            self._validate_remote_repository(data)
+
+        return data
+
+    def create(self, validated_data):
+        remote_repository = validated_data.pop('remote_repository', None)
+        project = super().create(validated_data)
+
+        # Link the Project with the RemoteRepository if we found it.
+        if remote_repository:
+            project.remote_repository = remote_repository
+            project.save()
+
+        return project
 
 
 class ProjectCreateSerializer(SettingsOverrideObject):

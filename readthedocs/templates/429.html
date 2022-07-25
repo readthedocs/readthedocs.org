@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Too many requests" %}
+{% endblock %}
+
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
+
+{% block notify %}{% endblock %}
+
+{# Hide the language select form so we don't set a CSRF cookie #}
+{% block language-select-form %}{% endblock %}
+
+{% block content %}
+<pre style="line-height: 1.25; white-space: pre;">
+              .--~~,__
+ :-....,-------`~~'._.'
+  `-,,,  ,_      ;'~U'
+   _,-' ,'`-__; '--.
+  (_/'~~      ''''(;
+
+ Too many requests! Try again in a bit.
+</pre>
+{% endblock %}

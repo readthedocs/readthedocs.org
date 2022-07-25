@@ -8,7 +8,10 @@ from django.test.client import RequestFactory
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.core.middleware import (
+    NullCharactersMiddleware,
+    ReadTheDocsSessionMiddleware,
+)
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -259,3 +262,18 @@ class TestSessionMiddleware(TestCase):
 
         self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'Lax')
         self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)
+
+
+class TestNullCharactersMiddleware(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = NullCharactersMiddleware(None)
+
+    def test_request_with_null_chars(self):
+        request = self.factory.get("/?language=en\x00es&project_slug=myproject")
+        response = self.middleware(request)
+        self.assertContains(
+            response,
+            "There are NULL (0x00) characters in at least one of the parameters (language) passed to the request.",
+            status_code=400,
+        )

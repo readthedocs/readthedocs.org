@@ -3,9 +3,10 @@
 import hashlib
 import hmac
 import json
-import structlog
 import re
+from functools import namedtuple
 
+import structlog
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -14,45 +15,52 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.core.signals import (
-    webhook_bitbucket,
-    webhook_github,
-    webhook_gitlab,
+from readthedocs.builds.constants import (
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
 )
+from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
     build_external_version,
-    deactivate_external_version,
+    close_external_version,
     get_or_create_external_version,
     trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
-GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
-GITHUB_PUSH = 'push'
-GITHUB_PULL_REQUEST = 'pull_request'
-GITHUB_PULL_REQUEST_OPENED = 'opened'
-GITHUB_PULL_REQUEST_CLOSED = 'closed'
-GITHUB_PULL_REQUEST_REOPENED = 'reopened'
-GITHUB_PULL_REQUEST_SYNC = 'synchronize'
-GITHUB_CREATE = 'create'
-GITHUB_DELETE = 'delete'
-GITLAB_MERGE_REQUEST = 'merge_request'
-GITLAB_MERGE_REQUEST_CLOSE = 'close'
-GITLAB_MERGE_REQUEST_MERGE = 'merge'
-GITLAB_MERGE_REQUEST_OPEN = 'open'
-GITLAB_MERGE_REQUEST_REOPEN = 'reopen'
-GITLAB_MERGE_REQUEST_UPDATE = 'update'
-GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
-GITLAB_PUSH = 'push'
-GITLAB_NULL_HASH = '0' * 40
-GITLAB_TAG_PUSH = 'tag_push'
-BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
-BITBUCKET_PUSH = 'repo:push'
+GITHUB_EVENT_HEADER = "HTTP_X_GITHUB_EVENT"
+GITHUB_SIGNATURE_HEADER = "HTTP_X_HUB_SIGNATURE"
+GITHUB_PING = "ping"
+GITHUB_PUSH = "push"
+GITHUB_PULL_REQUEST = "pull_request"
+GITHUB_PULL_REQUEST_OPENED = "opened"
+GITHUB_PULL_REQUEST_CLOSED = "closed"
+GITHUB_PULL_REQUEST_REOPENED = "reopened"
+GITHUB_PULL_REQUEST_SYNC = "synchronize"
+GITHUB_CREATE = "create"
+GITHUB_DELETE = "delete"
+GITLAB_MERGE_REQUEST = "merge_request"
+GITLAB_MERGE_REQUEST_CLOSE = "close"
+GITLAB_MERGE_REQUEST_MERGE = "merge"
+GITLAB_MERGE_REQUEST_OPEN = "open"
+GITLAB_MERGE_REQUEST_REOPEN = "reopen"
+GITLAB_MERGE_REQUEST_UPDATE = "update"
+GITLAB_TOKEN_HEADER = "HTTP_X_GITLAB_TOKEN"
+GITLAB_PUSH = "push"
+GITLAB_NULL_HASH = "0" * 40
+GITLAB_TAG_PUSH = "tag_push"
+BITBUCKET_EVENT_HEADER = "HTTP_X_EVENT_KEY"
+BITBUCKET_PUSH = "repo:push"
+
+
+ExternalVersionData = namedtuple(
+    "ExternalVersionData",
+    ["id", "source_branch", "base_branch", "commit"],
+)
 
 
 class WebhookMixin:
@@ -228,30 +236,32 @@ class WebhookMixin:
         :param project: Project instance
         :type project: readthedocs.projects.models.Project
         """
-        identifier, verbose_name = self.get_external_version_data()
+        version_data = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(
-            project, identifier, verbose_name
+            project=project,
+            version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
         to_build = build_external_version(
-            project=project, version=external_version, commit=identifier
+            project=project,
+            version=external_version,
         )
 
         return {
-            'build_triggered': True,
-            'project': project.slug,
-            'versions': [to_build],
+            "build_triggered": bool(to_build),
+            "project": project.slug,
+            "versions": [to_build] if to_build else [],
         }
 
-    def get_deactivated_external_version_response(self, project):
+    def get_closed_external_version_response(self, project):
         """
-        Deactivate the external version on merge/close events and return the API response.
+        Close the external version on merge/close events and return the API response.
 
         Return a JSON response with the following::
 
             {
-                "version_deactivated": true,
+                "closed": true,
                 "project": "project_name",
                 "versions": [verbose_name]
             }
@@ -259,14 +269,15 @@ class WebhookMixin:
         :param project: Project instance
         :type project: Project
         """
-        identifier, verbose_name = self.get_external_version_data()
-        deactivated_version = deactivate_external_version(
-            project, identifier, verbose_name
+        version_data = self.get_external_version_data()
+        version_closed = close_external_version(
+            project=project,
+            version_data=version_data,
         )
         return {
-            'version_deactivated': bool(deactivated_version),
-            'project': project.slug,
-            'versions': [deactivated_version] if deactivated_version else [],
+            "closed": bool(version_closed),
+            "project": project.slug,
+            "versions": [version_closed] if version_closed else [],
         }
 
 
@@ -320,13 +331,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload."""
         try:
-            identifier = self.data['pull_request']['head']['sha']
-            verbose_name = str(self.data['number'])
-
-            return identifier, verbose_name
-
-        except KeyError:
-            raise ParseError('Parameters "sha" and "number" are required')
+            data = ExternalVersionData(
+                id=str(self.data["number"]),
+                commit=self.data["pull_request"]["head"]["sha"],
+                source_branch=self.data["pull_request"]["head"]["ref"],
+                base_branch=self.data["pull_request"]["base"]["ref"],
+            )
+            return data
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def is_payload_valid(self):
         """
@@ -403,6 +417,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        if event == GITHUB_PING:
+            return {"detail": "Webhook configured correctly"}
+
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             log.debug('Triggered sync_versions.')
@@ -423,7 +440,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Delete external version when PR is closed
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_closed_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
         if all([
@@ -523,13 +540,16 @@ class GitLabWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get commit SHA and merge request number from payload."""
         try:
-            identifier = self.data['object_attributes']['last_commit']['id']
-            verbose_name = str(self.data['object_attributes']['iid'])
-
-            return identifier, verbose_name
-
-        except KeyError:
-            raise ParseError('Parameters "id" and "iid" are required')
+            data = ExternalVersionData(
+                id=str(self.data["object_attributes"]["iid"]),
+                commit=self.data["object_attributes"]["last_commit"]["id"],
+                source_branch=self.data["object_attributes"]["source_branch"],
+                base_branch=self.data["object_attributes"]["target_branch"],
+            )
+            return data
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def handle_webhook(self):
         """
@@ -582,7 +602,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
             if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
                 # Handle merge and close merge_request event.
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_closed_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):

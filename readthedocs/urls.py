@@ -9,7 +9,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    do_not_track,
+    server_error_500,
+)
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import GlobalSearchView
 
@@ -51,6 +56,8 @@ rtd_urls = [
     re_path(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 500's with DEBUG on.
     re_path(r'^500/$', handler500),
+    # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
+    re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
 
 project_urls = [
@@ -156,6 +163,7 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
+
 if settings.DEBUG:
     import debug_toolbar
 

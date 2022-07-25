@@ -1,4 +1,3 @@
-import json
 from unittest import mock
 
 from django.conf import settings
@@ -14,7 +13,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.organizations.models import Organization, OrganizationOwner
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -725,6 +723,57 @@ class TestSyncVersions(TestCase):
             self.pip.versions.filter(identifier='1234').count(),
             1,
         )
+
+    def test_versions_with_same_verbose_name(self):
+        get(
+            Version,
+            project=self.pip,
+            identifier="v2",
+            verbose_name="v2",
+            active=True,
+            type=BRANCH,
+        )
+        get(
+            Version,
+            project=self.pip,
+            identifier="1234abc",
+            verbose_name="v2",
+            active=True,
+            type=TAG,
+        )
+        branches_data = [
+            {
+                "identifier": "v2",
+                "verbose_name": "v2",
+            },
+        ]
+        tags_data = [
+            {
+                # THe identifier has changed!
+                "identifier": "12345abc",
+                "verbose_name": "v2",
+            },
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=tags_data,
+        )
+
+        self.assertEqual(
+            self.pip.versions.filter(
+                verbose_name="v2", identifier="v2", type=BRANCH
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            self.pip.versions.filter(
+                verbose_name="v2", identifier="12345abc", type=TAG
+            ).count(),
+            1,
+        )
+
 
     @mock.patch('readthedocs.builds.tasks.run_automation_rules')
     def test_automation_rules_are_triggered_for_new_versions(self, run_automation_rules):
