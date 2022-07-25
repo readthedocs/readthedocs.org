@@ -62,7 +62,6 @@ Open this file in your web browser to see your docs.
 
 .. figure:: /_static/images/first-steps/sphinx-hello-world.png
    :figwidth: 500px
-   :target: /_static/images/first-steps/sphinx-hello-world.png
    :align: center
 
    Your Sphinx project is built
@@ -99,6 +98,13 @@ Read the `Getting started with MyST in Sphinx`_ docs for additional instructions
 
 .. _Getting started with MyST in Sphinx: https://myst-parser.readthedocs.io/en/latest/sphinx/intro.html
 .. _Markdown using MyST: https://myst-parser.readthedocs.io/en/latest/using/intro.html
+
+
+Get inspired!
+-------------
+
+You might learn more and find the first ingredients for starting your own documentation project by looking at :doc:`/examples` - view live example renditions and copy & paste from the accompanying source code.
+
 
 External resources
 ------------------

@@ -295,7 +295,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             #   We make sure there is _always_ a single slash in front to ensure relative redirects,
             #   instead of `//` redirects which are actually alternative domains.
             final_url = '/' + final_url.lstrip('/')
-            log.info(
+            log.debug(
                 'Proxito Slash Redirect.',
                 from_url=request.get_full_path(),
                 to_url=final_url,
@@ -313,7 +313,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         try:
             project = Project.objects.get(slug=request.host_project_slug)
         except Project.DoesNotExist:
-            log.warning('No host_project_slug set on project')
+            log.debug("No host_project_slug set on project")
             return None
 
         # This is hacky because Django wants a module for the URLConf,
@@ -321,7 +321,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project.urlconf:
 
             # Stop Django from caching URLs
-            # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
+            # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
             project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
             url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
 

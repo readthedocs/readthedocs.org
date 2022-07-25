@@ -23,52 +23,16 @@
 # PRODUCTION ENVIRONMENT
 #
 # To create a pre-compiled cached version and make it available on production,
-# **the script must be ran from a builder (build-default or build-large)** and
-# it's required to set several environment variables for an IAM user with
-# permissions on ``readthedocs(inc)-build-tools-prod`` S3's bucket. Also, note
-# that in production we need to install `aws` Python package to run the script.
-# We can do this in a different virtualenv to avoid collision with the builder's
-# code.
+# we use a CircleCI job
+# (https://github.com/readthedocs/readthedocs-docker-images/blob/main/.circleci/config.yml)
+# It requires to set several environment variables for an IAM user with
+# permissions on ``readthedocs(inc)-build-tools-prod`` S3's bucket. These
+# variables are defined via the CircleCI UI under the `readthedocs-docker-image`
+# project.
 #
-# The whole process would be something like:
-#
-#   ssh util01
-#   ssh `scaling status -s build-default -q | head -n 1`
-#
-#   sudo su - docs
-#   TOOL=python
-#   VERSION=3.10.0
-#
-#   cd /home/docs/checkouts/readthedocs.org/scripts
-#   virtualenv venv
-#   source venv/bin/activate
-#   pip install awscli==1.20.34
-#
-#   export AWS_REGION=...
-#   export AWS_ACCESS_KEY_ID=...
-#   export AWS_SECRET_ACCESS_KEY=...
-#   export AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
-#
-#   ./compile_version_upload.sh $TOOL $VERSION
-#
-#
-# ONE-LINE COMMAND FROM UTIL01 PRODUCTION
-#
-#   TOOL=python
-#   VERSION=3.10.0
-#   AWS_BUILD_TOOLS_BUCKET=readthedocs(inc)-build-tools-prod
-#
-#   ssh `scaling status -s build-default -q | head -n 1` \
-#     "cd /home/docs && \
-#     sudo -u docs virtualenv --python python3 /home/docs/buildtools && \
-#     sudo -u docs /home/docs/buildtools/bin/pip install awscli==1.20.34 && \
-#     sudo -u docs env AWS_REGION=$AWS_REGION \
-#       AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-#       AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-#       AWS_BUILD_TOOLS_BUCKET=$AWS_BUILD_TOOLS_BUCKET \
-#       PATH=/home/docs/buildtools/bin:${PATH} \
-#       /home/docs/checkouts/readthedocs.org/scripts/compile_version_upload_s3.sh $TOOL $VERSION"
-#
+# Note that if for some reason, you need to run this command *outside CircleCI*
+# you can find more information in this comment:
+# https://github.com/readthedocs/readthedocs-ops/issues/1155#issuecomment-1082615972
 #
 # USAGE
 #
@@ -90,6 +54,7 @@ set -x # Echo commands
 # Define variables
 SLEEP=350 # Container timeout
 OS="${OS:-ubuntu-22.04}" # Docker image name
+
 TOOL=$1
 VERSION=$2
 
@@ -103,7 +68,16 @@ echo "Running all the commands in Docker container: $CONTAINER_ID"
 # Install the tool version requested
 if [[ $TOOL == "python" ]]
 then
-    docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
+    if [[ $VERSION == "3.6.15" ]]
+    then
+        # Special command for Python 3.6.15
+        # See https://github.com/pyenv/pyenv/issues/1889#issuecomment-833587851
+        docker exec --user root $CONTAINER_ID apt-get update
+        docker exec --user root $CONTAINER_ID apt-get install --yes clang
+        docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" --env CC=clang $CONTAINER_ID asdf install $TOOL $VERSION
+    else
+        docker exec --env PYTHON_CONFIGURE_OPTS="--enable-shared" $CONTAINER_ID asdf install $TOOL $VERSION
+    fi
 else
     docker exec $CONTAINER_ID asdf install $TOOL $VERSION
 fi
@@ -113,6 +87,10 @@ docker exec $CONTAINER_ID asdf global $TOOL $VERSION
 docker exec $CONTAINER_ID asdf reshim $TOOL
 
 # Install dependencies for this version
+#
+# TODO: pin all transitive dependencies with pip-tools or similar. We can find
+# the current versions by running `pip freeze` in production and stick with them
+# for now to avoid changing versions.
 if [[ $TOOL == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
     RTD_PIP_VERSION=21.2.4
@@ -138,22 +116,21 @@ docker cp $CONTAINER_ID:/home/docs/$OS-$TOOL-$VERSION.tar.gz .
 # Kill the container
 docker container kill $CONTAINER_ID
 
-# Upload the .tar.gz to S3
-AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
-AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
-
-if [[ -z $AWS_REGION ]]
+if [[ -z $CIRCLECI ]]
 then
-    # Development environment
+    # Upload the .tar.gz to S3 development environment
     echo "Uploading to dev environment"
-    aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
-else
-    # Production environment does not requires `--endpoint-url`
-    echo "Uploading to prod environment"
-    aws s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
-fi
 
-# Delete the .tar.gz file from the host
-rm $OS-$TOOL-$VERSION.tar.gz
+    AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
+    AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
+    AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
+    AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
+
+    aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
+
+    # Delete the .tar.gz file from the host
+    rm $OS-$TOOL-$VERSION.tar.gz
+else
+    echo "Skip uploading .tar.gz file because it's being run from inside CircleCI."
+    echo "It should be uploaded by orbs/aws automatically."
+fi

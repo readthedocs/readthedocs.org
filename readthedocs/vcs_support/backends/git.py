@@ -200,27 +200,35 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR)
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
 
-    @property
-    def lsremote(self):
+    def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.
 
         :returns: tuple containing a list of branch and tags
         """
-        cmd = ['git', 'ls-remote', self.repo_url]
+        if not include_tags and not include_branches:
+            return [], []
+
+        extra_args = []
+        if include_tags:
+            extra_args.append("--tags")
+        if include_branches:
+            extra_args.append("--heads")
+
+        cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        code, stdout, stderr = self.run(*cmd)
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
 
         branches = []
         # Git has two types of tags: lightweight and annotated.
         # Lightweight tags are the "normal" ones.
         all_tags = {}
         light_tags = {}
-        for line in stdout.splitlines()[1:]:  # skip HEAD
-            commit, ref = line.split()
+        for line in stdout.splitlines():
+            commit, ref = line.split(maxsplit=1)
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
@@ -287,11 +295,17 @@ class Backend(BaseVCS):
 
         for branch in branches:
             verbose_name = branch.name
-            if verbose_name.startswith('origin/'):
-                verbose_name = verbose_name.replace('origin/', '')
-            if verbose_name == 'HEAD':
+            if verbose_name.startswith("origin/"):
+                verbose_name = verbose_name.replace("origin/", "", 1)
+            if verbose_name == "HEAD":
                 continue
-            versions.append(VCSVersion(self, str(branch), verbose_name))
+            versions.append(
+                VCSVersion(
+                    repository=self,
+                    identifier=verbose_name,
+                    verbose_name=verbose_name,
+                )
+            )
         return versions
 
     @property

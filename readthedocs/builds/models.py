@@ -21,12 +21,14 @@ from polymorphic.models import PolymorphicModel
 import readthedocs.builds.automation_actions as actions
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_FINAL_STATES,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
+    EXTERNAL_VERSION_STATES,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -72,6 +74,8 @@ from readthedocs.projects.constants import (
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
     MEDIA_TYPES,
+    MKDOCS,
+    MKDOCS_HTML,
     PRIVACY_CHOICES,
     PRIVATE,
     SPHINX,
@@ -140,8 +144,16 @@ class Version(TimeStampedModel):
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
-    built = models.BooleanField(_('Built'), default=False)
-    uploaded = models.BooleanField(_('Uploaded'), default=False)
+    state = models.CharField(
+        _("State"),
+        max_length=20,
+        choices=EXTERNAL_VERSION_STATES,
+        null=True,
+        blank=True,
+        help_text=_("State of the PR/MR associated to this version."),
+    )
+    built = models.BooleanField(_("Built"), default=False)
+    uploaded = models.BooleanField(_("Uploaded"), default=False)
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -368,6 +380,10 @@ class Version(TimeStampedModel):
     @property
     def is_sphinx_type(self):
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+
+    @property
+    def is_mkdocs_type(self):
+        return self.documentation_type in {MKDOCS, MKDOCS_HTML}
 
     def get_subdomain_url(self):
         external = self.type == EXTERNAL
@@ -924,8 +940,8 @@ class Build(models.Model):
 
     @property
     def finished(self):
-        """Return if build has a finished state."""
-        return self.state == BUILD_STATE_FINISHED
+        """Return if build has an end state."""
+        return self.state in BUILD_FINAL_STATES
 
     @property
     def is_stale(self):

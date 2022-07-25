@@ -1,14 +1,22 @@
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
+var EXPLICIT_FLYOUT_PLACEMENT_SELECTOR = '#readthedocs-embed-flyout';
+
 
 function injectFooter(data) {
-    var config = rtddata.get();
+    // Injects the footer into the page
+    // There are 3 main cases:
+    // * EXPLICIT_FLYOUT_PLACEMENT_SELECTOR is defined, inject it there
+    // * The page looks like our Sphinx theme, updated the existing div
+    // * All other pages just get it appended to the <body>
 
-    // If the theme looks like ours, update the existing badge
-    // otherwise throw a a full one into the page.
-    // Do not inject for mkdocs even for the RTD theme
-    if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
+    var config = rtddata.get();
+    var placement = $(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
+    if (placement.length > 0) {
+        placement.html(data['html']);
+    }
+    else if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
         $("div.rst-other-versions").html(data['html']);
     } else {
         $("body").append(data['html']);

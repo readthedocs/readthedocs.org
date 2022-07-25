@@ -9,6 +9,56 @@
 {% block edit_content_header %} {% trans "Delete Account" %} {% endblock %}
 
 {% block edit_content %}
+  {% if projects_to_be_deleted %}
+    <div>
+      <p>
+        {% blocktrans trimmed %}
+          <strong>All projects where you are the only owner will be deleted.</strong>
+          If you want to keep a project, add another owner or transfer ownership.
+          The following projects and all their documentation will be deleted.
+        {% endblocktrans %}
+      </p>
+      <ul>
+        {% for project in projects_to_be_deleted %}
+          <li>
+            <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if organizations_to_be_deleted %}
+    <div>
+      <p>
+        {% blocktrans trimmed %}
+          <strong>All organizations and its projects where you are the only owner will be deleted.</strong>
+          If you want to keep an organization, add another owner or transfer ownership.
+          The following organizations and all their projects will be deleted.
+        {% endblocktrans %}
+      </p>
+      <ul>
+        {% for organization in organizations_to_be_deleted %}
+          <li>
+            <p>
+              <a href="{{ organization.get_absolute_url }}">{{ organization.slug }}</a>
+            </p>
+            <p>
+              Projects:
+              <ul>
+                {% for project in organization.projects.all %}
+                  <li>
+                    <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
   <form method="POST" action=".">
     {% csrf_token %}
     {{ form }}

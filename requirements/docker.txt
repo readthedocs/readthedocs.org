@@ -9,18 +9,10 @@ psycopg2-binary==2.9.2  # pyup: ignore
 django-redis-cache==3.0.1
 
 # For resizing images
-pillow==9.0.1
-
-# Local debugging tools
-watchdog==2.1.6
-# watchdog dependency
-argh==0.26.2
+pillow==9.1.0
 
 # run tests
-tox==3.24.5
-
-# AWS utilities to use against MinIO
-awscli==1.22.73
+tox==3.25.0
 
 # Used together with structlog to have nicer logs locally
-rich==12.0.0
+rich==12.3.0

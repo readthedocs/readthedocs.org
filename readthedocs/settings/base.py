@@ -75,7 +75,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
-    SESSION_SAVE_EVERY_REQUEST = True
+    SESSION_SAVE_EVERY_REQUEST = False
 
     @property
     def SESSION_COOKIE_SAMESITE(self):
@@ -89,7 +89,7 @@ class CommunityBaseSettings(Settings):
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
@@ -105,7 +105,7 @@ class CommunityBaseSettings(Settings):
     CSP_FRAME_ANCESTORS = ("'none'",)
     CSP_OBJECT_SRC = ("'none'",)
     CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = (
         "/admin/",
     )
@@ -124,10 +124,14 @@ class CommunityBaseSettings(Settings):
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
+    # Keep BuildData models on database during this time
+    RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
+    DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
 
     USER_MATURITY_DAYS = 7
 
@@ -175,6 +179,7 @@ class CommunityBaseSettings(Settings):
             'django_filters',
             'polymorphic',
             'simple_history',
+            'djstripe',
 
             # our apps
             'readthedocs.projects',
@@ -198,6 +203,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
+            'readthedocs.telemetry',
 
             # allauth
             'allauth',
@@ -233,6 +239,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
+        'readthedocs.core.middleware.NullCharactersMiddleware',
         'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
@@ -313,6 +320,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -414,9 +422,14 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-buildata-models': {
+            'task': 'readthedocs.telemetry.tasks.delete_old_build_data',
+            'schedule': crontab(minute=0, hour=2),
+            'options': {'queue': 'web'},
+        },
         'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
-            'schedule': crontab(day_of_week='wednesday', hour=7, minute=0),
+            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -435,10 +448,15 @@ class CommunityBaseSettings(Settings):
             },
         },
         'every-day-delete-inactive-external-versions': {
-            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-remote-repositories': {
+            'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
+            'schedule': crontab(minute=30, hour=2),
+            'options': {'queue': 'web'},
+        }
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -549,23 +567,29 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.12',
-                '3.8': '3.8.12',
-                '3.9': '3.9.7',
-                '3.10': '3.10.0',
-                'pypy3.7': 'pypy3.7-7.3.5',
+                '3.7': '3.7.13',
+                '3.8': '3.8.13',
+                '3.9': '3.9.13',
+                '3.10': '3.10.4',
+                '3.11': '3.11.0b3',
+                'pypy3.7': 'pypy3.7-7.3.9',
+                'pypy3.8': 'pypy3.8-7.3.9',
+                'pypy3.9': 'pypy3.9-7.3.9',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.17.6',
-                '16': '16.9.1',
+                '14': '14.19.3',
+                '16': '16.15.0',
+                '18': '18.2.0',
             },
             'rust': {
                 '1.55': '1.55.0',
+                '1.61': '1.61.0',
             },
             'golang': {
-                '1.17': '1.17.1',
+                '1.17': '1.17.10',
+                '1.18': '1.18.2',
             },
         },
     }
@@ -632,6 +656,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
+    SOCIALACCOUNT_STORE_TOKENS = True
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -746,8 +771,23 @@ class CommunityBaseSettings(Settings):
     TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
+    # Existing values we use
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
+
+    # DJStripe values -- **CHANGE THESE IN PRODUCTION**
+    STRIPE_LIVE_SECRET_KEY = None
+    STRIPE_TEST_SECRET_KEY = "sk_test_x" # A default so the `checks` don't fail
+    DJSTRIPE_WEBHOOK_SECRET = None
+    STRIPE_LIVE_MODE = False  # Change to True in production
+    # This is less optimal than setting the webhook secret
+    # However, the app won't start without the secret
+    # with this setting set to the default
+    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+
+    # These values shouldn't need to change..
+    DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+    DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False

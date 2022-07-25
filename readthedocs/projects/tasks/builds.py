@@ -4,9 +4,10 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
-
 import signal
 import socket
+from collections import defaultdict
+from dataclasses import dataclass, field
 
 import structlog
 from celery import Task
@@ -17,6 +18,7 @@ from slumber.exceptions import HttpClientError
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -26,12 +28,12 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
 )
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.utils import memcache_lock
 from readthedocs.config import ConfigError
+from readthedocs.config.config import BuildConfigV1, BuildConfigV2
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
@@ -48,9 +50,15 @@ from readthedocs.doc_builder.exceptions import (
     YAMLParseError,
 )
 from readthedocs.storage import build_media_storage
+from readthedocs.telemetry.collectors import BuildDataCollector
+from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
-from ..exceptions import ProjectConfigurationError, RepositoryError
+from ..exceptions import (
+    ProjectConfigurationError,
+    RepositoryError,
+    SyncRepositoryLocked,
+)
 from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
@@ -60,6 +68,9 @@ from .utils import BuildRequest, clean_build, send_external_build_status
 log = structlog.get_logger(__name__)
 
 
+# With slots=True we can't add additional attributes
+# than the ones declared in the dataclass.
+@dataclass(slots=True)
 class TaskData:
 
     """
@@ -76,7 +87,31 @@ class TaskData:
     `self.data` inside the Celery task itself.
 
     See https://docs.celeryproject.org/en/master/userguide/tasks.html#instantiation
+
+    .. note::
+
+       Dataclasses require type annotations, this doesn't mean we are using
+       type hints or enforcing them in our codebase.
     """
+
+    # Arguments from the task.
+    version_pk: int = None
+    build_pk: int = None
+    build_commit: str = None
+
+    start_time: timezone.datetime = None
+    environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
+    build_director: BuildDirector = None
+    config: BuildConfigV1 | BuildConfigV2 = None
+    project: APIProject = None
+    version: APIVersion = None
+
+    # Dictionary returned from the API.
+    build: dict = field(default_factory=dict)
+    # If HTML, PDF, ePub, etc formats were built.
+    outcomes: dict = field(default_factory=lambda: defaultdict(lambda: False))
+    # Build data for analytics (telemetry).
+    build_data: dict = field(default_factory=dict)
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
@@ -97,6 +132,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     default_retry_delay = 7 * 60
     throws = (
         RepositoryError,
+        SyncRepositoryLocked,
     )
 
     def before_start(self, task_id, args, kwargs):
@@ -113,10 +149,10 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
         # Comes from the signature of the task and it's the only required
         # argument
-        version_id, = args
+        self.data.version_pk = args[0]
 
         # load all data from the API required for the build
-        self.data.version = self.get_version(version_id)
+        self.data.version = self.get_version(self.data.version_pk)
         self.data.project = self.data.version.project
 
         # Also note there are builds that are triggered without a commit
@@ -133,14 +169,30 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         if isinstance(exc, RepositoryError):
             log.warning(
                 'There was an error with the repository.',
-                exc_info=True,
+            )
+        elif isinstance(exc, SyncRepositoryLocked):
+            log.warning(
+                "Skipping syncing repository because there is another task running."
             )
         else:
             # Catch unhandled errors when syncing
-            log.exception('An unhandled exception was raised during VCS syncing.')
+            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
+            # because this is not executed inside a try/except block.
+            log.error(
+                "An unhandled exception was raised during VCS syncing.", exc_info=exc
+            )
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        clean_build(self.data.version)
+        """
+        Celery handler to be executed after a task runs.
+
+        .. note::
+
+           This handler is called even if the task has failed,
+           so some attributes from the `self.data` object may not be defined.
+        """
+        if self.data.version:
+            clean_build(self.data.version)
 
     def execute(self):
         environment = self.data.environment_class(
@@ -185,7 +237,18 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     bind=True,
 )
 def sync_repository_task(self, version_id):
-    self.execute()
+    lock_id = f"{self.name}-lock-{self.data.project.slug}"
+    with memcache_lock(
+        lock_id=lock_id, lock_expire=60, app_identifier=self.app.oid
+    ) as lock_acquired:
+        # Run `sync_repository_task` one at a time. If the task exceeds the 60
+        # seconds, the lock is released and another task can be run in parallel
+        # by a different worker.
+        # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
+        if not lock_acquired:
+            raise SyncRepositoryLocked
+
+        self.execute()
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):
@@ -227,8 +290,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
         BuildCancelled,
+        BuildMaxConcurrencyError,
         DuplicatedBuildError,
         ProjectBuildsSkippedError,
+    )
+
+    # Do not send external build status on failure builds for these exceptions.
+    exceptions_without_external_build_status = (
+        BuildMaxConcurrencyError,
+        DuplicatedBuildError,
     )
 
     acks_late = True
@@ -272,11 +342,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
         if concurrency_limit_reached:
-            # By raising this exception and using ``autoretry_for``, Celery
-            # will handle this automatically calling ``on_retry``
-            raise BuildMaxConcurrencyError(
-                BuildMaxConcurrencyError.message.format(
-                    limit=max_concurrent_builds,
+            # By calling ``retry`` Celery will raise an exception and call ``on_retry``.
+            # NOTE: autoretry_for doesn't work with exceptions raised from before_start,
+            # it only works if they are raised from the run/execute method.
+            log.info("Concurrency limit reached, retrying task.")
+            self.retry(
+                exc=BuildMaxConcurrencyError(
+                    BuildMaxConcurrencyError.message.format(
+                        limit=max_concurrent_builds,
+                    )
                 )
             )
 
@@ -291,10 +365,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
-        log.info('Running task.', name=self.name)
-
         # Create the object to store all the task-related data
         self.data = TaskData()
+
+        # Comes from the signature of the task and they are the only
+        # required arguments.
+        self.data.version_pk, self.data.build_pk = args
+
+        log.bind(build_id=self.data.build_pk)
+        log.info("Running task.", name=self.name)
 
         self.data.start_time = timezone.now()
         self.data.environment_class = DockerBuildEnvironment
@@ -302,10 +381,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # TODO: delete LocalBuildEnvironment since it's not supported
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
-
-        # Comes from the signature of the task and they are the only required
-        # arguments
-        self.data.version_pk, self.data.build_pk = args
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -316,14 +391,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Reset any previous build error reported to the user
         self.data.build['error'] = ''
-
         # Also note there are builds that are triggered without a commit
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get('build_commit')
 
         log.bind(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
-            build_id=self.data.build['id'],
             builder=self.data.build['builder'],
             commit=self.data.build_commit,
             project_slug=self.data.project.slug,
@@ -350,7 +423,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        if not hasattr(self.data, 'build'):
+        """
+        Celery handler to be executed when a task fails.
+
+        .. note::
+
+           Since the task has failed, some attributes from the `self.data`
+           object may not be defined.
+        """
+        log.info("Task failed.")
+        if not self.data.build:
             # NOTE: use `self.data.build_id` (passed to the task) instead
             # `self.data.build` (retrieved from the API) because it's not present,
             # probably due the API failed when retrieving it.
@@ -385,18 +467,23 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 self.data.build['error'] = exc.message
             else:
                 self.data.build['error'] = BuildUserError.GENERIC
+
+            if hasattr(exc, "state"):
+                self.data.build["state"] = exc.state
         else:
             # We don't know what happened in the build. Log the exception and
             # report a generic message to the user.
-            log.exception('Build failed with unhandled exception.')
-            self.data.build['error'] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
-                build_id=self.data.build['id'],
+            # Note we are using `log.error(exc_info=...)` instead of `log.exception`
+            # because this is not executed inside a try/except block.
+            log.error("Build failed with unhandled exception.", exc_info=exc)
+            self.data.build["error"] = BuildAppError.GENERIC_WITH_BUILD_ID.format(
+                build_id=self.data.build["id"],
             )
 
         # Send notifications for unhandled errors
         if not isinstance(exc, self.exceptions_without_notifications):
             self.send_notifications(
-                self.data.version.pk,
+                self.data.version_pk,
                 self.data.build['id'],
                 event=WebHookEvent.BUILD_FAILED,
             )
@@ -407,9 +494,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.data.build_commit:
+        if self.data.build_commit and not isinstance(
+            exc, self.exceptions_without_external_build_status
+        ):
+            version_type = None
+            if self.data.version:
+                version_type = self.data.version.type
             send_external_build_status(
-                version_type=self.data.version.type,
+                version_type=version_type,
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_FAILURE,
@@ -505,14 +597,30 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        """
+        Celery handler to be executed after a task runs.
+
+        .. note::
+
+           This handler is called even if the task has failed,
+           so some attributes from the `self.data` object may not be defined.
+        """
         # Update build object
         self.data.build['length'] = (timezone.now() - self.data.start_time).seconds
 
-        self.update_build(BUILD_STATE_FINISHED)
+        build_state = None
+        # The state key might not be defined
+        # previous to finishing the task.
+        if self.data.build.get("state") not in BUILD_FINAL_STATES:
+            build_state = BUILD_STATE_FINISHED
+
+        self.update_build(build_state)
+        self.save_build_data()
 
         build_complete.send(sender=Build, build=self.data.build)
 
-        clean_build(self.data.version)
+        if self.data.version:
+            clean_build(self.data.version)
 
         log.info(
             'Build finished.',
@@ -520,8 +628,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             success=self.data.build['success']
         )
 
-    def update_build(self, state):
-        self.data.build['state'] = state
+    def update_build(self, state=None):
+        if state:
+            self.data.build["state"] = state
 
         # Attempt to stop unicode errors on build reporting
         # for key, val in list(self.data.build.items()):
@@ -543,11 +652,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
-        self.data.build_director.setup_vcs()
 
-        # Sync tags/branches from VCS repository into Read the Docs' `Version`
-        # objects in the database
-        self.sync_versions(self.data.build_director.vcs_repository)
+        # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be
+        # handled inside the ``BuildDirector`` but we can't use ``with
+        # self.vcs_environment`` twice because it kills the container on
+        # ``__exit__``
+        self.data.build_director.create_vcs_environment()
+        with self.data.build_director.vcs_environment:
+            self.data.build_director.setup_vcs()
+
+            # Sync tags/branches from VCS repository into Read the Docs'
+            # `Version` objects in the database. This method runs commands
+            # (e.g. "hg tags") inside the VCS environment, so it requires to be
+            # inside the `with` statement
+            self.sync_versions(self.data.build_director.vcs_repository)
 
         # TODO: remove the ``create_build_environment`` hack. Ideally, this should be
         # handled inside the ``BuildDirector`` but we can't use ``with
@@ -555,13 +673,53 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # ``__exit__``
         self.data.build_director.create_build_environment()
         with self.data.build_director.build_environment:
-            # Installing
-            self.update_build(state=BUILD_STATE_INSTALLING)
-            self.data.build_director.setup_environment()
+            try:
+                if getattr(self.data.config.build, "commands", False):
+                    self.update_build(state=BUILD_STATE_INSTALLING)
+                    self.data.build_director.install_build_tools()
 
-            # Building
-            self.update_build(state=BUILD_STATE_BUILDING)
-            self.data.build_director.build()
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.run_build_commands()
+                else:
+                    # Installing
+                    self.update_build(state=BUILD_STATE_INSTALLING)
+                    self.data.build_director.setup_environment()
+
+                    # Building
+                    self.update_build(state=BUILD_STATE_BUILDING)
+                    self.data.build_director.build()
+            finally:
+                self.data.build_data = self.collect_build_data()
+
+    def collect_build_data(self):
+        """
+        Collect data from the current build.
+
+        The data is collected from inside the container,
+        so this must be called before killing the container.
+        """
+        try:
+            return BuildDataCollector(
+                self.data.build_director.build_environment
+            ).collect()
+        except Exception:
+            log.exception("Error while collecting build data")
+
+    def save_build_data(self):
+        """
+        Save the data collected from the build after it has ended.
+
+        This must be called after the build has finished updating its state,
+        otherwise some attributes like ``length`` won't be available.
+        """
+        try:
+            if self.data.build_data:
+                save_build_data.delay(
+                    build_id=self.data.build_pk,
+                    data=self.data.build_data,
+                )
+        except Exception:
+            log.exception("Error while saving build data")
 
     @staticmethod
     def get_project(project_pk):
@@ -711,6 +869,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 @app.task(
     base=UpdateDocsTask,
     bind=True,
+    ignore_result=True,
 )
 def update_docs_task(self, version_id, build_id, build_commit=None):
     self.execute()

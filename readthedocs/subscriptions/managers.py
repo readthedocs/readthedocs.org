@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+import stripe
 import structlog
 from django.conf import settings
 from django.db import models
@@ -43,9 +44,18 @@ class SubscriptionManager(models.Manager):
             return None
 
         stripe_customer = get_or_create_stripe_customer(organization)
-        stripe_subscription = stripe_customer.subscriptions.create(
-            plan=plan.stripe_id,
+        stripe_subscription = stripe.Subscription.create(
+            customer=stripe_customer.id,
+            items=[{"price": plan.stripe_id}],
             trial_period_days=plan.trial,
+        )
+        # Stripe renamed ``start`` to ``start_date``,
+        # our API calls will return the new object,
+        # but webhooks will still return the old object
+        # till we change the default version.
+        # TODO: use stripe_subscription.start_date after the webhook version has been updated.
+        start_date = getattr(
+            stripe_subscription, "start", getattr(stripe_subscription, "start_date")
         )
         return self.create(
             plan=plan,
@@ -53,7 +63,7 @@ class SubscriptionManager(models.Manager):
             stripe_id=stripe_subscription.id,
             status=stripe_subscription.status,
             start_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.start)),
+                datetime.fromtimestamp(int(start_date)),
             ),
             end_date=timezone.make_aware(
                 datetime.fromtimestamp(int(stripe_subscription.current_period_end)),
@@ -77,6 +87,7 @@ class SubscriptionManager(models.Manager):
         # https://stripe.com/docs/api/subscriptions/object?lang=python#subscription_object-current_period_end
         start_date = getattr(stripe_subscription, 'current_period_start', None)
         end_date = getattr(stripe_subscription, 'current_period_end', None)
+        log.bind(stripe_subscription=stripe_subscription.id)
 
         try:
             start_date = timezone.make_aware(
@@ -90,7 +101,6 @@ class SubscriptionManager(models.Manager):
                 'Stripe subscription invalid date.',
                 start_date=start_date,
                 end_date=end_date,
-                stripe_subscription=stripe_subscription.id,
             )
             start_date = None
             end_date = None
@@ -120,31 +130,22 @@ class SubscriptionManager(models.Manager):
                 log.error(
                     'Stripe subscription trial end date invalid. ',
                     trial_end_date=trial_end_date,
-                    stripe_subscription=stripe_subscription.id,
                 )
 
         # Update the plan in case it was changed from the Portal.
-        # Try our best to match a plan that is not custom. This mostly just
-        # updates the UI now that we're using the Stripe Portal. A miss here
-        # just won't update the UI, but this shouldn't happen for most users.
-        from readthedocs.subscriptions.models import Plan
-        try:
-            plan = (
-                Plan.objects
-                # Exclude "custom" here, as we historically reused Stripe plan
-                # id for custom plans. We don't have a better attribute to
-                # filter on here.
-                .exclude(slug__contains='custom')
-                .exclude(name__icontains='Custom')
-                .get(stripe_id=stripe_subscription.plan.id)
-            )
-            rtd_subscription.plan = plan
-        except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):
-            log.error(
-                'Plan lookup failed, skipping plan update.',
-                stripe_subscription=stripe_subscription.id,
-                stripe_plan=stripe_subscription.plan.id,
-            )
+        # This mostly just updates the UI now that we're using the Stripe Portal.
+        # A miss here just won't update the UI, but this shouldn't happen for most users.
+        # NOTE: Previously we were using stripe_subscription.plan,
+        # but that attribute is deprecated, and it's null if the subscription has more than
+        # one item, we have a couple of subscriptions that have more than
+        # one item, so we use the first that is found in our DB.
+        for stripe_item in stripe_subscription["items"].data:
+            plan = self._get_plan(stripe_item.price)
+            if plan:
+                rtd_subscription.plan = plan
+                break
+        else:
+            log.error("Plan not found, skipping plan update.")
 
         if stripe_subscription.status == 'canceled':
             # Remove ``stripe_id`` when canceled so the customer can
@@ -187,6 +188,28 @@ class SubscriptionManager(models.Manager):
         set_change_reason(rtd_subscription, change_reason)
         rtd_subscription.save()
         return rtd_subscription
+
+    # pylint: disable=no-self-use
+    def _get_plan(self, stripe_price):
+        from readthedocs.subscriptions.models import Plan
+
+        try:
+            plan = (
+                Plan.objects
+                # Exclude "custom" here, as we historically reused Stripe plan
+                # id for custom plans. We don't have a better attribute to
+                # filter on here.
+                .exclude(slug__contains="custom")
+                .exclude(name__icontains="Custom")
+                .get(stripe_id=stripe_price.id)
+            )
+            return plan
+        except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):
+            log.info(
+                "Plan lookup failed.",
+                stripe_price=stripe_price.id,
+            )
+        return None
 
 
 class PlanFeatureManager(models.Manager):

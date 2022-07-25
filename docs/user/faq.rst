@@ -101,27 +101,6 @@ environment, and will be set to ``True`` when building on RTD::
 
 
 
-`Client Error 401` when building documentation
-----------------------------------------------
-
-If you did not install the `test_data` fixture during the installation
-instructions, you will get the following error::
-
-    slumber.exceptions.HttpClientError: Client Error 401: http://localhost:8000/api/v1/version/
-
-This is because the API admin user does not exist, and so cannot authenticate.
-You can fix this by loading the test_data::
-
-    ./manage.py loaddata test_data
-
-If you'd prefer not to install the test data, you'll need to provide a database
-account for the builder to use. You can provide these credentials by editing the
-following settings::
-
-    SLUMBER_USERNAME = 'test'
-    SLUMBER_PASSWORD = 'test'
-
-
 How do I host multiple projects on one custom domain?
 -----------------------------------------------------
 
@@ -137,11 +116,11 @@ https://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for custom domains:
 
-http://docs.celeryproject.org/projects/kombu/en/latest/
+http://docs..org/projects/kombu/en/latest/
 
 You can add subprojects in the project admin dashboard.
 
-For details on custom domains, see our documentation on :doc:`/custom_domains`.
+For details on custom domains, see our documentation on :doc:`/custom-domains`.
 
 
 Where do I need to put my docs for RTD to find it?
@@ -195,7 +174,7 @@ How do I support multiple languages of documentation?
 See the section on :doc:`localization`.
 
 
-Does Read The Docs work well with "legible" docstrings?
+Does Read the Docs work well with "legible" docstrings?
 -------------------------------------------------------
 
 Yes. One criticism of Sphinx is that its annotated docstrings are too
@@ -206,7 +185,7 @@ informative and legible. The
 and
 `Google <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`__
 styles are two popular docstring formats.  Fortunately, the default
-Read The Docs theme handles both formats just fine, provided
+Read the Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
 knows how to convert your customized docstrings.  Two such extensions
 are `numpydoc <https://github.com/numpy/numpydoc>`_ and
@@ -353,12 +332,13 @@ As a result, you need to follow some extra steps
 to make Jupyter Book work on Read the Docs.
 
 As described in :doc:`the official documentation <jupyterbook:publish/readthedocs>`,
-you can manually convert your Jupyter Book project to Sphinx with the following command:
+you can manually convert your Jupyter Book project to Sphinx with the following configuration:
 
-.. code-block:: console
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
 
-   $ jupyter-book config sphinx path/to/book
-
-and then commit the resulting ``conf.py`` to git.
-Alternatively, you can set up some automation that does it for every change,
-for example :ref:`using pre-commit <jupyterbook:sphinx:convert:pre-commit>`.
+    build:
+        jobs:
+            pre_build:
+            # Generate the Sphinx configuration for this Jupyter Book so it builds.
+            - "jupyter-book config sphinx docs/"

@@ -1,16 +1,7 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
-import json
 from django.contrib import admin, messages
-from django.utils.safestring import mark_safe
-from polymorphic.admin import (
-    PolymorphicChildModelAdmin,
-    PolymorphicParentModelAdmin,
-)
-
-from pygments import highlight
-from pygments.lexers import JsonLexer
-from pygments.formatters import HtmlFormatter
+from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin
 
 from readthedocs.builds.models import (
     Build,
@@ -20,31 +11,9 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.admin import pretty_json_field
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
-
-
-def _pretty_config(instance):
-    """
-    Function to display pretty version of our data.
-
-    Thanks to PyDanny: https://www.pydanny.com/pretty-formatting-json-django-admin.html
-    """
-
-    # Convert the data to sorted, indented JSON
-    response = json.dumps(instance.config, sort_keys=True, indent=2)
-
-    # Get the Pygments formatter
-    formatter = HtmlFormatter()
-
-    # Highlight the data
-    response = highlight(response, JsonLexer(), formatter)
-
-    # Get the stylesheet
-    style = "<style>" + formatter.get_style_defs() + "</style><br>"
-
-    # Safe the output
-    return mark_safe(style + response)
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -96,7 +65,7 @@ class BuildAdmin(admin.ModelAdmin):
         return obj.version.slug
 
     def pretty_config(self, instance):
-        return _pretty_config(instance)
+        return pretty_json_field(instance, "config")
 
     pretty_config.short_description = 'Config File'
 
@@ -123,7 +92,7 @@ class VersionAdmin(admin.ModelAdmin):
         return obj.project.slug
 
     def pretty_config(self, instance):
-        return _pretty_config(instance)
+        return pretty_json_field(instance, "config")
 
     pretty_config.short_description = 'Config File'
 

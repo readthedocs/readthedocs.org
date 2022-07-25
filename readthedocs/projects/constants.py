@@ -5,6 +5,7 @@ Default values and other various configuration for projects, including available
 theme names and repository types.
 """
 
+import os
 import re
 
 from django.utils.translation import gettext_lazy as _
@@ -14,14 +15,18 @@ MKDOCS = 'mkdocs'
 SPHINX_HTMLDIR = 'sphinx_htmldir'
 SPHINX_SINGLEHTML = 'sphinx_singlehtml'
 # This type is defined by the users in their mkdocs.yml file.
-MKDOCS_HTML = 'mkdocs_html'
+MKDOCS_HTML = "mkdocs_html"
+GENERIC = "generic"
 DOCUMENTATION_CHOICES = (
     (SPHINX, _('Sphinx Html')),
     (MKDOCS, _('Mkdocs')),
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
-DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + ((MKDOCS_HTML, _('Mkdocs Html Pages')),)
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
+    (MKDOCS_HTML, _("Mkdocs Html Pages")),
+    (GENERIC, _("Generic")),
+)
 
 
 MEDIA_TYPE_HTML = 'html'
@@ -36,6 +41,9 @@ MEDIA_TYPES = (
     MEDIA_TYPE_HTMLZIP,
     MEDIA_TYPE_JSON,
 )
+
+BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
+BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path.join(BUILD_COMMANDS_OUTPUT_PATH, "html")
 
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),

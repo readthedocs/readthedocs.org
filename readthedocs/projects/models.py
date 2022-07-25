@@ -2,12 +2,12 @@
 import fnmatch
 import hashlib
 import hmac
-import structlog
 import os
 import re
 from shlex import quote
 from urllib.parse import urlparse
 
+import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.conf.urls import include
@@ -21,10 +21,7 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views import defaults
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -34,7 +31,6 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -47,19 +43,15 @@ from readthedocs.projects.querysets import (
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_domain_name,
+    validate_no_ip,
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import MkDocsParser, SphinxParser
+from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
-    MEDIA_TYPES,
-)
+from .constants import MEDIA_TYPE_EPUB, MEDIA_TYPE_HTMLZIP, MEDIA_TYPE_PDF, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -227,7 +219,9 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_(
+            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
+        ),
     )
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
@@ -634,6 +628,11 @@ class Project(models.Model):
         return self.proxied_api_host.strip('/') + '/'
 
     @property
+    def proxied_static_path(self):
+        """Path for static files hosted on the user's doc domain."""
+        return f"{self.proxied_api_host}/static/"
+
+    @property
     def regex_urlconf(self):
         """
         Convert User's URLConf into a proper django URLConf.
@@ -676,9 +675,9 @@ class Project(models.Model):
         It is used for doc serving on projects that have their own ``urlconf``.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.urls import core_urls
         from readthedocs.proxito.views.serve import ServeDocs
         from readthedocs.proxito.views.utils import proxito_404_page_handler
-        from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
 
@@ -735,14 +734,21 @@ class Project(models.Model):
         return self.superprojects.exists()
 
     @property
+    def superproject(self):
+        relationship = self.get_parent_relationship()
+        if relationship:
+            return relationship.parent
+        return None
+
+    @property
     def alias(self):
         """Return the alias (as subproject) if it's a subproject."""  # noqa
         if self.is_subproject:
             return self.superprojects.first().alias
 
-    def subdomain(self):
+    def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self)
+        return resolve_domain(self, use_canonical_domain=use_canonical_domain)
 
     def get_downloads(self):
         downloads = {}
@@ -1165,6 +1171,10 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
+
+        if self.remote_repository and self.remote_repository.default_branch:
+            return self.remote_repository.default_branch
+
         return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
@@ -1423,9 +1433,23 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
-        parser_class = (
-            SphinxParser if self.version.is_sphinx_type else MkDocsParser
-        )
+        if (
+            self.version.documentation_type == constants.GENERIC
+            or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
+        ):
+            parser_class = GenericParser
+        elif self.version.is_sphinx_type:
+            parser_class = SphinxParser
+        elif self.version.is_mkdocs_type:
+            parser_class = MkDocsParser
+        else:
+            log.warning(
+                "Invalid documentation type",
+                documentation_type=self.version.documentation_type,
+                version_slug=self.version.slug,
+                project_slug=self.project.slug,
+            )
+            return {}
         parser = parser_class(self.version)
         return parser.parse(self.path)
 
@@ -1620,21 +1644,20 @@ class Domain(TimeStampedModel, models.Model):
         _('Domain'),
         unique=True,
         max_length=255,
-        validators=[validate_domain_name],
+        validators=[validate_domain_name, validate_no_ip],
     )
     machine = models.BooleanField(
         default=False,
-        help_text=_('This Domain was auto-created'),
+        help_text=_("This domain was auto-created"),
     )
     cname = models.BooleanField(
         default=False,
-        help_text=_('This Domain is a CNAME for the project'),
+        help_text=_("This domain is a CNAME for the project"),
     )
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            'This Domain is the primary one where the documentation is '
-            'served from',
+            "This domain is the primary one where the documentation is " "served from",
         ),
     )
     https = models.BooleanField(
@@ -1753,20 +1776,23 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
-    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
-    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
-    API_LARGE_DATA = 'api_large_data'
-    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
-    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
-    CLEAN_AFTER_BUILD = 'clean_after_build'
-    UPDATE_CONDA_STARTUP = 'update_conda_startup'
-    CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    CONDA_USES_MAMBA = 'conda_uses_mamba'
-    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
-    CACHED_ENVIRONMENT = 'cached_environment'
-    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    CDN_ENABLED = 'cdn_enabled'
+    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
+    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
+    API_LARGE_DATA = "api_large_data"
+    DONT_SHALLOW_CLONE = "dont_shallow_clone"
+    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
+    CLEAN_AFTER_BUILD = "clean_after_build"
+    UPDATE_CONDA_STARTUP = "update_conda_startup"
+    CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
+    ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
+    CACHED_ENVIRONMENT = "cached_environment"
+    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
+    CDN_ENABLED = "cdn_enabled"
+    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
+    RECORD_404_PAGE_VIEWS = "record_404_page_views"
+    ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
+    DISABLE_PAGEVIEWS = "disable_pageviews"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1832,10 +1858,6 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
-            CONDA_USES_MAMBA,
-            _('Uses mamba binary instead of conda to create the environment'),
-        ),
-        (
             ALL_VERSIONS_IN_HTML_CONTEXT,
             _(
                 'Pass all versions (including private) into the html context '
@@ -1853,6 +1875,22 @@ class Feature(models.Model):
         (
             CDN_ENABLED,
             _('CDN support for a project\'s public versions when privacy levels are enabled.'),
+        ),
+        (
+            DOCKER_GVISOR_RUNTIME,
+            _("Use Docker gVisor runtime to create build container."),
+        ),
+        (
+            RECORD_404_PAGE_VIEWS,
+            _("Record 404s page views."),
+        ),
+        (
+            ALLOW_FORCED_REDIRECTS,
+            _("Allow forced redirects."),
+        ),
+        (
+            DISABLE_PAGEVIEWS,
+            _("Disable all page views"),
         ),
 
         # Versions sync related features
