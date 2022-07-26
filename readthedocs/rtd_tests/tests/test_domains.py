@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
@@ -123,15 +121,19 @@ class FormTests(TestCase):
 
     def test_invalid_domains(self):
         domains = [
-            'python..org',
-            '****.foo.com',
-            'domain',
-            'domain.com.',
-            'My domain.org',
-            'i.o',
-            '[special].com',
-            'some_thing.org',
-            'invalid-.com',
+            "python..org",
+            "****.foo.com",
+            "domain",
+            "domain.com.",
+            "My domain.org",
+            "i.o",
+            "[special].com",
+            "some_thing.org",
+            "invalid-.com",
+            "1.1.1.1",
+            "1.23.45.67",
+            "127.0.0.1",
+            "127.0.0.10",
         ]
         for domain in domains:
             form = DomainForm(
