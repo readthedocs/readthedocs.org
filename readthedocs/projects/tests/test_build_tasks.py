@@ -518,7 +518,7 @@ class TestBuildTask(BuildEnvironmentBase):
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
                 mock.call(
-                    "git", "clone", "--no-single-branch", "--depth", "50", "", "."
+                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
                 ),
                 mock.call("git", "checkout", "--force", "a1b2c3"),
                 mock.call("git", "clean", "-d", "-f", "-f"),
