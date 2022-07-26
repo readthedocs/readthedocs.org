@@ -4,6 +4,7 @@ from unittest import mock
 
 from django.conf import settings
 
+from readthedocs.api.v2.serializers import VersionAdminSerializer
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.projects.constants import MKDOCS
 
@@ -185,18 +186,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/version/{self.version.pk}/',
-            json=lambda requests, context: {
-                'pk': self.version.pk,
-                'slug': self.version.slug,
-                'project': {
-                    'id': self.project.pk,
-                    'slug': self.project.slug,
-                    'language': self.project.language,
-                    'repo_type': self.project.repo_type,
-                },
-                'downloads': [],
-                'type': self.version.type,
-            },
+            json=lambda requests, context: VersionAdminSerializer(self.version).data,
             headers=headers,
         )
 
