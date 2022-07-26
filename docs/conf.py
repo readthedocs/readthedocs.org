@@ -74,8 +74,8 @@ default_role = "obj"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "django": (
-        "https://docs.djangoproject.com/en/4.0/",
-        "https://docs.djangoproject.com/en/4.0/_objects/",
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
     ),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "pip": ("https://pip.pypa.io/en/stable/", None),
