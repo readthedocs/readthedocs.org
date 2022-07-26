@@ -1,3 +1,19 @@
+Version 8.3.5
+-------------
+
+:Date: July 25, 2022
+
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for GitHub RemoteRepository (`#9449 <https://github.com/readthedocs/readthedocs.org/pull/9449>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adds Jupyter Book to examples table (`#9446 <https://github.com/readthedocs/readthedocs.org/pull/9446>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update env var docs (`#9443 <https://github.com/readthedocs/readthedocs.org/pull/9443>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update dev domain to `devthedocs.org` (`#9442 <https://github.com/readthedocs/readthedocs.org/pull/9442>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `docsify` on "Build customization" (`#9439 <https://github.com/readthedocs/readthedocs.org/pull/9439>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.4 (`#9436 <https://github.com/readthedocs/readthedocs.org/pull/9436>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow IPs (`#9429 <https://github.com/readthedocs/readthedocs.org/pull/9429>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit logs: truncate browser (`#9417 <https://github.com/readthedocs/readthedocs.org/pull/9417>`__)
+
 Version 8.3.4
 -------------
 
