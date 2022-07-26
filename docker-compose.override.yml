@@ -5,7 +5,7 @@
 # DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
 
 # We create this network here to be able to use a static IP for NGINX.
-# This is needed because hitting `community.dev.readthedocs.io` from
+# This is needed because hitting `devthedocs.org` from
 # any service will fail since it will resolve to 127.0.0.1, but
 # instead we need to hit NGINX's IP (this is used on Embed API from
 # -ext for example) Setting a static IP for NGINX, allow us to
@@ -35,8 +35,8 @@ services:
       readthedocs:
         ipv4_address: 10.10.0.100
     environment:
-      - NGINX_WEB_SERVER_NAME=${NGINX_WEB_SERVER_NAME:-community.dev.readthedocs.io}
-      - NGINX_PROXITO_SERVER_NAME=${NGINX_PROXITO_SERVER_NAME:-*.community.dev.readthedocs.io *.org.dev.readthedocs.build}
+      - NGINX_WEB_SERVER_NAME=${NGINX_WEB_SERVER_NAME:-devthedocs.org}
+      - NGINX_PROXITO_SERVER_NAME=${NGINX_PROXITO_SERVER_NAME:-*.devthedocs.org *.build.devthedocs.org}
 
   proxito:
     image: community_server:latest
@@ -55,7 +55,7 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web_docker
       - HOSTIP=${HOSTIP:-}
     extra_hosts:
-      - "${NGINX_WEB_SERVER_NAME:-community.dev.readthedocs.io}:10.10.0.100"
+      - "${NGINX_WEB_SERVER_NAME:-devthedocs.org}:10.10.0.100"
 
   celery:
     image: community_server:latest
