@@ -1,6 +1,6 @@
 """Backends for the objects from the invitations."""
+from django.utils import timesince, formats
 import structlog
-from django.conf import settings
 from django.urls import reverse
 
 from readthedocs.core.permissions import AdminPermission
@@ -45,6 +45,7 @@ class Backend:
         from_user = self.invitation.from_user
         from_name = from_user.get_full_name() or from_user.username
         object_description = self.get_object_description()
+        expiration_date = self.invitation.expiration_date
         log.info("Emailing invitation", email=email, invitation_pk=self.invitation.pk)
         send_email(
             recipient=email,
@@ -55,7 +56,8 @@ class Backend:
                 "from_name": from_name,
                 "object_description": object_description,
                 "invite_url": self.invitation.get_absolute_url(),
-                "expiration_days": settings.RTD_INVITATIONS_EXPIRATION_DAYS,
+                "valid_until": timesince.timeuntil(expiration_date),
+                "expiration_date": formats.date_format(expiration_date),
             },
         )
 

@@ -127,10 +127,13 @@ class Invitation(TimeStampedModel):
 
     @property
     def expired(self):
-        expiration_days = timezone.now() - timezone.timedelta(
+        return timezone.now() > self.expiration_date
+
+    @property
+    def expiration_date(self):
+        return self.created + timezone.timedelta(
             days=settings.RTD_INVITATIONS_EXPIRATION_DAYS
         )
-        return self.created <= expiration_days
 
     @cached_property
     def backend(self):

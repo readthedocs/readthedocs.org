@@ -54,6 +54,12 @@
     {% trans "Ask the admin of the project to invite you again." %}
   {% endif %}
 </p>
+{% else %}
+<p>
+  {% blocktrans trimmed with valid_until=invitation.expiration_date|timeuntil expiration_date=invitation.expiration_date|date %}
+    This invitation will expire in <span title="{{ expiration_date }}">{{ valid_until }}</span>.
+  {% endblocktrans %}
+</p>
 {% endif %}
 
 <form action="" method="post">
