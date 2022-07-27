@@ -89,9 +89,12 @@ intersphinx_mapping = {
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
     "writethedocs": ("https://www.writethedocs.org/", None),
     "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
+    "executablebook": ("https://executablebooks.org/en/latest/", None),
+    "myst-parser": ("https://myst-parser.readthedocs.io/en/v0.15.1/", None),
     "rst-to-myst": ("https://rst-to-myst.readthedocs.io/en/stable/", None),
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
+    "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
 # Redundant in Sphinx 5.0
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
