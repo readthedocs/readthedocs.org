@@ -25,7 +25,13 @@ class Backend:
         raise NotImplementedError
 
     def get_success_url(self):
+        return self.get_object_url()
+
+    def get_object_url(self):
         raise NotImplementedError
+
+    def get_object_name(self):
+        return self.object.name
 
     def owns_object(self, user):
         raise NotImplementedError
@@ -69,7 +75,7 @@ class ProjectBackend(Backend):
     def get_origin_url(self):
         return reverse("projects_users", args=[self.object.slug])
 
-    def get_success_url(self):
+    def get_object_url(self):
         return reverse("projects_detail", args=[self.object.slug])
 
     def redeem(self, user):
@@ -90,7 +96,7 @@ class OrganizationBackend(Backend):
     def get_origin_url(self):
         return reverse("organization_owners", args=[self.object.slug])
 
-    def get_success_url(self):
+    def get_object_url(self):
         return reverse("organization_detail", args=[self.object.slug])
 
     def redeem(self, user):
@@ -115,6 +121,11 @@ class TeamBackend(Backend):
         self.organization = self.object.organization
 
     def get_origin_url(self):
+        return reverse(
+            "organization_team_detail", args=[self.organization.slug, self.object.slug]
+        )
+
+    def get_object_url(self):
         return reverse(
             "organization_team_detail", args=[self.organization.slug, self.object.slug]
         )

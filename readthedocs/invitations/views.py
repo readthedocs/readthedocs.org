@@ -39,6 +39,19 @@ class RedeemInvitation(DetailView):
     slug_field = "token"
     context_object_name = "invitation"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        invitation = self.get_object()
+        from_user = invitation.from_user
+        context["requestor_name"] = from_user.get_full_name() or from_user.username
+        context["requestor_url"] = reverse(
+            "profiles_profile_detail", args=[from_user.username]
+        )
+        context["target_name"] = invitation.object_name
+        context["target_url"] = invitation.object_url
+        context["target_type"] = invitation.object._meta.verbose_name
+        return context
+
     # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
         invitation = self.get_object()

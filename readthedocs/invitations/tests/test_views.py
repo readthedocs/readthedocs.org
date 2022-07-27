@@ -126,6 +126,9 @@ class TestViews(TestCase):
     def test_accept_project_invitation(self):
         url = reverse("invitations_redeem", args=[self.invitation.token])
 
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Invitation.objects.all().count(), 0)
@@ -136,6 +139,9 @@ class TestViews(TestCase):
         self.invitation.object = self.organization
         self.invitation.save()
 
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
+
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Invitation.objects.all().count(), 0)
@@ -145,6 +151,9 @@ class TestViews(TestCase):
         url = reverse("invitations_redeem", args=[self.invitation.token])
         self.invitation.object = self.team
         self.invitation.save()
+
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 302)
 
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)

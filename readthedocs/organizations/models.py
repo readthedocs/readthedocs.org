@@ -100,6 +100,7 @@ class Organization(models.Model):
 
     class Meta:
         base_manager_name = 'objects'
+        verbose_name = _("organization")
         ordering = ['name']
         get_latest_by = ['-pub_date']
 
@@ -213,6 +214,7 @@ class Team(models.Model):
 
     class Meta:
         base_manager_name = 'objects'
+        verbose_name = _("team")
         unique_together = (
             ('slug', 'organization'),
             ('name', 'organization'),

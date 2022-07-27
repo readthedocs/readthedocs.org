@@ -458,6 +458,7 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
+        verbose_name = _("project")
 
     def __str__(self):
         return self.name

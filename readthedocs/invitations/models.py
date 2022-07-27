@@ -186,6 +186,14 @@ class Invitation(TimeStampedModel):
     def object_type(self):
         return self.content_type.name
 
+    @property
+    def object_name(self):
+        return self.backend.get_object_name()
+
+    @property
+    def object_url(self):
+        return self.backend.get_object_url()
+
     def send(self):
         self.backend.send_invitation()
 

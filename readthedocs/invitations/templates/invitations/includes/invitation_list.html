@@ -25,7 +25,7 @@
       <li>
         <form action="{% url "invitations_revoke" invitation.pk %}" method="post">
           {% csrf_token %}
-          <input type="submit" value="{% trans "Revoke invitation" %}">
+          <input type="submit" value="{% trans "Revoke" %}">
         </form>
       </li>
     </ul>
