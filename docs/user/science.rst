@@ -1,24 +1,24 @@
 Read the Docs for Science
 =========================
 
-Documentation and technical writing are broad fields that include many science activities - building publications, academic writing, educational resources and interactive data science and data journalism.
+Documentation and technical writing are broad fields that include many scientific activities. 
+This includes building publications, academic writing, educational resources, interactive data science, and data journalism.
 
-Let's explore the overlap between features needed for software documentation and for instance academic writing. Here's a brief overview of some of the features that people in science and academic writing love about the many tools used on Read the Docs:
+Let's explore the overlap of features for software documentation and academic writing.
+Here's a brief overview of some features that people in science and academic writing love about Read the Docs:
 
 .. dropdown:: 🪄 Easy to use
     :open:
 
     You don't have to be a programmer. Use familiar Markdown-derived syntax and write your formulas with LaTeX.
 
-
 .. dropdown:: 🔣 Formulas and proofs
 
     Use symbols familiar from math and physics, build advanced proofs.
 
-
 .. dropdown:: 🧮 Results computed
 
-    Graphs, tables etc. are computed when the latest version of your website is built. Your results can be directly imported in their latest versions.
+    Graphs, tables etc. are computed when the latest version of your website is built. All code examples on your website are validated each time you build.
 
 .. dropdown:: 📊 Maps, graphs, plots and more
 
@@ -51,8 +51,6 @@ Let's explore the overlap between features needed for software documentation and
 .. dropdown:: 🌱 Grow your own solutions
 
     The eco-system is Open Source and makes it accessible for anyone with Python skills to build their own extensions.
-
-
 
 We want science communities to use Read the Docs and to be part of the documentation community 💞
 
