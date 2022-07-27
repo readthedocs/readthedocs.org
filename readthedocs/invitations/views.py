@@ -57,9 +57,9 @@ class RedeemInvitation(DetailView):
         invitation.delete()
         return HttpResponseRedirect(url)
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         try:
-            return super().get_object()
+            return super().get_object(queryset=queryset)
         except Http404:
             # TODO: remove after the migration has completed.
             # To avoid blocking users from redeeming invitations while
