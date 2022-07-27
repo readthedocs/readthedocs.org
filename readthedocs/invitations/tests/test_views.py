@@ -6,7 +6,7 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization, Team, TeamInvite
 from readthedocs.projects.models import Project
 
 
@@ -295,3 +295,27 @@ class TestViews(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(Invitation.objects.all().count(), 0)
         self.assertEqual(self.project.users.all().count(), 1)
+
+    def test_migrate_team_invitation_on_the_fly(self):
+        email = "test@example.com"
+        team_invite = get(
+            TeamInvite, organization=self.organization, team=self.team, email=email
+        )
+        self.assertFalse(Invitation.objects.filter(token=team_invite.hash).exists())
+
+        url = reverse("invitations_redeem", args=[team_invite.hash])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertFalse(TeamInvite.objects.filter(hash=team_invite.hash).exists())
+        invitation = Invitation.objects.get(token=team_invite.hash)
+
+        self.assertTrue(invitation.object, self.team)
+        self.assertTrue(invitation.token, team_invite.hash)
+        self.assertTrue(invitation.from_user, self.user)
+        self.assertTrue(invitation.to_email, email)
+
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(TeamInvite.objects.filter(hash=team_invite.hash).exists())
+        self.assertEqual(Invitation.objects.get(token=team_invite.hash), invitation)

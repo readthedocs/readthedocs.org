@@ -1,7 +1,7 @@
 """Organizations models."""
-
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
@@ -277,6 +277,32 @@ class TeamInvite(models.Model):
         )
         self.hash = hash_.hexdigest()[::2]
         super().save(*args, **kwargs)
+
+    def migrate(self):
+        """
+        Migrate this invite to our new invitations model.
+
+        New invitations require a from_user, old invitations don't
+        track this, so we default to the first owner of the organization.
+
+        The related TeamMember model will be deleted,
+        so the invitation isn't listed twice in the team members page.
+        """
+        from readthedocs.invitations.models import Invitation
+
+        owner = self.organization.owners.first()
+        content_type = ContentType.objects.get_for_model(self.team)
+        invitation, created = Invitation.objects.get_or_create(
+            token=self.hash,
+            defaults=dict(
+                from_user=owner,
+                to_email=self.email,
+                content_type=content_type,
+                object_id=self.team.pk,
+            ),
+        )
+        self.teammember_set.all().delete()
+        return invitation, created
 
 
 class TeamMember(models.Model):

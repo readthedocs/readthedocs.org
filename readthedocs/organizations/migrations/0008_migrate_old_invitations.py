@@ -9,6 +9,9 @@ def forwards_func(apps, schema_editor):
 
     We migrate invites where the attached team member doesn't have a user,
     since those are real members.
+
+    This is basically the same as ``TeamInvite.migrate``,
+    since custom methods can't be used inside migrations.
     """
     TeamInvite = apps.get_model("organizations", "TeamInvite")
     Invitation = apps.get_model("invitations", "Invitation")
@@ -21,14 +24,17 @@ def forwards_func(apps, schema_editor):
         team = team_invite.team
         owner = team.organization.owners.first()
         content_type = ContentType.objects.get_for_model(team)
-        Invitation.objects.create(
+        Invitation.objects.get_or_create(
             token=team_invite.hash,
-            from_user=owner,
-            to_email=team_invite.email,
-            content_type=content_type,
-            object_id=team.pk,
+            defaults=dict(
+                from_user=owner,
+                to_email=team_invite.email,
+                content_type=content_type,
+                object_id=team.pk,
+            ),
         )
         team_invite.teammember_set.all().delete()
+        team_invite.delete()
 
 
 class Migration(migrations.Migration):

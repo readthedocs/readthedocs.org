@@ -1,14 +1,14 @@
 """Invitation views."""
-
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DeleteView, DetailView
 
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.invitations.models import Invitation
-from readthedocs.organizations.models import Organization, Team
+from readthedocs.organizations.models import Organization, Team, TeamInvite
 
 
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
@@ -56,6 +56,21 @@ class RedeemInvitation(DetailView):
             url = invitation.get_success_url()
         invitation.delete()
         return HttpResponseRedirect(url)
+
+    def get_object(self):
+        try:
+            return super().get_object()
+        except Http404:
+            # TODO: remove after the migration has completed.
+            # To avoid blocking users from redeeming invitations while
+            # the data migration is running, we migrate those on the fly.
+            team_invite = get_object_or_404(
+                TeamInvite.objects.filter(teammember__member__isnull=True),
+                hash=self.kwargs[self.slug_url_kwarg],
+            )
+            invitation, _ = team_invite.migrate()
+            team_invite.delete()
+            return invitation
 
     def redeem_at_sign_up(self, invitation):
         """
