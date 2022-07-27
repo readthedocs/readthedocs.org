@@ -1,7 +1,7 @@
 """Backends for the objects from the invitations."""
-from django.utils import timesince, formats
 import structlog
 from django.urls import reverse
+from django.utils import formats, timesince
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import send_email

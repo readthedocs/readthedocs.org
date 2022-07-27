@@ -156,6 +156,8 @@ class OrganizationOwnerTests(OrganizationTestCase):
     def test_organization_delete(self):
         """Removing an organization deletes all artifacts and leaf overs."""
 
+        user_member = get(User)
+
         version = fixture.get(
             Version,
             project=self.project,
@@ -173,7 +175,7 @@ class OrganizationOwnerTests(OrganizationTestCase):
         member = fixture.get(
             TeamMember,
             team=team,
-            invite=invite,
+            member=user_member,
         )
 
         self.assertIn(self.organization, Organization.objects.all())
