@@ -12,7 +12,6 @@ from readthedocs.organizations.models import (
     Organization,
     OrganizationOwner,
     Team,
-    TeamInvite,
     TeamMember,
 )
 from readthedocs.projects.models import Project
@@ -171,11 +170,6 @@ class OrganizationOwnerTests(OrganizationTestCase):
             Team,
             organization=self.organization,
         )
-        invite = fixture.get(
-            TeamInvite,
-            team=team,
-            organization=self.organization,
-        )
         member = fixture.get(
             TeamMember,
             team=team,
@@ -184,7 +178,6 @@ class OrganizationOwnerTests(OrganizationTestCase):
 
         self.assertIn(self.organization, Organization.objects.all())
         self.assertIn(team, Team.objects.all())
-        self.assertIn(invite, TeamInvite.objects.all())
         self.assertIn(member, TeamMember.objects.all())
         self.assertIn(self.project, Project.objects.all())
         self.assertIn(version, Version.objects.all())
@@ -197,7 +190,6 @@ class OrganizationOwnerTests(OrganizationTestCase):
 
         self.assertNotIn(self.organization, Organization.objects.all())
         self.assertNotIn(team, Team.objects.all())
-        self.assertNotIn(invite, TeamInvite.objects.all())
         self.assertNotIn(member, TeamMember.objects.all())
         self.assertNotIn(self.project, Project.objects.all())
         self.assertNotIn(version, Version.objects.all())
