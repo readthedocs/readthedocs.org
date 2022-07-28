@@ -80,7 +80,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
         if url:
             unresolved = self.unresolved_url
-            path = unresolved.filename
+            path = unresolved.file
             section = unresolved.fragment
         elif not path and not doc:
             return Response(

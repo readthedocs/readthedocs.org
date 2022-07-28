@@ -15,6 +15,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito import constants
@@ -42,12 +43,6 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
     public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
     external_domain = settings.RTD_EXTERNAL_VERSION_DOMAIN.lower().split(':')[0]
 
-    host_parts = host.split('.')
-    public_domain_parts = public_domain.split('.')
-    external_domain_parts = external_domain.split('.')
-
-    project_slug = None
-
     # Explicit Project slug being passed in
     if 'HTTP_X_RTD_SLUG' in request.META:
         project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
@@ -56,71 +51,62 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
             return project_slug
 
-    if public_domain in host or host == 'proxito':
-        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
-        if public_domain_parts == host_parts[1:]:
-            project_slug = host_parts[0]
-            request.subdomain = True
-            log.debug('Proxito Public Domain.', host=host)
-            if Domain.objects.filter(project__slug=project_slug).filter(
-                canonical=True,
-                https=True,
-            ).exists():
-                log.debug('Proxito Public Domain -> Canonical Domain Redirect.', host=host)
-                request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
-            elif (
-                ProjectRelationship.objects.
-                filter(child__slug=project_slug).exists()
-            ):
-                log.debug('Proxito Public Domain -> Subproject Main Domain Redirect.', host=host)
-                request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
-            return project_slug
-
-        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
-        # But these feel like they might be phishing, etc. so let's block them for now.
-        log.warning('Weird variation on our hostname.', host=host)
+    project_slug, domain, external = unresolver._unresolve_domain(host)
+    if not project_slug:
+        # Block domains that look like ours, may be phishing.
+        if external_domain in host or public_domain in host:
+            log.warning("Weird variation on our hostname.", host=host)
+            return render(
+                request,
+                "core/dns-404.html",
+                context={"host": host},
+                status=400,
+            )
         return render(
-            request, 'core/dns-404.html', context={'host': host}, status=400
+            request,
+            "core/dns-404.html",
+            context={"host": host},
+            status=404,
         )
 
-    if external_domain in host:
-        # Serve custom versions on external-host-domain
-        if external_domain_parts == host_parts[1:]:
-            try:
-                project_slug, version_slug = host_parts[0].rsplit('--', 1)
-                request.external_domain = True
-                request.host_version_slug = version_slug
-                log.debug('Proxito External Version Domain.', host=host)
-                return project_slug
-            except ValueError:
-                log.warning('Weird variation on our hostname.', host=host)
-                return render(
-                    request, 'core/dns-404.html', context={'host': host}, status=400
-                )
-
-    # Serve CNAMEs
-    domain = Domain.objects.filter(domain=host).first()
+    # Custom domain.
     if domain:
-        project_slug = domain.project.slug
+        log.debug("Proxito CNAME.", host=host)
         request.cname = True
         request.domain = domain
-        log.debug('Proxito CNAME.', host=host)
-
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect.', host=host)
             request.canonicalize = constants.REDIRECT_HTTPS
-
         # NOTE: consider redirecting non-canonical custom domains to the canonical one
         # Whether that is another custom domain or the public domain
-
         return project_slug
 
-    # Some person is CNAMEing to us without configuring a domain - 404.
-    log.debug('CNAME 404.', host=host)
-    return render(
-        request, 'core/dns-404.html', context={'host': host}, status=404
-    )
+    # Pull request previews.
+    if external:
+        log.debug("Proxito External Version Domain.", host=host)
+        subdomain = host.split(".", maxsplit=1)[0]
+        _, version_slug = subdomain.rsplit("--", maxsplit=1)
+        request.external_domain = True
+        request.host_version_slug = version_slug
+        return project_slug
+
+    # Normal doc serving.
+    log.debug("Proxito Public Domain.", host=host)
+    request.subdomain = True
+    if (
+        Domain.objects.filter(project__slug=project_slug)
+        .filter(canonical=True, https=True)
+        .exists()
+    ):
+        log.debug("Proxito Public Domain -> Canonical Domain Redirect.", host=host)
+        request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
+    elif ProjectRelationship.objects.filter(child__slug=project_slug).exists():
+        log.debug(
+            "Proxito Public Domain -> Subproject Main Domain Redirect.", host=host
+        )
+        request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
+    return project_slug
 
 
 class ProxitoMiddleware(MiddlewareMixin):
