@@ -72,24 +72,23 @@ release = version
 exclude_patterns = ["_build"]
 default_role = "obj"
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.6/", None),
+    "python": ("https://docs.python.org/3.10/", None),
     "django": (
-        "https://docs.djangoproject.com/en/2.2/",
-        "https://docs.djangoproject.com/en/2.2/_objects/",
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
     ),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "pip": ("https://pip.pypa.io/en/stable/", None),
-    "nbsphinx": ("https://nbsphinx.readthedocs.io/en/0.8.6/", None),
-    "myst-nb": ("https://myst-nb.readthedocs.io/en/v0.12.3/", None),
-    "ipywidgets": ("https://ipywidgets.readthedocs.io/en/7.6.3/", None),
+    "nbsphinx": ("https://nbsphinx.readthedocs.io/en/latest/", None),
+    "myst-nb": ("https://myst-nb.readthedocs.io/en/stable/", None),
+    "ipywidgets": ("https://ipywidgets.readthedocs.io/en/stable/", None),
     "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
-    "myst-parser": ("https://myst-parser.readthedocs.io/en/v0.15.1/", None),
+    "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
     "writethedocs": ("https://www.writethedocs.org/", None),
-    "jupyterbook": ("https://jupyterbook.org/", None),
-    "myst-parser": ("https://myst-parser.readthedocs.io/en/v0.15.1/", None),
+    "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
     "rst-to-myst": ("https://rst-to-myst.readthedocs.io/en/stable/", None),
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
@@ -169,6 +168,7 @@ hoverxref_role_types = {
     "class": "tooltip",  # for Python Sphinx Domain
     "ref": "tooltip",  # for hoverxref_auto_ref config
     "confval": "tooltip",  # for custom object
+    "term": "tooltip",  # for glossaries
 }
 
 rst_epilog = """
