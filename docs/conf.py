@@ -42,6 +42,7 @@ extensions = [
     "hoverxref.extension",
     "sphinx_search.extension",
     "sphinxemoji.sphinxemoji",
+    "sphinx_design",
     "myst_parser",
 ]
 

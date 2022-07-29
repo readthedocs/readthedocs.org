@@ -5,28 +5,54 @@ Documentation and technical writing are broad fields that include many science a
 
 Let's explore the overlap between features needed for software documentation and for instance academic writing. Here's a brief overview of some of the features that people in science and academic writing love about the many tools used on Read the Docs:
 
-🪄 Easy to use
-  You don't have to be a programmer. Use familiar Markdown-derived syntax and write your formulas with LaTeX.
-🔣 Formulas and proofs
-  Use symbols familiar from math and physics, build advanced proofs.
-🧮 Results directly imported
-  Graphs, tables etc. are computed when the latest version of your website is built. Your results can be directly imported in their latest versions.
-📐 Widgets, widgets and more widgets
-  Design your science project's layout and components with widgets from a rich eco-system of Open Source extensions built for many purposes.
-📊 Maps, graphs, plots and more
-  Present results with plots, graphs, images and let users interact directly with your datasets and algorithms.
-📚 Bibliographies and external links
-  Maintain bibliography databases directly as code and have external links automatically verified.
-📜 Modern themes and classic PDF outputs
-  Use the latest state-of-the-art themes for web and have PDFs and e-book formats automatically generated.
-⚙️ Automatic builds
-  Build and publish your project for every addition in Git. Preview changes via Pull Requests. Receive notifications when something is wrong.
-💬 Collaboration and community
-  Easy access for readers to suggest changes via GitHub, GitLab etc.
-🔎 Search Engine Optimization
-  Don't reinvent SEO: Have SEO handled jointly by the combined best-practices from Sphinx, its themes and Read the Docs hosting.
-🌱 Grow your own solutions
-  The eco-system is Open Source and makes it accessible for anyone with Python skills to build their own extensions.
+.. dropdown:: 🪄 Easy to use
+    :open:
+
+    You don't have to be a programmer. Use familiar Markdown-derived syntax and write your formulas with LaTeX.
+
+
+.. dropdown:: 🔣 Formulas and proofs
+
+    Use symbols familiar from math and physics, build advanced proofs.
+
+
+.. dropdown:: 🧮 Results computed
+
+    Graphs, tables etc. are computed when the latest version of your website is built. Your results can be directly imported in their latest versions.
+
+.. dropdown:: 📊 Maps, graphs, plots and more
+
+    Present results with plots, graphs, images and let users interact directly with your datasets and algorithms.
+
+.. dropdown:: 📐 Widgets, widgets and more widgets
+
+    Design your science project's layout and components with widgets from a rich eco-system of Open Source extensions built for many purposes.
+
+.. dropdown:: 📚 Bibliographies and external links
+
+    Maintain bibliography databases directly as code and have external links automatically verified.
+
+.. dropdown:: 📜 Modern themes and classic PDF outputs
+
+    Use the latest state-of-the-art themes for web and have PDFs and e-book formats automatically generated.
+
+.. dropdown:: ⚙️ Automatic builds
+
+    Build and publish your project for every addition in Git. Preview changes via Pull Requests. Receive notifications when something is wrong.
+
+.. dropdown:: 💬 Collaboration and community
+
+    Easy access for readers to suggest changes via GitHub, GitLab etc.
+
+.. dropdown:: 🔎 Search Engine Optimization
+
+    Don't reinvent SEO: Have SEO handled jointly by the combined best-practices from Sphinx, its themes and Read the Docs hosting.
+
+.. dropdown:: 🌱 Grow your own solutions
+
+    The eco-system is Open Source and makes it accessible for anyone with Python skills to build their own extensions.
+
+
 
 We want science communities to use Read the Docs and to be part of the documentation community 💞
 
