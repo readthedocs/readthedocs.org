@@ -1,7 +1,7 @@
 Read the Docs for Science
 =========================
 
-Documentation and technical writing are broad fields that include many scientific activities. 
+Documentation and technical writing are broad fields that include many scientific activities.
 This includes building publications, academic writing, educational resources, interactive data science, and data journalism.
 
 Let's explore the overlap of features for software documentation and academic writing.
@@ -85,5 +85,22 @@ Examples and users
 .. TODO: get the correct link for https://docs.jupyter.org/en/latest/#sub-project-documentation
 
 Read the Docs community for science is already big and keeps growing. The :doc:`Jupyter Project <jupyter:index>` itself and :doc:`the many sub-projects of Jupyter <jupyter:index>` are built and published with Read the Docs.
+
+.. grid:: 3
+    :gutter: 1
+
+    .. grid-item-card::
+
+        .. image:: img/logo_chain_ladder.png
+          :alt: Chainladder - Property and Casualty Loss Reserving in Python
+          :target: https://chainladder-python.readthedocs.io/
+
+    .. grid-item-card::
+
+        B
+
+    .. grid-item-card::
+
+        C
 
 .. Let's put some logos to sign off
