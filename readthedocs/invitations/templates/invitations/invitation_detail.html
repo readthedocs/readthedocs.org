@@ -9,24 +9,11 @@
 <h2>
   {% url "profiles_profile_detail" invitation.from_user.username as profile_url %}
   {% with from_name=invitation.from_user.get_full_name|default:invitation.from_user.username %}
-    {% if invitation.object_type == "team" %}
-      {% url "organization_detail" invitation.object.organization.slug as organization_url %}
-
-      {% blocktrans trimmed with requestor_name=requestor_name requestor_url=requestor_url target_url=target_url target_name=target_name organization_url=organization_url organization_name=invitation.object.organization.name %}
-        <a href="{{ requestor_url }}">{{ requestor_name }}</a>
-        has invited you to join the
-        <a href="{{ target_url }}">{{ target_name }}</a>
-        team from the
-        <a href="{{ organization_url }}">{{ organization_name }}</a>
-        organization.
-      {% endblocktrans %}
-    {% else %}
-      {% blocktrans trimmed with requestor_name=requestor_name requestor_url=requestor_url target_url=target_url target_name=target_name target_type=target_type%}
-        <a href="{{ requestor_url }}">{{ requestor_name }}</a>
-        has invited you to join the
-        <a href="{{ target_url }}">{{ target_name }}</a> {{ target_type }}.
-      {% endblocktrans %}
-    {% endif %}
+    {% blocktrans trimmed with requestor_name=requestor_name requestor_url=requestor_url target_name=target_name target_type=target_type%}
+      <a href="{{ requestor_url }}">{{ requestor_name }}</a>
+      has invited you to join the
+      <code>{{ target_name }}</code> {{ target_type }}.
+    {% endblocktrans %}
   {% endwith %}
 </h2>
 

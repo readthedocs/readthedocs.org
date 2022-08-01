@@ -48,7 +48,6 @@ class RedeemInvitation(DetailView):
             "profiles_profile_detail", args=[from_user.username]
         )
         context["target_name"] = invitation.object_name
-        context["target_url"] = invitation.object_url
         context["target_type"] = invitation.object._meta.verbose_name
         return context
 

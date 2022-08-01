@@ -1,7 +1,8 @@
 """Backends for the objects from the invitations."""
 import structlog
+from django.conf import settings
 from django.urls import reverse
-from django.utils import formats, timesince
+from django.utils import formats, timesince, translation
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import send_email
@@ -31,7 +32,7 @@ class Backend:
         raise NotImplementedError
 
     def get_object_name(self):
-        return self.object.name
+        return self.object.slug
 
     def owns_object(self, user):
         raise NotImplementedError
@@ -39,8 +40,12 @@ class Backend:
     def redeem(self, user):
         raise NotImplementedError
 
-    def get_object_description(self):
-        raise NotImplementedError
+    def _get_email_object_description(self):
+        # We don't want to use the current language when
+        # sending the email to the target user.
+        with translation.override(settings.LANGUAGE_CODE):
+            target_type = self.object._meta.verbose_name
+            return f"{self.get_object_name()} {target_type}"
 
     def send_invitation(self):
         """Send an email with the invitation to join the object."""
@@ -50,7 +55,7 @@ class Backend:
 
         from_user = self.invitation.from_user
         from_name = from_user.get_full_name() or from_user.username
-        object_description = self.get_object_description()
+        object_description = self._get_email_object_description()
         expiration_date = self.invitation.expiration_date
         log.info("Emailing invitation", email=email, invitation_pk=self.invitation.pk)
         send_email(
@@ -85,9 +90,6 @@ class ProjectBackend(Backend):
     def owns_object(self, user):
         return user in AdminPermission.owners(self.object)
 
-    def get_object_description(self):
-        return f"{self.object.slug} project"
-
 
 class OrganizationBackend(Backend):
 
@@ -105,9 +107,6 @@ class OrganizationBackend(Backend):
 
     def owns_object(self, user):
         return user in AdminPermission.owners(self.object)
-
-    def get_object_description(self):
-        return f"{self.object.slug} organization"
 
 
 class TeamBackend(Backend):
@@ -140,8 +139,8 @@ class TeamBackend(Backend):
     def owns_object(self, user):
         return user in AdminPermission.owners(self.organization)
 
-    def get_object_description(self):
-        return f"{self.object.slug} team from the {self.organization.slug} organization"
+    def get_object_name(self):
+        return f"{self.organization.slug} {self.object.slug}"
 
 
 def get_backend(invitation):
