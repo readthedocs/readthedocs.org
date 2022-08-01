@@ -127,7 +127,7 @@ class TestViews(TestCase):
         url = reverse("invitations_redeem", args=[self.invitation.token])
 
         r = self.client.get(url)
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
 
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)
@@ -140,7 +140,7 @@ class TestViews(TestCase):
         self.invitation.save()
 
         r = self.client.get(url)
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
 
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)
@@ -153,7 +153,7 @@ class TestViews(TestCase):
         self.invitation.save()
 
         r = self.client.get(url)
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
 
         r = self.client.post(url, data={"accept": True})
         self.assertEqual(r.status_code, 302)
