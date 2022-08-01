@@ -25,11 +25,14 @@ log = structlog.get_logger(__name__)  # noqa
 def _extract_domain_from_netloc(netloc):
     return netloc.lower().split(':')[0]
 
+
 def _unresolve_domain(domain):
     """
     Unresolve domain.
 
-    We extract the project slug from the domain.
+    :param str domain: Domain to extrac the project slug from.
+    :returns: A tuple with the project slug, domain object, and if the domain
+     is external.
     """
     host = domain
     public_domain = _extract_domain_from_netloc(settings.PUBLIC_DOMAIN)
@@ -39,45 +42,37 @@ def _unresolve_domain(domain):
     public_domain_parts = public_domain.split('.')
     external_domain_parts = external_domain.split('.')
 
-    project_slug = None
-
     if public_domain in host or host == 'proxito':
-        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
+        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
         if public_domain_parts == host_parts[1:]:
             project_slug = host_parts[0]
             log.debug('Proxito Public Domain.', host=host)
-            return project_slug
+            return project_slug, None, False
 
-        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
-        # But these feel like they might be phishing, etc. so let's block them for now.
+        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
+        # but these might be phishing, so let's ignore them for now.
         log.warning('Weird variation on our hostname.', host=host)
-        return None
+        return None, None, False
 
     if external_domain in host:
         # Serve custom versions on external-host-domain
         if external_domain_parts == host_parts[1:]:
             try:
-                project_slug, version_slug = host_parts[0].rsplit('--', 1)
+                project_slug, _ = host_parts[0].rsplit('--', 1)
                 log.debug('Proxito External Version Domain.', host=host)
-                return project_slug
+                return project_slug, None, True
             except ValueError:
                 log.warning('Weird variation on our hostname.', host=host)
-                return None
+                return None, None, False
 
     # Serve CNAMEs
-    domain = Domain.objects.filter(domain=host).first()
-    if domain:
-        project_slug = domain.project.slug
+    domain_object = Domain.objects.filter(domain=host).prefetch_related("project").first()
+    if domain_object:
+        project_slug = domain_object.project.slug
         log.debug('Proxito CNAME.', host=host)
+        return project_slug, domain_object, False
 
-        # NOTE: consider redirecting non-canonical custom domains to the canonical one
-        # Whether that is another custom domain or the public domain
-
-        return project_slug
-
-    # Some person is CNAMEing to us without configuring a domain - 404.
-    log.debug('CNAME 404.', host=host)
-    return None
+    return None, None, None
 
 
 def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
