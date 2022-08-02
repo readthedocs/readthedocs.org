@@ -210,55 +210,81 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_htmlzip": False,
         }
 
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    @pytest.mark.skip()
-    # NOTE: find a way to test we are passing all the environment variables to all the commands
-    def test_get_env_vars_default(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
+    @pytest.mark.parametrize(
+        "config",
+        [
             {
                 "version": 2,
-            }
-        )
+            },
+            {
+                "version": 2,
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "3.10",
+                    },
+                    "commands": [
+                        "echo Hello > index.html",
+                    ],
+                },
+            },
+        ],
+    )
+    @pytest.mark.parametrize("external", [True, False])
+    @mock.patch("readthedocs.projects.tasks.builds.LocalBuildEnvironment")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_get_env_vars(self, load_yaml_config, build_environment, config, external):
+        load_yaml_config.return_value = self._config_file(config)
+
+        if external:
+            self.version.type = EXTERNAL
+            self.version.save()
 
         fixture.get(
             EnvironmentVariable,
-            name="TOKEN",
+            name="PRIVATE_TOKEN",
             value="a1b2c3",
             project=self.project,
+            public=False,
+        )
+        fixture.get(
+            EnvironmentVariable,
+            name="PUBLIC_TOKEN",
+            value="a1b2c3",
+            project=self.project,
+            public=True,
         )
 
-        env = {
-            "NO_COLOR": "1",
+        common_env_vars = {
             "READTHEDOCS": "True",
             "READTHEDOCS_VERSION": self.version.slug,
             "READTHEDOCS_VERSION_TYPE": self.version.type,
             "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
             "READTHEDOCS_PROJECT": self.project.slug,
             "READTHEDOCS_LANGUAGE": self.project.language,
-            "BIN_PATH": os.path.join(
+        }
+
+        self._trigger_update_docs_task()
+
+        vcs_env_vars = build_environment.call_args_list[0][1]["environment"]
+        expected_vcs_env_vars = dict(**common_env_vars, GIT_TERMINAL_PROMPT="0")
+        assert vcs_env_vars == expected_vcs_env_vars
+
+        build_env_vars = build_environment.call_args_list[1][1]["environment"]
+        expected_build_env_vars = dict(
+            **common_env_vars,
+            NO_COLOR="1",
+            BIN_PATH=os.path.join(
                 self.project.doc_path,
                 "envs",
                 self.version.slug,
                 "bin",
             ),
-            "TOKEN": "a1b2c3",
-        }
-
-        self._trigger_update_docs_task()
-
-        # mock this object to make sure that we are in a conda env
-        env.update(
-            {
-                "CONDA_ENVS_PATH": os.path.join(self.project.doc_path, "conda"),
-                "CONDA_DEFAULT_ENV": self.version.slug,
-                "BIN_PATH": os.path.join(
-                    self.project.doc_path,
-                    "conda",
-                    self.version.slug,
-                    "bin",
-                ),
-            }
+            PUBLIC_TOKEN="a1b2c3",
         )
+        if not external:
+            expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
+        assert build_env_vars == expected_build_env_vars
 
     @mock.patch("readthedocs.projects.tasks.builds.fileify")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
@@ -518,7 +544,7 @@ class TestBuildTask(BuildEnvironmentBase):
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
                 mock.call(
-                    "git", "clone", "--no-single-branch", "--depth", "50", "", "."
+                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
                 ),
                 mock.call("git", "checkout", "--force", "a1b2c3"),
                 mock.call("git", "clean", "-d", "-f", "-f"),
