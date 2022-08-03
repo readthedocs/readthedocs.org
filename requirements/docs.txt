@@ -135,3 +135,5 @@ urllib3==1.26.9
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+
+sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/

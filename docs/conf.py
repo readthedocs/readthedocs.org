@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
+    "sphinxcontrib.video",
     "djangodocs",
     "doc_extensions",
     "sphinx_tabs.tabs",
