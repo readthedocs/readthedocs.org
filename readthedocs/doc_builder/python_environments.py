@@ -169,12 +169,7 @@ class Virtualenv(PythonEnvironment):
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
-        requirements = [
-            'mock==1.0.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.8.1',
-            'recommonmark==0.5.0',
-        ]
+        requirements = []
 
         # Avoid re-compiling Pillow on newer Python versions
         # https://pillow.readthedocs.io/en/stable/installation.html#python-support
@@ -182,6 +177,15 @@ class Virtualenv(PythonEnvironment):
             requirements.append("pillow==5.4.1")
         else:
             requirements.append("pillow")
+
+        requirements.extend(
+            [
+                "mock==1.0.1",
+                "alabaster>=0.7,<0.8,!=0.7.5",
+                "commonmark==0.8.1",
+                "recommonmark==0.5.0",
+            ]
+        )
 
         if self.config.doctype == 'mkdocs':
             requirements.append(

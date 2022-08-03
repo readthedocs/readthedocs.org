@@ -368,9 +368,9 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'mock',
-            'pillow',
-            'alabaster',
+            "pillow",
+            "mock",
+            "alabaster",
         ]
         self.base_conda_requirements = [
             'mock',
