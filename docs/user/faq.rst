@@ -342,3 +342,56 @@ you can manually convert your Jupyter Book project to Sphinx with the following 
             pre_build:
             # Generate the Sphinx configuration for this Jupyter Book so it builds.
             - "jupyter-book config sphinx docs/"
+
+
+Common build errors and solutions
+---------------------------------
+
+This section is very specific and may change over time.
+Please help us keep it updated and contribute your own build errors and resolutions.
+
+.. This section can improve with sphinx-design and dropdown cards
+
+Git errors
+~~~~~~~~~~
+
+In the examples below, we use ``github.com``, however error messages are similar for GitLab, Bitbucket etc.
+
+.. code-block:: text
+
+   fatal: could not read Username for 'https://github.com': terminal prompts disabled
+
+**Resolution:** This error can be quite misleading. It usually occurs when a repository could not be found because of a typo in the reposistory name or because the repository has been deleted. Verify your repository URL in :guilabel:`Admin > Advanced Settings`.
+
+This error also occurs if you have changed a ``public`` repository to ``private`` and you are using ``https://`` in your git repository URL.
+
+.. note::
+
+   To use private repositories, you need a plan on `Read the Docs for Business <https://readthedocs.com>`__.
+
+
+.. code-block:: text
+
+   error: pathspec 'main' did not match any file(s) known to git
+
+**Resolution:** A specified branch does not exist in your reposistory.
+This might be because you have just created a blank repository (with no commits) or because the default branch has changed name. If for instance, you have changed your default branch on GitHub from ``master`` to ``main``, you need to visit :guilabel:`Admin > Advanced Settings` to change the name of the default branch that Read the Docs expects to find when cloning your repository.
+
+
+.. code-block:: text
+
+   git@github.com: Permission denied (publickey).
+
+   fatal: Could not read from remote repository.
+
+**Resolution:** You have specified a Repository URL that points to a repository, user account or organization that you do not have credentials for. Verify the repository URL in :guilabel:`Admin > Advanced Settings` and that the connected account has the right permissions.
+
+
+.. code-block:: text
+
+   ERROR: Repository not found.
+   fatal: Could not read from remote repository.
+
+**Resolution:** This error can occur if a private Read the Docs project has changed owners. For instance, if the user who created the project on Read the Docs no longer has access to the Git repository. Verify who Read the Docs thinks is the owner of the project and if that particular user has reading rights to the private git repository.
+
+This error is rare for public repositories. If your repository is public and you see this error, it may be because you have specified a wrong domain or forgotten a component in the path.
