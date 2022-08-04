@@ -56,6 +56,12 @@ class RedeemInvitation(DetailView):
 
     # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
+        """
+        Accept or decline an invitation.
+
+        To accept an invitation, the ``accept`` parameter must be
+        in the request, otherwise we decline the invitation.
+        """
         invitation = self.get_object()
         url = reverse("homepage")
         if request.POST.get("accept"):
