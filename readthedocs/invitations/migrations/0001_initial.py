@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ("object_id", models.PositiveIntegerField()),
                 (
                     "to_email",
-                    models.EmailField(max_length=254, null=True, verbose_name="E-mail"),
+                    models.EmailField(max_length=254, null=True, blank=True, verbose_name="E-mail"),
                 ),
                 ("token", models.CharField(max_length=32, unique=True)),
                 (
@@ -66,6 +66,7 @@ class Migration(migrations.Migration):
                     "to_user",
                     models.ForeignKey(
                         null=True,
+                        blank=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="invitations_received",
                         to=settings.AUTH_USER_MODEL,
