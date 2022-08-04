@@ -113,9 +113,9 @@ this can cause a delay in validating because there is an exponential back-off in
 The validation process period has ended
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After you create your domain, you have 30 days to complete the configuration.
-After that period has ended, we will stop trying to validate your domain,
-if you still want to complete the configuration,
+After you add a new custom domain, you have 30 days to complete the configuration.
+After that period has ended, we will stop trying to validate your domain.
+If you still want to complete the configuration,
 go to your domain and click on :guilabel:`Save` to restart the process.
 
 Migrating from GitBook
