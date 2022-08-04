@@ -471,15 +471,15 @@ class UserForm(forms.Form):
 
     """Project owners form."""
 
-    user = forms.CharField(label=_("Email address or username"))
+    username_or_email = forms.CharField(label=_("Email address or username"))
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
-    def clean_user(self):
-        username = self.cleaned_data["user"]
+    def clean_username_or_email(self):
+        username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
             Q(username=username)
             | Q(emailaddress__verified=True, emailaddress__email=username)
@@ -498,7 +498,7 @@ class UserForm(forms.Form):
     def save(self):
         invitation, _ = Invitation.objects.invite(
             from_user=self.request.user,
-            to_user=self.cleaned_data["user"],
+            to_user=self.cleaned_data["username_or_email"],
             obj=self.project,
         )
         return invitation

@@ -36,7 +36,7 @@ class OrganizationTestCase(RequestFactoryTestMixin, TestCase):
         self.client.force_login(user=self.owner)
 
     def add_owner(self, username="tester", test=True):
-        data = {"user": username}
+        data = {"username_or_email": username}
         resp = self.client.post(
             ("/organizations/mozilla/owners/add/".format(org=self.organization.slug)),
             data=data,
@@ -144,7 +144,7 @@ class OrganizationOwnerTests(OrganizationTestCase):
         )
         resp = self.client.post(
             "/organizations/mozilla/owners/{}/delete/".format(owner.pk),
-            data={"user": user.username},
+            data={"username_or_email": user.username},
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
@@ -280,7 +280,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
     def test_add_member_by_email(self):
         """Add member by email."""
         email = "foobar@example.com"
-        data = {"user": email}
+        data = {"username_or_email": email}
         self.client.force_login(self.owner)
         resp = self.client.post(
             "/organizations/mozilla/teams/foobar/members/invite/",
@@ -315,7 +315,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
 
         resp = self.client.post(
             "/organizations/mozilla/teams/foobar/members/invite/",
-            data={"user": email},
+            data={"username_or_email": email},
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
@@ -330,7 +330,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
     def test_add_duplicate_member_by_email(self):
         """Add duplicate member by email."""
         email = "foobar@example.com"
-        data = {"user": email}
+        data = {"username_or_email": email}
         self.client.force_login(self.owner)
         resp = self.client.post(
             "/organizations/mozilla/teams/foobar/members/invite/",
@@ -354,7 +354,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
         self.assertEqual(Invitation.objects.for_object(self.team).count(), 1)
 
     def test_add_existing_user_by_username(self):
-        data = {"user": "tester"}
+        data = {"username_or_email": "tester"}
         resp = self.client.post(
             "/organizations/mozilla/teams/foobar/members/invite/",
             data=data,
@@ -370,7 +370,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
         self.assertEqual(invitation.to_user, User.objects.get(username="tester"))
 
     def test_invite_already_invited_member_by_username(self):
-        data = {"user": "tester"}
+        data = {"username_or_email": "tester"}
         resp = self.client.post(
             "/organizations/mozilla/teams/foobar/members/invite/",
             data=data,
@@ -405,7 +405,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
                 "organization_team_member_add",
                 args=[self.organization.slug, self.team.slug],
             ),
-            data={"user": user.username},
+            data={"username_or_email": user.username},
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.team.members.count(), 1)
@@ -428,7 +428,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
                 "organization_team_member_add",
                 args=[self.organization.slug, self.team.slug],
             ),
-            data={"user": owner.username},
+            data={"username_or_email": owner.username},
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.team.members.count(), 1)
@@ -441,7 +441,7 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
                 "organization_team_member_add",
                 args=[self.organization.slug, self.team.slug],
             ),
-            data={"user": member.username},
+            data={"username_or_email": member.username},
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(self.team.members.count(), 2)

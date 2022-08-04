@@ -129,16 +129,16 @@ class OrganizationOwnerForm(forms.Form):
 
     """Form to manage owners of the organization."""
 
-    user = forms.CharField(label=_("Email address or username"))
+    username_or_email = forms.CharField(label=_("Email address or username"))
 
     def __init__(self, *args, **kwargs):
         self.organization = kwargs.pop('organization', None)
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
-    def clean_user(self):
+    def clean_username_or_email(self):
         """Lookup owner by username or email, detect collisions with existing owners."""
-        username = self.cleaned_data["user"]
+        username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
             Q(username=username)
             | Q(emailaddress__verified=True, emailaddress__email=username)
@@ -158,7 +158,7 @@ class OrganizationOwnerForm(forms.Form):
     def save(self):
         invitation, _ = Invitation.objects.invite(
             from_user=self.request.user,
-            to_user=self.cleaned_data["user"],
+            to_user=self.cleaned_data["username_or_email"],
             obj=self.organization,
         )
         return invitation
@@ -214,14 +214,14 @@ class OrganizationTeamMemberForm(forms.Form):
 
     """Form to manage all members of the organization."""
 
-    user = forms.CharField(label=_("Email address or username"))
+    username_or_email = forms.CharField(label=_("Email address or username"))
 
     def __init__(self, *args, **kwargs):
         self.team = kwargs.pop("team", None)
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
-    def clean_user(self):
+    def clean_username_or_email(self):
         """
         Validate the user to invite to.
 
@@ -229,7 +229,7 @@ class OrganizationTeamMemberForm(forms.Form):
         if none is found, we try to validate if the input is an email,
         in that case we send an invitation to that email.
         """
-        username = self.cleaned_data["user"]
+        username = self.cleaned_data["username_or_email"]
         user = User.objects.filter(
             Q(username=username)
             | Q(emailaddress__verified=True, emailaddress__email=username)
@@ -260,7 +260,7 @@ class OrganizationTeamMemberForm(forms.Form):
 
     def save(self):
         """Create an invitation only if the user isn't already a member."""
-        user = self.cleaned_data["user"]
+        user = self.cleaned_data["username_or_email"]
         if isinstance(user, User):
             # If the user is already a member or the organization
             # don't create an invitation.

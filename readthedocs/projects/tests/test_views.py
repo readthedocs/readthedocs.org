@@ -135,7 +135,7 @@ class TestProjectUsersViews(TestCase):
         resp = self.client.post(
             url,
             data={
-                "user": self.another_user.username,
+                "username_or_email": self.another_user.username,
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -154,7 +154,7 @@ class TestProjectUsersViews(TestCase):
         resp = self.client.post(
             url,
             data={
-                "user": self.another_user.email,
+                "username_or_email": self.another_user.email,
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -174,13 +174,13 @@ class TestProjectUsersViews(TestCase):
         resp = self.client.post(
             url,
             data={
-                "user": self.another_user.username,
+                "username_or_email": self.another_user.username,
             },
         )
         self.assertEqual(resp.status_code, 200)
         form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn("is already a maintainer", form.errors["user"][0])
+        self.assertIn("is already a maintainer", form.errors["username_or_email"][0])
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 
     def test_invite_existing_maintainer_by_email(self):
@@ -190,13 +190,13 @@ class TestProjectUsersViews(TestCase):
         resp = self.client.post(
             url,
             data={
-                "user": self.another_user.email,
+                "username_or_email": self.another_user.email,
             },
         )
         self.assertEqual(resp.status_code, 200)
         form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn("is already a maintainer", form.errors["user"][0])
+        self.assertIn("is already a maintainer", form.errors["username_or_email"][0])
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 
     def test_invite_unknown_user(self):
@@ -205,13 +205,13 @@ class TestProjectUsersViews(TestCase):
         resp = self.client.post(
             url,
             data={
-                "user": "foobar",
+                "username_or_email": "foobar",
             },
         )
         self.assertEqual(resp.status_code, 200)
         form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn("does not exist", form.errors["user"][0])
+        self.assertIn("does not exist", form.errors["username_or_email"][0])
         self.assertNotIn(self.another_user, self.project.users.all())
         self.assertFalse(Invitation.objects.for_object(self.project).exists())
 

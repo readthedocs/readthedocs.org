@@ -40,7 +40,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
     def test_add_team_member_by_name(self):
         request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
             request=request,
         )
@@ -52,14 +52,14 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
     def test_add_duplicate_member_by_username(self):
         request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
             request=request,
         )
         self.assertTrue(member_form.is_valid())
         member_form.save()
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
             request=request,
         )
@@ -73,7 +73,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
         request = mock.MagicMock(user=self.owner)
         emailaddress = fixture.get(EmailAddress, user=user, verified=True)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": emailaddress.email},
+            {"username_or_email": emailaddress.email},
             team=self.team,
             request=request,
         )
@@ -91,7 +91,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
 
         request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": user.email},
+            {"username_or_email": user.email},
             team=self.team,
             request=request,
         )
@@ -108,7 +108,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
         email = "testalsdkgh@example.com"
         request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": email},
+            {"username_or_email": email},
             team=self.team,
             request=request,
         )
@@ -125,7 +125,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
         email = "non-existant@example.com"
         request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": email},
+            {"username_or_email": email},
             team=self.team,
             request=request,
         )
@@ -133,7 +133,7 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
         first_invitation = member_form.save()
 
         member_form = forms.OrganizationTeamMemberForm(
-            {"user": email},
+            {"username_or_email": email},
             team=self.team,
             request=request,
         )

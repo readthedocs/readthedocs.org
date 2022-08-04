@@ -73,7 +73,7 @@ class OrganizationAccessMixin:
         self.assertResponse(
             '/organizations/mozilla/owners/add/',
             method=self.client.post,
-            data={"user": "tester"},
+            data={"username_or_email": "tester"},
             status_code=302,
         )
         if self.is_admin():
@@ -100,7 +100,7 @@ class OrganizationAccessMixin:
         self.assertResponse(
             '/organizations/mozilla/owners/add/',
             method=self.client.post,
-            data={"user": "tester"},
+            data={"username_or_email": "tester"},
             status_code=302,
         )
         if self.is_admin():

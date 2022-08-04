@@ -105,26 +105,26 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
         # Adding an already owner.
         for username in [self.owner.username, self.owner.email]:
-            resp = self.client.post(url, data={"user": username})
+            resp = self.client.post(url, data={"username_or_email": username})
             form = resp.context_data["form"]
             self.assertFalse(form.is_valid())
-            self.assertIn("is already an owner", form.errors["user"][0])
+            self.assertIn("is already an owner", form.errors["username_or_email"][0])
 
         # Unknown user.
-        resp = self.client.post(url, data={"user": "non-existent"})
+        resp = self.client.post(url, data={"username_or_email": "non-existent"})
         form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn("does not exist", form.errors["user"][0])
+        self.assertIn("does not exist", form.errors["username_or_email"][0])
 
         # From an unverified email.
-        resp = self.client.post(url, data={"user": user.email})
+        resp = self.client.post(url, data={"username_or_email": user.email})
         form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn("does not exist", form.errors["user"][0])
+        self.assertIn("does not exist", form.errors["username_or_email"][0])
 
         # Using a username.
         self.assertFalse(user in self.organization.owners.all())
-        resp = self.client.post(url, data={"user": user.username})
+        resp = self.client.post(url, data={"username_or_email": user.username})
         self.assertEqual(resp.status_code, 302)
         qs = Invitation.objects.for_object(self.organization)
         self.assertEqual(qs.count(), 1)
@@ -136,7 +136,7 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
         # Using an email.
         self.assertFalse(user_b in self.organization.owners.all())
-        resp = self.client.post(url, data={"user": user_b.email})
+        resp = self.client.post(url, data={"username_or_email": user_b.email})
         self.assertEqual(resp.status_code, 302)
 
         self.assertEqual(qs.count(), 2)
