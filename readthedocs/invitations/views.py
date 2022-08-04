@@ -13,6 +13,7 @@ from readthedocs.organizations.models import Organization, Team, TeamInvite
 
 log = structlog.get_logger(__name__)
 
+
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
     model = Invitation

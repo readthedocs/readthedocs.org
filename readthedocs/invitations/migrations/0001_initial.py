@@ -43,7 +43,9 @@ class Migration(migrations.Migration):
                 ("object_id", models.PositiveIntegerField()),
                 (
                     "to_email",
-                    models.EmailField(max_length=254, null=True, blank=True, verbose_name="E-mail"),
+                    models.EmailField(
+                        max_length=254, null=True, blank=True, verbose_name="E-mail"
+                    ),
                 ),
                 ("token", models.CharField(max_length=32, unique=True)),
                 (
