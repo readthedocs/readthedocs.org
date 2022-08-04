@@ -102,10 +102,11 @@ class Invitation(TimeStampedModel):
         User,
         verbose_name=_("To user"),
         null=True,
+        blank=True,
         on_delete=models.CASCADE,
         related_name="invitations_received",
     )
-    to_email = models.EmailField(_("E-mail"), null=True)
+    to_email = models.EmailField(_("E-mail"), null=True, blank=True)
     token = models.CharField(unique=True, max_length=32)
 
     objects = InvitationQueryset.as_manager()
@@ -159,7 +160,14 @@ class Invitation(TimeStampedModel):
             return False
         if self.to_user:
             user = self.to_user
-        log.info("Redeeming invitation", invitation_pk=self.pk, for_user=user.username)
+        log.info(
+            "Redeeming invitation",
+            invitation_pk=self.pk,
+            for_user=user.username,
+            object_type=self.object_type,
+            object_name=self.object_name,
+            object_pk=self.object.pk,
+        )
         return self.backend.redeem(user=user)
 
     def get_success_url(self):

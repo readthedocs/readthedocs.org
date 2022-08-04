@@ -35,7 +35,7 @@ class Backend:
         return self.object.slug
 
     def owns_object(self, user):
-        raise NotImplementedError
+        return user in AdminPermission.owners(self.object)
 
     def redeem(self, user):
         raise NotImplementedError
@@ -57,7 +57,14 @@ class Backend:
         from_name = from_user.get_full_name() or from_user.username
         object_description = self._get_email_object_description()
         expiration_date = self.invitation.expiration_date
-        log.info("Emailing invitation", email=email, invitation_pk=self.invitation.pk)
+        log.info(
+            "Emailing invitation",
+            email=email,
+            invitation_pk=self.invitation.pk,
+            object_type=self.invitation.object_type,
+            object_name=self.invitation.object_name,
+            object_pk=self.invitation.object.pk,
+        )
         send_email(
             recipient=email,
             subject=f"{from_name} has invite you to join the {object_description}",
@@ -87,9 +94,6 @@ class ProjectBackend(Backend):
         self.object.users.add(user)
         return True
 
-    def owns_object(self, user):
-        return user in AdminPermission.owners(self.object)
-
 
 class OrganizationBackend(Backend):
 
@@ -104,9 +108,6 @@ class OrganizationBackend(Backend):
     def redeem(self, user):
         self.object.owners.add(user)
         return True
-
-    def owns_object(self, user):
-        return user in AdminPermission.owners(self.object)
 
 
 class TeamBackend(Backend):

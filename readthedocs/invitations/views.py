@@ -1,4 +1,5 @@
 """Invitation views."""
+import structlog
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -10,6 +11,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team, TeamInvite
 
+log = structlog.get_logger(__name__)
 
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
@@ -66,6 +68,14 @@ class RedeemInvitation(DetailView):
                 return self.redeem_at_sign_up(invitation)
             invitation.redeem(request.user)
             url = invitation.get_success_url()
+        else:
+            log.info(
+                "Invitation declined",
+                invitation_pk=invitation.pk,
+                object_type=invitation.object_type,
+                object_name=invitation.object_name,
+                object_pk=invitation.object.pk,
+            )
         invitation.delete()
         return HttpResponseRedirect(url)
 

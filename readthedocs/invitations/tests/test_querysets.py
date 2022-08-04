@@ -127,7 +127,6 @@ class TestQuerysets(TestCase):
             from_user=self.user,
             to_user=self.another_user,
             object=self.organization,
-            created=expired,
         )
         i.created = expired
         i.save()
