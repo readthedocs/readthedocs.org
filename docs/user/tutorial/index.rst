@@ -670,6 +670,7 @@ and Read the Docs:
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- Display example projects and read the source code in :doc:`/examples`.
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.

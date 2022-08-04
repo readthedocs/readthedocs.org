@@ -61,7 +61,6 @@ to help you create fantastic documentation for your project.
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-
    /intro/import-guide
    /choosing-a-site
 
@@ -165,6 +164,7 @@ and how to write successful documentation.
  /guides/authors
  /guides/administrators
  /guides/developers
+ /examples
 
 Advanced features of Read the Docs
 ----------------------------------

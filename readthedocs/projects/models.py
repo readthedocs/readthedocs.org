@@ -43,6 +43,7 @@ from readthedocs.projects.querysets import (
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_domain_name,
+    validate_no_ip,
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
@@ -218,7 +219,9 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        help_text=_('More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
+        help_text=_(
+            'More information in <a href="https://docs.readthedocs.io/page/guides/autobuild-docs-for-pull-requests.html">our docs</a>.'  # noqa
+        ),
     )
     external_builds_privacy_level = models.CharField(
         _('Privacy level of Pull Requests'),
@@ -1641,7 +1644,7 @@ class Domain(TimeStampedModel, models.Model):
         _('Domain'),
         unique=True,
         max_length=255,
-        validators=[validate_domain_name],
+        validators=[validate_domain_name, validate_no_ip],
     )
     machine = models.BooleanField(
         default=False,
@@ -1789,6 +1792,7 @@ class Feature(models.Model):
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
+    DISABLE_PAGEVIEWS = "disable_pageviews"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1883,6 +1887,10 @@ class Feature(models.Model):
         (
             ALLOW_FORCED_REDIRECTS,
             _("Allow forced redirects."),
+        ),
+        (
+            DISABLE_PAGEVIEWS,
+            _("Disable all page views"),
         ),
 
         # Versions sync related features

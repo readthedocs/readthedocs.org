@@ -10,6 +10,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
@@ -271,6 +272,77 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        self.setup_external_builds_option()
+
+    def setup_external_builds_option(self):
+        """Disable the external builds option if the project doesn't meet the requirements."""
+        integrations = list(self.instance.integrations.all())
+        has_supported_integration = self.has_supported_integration(integrations)
+        can_build_external_versions = self.can_build_external_versions(integrations)
+
+        # External builds are supported for this project,
+        # don't disable the option.
+        if has_supported_integration and can_build_external_versions:
+            return
+
+        msg = None
+        url = reverse("projects_integrations", args=[self.instance.slug])
+        if not has_supported_integration:
+            msg = _(
+                "To build from pull requests you need a "
+                f'GitHub or GitLab <a href="{url}">integration</a>.'
+            )
+        if has_supported_integration and not can_build_external_versions:
+            # If there is only one integration, link directly to it.
+            if len(integrations) == 1:
+                url = reverse(
+                    "projects_integrations_detail",
+                    args=[self.instance.slug, integrations[0].pk],
+                )
+            msg = _(
+                "To build from pull requests your repository's webhook "
+                "needs to send pull request events. "
+                f'Try to <a href="{url}">resync your integration</a>.'
+            )
+
+        if msg:
+            field = self.fields["external_builds_enabled"]
+            field.disabled = True
+            field.help_text = f"{msg} {field.help_text}"
+
+    def has_supported_integration(self, integrations):
+        supported_types = {Integration.GITHUB_WEBHOOK, Integration.GITLAB_WEBHOOK}
+        for integration in integrations:
+            if integration.integration_type in supported_types:
+                return True
+        return False
+
+    def can_build_external_versions(self, integrations):
+        """
+        Check if external versions can be enabled for this project.
+
+        A project can build external versions if:
+
+        - They are using GitHub or GitLab.
+        - The repository's webhook is setup to send pull request events.
+
+        If the integration's provider data isn't set,
+        it could mean that the user created the integration manually,
+        and doesn't have an account connected.
+        So we don't know for sure if the webhook is sending pull request events.
+        """
+        for integration in integrations:
+            provider_data = integration.provider_data
+            if integration.integration_type == Integration.GITHUB_WEBHOOK and (
+                not provider_data or "pull_request" in provider_data.get("events", [])
+            ):
+                return True
+            if integration.integration_type == Integration.GITLAB_WEBHOOK and (
+                not provider_data or provider_data.get("merge_requests_events")
+            ):
+                return True
+        return False
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
