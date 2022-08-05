@@ -65,13 +65,20 @@ Here's a brief overview of some features that people in science and academic wri
 
 .. dropdown:: 💬 Collaboration and community
 
-    Easy access for readers to suggest changes via GitHub, GitLab, BitBucket etc. Discuss changes via Pull Request and track all changes in your project's version history.
+    .. figure:: /img/screenshot_edit_on_github.png
+        :align: right
 
-    Release your project with version tags and make old versions easily accessible.
+    Science and academia have a big kinship with software developers: We ❤️ community. Our solutions and projects become better when we foster inclusivity and active participation. Read the Docs features easy access for readers to suggest changes via GitHub, GitLab, BitBucket etc. But not just any unqualified feedback. Instead, the *code* and all the tools are available for your community to forge qualified contributions.
+
+    Your readers can become your co-authors!
+
+    Discuss changes via Pull Request and track all changes in your project's version history.
+
+    Does this sound chaotic? Don't worry, the full ownership and permission handling remains in your hands: Project and organization owners govern what is released and who has access to approve and build changes.
 
 .. dropdown:: 🔎 Search Engine Optimization
 
-    Don't reinvent SEO: Have SEO handled jointly by the combined best-practices from Sphinx, its themes and Read the Docs hosting.
+    Don't reinvent SEO: Have SEO handled jointly by the combined best-practices from Sphinx, its themes and Read the Docs' platform.
 
 .. dropdown:: 🌱 Grow your own solutions
 
