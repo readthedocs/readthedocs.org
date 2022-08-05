@@ -24,8 +24,8 @@ Here's a brief overview of some features that people in science and academic wri
 
     Here are some examples:
 
-    * Use symbols familiar from math and physics, build advanced proofs.
-    * Present results with plots, graphs, images and let users interact directly with your datasets and algorithms. See: `Matplotlib <https://matplotlib.org/stable/tutorials/introductory/usage.html>`__, `Interactive Data Visualizations <https://jupyterbook.org/en/stable/interactive/interactive.html>`__
+    * Use symbols familiar from math and physics, build advanced proofs. See also: `sphinx-proof <https://sphinx-proof.readthedocs.io/en/latest/syntax.html>`__
+    * Present results with plots, graphs, images and let users interact directly with your datasets and algorithms. See also: `Matplotlib <https://matplotlib.org/stable/tutorials/introductory/usage.html>`__, `Interactive Data Visualizations <https://jupyterbook.org/en/stable/interactive/interactive.html>`__
     * Graphs, tables etc. are computed when the latest version of your website is built. All code examples on your website are validated each time you build.
 
 .. dropdown:: 📚 Bibliographies and external links
@@ -35,6 +35,9 @@ Here's a brief overview of some features that people in science and academic wri
     Using extensions for Sphinx such as the popular `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/>`__ extension, you can maintain your bibliography with Sphinx directly or refer to entries ``.bib`` files, as well as generating entire Bibliography sections from those files.
 
 .. dropdown:: 📜 Modern themes and classic PDF outputs
+
+    .. figure:: /img/screenshot_rtd_downloads.png
+        :align: right
 
     Use the latest state-of-the-art themes for web and have PDFs and e-book formats automatically generated.
 
@@ -50,7 +53,9 @@ Here's a brief overview of some features that people in science and academic wri
 
     Build and publish your project for every addition in Git. Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
-    .. video:: https://drive.google.com/file/d/1p1kds1ti3wqzMX_x2eob5-W5qpuQgNBz/preview
+    .. TODO: Where should this video live?
+
+    .. video:: https://overtag.dk/files/enable-pull-request-builders.mp4
        :width: 500
        :height: 300
 
@@ -71,27 +76,29 @@ We want science communities to use Read the Docs and to be part of the documenta
 Getting started: Jupyter Book
 -----------------------------
 
-.. Left this out:
-.. Jupyter Book is a popular and well-supported platform for Read the Docs, and we aren't shy to call it the no. 1 documentation tool for science.
-..
-.. Creating and sharing *computational documents* has long been the goal of Jupyter Notebook and JupyterLab. They offer a simple, streamlined and document-centric experience.
-..
-.. TODO: Insert a screenshot with a caption linking to the Jupyter Book gallery?
-
 :external+jupyterbook:doc:`Jupyter Book <intro>` on Read the Docs brings you the rich experience of computated `Jupyter <https://jupyter.org/>`__ documents built together with a modern documentation tool. The results are beautiful and automatically deployed websites, built with Sphinx and :doc:`Executable Book <executablebook:index>` + all the extensions available in this ecosystem.
 
 Here are some popular activities that are well-supported by Jupyter Book:
 
-* Publication
+* Publications and books
 * Academic Courses and class-room activities
 * Research projects
 * Data science software documentation
 
-On the Executable Book website, you can find :doc:`a gallery of solutions built with Jupyter Book <executablebook:gallery>`.
 
-**Ready to get started?**
+.. button-ref:: executablebook:gallery
+    :ref-type: doc
+    :color: primary
 
-.. Let's put some good links here
+    Visit the gallery of solutions built with Jupyter Book
+
+Ready to get started?
+"""""""""""""""""""""
+
+* All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial <start/your-first-book>`
+* Curious for practical code? See :doc:`/examples`
+* Familiar with Sphinx? See :doc:`/guides/jupyter`
+
 
 Examples and users
 ------------------
