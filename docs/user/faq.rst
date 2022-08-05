@@ -357,6 +357,10 @@ Git errors
 
 In the examples below, we use ``github.com``, however error messages are similar for GitLab, Bitbucket etc.
 
+
+terminal prompts disabled
+"""""""""""""""""""""""""
+
 .. code-block:: text
 
    fatal: could not read Username for 'https://github.com': terminal prompts disabled
@@ -370,13 +374,19 @@ This error also occurs if you have changed a ``public`` repository to ``private`
    To use private repositories, you need a plan on `Read the Docs for Business <https://readthedocs.com>`__.
 
 
+error: pathspec
+"""""""""""""""
+
 .. code-block:: text
 
    error: pathspec 'main' did not match any file(s) known to git
 
-**Resolution:** A specified branch does not exist in your reposistory.
-This might be because you have just created a blank repository (with no commits) or because the default branch has changed name. If for instance, you have changed your default branch on GitHub from ``master`` to ``main``, you need to visit :guilabel:`Admin > Advanced Settings` to change the name of the default branch that Read the Docs expects to find when cloning your repository.
+**Resolution:** A specified branch does not exist in the git repository.
+This might be because the git repository was recently created (and has no commits nor branches) or because the default branch has changed name. If for instance, the default branch on GitHub changed from ``master`` to ``main``, you need to visit :guilabel:`Admin > Advanced Settings` to change the name of the default branch that Read the Docs expects to find when cloning the repository.
 
+
+Permission denied (publickey)
+"""""""""""""""""""""""""""""
 
 .. code-block:: text
 
@@ -384,8 +394,14 @@ This might be because you have just created a blank repository (with no commits)
 
    fatal: Could not read from remote repository.
 
-**Resolution:** You have specified a Repository URL that points to a repository, user account or organization that you do not have credentials for. Verify the repository URL in :guilabel:`Admin > Advanced Settings` and that the connected account has the right permissions.
+**Resolution:** The git repository URL points to a repository, user account or organization that Read the Docs does not have credentials for. Verify:
 
+1. That the repository URL in :guilabel:`Admin > Advanced Settings` is correct
+2. That the connected account has the right permissions. Check that the Git repository is configured with a deployment key matching the SSH deploy key specified in :guilabel:`Admin > SSH Keys`.
+
+
+ERROR: Repository not found.
+""""""""""""""""""""""""""""
 
 .. code-block:: text
 
