@@ -1,8 +1,12 @@
 Read the Docs for Science
 =========================
 
-Documentation and technical writing are broad fields that include many scientific activities.
-This includes building publications, academic writing, educational resources, interactive data science, and data journalism.
+.. The following is removed because it's implicit:
+.. In this section, you can read about why the world of documentation is becoming increasingly popular in science and academia.
+
+Documentation and technical writing are broad fields.
+Their tools and practices have grown relevant to most scientific activities.
+This includes building publications, books, educational resources, interactive data science, resources for data journalism and full-scale websites for research projects and courses.
 
 Let's explore the overlap of features for software documentation and academic writing.
 Here's a brief overview of some features that people in science and academic writing love about Read the Docs:
@@ -10,9 +14,9 @@ Here's a brief overview of some features that people in science and academic wri
 .. dropdown:: 🪄 Easy to use
     :open:
 
-    You don't have to be a programmer. Use familiar Markdown-derived syntax and write your formulas with LaTeX.
+    Documentation code doesn't have to be written by a programmer. In fact, documentation coding languages are designed and developed so you don't have to be a programmer, and there are many writing aids that makes it easy to abstract from code and focus on content.
 
-    Get started already today:
+    Getting started is also made easy:
 
       * All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial <start/your-first-book>`
       * Curious for practical code? See :doc:`/examples`
@@ -20,13 +24,13 @@ Here's a brief overview of some features that people in science and academic wri
 
 .. dropdown:: 🔋 Batteries included: Graphs, computations, formulas, maps, diagrams and more
 
-    Take full advantage of getting all the richness of Jupyter Notebook combined with Sphinx and the giant ecosystem of extensions for both of these.
+    Take full advantage of getting all the richness of :external+jupyter:doc:`Jupyter Notebook <index>` combined with Sphinx and the giant ecosystem of extensions for both of these.
 
     Here are some examples:
 
     * Use symbols familiar from math and physics, build advanced proofs. See also: `sphinx-proof <https://sphinx-proof.readthedocs.io/en/latest/syntax.html>`__
     * Present results with plots, graphs, images and let users interact directly with your datasets and algorithms. See also: `Matplotlib <https://matplotlib.org/stable/tutorials/introductory/usage.html>`__, `Interactive Data Visualizations <https://jupyterbook.org/en/stable/interactive/interactive.html>`__
-    * Graphs, tables etc. are computed when the latest version of your website is built. All code examples on your website are validated each time you build.
+    * Graphs, tables etc. are computed when the latest version of your project is built and published as a stand-alone website. All code examples on your website are validated each time you build.
 
 .. dropdown:: 📚 Bibliographies and external links
 
@@ -51,7 +55,7 @@ Here's a brief overview of some features that people in science and academic wri
 
 .. dropdown:: ⚙️ Automatic builds
 
-    Build and publish your project for every addition in Git. Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
+    Build and publish your project for every change made through Git (GitHub, GitLab, BitBucket etc). Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
     .. TODO: Where should this video live?
 
@@ -61,7 +65,9 @@ Here's a brief overview of some features that people in science and academic wri
 
 .. dropdown:: 💬 Collaboration and community
 
-    Easy access for readers to suggest changes via GitHub, GitLab etc.
+    Easy access for readers to suggest changes via GitHub, GitLab, BitBucket etc. Discuss changes via Pull Request and track all changes in your project's version history.
+
+    Release your project with version tags and make old versions easily accessible.
 
 .. dropdown:: 🔎 Search Engine Optimization
 
