@@ -94,8 +94,8 @@ Getting started: Jupyter Book
 Here are some popular activities that are well-supported by Jupyter Book:
 
 * Publications and books
-* Academic Courses and class-room activities
-* Research projects
+* Course and research websites
+* Interactive classroom activities
 * Data science software documentation
 
 
@@ -108,13 +108,15 @@ Here are some popular activities that are well-supported by Jupyter Book:
 Ready to get started?
 """""""""""""""""""""
 
+.. Note that this is a deliberate repitition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
+
 * All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial <start/your-first-book>`
 * Curious for practical code? See :doc:`/examples`
 * Familiar with Sphinx? See :doc:`/guides/jupyter`
 
 
 Examples and users
-------------------
+""""""""""""""""""
 
 .. TODO: get the correct link for
 .. :external+jupyter:ref:`the many sub-projects of Jupyter <index.md#sub-project-documentation>`
