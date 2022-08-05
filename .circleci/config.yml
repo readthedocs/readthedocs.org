@@ -1,7 +1,10 @@
 version: 2.1
 
+setup: true
+
 orbs:
   codecov: codecov/codecov@3.2.2
+  path-filtering: circleci/path-filtering@0.1.3
 
 jobs:
   tests:
@@ -26,11 +29,14 @@ jobs:
     docker:
       - image: 'cimg/python:3.10'
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-      - run: pip install --user tox
-      - run: tox -c tox.embedapi.ini
+      - when:
+          condition: build-code
+          steps:
+            - checkout
+            - run: git submodule sync
+            - run: git submodule update --init
+            - run: pip install --user tox
+            - run: tox -c tox.embedapi.ini
 
   checks:
     docker:
@@ -66,3 +72,10 @@ workflows:
           requires:
             - checks
             - tests
+  generate-config:
+    jobs:
+      - path-filtering/filter:
+          base-revision: main
+          mapping: |
+            readthedocs/.* build-code true
+            docs/.* build-docs true
