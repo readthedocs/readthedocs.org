@@ -25,7 +25,7 @@ Here's a brief overview of some features that people in science and academic wri
     Here are some examples:
 
     * Use symbols familiar from math and physics, build advanced proofs.
-    * Present results with plots, graphs, images and let users interact directly with your datasets and algorithms.
+    * Present results with plots, graphs, images and let users interact directly with your datasets and algorithms. See: `Matplotlib <https://matplotlib.org/stable/tutorials/introductory/usage.html>`__, `Interactive Data Visualizations <https://jupyterbook.org/en/stable/interactive/interactive.html>`__
     * Graphs, tables etc. are computed when the latest version of your website is built. All code examples on your website are validated each time you build.
 
 .. dropdown:: 📚 Bibliographies and external links
@@ -44,7 +44,7 @@ Here's a brief overview of some features that people in science and academic wri
 
 .. dropdown:: 📐 Widgets, widgets and more widgets
 
-    Design your science project's layout and components with widgets from a rich eco-system of Open Source extensions built for many purposes. Special widgets help users display and interact with graphs, maps and more. Several extensions are built and invented by the science community.
+    Design your science project's layout and components with widgets from a rich eco-system of Open Source extensions built for many purposes. Special widgets help users display and interact with graphs, maps and more. :external+jupyterbook:doc:`Several <content/components>` `extensions <https://sphinx-gallery.github.io/>`__ are built and invented by the science community.
 
 .. dropdown:: ⚙️ Automatic builds
 
@@ -96,25 +96,25 @@ On the Executable Book website, you can find :doc:`a gallery of solutions built 
 Examples and users
 ------------------
 
-.. TODO: get the correct link for https://docs.jupyter.org/en/latest/#sub-project-documentation
+.. TODO: get the correct link for
+.. :external+jupyter:ref:`the many sub-projects of Jupyter <index.md#sub-project-documentation>`
 
-Read the Docs community for science is already big and keeps growing. The :doc:`Jupyter Project <jupyter:index>` itself and :doc:`the many sub-projects of Jupyter <jupyter:index>` are built and published with Read the Docs.
+Read the Docs community for science is already big and keeps growing. The :external+jupyter:doc:`Jupyter Project <index>` itself and `the many sub-projects of Jupyter <https://docs.jupyter.org/en/latest/#sub-project-documentation>`__ are built and published with Read the Docs.
 
 .. grid:: 3
-    :gutter: 1
+    :gutter: 2
+    :padding: 0
 
-    .. grid-item-card::
+    .. grid-item-card:: Jupyter Project Documentation
+      :img-top: img/logo_jupyter.png
+      :link: https://docs.jupyter.org/
 
-        .. image:: img/logo_chain_ladder.png
-          :alt: Chainladder - Property and Casualty Loss Reserving in Python
-          :target: https://chainladder-python.readthedocs.io/
+    .. grid-item-card:: Chainladder - Property and Casualty Loss Reserving in Python
+      :img-top: img/logo_chain_ladder.png
+      :link: https://chainladder-python.readthedocs.io/
 
-    .. grid-item-card::
-
-        B
-
-    .. grid-item-card::
-
-        C
+    .. grid-item-card:: Feature-engine - A Python library for Feature Engineering and Selection
+      :img-top: img/logo_feature_engine.png
+      :link: https://feature-engine.readthedocs.io/en/latest/
 
 .. Let's put some logos to sign off
