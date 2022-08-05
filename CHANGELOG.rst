@@ -1,3 +1,16 @@
+Version 8.3.6
+-------------
+
+:Date: August 02, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Build: use correct build environment for build.commands (`#9454 <https://github.com/readthedocs/readthedocs.org/pull/9454>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fixes warnings and other noisy build messages (`#9453 <https://github.com/readthedocs/readthedocs.org/pull/9453>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.5 (`#9452 <https://github.com/readthedocs/readthedocs.org/pull/9452>`__)
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for GitHub RemoteRepository (`#9449 <https://github.com/readthedocs/readthedocs.org/pull/9449>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adds Jupyter Book to examples table (`#9446 <https://github.com/readthedocs/readthedocs.org/pull/9446>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+
 Version 8.3.5
 -------------
 
