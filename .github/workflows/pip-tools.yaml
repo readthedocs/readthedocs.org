@@ -23,8 +23,28 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install -U pip-tools
 
+      - name: Run pip-compile on requirements/pip.in
+        run: pip-compile --upgrade --output-file=requirements/pip.txt requirements/pip.in
+
+      - name: Run pip-compile on requirements/debug.in
+        run: pip-compile --upgrade --output-file=requirements/debug.txt requirements/debug.in
+
+      - name: Run pip-compile on requirements/docker.in
+        run: pip-compile --upgrade --output-file=requirements/docker.txt requirements/docker.in
+
+      - name: Run pip-compile on requirements/testing.in
+        run: pip-compile --upgrade --output-file=requirements/testing.txt requirements/testing.in
+
+      - name: Run pip-compile on requirements/lint.in
+        run: pip-compile --upgrade --output-file=requirements/lint.txt requirements/lint.in
+
       - name: Run pip-compile on requirements/docs.in
         run: pip-compile --upgrade --output-file=requirements/docs.txt requirements/docs.in
+
+      - name: Install "pg_config" requirement
+        run: sudo apt-get install libpq-dev
+      - name: Run pip-compile on requirements/deploy.in
+        run: pip-compile --upgrade --output-file=requirements/deploy.txt requirements/deploy.in
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
