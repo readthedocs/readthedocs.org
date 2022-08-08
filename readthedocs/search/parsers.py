@@ -427,12 +427,14 @@ class SphinxParser(GenericParser):
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
 
-            try:
-                # Create a new html object, since the previous one could have been modified.
-                body = HTMLParser(data['body'])
-                domain_data = self._generate_domains_data(body)
-            except Exception:
-                log.info('Unable to index domains.', path=fjson_path)
+            # XXX: Don't index domains while we migrate the ID type of the sphinx domains table.
+            # https://github.com/readthedocs/readthedocs.org/pull/9482.
+            # try:
+            #     # Create a new html object, since the previous one could have been modified.
+            #     body = HTMLParser(data['body'])
+            #     domain_data = self._generate_domains_data(body)
+            # except Exception:
+            #     log.info('Unable to index domains.', path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
@@ -467,7 +469,11 @@ class SphinxParser(GenericParser):
         We already index those in another step.
         """
         body = super()._clean_body(body)
-        nodes_to_be_removed = self._get_sphinx_domains(body)
+        # XXX: Don't exclude domains from the general search
+        # while we migrate the ID type of the sphinx domains table
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        # nodes_to_be_removed = self._get_sphinx_domains(body)
+        nodes_to_be_removed = []
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')

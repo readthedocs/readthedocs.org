@@ -54,10 +54,12 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
     except Exception:
         log.exception('Failed during ImportedFile creation')
 
-    try:
-        _create_intersphinx_data(version, commit, build)
-    except Exception:
-        log.exception('Failed during SphinxDomain creation')
+    # XXX: Don't access the sphinx domains table while we migrate the ID type
+    # https://github.com/readthedocs/readthedocs.org/pull/9482.
+    # try:
+    #     _create_intersphinx_data(version, commit, build)
+    # except Exception:
+    #     log.exception('Failed during SphinxDomain creation')
 
     try:
         _sync_imported_files(version, build)
@@ -87,12 +89,14 @@ def _sync_imported_files(version, build):
     # Delete SphinxDomain objects from previous versions
     # This has to be done before deleting ImportedFiles and not with a cascade,
     # because multiple Domain's can reference a specific HTMLFile.
-    (
-        SphinxDomain.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
-    )
+    # XXX: Don't access the sphinx domains table while we migrate the ID type
+    # https://github.com/readthedocs/readthedocs.org/pull/9482.
+    # (
+    #     SphinxDomain.objects
+    #     .filter(project=version.project, version=version)
+    #     .exclude(build=build)
+    #     .delete()
+    # )
 
     # Delete ImportedFiles objects (including HTMLFiles)
     # from the previous build of the version.

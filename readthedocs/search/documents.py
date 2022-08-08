@@ -128,6 +128,11 @@ class PageDocument(RTDDocTypeMixin, Document):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
+
+        # XXX: Don't access the sphinx domains table while we migrate the ID type
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        return []
+
         if not html_file.version.is_sphinx_type:
             return []
 
