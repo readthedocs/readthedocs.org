@@ -75,6 +75,10 @@ class Migration(migrations.Migration):
                         verbose_name="To user",
                     ),
                 ),
+                (
+                    "expiration_date",
+                    models.DateTimeField(verbose_name="Expiration date"),
+                ),
             ],
         ),
         migrations.AddIndex(

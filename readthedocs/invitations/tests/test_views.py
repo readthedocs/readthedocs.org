@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -83,9 +82,7 @@ class TestViews(TestCase):
 
     def test_revoke_expired_invitation(self):
         url = reverse("invitations_revoke", args=[self.invitation.pk])
-        self.invitation.created = timezone.now() - timezone.timedelta(
-            days=settings.RTD_INVITATIONS_EXPIRATION_DAYS + 5
-        )
+        self.invitation.expiration_date = timezone.now() - timezone.timedelta(days=5)
         self.invitation.save()
         self.assertTrue(self.invitation.expired)
 
@@ -164,9 +161,7 @@ class TestViews(TestCase):
 
     def test_accept_expired_invitation(self):
         url = reverse("invitations_redeem", args=[self.invitation.token])
-        self.invitation.created = timezone.now() - timezone.timedelta(
-            days=settings.RTD_INVITATIONS_EXPIRATION_DAYS + 5
-        )
+        self.invitation.expiration_date = timezone.now() - timezone.timedelta(days=5)
         self.invitation.save()
         self.assertTrue(self.invitation.expired)
 
@@ -225,9 +220,7 @@ class TestViews(TestCase):
 
     def test_decline_expired_invitation(self):
         url = reverse("invitations_redeem", args=[self.invitation.token])
-        self.invitation.created = timezone.now() - timezone.timedelta(
-            days=settings.RTD_INVITATIONS_EXPIRATION_DAYS + 5
-        )
+        self.invitation.expiration_date = timezone.now() - timezone.timedelta(days=5)
         self.invitation.save()
         self.assertTrue(self.invitation.expired)
 

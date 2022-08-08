@@ -22,20 +22,14 @@ class InvitationQueryset(models.QuerySet):
 
     """Invitation queryset."""
 
-    @property
-    def _expiration_days(self):
-        return timezone.now() - timezone.timedelta(
-            days=settings.RTD_INVITATIONS_EXPIRATION_DAYS
-        )
-
     def expired(self, obj=None):
-        queryset = self.filter(created__lte=self._expiration_days)
+        queryset = self.filter(expiration_date__lte=timezone.now())
         if obj:
             queryset = self._for_object(obj=obj, queryset=queryset)
         return queryset
 
     def pending(self, obj=None):
-        queryset = self.filter(created__gt=self._expiration_days)
+        queryset = self.filter(expiration_date__gt=timezone.now())
         if obj:
             queryset = self._for_object(obj=obj, queryset=queryset)
         return queryset
@@ -107,7 +101,11 @@ class Invitation(TimeStampedModel):
         related_name="invitations_received",
     )
     to_email = models.EmailField(_("E-mail"), null=True, blank=True)
-    token = models.CharField(unique=True, max_length=32)
+    token = models.CharField(
+        unique=True,
+        max_length=32,
+    )
+    expiration_date = models.DateTimeField(_("Expiration date"))
 
     objects = InvitationQueryset.as_manager()
 
@@ -130,12 +128,6 @@ class Invitation(TimeStampedModel):
     def expired(self):
         return timezone.now() > self.expiration_date
 
-    @property
-    def expiration_date(self):
-        return self.created + timezone.timedelta(
-            days=settings.RTD_INVITATIONS_EXPIRATION_DAYS
-        )
-
     @cached_property
     def backend(self):
         return get_backend(self)
@@ -143,6 +135,12 @@ class Invitation(TimeStampedModel):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = self.generate_token()
+
+        if not self.expiration_date:
+            self.expiration_date = timezone.now() + timezone.timedelta(
+                days=settings.RTD_INVITATIONS_EXPIRATION_DAYS
+            )
+
         super().save(*args, **kwargs)
 
     @staticmethod

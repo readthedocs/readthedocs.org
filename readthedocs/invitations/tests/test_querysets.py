@@ -123,13 +123,12 @@ class TestQuerysets(TestCase):
             object=self.project,
         )
 
-        i = Invitation.objects.create(
+        Invitation.objects.create(
             from_user=self.user,
             to_user=self.another_user,
             object=self.organization,
+            expiration_date=expired,
         )
-        i.created = expired
-        i.save()
 
         Invitation.objects.create(
             from_user=self.user,
@@ -137,13 +136,12 @@ class TestQuerysets(TestCase):
             object=self.team,
         )
 
-        i = Invitation.objects.create(
+        Invitation.objects.create(
             from_user=self.user,
             to_email=self.email,
             object=self.project,
+            expiration_date=expired,
         )
-        i.created = expired
-        i.save()
 
         Invitation.objects.create(
             from_user=self.user,
