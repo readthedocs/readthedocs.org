@@ -171,7 +171,7 @@ class Virtualenv(PythonEnvironment):
 
         requirements = []
 
-        # Avoid re-compiling Pillow on newer Python versions
+        # Unpin Pillow on newer Python versions to avoid re-compiling
         # https://pillow.readthedocs.io/en/stable/installation.html#python-support
         if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
             requirements.append("pillow==5.4.1")
