@@ -475,6 +475,7 @@ class ProjectUsersCreateList(SuccessMessageMixin, ProjectUsersMixin, FormView):
     success_message = _("Invitation sent")
 
     def form_valid(self, form):
+        # Manually calling to save, since this isn't a ModelFormView.
         form.save()
         return super().form_valid(form)
 

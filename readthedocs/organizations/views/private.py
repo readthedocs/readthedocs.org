@@ -104,6 +104,7 @@ class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, FormView):
     success_message = _("Invitation sent")
 
     def form_valid(self, form):
+        # Manually calling to save, since this isn't a ModelFormView.
         form.save()
         return super().form_valid(form)
 
@@ -162,6 +163,7 @@ class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, Fo
     template_name = 'organizations/team_member_create.html'
 
     def form_valid(self, form):
+        # Manually calling to save, since this isn't a ModelFormView.
         result = form.save()
         if isinstance(result, Invitation):
             messages.success(self.request, _("Invitation sent"))
