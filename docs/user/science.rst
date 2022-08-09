@@ -60,7 +60,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
     .. TODO: Where should this video live?
 
     .. video:: https://overtag.dk/files/enable-pull-request-builders.mp4
-       :width: 500
+       :width: 100%
        :height: 300
 
 .. dropdown:: 💬 Collaboration and community
