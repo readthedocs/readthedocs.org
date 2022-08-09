@@ -55,7 +55,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
 
 .. dropdown:: ⚙️ Automatic builds
 
-    Build and publish your project for every change made through Git (GitHub, GitLab, BitBucket etc). Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
+    Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
     .. TODO: Where should this video live?
 
@@ -68,13 +68,13 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
     .. figure:: /img/screenshot_edit_on_github.png
         :align: right
 
-    Science and academia have a big kinship with software developers: We ❤️ community. Our solutions and projects become better when we foster inclusivity and active participation. Read the Docs features easy access for readers to suggest changes via GitHub, GitLab, BitBucket etc. But not just any unqualified feedback. Instead, the *code* and all the tools are available for your community to forge qualified contributions.
+    Science and academia have a big kinship with software developers: We ❤️ community. Our solutions and projects become better when we foster inclusivity and active participation. Read the Docs features easy access for readers to suggest changes via your git platform (GitHub, GitLab, Bitbucket etc.). But not just any unqualified feedback. Instead, the *code* and all the tools are available for your community to forge qualified contributions.
 
     Your readers can become your co-authors!
 
     Discuss changes via Pull Request and track all changes in your project's version history.
 
-    Does this sound chaotic? Don't worry, the full ownership and permission handling remains in your hands: Project and organization owners govern what is released and who has access to approve and build changes.
+    Using git does not mean that anyone can go and change your code and your published project. The full ownership and permission handling remains in your hands. Project and organization owners on your git platform govern what is released and who has access to approve and build changes.
 
 .. dropdown:: 🔎 Full search and analytics
 
