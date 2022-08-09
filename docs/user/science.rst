@@ -111,7 +111,7 @@ Here are some popular activities that are well-supported by Jupyter Book:
 * Data science software documentation
 
 
-:doc:`Visit the gallery of solutions built with Jupyter Book <executablebook:gallery>`
+:doc:`Visit the gallery of solutions built with Jupyter Book » <executablebook:gallery>`
 
 
 Ready to get started?
@@ -119,9 +119,9 @@ Ready to get started?
 
 .. Note that this is a deliberate repitition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
 
-* All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial <start/your-first-book>`
-* Curious for practical code? See :doc:`/examples`
-* Familiar with Sphinx? See :doc:`/guides/jupyter`
+* All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial » <start/your-first-book>`
+* Curious for practical code? See the list of :doc:`Example Projects » </examples>`
+* Familiar with Sphinx? Read :doc:`How to use Jupyter notebooks in Sphinx » </guides/jupyter>`
 
 
 Examples and users
