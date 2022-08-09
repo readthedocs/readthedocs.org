@@ -33,11 +33,11 @@ def _get_domain_from_host(host):
 
 def _unresolve_domain(domain):
     """
-    Unresolve domain.
+    Unresolve domain by extracting relevant information from it.
 
-    :param str domain: Domain to extrac the project slug from.
-    :returns: A tuple with the project slug, domain object, and if the domain
-     is external.
+    :param str domain: Domain to extract the information from.
+    :returns: A tuple with: the project slug, domain object, and if the domain
+     is from an external version.
     """
     public_domain = _get_domain_from_host(settings.PUBLIC_DOMAIN)
     external_domain = _get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
