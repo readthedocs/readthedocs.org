@@ -9,7 +9,7 @@ Their tools and practices have grown relevant to most scientific activities.
 This includes building publications, books, educational resources, interactive data science, resources for data journalism and full-scale websites for research projects and courses.
 
 Let's explore the overlap of features for software documentation and academic writing.
-Here's a brief overview of some features that people in science and academic writing love about Read the Docs:
+Here's a brief overview of some :doc:`features <features>` that people in science and academic writing love about Read the Docs:
 
 .. dropdown:: 🪄 Easy to use
     :open:
@@ -76,9 +76,21 @@ Here's a brief overview of some features that people in science and academic wri
 
     Does this sound chaotic? Don't worry, the full ownership and permission handling remains in your hands: Project and organization owners govern what is released and who has access to approve and build changes.
 
-.. dropdown:: 🔎 Search Engine Optimization
+.. dropdown:: 🔎 Full search and analytics
 
-    Don't reinvent SEO: Have SEO handled jointly by the combined best-practices from Sphinx, its themes and Read the Docs' platform.
+    Read the Docs comes with a number of features bundled in that you would have to configure if you were hosting documentation elsewhere.
+
+    Super-fast text search
+        Your documentation is automatically indexed and gets its own search function.
+
+    Traffic statistics
+        Have full access to your traffic data and have quick access to see which of your pages are most popular.
+
+    Search analytics
+        What are people searching for and do they get hits? From each search query in your documentation, we collect a neat little statistic that can help to improve the discoverability and relevance of your documentation.
+
+    SEO - Don't reinvent Search Engine Optimization
+        Use built-in SEO best-practices from Sphinx, its themes and Read the Docs hosting. This can give you a good ranking on search engines as a direct outcome of simply writing and publishing your documentation project.
 
 .. dropdown:: 🌱 Grow your own solutions
 
@@ -99,11 +111,8 @@ Here are some popular activities that are well-supported by Jupyter Book:
 * Data science software documentation
 
 
-.. button-ref:: executablebook:gallery
-    :ref-type: doc
-    :color: primary
+:doc:`Visit the gallery of solutions built with Jupyter Book <executablebook:gallery>`
 
-    Visit the gallery of solutions built with Jupyter Book
 
 Ready to get started?
 """""""""""""""""""""
