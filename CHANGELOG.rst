@@ -1,3 +1,15 @@
+Version 8.3.7
+-------------
+
+:Date: August 09, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Sphinx domain: change type of ID field (`#9482 <https://github.com/readthedocs/readthedocs.org/pull/9482>`__)
+* `@humitos <https://github.com/humitos>`__: Build: unpin Pillow for unsupported Python versions (`#9473 <https://github.com/readthedocs/readthedocs.org/pull/9473>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.6 (`#9465 <https://github.com/readthedocs/readthedocs.org/pull/9465>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: check only for hostname and path for infinite redirects (`#9463 <https://github.com/readthedocs/readthedocs.org/pull/9463>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix missing indentation on reStructuredText badge code (`#9404 <https://github.com/readthedocs/readthedocs.org/pull/9404>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed JS: fix incompatibilities with sphinx 6.x (jquery removal) (`#9359 <https://github.com/readthedocs/readthedocs.org/pull/9359>`__)
+
 Version 8.3.6
 -------------
 
