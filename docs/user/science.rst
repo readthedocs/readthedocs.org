@@ -51,11 +51,11 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
 
 .. dropdown:: 📐 Widgets, widgets and more widgets
 
-    Design your science project's layout and components with widgets from a rich eco-system of Open Source extensions built for many purposes. Special widgets help users display and interact with graphs, maps and more. :external+jupyterbook:doc:`Several <content/components>` `extensions <https://sphinx-gallery.github.io/>`__ are built and invented by the science community.
+    Design your science project's layout and components with widgets from a rich eco-system of open-source extensions built for many purposes. Special widgets help users display and interact with graphs, maps and more. :external+jupyterbook:doc:`Several <content/components>` `extensions <https://sphinx-gallery.github.io/>`__ are built and invented by the science community.
 
 .. dropdown:: ⚙️ Automatic builds
 
-    Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via Pull Requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
+    Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via pull requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
     .. TODO: Where should this video live?
 
@@ -72,7 +72,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
 
     Your readers can become your co-authors!
 
-    Discuss changes via Pull Request and track all changes in your project's version history.
+    Discuss changes via pull request and track all changes in your project's version history.
 
     Using git does not mean that anyone can go and change your code and your published project. The full ownership and permission handling remains in your hands. Project and organization owners on your git platform govern what is released and who has access to approve and build changes.
 
@@ -94,7 +94,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
 
 .. dropdown:: 🌱 Grow your own solutions
 
-    The eco-system is Open Source and makes it accessible for anyone with Python skills to build their own extensions.
+    The eco-system is open source and makes it accessible for anyone with Python skills to build their own extensions.
 
 We want science communities to use Read the Docs and to be part of the documentation community 💞
 
