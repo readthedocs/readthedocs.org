@@ -20,9 +20,10 @@
 # Rowingbohe Telegram@Rowingbohe_Channel <bilibilibohe@gmail.com>, 2018
 # 刘世华 <leo19920823@gmail.com>, 2022
 # s's 地方 <saming007@qq.com>, 2018
-# Steve Link, 2022
+# YHDSL <steveshidifu@gmail.com>, 2022
 # xin.wang <asimplelife@live.com>, 2018
 # YFdyh000 <yfdyh000@gmail.com>, 2015
+# YHDSL <steveshidifu@gmail.com>, 2022
 # Ivan.Tang <imivan.tang@outlook.com>, 2019
 # 汪心禾 <wangxinhe06@gmail.com>, 2020
 # 蔡念光 <chefbig@gmail.com>, 2017
@@ -30,9 +31,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-02 11:19+0000\n"
+"POT-Creation-Date: 2022-08-09 09:56+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Steve Link, 2022\n"
+"Last-Translator: JY3, 2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -49,11 +50,11 @@ msgstr "版本"
 
 #: analytics/models.py:76
 msgid "Path relative to the version."
-msgstr ""
+msgstr "相对于版本的路径。"
 
 #: analytics/models.py:80
 msgid "Full path including the version and language parts."
-msgstr ""
+msgstr "包括版本和语言的完整路径。"
 
 #: analytics/models.py:88
 msgid "HTTP status code"
@@ -78,7 +79,7 @@ msgstr "下载"
 
 #: api/v2/templates/restapi/footer.html:67
 msgid "On Read the Docs"
-msgstr "在 Read the Docs 上查看"
+msgstr "在 Read the Docs 上"
 
 #: api/v2/templates/restapi/footer.html:69
 msgid "Project Home"
@@ -91,7 +92,7 @@ msgstr "构建"
 
 #: api/v2/templates/restapi/footer.html:84
 msgid "On GitHub"
-msgstr "在 GitHub 上查看"
+msgstr "在 GitHub 上"
 
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
@@ -109,11 +110,11 @@ msgstr "编辑"
 
 #: api/v2/templates/restapi/footer.html:96
 msgid "On Bitbucket"
-msgstr "在 Bitbucket 上查看"
+msgstr "在 Bitbucket 上"
 
 #: api/v2/templates/restapi/footer.html:103
 msgid "On GitLab"
-msgstr "在 GitLab 上查看"
+msgstr "在 GitLab 上"
 
 #. Translators: This is about starting a search
 #: api/v2/templates/restapi/footer.html:118
@@ -129,7 +130,7 @@ msgstr "搜索文档"
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
-msgstr ""
+msgstr "Hosted by"
 
 #: api/v2/templates/restapi/footer.html:136 templates/base.html:227
 msgid "Privacy Policy"
@@ -138,39 +139,39 @@ msgstr "隐私政策"
 #: api/v3/serializers.py:494
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
-msgstr ""
+msgstr "无效的项目名称  \"{0}\"：没有网址标识将被创建。"
 
 #: api/v3/serializers.py:498
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
-msgstr ""
+msgstr "存在包含网址标识 \"{0}\" 的项目。"
 
 #: api/v3/serializers.py:699
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
-msgstr ""
+msgstr "无法将带有 {slug_name}={value} 的项目作为子项目。"
 
 #: api/v3/serializers.py:707 projects/forms.py:463
 msgid "A subproject with this alias already exists"
-msgstr ""
+msgstr "存在具有此名称的子项目"
 
 #: audit/filters.py:22 audit/filters.py:39
 msgid "Authentication success"
-msgstr ""
+msgstr "认证成功"
 
 #: audit/filters.py:23 audit/filters.py:40
 msgid "Authentication failure"
-msgstr ""
+msgstr "认证失败"
 
 #: audit/filters.py:41
 msgid "Page view"
-msgstr ""
+msgstr "查看页面"
 
 #: audit/filters.py:42
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
 msgid "Download"
-msgstr ""
+msgstr "下载"
 
 #: audit/models.py:87 core/models.py:38 gold/models.py:35
 #: projects/models.py:118
@@ -179,7 +180,7 @@ msgstr "用户"
 
 #: audit/models.py:94
 msgid "User ID"
-msgstr ""
+msgstr "用户 ID"
 
 #: audit/models.py:100 core/forms.py:55
 msgid "Username"
@@ -192,11 +193,11 @@ msgstr "项目"
 
 #: audit/models.py:116
 msgid "Project ID"
-msgstr ""
+msgstr "项目 ID"
 
 #: audit/models.py:122
 msgid "Project slug"
-msgstr ""
+msgstr "项目的网址标识"
 
 #: audit/models.py:131 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
@@ -204,11 +205,11 @@ msgstr "组织"
 
 #: audit/models.py:137
 msgid "Organization ID"
-msgstr ""
+msgstr "组织 ID"
 
 #: audit/models.py:143
 msgid "Organization slug"
-msgstr ""
+msgstr "组织的网址标识"
 
 #: audit/models.py:151 builds/models.py:1126
 msgid "Action"
@@ -216,15 +217,15 @@ msgstr ""
 
 #: audit/models.py:156
 msgid "Auth backend"
-msgstr ""
+msgstr "后端身份验证"
 
 #: audit/models.py:162 core/history.py:78
 msgid "IP address"
-msgstr ""
+msgstr "IP 地址"
 
 #: audit/models.py:168 core/history.py:84
 msgid "Browser user-agent"
-msgstr ""
+msgstr "浏览器 UA"
 
 #: audit/models.py:176
 msgid "Resource"
@@ -232,16 +233,16 @@ msgstr ""
 
 #: audit/models.py:223
 msgid "shared link"
-msgstr ""
+msgstr "分享链接"
 
 #: audit/models.py:224
 msgid "shared password"
-msgstr ""
+msgstr "分享密码"
 
 #: audit/templates/audit/list_logs.html:15
 #, python-format
 msgid "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authenticated</a>"
-msgstr ""
+msgstr "<a href=\"?action=%(action)s\" title=\"%(method)s\">已认证</a>"
 
 #: audit/templates/audit/list_logs.html:19
 #, python-format
@@ -249,18 +250,20 @@ msgid ""
 "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
 "action=%(action)s\" title=\"%(method)s\">authenticated</a>"
 msgstr ""
+"<a href=\"?user=%(user)s\"><code>%(user)s</code></a><a href=\"?"
+"action=%(action)s\" title=\"%(method)s\">已认证</a>"
 
 #: audit/templates/audit/list_logs.html:26
 #, python-format
 msgid ""
 "User <a href=\"?action=%(action)s\" title=\"%(method)s\">authenticated</a>"
-msgstr ""
+msgstr "用户<a href=\"?action=%(action)s\" title=\"%(method)s\">已认证</a>"
 
 #: audit/templates/audit/list_logs.html:31
 #, python-format
 msgid ""
 "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authentication failed</a>"
-msgstr ""
+msgstr "<a href=\"?action=%(action)s\" title=\"%(method)s\">认证失败</a>"
 
 #: audit/templates/audit/list_logs.html:36
 #, python-format
@@ -268,6 +271,8 @@ msgid ""
 "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
 "action=%(action)s\" title=\"%(path)s\">visited</a> a page"
 msgstr ""
+"<a href=\"?user=%(user)s\"><code>%(user)s</code></a><a href=\"?"
+"action=%(action)s\" title=\"%(path)s\">访问了</a>页面"
 
 #: audit/templates/audit/list_logs.html:43
 #, python-format
@@ -309,7 +314,7 @@ msgstr "%(date)s 前"
 
 #: audit/templates/audit/list_logs.html:90
 msgid "No activity logged yet"
-msgstr ""
+msgstr "没有可用的活动记录"
 
 #: builds/constants.py:15
 msgid "Triggered"
@@ -329,7 +334,7 @@ msgstr "正在构建"
 
 #: builds/constants.py:19
 msgid "Uploading"
-msgstr ""
+msgstr "正在上传"
 
 #: builds/constants.py:20
 msgid "Finished"
@@ -337,7 +342,7 @@ msgstr "已完成"
 
 #: builds/constants.py:21 templates/core/build_list_detailed.html:7
 msgid "Cancelled"
-msgstr ""
+msgstr "已取消"
 
 #: builds/constants.py:30
 msgid "HTML"
@@ -418,7 +423,7 @@ msgstr ""
 
 #: builds/forms.py:45
 msgid "States"
-msgstr ""
+msgstr "状态"
 
 #: builds/forms.py:54 projects/filters.py:145
 msgid "Privacy"
@@ -427,15 +432,15 @@ msgstr ""
 #: builds/forms.py:75
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
-msgstr "{version}是项目的默认版本，它应该是活动的。"
+msgstr "{version} 是项目的默认版本，它必须是可用的。"
 
 #: builds/forms.py:168
 msgid "Custom match should not be empty."
-msgstr ""
+msgstr "自定义匹配内容不应当为空。"
 
 #: builds/forms.py:175
 msgid "Invalid Python regular expression."
-msgstr ""
+msgstr "无效的 Python 正则表达式。"
 
 #: builds/models.py:99 core/models.py:26 projects/models.py:1465
 #: projects/models.py:1633
@@ -470,7 +475,7 @@ msgstr "支持"
 
 #: builds/models.py:153
 msgid "State of the PR/MR associated to this version."
-msgstr ""
+msgstr "与此版本相关的 PR/MR 状态。"
 
 #: builds/models.py:155
 msgid "Built"
@@ -494,7 +499,7 @@ msgstr "隐藏"
 
 #: builds/models.py:167
 msgid "Hide this version from the version (flyout) menu and search results?"
-msgstr ""
+msgstr "从项目菜单(弹出)以及搜索结果中隐藏这个版本?"
 
 #: builds/models.py:169
 msgid "Machine Created"
@@ -518,7 +523,7 @@ msgstr "文档类型"
 
 #: builds/models.py:182
 msgid "Type of documentation the version was built with."
-msgstr ""
+msgstr "构建版本时使用的文档类型。"
 
 #: builds/models.py:198
 #, python-brace-format
@@ -527,7 +532,7 @@ msgstr "版本 {version}  {project} ({pk})"
 
 #: builds/models.py:650
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: builds/models.py:657 integrations/models.py:147
 msgid "Date"
@@ -563,19 +568,19 @@ msgstr "提交"
 
 #: builds/models.py:678
 msgid "Version slug"
-msgstr ""
+msgstr "项目的网址标识"
 
 #: builds/models.py:684
 msgid "Version name"
-msgstr ""
+msgstr "项目名称"
 
 #: builds/models.py:690 builds/models.py:1139
 msgid "Version type"
-msgstr ""
+msgstr "项目类型"
 
 #: builds/models.py:697
 msgid "Configuration used in the build"
-msgstr "构建中使用的配置"
+msgstr "在构建中使用的配置"
 
 #: builds/models.py:702
 msgid "Build Length"
@@ -731,7 +736,7 @@ msgstr "有新近版本的项目"
 
 #: core/forms.py:18
 msgid "First name"
-msgstr "名字"
+msgstr "姓名"
 
 #: core/forms.py:19
 msgid "Last name"
@@ -747,11 +752,11 @@ msgstr "用户名不匹配"
 
 #: core/history.py:66
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: core/history.py:72
 msgid "username"
-msgstr ""
+msgstr "用户名"
 
 #: core/models.py:42
 msgid "Whitelisted"
@@ -1396,7 +1401,7 @@ msgstr ""
 #: templates/profiles/base_profile_edit.html:48
 #: templates/projects/domain_list.html:39
 msgid "Details"
-msgstr "详细"
+msgstr "个人信息"
 
 #: organizations/templates/organizations/admin/base.html:14
 #: templates/profiles/base_profile_edit.html:52
@@ -3750,13 +3755,14 @@ msgstr "首页"
 
 #: templates/homepage.html:46
 msgid "Technical documentation lives here"
-msgstr ""
+msgstr "将技术文档存放于此"
 
 #: templates/homepage.html:48
 msgid ""
 "Read the Docs simplifies software documentation by automating building, "
 "versioning, and hosting of your docs for you."
 msgstr ""
+"Read the Docs 为您提供自动构建，版本控制以及内容托管来简化技术文档流程。"
 
 #: templates/homepage.html:60
 msgid ""
@@ -3788,7 +3794,7 @@ msgstr ""
 
 #: templates/homepage.html:109
 msgid "Read the Tutorial"
-msgstr ""
+msgstr "阅读教程"
 
 #: templates/homepage.html:123
 msgid "Featured Projects"
@@ -3796,7 +3802,7 @@ msgstr "精选项目"
 
 #: templates/homepage.html:137
 msgid "About Read the Docs"
-msgstr ""
+msgstr "关于 Read the Docs"
 
 #: templates/homepage.html:140
 msgid ""
@@ -3804,6 +3810,8 @@ msgid ""
 "project and is closing in on being a top-1000 site on the internet. Today, "
 "we:"
 msgstr ""
+"Read the Docs 从一个周末项目开始蓬勃发展，并逐渐成为互联网前1000的优质网站，"
+"目前我们："
 
 #: templates/homepage.html:148
 msgid ""
@@ -3814,6 +3822,10 @@ msgid ""
 "readthedocs.io/en/latest/team.html\">very small team</a> of dedicated "
 "engineers</li> </ul>"
 msgstr ""
+"<ul class=\"donate-about\"><li>每月托管超过<b>5500万页</b>的文档</li><li>每月"
+"托管超过<b>40TB</b>的文档</li><li>为<b>80,000多个开源项目</b>提供托管服务，并"
+"且为超过<b>100,000名用户</b>提供支持</li><li>由<a href=\"https://docs."
+"readthedocs.io/en/latest/team.html\">超级迷你的敬业工程师团队</a>提供技术支持"
 
 #: templates/homepage.html:160
 msgid "Read the Docs is funded by the community"
@@ -3931,12 +3943,12 @@ msgstr "删除账号"
 
 #: templates/profiles/base_profile_edit.html:55
 msgid "Gold Membership"
-msgstr ""
+msgstr "金牌会员"
 
 #: templates/profiles/base_profile_edit.html:57
 #: templates/projects/project_edit_base.html:34
 msgid "Advertising"
-msgstr "广告"
+msgstr "广告偏好"
 
 #: templates/profiles/private/advertising_profile.html:5
 #: templates/profiles/private/advertising_profile.html:9
@@ -4015,6 +4027,8 @@ msgid ""
 "has happened recently in your account. Showing logs from the last "
 "%(days_limit)s days."
 msgstr ""
+"<a href=\"%(docs_url)s\">安全日志</a>允许你检查最近账户的操作情况。目前显示过"
+"去%(days_limit)s天的日志记录。"
 
 #: templates/profiles/private/token_list.html:20
 msgid "Generate API Token"
@@ -4527,7 +4541,7 @@ msgstr "项目控制面板"
 
 #: templates/projects/project_dashboard_base.html:20
 msgid "Important Versions"
-msgstr ""
+msgstr "导入一个版本"
 
 #: templates/projects/project_dashboard_base.html:77
 msgid "passing"
@@ -4628,7 +4642,7 @@ msgstr "子项目"
 #: templates/projects/webhook_list.html:5
 #: templates/projects/webhook_list.html:10
 msgid "Webhooks"
-msgstr ""
+msgstr "Webhooks"
 
 #: templates/projects/project_edit_base.html:30
 #: templates/projects/project_notifications.html:5
@@ -4785,7 +4799,7 @@ msgstr ""
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
 msgid "Download all data"
-msgstr ""
+msgstr "下载所有的数据"
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -4878,7 +4892,7 @@ msgstr "当前激活版本"
 
 #: templates/projects/project_version_list.html:81
 msgid "Activate a version"
-msgstr ""
+msgstr "激活一个版本"
 
 #: templates/projects/project_version_list.html:82
 msgid ""
@@ -4980,11 +4994,11 @@ msgstr ""
 
 #: templates/projects/webhook_list.html:18
 msgid "Add Webhook"
-msgstr ""
+msgstr "添加 Webhook"
 
 #: templates/projects/webhook_list.html:47
 msgid "No webhooks found."
-msgstr ""
+msgstr "未找到 webhook"
 
 #: templates/search/elastic_search.html:6
 #, python-format
@@ -5016,7 +5030,7 @@ msgstr ""
 
 #: templates/search/elastic_search.html:230
 msgid "No results found."
-msgstr ""
+msgstr "未找到结果"
 
 #: templates/security.html:5
 msgid "Security"
