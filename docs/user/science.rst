@@ -1,8 +1,20 @@
 Read the Docs for Science
 =========================
 
-.. The following is removed because it's implicit:
-.. In this section, you can read about why the world of documentation is becoming increasingly popular in science and academia.
+.. 2022-08-10
+.. Notes about this section:
+..
+.. This section is intended as a "landing page", meaning that we will allow to
+.. mix messages in a pragmatic way UNTIL a permanent location for this landing
+.. page is found outside of the RTD User Documentation project.
+.. more discussion: https://github.com/readthedocs/readthedocs.org/pull/9460/
+..
+.. The main ways that the page will be improved are:
+.. - Add more focus to documentation perspectives
+.. - Move all descriptions of "benefits", i.e. marketing to a separate location
+.. - Likely stop using the dropdown element
+.. - Continue to function as a "landing" page, but a landing page for
+..   documentation resources for scientific/academic projects.
 
 Documentation and technical writing are broad fields.
 Their tools and practices have grown relevant to most scientific activities.
@@ -57,9 +69,7 @@ Here's a brief overview of some :doc:`features <features>` that people in scienc
 
     Build and publish your project for every change made through Git (GitHub, GitLab, Bitbucket etc). Preview changes via pull requests. Receive notifications when something is wrong. How does this work? Have a look at this video:
 
-    .. TODO: Where should this video live?
-
-    .. video:: https://overtag.dk/files/enable-pull-request-builders.mp4
+    .. video:: https://anti-pattern-sphinx-video-downloader.readthedocs.io/_static/videos/enable-pull-request-builders.mp4
        :width: 100%
        :height: 300
 
