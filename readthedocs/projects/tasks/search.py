@@ -7,7 +7,7 @@ from sphinx.ext import intersphinx
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, ImportedFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, ImportedFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -56,10 +56,11 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
 
     # XXX: Don't access the sphinx domains table while we migrate the ID type
     # https://github.com/readthedocs/readthedocs.org/pull/9482.
-    # try:
-    #     _create_intersphinx_data(version, commit, build)
-    # except Exception:
-    #     log.exception('Failed during SphinxDomain creation')
+    if not project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+        try:
+            _create_intersphinx_data(version, commit, build)
+        except Exception:
+            log.exception("Failed during SphinxDomain creation")
 
     try:
         _sync_imported_files(version, build)
@@ -74,6 +75,7 @@ def _sync_imported_files(version, build):
     :param version: Version instance
     :param build: Build id
     """
+    project = version.project
 
     # Index new HTMLFiles to ElasticSearch
     index_new_files(model=HTMLFile, version=version, build=build)
@@ -91,18 +93,17 @@ def _sync_imported_files(version, build):
     # because multiple Domain's can reference a specific HTMLFile.
     # XXX: Don't access the sphinx domains table while we migrate the ID type
     # https://github.com/readthedocs/readthedocs.org/pull/9482.
-    # (
-    #     SphinxDomain.objects
-    #     .filter(project=version.project, version=version)
-    #     .exclude(build=build)
-    #     .delete()
-    # )
+    if not project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+        (
+            SphinxDomain.objects.filter(project=project, version=version)
+            .exclude(build=build)
+            .delete()
+        )
 
     # Delete ImportedFiles objects (including HTMLFiles)
     # from the previous build of the version.
     (
-        ImportedFile.objects
-        .filter(project=version.project, version=version)
+        ImportedFile.objects.filter(project=project, version=version)
         .exclude(build=build)
         .delete()
     )
