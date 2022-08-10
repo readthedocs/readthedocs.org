@@ -164,6 +164,7 @@ and how to write successful documentation.
  /guides/authors
  /guides/administrators
  /guides/developers
+ /science
  /examples
 
 Advanced features of Read the Docs
