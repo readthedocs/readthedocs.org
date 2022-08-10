@@ -14,3 +14,7 @@ jobs:
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "docs"
+
+      - uses: readthedocs/actions/preview@v1
+        with:
+          project-slug: "dev"
