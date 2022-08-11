@@ -1,5 +1,5 @@
 """Organizations managers."""
-
+from django.conf import settings
 from django.db import models
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -12,7 +12,12 @@ class TeamManagerBase(models.Manager):
     """Manager to control team's access."""
 
     def teams_for_user(self, user, organization, admin, member):
+        """Get the teams where the user is an admin or member."""
         teams = self.get_queryset().none()
+
+        if not user.is_authenticated:
+            return teams
+
         if admin:
             # Project Team Admin
             teams |= user.teams.filter(access=ADMIN_ACCESS)
@@ -29,6 +34,17 @@ class TeamManagerBase(models.Manager):
             teams = teams.filter(organization=organization)
 
         return teams.distinct()
+
+    def public(self, user):
+        """
+        Return all teams the user has access to.
+
+        If ``ALLOW_PRIVATE_REPOS`` is `False`, all teams are public by default.
+        Otherwise, we return only the teams where the user is a member.
+        """
+        if not settings.ALLOW_PRIVATE_REPOS:
+            return self.get_queryset().all()
+        return self.member(user)
 
     def admin(self, user, organization=None):
         return self.teams_for_user(

@@ -5,11 +5,6 @@ from readthedocs.organizations.views import public as views
 
 urlpatterns = [
     re_path(
-        r'^verify-email/$',
-        views.OrganizationTemplateView.as_view(template_name='organizations/verify_email.html'),
-        name='organization_verify_email',
-    ),
-    re_path(
         r'^(?P<slug>[\w.-]+)/$',
         views.DetailOrganization.as_view(),
         name='organization_detail',

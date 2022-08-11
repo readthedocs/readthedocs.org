@@ -15,13 +15,29 @@ class BaseOrganizationQuerySet(models.QuerySet):
 
     """Organizations queryset."""
 
+    def public(self, user):
+        """
+        Return all organizations the user has access to.
+
+        If ``ALLOW_PRIVATE_REPOS`` is `False`, all organizations are public by default.
+        Otherwise, we return only the organizations where the user is a member or owner.
+        """
+        if not settings.ALLOW_PRIVATE_REPOS:
+            return self.all()
+        return self.for_user(user)
+
     def for_user(self, user):
-        # Never list all for membership
+        """List all organizations where the user is a member or owner."""
+        if not user.is_authenticated:
+            return self.none()
         return self.filter(
             Q(owners__in=[user]) | Q(teams__members__in=[user]),
         ).distinct()
 
     def for_admin_user(self, user):
+        """List all organizations where the user is an owner."""
+        if not user.is_authenticated:
+            return self.none()
         return self.filter(owners__in=[user],).distinct()
 
     def created_days_ago(self, days, field='pub_date'):

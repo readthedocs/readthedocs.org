@@ -72,7 +72,7 @@ class OrganizationMixin(CheckOrganizationsEnabled):
         """
         if self.admin_only:
             return Organization.objects.for_admin_user(user=self.request.user)
-        return Organization.objects.for_user(user=self.request.user)
+        return Organization.objects.public(user=self.request.user)
 
     @lru_cache(maxsize=1)
     def get_organization(self):
@@ -109,7 +109,11 @@ class OrganizationTeamMixin(OrganizationMixin):
         This will either be team the user is a member of, or teams where the
         user is an owner of the organization.
         """
-        return Team.objects.member(self.request.user).filter(
+        if self.admin_only:
+            queryset = Team.objects.member(self.request.user)
+        else:
+            queryset = Team.objects.public(self.request.user)
+        return queryset.filter(
             organization=self.get_organization(),
         ).order_by('name')
 
@@ -141,7 +145,7 @@ class OrganizationView(CheckOrganizationsEnabled):
     def get_queryset(self):
         if self.admin_only:
             return Organization.objects.for_admin_user(user=self.request.user)
-        return Organization.objects.for_user(user=self.request.user)
+        return Organization.objects.public(user=self.request.user)
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
