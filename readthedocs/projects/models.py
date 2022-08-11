@@ -1827,6 +1827,7 @@ class Feature(models.Model):
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
+    DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1925,6 +1926,10 @@ class Feature(models.Model):
         (
             DISABLE_PAGEVIEWS,
             _("Disable all page views"),
+        ),
+        (
+            DISABLE_SPHINX_DOMAINS,
+            _("Disable indexing of sphinx domains"),
         ),
 
         # Versions sync related features

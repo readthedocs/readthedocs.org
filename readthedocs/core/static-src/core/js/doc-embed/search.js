@@ -7,33 +7,6 @@ var xss = require('xss/lib/index');
 var MAX_RESULT_PER_SECTION = 3;
 var MAX_SUBSTRING_LIMIT = 100;
 
-/**
- * Use try...catch block to append html to contents
- *
- * @param {Object} contents html element on which additional html is be appended
- * @param {String} template underscore.js template string
- * @param {Object} data template vars and their values
- */
-function append_html_to_contents(contents, template, data) {
-    // underscore.js throws variable not defined error
-    // because of change of syntax in new versions.
-    // See: https://stackoverflow.com/a/25881231/8601393
-    try {
-        // this is the pre-1.7 syntax from Underscore.js
-        contents.append(
-            $u.template(
-                template,
-                data
-            )
-        );
-    }
-    catch (error) {
-        // this is the new syntax
-        contents.append(
-            $u.template(template)(data)
-        );
-    }
-}
 
 /*
  * Search query override for hitting our local API instead of the standard
@@ -50,7 +23,7 @@ function attach_elastic_search_query_sphinx(data) {
         var search_url = document.createElement('a');
 
         search_url.href = data.proxied_api_host + '/api/v2/search/';
-        search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
+        search_url.search = '?q=' + encodeURIComponent(query) + '&project=' + project +
                             '&version=' + version + '&language=' + language;
 
         /*
@@ -62,6 +35,42 @@ function attach_elastic_search_query_sphinx(data) {
           } else {
             node.innerText = text;
           }
+        };
+
+        /**
+         * Build a section with its matching results.
+         *
+         * A section has the form:
+         *
+         *   <div>
+         *     <a href={link}>{title}<a>
+         *   </div>
+         *   <div>
+         *     {contents[0]}
+         *   </div>
+         *   <div>
+         *     {contents[1]}
+         *   </div>
+         *
+         *   ...
+         *
+         * @param {String} title.
+         * @param {String} link.
+         * @param {Array} contents.
+         */
+        var buildSection = function (title, link, contents) {
+            var div_title = document.createElement("div");
+            var a_element = document.createElement("a");
+            a_element.href = link;
+            a_element.innerHTML = title;
+            div_title.appendChild(a_element);
+            html = div_title.outerHTML;
+            for (var i = 0; i < contents.length; i += 1) {
+                var div_content = document.createElement("div");
+                div_content.innerHTML = contents[i];
+                html += div_content.outerHTML;
+            }
+            return html;
         };
 
         search_def
@@ -80,7 +89,7 @@ function attach_elastic_search_query_sphinx(data) {
                             title = xss(result.highlights.title[0]);
                         }
 
-                        var link = result.path + "?highlight=" + $.urlencode(query);
+                        var link = result.path + "?highlight=" + encodeURIComponent(query);
 
                         var item = $('<a>', {'href': link});
 
@@ -99,28 +108,6 @@ function attach_elastic_search_query_sphinx(data) {
                             var current_block = blocks[block_index];
 
                             var contents = $('<div class="context">');
-
-                            var section_template =
-                                '<div>' +
-                                    '<a href="<%= section_subtitle_link %>">' +
-                                        '<%= section_subtitle %>' +
-                                    '</a>' +
-                                '</div>' +
-                                '<% for (var i = 0; i < section_content.length; ++i) { %>' +
-                                    '<div>' +
-                                        '<%= section_content[i] %>' +
-                                    '</div>' +
-                                '<% } %>';
-
-                            var domain_template =
-                                '<div>' +
-                                    '<a href="<%= domain_subtitle_link %>">' +
-                                        '<%= domain_subtitle %>' +
-                                    '</a>' +
-                                '</div>' +
-                                '<div>' +
-                                    '<%= domain_content %>' +
-                                '</div>';
 
                             // if the result is page section
                             if (current_block.type === "section") {
@@ -145,15 +132,11 @@ function attach_elastic_search_query_sphinx(data) {
                                     }
                                 }
 
-                                append_html_to_contents(
-                                    contents,
-                                    section_template,
-                                    {
-                                        section_subtitle_link: section_subtitle_link,
-                                        section_subtitle: section_subtitle,
-                                        section_content: section_content
-                                    }
-                                );
+                                contents.append(buildSection(
+                                    section_subtitle,
+                                    section_subtitle_link,
+                                    section_content
+                                ));
                             }
 
                             // if the result is a sphinx domain object
@@ -178,15 +161,11 @@ function attach_elastic_search_query_sphinx(data) {
 
                                 var domain_subtitle = "[" + domain_role_name + "]: " + domain_name;
 
-                                append_html_to_contents(
-                                    contents,
-                                    domain_template,
-                                    {
-                                        domain_subtitle_link: domain_subtitle_link,
-                                        domain_subtitle: domain_subtitle,
-                                        domain_content: domain_content
-                                    }
-                                );
+                                contents.append(buildSection(
+                                    domain_subtitle,
+                                    domain_subtitle_link,
+                                    [domain_content]
+                                ));
                             }
 
                             contents.find('span').addClass('highlighted');
