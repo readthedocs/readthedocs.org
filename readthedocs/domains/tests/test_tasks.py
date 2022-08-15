@@ -79,12 +79,12 @@ class TestTasks(TestCase):
 
         kwargs = send_email.call_args_list[0][1]
         self.assertEqual(kwargs["recipient"], self.user.email)
-        self.assertEqual(kwargs["subject"], subject)
+        self.assertTrue(kwargs["subject"].startswith(subject))
         self.assertIn(self.domain_recently_expired.domain, kwargs["context"]["content"])
 
         kwargs = send_email.call_args_list[1][1]
         self.assertEqual(kwargs["recipient"], self.another_user.email)
-        self.assertEqual(kwargs["subject"], subject)
+        self.assertTrue(kwargs["subject"].startswith(subject))
         self.assertIn(self.domain_recently_expired.domain, kwargs["context"]["content"])
 
     @mock.patch("readthedocs.notifications.backends.send_email")
