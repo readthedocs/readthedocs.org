@@ -1,98 +1,73 @@
 import structlog
+from dataclasses import dataclass
 from readthedocs.projects.constants import LANGUAGES
 import re
 from django.conf import settings
-from collections import namedtuple
 from urllib.parse import urlparse
 
-from django.test.client import RequestFactory
-from django.urls import resolve as url_resolve
+from readthedocs.builds.models import Version
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.proxito.middleware import map_host_to_project_slug
-from readthedocs.proxito.views.mixins import ServeDocsMixin
-from readthedocs.projects.models import Domain
-from readthedocs.proxito.views.utils import _get_project_data_from_request
+from readthedocs.projects.models import Domain, Project
 
 log = structlog.get_logger(__name__)
 
-UnresolvedObject = namedtuple(
-    'Unresolved', 'project, language_slug, version_slug, filename, fragment')
+
+@dataclass(slots=True)
+class UnresolvedURL:
+    canonical_project: Project
+    project: Project
+    version: Version = None
+    filename: str = None
+    query: str = None
+    fragment: str = None
+    domain: Domain = None
+    external: bool = False
 
 
 class UnresolverBase:
 
     LANGUAGES_CODES = {code for code, _ in LANGUAGES}
 
-    def unresolve(self, url):
+    def unresolve(self, url, normalize_filename=False):
         """
         Turn a URL into the component parts that our views would use to process them.
 
         This is useful for lots of places,
         like where we want to figure out exactly what file a URL maps to.
+
+        :param url: Full URL to unresolve (including the protocol and domain part).
+        :param normalize_filename: If `True` the filename will be normalized
+         to end with ``/index.html``.
         """
         parsed = urlparse(url)
-        domain = parsed.netloc.split(':', 1)[0]
-
-        # TODO: Make this not depend on the request object,
-        # but instead move all this logic here working on strings.
-        request = RequestFactory().get(path=parsed.path, HTTP_HOST=domain)
-        project_slug = map_host_to_project_slug(request)
-
-        # Handle returning a response
-        if hasattr(project_slug, 'status_code'):
-            return None
-
-        request.host_project_slug = request.slug = project_slug
-        return self.unresolve_from_request(request, url)
-
-    def unresolve_from_request(self, request, path):
-        """
-        Unresolve using a request.
-
-        ``path`` can be a full URL, but the domain will be ignored,
-        since that information is already in the request object.
-
-        None is returned if the request isn't valid.
-        """
-        parsed = urlparse(path)
-        path = parsed.path
-        project_slug = getattr(request, 'host_project_slug', None)
-
+        domain = self.get_domain_from_host(parsed.netloc)
+        project_slug, domain_object, external = self.unresolve_domain(domain)
         if not project_slug:
             return None
 
-        _, __, kwargs = url_resolve(
-            path,
-            urlconf='readthedocs.proxito.urls',
+        canonical_project = Project.objects.filter(slug=project_slug).first()
+        if not canonical_project:
+            return None
+
+        project, version, filename = self._unresolve_path(
+            canonical_project=canonical_project,
+            path=parsed.path,
         )
 
-        mixin = ServeDocsMixin()
-        version_slug = mixin.get_version_from_host(request, kwargs.get('version_slug'))
+        if normalize_filename and filename and filename.endswith("/"):
+            filename += "index.html"
 
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=project_slug,
-            subproject_slug=kwargs.get('subproject_slug'),
-            lang_slug=kwargs.get('lang_slug'),
-            version_slug=version_slug,
-            filename=kwargs.get('filename', ''),
-        )
-
-        # Handle our backend storage not supporting directory indexes,
-        # so we need to append index.html when appropriate.
-        if not filename or filename.endswith('/'):
-            # We need to add the index.html to find this actual file
-            filename += 'index.html'
-
-        log.debug(
-            'Unresolver parsed.',
-            project_slug=final_project.slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
+        return UnresolvedURL(
+            canonical_project=canonical_project,
+            project=project or canonical_project,
+            version=version,
             filename=filename,
+            query=parsed.query,
+            fragment=parsed.fragment,
+            domain=domain_object,
+            external=external,
         )
-        return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
 
     def _match_multiversion_project(self, canonical_project, path):
         """
