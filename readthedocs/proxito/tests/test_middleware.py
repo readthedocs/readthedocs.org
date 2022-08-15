@@ -310,6 +310,16 @@ class MiddlewareURLConfTests(TestCase):
             'Inserted RTD Footer',
         )
 
+    @override_settings(
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    def test_middleware_urlconf_subpath_static_files(self):
+        resp = self.client.get(
+            "/subpath/to/_/static/javascript/readthedocs-doc-embed.js",
+            HTTP_HOST=self.domain,
+        )
+        self.assertEqual(resp.status_code, 200)
+
     def test_urlconf_is_escaped(self):
         self.pip.urlconf = '3.6/$version/$language/$filename'
         self.pip.save()

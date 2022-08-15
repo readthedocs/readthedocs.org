@@ -1,3 +1,28 @@
+Version 8.3.7
+-------------
+
+:Date: August 09, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Sphinx domain: change type of ID field (`#9482 <https://github.com/readthedocs/readthedocs.org/pull/9482>`__)
+* `@humitos <https://github.com/humitos>`__: Build: unpin Pillow for unsupported Python versions (`#9473 <https://github.com/readthedocs/readthedocs.org/pull/9473>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.6 (`#9465 <https://github.com/readthedocs/readthedocs.org/pull/9465>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: check only for hostname and path for infinite redirects (`#9463 <https://github.com/readthedocs/readthedocs.org/pull/9463>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix missing indentation on reStructuredText badge code (`#9404 <https://github.com/readthedocs/readthedocs.org/pull/9404>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed JS: fix incompatibilities with sphinx 6.x (jquery removal) (`#9359 <https://github.com/readthedocs/readthedocs.org/pull/9359>`__)
+
+Version 8.3.6
+-------------
+
+:Date: August 02, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Build: use correct build environment for build.commands (`#9454 <https://github.com/readthedocs/readthedocs.org/pull/9454>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fixes warnings and other noisy build messages (`#9453 <https://github.com/readthedocs/readthedocs.org/pull/9453>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.5 (`#9452 <https://github.com/readthedocs/readthedocs.org/pull/9452>`__)
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for GitHub RemoteRepository (`#9449 <https://github.com/readthedocs/readthedocs.org/pull/9449>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adds Jupyter Book to examples table (`#9446 <https://github.com/readthedocs/readthedocs.org/pull/9446>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+
 Version 8.3.5
 -------------
 
