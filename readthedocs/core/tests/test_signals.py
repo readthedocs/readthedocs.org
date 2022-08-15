@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.organizations.models import Organization, Team, TeamInvite, TeamMember
+from readthedocs.organizations.models import Organization, Team, TeamMember
 from readthedocs.projects.models import Project
 
 
@@ -60,14 +60,10 @@ class TestProjectOrganizationSignal:
             projects=[project_three],
         )
 
-        get(TeamInvite, team=team_one, organization=org_one)
-
-
         assert Organization.objects.all().count() == 3
         assert Project.objects.all().count() == 3
         assert Version.objects.all().count() == 3
         assert Team.objects.all().count() == 2
-        assert TeamInvite.objects.all().count() == 1
         assert TeamMember.objects.all().count() == 3
         assert User.objects.all().count() == 3
 
@@ -77,6 +73,5 @@ class TestProjectOrganizationSignal:
         assert {project_two, project_three} == set(Project.objects.all())
         assert Version.objects.all().count() == 2
         assert {team_two} == set(Team.objects.all())
-        assert TeamInvite.objects.all().count() == 0
         assert TeamMember.objects.all().count() == 1
         assert User.objects.all().count() == 2
