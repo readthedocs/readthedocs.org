@@ -88,6 +88,14 @@ class UnresolverBase:
         )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
 
+    @staticmethod
+    def get_domain_from_host(host):
+        """
+        Get the normalized domain from a hostname.
+
+        A hostname can include the port.
+        """
+        return host.lower().split(":")[0]
 
 class Unresolver(SettingsOverrideObject):
 

@@ -17,18 +17,11 @@ from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.core.unresolver import unresolver
 from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)  # noqa
 
-
-def _get_domain_from_host(host):
-    """
-    Get the normalized domain from a hostname.
-
-    A hostname can include the port.
-    """
-    return host.lower().split(":")[0]
 
 
 def _unresolve_domain(domain):
@@ -39,8 +32,8 @@ def _unresolve_domain(domain):
     :returns: A tuple with: the project slug, domain object, and if the domain
      is from an external version.
     """
-    public_domain = _get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = _get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+    public_domain = unresolver.get_domain_from_host(settings.PUBLIC_DOMAIN)
+    external_domain = unresolver.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
 
     subdomain, *rest_of_domain = domain.split(".", maxsplit=1)
     rest_of_domain = rest_of_domain[0] if rest_of_domain else ""
@@ -91,9 +84,9 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         - This sets ``request.canonicalize`` with the value as the reason
     """
 
-    host = _get_domain_from_host(request.get_host())
-    public_domain = _get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = _get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+    host = unresolver.get_domain_from_host(request.get_host())
+    public_domain = unresolver.get_domain_from_host(settings.PUBLIC_DOMAIN)
+    external_domain = unresolver.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
 
     # Explicit Project slug being passed in.
     if 'HTTP_X_RTD_SLUG' in request.META:
