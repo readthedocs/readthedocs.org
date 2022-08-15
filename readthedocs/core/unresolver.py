@@ -1,13 +1,12 @@
-import structlog
-from dataclasses import dataclass
-from readthedocs.projects.constants import LANGUAGES
 import re
-from django.conf import settings
+from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from readthedocs.builds.models import Version
+import structlog
+from django.conf import settings
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.builds.models import Version
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.models import Domain, Project
 
 log = structlog.get_logger(__name__)
@@ -15,8 +14,17 @@ log = structlog.get_logger(__name__)
 
 @dataclass(slots=True)
 class UnresolvedURL:
+
+    """Dataclass with the parts of an unresolved URL."""
+
+    # This is the project that owns the domain,
+    # this usually is the parent project of a translation or subproject.
     canonical_project: Project
+
+    # The current project we are serving the docs from.
+    # It can be the same as canonical_project.
     project: Project
+
     version: Version = None
     filename: str = None
     query: str = None
@@ -25,11 +33,30 @@ class UnresolvedURL:
     external: bool = False
 
 
-class UnresolverBase:
+class Unresolver:
+    # This pattern matches:
+    # - /en
+    # - /en/
+    # - /en/latest
+    # - /en/latest/
+    # - /en/latest/file/name/
+    multiversion_pattern = re.compile(
+        r"^/(?P<language>{lang_slug})(/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$".format(  # noqa
+            **pattern_opts
+        )
+    )
 
-    LANGUAGES_CODES = {code for code, _ in LANGUAGES}
+    # This pattern matches:
+    # - /projects/subproject
+    # - /projects/subproject/
+    # - /projects/subproject/file/name/
+    subproject_pattern = re.compile(
+        r"^/projects/(?P<project>{project_slug}+)(/(?P<file>{filename_slug}))?$".format(
+            **pattern_opts
+        )
+    )
 
-    def unresolve(self, url, normalize_filename=True):
+    def unresolve(self, url, add_index=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -37,7 +64,7 @@ class UnresolverBase:
         like where we want to figure out exactly what file a URL maps to.
 
         :param url: Full URL to unresolve (including the protocol and domain part).
-        :param normalize_filename: If `True` the filename will be normalized
+        :param add_index: If `True` the filename will be normalized
          to end with ``/index.html``.
         """
         parsed = urlparse(url)
@@ -55,7 +82,7 @@ class UnresolverBase:
             path=parsed.path,
         )
 
-        if normalize_filename and filename and filename.endswith("/"):
+        if add_index and filename and filename.endswith("/"):
             filename += "index.html"
 
         return UnresolvedURL(
@@ -84,19 +111,7 @@ class UnresolverBase:
         If the translation exists, we return a result even if the version doesn't,
         so the translation is taken as the canonical project (useful for 404 pages).
         """
-        # This pattern matches:
-        # - /en
-        # - /en/
-        # - /en/latest
-        # - /en/latest/
-        # - /en/latest/file/name/
-        versioned_pattern = re.compile(
-            r"^/(?P<language>[^/]+)(/((?P<version>[^/]+)(/(?P<file>.*))?)?)?$"
-        )
-        # if canonical_project.pattern:
-        #    versioned_pattern = re.compile(canonical_project.pattern)
-
-        match = versioned_pattern.match(path)
+        match = self.multiversion_pattern.match(path)
         if not match:
             return None
 
@@ -104,15 +119,10 @@ class UnresolverBase:
         version_slug = match.group("version")
         file = self._normalize_filename(match.group("file"))
 
-        if language not in self.LANGUAGES_CODES:
-            return None
-
         if canonical_project.language == language:
             project = canonical_project
         else:
-            project = canonical_project.translations.filter(
-                language=language
-            ).first()
+            project = canonical_project.translations.filter(language=language).first()
 
         if project:
             version = project.versions.filter(slug=version_slug).first()
@@ -129,23 +139,12 @@ class UnresolverBase:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
         """
-        # This pattern matches:
-        # - /projects/subproject
-        # - /projects/subproject/
-        # - /projects/subproject/file/name/
-        subproject_pattern = re.compile(
-            r"^/projects/(?P<project>[^/]+)(/(?P<file>.*))?$"
-        )
-        # if canonical_project.subproject_pattern:
-        #    subproject_pattern = re.compile(canonical_project.subproject_pattern)
-
-        match = subproject_pattern.match(path)
+        match = self.subproject_pattern.match(path)
         if not match:
             return None
 
         project_slug = match.group("project")
         file = self._normalize_filename(match.group("file"))
-        # TODO: check if all of our projects have an alias.
         project_relationship = (
             canonical_project.subprojects.filter(alias=project_slug)
             .prefetch_related("child")
@@ -163,23 +162,12 @@ class UnresolverBase:
         """
         Try to match a single version project.
 
-        With the default pattern any path will match.
+        By default any path will match.
         """
-        # This pattern matches:
-        # -
-        # - /
-        # - /file/name/
-        single_version_pattern = re.compile(r"^(?P<file>.+)$")
-
-        # if canonical_project.pattern:
-        #     single_version_pattern = re.compile(canonical_project.pattern)
-
-        match = single_version_pattern.match(path)
-        if not match:
-            return None
-
-        file = self._normalize_filename(match.group("file"))
-        version = canonical_project.versions.filter(slug=canonical_project.default_version).first()
+        file = self._normalize_filename(path)
+        version = canonical_project.versions.filter(
+            slug=canonical_project.default_version
+        ).first()
         if version:
             return canonical_project, version, file
         return canonical_project, None, None
@@ -250,7 +238,9 @@ class UnresolverBase:
         is from an external version.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
-        external_domain = self.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+        external_domain = self.get_domain_from_host(
+            settings.RTD_EXTERNAL_VERSION_DOMAIN
+        )
 
         subdomain, *rest_of_domain = domain.split(".", maxsplit=1)
         rest_of_domain = rest_of_domain[0] if rest_of_domain else ""
@@ -261,8 +251,8 @@ class UnresolverBase:
                 project_slug = subdomain
                 return project_slug, None, False
 
-            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
-            # but these might be phishing, so let's ignore them for now.
+            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
+            # for example, but these might be phishing, so let's ignore them for now.
             return None, None, False
 
         if external_domain in domain:
@@ -283,11 +273,6 @@ class UnresolverBase:
             return project_slug, domain_object, False
 
         return None, None, None
-
-
-class Unresolver(SettingsOverrideObject):
-
-    _default_class = UnresolverBase
 
 
 unresolver = Unresolver()

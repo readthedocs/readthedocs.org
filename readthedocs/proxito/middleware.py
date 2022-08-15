@@ -15,9 +15,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
-from readthedocs.core.unresolver import unresolver
 from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)  # noqa
@@ -41,7 +41,9 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
 
     host = unresolver.get_domain_from_host(request.get_host())
     public_domain = unresolver.get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = unresolver.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+    external_domain = unresolver.get_domain_from_host(
+        settings.RTD_EXTERNAL_VERSION_DOMAIN
+    )
 
     # Explicit Project slug being passed in.
     if 'HTTP_X_RTD_SLUG' in request.META:
