@@ -1,4 +1,6 @@
 import structlog
+from readthedocs.projects.constants import LANGUAGES
+import re
 from django.conf import settings
 from collections import namedtuple
 from urllib.parse import urlparse
@@ -19,6 +21,8 @@ UnresolvedObject = namedtuple(
 
 
 class UnresolverBase:
+
+    LANGUAGES_CODES = {code for code, _ in LANGUAGES}
 
     def unresolve(self, url):
         """
@@ -89,6 +93,159 @@ class UnresolverBase:
             filename=filename,
         )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
+
+    def _match_multiversion_project(self, canonical_project, path):
+        """
+        Try to match a multiversion project.
+
+        If the translation exists, we return a result even if the version doesn't,
+        so the translation is taken as the canonical project (useful for 404 pages).
+        """
+        # This pattern matches:
+        # - /en
+        # - /en/
+        # - /en/latest
+        # - /en/latest/
+        # - /en/latest/file/name/
+        versioned_pattern = re.compile(
+            r"^/(?P<language>[^/]+)(/((?P<version>[^/]+)(/(?P<file>.*))?)?)?$"
+        )
+        # if canonical_project.pattern:
+        #    versioned_pattern = re.compile(canonical_project.pattern)
+
+        match = versioned_pattern.match(path)
+        if not match:
+            return None
+
+        language = match.group("language")
+        version_slug = match.group("version")
+        file = match.group("file") or "/"
+
+        if language not in self.LANGUAGES_CODES:
+            return None
+
+        if canonical_project.language == language:
+            project = canonical_project
+        else:
+            project = canonical_project.translations.filter(
+                language=language
+            ).first()
+
+        if project:
+            version = project.versions.filter(slug=version_slug).first()
+            if version:
+                return project, version, file
+            return project, None, None
+
+        return None
+
+    def _match_subproject(self, canonical_project, path):
+        """
+        Try to match a subproject.
+
+        If the subproject exists, we try to resolve the rest of the path
+        with the subproject as the canonical project.
+        """
+        # This pattern matches:
+        # - /projects/subproject
+        # - /projects/subproject/
+        # - /projects/subproject/file/name/
+        subproject_pattern = re.compile(
+            r"^/projects/(?P<project>[^/]+)(/(?P<file>.*))?$"
+        )
+        # if canonical_project.subproject_pattern:
+        #    subproject_pattern = re.compile(canonical_project.subproject_pattern)
+
+        match = subproject_pattern.match(path)
+        if not match:
+            return None
+
+        project_slug = match.group("project")
+        file = match.group("file") or "/"
+        # TODO: check if all of our projects have an alias.
+        project_relationship = (
+            canonical_project.subprojects.filter(alias=project_slug)
+            .prefetch_related("child")
+            .first()
+        )
+        if project_relationship:
+            return self._unresolve_path(
+                canonical_project=project_relationship.child,
+                path=file,
+                check_subprojects=False,
+            )
+        return None
+
+    def _match_single_version_project(self, canonical_project, path):
+        """
+        Try to match a single version project.
+
+        With the default pattern any path will match.
+        """
+        # This pattern matches:
+        # -
+        # - /
+        # - /file/name/
+        single_version_pattern = re.compile(r"^(?P<file>.+)$")
+
+        # if canonical_project.pattern:
+        #     single_version_pattern = re.compile(canonical_project.pattern)
+
+        match = single_version_pattern.match(path)
+        if not match:
+            return None
+
+        file = match.group("file") or "/"
+        version = canonical_project.versions.filter(slug=canonical_project.default_version).first()
+        if version:
+            return canonical_project, version, file
+        return canonical_project, None, None
+
+    def _unresolve_path(self, canonical_project, path, check_subprojects=True):
+        """
+        Unresolve `path` with `canonical_project` as base.
+
+        If the returned project is `None`, then we weren't able to
+        unresolve the path into a project.
+
+        If the returned version is `None`, then we weren't able to
+        unresolve the path into a valid version of the project.
+
+        :param canonical_project: The project that owns the path.
+        :param path: The path to unresolve.
+        :param check_subprojects: If we should check for subprojects,
+         this is used to call this function recursively.
+
+        :returns: A tuple with: project, version, and file name.
+        """
+        # Multiversion project.
+        if not canonical_project.single_version:
+            response = self._match_multiversion_project(
+                canonical_project=canonical_project,
+                path=path,
+            )
+            if response:
+                return response
+
+        # Subprojects.
+        if check_subprojects:
+            response = self._match_subproject(
+                canonical_project=canonical_project,
+                path=path,
+            )
+            if response:
+                return response
+
+        # Single version project.
+        if canonical_project.single_version:
+            response = self._match_single_version_project(
+                canonical_project=canonical_project,
+                path=path,
+            )
+            if response:
+                return response
+
+        return None, None, None
 
     @staticmethod
     def get_domain_from_host(host):
