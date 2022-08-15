@@ -29,7 +29,7 @@ class UnresolverBase:
 
     LANGUAGES_CODES = {code for code, _ in LANGUAGES}
 
-    def unresolve(self, url, normalize_filename=False):
+    def unresolve(self, url, normalize_filename=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -69,6 +69,14 @@ class UnresolverBase:
             external=external,
         )
 
+    @staticmethod
+    def _normalize_filename(filename):
+        """Normalize filename to always start with ``/``."""
+        filename = filename or "/"
+        if not filename.startswith("/"):
+            filename = "/" + filename
+        return filename
+
     def _match_multiversion_project(self, canonical_project, path):
         """
         Try to match a multiversion project.
@@ -94,7 +102,7 @@ class UnresolverBase:
 
         language = match.group("language")
         version_slug = match.group("version")
-        file = match.group("file") or "/"
+        file = self._normalize_filename(match.group("file"))
 
         if language not in self.LANGUAGES_CODES:
             return None
@@ -136,7 +144,7 @@ class UnresolverBase:
             return None
 
         project_slug = match.group("project")
-        file = match.group("file") or "/"
+        file = self._normalize_filename(match.group("file"))
         # TODO: check if all of our projects have an alias.
         project_relationship = (
             canonical_project.subprojects.filter(alias=project_slug)
@@ -170,7 +178,7 @@ class UnresolverBase:
         if not match:
             return None
 
-        file = match.group("file") or "/"
+        file = self._normalize_filename(match.group("file"))
         version = canonical_project.versions.filter(slug=canonical_project.default_version).first()
         if version:
             return canonical_project, version, file
@@ -284,4 +292,3 @@ class Unresolver(SettingsOverrideObject):
 
 unresolver = Unresolver()
 unresolve = unresolver.unresolve
-unresolve_from_request = unresolver.unresolve_from_request
