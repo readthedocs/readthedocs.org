@@ -23,51 +23,6 @@ from readthedocs.proxito import constants
 log = structlog.get_logger(__name__)  # noqa
 
 
-
-def _unresolve_domain(domain):
-    """
-    Unresolve domain by extracting relevant information from it.
-
-    :param str domain: Domain to extract the information from.
-    :returns: A tuple with: the project slug, domain object, and if the domain
-     is from an external version.
-    """
-    public_domain = unresolver.get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = unresolver.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
-
-    subdomain, *rest_of_domain = domain.split(".", maxsplit=1)
-    rest_of_domain = rest_of_domain[0] if rest_of_domain else ""
-
-    if public_domain in domain:
-        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
-        if public_domain == rest_of_domain:
-            project_slug = subdomain
-            return project_slug, None, False
-
-        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
-        # but these might be phishing, so let's ignore them for now.
-        return None, None, False
-
-    if external_domain in domain:
-        # Serve custom versions on external-host-domain.
-        if external_domain == rest_of_domain:
-            try:
-                project_slug, _ = subdomain.rsplit("--", maxsplit=1)
-                return project_slug, None, True
-            except ValueError:
-                return None, None, False
-
-    # Custom domain.
-    domain_object = (
-        Domain.objects.filter(domain=domain).prefetch_related("project").first()
-    )
-    if domain_object:
-        project_slug = domain_object.project.slug
-        return project_slug, domain_object, False
-
-    return None, None, None
-
-
 def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
     """
     Take the request and map the host to the proper project slug.
@@ -96,7 +51,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
             return project_slug
 
-    project_slug, domain_object, external = _unresolve_domain(host)
+    project_slug, domain_object, external = unresolver.unresolve_domain(host)
     if not project_slug:
         # Block domains that look like ours, may be phishing.
         if external_domain in host or public_domain in host:

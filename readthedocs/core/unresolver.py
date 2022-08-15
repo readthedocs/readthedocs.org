@@ -1,4 +1,5 @@
 import structlog
+from django.conf import settings
 from collections import namedtuple
 from urllib.parse import urlparse
 
@@ -8,6 +9,7 @@ from django.urls import resolve as url_resolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.proxito.middleware import map_host_to_project_slug
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.projects.models import Domain
 from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)
@@ -96,6 +98,52 @@ class UnresolverBase:
         A hostname can include the port.
         """
         return host.lower().split(":")[0]
+
+    # TODO: make this a private method once
+    # proxito uses the unresolve method directly.
+    def unresolve_domain(self, domain):
+        """
+        Unresolve domain by extracting relevant information from it.
+
+        :param str domain: Domain to extract the information from.
+        :returns: A tuple with: the project slug, domain object, and if the domain
+        is from an external version.
+        """
+        public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
+        external_domain = self.get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+
+        subdomain, *rest_of_domain = domain.split(".", maxsplit=1)
+        rest_of_domain = rest_of_domain[0] if rest_of_domain else ""
+
+        if public_domain in domain:
+            # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
+            if public_domain == rest_of_domain:
+                project_slug = subdomain
+                return project_slug, None, False
+
+            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
+            # but these might be phishing, so let's ignore them for now.
+            return None, None, False
+
+        if external_domain in domain:
+            # Serve custom versions on external-host-domain.
+            if external_domain == rest_of_domain:
+                try:
+                    project_slug, _ = subdomain.rsplit("--", maxsplit=1)
+                    return project_slug, None, True
+                except ValueError:
+                    return None, None, False
+
+        # Custom domain.
+        domain_object = (
+            Domain.objects.filter(domain=domain).prefetch_related("project").first()
+        )
+        if domain_object:
+            project_slug = domain_object.project.slug
+            return project_slug, domain_object, False
+
+        return None, None, None
+
 
 class Unresolver(SettingsOverrideObject):
 
