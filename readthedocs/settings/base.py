@@ -127,6 +127,9 @@ class CommunityBaseSettings(Settings):
     # Keep BuildData models on database during this time
     RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
 
+    # Number of days an invitation is valid.
+    RTD_INVITATIONS_EXPIRATION_DAYS = 15
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
@@ -204,6 +207,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.search',
             'readthedocs.embed',
             'readthedocs.telemetry',
+            'readthedocs.invitations',
 
             # allauth
             'allauth',

@@ -75,9 +75,15 @@ class ProjectAdminMixin:
         context["superproject"] = project and project.superproject
         return context
 
+    def get_form_kwargs(self):
+        kwargs = {
+            "project": self.get_project(),
+        }
+        return kwargs
+
     def get_form(self, data=None, files=None, **kwargs):
         """Pass in project to form class instance."""
-        kwargs['project'] = self.get_project()
+        kwargs.update(self.get_form_kwargs())
         return self.form_class(data, files, **kwargs)
 
 
