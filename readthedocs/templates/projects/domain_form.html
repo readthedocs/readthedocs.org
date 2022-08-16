@@ -36,6 +36,15 @@
       {% endblocktrans %}
     </p>
 
+    {% if not domain.skip_validation and not domain.is_valid and domain.validation_process_expired %}
+      <p class="help_text">
+        {% blocktrans trimmed %}
+        The validation process period has ended.
+        Save the domain to restart the process.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
     <p>
       <strong>{% trans 'SSL certificate status' %}: </strong>
       <span>{{ domain.domainssl.status }}</span>
