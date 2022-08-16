@@ -14,7 +14,14 @@ jobs:
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "docs"
+          message-template: |
+            ---
+            :books: Documentation previews :books:
+
+            - User's documentation (`docs`): {docs-pr-index-url}
 
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "dev"
+          message-template: |
+            - Developer's documentation (`dev`): {docs-pr-index-url}
