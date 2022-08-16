@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-09 09:56+0000\n"
+"POT-Creation-Date: 2022-08-16 10:20+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jesse Tan, 2017,2021\n"
 "Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs/"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/models.py:69 builds/models.py:622 projects/models.py:1383
+#: analytics/models.py:69 builds/models.py:622 projects/models.py:1393
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:255
 #: templates/search/elastic_search.html:54
 msgid "Version"
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:707 projects/forms.py:463
+#: api/v3/serializers.py:707 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -171,7 +171,7 @@ msgid "Username"
 msgstr "Gebruikersnaam"
 
 #: audit/models.py:109 builds/models.py:111 builds/models.py:616
-#: projects/models.py:1377 redirects/models.py:57
+#: projects/models.py:1387 redirects/models.py:57
 msgid "Project"
 msgstr "Project"
 
@@ -388,7 +388,7 @@ msgstr "Actief"
 msgid "Build finished"
 msgstr ""
 
-#: builds/filters.py:20 projects/models.py:1502
+#: builds/filters.py:20 projects/models.py:1512
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "Bouw activiteit gefaald"
@@ -423,12 +423,12 @@ msgstr ""
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:99 core/models.py:26 projects/models.py:1465
-#: projects/models.py:1633
+#: builds/models.py:99 core/models.py:26 projects/models.py:1475
+#: projects/models.py:1643
 msgid "created"
 msgstr ""
 
-#: builds/models.py:104 core/models.py:31 projects/models.py:1470
+#: builds/models.py:104 core/models.py:31 projects/models.py:1480
 msgid "modified"
 msgstr ""
 
@@ -543,7 +543,7 @@ msgstr "Fout"
 msgid "Exit code"
 msgstr "Afsluitcode"
 
-#: builds/models.py:672 projects/models.py:1394 sphinx_domains/models.py:43
+#: builds/models.py:672 projects/models.py:1404 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "Commit"
 
@@ -934,14 +934,14 @@ msgstr "Geen project gevonden."
 msgid "This project is already Ad-Free."
 msgstr ""
 
-#: gold/models.py:30 organizations/models.py:29 organizations/models.py:166
-#: organizations/models.py:239 projects/models.py:112
+#: gold/models.py:30 organizations/models.py:29 organizations/models.py:169
+#: organizations/models.py:243 projects/models.py:112
 #: subscriptions/models.py:24 subscriptions/models.py:126
 msgid "Publication date"
 msgstr "Publicatiedatum"
 
-#: gold/models.py:31 organizations/models.py:30 organizations/models.py:167
-#: organizations/models.py:240 projects/models.py:113 projects/models.py:1396
+#: gold/models.py:31 organizations/models.py:30 organizations/models.py:170
+#: organizations/models.py:244 projects/models.py:113 projects/models.py:1406
 #: subscriptions/models.py:25 subscriptions/models.py:127
 #: subscriptions/models.py:183
 msgid "Modified date"
@@ -951,7 +951,7 @@ msgstr "Aanpassingsdatum"
 msgid "Level"
 msgstr "Niveau"
 
-#: gold/models.py:48 organizations/models.py:35 organizations/models.py:177
+#: gold/models.py:48 organizations/models.py:35 organizations/models.py:180
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1002,7 +1002,7 @@ msgstr ""
 #: templates/projects/project_notifications.html:66
 #: templates/projects/project_redirects.html:100
 #: templates/projects/project_translations.html:50
-#: templates/projects/project_users.html:37
+#: templates/projects/project_users.html:34
 msgid "Remove"
 msgstr "Verwijderen"
 
@@ -1157,17 +1157,91 @@ msgstr ""
 msgid "{0} for {1}"
 msgstr "{0} voor {1}"
 
+#: invitations/models.py:91
+msgid "From user"
+msgstr ""
+
+#: invitations/models.py:97
+msgid "To user"
+msgstr ""
+
+#: invitations/models.py:103 organizations/models.py:55
+#: organizations/models.py:259
+msgid "E-mail"
+msgstr ""
+
+#: invitations/models.py:108
+#, fuzzy
+#| msgid "Publication date"
+msgid "Expiration date"
+msgstr "Publicatiedatum"
+
+#: invitations/templates/invitations/includes/invitation_list.html:19
+#, fuzzy
+#| msgid "Integration type"
+msgid "Invitation expired"
+msgstr "Soort integratie"
+
+#: invitations/templates/invitations/includes/invitation_list.html:21
+#, fuzzy
+#| msgid "Integration type"
+msgid "Invitation pending"
+msgstr "Soort integratie"
+
+#: invitations/templates/invitations/includes/invitation_list.html:28
+#: templates/profiles/private/token_list.html:40
+msgid "Revoke"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:5
+msgid "Invitation request"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:12
+#, python-format
+msgid ""
+"<a href=\"%(requestor_url)s\">%(requestor_name)s</a> has invited you to join "
+"the <code>%(target_name)s</code> %(target_type)s."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:22
+msgid "Your invitation has expired."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:24
+msgid "Ask the admin of the organization to invite you again."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:26
+msgid "Ask the admin of the project to invite you again."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:31
+#, python-format
+msgid ""
+"This invitation will expire in <span "
+"title=\"%(expiration_date)s\">%(valid_until)s</span>."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:39
+msgid "Accept"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:40
+msgid "Decline"
+msgstr ""
+
 #: notifications/forms.py:29
 msgid "Notification"
 msgstr "Melding"
 
-#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:183
+#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:186
 msgid "Users"
 msgstr "Gebruikers"
 
 #: oauth/models.py:33 oauth/models.py:128 organizations/models.py:46
-#: organizations/models.py:190 projects/filters.py:30 projects/filters.py:114
-#: projects/models.py:122 projects/models.py:1388 sphinx_domains/models.py:51
+#: organizations/models.py:193 projects/filters.py:30 projects/filters.py:114
+#: projects/models.py:122 projects/models.py:1398 sphinx_domains/models.py:51
 #: subscriptions/models.py:28
 msgid "Name"
 msgstr "Naam"
@@ -1324,40 +1398,32 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:136 organizations/forms.py:219
+#: organizations/forms.py:132 organizations/forms.py:217 projects/forms.py:474
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:154
+#: organizations/forms.py:148 organizations/forms.py:252 projects/forms.py:489
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
 
-#: organizations/forms.py:159
+#: organizations/forms.py:153
 #, python-format
 msgid "User %(username)s is already an owner"
 msgstr ""
 
-#: organizations/forms.py:174
+#: organizations/forms.py:176
 msgid "Team already exists"
 msgstr ""
 
-#: organizations/forms.py:275
+#: organizations/forms.py:258
 msgid "User is already a team member"
-msgstr ""
-
-#: organizations/forms.py:297
-msgid "An invitation was already sent to this email"
 msgstr ""
 
 #: organizations/models.py:40
 #: organizations/templates/organizations/admin/base.html:13
 msgid "Owners"
 msgstr "Eigenaren"
-
-#: organizations/models.py:55 organizations/models.py:255
-msgid "E-mail"
-msgstr ""
 
 #: organizations/models.py:68 templates/core/project_detail_right.html:61
 msgid "Home Page"
@@ -1379,28 +1445,38 @@ msgstr ""
 msgid "Stripe customer ID"
 msgstr ""
 
-#: organizations/models.py:155
+#: organizations/models.py:103
+#, fuzzy
+#| msgid "Organization"
+msgid "organization"
+msgstr "Organisatie"
+
+#: organizations/models.py:158
 #, python-brace-format
 msgid "{org} owner {owner}"
 msgstr ""
 
-#: organizations/models.py:197
+#: organizations/models.py:200
 msgid "Access"
 msgstr ""
 
-#: organizations/models.py:250 templates/base.html:192
+#: organizations/models.py:217
+msgid "team"
+msgstr ""
+
+#: organizations/models.py:254 templates/base.html:192
 msgid "Team"
 msgstr ""
 
-#: organizations/models.py:256
+#: organizations/models.py:260
 msgid "Hash"
 msgstr "Hash"
 
-#: organizations/models.py:257
+#: organizations/models.py:261
 msgid "Count"
 msgstr ""
 
-#: organizations/models.py:258
+#: organizations/models.py:262
 msgid "Total"
 msgstr ""
 
@@ -1444,7 +1520,7 @@ msgid "Edit Organization"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:255 templates/builds/regexautomationrule_form.html:28
+#: projects/forms.py:257 templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
 #: templates/projects/project_version_submit.html:4
@@ -1470,8 +1546,8 @@ msgstr ""
 msgid "Owners have full access to this Organization"
 msgstr ""
 
-#: organizations/templates/organizations/admin/owners_edit.html:53
-#: organizations/templates/organizations/admin/owners_edit.html:57
+#: organizations/templates/organizations/admin/owners_edit.html:48
+#: organizations/templates/organizations/admin/owners_edit.html:52
 #: organizations/templates/organizations/team_list.html:51
 msgid "Add Owner"
 msgstr ""
@@ -1498,11 +1574,11 @@ msgstr ""
 msgid "Settings"
 msgstr "Instellingen"
 
-#: organizations/templates/organizations/includes/team_member_list.html:21
+#: organizations/templates/organizations/includes/team_member_list.html:25
 msgid "invite pending"
 msgstr ""
 
-#: organizations/templates/organizations/includes/team_member_list.html:29
+#: organizations/templates/organizations/includes/team_member_list.html:34
 msgid "This team doesn't have any members"
 msgstr ""
 
@@ -1715,35 +1791,42 @@ msgstr ""
 msgid "Verify your email address"
 msgstr ""
 
-#: organizations/views/private.py:102
-msgid "Owner added"
-msgstr ""
+#: organizations/views/private.py:104 organizations/views/private.py:169
+#: projects/views/private.py:475
+#, fuzzy
+#| msgid "Integration type"
+msgid "Invitation sent"
+msgstr "Soort integratie"
 
-#: organizations/views/private.py:106
+#: organizations/views/private.py:113
 msgid "Owner removed"
 msgstr ""
 
-#: organizations/views/private.py:113
+#: organizations/views/private.py:118
+msgid "User is the last owner, can't be removed"
+msgstr ""
+
+#: organizations/views/private.py:126
 msgid "Team added"
 msgstr ""
 
-#: organizations/views/private.py:123
+#: organizations/views/private.py:136
 msgid "Team deleted"
 msgstr ""
 
-#: organizations/views/private.py:140
+#: organizations/views/private.py:153
 msgid "Team updated"
 msgstr ""
 
-#: organizations/views/private.py:145
+#: organizations/views/private.py:158
 msgid "Team projects updated"
 msgstr ""
 
-#: organizations/views/private.py:150
+#: organizations/views/private.py:171
 msgid "Member added to team"
 msgstr ""
 
-#: organizations/views/private.py:159
+#: organizations/views/private.py:176
 msgid "Member removed from team"
 msgstr ""
 
@@ -1835,7 +1918,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:94 projects/models.py:2031
+#: projects/constants.py:94 projects/models.py:2046
 msgid "Public"
 msgstr "Publiek"
 
@@ -1969,84 +2052,84 @@ msgstr ""
 msgid "Relevance"
 msgstr ""
 
-#: projects/forms.py:100
+#: projects/forms.py:102
 msgid "Edit advanced project options"
 msgstr "Bewerk geavanceerde project instellingen"
 
-#: projects/forms.py:123
+#: projects/forms.py:125
 msgid "Invalid project name, a project already exists with that name"
 msgstr "Ongeldige project naam, er bestaat al een project met deze naam"
 
-#: projects/forms.py:127
+#: projects/forms.py:129
 msgid "Invalid project name"
 msgstr "Ongeldige projectnaam"
 
-#: projects/forms.py:145
+#: projects/forms.py:147
 msgid "Repository invalid"
 msgstr "Ongeldige repository"
 
-#: projects/forms.py:186
+#: projects/forms.py:188
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr ""
 
-#: projects/forms.py:245
+#: projects/forms.py:247
 msgid "Global settings"
 msgstr ""
 
-#: projects/forms.py:249
+#: projects/forms.py:251
 msgid "Default settings"
 msgstr ""
 
-#: projects/forms.py:293
+#: projects/forms.py:295
 msgid "To build from pull requests you need a "
 msgstr ""
 
-#: projects/forms.py:304
+#: projects/forms.py:306
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr ""
 
-#: projects/forms.py:352
+#: projects/forms.py:354
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 
-#: projects/forms.py:400
+#: projects/forms.py:402
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr ""
 
-#: projects/forms.py:483
-#, python-brace-format
-msgid "User {name} does not exist"
-msgstr "Gebruiker {name} bestaat niet"
+#: projects/forms.py:493
+#, python-format
+msgid "User %(username)s is already a maintainer"
+msgstr ""
 
-#: projects/forms.py:558
+#: projects/forms.py:572
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:745
+#: projects/forms.py:759
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:852
+#: projects/forms.py:866
 msgid "Variable name can't start with __ (double underscore)"
 msgstr ""
 
-#: projects/forms.py:856
+#: projects/forms.py:870
 msgid "Variable name can't start with READTHEDOCS"
 msgstr ""
 
-#: projects/forms.py:861
+#: projects/forms.py:875
 msgid "There is already a variable with this name for this project"
 msgstr ""
 
-#: projects/forms.py:866
+#: projects/forms.py:880
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:870
+#: projects/forms.py:884
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2266,7 +2349,7 @@ msgstr "PDF-bouw activiteit inschakelen"
 msgid "Create a PDF version of your documentation with each build."
 msgstr "Creëer een PDF versie van je documentatie bij iedere bouw activiteit"
 
-#: projects/models.py:332 projects/models.py:1393
+#: projects/models.py:332 projects/models.py:1403
 msgid "Path"
 msgstr "Pad"
 
@@ -2351,291 +2434,301 @@ msgstr ""
 msgid "This project has been successfully cloned"
 msgstr "Dit project is succesvol gedupliceerd"
 
-#: projects/models.py:470
+#: projects/models.py:461
+#, fuzzy
+#| msgid "Project"
+msgid "project"
+msgstr "Project"
+
+#: projects/models.py:471
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:1279
+#: projects/models.py:1289
 msgid "Subproject nesting is not supported"
 msgstr ""
 
-#: projects/models.py:1395 sphinx_domains/models.py:44
+#: projects/models.py:1405 sphinx_domains/models.py:44
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1398
+#: projects/models.py:1408
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1403
+#: projects/models.py:1413
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1500
+#: projects/models.py:1510
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1501
+#: projects/models.py:1511
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1518
+#: projects/models.py:1528
 msgid "URL"
 msgstr "URL"
 
-#: projects/models.py:1520
+#: projects/models.py:1530
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/models.py:1523
+#: projects/models.py:1533
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1531
+#: projects/models.py:1541
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1534
+#: projects/models.py:1544
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1536
+#: projects/models.py:1546
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1644 sphinx_domains/models.py:47
+#: projects/models.py:1654 sphinx_domains/models.py:47
 msgid "Domain"
 msgstr "Domein"
 
-#: projects/models.py:1651
+#: projects/models.py:1661
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1655
+#: projects/models.py:1665
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1660
+#: projects/models.py:1670
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1664
+#: projects/models.py:1674
 msgid "Use HTTPS"
 msgstr "HTTPS gebruiken"
 
-#: projects/models.py:1666
+#: projects/models.py:1676
 msgid "Always use HTTPS for this domain"
 msgstr "Gebruik altijd HTTPS voor dit domein"
 
-#: projects/models.py:1670
+#: projects/models.py:1680
 msgid "Number of times this domain has been hit"
 msgstr "Aantal hits voor dit domein"
 
-#: projects/models.py:1675 templates/projects/domain_form.html:40
+#: projects/models.py:1685 templates/projects/domain_form.html:40
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1689
+#: projects/models.py:1699
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1693
+#: projects/models.py:1703
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1697
+#: projects/models.py:1707
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1825
+#: projects/models.py:1836
 msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/models.py:1829
+#: projects/models.py:1840
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 
-#: projects/models.py:1834
+#: projects/models.py:1845
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1838
+#: projects/models.py:1849
 msgid "Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1842
+#: projects/models.py:1853
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 
-#: projects/models.py:1846
+#: projects/models.py:1857
 msgid "Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1850
+#: projects/models.py:1861
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1854
+#: projects/models.py:1865
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1858
+#: projects/models.py:1869
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1863
+#: projects/models.py:1874
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1869
+#: projects/models.py:1880
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1873
+#: projects/models.py:1884
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1877
+#: projects/models.py:1888
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1881
+#: projects/models.py:1892
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1885
+#: projects/models.py:1896
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1889
+#: projects/models.py:1900
 msgid "Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1893
+#: projects/models.py:1904
 msgid "Disable all page views"
 msgstr ""
 
-#: projects/models.py:1899
+#: projects/models.py:1908
+msgid "Disable indexing of sphinx domains"
+msgstr ""
+
+#: projects/models.py:1914
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1903
+#: projects/models.py:1918
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1907
+#: projects/models.py:1922
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1911
+#: projects/models.py:1926
 msgid "Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1927
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1915
+#: projects/models.py:1930
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1917
+#: projects/models.py:1932
 msgid "Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:1920
+#: projects/models.py:1935
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1922
+#: projects/models.py:1937
 msgid "Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:1925
+#: projects/models.py:1940
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1931
+#: projects/models.py:1946
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:1935
+#: projects/models.py:1950
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1939
+#: projects/models.py:1954
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1943
+#: projects/models.py:1958
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:1949
+#: projects/models.py:1964
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:1955
+#: projects/models.py:1970
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:1959
+#: projects/models.py:1974
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:1963
+#: projects/models.py:1978
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:1967
+#: projects/models.py:1982
 msgid "Mark duplicated builds as NOOP to be skipped by builders"
 msgstr ""
 
-#: projects/models.py:1971
+#: projects/models.py:1986
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:1982
+#: projects/models.py:1997
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:1987
+#: projects/models.py:2002
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:1993
+#: projects/models.py:2008
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:2012
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2034
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2023
+#: projects/models.py:2038
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2028
+#: projects/models.py:2043
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2034
+#: projects/models.py:2049
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -2668,27 +2761,27 @@ msgstr ""
 msgid "Invalid scheme for URL"
 msgstr ""
 
-#: projects/views/private.py:149 projects/views/private.py:159
+#: projects/views/private.py:150 projects/views/private.py:160
 msgid "Project settings updated"
 msgstr "Projectinstellingen bijgewerkt"
 
-#: projects/views/private.py:168
+#: projects/views/private.py:169
 msgid "Project deleted"
 msgstr "Project verwijderd"
 
-#: projects/views/private.py:386
+#: projects/views/private.py:387
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
 "account on your <a href=\"{url}\">connected services page</a>."
 msgstr ""
 
-#: projects/views/private.py:497
+#: projects/views/private.py:509
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:962
+#: projects/views/private.py:974
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -2790,67 +2883,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:368
+#: settings/base.py:372
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:369
+#: settings/base.py:373
 msgid "English"
 msgstr "Engels"
 
-#: settings/base.py:370
+#: settings/base.py:374
 msgid "Spanish"
 msgstr "Spaan"
 
-#: settings/base.py:371
+#: settings/base.py:375
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:372
+#: settings/base.py:376
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:373
+#: settings/base.py:377
 msgid "French"
 msgstr "Frans"
 
-#: settings/base.py:374
+#: settings/base.py:378
 msgid "Russian"
 msgstr "Russisch"
 
-#: settings/base.py:375
+#: settings/base.py:379
 msgid "German"
 msgstr "Duits"
 
-#: settings/base.py:376
+#: settings/base.py:380
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:377
+#: settings/base.py:381
 msgid "Vietnamese"
 msgstr "Vietnamees"
 
-#: settings/base.py:378
+#: settings/base.py:382
 msgid "Simplified Chinese"
 msgstr ""
 
-#: settings/base.py:379
+#: settings/base.py:383
 msgid "Traditional Chinese"
 msgstr ""
 
-#: settings/base.py:380
+#: settings/base.py:384
 msgid "Japanese"
 msgstr "Japans"
 
-#: settings/base.py:381
+#: settings/base.py:385
 msgid "Ukrainian"
 msgstr ""
 
-#: settings/base.py:382
+#: settings/base.py:386
 msgid "Italian"
 msgstr "Italiaans"
 
-#: settings/base.py:383
+#: settings/base.py:387
 msgid "Korean"
 msgstr "Koreaans"
 
@@ -3616,7 +3709,7 @@ msgstr "Nog geen bouw activiteiten"
 
 #: templates/core/project_detail_right.html:51
 #: templates/projects/project_edit_base.html:22
-#: templates/projects/project_users.html:8
+#: templates/projects/project_users.html:9
 msgid "Maintainers"
 msgstr ""
 
@@ -4020,10 +4113,6 @@ msgstr ""
 msgid "Generate API Token"
 msgstr ""
 
-#: templates/profiles/private/token_list.html:40
-msgid "Revoke"
-msgstr ""
-
 #: templates/profiles/private/token_list.html:49
 msgid "No API Tokens currently configured."
 msgstr ""
@@ -4105,7 +4194,7 @@ msgstr ""
 #: templates/projects/project_notifications.html:79
 #: templates/projects/project_redirects.html:116
 #: templates/projects/project_translations.html:71
-#: templates/projects/project_users.html:49
+#: templates/projects/project_users.html:53
 msgid "Add"
 msgstr "Toevoegen"
 
@@ -4831,11 +4920,11 @@ msgstr ""
 msgid "Choose which project you would like to add as a translation."
 msgstr "Kies welk project uw als een vertaling wilt toevoegen."
 
-#: templates/projects/project_users.html:5
+#: templates/projects/project_users.html:6
 msgid "Edit Maintainers"
 msgstr "Bewerk Onderhouders"
 
-#: templates/projects/project_users.html:12
+#: templates/projects/project_users.html:13
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
@@ -4843,21 +4932,11 @@ msgstr ""
 "Dit staat je toe om onderhouders toe te voegen aan je project. Wees "
 "voorzichtig, want het geeft hen admin-toegang tot het project!"
 
-#: templates/projects/project_users.html:15
-msgid "Existing Maintainers"
-msgstr "Bestaande Onderhouders"
-
-#: templates/projects/project_users.html:28
-msgid "Remove Maintainer"
-msgstr "Verwijder Onderhouder"
-
-#: templates/projects/project_users.html:42
-msgid "Add Maintainer"
+#: templates/projects/project_users.html:49
+#, fuzzy
+#| msgid "Add Maintainer"
+msgid "Add maintainer"
 msgstr "Voeg Onderhouder toe"
-
-#: templates/projects/project_users.html:44
-msgid "Choose which user you would like to add."
-msgstr "Kies de gebruiker die je wilt toevoegen."
 
 #: templates/projects/project_version_detail.html:16
 #, python-format
@@ -5066,3 +5145,16 @@ msgid ""
 msgstr ""
 "Je hebt momenteel geen accounts van sociale netwerken gekoppeld aan dit "
 "account."
+
+#, python-brace-format
+#~ msgid "User {name} does not exist"
+#~ msgstr "Gebruiker {name} bestaat niet"
+
+#~ msgid "Existing Maintainers"
+#~ msgstr "Bestaande Onderhouders"
+
+#~ msgid "Remove Maintainer"
+#~ msgstr "Verwijder Onderhouder"
+
+#~ msgid "Choose which user you would like to add."
+#~ msgstr "Kies de gebruiker die je wilt toevoegen."

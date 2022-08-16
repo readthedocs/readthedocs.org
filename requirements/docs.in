@@ -6,6 +6,7 @@ Pygments==2.12.0
 sphinx_rtd_theme==1.0.0
 sphinx-tabs==3.3.1
 sphinx-intl==2.0.1
+sphinx-design==0.2.0
 sphinx-multiproject==1.0.0rc1
 readthedocs-sphinx-search==0.1.1
 
@@ -27,3 +28,6 @@ myst_parser==0.17.2
 
 # awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
 pyyaml==5.4.1
+
+# spinxcontrib-video
+git+https://github.com/readthedocs/sphinxcontrib-video/

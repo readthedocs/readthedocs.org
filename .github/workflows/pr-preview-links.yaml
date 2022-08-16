@@ -11,6 +11,10 @@ jobs:
   pr-preview-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: readthedocs/readthedocs-preview@main
+      - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "docs"
+
+      - uses: readthedocs/actions/preview@v1
+        with:
+          project-slug: "dev"

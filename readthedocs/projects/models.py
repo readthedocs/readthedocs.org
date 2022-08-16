@@ -458,6 +458,7 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
+        verbose_name = _("project")
 
     def __str__(self):
         return self.name
@@ -676,7 +677,7 @@ class Project(models.Model):
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
         from readthedocs.proxito.urls import core_urls
-        from readthedocs.proxito.views.serve import ServeDocs
+        from readthedocs.proxito.views.serve import ServeDocs, ServeStaticFiles
         from readthedocs.proxito.views.utils import proxito_404_page_handler
 
         class ProxitoURLConf:
@@ -700,6 +701,15 @@ class Project(models.Model):
                         **pattern_opts),
                     ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='user_proxied_downloads'
+                ),
+                re_path(
+                    r"{proxied_api_url}static/"
+                    r"(?P<filename>{filename_slug})$".format(
+                        proxied_api_url=re.escape(self.proxied_api_url),
+                        **pattern_opts,
+                    ),
+                    ServeStaticFiles.as_view(),
+                    name="proxito_static_files",
                 ),
             ]
             docs_urls = [
