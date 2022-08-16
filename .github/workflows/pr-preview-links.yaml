@@ -16,12 +16,12 @@ jobs:
           project-slug: "docs"
           message-template: |
             ---
-            :books: Documentation preview
+            :books: Documentation previews :books:
 
-            - **docs**: {docs-pr-index-url}
+            - User's documentation (`docs`): {docs-pr-index-url}
 
       - uses: readthedocs/actions/preview@v1
         with:
           project-slug: "dev"
           message-template: |
-            - **dev**: {docs-pr-index-url}
+            - Developer's documentation (`dev`): {docs-pr-index-url}
