@@ -175,7 +175,7 @@ class WebhookMixin:
             )
         return integration
 
-    def get_response_push(self, project, branches):
+    def get_response_push(self, project, branches, default_branch):
         """
         Build branches on push events and return API response.
 
@@ -192,7 +192,7 @@ class WebhookMixin:
         :param branches: List of branch names to build
         :type branches: list(str)
         """
-        to_build, not_building = build_branches(project, branches)
+        to_build, not_building = build_branches(project, branches, default_branch)
         if not_building:
             log.info(
                 'Skipping project branches.',
@@ -468,7 +468,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event == GITHUB_PUSH:
             try:
                 branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches)
+                return self.get_response_push(self.project, branches, default_branch)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
@@ -583,8 +583,9 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                branches = [self._normalize_ref(data['ref'])]
-                return self.get_response_push(self.project, branches)
+                default_branch = data["project"]["default_branch"]
+                branches = [self._normalize_ref(data["ref"])]
+                return self.get_response_push(self.project, branches, default_branch)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
@@ -676,8 +677,11 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
                 if branches:
-                    return self.get_response_push(self.project, branches)
-                log.debug('Triggered sync_versions.')
+                    # FIXME: Bitbucket does not tell us what's the default branch of this repository
+                    return self.get_response_push(
+                        self.project, branches, default_branch=None
+                    )
+                log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
@@ -755,7 +759,9 @@ class APIWebhookView(WebhookMixin, APIView):
             )
             if isinstance(branches, str):
                 branches = [branches]
-            return self.get_response_push(self.project, branches)
+
+            # FIXME: find out what should be the default branch here
+            return self.get_response_push(self.project, branches, default_branch=None)
         except TypeError:
             raise ParseError('Invalid request')
 
