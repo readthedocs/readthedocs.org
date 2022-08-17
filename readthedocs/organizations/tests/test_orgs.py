@@ -447,3 +447,18 @@ class OrganizationTeamMemberTests(OrganizationTestCase):
         self.assertEqual(self.team.members.count(), 2)
         self.assertEqual(Invitation.objects.for_object(self.team).count(), 0)
         send_email.assert_called_once()
+
+    @mock.patch("readthedocs.organizations.utils.send_email")
+    def test_invite_myuself_to_team(self, send_email):
+        self.assertEqual(self.team.members.count(), 0)
+        resp = self.client.post(
+            reverse(
+                "organization_team_member_add",
+                args=[self.organization.slug, self.team.slug],
+            ),
+            data={"username_or_email": self.owner.username},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.team.members.count(), 1)
+        self.assertEqual(Invitation.objects.for_object(self.team).count(), 0)
+        send_email.assert_not_called()
