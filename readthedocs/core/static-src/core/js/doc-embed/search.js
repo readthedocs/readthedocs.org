@@ -17,7 +17,7 @@ var MAX_SUBSTRING_LIMIT = 100;
 const createDomNode = (nodeName, attributes) => {
     let node = document.createElement(nodeName);
     if (attributes !== null) {
-        for (var attr in attributes) {
+        for (var attr in Object.keys(attributes)) {
             node.setAttribute(attr, attributes[attr]);
         }
     }
@@ -82,9 +82,9 @@ function attach_elastic_search_query_sphinx(data) {
             a_element.innerHTML = title;
             div_title.appendChild(a_element);
             let elements = [div_title];
-            for (let i = 0; i < contents.length; i += 1) {
+            for (let content of contents) {
                 let div_content = document.createElement("div");
-                div_content.innerHTML = contents[i];
+                div_content.innerHTML = content;
                 elements.push(div_content);
             }
             return elements;
