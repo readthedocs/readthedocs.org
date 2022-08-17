@@ -6,7 +6,10 @@ django~=3.2.0
 django-extensions
 django-polymorphic
 django-autoslug
-django-simple-history
+
+# 3.1.0 includes changes that require running `makemigrations`
+# https://django-simple-history.readthedocs.io/en/latest/#changes
+django-simple-history==3.0.0
 
 djangorestframework
 
