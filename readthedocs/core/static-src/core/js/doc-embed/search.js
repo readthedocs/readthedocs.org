@@ -16,8 +16,8 @@ var MAX_SUBSTRING_LIMIT = 100;
  */
 const createDomNode = (nodeName, attributes) => {
     let node = document.createElement(nodeName);
-    if (attributes !== null) {
-        for (var attr in Object.keys(attributes)) {
+    if (attributes) {
+        for (let attr of Object.keys(attributes)) {
             node.setAttribute(attr, attributes[attr]);
         }
     }
