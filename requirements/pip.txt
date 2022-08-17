@@ -127,6 +127,8 @@ docutils==0.17.1
     # via
     #   -r requirements/pip.in
     #   sphinx
+dparse==0.5.2
+    # via -r requirements/pip.in
 drf-extensions==0.7.1
     # via -r requirements/pip.in
 drf-flex-fields==0.9.8
@@ -175,6 +177,7 @@ packaging==21.3
     # via
     #   -r requirements/pip.in
     #   docker
+    #   dparse
     #   sphinx
 platformdirs==2.5.2
     # via virtualenv
@@ -272,6 +275,8 @@ structlog==22.1.0
     # via
     #   -r requirements/pip.in
     #   django-structlog
+toml==0.10.2
+    # via dparse
 ua-parser==0.15.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37

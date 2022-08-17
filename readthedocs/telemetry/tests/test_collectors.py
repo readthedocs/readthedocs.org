@@ -109,7 +109,7 @@ class TestBuildDataCollector(TestCase):
         )
         run.return_value = (0, out, "")
         self.assertEqual(
-            self.collector._get_pip_packages(include_all=False),
+            self.collector._get_user_pip_packages(),
             [
                 {"name": "requests-mock", "version": "1.8.0"},
                 {"name": "requests-toolbelt", "version": "0.9.1"},
@@ -138,7 +138,7 @@ class TestBuildDataCollector(TestCase):
         )
         run.return_value = (0, out, "")
         self.assertEqual(
-            self.collector._get_pip_packages(include_all=True),
+            self.collector._get_all_pip_packages(),
             [
                 {"name": "requests-mock", "version": "1.8.0"},
                 {"name": "requests-toolbelt", "version": "0.9.1"},

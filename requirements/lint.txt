@@ -173,6 +173,8 @@ docutils==0.17.1
     #   sphinx
 dodgy==0.2.1
     # via prospector
+dparse==0.5.2
+    # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==0.9.8
@@ -255,6 +257,7 @@ packaging==21.3
     # via
     #   -r requirements/pip.txt
     #   docker
+    #   dparse
     #   requirements-detector
     #   sphinx
 pep8-naming==0.10.0
@@ -430,6 +433,8 @@ structlog==22.1.0
     #   django-structlog
 toml==0.10.2
     # via
+    #   -r requirements/pip.txt
+    #   dparse
     #   pylint
     #   requirements-detector
 ua-parser==0.15.1

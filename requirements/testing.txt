@@ -170,6 +170,8 @@ docutils==0.17.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
+dparse==0.5.2
+    # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==0.9.8
@@ -241,6 +243,7 @@ packaging==21.3
     # via
     #   -r requirements/pip.txt
     #   docker
+    #   dparse
     #   pytest
     #   sphinx
 platformdirs==2.5.2
@@ -397,6 +400,10 @@ structlog==22.1.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
+toml==0.10.2
+    # via
+    #   -r requirements/pip.txt
+    #   dparse
 tomli==2.0.1
     # via pytest
 ua-parser==0.15.1
