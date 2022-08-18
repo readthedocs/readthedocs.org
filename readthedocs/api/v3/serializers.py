@@ -464,7 +464,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url', required=False)
-    tags = TagListSerializerField()
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
@@ -550,7 +550,7 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
         source='project_url',
         required=False,
     )
-    tags = TagListSerializerField()
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
