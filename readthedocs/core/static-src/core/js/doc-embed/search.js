@@ -2,28 +2,11 @@
  * Sphinx and Mkdocs search overrides
  */
 
-var rtddata = require('./rtd-data');
-var xss = require('xss/lib/index');
-var MAX_RESULT_PER_SECTION = 3;
-var MAX_SUBSTRING_LIMIT = 100;
-
-/**
- * Create and return DOM nodes with given attributes.
- *
- * @param {String} nodeName name of the node
- * @param {Object} attributes obj of attributes to be assigned to the node
- * @return {Object} DOM node
- */
-const createDomNode = (nodeName, attributes) => {
-    let node = document.createElement(nodeName);
-    if (attributes) {
-        for (let attr of Object.keys(attributes)) {
-            node.setAttribute(attr, attributes[attr]);
-        }
-    }
-    return node;
-};
-
+const rtddata = require('./rtd-data');
+const xss = require('xss/lib/index');
+const { createDomNode } = require("./utils");
+const MAX_RESULT_PER_SECTION = 3;
+const MAX_SUBSTRING_LIMIT = 100;
 
 /*
  * Search query override for hitting our local API instead of the standard
