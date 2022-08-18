@@ -264,7 +264,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     link_to_build=True,
                 )
         except Exception:
-            log.exception(
+            log.warning(
                 "Failed to send status",
                 project_slug=version.project.slug,
                 version_slug=version.slug,

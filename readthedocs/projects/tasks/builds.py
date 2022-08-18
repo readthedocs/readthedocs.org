@@ -829,7 +829,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
-                log.exception(
+                log.warning(
                     'Error copying to storage (not failing build)',
                     media_type=media_type,
                     from_path=from_path,
@@ -848,7 +848,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
-                log.exception(
+                log.warning(
                     'Error deleting from storage (not failing build)',
                     media_type=media_type,
                     media_path=media_path,

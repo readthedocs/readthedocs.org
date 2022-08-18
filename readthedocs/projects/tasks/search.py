@@ -52,7 +52,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
             search_ignore=search_ignore,
         )
     except Exception:
-        log.exception('Failed during ImportedFile creation')
+        log.warning("Failed during ImportedFile creation")
 
     # XXX: Don't access the sphinx domains table while we migrate the ID type
     # https://github.com/readthedocs/readthedocs.org/pull/9482.
@@ -60,12 +60,12 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         try:
             _create_intersphinx_data(version, commit, build)
         except Exception:
-            log.exception("Failed during SphinxDomain creation")
+            log.warning("Failed during SphinxDomain creation")
 
     try:
         _sync_imported_files(version, build)
     except Exception:
-        log.exception('Failed during ImportedFile syncing')
+        log.warning("Failed during ImportedFile syncing")
 
 
 def _sync_imported_files(version, build):

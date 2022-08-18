@@ -137,7 +137,7 @@ class BaseSphinx(BaseBuilder):
                 downloads = api.version(self.version.pk).get()['downloads']
                 subproject_urls = self.project.get_subproject_urls()
             except ConnectionError:
-                log.exception(
+                log.warning(
                     'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
                     project_slug=self.project.slug,
                     version_slug=self.version.slug,
