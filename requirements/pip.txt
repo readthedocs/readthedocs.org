@@ -14,9 +14,9 @@ babel==2.10.3
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.24.53
+boto3==1.24.54
     # via django-storages
-botocore==1.27.53
+botocore==1.27.54
     # via
     #   boto3
     #   s3transfer
@@ -85,7 +85,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.7
     # via -r requirements/pip.in
-django-debug-toolbar==3.5.0
+django-debug-toolbar==3.6.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==7.2.2
     # via -r requirements/pip.in
@@ -207,7 +207,7 @@ pyyaml==5.4.1
     # via -r requirements/pip.in
 redis==3.5.3
     # via -r requirements/pip.in
-regex==2022.7.25
+regex==2022.8.17
     # via -r requirements/pip.in
 requests==2.28.1
     # via
