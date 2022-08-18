@@ -270,7 +270,8 @@ class OrganizationTeamMemberForm(forms.Form):
                 .exists()
             ):
                 member = self.team.organization.add_member(user, self.team)
-                member.send_add_notification(self.request)
+                if user != self.request.user:
+                    member.send_add_notification(self.request)
                 return user
             invitation, _ = Invitation.objects.invite(
                 from_user=self.request.user,
