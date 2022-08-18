@@ -49,7 +49,7 @@ def _unresolve_domain(domain):
         # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
         if public_domain == root_domain:
             project_slug = subdomain
-            log.info("")
+            log.info("Public domain.", domain=domain)
             return project_slug, None, False
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
@@ -64,6 +64,7 @@ def _unresolve_domain(domain):
             project_slug, _ = subdomain.rsplit("--", maxsplit=1)
             return project_slug, None, True
         except ValueError:
+            log.info("Invalid format of external versions domain.", domain=domain)
             return None, None, False
 
     # Custom domain.
