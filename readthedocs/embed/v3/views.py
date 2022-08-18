@@ -107,7 +107,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
-            version_slug = self.unresolved_url.version_slug
+            version_slug = self.unresolved_url.version.slug
             filename = self.unresolved_url.filename
             page_content = self._get_page_content_from_storage(project, version_slug, filename)
 
