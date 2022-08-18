@@ -1,0 +1,16 @@
+# Packages required for running tests
+
+-r pip.txt
+
+django-dynamic-fixture
+pytest
+pytest-custom-exit-code
+pytest-django
+pytest-cov
+
+Mercurial
+
+yamale<3.0
+pytest-mock
+
+requests-mock

@@ -235,44 +235,50 @@ class Unresolver:
 
         :param str domain: Domain to extract the information from.
         :returns: A tuple with: the project slug, domain object, and if the domain
-        is from an external version.
+         is from an external version.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
             settings.RTD_EXTERNAL_VERSION_DOMAIN
         )
 
-        subdomain, *rest_of_domain = domain.split(".", maxsplit=1)
-        rest_of_domain = rest_of_domain[0] if rest_of_domain else ""
+        subdomain, *root_domain = domain.split(".", maxsplit=1)
+        root_domain = root_domain[0] if root_domain else ""
 
         if public_domain in domain:
             # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
-            if public_domain == rest_of_domain:
+            if public_domain == root_domain:
                 project_slug = subdomain
+                log.info("Public domain.", domain=domain)
                 return project_slug, None, False
 
-            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
-            # for example, but these might be phishing, so let's ignore them for now.
+            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
+            # but these might be phishing, so let's ignore them for now.
+            log.warning("Weird variation of our domain.", domain=domain)
             return None, None, False
 
-        if external_domain in domain:
-            # Serve custom versions on external-host-domain.
-            if external_domain == rest_of_domain:
-                try:
-                    project_slug, _ = subdomain.rsplit("--", maxsplit=1)
-                    return project_slug, None, True
-                except ValueError:
-                    return None, None, False
+        # Serve PR builds on external_domain host.
+        if external_domain == root_domain:
+            try:
+                log.info("External versions domain.", domain=domain)
+                project_slug, _ = subdomain.rsplit("--", maxsplit=1)
+                return project_slug, None, True
+            except ValueError:
+                log.info("Invalid format of external versions domain.", domain=domain)
+                return None, None, False
 
         # Custom domain.
         domain_object = (
             Domain.objects.filter(domain=domain).prefetch_related("project").first()
         )
         if domain_object:
+            log.info("Custom domain.", domain=domain)
             project_slug = domain_object.project.slug
             return project_slug, domain_object, False
 
+        log.info("Invalid domain.", domain=domain)
         return None, None, None
+
 
 
 unresolver = Unresolver()
