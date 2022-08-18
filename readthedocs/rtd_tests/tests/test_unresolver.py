@@ -21,7 +21,7 @@ class UnResolverTests(ResolverBase):
         parts = unresolve(
             "https://pip.readthedocs.io/en/latest/foo.html?search=api#fragment"
         )
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/foo.html")
@@ -30,28 +30,28 @@ class UnResolverTests(ResolverBase):
 
     def test_filename_wihtout_index(self):
         parts = unresolve("https://pip.readthedocs.io/en/latest/file/", add_index=False)
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/file/")
 
     def test_no_trailing_slash(self):
         parts = unresolve("https://pip.readthedocs.io/en/latest")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/index.html")
 
     def test_trailing_slash(self):
         parts = unresolve("https://pip.readthedocs.io/en/latest/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/index.html")
 
     def test_file_with_trailing_slash(self):
         parts = unresolve("https://pip.readthedocs.io/en/latest/foo/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/foo/index.html")
@@ -63,14 +63,14 @@ class UnResolverTests(ResolverBase):
         ]
         for url in urls:
             parts = unresolve(url)
-            self.assertEqual(parts.canonical_project, self.pip)
+            self.assertEqual(parts.parent_project, self.pip)
             self.assertEqual(parts.project, self.pip)
             self.assertEqual(parts.version, None)
             self.assertEqual(parts.filename, None)
 
     def test_unresolver_subproject(self):
         parts = unresolve("https://pip.readthedocs.io/projects/sub/ja/latest/foo.html")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.subproject)
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/foo.html")
@@ -84,7 +84,7 @@ class UnResolverTests(ResolverBase):
         )
         version = subproject_translation.versions.first()
         parts = unresolve("https://pip.readthedocs.io/projects/sub/en/latest/foo.html")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, subproject_translation)
         self.assertEqual(parts.version, version)
         self.assertEqual(parts.filename, "/foo.html")
@@ -93,7 +93,7 @@ class UnResolverTests(ResolverBase):
         self.subproject.single_version = True
         self.subproject.save()
         parts = unresolve("https://pip.readthedocs.io/projects/sub/foo.html")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.subproject)
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/foo.html")
@@ -103,21 +103,21 @@ class UnResolverTests(ResolverBase):
         relation.alias = "sub_alias"
         relation.save()
         parts = unresolve("https://pip.readthedocs.io/projects/sub_alias/ja/latest/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.subproject)
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/index.html")
 
     def test_unresolver_translation(self):
         parts = unresolve("https://pip.readthedocs.io/ja/latest/foo.html")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.translation)
         self.assertEqual(parts.version, self.translation_version)
         self.assertEqual(parts.filename, "/foo.html")
 
     def test_unresolve_no_existing_translation(self):
         parts = unresolve("https://pip.readthedocs.io/es/latest/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, None)
         self.assertEqual(parts.filename, None)
@@ -130,7 +130,7 @@ class UnResolverTests(ResolverBase):
             canonical=True,
         )
         parts = unresolve("https://docs.foobar.com/en/latest/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/index.html")
@@ -139,7 +139,7 @@ class UnResolverTests(ResolverBase):
         self.pip.single_version = True
         self.pip.save()
         parts = unresolve("https://pip.readthedocs.io/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/index.html")
@@ -148,7 +148,7 @@ class UnResolverTests(ResolverBase):
         self.pip.single_version = True
         self.pip.save()
         parts = unresolve("https://pip.readthedocs.io/en/latest/index.html")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/en/latest/index.html")
@@ -159,7 +159,7 @@ class UnResolverTests(ResolverBase):
         parts = unresolve(
             "https://pip.readthedocs.io/projects/other/en/latest/index.html"
         )
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/projects/other/en/latest/index.html")
@@ -170,7 +170,7 @@ class UnResolverTests(ResolverBase):
         parts = unresolve(
             "https://pip.readthedocs.io/projects/sub/ja/latest/index.html"
         )
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.subproject)
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/index.html")
@@ -184,14 +184,14 @@ class UnResolverTests(ResolverBase):
             active=True,
         )
         parts = unresolve("https://pip--10.dev.readthedocs.build/en/10/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, version)
         self.assertEqual(parts.filename, "/index.html")
 
     def test_unresolve_external_version_no_existing_version(self):
         parts = unresolve("https://pip--10.dev.readthedocs.build/en/10/")
-        self.assertEqual(parts.canonical_project, self.pip)
+        self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, None)
         self.assertEqual(parts.filename, None)

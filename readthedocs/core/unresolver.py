@@ -19,10 +19,10 @@ class UnresolvedURL:
 
     # This is the project that owns the domain,
     # this usually is the parent project of a translation or subproject.
-    canonical_project: Project
+    parent_project: Project
 
     # The current project we are serving the docs from.
-    # It can be the same as canonical_project.
+    # It can be the same as parent_project.
     project: Project
 
     version: Version = None
@@ -73,12 +73,12 @@ class Unresolver:
         if not project_slug:
             return None
 
-        canonical_project = Project.objects.filter(slug=project_slug).first()
-        if not canonical_project:
+        parent_project = Project.objects.filter(slug=project_slug).first()
+        if not parent_project:
             return None
 
         project, version, filename = self._unresolve_path(
-            canonical_project=canonical_project,
+            parent_project=parent_project,
             path=parsed.path,
         )
 
@@ -86,8 +86,8 @@ class Unresolver:
             filename += "index.html"
 
         return UnresolvedURL(
-            canonical_project=canonical_project,
-            project=project or canonical_project,
+            parent_project=parent_project,
+            project=project or parent_project,
             version=version,
             filename=filename,
             query=parsed.query,
@@ -104,7 +104,7 @@ class Unresolver:
             filename = "/" + filename
         return filename
 
-    def _match_multiversion_project(self, canonical_project, path):
+    def _match_multiversion_project(self, parent_project, path):
         """
         Try to match a multiversion project.
 
@@ -119,10 +119,10 @@ class Unresolver:
         version_slug = match.group("version")
         file = self._normalize_filename(match.group("file"))
 
-        if canonical_project.language == language:
-            project = canonical_project
+        if parent_project.language == language:
+            project = parent_project
         else:
-            project = canonical_project.translations.filter(language=language).first()
+            project = parent_project.translations.filter(language=language).first()
 
         if project:
             version = project.versions.filter(slug=version_slug).first()
@@ -132,7 +132,7 @@ class Unresolver:
 
         return None
 
-    def _match_subproject(self, canonical_project, path):
+    def _match_subproject(self, parent_project, path):
         """
         Try to match a subproject.
 
@@ -146,35 +146,35 @@ class Unresolver:
         project_slug = match.group("project")
         file = self._normalize_filename(match.group("file"))
         project_relationship = (
-            canonical_project.subprojects.filter(alias=project_slug)
+            parent_project.subprojects.filter(alias=project_slug)
             .prefetch_related("child")
             .first()
         )
         if project_relationship:
             return self._unresolve_path(
-                canonical_project=project_relationship.child,
+                parent_project=project_relationship.child,
                 path=file,
                 check_subprojects=False,
             )
         return None
 
-    def _match_single_version_project(self, canonical_project, path):
+    def _match_single_version_project(self, parent_project, path):
         """
         Try to match a single version project.
 
         By default any path will match.
         """
         file = self._normalize_filename(path)
-        version = canonical_project.versions.filter(
-            slug=canonical_project.default_version
+        version = parent_project.versions.filter(
+            slug=parent_project.default_version
         ).first()
         if version:
-            return canonical_project, version, file
-        return canonical_project, None, None
+            return parent_project, version, file
+        return parent_project, None, None
 
-    def _unresolve_path(self, canonical_project, path, check_subprojects=True):
+    def _unresolve_path(self, parent_project, path, check_subprojects=True):
         """
-        Unresolve `path` with `canonical_project` as base.
+        Unresolve `path` with `parent_project` as base.
 
         If the returned project is `None`, then we weren't able to
         unresolve the path into a project.
@@ -182,7 +182,7 @@ class Unresolver:
         If the returned version is `None`, then we weren't able to
         unresolve the path into a valid version of the project.
 
-        :param canonical_project: The project that owns the path.
+        :param parent_project: The project that owns the path.
         :param path: The path to unresolve.
         :param check_subprojects: If we should check for subprojects,
          this is used to call this function recursively.
@@ -190,9 +190,9 @@ class Unresolver:
         :returns: A tuple with: project, version, and file name.
         """
         # Multiversion project.
-        if not canonical_project.single_version:
+        if not parent_project.single_version:
             response = self._match_multiversion_project(
-                canonical_project=canonical_project,
+                parent_project=parent_project,
                 path=path,
             )
             if response:
@@ -201,16 +201,16 @@ class Unresolver:
         # Subprojects.
         if check_subprojects:
             response = self._match_subproject(
-                canonical_project=canonical_project,
+                parent_project=parent_project,
                 path=path,
             )
             if response:
                 return response
 
         # Single version project.
-        if canonical_project.single_version:
+        if parent_project.single_version:
             response = self._match_single_version_project(
-                canonical_project=canonical_project,
+                parent_project=parent_project,
                 path=path,
             )
             if response:
