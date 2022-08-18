@@ -1,0 +1,18 @@
+# Requirements for our local docker development
+
+-r pip.txt
+-r debug.txt
+
+# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
+psycopg2-binary
+
+django-redis-cache
+
+# For resizing images
+pillow
+
+# run tests
+tox
+
+# Used together with structlog to have nicer logs locally
+rich
