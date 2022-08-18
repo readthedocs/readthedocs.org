@@ -123,8 +123,10 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
 docker==5.0.3
     # via -r requirements/pip.in
-docutils==0.19
-    # via sphinx
+docutils==0.17.1
+    # via
+    #   -r requirements/pip.in
+    #   sphinx
 drf-extensions==0.7.1
     # via -r requirements/pip.in
 drf-flex-fields==0.9.8
@@ -243,7 +245,7 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==5.1.1
+sphinx==4.5.0
     # via -r requirements/pip.in
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
