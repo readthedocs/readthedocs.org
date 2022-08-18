@@ -252,8 +252,8 @@ class Unresolver:
                 log.info("Public domain.", domain=domain)
                 return project_slug, None, False
 
-            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
-            # but these might be phishing, so let's ignore them for now.
+            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
+            # for example, but these might be phishing, so let's ignore them for now.
             log.warning("Weird variation of our domain.", domain=domain)
             return None, None, False
 
@@ -278,7 +278,6 @@ class Unresolver:
 
         log.info("Invalid domain.", domain=domain)
         return None, None, None
-
 
 
 unresolver = Unresolver()
