@@ -1,18 +1,11 @@
 """Support code for OAuth, including webhook support."""
 
 import structlog
-
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.services import (
-    BitbucketService,
-    GitHubService,
-    GitLabService,
-)
-from readthedocs.projects.models import Project
-
+from readthedocs.oauth.services import BitbucketService, GitHubService, GitLabService
 
 log = structlog.get_logger(__name__)
 
@@ -25,6 +18,9 @@ SERVICE_MAP = {
 
 def update_webhook(project, integration, request=None):
     """Update a specific project integration instead of brute forcing."""
+    # FIXME: this method supports ``request=None`` on its definition.
+    # However, it does not work when passing ``request=None`` as
+    # it uses that object without checking if it's ``None`` or not.
     service_cls = SERVICE_MAP.get(integration.integration_type)
     if service_cls is None:
         return None
