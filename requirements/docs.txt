@@ -49,6 +49,8 @@ myst-parser==0.17.2
     # via -r docs.in
 packaging==21.3
     # via sphinx
+pbr==5.10.0
+    # via sphinxcontrib-video
 pygments==2.12.0
     # via
     #   -r docs.in
@@ -120,6 +122,8 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/
+    # via -r docs.in
 sphinxemoji==0.2.0
     # via -r docs.in
 tornado==6.1
@@ -135,5 +139,3 @@ urllib3==1.26.9
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
-
-sphinxcontrib-video @ git+https://github.com/readthedocs/sphinxcontrib-video/

@@ -20,11 +20,11 @@ sphinx-prompt==1.4.0
 sphinx-notfound-page==0.8
 sphinx-autobuild==2021.3.14
 
-# Linting
-rstcheck==5.0.0
-
 # Markdown
 myst_parser==0.17.2
 
 # awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
 pyyaml==5.4.1
+
+# spinxcontrib-video
+git+https://github.com/readthedocs/sphinxcontrib-video/
