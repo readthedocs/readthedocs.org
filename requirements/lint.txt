@@ -31,11 +31,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.54
+boto3==1.24.56
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.54
+botocore==1.27.56
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -51,7 +51,7 @@ cffi==1.15.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -165,7 +165,7 @@ djangorestframework==3.13.1
     #   drf-extensions
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
-docker==5.0.3
+docker==6.0.0
     # via -r requirements/pip.txt
 docutils==0.17.1
     # via
@@ -254,6 +254,7 @@ orjson==3.7.12
 packaging==21.3
     # via
     #   -r requirements/pip.txt
+    #   docker
     #   requirements-detector
     #   sphinx
 pep8-naming==0.10.0
@@ -419,7 +420,7 @@ sqlparse==0.4.2
     #   -r requirements/pip.txt
     #   django
     #   django-debug-toolbar
-stripe==4.0.2
+stripe==4.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -431,7 +432,7 @@ toml==0.10.2
     # via
     #   pylint
     #   requirements-detector
-ua-parser==0.15.0
+ua-parser==0.15.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
@@ -445,6 +446,7 @@ urllib3==1.26.11
     # via
     #   -r requirements/pip.txt
     #   botocore
+    #   docker
     #   elasticsearch
     #   requests
 user-agents==2.2.0
