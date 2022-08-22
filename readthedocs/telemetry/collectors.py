@@ -129,7 +129,19 @@ class BuildDataCollector:
         return []
 
     def _get_user_pip_packages(self):
-        """Get all the packages to be installed defined by the user."""
+        """
+        Get all the packages to be installed defined by the user.
+
+        It parses all the requirements files specified in the config file by
+        the user (python.install.requirements) using ``dparse`` --a 3rd party
+        package.
+
+        If the version of the package is explicit (==) it saves that particular
+        version. Otherwise, if it's not defined, it saves ``undefined`` and if
+        it's a non deterministic operation (like >=, <= or ~=) it saves
+        ``unknown`` in the version.
+
+        """
         results = []
         # pylint: disable=too-many-nested-blocks
         for install in self.config.python.install:
