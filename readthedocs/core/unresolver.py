@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from urllib.parse import urlparse
+from urllib.parse import ParseResult, urlparse
 
 import structlog
 from django.conf import settings
@@ -27,8 +27,7 @@ class UnresolvedURL:
 
     version: Version = None
     filename: str = None
-    query: str = None
-    fragment: str = None
+    parsed_url: ParseResult = None
     domain: Domain = None
     external: bool = False
 
@@ -69,7 +68,9 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        project_slug, domain_object, external = self.unresolve_domain(domain)
+        project_slug, domain_object, external_version_slug = self.unresolve_domain(
+            domain
+        )
         if not project_slug:
             return None
 
@@ -82,6 +83,26 @@ class Unresolver:
             path=parsed.path,
         )
 
+        # Make sure we are serving the external version from the subdomain.
+        if external_version_slug and version:
+            if external_version_slug != version.slug:
+                log.warning(
+                    "Invalid version for external domain.",
+                    domain=domain,
+                    version_slug=version.slug,
+                )
+                version = None
+                filename = None
+            elif not version.is_external:
+                log.warning(
+                    "Version is not external.",
+                    domain=domain,
+                    version_slug=version.slug,
+                    version_type=version.type,
+                )
+                version = None
+                filename = None
+
         if add_index and filename and filename.endswith("/"):
             filename += "index.html"
 
@@ -90,10 +111,9 @@ class Unresolver:
             project=project or parent_project,
             version=version,
             filename=filename,
-            query=parsed.query,
-            fragment=parsed.fragment,
+            parsed_url=parsed,
             domain=domain_object,
-            external=external,
+            external=bool(external_version_slug),
         )
 
     @staticmethod
@@ -109,7 +129,7 @@ class Unresolver:
         Try to match a multiversion project.
 
         If the translation exists, we return a result even if the version doesn't,
-        so the translation is taken as the canonical project (useful for 404 pages).
+        so the translation is taken as the current project (useful for 404 pages).
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -138,6 +158,9 @@ class Unresolver:
 
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
+
+        If the subproject exists, we return a result even if version doesn't,
+        so the subproject is taken as the current project (useful for 404 pages).
         """
         match = self.subproject_pattern.match(path)
         if not match:
@@ -151,11 +174,15 @@ class Unresolver:
             .first()
         )
         if project_relationship:
-            return self._unresolve_path(
-                parent_project=project_relationship.child,
+            subproject = project_relationship.child
+            response = self._unresolve_path(
+                parent_project=subproject,
                 path=file,
                 check_subprojects=False,
             )
+            if response:
+                return response
+            return subproject, None, None
         return None
 
     def _match_single_version_project(self, parent_project, path):
@@ -216,7 +243,7 @@ class Unresolver:
             if response:
                 return response
 
-        return None, None, None
+        return parent_project, None, None
 
     @staticmethod
     def get_domain_from_host(host):
@@ -234,8 +261,8 @@ class Unresolver:
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
-        :returns: A tuple with: the project slug, domain object, and if the domain
-         is from an external version.
+        :returns: A tuple with: the project slug, domain object, and the
+         external version slug if the domain is from an external version.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
@@ -250,22 +277,22 @@ class Unresolver:
             if public_domain == root_domain:
                 project_slug = subdomain
                 log.info("Public domain.", domain=domain)
-                return project_slug, None, False
+                return project_slug, None, None
 
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
             # for example, but these might be phishing, so let's ignore them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            return None, None, False
+            return None, None, None
 
         # Serve PR builds on external_domain host.
         if external_domain == root_domain:
             try:
+                project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                 log.info("External versions domain.", domain=domain)
-                project_slug, _ = subdomain.rsplit("--", maxsplit=1)
-                return project_slug, None, True
+                return project_slug, None, version_slug
             except ValueError:
                 log.info("Invalid format of external versions domain.", domain=domain)
-                return None, None, False
+                return None, None, None
 
         # Custom domain.
         domain_object = (
