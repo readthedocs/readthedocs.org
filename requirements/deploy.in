@@ -1,0 +1,12 @@
+# Requirements for our production systems
+
+-r pip.txt
+
+psycopg2
+gunicorn
+django-redis-cache
+
+# For resizing images
+pillow
+
+structlog-sentry

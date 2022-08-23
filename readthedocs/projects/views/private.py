@@ -817,6 +817,11 @@ class DomainCreate(SettingsOverrideObject):
 
 class DomainUpdateBase(DomainMixin, UpdateView):
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.restart_validation_process()
+        return response
+
     def post(self, request, *args, **kwargs):
         project = self.get_project()
         if self._is_enabled(project) and not project.superproject:
