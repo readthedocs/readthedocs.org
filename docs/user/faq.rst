@@ -381,7 +381,7 @@ error: pathspec
 
    error: pathspec 'main' did not match any file(s) known to git
 
-**Resolution:** A specified branch does not exist in the git repository.
+**Resolution:** A specified branch does not exist in the Git repository.
 This might be because the git repository was recently created (and has no commits nor branches) or because the default branch has changed name. If for instance, the default branch on GitHub changed from ``master`` to ``main``, you need to visit :guilabel:`Admin > Advanced Settings` to change the name of the default branch that Read the Docs expects to find when cloning the repository.
 
 
@@ -408,11 +408,11 @@ ERROR: Repository not found.
    ERROR: Repository not found.
    fatal: Could not read from remote repository.
 
-**Resolution:** This error usually occurs on private git repositories that no longer have the public SSH key from their Read the Docs project installed as a *Deploy Key*.
+**Resolution:** This error usually occurs on private Git repositories that no longer have the public SSH key from their Read the Docs project installed as a *deploy key*.
 
 1. Navigate to :guilabel:`Admin > SSH Keys`
-2. Copy the contents of the Public Key.
-3. Ensure that the key exists as a Deploy Key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+2. Copy the contents of the public key.
+3. Ensure that the key exists as a deploy key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
 
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
