@@ -58,6 +58,12 @@ class BuildDataCollector:
         Data that can be extracted from the database (project/organization)
         isn't collected here.
         """
+
+        # NOTE: we could run each command inside a try/except block to have a
+        # more granular protection and be able to save data from those commands
+        # that didn't fail. Otherwise, if one command fails, all the data for
+        # this Build is lost.
+
         data = {}
         data["config"] = {"user": self.config.source_config}
         data["os"] = self._get_operating_system()
