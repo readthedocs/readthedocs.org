@@ -16,10 +16,14 @@ asgiref==3.5.2
     # via
     #   -r requirements/pip.txt
     #   django
+asttokens==2.0.8
+    # via stack-data
 babel==2.10.3
     # via
     #   -r requirements/pip.txt
     #   sphinx
+backcall==0.2.0
+    # via ipython
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
@@ -80,6 +84,8 @@ cython==0.29.32
     # via
     #   -r requirements/pip.txt
     #   selectolax
+decorator==5.1.1
+    # via ipython
 defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
@@ -181,6 +187,8 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
+executing==0.10.0
+    # via stack-data
 filelock==3.8.0
     # via
     #   -r requirements/pip.txt
@@ -201,6 +209,10 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
+ipython==8.4.0
+    # via -r requirements/deploy.in
+jedi==0.18.1
+    # via ipython
 jinja2==3.1.2
     # via
     #   -r requirements/pip.txt
@@ -228,6 +240,10 @@ markupsafe==2.1.1
     # via
     #   -r requirements/pip.txt
     #   jinja2
+matplotlib-inline==0.1.6
+    # via ipython
+newrelic==7.4.0.172
+    # via -r requirements/deploy.in
 oauthlib==3.2.0
     # via
     #   -r requirements/pip.txt
@@ -240,6 +256,12 @@ packaging==21.3
     #   docker
     #   dparse
     #   sphinx
+parso==0.8.3
+    # via jedi
+pexpect==4.8.0
+    # via ipython
+pickleshare==0.7.5
+    # via ipython
 pillow==9.2.0
     # via -r requirements/deploy.in
 platformdirs==2.5.2
@@ -250,8 +272,13 @@ prompt-toolkit==3.0.30
     # via
     #   -r requirements/pip.txt
     #   click-repl
+    #   ipython
 psycopg2==2.9.3
     # via -r requirements/deploy.in
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.2
+    # via stack-data
 pycparser==2.21
     # via
     #   -r requirements/pip.txt
@@ -259,6 +286,7 @@ pycparser==2.21
 pygments==2.13.0
     # via
     #   -r requirements/pip.txt
+    #   ipython
     #   sphinx
 pyjwt[crypto]==2.4.0
     # via
@@ -368,6 +396,8 @@ sqlparse==0.4.2
     #   -r requirements/pip.txt
     #   django
     #   django-debug-toolbar
+stack-data==0.4.0
+    # via ipython
 stripe==4.1.0
     # via
     #   -r requirements/pip.txt
@@ -382,6 +412,10 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
+traitlets==5.3.0
+    # via
+    #   ipython
+    #   matplotlib-inline
 ua-parser==0.15.1
     # via
     #   -r requirements/pip.txt
