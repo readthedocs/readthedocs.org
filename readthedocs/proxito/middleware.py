@@ -15,69 +15,12 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.unresolver import unresolver
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)  # noqa
-
-
-def _get_domain_from_host(host):
-    """
-    Get the normalized domain from a hostname.
-
-    A hostname can include the port.
-    """
-    return host.lower().split(":")[0]
-
-
-def _unresolve_domain(domain):
-    """
-    Unresolve domain by extracting relevant information from it.
-
-    :param str domain: Domain to extract the information from.
-    :returns: A tuple with: the project slug, domain object, and if the domain
-     is from an external version.
-    """
-    public_domain = _get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = _get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
-
-    subdomain, *root_domain = domain.split(".", maxsplit=1)
-    root_domain = root_domain[0] if root_domain else ""
-
-    if public_domain in domain:
-        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
-        if public_domain == root_domain:
-            project_slug = subdomain
-            log.info("Public domain.", domain=domain)
-            return project_slug, None, False
-
-        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
-        # but these might be phishing, so let's ignore them for now.
-        log.warning("Weird variation of our domain.", domain=domain)
-        return None, None, False
-
-    # Serve PR builds on external_domain host.
-    if external_domain == root_domain:
-        try:
-            log.info("External versions domain.", domain=domain)
-            project_slug, _ = subdomain.rsplit("--", maxsplit=1)
-            return project_slug, None, True
-        except ValueError:
-            log.info("Invalid format of external versions domain.", domain=domain)
-            return None, None, False
-
-    # Custom domain.
-    domain_object = (
-        Domain.objects.filter(domain=domain).prefetch_related("project").first()
-    )
-    if domain_object:
-        log.info("Custom domain.", domain=domain)
-        project_slug = domain_object.project.slug
-        return project_slug, domain_object, False
-
-    log.info("Invalid domain.", domain=domain)
-    return None, None, None
 
 
 def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
@@ -96,9 +39,11 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         - This sets ``request.canonicalize`` with the value as the reason
     """
 
-    host = _get_domain_from_host(request.get_host())
-    public_domain = _get_domain_from_host(settings.PUBLIC_DOMAIN)
-    external_domain = _get_domain_from_host(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+    host = unresolver.get_domain_from_host(request.get_host())
+    public_domain = unresolver.get_domain_from_host(settings.PUBLIC_DOMAIN)
+    external_domain = unresolver.get_domain_from_host(
+        settings.RTD_EXTERNAL_VERSION_DOMAIN
+    )
 
     # Explicit Project slug being passed in.
     if 'HTTP_X_RTD_SLUG' in request.META:
@@ -108,7 +53,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
             return project_slug
 
-    project_slug, domain_object, external = _unresolve_domain(host)
+    project_slug, domain_object, external = unresolver.unresolve_domain(host)
     if not project_slug:
         # Block domains that look like ours, may be phishing.
         if external_domain in host or public_domain in host:
