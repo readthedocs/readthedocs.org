@@ -1,3 +1,26 @@
+Version 8.4.1
+-------------
+
+:Date: August 23, 2022
+
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin django-structlog to 2.2.1 (`#9535 <https://github.com/readthedocs/readthedocs.org/pull/9535>`__)
+* `@xk999 <https://github.com/xk999>`__: Update Transifex link (`#9531 <https://github.com/readthedocs/readthedocs.org/pull/9531>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump actions/setup-python from 3 to 4 (`#9529 <https://github.com/readthedocs/readthedocs.org/pull/9529>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9528 <https://github.com/readthedocs/readthedocs.org/pull/9528>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: collect user's requirements (`#9514 <https://github.com/readthedocs/readthedocs.org/pull/9514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Teams: don't send email notification when users adds themselves to a team (`#9511 <https://github.com/readthedocs/readthedocs.org/pull/9511>`__)
+* `@humitos <https://github.com/humitos>`__: Preview: escape characters (`#9509 <https://github.com/readthedocs/readthedocs.org/pull/9509>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Removes rstcheck (`#9505 <https://github.com/readthedocs/readthedocs.org/pull/9505>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.0 (`#9504 <https://github.com/readthedocs/readthedocs.org/pull/9504>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: sphinxcontrib-video was added incorrectly (`#9501 <https://github.com/readthedocs/readthedocs.org/pull/9501>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix typo in build concurrency logging (`#9499 <https://github.com/readthedocs/readthedocs.org/pull/9499>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update template from documentation preview (`#9495 <https://github.com/readthedocs/readthedocs.org/pull/9495>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use pip-tools for all our files  (`#9480 <https://github.com/readthedocs/readthedocs.org/pull/9480>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use GitHub Action + pip-tools (`#9479 <https://github.com/readthedocs/readthedocs.org/pull/9479>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: separate project slug extraction from request manipulation (`#9462 <https://github.com/readthedocs/readthedocs.org/pull/9462>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: track validation process (`#9428 <https://github.com/readthedocs/readthedocs.org/pull/9428>`__)
+
 Version 8.4.0
 -------------
 
