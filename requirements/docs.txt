@@ -171,6 +171,8 @@ docutils==0.17.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
+dparse==0.5.2
+    # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==0.9.8
@@ -251,6 +253,7 @@ packaging==21.3
     # via
     #   -r requirements/pip.txt
     #   docker
+    #   dparse
     #   sphinx
 pbr==5.10.0
     # via sphinxcontrib-video
@@ -425,6 +428,10 @@ structlog==22.1.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
+toml==0.10.2
+    # via
+    #   -r requirements/pip.txt
+    #   dparse
 tornado==6.2
     # via livereload
 typing-extensions==4.3.0
