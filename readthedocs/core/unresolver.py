@@ -180,6 +180,9 @@ class Unresolver:
                 path=file,
                 check_subprojects=False,
             )
+            # If we got a valid response, return that,
+            # otherwise return the current subproject
+            # as the current project without a valid version or path.
             if response:
                 return response
             return subproject, None, None
