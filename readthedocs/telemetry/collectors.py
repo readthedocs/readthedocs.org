@@ -155,14 +155,16 @@ class BuildDataCollector:
                     ).serialize()
                     dependencies = df.get("dependencies", [])
                     for requirement in dependencies:
-                        name = requirement.get("name").lower()
+                        name = requirement.get("name", "").lower()
+                        if not name:
+                            continue
 
                         # If the user defines a specific version in the
                         # requirements file, we save it Otherwise, we don't
                         # because we don't know which version will be
                         # installed.
                         version = "undefined"
-                        specs = str(requirement.get("specs"))
+                        specs = str(requirement.get("specs", ""))
                         if specs:
                             if specs.startswith("=="):
                                 version = specs.replace("==", "", 1)

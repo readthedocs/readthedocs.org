@@ -89,22 +89,16 @@ class TestBuildDataCollector(TestCase):
         )
 
     def test_get_user_pip_packages(self, run):
+        self.collector.config = self._get_build_config(
+            {"python": {"install": [{"requirements": "docs/requirements.txt"}]}}
+        )
         out = dedent(
             """
-            [
-                {
-                    "name": "requests-mock",
-                    "version": "1.8.0"
-                },
-                {
-                    "name": "requests-toolbelt",
-                    "version": "0.9.1"
-                },
-                {
-                    "name": "rstcheck",
-                    "version": "3.3.1"
-                }
-            ]
+            requests-mock==1.8.0
+            requests-toolbelt==0.9.1
+            rstcheck==3.3.1
+            Sphinx>=5  # >= specs
+            requests   # no specs
             """
         )
         run.return_value = (0, out, "")
@@ -114,6 +108,8 @@ class TestBuildDataCollector(TestCase):
                 {"name": "requests-mock", "version": "1.8.0"},
                 {"name": "requests-toolbelt", "version": "0.9.1"},
                 {"name": "rstcheck", "version": "3.3.1"},
+                {"name": "sphinx", "version": "unknown"},  # >= specs
+                {"name": "requests", "version": "undefined"},  # no specs
             ],
         )
 
