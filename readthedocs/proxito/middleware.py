@@ -49,7 +49,7 @@ def _unresolve_domain(domain):
         # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
         if public_domain == root_domain:
             project_slug = subdomain
-            log.info("Public domain.", domain=domain)
+            log.debug("Public domain.", domain=domain)
             return project_slug, None, False
 
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example,
@@ -60,7 +60,7 @@ def _unresolve_domain(domain):
     # Serve PR builds on external_domain host.
     if external_domain == root_domain:
         try:
-            log.info("External versions domain.", domain=domain)
+            log.debug("External versions domain.", domain=domain)
             project_slug, _ = subdomain.rsplit("--", maxsplit=1)
             return project_slug, None, True
         except ValueError:
@@ -72,7 +72,7 @@ def _unresolve_domain(domain):
         Domain.objects.filter(domain=domain).prefetch_related("project").first()
     )
     if domain_object:
-        log.info("Custom domain.", domain=domain)
+        log.debug("Custom domain.", domain=domain)
         project_slug = domain_object.project.slug
         return project_slug, domain_object, False
 
