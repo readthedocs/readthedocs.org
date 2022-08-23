@@ -408,6 +408,14 @@ ERROR: Repository not found.
    ERROR: Repository not found.
    fatal: Could not read from remote repository.
 
-**Resolution:** This error can occur if a private Read the Docs project has changed owners. For instance, if the user who created the project on Read the Docs no longer has access to the Git repository. Verify who Read the Docs thinks is the owner of the project and if that particular user has reading rights to the private git repository.
+**Resolution:** This error usually occurs on private git repositories that no longer have the public SSH key from their Read the Docs project installed as a *Deploy Key*.
+
+1. Navigate to :guilabel:`Admin > SSH Keys`
+2. Copy the contents of the Public Key.
+3. Ensure that the key exists as a Deploy Key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+
+   - ``https://github.com/<username>/<repo>/settings/keys``
+   - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
+   - ``https://bitbucket.org/<username>/<repo>/admin/access-keys/``
 
 This error is rare for public repositories. If your repository is public and you see this error, it may be because you have specified a wrong domain or forgotten a component in the path.
