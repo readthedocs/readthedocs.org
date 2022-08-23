@@ -111,6 +111,9 @@ django-debug-toolbar
 # For enabling content-security-policy
 django-csp
 
-django-structlog
+# Upgrading to 3.x requires some extra work
+# https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
+django-structlog==2.2.0
+
 structlog
 dparse
