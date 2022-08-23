@@ -1,5 +1,4 @@
 # Base packages
-pip
 virtualenv
 
 django~=3.2.0
@@ -57,9 +56,6 @@ selectolax
 
 # embed
 pyquery
-
-# NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
-python-dateutil
 
 orjson
 

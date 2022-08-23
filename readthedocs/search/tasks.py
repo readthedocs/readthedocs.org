@@ -1,6 +1,6 @@
-import structlog
+import datetime
 
-from dateutil.parser import parse
+import structlog
 from django.apps import apps
 from django.conf import settings
 from django.utils import timezone
@@ -172,7 +172,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         )
         return
 
-    time = parse(time_string)
+    time = datetime.fromisoformat(time_string)
     before_10_sec = time - timezone.timedelta(seconds=10)
     partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
