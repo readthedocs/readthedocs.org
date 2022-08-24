@@ -150,6 +150,9 @@ html_static_path = ["_static", f"{docset}/_static"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
 
+if os.environ.get("READTHEDOCS_VERSION_TYPE") == "external":
+    html_js_files.append("js/readthedocs-doc-diff.js")
+
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
