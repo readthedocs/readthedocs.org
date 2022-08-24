@@ -7,6 +7,23 @@ var xss = require('xss/lib/index');
 var MAX_RESULT_PER_SECTION = 3;
 var MAX_SUBSTRING_LIMIT = 100;
 
+/**
+ * Create and return DOM nodes with given attributes.
+ *
+ * @param {String} nodeName name of the node
+ * @param {Object} attributes obj of attributes to be assigned to the node
+ * @return {Object} DOM node
+ */
+const createDomNode = (nodeName, attributes) => {
+    let node = document.createElement(nodeName);
+    if (attributes) {
+        for (let attr of Object.keys(attributes)) {
+            node.setAttribute(attr, attributes[attr]);
+        }
+    }
+    return node;
+};
+
 
 /*
  * Search query override for hitting our local API instead of the standard
@@ -58,19 +75,19 @@ function attach_elastic_search_query_sphinx(data) {
          * @param {String} link.
          * @param {Array} contents.
          */
-        var buildSection = function (title, link, contents) {
+        const buildSection = function (title, link, contents) {
             var div_title = document.createElement("div");
             var a_element = document.createElement("a");
             a_element.href = link;
             a_element.innerHTML = title;
             div_title.appendChild(a_element);
-            html = div_title.outerHTML;
-            for (var i = 0; i < contents.length; i += 1) {
-                var div_content = document.createElement("div");
-                div_content.innerHTML = contents[i];
-                html += div_content.outerHTML;
+            let elements = [div_title];
+            for (let content of contents) {
+                let div_content = document.createElement("div");
+                div_content.innerHTML = content;
+                elements.push(div_content);
             }
-            return html;
+            return elements;
         };
 
         search_def
@@ -81,7 +98,7 @@ function attach_elastic_search_query_sphinx(data) {
                     for (var i = 0; i < results.length; i += 1) {
                         var result = results[i];
                         var blocks = result.blocks;
-                        var list_item = $('<li>');
+                        let list_item = createDomNode('li');
 
                         var title = result.title;
                         // if highlighted title is present, use that.
@@ -91,23 +108,24 @@ function attach_elastic_search_query_sphinx(data) {
 
                         var link = result.path + "?highlight=" + encodeURIComponent(query);
 
-                        var item = $('<a>', {'href': link});
-
-                        item.html(title);
-                        item.find('span').addClass('highlighted');
-                        list_item.append(item);
+                        let item = createDomNode('a', {href: link});
+                        item.innerHTML = title;
+                        for (let element of item.getElementsByTagName('span')) {
+                            element.className = 'highlighted';
+                        }
+                        list_item.appendChild(item);
 
                         // If the document is from a subproject, add extra information
                         if (result.project !== project) {
-                            var text = " (from project " + result.project_alias + ")";
-                            var extra = $('<span>', {'text': text});
-                            list_item.append(extra);
+                            let extra = createDomNode('span');
+                            extra.innerText = " (from project " + result.project_alias + ")";
+                            list_item.appendChild(extra);
                         }
 
                         for (var block_index = 0; block_index < blocks.length; block_index += 1) {
                             var current_block = blocks[block_index];
 
-                            var contents = $('<div class="context">');
+                            let contents = createDomNode('div', {class: 'context'});
 
                             // if the result is page section
                             if (current_block.type === "section") {
@@ -131,12 +149,12 @@ function attach_elastic_search_query_sphinx(data) {
                                         section_content.push("... " + xss(content[k]) + " ...");
                                     }
                                 }
-
-                                contents.append(buildSection(
+                                let sections = buildSection(
                                     section_subtitle,
                                     section_subtitle_link,
                                     section_content
-                                ));
+                                );
+                                sections.forEach(element => { contents.appendChild(element); });
                             }
 
                             // if the result is a sphinx domain object
@@ -161,27 +179,30 @@ function attach_elastic_search_query_sphinx(data) {
 
                                 var domain_subtitle = "[" + domain_role_name + "]: " + domain_name;
 
-                                contents.append(buildSection(
+                                let sections = buildSection(
                                     domain_subtitle,
                                     domain_subtitle_link,
                                     [domain_content]
-                                ));
+                                );
+                                sections.forEach(element => { contents.appendChild(element); });
                             }
 
-                            contents.find('span').addClass('highlighted');
-                            list_item.append(contents);
+                            for (let element of contents.getElementsByTagName('span')) {
+                                element.className = 'highlighted';
+                            }
+                            list_item.appendChild(contents);
 
                             // Create some spacing between the results.
                             // Also, don't add this spacing in the last hit.
                             if (block_index < blocks.length - 1) {
-                                list_item.append($("<div class='rtd_search_hits_spacing'></div>"));
+                                list_item.appendChild(createDomNode('div', {class: 'rtd_search_hits_spacing'}));
                             }
                         }
 
                         if (Search.output.jquery) {
-                          Search.output.append(list_item);
+                          Search.output.append($(list_item));
                         } else {
-                          Search.output.appendChild(list_item.get(0));
+                          Search.output.appendChild(list_item);
                         }
                     }
                     setText(
@@ -198,30 +219,30 @@ function attach_elastic_search_query_sphinx(data) {
                 Search.query_fallback(query);
             })
             .always(function () {
-                $('#search-progress').empty();
+                let progress = document.getElementById('search-progress');
+                if (progress !== null) {
+                  progress.replaceChildren();
+                }
                 Search.stopPulse();
                 setText(Search.title, _('Search Results'));
             });
 
-        $.ajax({
-            url: search_url.href,
-            crossDomain: true,
-            xhrFields: {
-                withCredentials: true,
-            },
-            complete: function (resp, status_code) {
-                if (
-                    status_code !== 'success' ||
-                    typeof (resp.responseJSON) === 'undefined' ||
-                    resp.responseJSON.count === 0
-                ) {
-                    return search_def.reject();
-                }
-                return search_def.resolve(resp.responseJSON);
+        fetch(search_url.href, {method: 'GET'})
+        .then(response => {
+            if (!response.ok) {
+              throw new Error();
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.results.length > 0) {
+                search_def.resolve(data);
+            } else {
+                search_def.reject();
             }
         })
-        .fail(function (resp, status_code, error) {
-            return search_def.reject();
+        .catch(error => {
+            search_def.reject();
         });
     };
 
@@ -275,8 +296,10 @@ function attach_elastic_search_query_mkdocs(data) {
                 var results = data.results || [];
 
                 if (results.length) {
-                    var searchResults = $('#mkdocs-search-results');
-                    searchResults.empty();
+                    let searchResults = document.getElementById('mkdocs-search-results');
+                    if (searchResults != null) {
+                        searchResults.replaceChildren();
+                    }
 
                     for (var i = 0; i < results.length; i += 1) {
                         var result = results[i];
@@ -284,14 +307,16 @@ function attach_elastic_search_query_mkdocs(data) {
 
                         var link = result.path;
 
-                        var item = $('<article>');
-                        item.append(
-                            $('<h3>').append($('<a>', {'href': link, 'text': result.title}))
-                        );
+                        let item = createDomNode('article');
+                        let a_element = createDomNode('a', {href: link});
+                        a_element.innerText = result.title;
+                        let title_element = createDomNode('h3');
+                        title_element.appendChild(a_element);
+                        item.appendChild(title_element);
 
                         if (result.project !== project) {
-                            var text = '(from project ' + result.project_alias + ')';
-                            item.append($('<span>', {'text': text}));
+                            let text = '(from project ' + result.project_alias + ')';
+                            item.appendChild(createDomNode('span', {'text': text}));
                         }
 
                         for (var j = 0; j < blocks.length; j += 1) {
@@ -325,20 +350,23 @@ function attach_elastic_search_query_mkdocs(data) {
                                 section_title = xss(section_title)
                                         .replace(/<span>/g, '<mark>')
                                         .replace(/<\/span>/g, '</mark>');
-                                item.append(
-                                    $('<h4>')
-                                    .append($('<a>', {'href': section_link}).html(section_title))
-                                );
+
+                                let title_element = createDomNode('h4');
+                                let a_element = createDomNode('a', {href: section_link});
+                                a_element.innerHTML = section_title;
+                                title_element.appendChild(a_element);
+                                item.appendChild(title_element);
+
                                 for (var m = 0; m < section_contents.length; m += 1) {
-                                    var content = xss(section_contents[m]);
+                                    let content = xss(section_contents[m]);
                                     content = content
                                         .replace(/<span>/g, '<mark>')
                                         .replace(/<\/span>/g, '</mark>');
-                                    item.append(
-                                        $('<p>').html(content)
-                                    );
+                                    let p_element = createDomNode('p');
+                                    p_element.innerHTML = content;
+                                    item.appendChild(p_element);
                                 }
-                                searchResults.append(item);
+                                searchResults.appendChild(item);
                             }
                         }
                     }
@@ -352,25 +380,22 @@ function attach_elastic_search_query_mkdocs(data) {
                 fallbackSearch();
             });
 
-        $.ajax({
-            url: search_url.href,
-            crossDomain: true,
-            xhrFields: {
-                withCredentials: true,
-            },
-            complete: function (resp, status_code) {
-                if (
-                    status_code !== 'success' ||
-                    typeof (resp.responseJSON) === 'undefined' ||
-                    resp.responseJSON.count === 0
-                ) {
-                    return search_def.reject();
-                }
-                return search_def.resolve(resp.responseJSON);
+        fetch(search_url.href, {method: 'GET'})
+        .then(response => {
+            if (!response.ok) {
+                throw new Error();
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.results.length > 0) {
+                search_def.resolve(data);
+            } else {
+                search_def.reject();
             }
         })
-        .fail(function (resp, status_code, error) {
-              return search_def.reject();
+        .catch(error => {
+            search_def.reject();
         });
     };
 

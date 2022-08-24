@@ -30,21 +30,6 @@ function injectFooter(data) {
 }
 
 
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
-
 function init() {
     var rtd = rtddata.get();
 
@@ -86,7 +71,6 @@ function init() {
                 versionCompare.init(data.version_compare);
             }
             injectFooter(data);
-            setupBookmarkCSRFToken();
         },
         error: function () {
             console.error('Error loading Read the Docs footer');
@@ -94,17 +78,20 @@ function init() {
     });
 
     // Register page view.
-    $.ajax({
-        url: rtd.proxied_api_host + "/api/v2/analytics/",
-        data: {
-            project: rtd['project'],
-            version: rtd['version'],
-            absolute_uri: window.location.href,
-        },
-        cache: false,
-        error: function () {
-            console.error('Error registering page view');
+    let data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        absolute_uri: window.location.href,
+    };
+    let url = rtd.proxied_api_host + '/api/v2/analytics/?' + new URLSearchParams(data).toString();
+    fetch(url, {method: 'GET', cache: 'no-store'})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error();
         }
+    })
+    .catch(error => {
+        console.error('Error registering page view');
     });
 }
 
