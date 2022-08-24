@@ -47,13 +47,13 @@ Permission denied (publickey)
 
    fatal: Could not read from remote repository.
 
-**Resolution:** The git repository URL points to a repository, user account or organization that Read the Docs does not have credentials for. Verify that the public SSH key from your Read the Docs project is installed as a *Deploy Key* on your VCS (GitHub/GitLab/Bitbucket etc):
+**Resolution:** The git repository URL points to a repository, user account or organization that Read the Docs does not have credentials for. Verify that the public SSH key from your Read the Docs project is installed as a *deploy key* on your VCS (GitHub/GitLab/Bitbucket etc):
 
 .. This should be included as a snippet since it's used 2 times already
 
 1. Navigate to :guilabel:`Admin > SSH Keys`
-2. Copy the contents of the Public Key.
-3. Ensure that the key exists as a Deploy Key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+2. Copy the contents of the public key.
+3. Ensure that the key exists as a deploy key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
 
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
@@ -69,11 +69,11 @@ ERROR: Repository not found.
    ERROR: Repository not found.
    fatal: Could not read from remote repository.
 
-**Resolution:** This error usually occurs on private git repositories that no longer have the public SSH key from their Read the Docs project installed as a *Deploy Key*.
+**Resolution:** This error usually occurs on private git repositories that no longer have the public SSH key from their Read the Docs project installed as a *deploy key*.
 
 1. Navigate to :guilabel:`Admin > SSH Keys`
-2. Copy the contents of the Public Key.
-3. Ensure that the key exists as a Deploy Key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
+2. Copy the contents of the public key.
+3. Ensure that the key exists as a deploy key at your VCS provider. Here are direct links to access settings for verifying and changing deploy keys - customize the URLs for your VCS host and repository details:
 
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
