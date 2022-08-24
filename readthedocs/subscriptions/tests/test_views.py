@@ -1,12 +1,14 @@
 from unittest import mock
 
 import requests_mock
-import stripe
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
+from djstripe import models as djstripe
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.models import Plan, Subscription
@@ -56,58 +58,72 @@ class SubscriptionViewTests(TestCase):
             fetch_redirect_response=False,
         )
 
-    @mock.patch("readthedocs.subscriptions.managers.stripe.Subscription.create")
-    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.retrieve")
+    @mock.patch(
+        "readthedocs.subscriptions.utils.stripe.Customer.modify", new=mock.MagicMock
+    )
+    @mock.patch("readthedocs.subscriptions.utils.djstripe.Customer._get_or_retrieve")
     @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
     def test_user_without_subscription(
-        self, customer_create_mock, customer_retrieve_mock, subscription_create_mock
+        self, customer_create_mock, customer_retrieve_mock
     ):
-        subscription_create_mock.return_value = stripe.Subscription.construct_from(
-            values={
-                "id": "sub_a1b2c3",
-                "start_date": 1610532715.085267,
-                "current_period_end": 1610532715.085267,
-                "trial_end": 1610532715.085267,
-                "status": "active",
-            },
-            key=None,
+        stripe_customer = get(
+            djstripe.Customer,
+            id="cus_a1b2c3",
         )
-        customer_retrieve_mock.return_value = stripe.Customer.construct_from(
-            values={"id": "cus_a1b2c3"},
-            key=None,
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_a1b2c3",
+            start_date=timezone.now(),
+            current_period_end=timezone.now() + timezone.timedelta(days=30),
+            trial_end=timezone.now() + timezone.timedelta(days=30),
+            status=SubscriptionStatus.active,
+            customer=stripe_customer,
         )
+        stripe_customer.subscribe = mock.MagicMock()
+        stripe_customer.subscribe.return_value = stripe_subscription
+        customer_retrieve_mock.return_value = stripe_customer
+
         self.subscription.delete()
         self.organization.refresh_from_db()
         self.assertFalse(hasattr(self.organization, 'subscription'))
+        self.assertIsNone(self.organization.stripe_customer)
+
         resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
         self.assertEqual(resp.status_code, 200)
         self.organization.refresh_from_db()
         subscription = self.organization.subscription
         self.assertEqual(subscription.status, 'active')
         self.assertEqual(subscription.stripe_id, 'sub_a1b2c3')
+        self.assertEqual(self.organization.stripe_customer, stripe_customer)
         customer_retrieve_mock.assert_called_once()
         customer_create_mock.assert_not_called()
 
-    @mock.patch("readthedocs.subscriptions.managers.stripe.Subscription.create")
-    @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.retrieve")
+    @mock.patch(
+        "readthedocs.subscriptions.utils.djstripe.Customer.sync_from_stripe_data"
+    )
+    @mock.patch("readthedocs.subscriptions.utils.djstripe.Customer._get_or_retrieve")
     @mock.patch("readthedocs.subscriptions.utils.stripe.Customer.create")
     def test_user_without_subscription_and_customer(
-        self, customer_create_mock, customer_retrieve_mock, subscription_create_mock
+        self, customer_create_mock, customer_retrieve_mock, sync_from_stripe_data_mock
     ):
-        subscription_create_mock.return_value = stripe.Subscription.construct_from(
-            values={
-                "id": "sub_a1b2c3",
-                "start_date": 1610532715.085267,
-                "current_period_end": 1610532715.085267,
-                "trial_end": 1610532715.085267,
-                "status": "active",
-            },
-            key=None,
+        stripe_customer = get(
+            djstripe.Customer,
+            id="cus_a1b2c3",
         )
-        customer_create_mock.return_value = stripe.Customer.construct_from(
-            values={"id": "cus_a1b2c3"},
-            key=None,
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_a1b2c3",
+            start_date=timezone.now(),
+            current_period_end=timezone.now() + timezone.timedelta(days=30),
+            trial_end=timezone.now() + timezone.timedelta(days=30),
+            status=SubscriptionStatus.active,
+            customer=stripe_customer,
         )
+        stripe_customer.subscribe = mock.MagicMock()
+        stripe_customer.subscribe.return_value = stripe_subscription
+        customer_retrieve_mock.return_value = None
+        sync_from_stripe_data_mock.return_value = stripe_customer
+
         # When stripe_id is None, a new customer is created.
         self.organization.stripe_id = None
         self.organization.save()
@@ -115,6 +131,8 @@ class SubscriptionViewTests(TestCase):
         self.organization.refresh_from_db()
         self.assertFalse(hasattr(self.organization, 'subscription'))
         self.assertIsNone(self.organization.stripe_id)
+        self.assertIsNone(self.organization.stripe_customer)
+
         customer_retrieve_mock.reset_mock()
         resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
         self.assertEqual(resp.status_code, 200)
@@ -123,9 +141,9 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(subscription.status, 'active')
         self.assertEqual(subscription.stripe_id, 'sub_a1b2c3')
         self.assertEqual(self.organization.stripe_id, 'cus_a1b2c3')
+        self.assertEqual(self.organization.stripe_customer, stripe_customer)
         customer_create_mock.assert_called_once()
-        # Called from a signal of .save()
-        customer_retrieve_mock.assert_called_once()
+        customer_retrieve_mock.assert_not_called()
 
     def test_user_with_canceled_subscription(self):
         self.subscription.status = 'canceled'
