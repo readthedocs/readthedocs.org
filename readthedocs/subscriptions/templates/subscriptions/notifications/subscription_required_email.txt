@@ -1,4 +1,5 @@
 {% extends "core/email/common.txt" %}
+{% block content %}
 The trial period for "{{ organization.name }}" has ended.
 If you'd like to continue using Read the Docs to host and manage your
 documentation, please sign up for a subscription soon.
@@ -17,3 +18,4 @@ or always feel free to get in touch with us at {{ production_uri }}{% url 'suppo
 If you need more help with Read the Docs, we'd love to help you!
 Get in touch with us at {{ production_uri }}{% url 'support' %}
 and let us know what problems you're having.
+{% endblock %}

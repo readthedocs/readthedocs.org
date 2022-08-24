@@ -1,4 +1,5 @@
 {% extends "core/email/common.txt" %}
+{% block content %}
 Your project, {{ project.name }}, is still configured to use GitHub Services to trigger builds on Read the Docs.
 Effective January 31, 2019, GitHub stopped processing requests using the Services feature,
 and so Read the Docs no longer receives notifications on updates to your repository.
@@ -11,3 +12,4 @@ or you can add a generic webhook integration.
 You can find more information on our webhook intergrations in our documentation, at:
 
 https://docs.readthedocs.io/page/webhooks.html#webhook-github-services
+{% endblock %}

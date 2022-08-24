@@ -1,4 +1,5 @@
 {% extends "core/email/common.txt" %}
+{% block content %}
 Your subscription period for "{{ organization.name }}" has ended and you haven't yet renewed.
 If you'd like to continue using Read the Docs to manage your
 documentation, please renew the subscription for your organization now.
@@ -12,3 +13,4 @@ Your builds will soon be disabled and access to your documentation will be remov
 If you need more help with Read the Docs for Business, we'd love to help you!
 Get in touch with us at {{ production_uri }}{% url 'support' %}
 and let us know what problems you're having.
+{% endblock %}
