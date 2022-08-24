@@ -159,3 +159,110 @@ Read the Docs community for science is already big and keeps growing. The :exter
       :link: https://feature-engine.readthedocs.io/en/latest/
 
 .. Let's put some logos to sign off
+
+
+How would you use Read the Docs for Science?
+--------------------------------------------
+
+Would you like to get started with Read the Docs or understand more about the platform? Would you like to help us improve by telling us more about an already existing project?
+
+Please take 2 minutes to fill in this form.
+
+.. raw:: html
+
+    <form method="POST" action="fixme">
+
+.. list-table::
+   :widths: 30 70
+
+   * - Name:
+     - |input-name|
+   * - Email:
+     - |input-email|
+   * - What science department are you from, |br| which science field(s) do you work in?
+     - |input-deparment-science-field|
+   * - Which of these are important to you?
+     - |input-interests|
+   * - Tell us more about your usecase:
+     - |input-usecase|
+   * - Should we contact you?
+     - |input-contact-me|
+
+
+.. raw:: html
+
+    <p>
+      <button type="submit" class="btn btn-neutral" style="font-size: 150%">Submit form</button>
+    </p>
+    </form>
+
+
+.. |br| raw:: html
+
+   <br />
+
+.. |input-email| raw:: html
+
+    <input type="email" name="email">
+
+.. |input-name| raw:: html
+
+    <input type="text" name="name">
+
+.. |input-deparment-science-field| raw:: html
+
+    <textarea name="department-science-field" rows="10" style="width: 90%; height: 100px;"></textarea>
+
+.. |input-interests| raw:: html
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-academic-publishing" value="1">
+      Academic publishing (PDFs)
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-git-hosting" value="1">
+      Maintaining my project with Git
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-visualizations" value="1">
+      Up-to-date visualizations and computations
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-interactive" value="1">
+      Interactive visualizations for users
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-collaboration" value="1">
+      Collaboration and/or getting more community contribution
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-hosting-navigation" value="1">
+      Publishing and hosting courses and research departments
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-search-analytics" value="1">
+      Search and analytics
+    </label>
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="interests-search-analytics" value="1">
+      Previewing new proposals (pull requests)
+    </label>
+
+.. |input-contact-me| raw:: html
+
+    <label for="what1">
+      <input id="what1" type="checkbox" name="contact-me" value="yes">
+      Yes please
+    </label>
+
+
+.. |input-usecase| raw:: html
+
+    <textarea name="usecase" rows="10" style="width: 90%; height: 100px;"></textarea>
