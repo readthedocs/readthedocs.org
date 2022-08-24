@@ -8,6 +8,7 @@ const { createDomNode } = require("./utils");
 const MAX_RESULT_PER_SECTION = 3;
 const MAX_SUBSTRING_LIMIT = 100;
 
+
 /*
  * Search query override for hitting our local API instead of the standard
  * Sphinx indexer. This will fall back to the standard indexer on an API
