@@ -12,18 +12,23 @@ function injectFooter(data) {
     // * All other pages just get it appended to the <body>
 
     var config = rtddata.get();
-    var placement = $(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
-    if (placement.length > 0) {
-        placement.html(data['html']);
+    let placement = document.querySelector(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
+    if (placement !== null) {
+        placement.innerHTML = data['html'];
     }
     else if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
-        $("div.rst-other-versions").html(data['html']);
+        let placement = document.querySelector('div.rst-other-versions');
+        if (placement !== null) {
+            placement.innerHTML = data['html'];
+        }
     } else {
-        $("body").append(data['html']);
+        document.body.insertAdjacentHTML('beforeend', data['html']);
     }
 
     if (!data['version_active']) {
-        $('.rst-current-version').addClass('rst-out-of-date');
+      for (let element of document.getElementsByClassName('rst-current-version')) {
+          element.classList.add('rst-out-of-date');
+      }
     } else if (!data['version_supported']) {
         //$('.rst-current-version').addClass('rst-active-old-version')
     }
