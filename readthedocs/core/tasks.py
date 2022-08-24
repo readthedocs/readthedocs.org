@@ -44,8 +44,8 @@ def send_email_task(
     )
     if content_html:
         msg.attach_alternative(content_html, "text/html")
+    log.info('Sending email to recipient.', recipient=recipient)
     msg.send()
-    log.info('Sent email to recipient.', recipient=recipient)
 
 
 @app.task(queue='web')
