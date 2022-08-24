@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("djstripe", "0010_alter_customer_balance"),
-        ("organizations", "0007_add_extra_history_fields"),
+        ("organizations", "0009_update_meta_options"),
     ]
 
     operations = [
