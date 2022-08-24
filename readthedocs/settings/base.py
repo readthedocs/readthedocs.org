@@ -797,8 +797,10 @@ class CommunityBaseSettings(Settings):
     DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
     DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
 
+    # Disable adding djstripe metadata to the Customer objects.
     # We are managing the subscriber relationship by ourselves,
-    # since we have subscriptions attached to an organization or gold user.
+    # since we have subscriptions attached to an organization or gold user
+    # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
     DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
 
     # Do Not Track support
