@@ -1,9 +1,9 @@
 /**
  * Create and return DOM nodes with given attributes.
  *
- * @param {String} nodeName name of the node
- * @param {Object} attributes obj of attributes to be assigned to the node
- * @return {Object} DOM node
+ * @param {String} nodeName - Name of the node.
+ * @param {Object} attributes - Obj of attributes to be assigned to the node.
+ * @return {Object} DOM node.
  */
 const createDomNode = (nodeName, attributes) => {
     let node = document.createElement(nodeName);
