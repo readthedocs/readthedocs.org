@@ -2019,7 +2019,7 @@ class Feature(models.Model):
         (
             CANCEL_OLD_BUILDS,
             _(
-                "Cancel triggered/running builds when a new one for the same project/version arrives"
+                "Cancel triggered/running builds when a new one with same project/version arrives"
             ),
         ),
         (
