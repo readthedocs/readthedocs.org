@@ -2,6 +2,7 @@
 
 import datetime
 import re
+import signal
 
 import structlog
 from django.conf import settings
@@ -19,9 +20,11 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.exceptions import (
+    BuildCancelled,
     BuildMaxConcurrencyError,
     DuplicatedBuildError,
 )
+from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
 
@@ -247,6 +250,48 @@ def trigger_build(project, version=None, commit=None):
         build.save()
 
     return task, build
+
+
+def cancel_build(build):
+    """
+    Cancel a triggered/running build.
+
+    Depending on the current state of the build, it takes one approach or the other:
+
+    - Triggered:
+        update the build status and tells Celery to revoke this task.
+        Workers will know about this and will discard it.
+    - Running:
+        communicate Celery to force the termination of the current build
+        and relies on the worker to update the build's status correct.
+    """
+    # NOTE: `terminate=True` is required for the child to attend our call
+    # immediately when it's running the build. Otherwise, it finishes the
+    # task. However, to revoke a task that has not started yet, we don't
+    # need it.
+    if build.state == BUILD_STATE_TRIGGERED:
+        # Since the task won't be executed at all, we need to update the
+        # Build object here.
+        terminate = False
+        build.state = BUILD_STATE_CANCELLED
+        build.success = False
+        build.error = BuildCancelled.message
+        build.length = 0
+        build.save()
+    else:
+        # In this case, we left the update of the Build object to the task
+        # itself to be executed in the `on_failure` handler.
+        terminate = True
+
+    log.warning(
+        "Canceling build.",
+        project_slug=build.project.slug,
+        version_slug=build.version.slug,
+        build_id=build.pk,
+        build_task_id=build.task_id,
+        terminate=terminate,
+    )
+    app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
 
 
 def send_email(
