@@ -52,10 +52,11 @@ def prepare_build(
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
+    log.bind(project_slug=project.slug)
+
     if not Project.objects.is_active(project):
         log.warning(
             'Build not triggered because project is not active.',
-            project_slug=project.slug,
         )
         return (None, None)
 
@@ -72,7 +73,10 @@ def prepare_build(
         commit=commit
     )
 
-    log.bind(build_id=build.id)
+    log.bind(
+        build_id=build.id,
+        version_slug=version.slug,
+    )
 
     options = {}
     if project.build_queue:
@@ -90,7 +94,7 @@ def prepare_build(
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
     except ValueError:
-        log.warning('Invalid time_limit for project.', project_slug=project.slug)
+        log.warning("Invalid time_limit for project.")
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
@@ -98,6 +102,8 @@ def prepare_build(
     options['time_limit'] = int(time_limit * 1.2)
 
     if commit:
+        log.bind(commit=commit)
+
         # Send pending Build Status using Git Status API for External Builds.
         send_external_build_status(
             version_type=version.type,
@@ -172,8 +178,6 @@ def prepare_build(
         if limit_reached:
             log.warning(
                 'Delaying tasks at trigger step due to concurrency limit.',
-                project_slug=project.slug,
-                version_slug=version.slug,
             )
             # Delay the start of the build for the build retry delay.
             # We're still triggering the task, but it won't run immediately,
