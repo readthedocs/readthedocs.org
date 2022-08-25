@@ -96,8 +96,12 @@ CORS
 
 Since the request could be attached to more than one project.
 we can't make the decision if we should enable CORS or not on a given request from the middleware easily,
-so we won't allow cross site requests when using the new API for now
-(we need to refactor our CORS code, so every view can decide if CORS should be allowed or not).
+so we won't allow cross site requests when using the new API for now.
+We would need to refactor our CORS code,
+so every view can decide if CORS should be allowed or not,
+for this case, cross site requests will be allowed only if all versions of the final search are public,
+another alternative could be to always allow cross site requests,
+but when a request is cross site, we only return results from public versions.
 
 Analytics
 ---------
