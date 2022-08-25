@@ -124,56 +124,86 @@ def prepare_build(
         )
 
     skip_build = False
-    if commit:
-        skip_build = (
+    # Reduce overhead when doing multiple push on the same version.
+    if project.has_feature(Feature.CANCEL_OLD_BUILDS):
+        running_builds = (
             Build.objects
             .filter(
                 project=project,
                 version=version,
-                commit=commit,
             ).exclude(
                 state__in=BUILD_FINAL_STATES,
             ).exclude(
                 pk=build.pk,
-            ).exists()
+            )
         )
+        if running_builds.count() > 0:
+            log.warning(
+                "Canceling running builds automatically due a new one arrived.",
+                running_builds=running_builds.count(),
+            )
+
+        # If there are builds triggered/running for this particular project and version,
+        # we cancel all of them and trigger a new one for the latest commit received.
+        for running_build in running_builds:
+            cancel_build(running_build)
     else:
-        skip_build = Build.objects.filter(
-            project=project,
-            version=version,
-            state=BUILD_STATE_TRIGGERED,
-            # By filtering for builds triggered in the previous 5 minutes we
-            # avoid false positives for builds that failed for any reason and
-            # didn't update their state, ending up on blocked builds for that
-            # version (all the builds are marked as DUPLICATED in that case).
-            # Adding this date condition, we reduce the risk of hitting this
-            # problem to 5 minutes only.
-            date__gte=timezone.now() - datetime.timedelta(minutes=5),
-        ).count() > 1
+        # NOTE: de-duplicate builds won't be required if we enable `CANCEL_OLD_BUILDS`,
+        # since canceling a build is more effective.
+        # However, we are keepting `DEDUPLICATE_BUILDS` code around while we test
+        # `CANCEL_OLD_BUILDS` with a few projects and we are happy with the results.
+        # After that, we can remove `DEDUPLICATE_BUILDS` code
+        # and make `CANCEL_OLD_BUILDS` the default behavior.
+        if commit:
+            skip_build = (
+                Build.objects.filter(
+                    project=project,
+                    version=version,
+                    commit=commit,
+                )
+                .exclude(
+                    state__in=BUILD_FINAL_STATES,
+                )
+                .exclude(
+                    pk=build.pk,
+                )
+                .exists()
+            )
+        else:
+            skip_build = (
+                Build.objects.filter(
+                    project=project,
+                    version=version,
+                    state=BUILD_STATE_TRIGGERED,
+                    # By filtering for builds triggered in the previous 5 minutes we
+                    # avoid false positives for builds that failed for any reason and
+                    # didn't update their state, ending up on blocked builds for that
+                    # version (all the builds are marked as DUPLICATED in that case).
+                    # Adding this date condition, we reduce the risk of hitting this
+                    # problem to 5 minutes only.
+                    date__gte=timezone.now() - datetime.timedelta(minutes=5),
+                ).count()
+                > 1
+            )
 
-    if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
-        log.debug(
-            'Skipping deduplication of builds. Feature not enabled.',
-            project_slug=project.slug,
-        )
-        skip_build = False
+        if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
+            log.debug(
+                "Skipping deduplication of builds. Feature not enabled.",
+            )
+            skip_build = False
 
-    if skip_build:
-        # TODO: we could mark the old build as duplicated, however we reset our
-        # position in the queue and go back to the end of it --penalization
-        log.warning(
-            'Marking build to be skipped by builder.',
-            project_slug=project.slug,
-            version_slug=version.slug,
-            build_id=build.pk,
-            commit=commit,
-        )
-        build.error = DuplicatedBuildError.message
-        build.status = DuplicatedBuildError.status
-        build.exit_code = DuplicatedBuildError.exit_code
-        build.success = False
-        build.state = BUILD_STATE_CANCELLED
-        build.save()
+        if skip_build:
+            # TODO: we could mark the old build as duplicated, however we reset our
+            # position in the queue and go back to the end of it --penalization
+            log.warning(
+                "Marking build to be skipped by builder.",
+            )
+            build.error = DuplicatedBuildError.message
+            build.status = DuplicatedBuildError.status
+            build.exit_code = DuplicatedBuildError.exit_code
+            build.success = False
+            build.state = BUILD_STATE_CANCELLED
+            build.save()
 
     # Start the build in X minutes and mark it as limited
     if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
