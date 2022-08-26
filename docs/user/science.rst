@@ -261,7 +261,7 @@ Please take 2 minutes to fill in this form.
       Previewing new proposals (pull requests)
     </label>
 
-    <input id="body" type="hidden" value="Science Docs Submission">
+    <input id="body" name="body" type="hidden" value="Science Docs Submission">
 
 .. |input-contact-me| raw:: html
 
