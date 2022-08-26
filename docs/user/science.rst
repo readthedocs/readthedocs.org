@@ -226,38 +226,38 @@ Please take 2 minutes to fill in this form.
       Academic publishing (PDFs)
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-git-hosting" value="1">
+    <label for="what2">
+      <input id="what2" type="checkbox" name="interests-git-hosting" value="1">
       Maintaining my project with Git
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-visualizations" value="1">
+    <label for="what3">
+      <input id="what3" type="checkbox" name="interests-visualizations" value="1">
       Up-to-date visualizations and computations
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-interactive" value="1">
+    <label for="what4">
+      <input id="what4" type="checkbox" name="interests-interactive" value="1">
       Interactive visualizations for users
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-collaboration" value="1">
+    <label for="what5">
+      <input id="what5" type="checkbox" name="interests-collaboration" value="1">
       Collaboration and/or getting more community contribution
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-hosting-navigation" value="1">
+    <label for="what6">
+      <input id="what6" type="checkbox" name="interests-hosting-navigation" value="1">
       Publishing and hosting courses and research departments
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-search-analytics" value="1">
+    <label for="what7">
+      <input id="what7" type="checkbox" name="interests-search-analytics" value="1">
       Search and analytics
     </label>
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="interests-search-analytics" value="1">
+    <label for="what8">
+      <input id="what8" type="checkbox" name="interests-search-analytics" value="1">
       Previewing new proposals (pull requests)
     </label>
 
@@ -265,8 +265,8 @@ Please take 2 minutes to fill in this form.
 
 .. |input-contact-me| raw:: html
 
-    <label for="what1">
-      <input id="what1" type="checkbox" name="contact-me" value="yes">
+    <label for="contact">
+      <input id="contact" type="checkbox" name="contact-me" value="yes">
       Yes please
     </label>
 
