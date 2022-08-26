@@ -170,7 +170,13 @@ Please take 2 minutes to fill in this form.
 
 .. raw:: html
 
-    <form method="POST" action="fixme">
+    <form
+      method="POST"
+      name="fa-form-1"
+      action="https://webhook.frontapp.com/forms/036c4169294f3b04abaa/xP2Ulmxfcgl_mLJrFbGoefmVuqmH7DAfyHD9lt_qbk1heKFev5K8-TEhmpKc8dWdn-rv7bbZMMPjmffxl0mqGRUcrfyOzImtk8zEGJ04E1uuyPE28hqoHExtS20"
+      enctype="multipart/form-data"
+      accept-charset="utf-8"
+    >
 
 .. list-table::
    :widths: 30 70
@@ -254,6 +260,8 @@ Please take 2 minutes to fill in this form.
       <input id="what1" type="checkbox" name="interests-search-analytics" value="1">
       Previewing new proposals (pull requests)
     </label>
+
+    <input id="body" type="hidden" value="Science Docs Submission">
 
 .. |input-contact-me| raw:: html
 
