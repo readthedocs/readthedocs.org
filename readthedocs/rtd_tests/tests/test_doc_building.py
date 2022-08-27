@@ -370,9 +370,9 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'mock',
-            'pillow',
-            'alabaster',
+            "pillow",
+            "mock",
+            "alabaster",
         ]
         self.base_conda_requirements = [
             'mock',
@@ -397,7 +397,7 @@ class TestPythonEnvironment(TestCase):
         for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
                 self.assertIsNotNone(arg_mock)
-                self.assertTrue(arg_mock.startswith(arg))
+                self.assertTrue(arg_mock.startswith(arg), arg)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_core_requirements_sphinx(self, checkout_path):

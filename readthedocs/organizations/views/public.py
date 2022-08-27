@@ -1,15 +1,12 @@
 """Views that don't require login."""
 # pylint: disable=too-many-ancestors
 import structlog
-
-from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
-from vanilla import DetailView, GenericModelView, ListView
+from vanilla import DetailView, GenericView, ListView
 
-from readthedocs.core.permissions import AdminPermission
-from readthedocs.organizations.models import Team, TeamMember
+from readthedocs.organizations.models import Team
 from readthedocs.organizations.views.base import (
     CheckOrganizationsEnabled,
     OrganizationMixin,
@@ -95,69 +92,12 @@ class ListOrganizationTeamMembers(OrganizationTeamMemberView, ListView):
         return context
 
 
-class UpdateOrganizationTeamMember(CheckOrganizationsEnabled, GenericModelView):
+class RedirectRedeemTeamInvitation(CheckOrganizationsEnabled, GenericView):
 
-    """Process organization invitation links."""
+    """Redirect invitation links to the new view."""
 
-    model = TeamMember
-
-    def get_object(self):
-        return self.get_queryset().filter(
-            invite__hash=self.kwargs['hash'],
-            invite__count__lte=F('invite__total'),
-        ).first()
-
-    def get(self, request, *args, **kwargs):  # noqa
-        """
-        Process GET from link click and let user in to team.
-
-        If user is already logged in, link the team member to that account. If
-        the user is not logged in, and doesn't have an account, the user will be
-        prompted to sign up.
-        """
-        # Linter doesn't like declaring `self.object` outside `__init__`.
-        member = self.object = self.get_object()  # noqa
-        if member is not None:
-            if not request.user.is_authenticated:
-                member.invite.count += 1
-                member.invite.save()
-                self.request.session.update({
-                    'invite:allow_signup': True,
-                    'invite:email': member.invite.email,
-                    'invite': member.invite.pk,
-
-                    # Auto-verify EmailAddress via django-allauth
-                    'account_verified_email': member.invite.email,
-                })
-                url = reverse('account_signup')
-
-                if AdminPermission.has_sso_enabled(member.team.organization):
-                    url += f'?organization={member.team.organization.slug}'
-
-                return HttpResponseRedirect(url)
-
-            # If use is logged in, try to set the request user on the
-            # fetched team member. If the member already exists on the team,
-            # just delete the current member. Finally, get rid of the
-            # invite too.
-            org_slug = member.team.organization.slug
-            invite = member.invite
-
-            queryset = TeamMember.objects.filter(
-                team=invite.team,
-                member=self.request.user,
-            )
-            if queryset.exists():
-                member.delete()
-            else:
-                member.member = self.request.user
-                member.save()
-            invite.delete()
-            return HttpResponseRedirect(
-                reverse(
-                    'organization_detail',
-                    kwargs={'slug': org_slug},
-                ),
-            )
-
-        return HttpResponseRedirect(reverse('homepage'))
+    # pylint: disable=unused-argument
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect(
+            reverse("invitations_redeem", args=[kwargs["hash"]])
+        )

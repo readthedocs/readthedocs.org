@@ -1,0 +1,17 @@
+{% extends 'core/email/common.html' %}
+{% block content %}
+<p>
+  {{ from_name }} has invited you to join the {{ object_description }}.
+  You can accept or decline this invitation using the following link:
+</p>
+
+<p>
+  <a href="{{ uri }}{{ invite_url }}">
+    {{ uri }}{{ invite_url }}
+  </a>
+</p>
+
+<p>
+  This invitation will expire in <span title="{{ expiration_date }}">{{ valid_until }}</span>.
+</p>
+{% endblock %}

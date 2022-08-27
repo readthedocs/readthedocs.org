@@ -1,7 +1,6 @@
 import os
 import shutil
 import tarfile
-from collections import defaultdict
 
 import structlog
 from django.conf import settings
@@ -182,7 +181,6 @@ class BuildDirector:
 
         self.run_build_job("pre_build")
 
-        self.data.outcomes = defaultdict(lambda: False)
         self.data.outcomes["html"] = self.build_html()
         self.data.outcomes["search"] = self.is_type_sphinx()
         self.data.outcomes["localmedia"] = self.build_htmlzip()
@@ -345,7 +343,7 @@ class BuildDirector:
             {"poetry", "install"},
         )
         cwd = self.data.project.checkout_path(self.data.version.slug)
-        environment = self.vcs_environment
+        environment = self.build_environment
         for command in self.data.config.build.commands:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
 
@@ -383,7 +381,6 @@ class BuildDirector:
         self.data.version.documentation_type = self.data.config.doctype
 
         # Mark HTML as the only outcome available for this type of builder
-        self.data.outcomes = defaultdict(lambda: False)
         self.data.outcomes["html"] = True
 
     def install_build_tools(self):

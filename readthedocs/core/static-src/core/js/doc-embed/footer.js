@@ -12,38 +12,28 @@ function injectFooter(data) {
     // * All other pages just get it appended to the <body>
 
     var config = rtddata.get();
-    var placement = $(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
-    if (placement.length > 0) {
-        placement.html(data['html']);
+    let placement = document.querySelector(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
+    if (placement !== null) {
+        placement.innerHTML = data['html'];
     }
     else if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
-        $("div.rst-other-versions").html(data['html']);
+        let placement = document.querySelector('div.rst-other-versions');
+        if (placement !== null) {
+            placement.innerHTML = data['html'];
+        }
     } else {
-        $("body").append(data['html']);
+        document.body.insertAdjacentHTML('beforeend', data['html']);
     }
 
     if (!data['version_active']) {
-        $('.rst-current-version').addClass('rst-out-of-date');
+      for (let element of document.getElementsByClassName('rst-current-version')) {
+          element.classList.add('rst-out-of-date');
+      }
     } else if (!data['version_supported']) {
         //$('.rst-current-version').addClass('rst-active-old-version')
     }
 }
 
-
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
 
 function init() {
     var rtd = rtddata.get();
@@ -86,7 +76,6 @@ function init() {
                 versionCompare.init(data.version_compare);
             }
             injectFooter(data);
-            setupBookmarkCSRFToken();
         },
         error: function () {
             console.error('Error loading Read the Docs footer');
@@ -94,17 +83,20 @@ function init() {
     });
 
     // Register page view.
-    $.ajax({
-        url: rtd.proxied_api_host + "/api/v2/analytics/",
-        data: {
-            project: rtd['project'],
-            version: rtd['version'],
-            absolute_uri: window.location.href,
-        },
-        cache: false,
-        error: function () {
-            console.error('Error registering page view');
+    let data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        absolute_uri: window.location.href,
+    };
+    let url = rtd.proxied_api_host + '/api/v2/analytics/?' + new URLSearchParams(data).toString();
+    fetch(url, {method: 'GET', cache: 'no-store'})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error();
         }
+    })
+    .catch(error => {
+        console.error('Error registering page view');
     });
 }
 
