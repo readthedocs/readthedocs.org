@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.56
+boto3==1.24.61
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.56
+botocore==1.27.61
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -84,7 +84,7 @@ defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
     #   python3-openid
-distlib==0.3.5
+distlib==0.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -173,7 +173,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==0.9.8
     # via -r requirements/pip.txt
-elasticsearch==7.17.4
+elasticsearch==7.17.6
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -232,7 +232,7 @@ oauthlib==3.2.0
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.7.12
+orjson==3.8.0
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -382,7 +382,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
-ua-parser==0.15.1
+ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
@@ -392,7 +392,7 @@ unidecode==1.3.4
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -414,7 +414,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.3.3
+websocket-client==1.4.0
     # via
     #   -r requirements/pip.txt
     #   docker
