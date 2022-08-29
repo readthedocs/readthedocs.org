@@ -22,7 +22,7 @@
           {% for owner_model in owner_objs %}
             <li class="module-item">
               <span class="right">
-                {% if request.user != owner_model.owner %}
+                {% if not is_last_user %}
                   <form method="post" action="{% url "organization_owner_delete" organization.slug owner_model.pk %}">
                     {% csrf_token %}
                     <input type="hidden" name="user" value="{{ owner_model.owner.username }}" />
@@ -30,20 +30,15 @@
                   </form>
                 {% endif %}
               </span>
-
               <span>
                 {% gravatar owner_model.owner.email 24 %}
-                {% with owner_name=owner_model.owner.get_full_name %}
-                  {% if owner_name %}
-                    {{ owner_name }}
-                  {% else %}
-                    {{ owner_model.owner.username }}
-                  {% endif %}
-                {% endwith %}
+                <a href="{% url "profiles_profile_detail" owner_model.owner.username %}">
+                  {{ owner_model.owner.get_full_name|default:owner_model.owner.username }}
+                </a>
               </span>
-
             </li>
           {% endfor %}
+          {% include "invitations/includes/invitation_list.html" with invitations=invitations %}
         </ul>
 
       </div>

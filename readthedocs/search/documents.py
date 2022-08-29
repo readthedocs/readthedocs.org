@@ -1,10 +1,9 @@
 import structlog
-
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -128,6 +127,12 @@ class PageDocument(RTDDocTypeMixin, Document):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
+
+        # XXX: Don't access the sphinx domains table while we migrate the ID type
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        if html_file.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+            return []
+
         if not html_file.version.is_sphinx_type:
             return []
 

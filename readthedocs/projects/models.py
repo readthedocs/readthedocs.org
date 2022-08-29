@@ -17,6 +17,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +32,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
+from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -458,6 +460,7 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
+        verbose_name = _("project")
 
     def __str__(self):
         return self.name
@@ -676,7 +679,7 @@ class Project(models.Model):
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
         from readthedocs.proxito.urls import core_urls
-        from readthedocs.proxito.views.serve import ServeDocs
+        from readthedocs.proxito.views.serve import ServeDocs, ServeStaticFiles
         from readthedocs.proxito.views.utils import proxito_404_page_handler
 
         class ProxitoURLConf:
@@ -700,6 +703,15 @@ class Project(models.Model):
                         **pattern_opts),
                     ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='user_proxied_downloads'
+                ),
+                re_path(
+                    r"{proxied_api_url}static/"
+                    r"(?P<filename>{filename_slug})$".format(
+                        proxied_api_url=re.escape(self.proxied_api_url),
+                        **pattern_opts,
+                    ),
+                    ServeStaticFiles.as_view(),
+                    name="proxito_static_files",
                 ),
             ]
             docs_urls = [
@@ -1623,7 +1635,7 @@ class WebHook(Notification):
         return f'{self.project.slug} {self.url}'
 
 
-class Domain(TimeStampedModel, models.Model):
+class Domain(TimeStampedModel):
 
     """A custom domain name for a project."""
 
@@ -1680,6 +1692,18 @@ class Domain(TimeStampedModel, models.Model):
         null=True,
         blank=True,
     )
+    skip_validation = models.BooleanField(
+        _("Skip validation process."),
+        default=False,
+        # TODO: remove after deploy.
+        null=True,
+    )
+    validation_process_start = models.DateTimeField(
+        _("Start date of the validation process."),
+        auto_now_add=True,
+        # TODO: remove after deploy.
+        null=True,
+    )
 
     # Strict-Transport-Security header options
     # These are not exposed to users because it's easy to misconfigure things
@@ -1697,7 +1721,7 @@ class Domain(TimeStampedModel, models.Model):
         help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
     )
 
-    objects = RelatedProjectQuerySet.as_manager()
+    objects = DomainQueryset.as_manager()
 
     class Meta:
         ordering = ('-canonical', '-machine', 'domain')
@@ -1707,6 +1731,26 @@ class Domain(TimeStampedModel, models.Model):
             domain=self.domain,
             project=self.project.name,
         )
+
+    @property
+    def is_valid(self):
+        return self.ssl_status == constants.SSL_STATUS_VALID
+
+    @property
+    def validation_process_expiration_date(self):
+        return self.validation_process_start.date() + timezone.timedelta(
+            days=settings.RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD
+        )
+
+    @property
+    def validation_process_expired(self):
+        return timezone.now().date() >= self.validation_process_expiration_date
+
+    def restart_validation_process(self):
+        """Restart the validation process if it has expired."""
+        if not self.is_valid and self.validation_process_expired:
+            self.validation_process_start = timezone.now()
+            self.save()
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         parsed = urlparse(self.domain)
@@ -1793,6 +1837,7 @@ class Feature(models.Model):
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
+    DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1891,6 +1936,10 @@ class Feature(models.Model):
         (
             DISABLE_PAGEVIEWS,
             _("Disable all page views"),
+        ),
+        (
+            DISABLE_SPHINX_DOMAINS,
+            _("Disable indexing of sphinx domains"),
         ),
 
         # Versions sync related features
