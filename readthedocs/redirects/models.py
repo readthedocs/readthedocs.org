@@ -201,7 +201,6 @@ class Redirect(models.Model):
             return to
 
     def redirect_exact(self, path, full_path, language=None, version_slug=None):
-        log.info('Exact redirect', path=path, full_path=full_path)
         if full_path == self.from_url:
             log.debug('Redirecting...', redirect=self)
             return self.to_url
