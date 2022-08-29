@@ -1,3 +1,26 @@
+Version 8.4.2
+-------------
+
+:Date: August 29, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Proxito redirects: pass full_path instead of re-creating it.  (`#9557 <https://github.com/readthedocs/readthedocs.org/pull/9557>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel old builds  (`#9549 <https://github.com/readthedocs/readthedocs.org/pull/9549>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: update docstring (`#9547 <https://github.com/readthedocs/readthedocs.org/pull/9547>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: HTML form for getting in touch with Read the Docs for Science (`#9543 <https://github.com/readthedocs/readthedocs.org/pull/9543>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: port changes from #9540 (`#9542 <https://github.com/readthedocs/readthedocs.org/pull/9542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: test tasks with organizations (`#9541 <https://github.com/readthedocs/readthedocs.org/pull/9541>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: set logging to debug (`#9540 <https://github.com/readthedocs/readthedocs.org/pull/9540>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin deploy dependencies (`#9537 <https://github.com/readthedocs/readthedocs.org/pull/9537>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.1 (`#9536 <https://github.com/readthedocs/readthedocs.org/pull/9536>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin django-structlog to 2.2.1 (`#9535 <https://github.com/readthedocs/readthedocs.org/pull/9535>`__)
+* `@humitos <https://github.com/humitos>`__: Code comment (`#9518 <https://github.com/readthedocs/readthedocs.org/pull/9518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: remove more dependency on jquery (`#9515 <https://github.com/readthedocs/readthedocs.org/pull/9515>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: collect user's requirements (`#9514 <https://github.com/readthedocs/readthedocs.org/pull/9514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: remove some dependency from jquery (`#9508 <https://github.com/readthedocs/readthedocs.org/pull/9508>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use djstripe models for organization subscriptions (`#9486 <https://github.com/readthedocs/readthedocs.org/pull/9486>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Park resolutions to common build problems in FAQ (`#9472 <https://github.com/readthedocs/readthedocs.org/pull/9472>`__)
+
 Version 8.4.1
 -------------
 
