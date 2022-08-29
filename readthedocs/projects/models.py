@@ -1859,12 +1859,13 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
-    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
-    VCS_REMOTE_LISTING = 'vcs_remote_listing'
-    SPHINX_PARALLEL = 'sphinx_parallel'
-    USE_SPHINX_BUILDERS = 'use_sphinx_builders'
-    DEDUPLICATE_BUILDS = 'deduplicate_builds'
-    DONT_CREATE_INDEX = 'dont_create_index'
+    LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
+    VCS_REMOTE_LISTING = "vcs_remote_listing"
+    SPHINX_PARALLEL = "sphinx_parallel"
+    USE_SPHINX_BUILDERS = "use_sphinx_builders"
+    DEDUPLICATE_BUILDS = "deduplicate_builds"
+    CANCEL_OLD_BUILDS = "cancel_old_builds"
+    DONT_CREATE_INDEX = "dont_create_index"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -2014,6 +2015,12 @@ class Feature(models.Model):
         (
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
+        ),
+        (
+            CANCEL_OLD_BUILDS,
+            _(
+                "Cancel triggered/running builds when a new one with same project/version arrives"
+            ),
         ),
         (
             DONT_CREATE_INDEX,

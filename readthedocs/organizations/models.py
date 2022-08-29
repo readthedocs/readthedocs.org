@@ -93,6 +93,14 @@ class Organization(models.Model):
         blank=True,
         null=True,
     )
+    stripe_customer = models.OneToOneField(
+        "djstripe.Customer",
+        verbose_name=_("Stripe customer"),
+        on_delete=models.SET_NULL,
+        related_name="rtd_organization",
+        null=True,
+        blank=True,
+    )
 
     # Managers
     objects = OrganizationQuerySet.as_manager()
@@ -122,7 +130,17 @@ class Organization(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        if self.stripe_customer:
+            self.stripe_id = self.stripe_customer.id
+
         super().save(*args, **kwargs)
+
+    def get_stripe_metadata(self):
+        """Get metadata for the stripe account."""
+        return {
+            "org:id": self.id,
+            "org:slug": self.slug,
+        }
 
     # pylint: disable=no-self-use
     def add_member(self, user, team):

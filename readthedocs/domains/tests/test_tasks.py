@@ -7,6 +7,7 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.domains.tasks import email_pending_custom_domains
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     SSL_STATUS_INVALID,
     SSL_STATUS_PENDING,
@@ -119,3 +120,28 @@ class TestTasks(TestCase):
                 kwargs = send_email.call_args_list[2][1]
                 self.assertEqual(kwargs["recipient"], self.another_user.email)
                 self.assertIn(self.domain_invalid.domain, kwargs["context"]["content"])
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestTasksWithOrganizations(TestTasks):
+    def setUp(self):
+        super().setUp()
+        self.organization = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project, self.another_project],
+        )
+        self.team_a = get(
+            Team,
+            organization=self.organization,
+            members=[self.user],
+            projects=[self.project, self.another_project],
+            access="admin",
+        )
+        self.team_b = get(
+            Team,
+            organization=self.organization,
+            members=[self.user, self.another_user],
+            projects=[self.another_project],
+            access="admin",
+        )

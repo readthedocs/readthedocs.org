@@ -2,11 +2,11 @@
 
 from datetime import datetime
 
-import stripe
 import structlog
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import set_change_reason
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
@@ -44,33 +44,33 @@ class SubscriptionManager(models.Manager):
             return None
 
         stripe_customer = get_or_create_stripe_customer(organization)
-        stripe_subscription = stripe.Subscription.create(
-            customer=stripe_customer.id,
-            items=[{"price": plan.stripe_id}],
-            trial_period_days=plan.trial,
+        stripe_subscriptions = stripe_customer.subscriptions.exclude(
+            status=SubscriptionStatus.canceled
         )
-        # Stripe renamed ``start`` to ``start_date``,
-        # our API calls will return the new object,
-        # but webhooks will still return the old object
-        # till we change the default version.
-        # TODO: use stripe_subscription.start_date after the webhook version has been updated.
-        start_date = getattr(
-            stripe_subscription, "start", getattr(stripe_subscription, "start_date")
-        )
+        if stripe_subscriptions.count() > 1:
+            log.warning(
+                "Customer with more than one active subscription.",
+                stripe_customer=stripe_customer.id,
+            )
+
+        stripe_subscription = stripe_subscriptions.last()
+        if not stripe_subscription:
+            # TODO: djstripe 2.6.x doesn't return the subscription object
+            # on subscribe(), but 2.7.x (unreleased) does!
+            stripe_customer.subscribe(
+                items=[{"price": plan.stripe_id}],
+                trial_period_days=plan.trial,
+            )
+            stripe_subscription = stripe_customer.subscriptions.latest()
+
         return self.create(
             plan=plan,
             organization=organization,
             stripe_id=stripe_subscription.id,
             status=stripe_subscription.status,
-            start_date=timezone.make_aware(
-                datetime.fromtimestamp(int(start_date)),
-            ),
-            end_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.current_period_end)),
-            ),
-            trial_end_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.trial_end)),
-            ),
+            start_date=stripe_subscription.start_date,
+            end_date=stripe_subscription.current_period_end,
+            trial_end_date=stripe_subscription.trial_end,
         )
 
     def update_from_stripe(self, *, rtd_subscription, stripe_subscription):
