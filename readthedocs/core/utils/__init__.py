@@ -289,11 +289,11 @@ def cancel_build(build):
     Depending on the current state of the build, it takes one approach or the other:
 
     - Triggered:
-        update the build status and tells Celery to revoke this task.
+        Update the build status and tells Celery to revoke this task.
         Workers will know about this and will discard it.
     - Running:
-        communicate Celery to force the termination of the current build
-        and relies on the worker to update the build's status correct.
+        Communicate Celery to force the termination of the current build
+        and rely on the worker to update the build's status.
     """
     # NOTE: `terminate=True` is required for the child to attend our call
     # immediately when it's running the build. Otherwise, it finishes the
