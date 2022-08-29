@@ -105,8 +105,10 @@ class RedirectQuerySet(models.QuerySet):
         # can't think in a case where there can be more at this point. I'm
         # leaving the loop just in case for now
         for redirect in queryset.select_related('project'):
+            log.info('Got a redirect', normalized_path=normalized_path)
             new_path = redirect.get_redirect_path(
                 path=normalized_path,
+                full_path=normalized_full_path,
                 language=language,
                 version_slug=version_slug,
             )
