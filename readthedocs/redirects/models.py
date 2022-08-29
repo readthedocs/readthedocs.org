@@ -166,7 +166,7 @@ class Redirect(models.Model):
             filename=filename,
         )
 
-    def get_redirect_path(self, path, full_path, language=None, version_slug=None):
+    def get_redirect_path(self, path, full_path=None, language=None, version_slug=None):
         method = getattr(
             self,
             'redirect_{type}'.format(
