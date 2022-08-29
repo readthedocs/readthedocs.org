@@ -16,7 +16,7 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
-@mock.patch("readthedocs.builds.views.app")
+@mock.patch("readthedocs.core.utils.app")
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class CancelBuildViewTests(TestCase):
     def setUp(self):
