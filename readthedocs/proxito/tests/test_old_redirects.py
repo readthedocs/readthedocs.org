@@ -375,12 +375,6 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         )
 
     def test_redirect_exact_looks_like_version(self):
-        self._storage_exists(
-            [
-                "/media/html/project/latest/guides/install.html",
-            ]
-        )
-
         fixture.get(
             Redirect,
             project=self.project,
