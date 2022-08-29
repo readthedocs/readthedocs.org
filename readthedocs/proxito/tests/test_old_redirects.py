@@ -374,6 +374,27 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
+    @pytest.mark.xfail(
+        reason="This is hitting fast_404 and not triggering the nginx handler in testing. It works in prod."
+    )
+    def test_redirect_exact_looks_like_version(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/versions.json",
+            to_url="/en/latest/versions.json",
+        )
+        r = self.client.get(
+            "/en/versions.json",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/versions.json",
+        )
+
     def test_redirect_exact_with_rest(self):
         """
         Exact redirects can have a ``$rest`` in the ``from_url``.
@@ -913,7 +934,6 @@ class UserForcedRedirectTests(BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
-
 
 @override_settings(
     PYTHON_MEDIA=True,
