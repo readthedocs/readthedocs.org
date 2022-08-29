@@ -932,7 +932,6 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
-
 @override_settings(
     PYTHON_MEDIA=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
