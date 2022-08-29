@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.core.unresolver import unresolve_from_request
+from readthedocs.core.unresolver import unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 
@@ -50,7 +50,6 @@ class BaseAnalyticsView(APIView):
         version = self._get_version()
         absolute_uri = self.request.GET.get('absolute_uri')
         self.increase_page_view_count(
-            request=request,
             project=project,
             version=version,
             absolute_uri=absolute_uri,
@@ -58,10 +57,10 @@ class BaseAnalyticsView(APIView):
         return Response(status=200)
 
     # pylint: disable=no-self-use
-    def increase_page_view_count(self, request, project, version, absolute_uri):
+    def increase_page_view_count(self, project, version, absolute_uri):
         """Increase the page view count for the given project."""
-        unresolved = unresolve_from_request(request, absolute_uri)
-        if not unresolved:
+        unresolved = unresolve(absolute_uri)
+        if not unresolved or not unresolved.filename:
             return
 
         path = unresolved.filename
