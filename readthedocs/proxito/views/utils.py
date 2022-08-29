@@ -1,7 +1,7 @@
 import os
 
 import structlog
-from django.http import Http404
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from .decorators import map_project_slug, map_subproject_slug
@@ -16,9 +16,7 @@ def fast_404(request, *args, **kwargs):
     This stops us from running RTD logic in our error handling. We already do
     this in RTD prod when we fallback to it.
     """
-    # Raise an exception here instead of returning a 404 directly,
-    # so that our handler404 is called to process redirects.
-    raise Http404("Not found - URL looks like version so redirect to it.")
+    return HttpResponse("Not Found.", status=404)
 
 
 def proxito_404_page_handler(request, exception=None, template_name='404.html'):
