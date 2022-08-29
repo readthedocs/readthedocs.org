@@ -374,29 +374,29 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
-
     def test_redirect_exact_looks_like_version(self):
-        self._storage_exists([
-            '/media/html/project/latest/guides/install.html',
-        ])
+        self._storage_exists(
+            [
+                "/media/html/project/latest/guides/install.html",
+            ]
+        )
 
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type='exact',
-            from_url='/en/versions.json',
-            to_url='/en/latest/versions.json',
+            redirect_type="exact",
+            from_url="/en/versions.json",
+            to_url="/en/latest/versions.json",
         )
         r = self.client.get(
-            '/en/versions.json',
-            HTTP_HOST='project.dev.readthedocs.io',
+            "/en/versions.json",
+            HTTP_HOST="project.dev.readthedocs.io",
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/versions.json',
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/versions.json",
         )
-
 
     def test_redirect_exact_with_rest(self):
         """

@@ -173,7 +173,9 @@ class Redirect(models.Model):
                 type=self.redirect_type,
             ),
         )
-        return method(path, full_path=full_path, language=language, version_slug=version_slug)
+        return method(
+            path, full_path=full_path, language=language, version_slug=version_slug
+        )
 
     def redirect_prefix(self, path, full_path, language=None, version_slug=None):
         if path.startswith(self.from_url):
@@ -224,9 +226,11 @@ class Redirect(models.Model):
                     allow_crossdomain=False,
                 )
 
-    def redirect_sphinx_htmldir(self, path, full_path, language=None, version_slug=None):
-        if path.endswith('.html'):
-            log.debug('Redirecting...', redirect=self)
+    def redirect_sphinx_htmldir(
+        self, path, full_path, language=None, version_slug=None
+    ):
+        if path.endswith(".html"):
+            log.debug("Redirecting...", redirect=self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(
