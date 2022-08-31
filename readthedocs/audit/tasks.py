@@ -1,14 +1,13 @@
 """Celery tasks related to audit logs."""
 
-import logging
-
+import structlog
 from django.conf import settings
 from django.utils import timezone
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.worker import app
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 @app.task(queue="web")
@@ -27,5 +26,5 @@ def delete_old_personal_audit_logs(days=None):
         log_organization_id__isnull=True,
         created__lt=days_ago,
     )
-    log.info("Deleting old audit logs. days=%s count=%s", days, audit_logs.count())
+    log.info("Deleting old audit logs.", days=days, count=audit_logs.count())
     audit_logs.delete()
