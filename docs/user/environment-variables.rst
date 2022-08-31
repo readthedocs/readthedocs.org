@@ -1,36 +1,54 @@
 Environment Variables
 =====================
 
-Read the Docs supports environment variables when building your project.
-There are two types of them:
+Read the Docs supports two types of environment variables in project builds:
 
-* default environment variables
-* user-defined environment variables
+* `Default environment variables`_
+* `User-defined environment variables`_
 
-Both are merged together during the build process and exposed to all the commands executed when building the documentation.
+Both are merged together during the build process and are exposed to all of the executed commands. There are two exceptions for user-defined environment variables however:
 
+* User-defined variables are not available during the checkout step of the :doc:`build process </builds>`
+* User-defined variables that are not marked as public will not be available in :doc:`pull request builds </pull-requests>`
 
 Default environment variables
 -----------------------------
 
-Read the Docs builder sets the following environment variables when building your documentation:
+Read the Docs builders set the following environment variables automatically for each documentation build:
 
-.. csv-table:: Environment Variables
-   :header: Environment variable, Description, Example value
-   :widths: 15, 10, 30
+.. envvar:: READTHEDOCS
 
-   ``READTHEDOCS``, Whether the build is running inside Read the Docs, ``True``
-   ``READTHEDOCS_VERSION``, The Read the Docs slug of the version which is being built, ``latest``
-   ``READTHEDOCS_VERSION_NAME``, Corresponding version name as displayed in Read the Docs' version switch menu, ``stable``
-   ``READTHEDOCS_VERSION_TYPE``, Type of the event triggering the build, ``branch`` | ``tag`` | ``external`` (for :doc:`pull request builds </pull-requests>`) | ``unknown``
-   ``READTHEDOCS_PROJECT``, The Read the Docs' slug of the project which is being built, ``my-example-project``
-   ``READTHEDOCS_LANGUAGE``, The Read the Docs' language slug of the project which is being built, ``en``
+    Whether the build is running inside Read the Docs.
 
-.. note::
+    :Default: ``True``
 
-   The term slug is used to refer to a unique string across projects/versions containing ASCII characters only.
-   This value is used in the URLs of your documentation.
+.. envvar:: READTHEDOCS_VERSION
 
+    The :term:`slug` of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature-1234``. For :doc:`pull request builds </pull-requests>`,
+    the value will be the pull request number.
+
+.. envvar:: READTHEDOCS_VERSION_NAME
+
+    The verbose name of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature/1234``.
+
+.. envvar:: READTHEDOCS_VERSION_TYPE
+
+    The type of the version being built.
+
+    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+
+.. envvar:: READTHEDOCS_PROJECT
+
+    The :term:`slug` of the project being built. For example, ``my-example-project``.
+
+.. envvar:: READTHEDOCS_LANGUAGE
+
+    The locale name, or the identifier for the locale, for the project being built.
+    This value comes from the project's configured language.
+
+    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
 
 User-defined environment variables
 ----------------------------------

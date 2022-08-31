@@ -66,6 +66,8 @@ class AuditLog(TimeStampedModel):
     and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     PAGEVIEW = 'pageview'
     DOWNLOAD = 'download'
     AUTHN = 'authentication'
@@ -196,7 +198,17 @@ class AuditLog(TimeStampedModel):
         if self.organization:
             self.log_organization_id = self.organization.id
             self.log_organization_slug = self.organization.slug
+
+        self._truncate_browser()
+
         super().save(**kwargs)
+
+    def _truncate_browser(self):
+        browser_max_length = self._meta.get_field("browser").max_length
+        if self.browser and len(self.browser) > browser_max_length:
+            suffix = " - Truncated"
+            truncated_at = browser_max_length - len(suffix)
+            self.browser = self.browser[:truncated_at] + suffix
 
     def auth_backend_display(self):
         """

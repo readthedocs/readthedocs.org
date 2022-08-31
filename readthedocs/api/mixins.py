@@ -99,7 +99,7 @@ class EmbedAPIMixin:
             return
 
         if self.unresolved_url:
-            version_slug = self.unresolved_url.version_slug
+            version_slug = self.unresolved_url.version.slug
         else:
             version_slug = self.request.GET.get("version", "latest")
         project = self._get_project()

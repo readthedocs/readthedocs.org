@@ -27,7 +27,7 @@ urlpatterns = [
     ),
     re_path(
         r'^invite/(?P<hash>[\w.-]+)/redeem/$',
-        views.UpdateOrganizationTeamMember.as_view(),
+        views.RedirectRedeemTeamInvitation.as_view(),
         name='organization_invite_redeem',
     ),
     # Members

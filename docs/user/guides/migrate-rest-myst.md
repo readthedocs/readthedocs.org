@@ -8,12 +8,14 @@ thanks to a number of extensions.
 The most powerful of such extensions is {doc}`MyST-Parser <myst-parser:index>`,
 which implements a CommonMark-compliant, extensible Markdown dialect
 with support for the Sphinx roles and directives that make it so useful.
+
 In this guide, you will find
 how you can start writing Markdown in your existing reStructuredText project,
 or migrate it completely.
 
-If, instead of migrating, you are starting a new project from scratch,
-have a look at {doc}`myst-parser:sphinx/intro`.
+If, **instead of migrating**, you are starting a new project from scratch,
+have a look at {doc}`myst-parser:intro`.
+If you are starting a **project for Jupyter**, you can start with Jupyter Book, which uses ``MyST-Parser``, see the official Jupyter Book tutorial: {doc}`jupyterbook:start/your-first-book`
 
 ## Writing your content both in reStructuredText and MyST
 
@@ -25,8 +27,8 @@ and some others in reStructuredText, for whatever reason.
 Luckily, Sphinx supports reading both types of markup at the same time without problems.
 
 To start using MyST in your existing Sphinx project,
-first {ref}``install the `myst-parser` Python package <myst-parser:sphinx/intro.md#install-the-myst-parser>``
-and then {ref}`enable it on your configuration <myst-parser:parse-with-sphinx>`:
+first {ref}``install the `myst-parser` Python package <myst-parser:intro.md#installation>``
+and then {ref}`enable it on your configuration <myst-parser:intro.md#enable-myst-in-sphinx>`:
 
 ```{code-block} py
 :caption: conf.py

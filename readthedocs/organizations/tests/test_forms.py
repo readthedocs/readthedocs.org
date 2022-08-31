@@ -1,8 +1,11 @@
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from readthedocs.invitations.models import Invitation
 from readthedocs.organizations import forms
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
@@ -35,87 +38,110 @@ class OrganizationTestCase(TestCase):
 class OrganizationTeamMemberFormTests(OrganizationTestCase):
 
     def test_add_team_member_by_name(self):
+        request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
         member_form.save()
-        self.assertEqual(self.team.members.count(), 1)
+        self.assertEqual(self.team.members.count(), 0)
+        self.assertEqual(Invitation.objects.for_object(self.team).count(), 1)
 
     def test_add_duplicate_member_by_username(self):
+        request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
         member_form.save()
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': self.user.username},
+            {"username_or_email": self.user.username},
             team=self.team,
+            request=request,
         )
-        self.assertFalse(member_form.is_valid())
-        self.assertEqual(self.team.members.count(), 1)
+        self.assertTrue(member_form.is_valid())
+        self.assertEqual(self.team.members.count(), 0)
+        self.assertEqual(Invitation.objects.for_object(self.team).count(), 1)
 
     def test_add_team_member_by_email(self):
         """User with verified email is just added to team."""
         user = fixture.get(User)
+        request = mock.MagicMock(user=self.owner)
         emailaddress = fixture.get(EmailAddress, user=user, verified=True)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': emailaddress.email},
+            {"username_or_email": emailaddress.email},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
-        teammember = member_form.save()
-        self.assertIsNone(teammember.invite)
-        self.assertEqual(teammember.member, user)
-        self.assertEqual(self.team.members.count(), 1)
-        self.assertEqual(self.team.invites.count(), 0)
+        invitation = member_form.save()
+        self.assertEqual(invitation.from_user, self.owner)
+        self.assertEqual(invitation.to_user, user)
+        self.assertEqual(invitation.to_email, None)
+        self.assertEqual(self.team.members.count(), 0)
 
     def test_add_team_invite_unverified_email(self):
         """Team member with unverified email is invited by email."""
         user = fixture.get(User)
-        __ = fixture.get(EmailAddress, user=user, verified=False)
+        fixture.get(EmailAddress, user=user, verified=False)
 
+        request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': user.email},
+            {"username_or_email": user.email},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
-        teammember = member_form.save()
-        self.assertIsNone(teammember.member)
-        self.assertEqual(teammember.invite.email, user.email)
+        invitation = member_form.save()
+        self.assertEqual(invitation.from_user, self.owner)
+        self.assertEqual(invitation.to_user, None)
+        self.assertEqual(invitation.to_email, user.email)
         self.assertEqual(self.team.members.count(), 0)
-        self.assertEqual(self.team.invites.count(), 1)
 
     def test_add_fresh_member_by_email(self):
         """Add team member with email that is not associated with a user."""
         self.assertEqual(self.organization.teams.count(), 1)
+        email = "testalsdkgh@example.com"
+        request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': 'testalsdkgh@example.com'},
+            {"username_or_email": email},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
-        member_form.save()
+        invitation = member_form.save()
+        self.assertEqual(invitation.from_user, self.owner)
+        self.assertEqual(invitation.to_user, None)
+        self.assertEqual(invitation.to_email, email)
         self.assertEqual(self.team.members.count(), 0)
-        self.assertEqual(self.team.invites.count(), 1)
 
     def test_add_duplicate_invite_by_email(self):
         """Add duplicate invite by email."""
         self.assertEqual(self.organization.teams.count(), 1)
+        email = "non-existant@example.com"
+        request = mock.MagicMock(user=self.owner)
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': 'non-existant@example.com'},
+            {"username_or_email": email},
             team=self.team,
+            request=request,
         )
         self.assertTrue(member_form.is_valid())
-        member_form.save()
-        self.assertEqual(self.team.members.count(), 0)
-        self.assertEqual(self.team.invites.count(), 1)
+        first_invitation = member_form.save()
+
         member_form = forms.OrganizationTeamMemberForm(
-            {'member': 'non-existant@example.com'},
+            {"username_or_email": email},
             team=self.team,
+            request=request,
         )
-        self.assertFalse(member_form.is_valid())
+        self.assertTrue(member_form.is_valid())
+        second_invitation = member_form.save()
+
+        self.assertEqual(self.team.members.count(), 0)
+        self.assertEqual(first_invitation, second_invitation)
 
 
 class OrganizationSignupTest(OrganizationTestCase):
