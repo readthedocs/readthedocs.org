@@ -127,7 +127,9 @@ class DetailSubscription(OrganizationMixin, DetailView):
             # Show the end date as the last period the customer paid.
             context["subscription_end_date"] = stripe_subscription.current_period_end
             if stripe_subscription.status == SubscriptionStatus.past_due:
-                latest_paid_invoice = stripe_subscription.invoices.filter(paid=True).first()
+                latest_paid_invoice = stripe_subscription.invoices.filter(
+                    paid=True
+                ).first()
                 context["subscription_end_date"] = latest_paid_invoice.period_end
 
         return context
