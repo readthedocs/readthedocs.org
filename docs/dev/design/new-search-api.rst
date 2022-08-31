@@ -7,6 +7,7 @@ Goals
 - Allow to configure search at the API level,
   instead of having the options in the database.
 - Allow to search a group of projects/versions at the same time.
+- Bring the same syntax to the dashboard search.
 
 Syntax
 ------
@@ -56,7 +57,8 @@ project:
  since ``:`` is already used to separate the key from the value.
 
 Including subprojects
-`````````````````````
+~~~~~~~~~~~~~~~~~~~~~
+
 Now that we are returning results only
 from the given projects, we need an easy way to
 include results from subprojects.
@@ -200,43 +202,96 @@ Examples
 
 - ``search``: invalid, at least one project is required.
 
+Dashboard search
+----------------
+
+This is the search feature that you can access from
+the readthedocs.org/readthedocs.com domains.
+
+We have two types:
+
+Project scoped search:
+   Search files and versions of the curent project only.
+
+Global search:
+   Search files and versions of all projects in .org,
+   and only the projects the user has access to in .com.
+
+   Global search also allows to search projects by name/description.
+
+This search also allows you to see the number of results
+from other projects/versions/sphinx domains (facets).
+
+Project scoped search
+~~~~~~~~~~~~~~~~~~~~~
+
+Here the new syntax won't have effect,
+since we are searching for the files of one project only!
+
+Another approach could be linking to the global search
+with ``project:{project.slug}`` filled in the query.
+
+Global search (projects)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+We can keep the project search as is,
+without using the new syntax (since it doesn't make sense there).
+
+Global search (files)
+~~~~~~~~~~~~~~~~~~~~~
+
+Using the same syntax from the API will be allowed,
+by default it will search all projects in .org,
+and all projects the user has access to in .com.
+
+Another approach could be to allow
+filtering by user on .org, this is ``user:stsewd`` or ``user:@me``
+so a user can search all their projects easily.
+We could allow just ``@me`` to start.
+
+Facets
+~~~~~~
+
+We can keep the facets, but they would be a little different,
+since with the new syntax we need to specify a project in order to search for
+a version, i.e, we can't search all ``latest`` versions of all projects.
+
+By default we will use/show the ``project`` facet,
+and after the user has filtered by a project,
+we will use/show the ``version`` facet.
+
+If the user searches more than one project,
+things get complicated, should we keep showing the ``version`` facet?
+If clicked, should we change the version on all the projects?
+
+If that is too complicated to explain/implement,
+we should be fine by just supporting the ``project``
+facet for now.
+
+Backwards compatibility
+~~~~~~~~~~~~~~~~~~~~~~~
+
+We should be able to keep the old URLs working in the global search,
+but we could also just ignore the old syntax, or transform
+the old syntax to the new one and redirect the user to it,
+for example ``?q=test&project=docs&version=latest``
+would be transformed to ``?q=test project:docs/latest``.
 
 Future features
 ---------------
 
 - Allow searching on several versions of the same project
   (the API response is prepared to support this).
+- Allow searching on all versions of a project easily,
+  with a syntax like ``project:docs/*`` or ``project:docs/@all``.
 - Allow specify the type of search:
 
   - Multi match (query as is)
   - Simple query string (allows using the ES query syntax)
   - Fuzzy search (same as multi match, but with with fuzziness)
 
-Questions / pending decisions
------------------------------
-
-Integration with the dashboard search.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The search API and the search from the dashboard
-use the same backend, but they are used in a different way.
-
-The dashboard search by default searches on all projects (.org),
-or all project the current user has access to (.com).
-And the API search searches on explicitly given projects.
-
-The dashboard search allows filtering by version and role,
-the API search allows filtering only by version (and it's required).
-
-The dashboard search makes use of filters in order to return
-the number of results from other versions/roles.
-Is this feature useful? It could slow down the response.
-Searching several versions at the same time could be a better replace?
-
-The dashboard search can be used to search for projects
-by their name and description.
-The API search doesn't support this.
-Is this feature useful? Should we implement
-this as a way to filter projects from https://readthedocs.org/dashboard/ instead?
-This will be using just https://docs.djangoproject.com/en/4.0/ref/contrib/postgres/search/
-or ``contains``.
+- Add the ``organization`` filter,
+  so users can search by all projects that belong
+  to an organization.
+  Would we show results of all versions
+  or just the default version?
