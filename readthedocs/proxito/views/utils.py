@@ -16,7 +16,7 @@ def fast_404(request, *args, **kwargs):
     This stops us from running RTD logic in our error handling. We already do
     this in RTD prod when we fallback to it.
     """
-    return HttpResponse('Not Found.', status=404)
+    return HttpResponse("Not Found.", status=404)
 
 
 def proxito_404_page_handler(request, exception=None, template_name='404.html'):
