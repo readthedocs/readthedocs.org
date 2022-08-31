@@ -124,12 +124,12 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
             # When Stripe marks the subscription as ``past_due``,
             # it means the usage of RTD service for the current period/month was not paid at all.
-            # show the end date as the last period the customer paid.
+            # Show the end date as the last period the customer paid.
             context["subscription_end_date"] = stripe_subscription.current_period_end
             if stripe_subscription.status == SubscriptionStatus.past_due:
-                context[
-                    "subscription_end_date"
-                ] = stripe_subscription.current_period_start
+                latest_paid_invoice = stripe_subscription.invoices.filter(paid=True).first()
+                context["subscription_end_date"] = latest_paid_invoice.period_end
+
         return context
 
     def get_success_url(self):
