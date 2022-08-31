@@ -39,24 +39,21 @@ Alternative implementation
 --------------------------
 
 Instead of trying to map a URL to a view,
-we first analyze the canonical project (given from the subdomain),
-and based on that we map each part of the URL (parts are the result of splitting the URL on ``/``)
-to the *current* project.
+we first analyze the root project (given from the subdomain),
+and based on that we map each part of the URL to the *current* project and version.
 
-This will allow us to re-use this code in our resolver
+This will allow us to re-use this code in our unresolver
 without the need to override the Django's urlconf at runtime,
 or guessing a project only by the structure of its URL.
 
 Terminology:
 
-Canonical project
+Root project
   The project from where the documentation
-  is served (the parent project of a subproject or translation).
+  is served (usually the parent project of a subproject or translation).
 Current project
   The project that owns the current file being served
   (a subproject, a translation, etc).
-URL part
-  The result of splitting the URL on ``/``.
 Requested file
   The final path to the file that we need to serve from the current project.
 
@@ -66,9 +63,9 @@ Look up process
 Proxito will process all documentation requests from a single *docs serve* view,
 exluding ``/_`` URLs.
 
-This view then will process the current URL using the canonical project as follows:
+This view then will process the current URL using the root project as follows:
 
-- Check if the canonical project has translations
+- Check if the root project has translations
   (the project itself is a translation if isn't a single version project),
   and the first part is a language code and the second is a version.
 
@@ -80,7 +77,7 @@ This view then will process the current URL using the canonical project as follo
 
   - If the subproject prefix or the alias don't match, we continue.
   - If they match, we try to match the rest of the URL for translations/versions and single versions
-    (i.e, we don't search for subprojects) and we use the subproject as the new *canonical project*.
+    (i.e, we don't search for subprojects) and we use the subproject as the new *root project*.
 
 - Check if the project is a single version.
   Here we just try to serve the rest of the URL as the file.
@@ -109,14 +106,14 @@ Doesn't seem useful to do so.
 
 So, what we need is have a way to specify a prefix only.
 We would have a prefix used for translations and another one used for subprojects.
-These prefixes will be set in the canonical project.
+These prefixes will be set in the root project.
 
 The look up order would be as follow:
 
-- If the canonical project has a custom prefix, and the current URL matches that prefix,
+- If the root project has a custom prefix, and the current URL matches that prefix,
   remove the prefix and follow the translations and single version look up process.
   We exclude subprojects from it, i.e, we don't check for ``{prefix}/projects``.
-- If the canonical project has subprojects and a custom subprojects prefix (``projects`` by default),
+- If the root project has subprojects and a custom subprojects prefix (``projects`` by default),
   and if the current URL matches that prefix,
   and the next part of the URL matches a subproject alias,
   continue with the subproject look up process.
@@ -128,8 +125,8 @@ The next examples are organized in the following way:
 
 - First there is a list of the projects involved,
   with their available versions.
-- The first project would be the canonical project.
-- The other projects will be related to the canonical project
+- The first project would be the root project.
+- The other projects will be related to the root project
   (their relationship is given by their name).
 - Next we will have a table of the requests,
   and their result.
@@ -412,12 +409,15 @@ This is a simplified version of the implementation,
 there are some small optimizations and validations that will be in the
 final implementation.
 
+In the final implementation we will be using regular expressions to extract
+the parts from the URL.
+
 .. code-block:: python
 
    from readthedocs.projects.models import Project
-   
+
    LANGUAGES = {"es", "en"}
-   
+
    def pop_parts(path, n):
        if path[0] == '/':
           path  = path[1:]
@@ -425,8 +425,8 @@ final implementation.
        start, end = parts[:n], parts[n:]
        end = end[0] if end else ''
        return start, end
-   
-   
+
+
    def resolve(canonical_project: Project, path: str, check_subprojects=True):
        prefix = '/'
        if canonical_project.prefix:
@@ -434,7 +434,7 @@ final implementation.
        subproject_prefix = "/projects"
        if canonical_project.subproject_prefix:
            subproject_prefix = canonical_project.subproject_prefix
-   
+
        # Multiversion project.
        if path.startswith(prefix):
            new_path = path.removeprefix(prefix)
@@ -450,7 +450,7 @@ final implementation.
                    if version:
                        return project, version, new_path
                    return project, None, None
-   
+
        # Subprojects.
        if check_subprojects and path.startswith(subproject_prefix):
            new_path = path.removeprefix(subproject_prefix)
@@ -463,7 +463,7 @@ final implementation.
                    path=new_path,
                    check_subprojects=False,
                )
-   
+
        # Single project.
        if path.startswith(prefix):
            new_path = path.removeprefix(prefix)
@@ -474,10 +474,10 @@ final implementation.
                if version:
                    return canonical_project, version, new_path
                return canonical_project, None, None
-   
+
        return None, None, None
-   
-   
+
+
    def view(canonical_project, path):
        current_project, version, file = resolve(
            canonical_project=canonical_project,
@@ -485,17 +485,17 @@ final implementation.
        )
        if current_project and version:
            return serve(current_project, version, file)
-   
+
        if current_project:
            return serve_404(current_project)
-   
+
        return serve_404(canonical_project)
-   
-   
+
+
    def serve_404(project, version=None):
        pass
-   
-   
+
+
    def serve(project, version, file):
        pass
 
@@ -504,8 +504,7 @@ Performance
 ~~~~~~~~~~~
 
 Performance is mainly driven by the number of database lookups.
-There is an additional impact of splitting and joining the paths,
-but those are linear operations, and can be optimized to make then constant (i.e. using ``maxsplit=4``).
+There is an additional impact performing a regex lookup.
 
 - A single version project:
 
@@ -546,7 +545,7 @@ Questions
   - robots and sitemap
   - The ``page`` redirect
 
-  I'd say we shouldn't, I can't think of a reason why this should be supported.
+  This can be useful for people that proxy us from another path.
 
 - Should we use the urlconf from the subproject when processing it?
   This is an URL like ``/projects/subproject/custom/prefix/en/latest/index.html``.
