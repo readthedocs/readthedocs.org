@@ -3,6 +3,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -18,11 +19,12 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class ImportedFileTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.project = Project.objects.get(slug='pip')
         self.version = self.project.versions.first()
 

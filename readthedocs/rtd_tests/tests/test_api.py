@@ -647,7 +647,11 @@ class APIBuildTests(TestCase):
 
 
 class APITests(TestCase):
-    fixtures = ['eric.json', 'test_data.json']
+    fixtures = ['eric.json']
+
+
+    def setUp(self):
+        call_command("fixtures_projects")
 
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
@@ -824,7 +828,11 @@ class APIImportTests(TestCase):
 
     """Import API endpoint tests."""
 
-    fixtures = ['eric.json', 'test_data.json']
+    fixtures = ['eric.json']
+
+
+    def setUp(self):
+        call_command("fixtures_projects")
 
     def test_permissions(self):
         """Ensure user repositories aren't leaked to other users."""
@@ -899,9 +907,10 @@ class IntegrationsTests(TestCase):
 
     """Integration for webhooks, etc."""
 
-    fixtures = ['eric.json', 'test_data.json']
+    fixtures = ['eric.json']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.project = get(
             Project,
             build_queue=None,
@@ -2356,9 +2365,13 @@ class IntegrationsTests(TestCase):
 
 
 class APIVersionTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
     maxDiff = None  # So we get an actual diff when it fails
 
+
+    def setUP(self):
+        call_command("fixtures_projects")
+    
     def test_get_version_by_id(self):
         """
         Test the full response of ``/api/v2/version/{pk}`` is what we expects.

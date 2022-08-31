@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.contrib.sessions.backends.base import SessionBase
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -325,9 +326,10 @@ class TestFooterHTML(BaseTestFooterHTML, TestCase):
 )
 class TestVersionCompareFooter(TestCase):
 
-    fixtures = ['test_data', 'eric']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.update(built=True)
         self.pip.show_version_warning = True

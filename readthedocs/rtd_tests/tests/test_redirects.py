@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -15,9 +16,10 @@ from readthedocs.redirects.models import Redirect
 # These tests could be removed completely in the near future.
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
 class RedirectTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         pip = Project.objects.get(slug='pip')
         pip.versions.create_latest()
@@ -107,9 +109,10 @@ class CustomRedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectBuildTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.project = get(
             Project,
             slug='project-1',
@@ -132,9 +135,10 @@ class RedirectBuildTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class GetFullPathTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.proj = Project.objects.get(slug='read-the-docs')
         self.redirect = get(Redirect, project=self.proj)
 

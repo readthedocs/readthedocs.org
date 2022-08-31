@@ -2,6 +2,7 @@ from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -19,9 +20,10 @@ from readthedocs.projects.models import Project
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.user = User.objects.get(username='eric')
         self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
@@ -938,9 +940,10 @@ class TestSyncVersions(TestCase):
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.user = User.objects.get(username='eric')
         self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
@@ -1416,9 +1419,10 @@ class TestStableVersion(TestCase):
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.user = User.objects.get(username='eric')
         self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')

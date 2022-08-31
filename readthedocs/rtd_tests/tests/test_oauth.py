@@ -576,9 +576,10 @@ class GitHubOAuthTests(TestCase):
 
 class BitbucketOAuthTests(TestCase):
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
@@ -1031,7 +1032,7 @@ class BitbucketOAuthTests(TestCase):
 
 class GitLabOAuthTests(TestCase):
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     repo_response_data = {
         'lfs_enabled': True,
@@ -1123,6 +1124,7 @@ class GitLabOAuthTests(TestCase):
     }
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
