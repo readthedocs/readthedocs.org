@@ -252,6 +252,8 @@ We could allow just ``@me`` to start.
 Facets
 ~~~~~~
 
+We will support only the ``projects`` facet to start.
+
 We can keep the facets, but they would be a little different,
 since with the new syntax we need to specify a project in order to search for
 a version, i.e, we can't search all ``latest`` versions of all projects.
@@ -290,8 +292,7 @@ Future features
   - Simple query string (allows using the ES query syntax)
   - Fuzzy search (same as multi match, but with with fuzziness)
 
-- Add the ``organization`` filter,
+- Add the ``org`` filter,
   so users can search by all projects that belong
   to an organization.
-  Would we show results of all versions
-  or just the default version?
+  We would show results of the default versions of each project.
