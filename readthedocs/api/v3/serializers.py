@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
-from taggit.serializers import (TagListSerializerField, TaggitSerializer)
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
@@ -475,10 +475,6 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             'repository',
             'homepage',
             'tags',
-
-            # Advanced Settings -> General Settings
-            'default_version',
-            'default_branch',
         )
 
     def _validate_remote_repository(self, data):
@@ -492,7 +488,6 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
         If we cannot ensure the relationship here, this method should raise a
         `ValidationError`.
         """
-        pass
 
     def validate_name(self, value):
         potential_slug = slugify(value)

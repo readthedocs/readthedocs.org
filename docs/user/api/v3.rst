@@ -347,7 +347,11 @@ Project create
             },
             "homepage": "http://template.readthedocs.io/",
             "programming_language": "py",
-            "language": "es"
+            "language": "es",
+            "tags": [
+                "generic tag",
+                "test tag"
+            ]
         }
 
     **Example response**:
@@ -413,6 +417,10 @@ Project update
             "language": "ja",
             "programming_language": "py",
             "homepage": "https://readthedocs.org/",
+            "tags" : [
+                "new tag",
+                "updated tag"
+            ]
             "default_version": "v0.27.0",
             "default_branch": "develop",
             "analytics_code": "UA000000",
