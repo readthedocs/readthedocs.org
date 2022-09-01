@@ -15,4 +15,13 @@ const createDomNode = (nodeName, attributes) => {
     return node;
 };
 
-module.exports = { createDomNode };
+const domReady = (fn) => {
+    // If the DOM is already done parsing
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
+};
+
+module.exports = { createDomNode, domReady};
