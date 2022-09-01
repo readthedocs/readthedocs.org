@@ -2,26 +2,24 @@ Status Badges
 =============
 
 Status badges let you show the state of your documentation to your users.
+They will show if the latest build has passed, failed, or is in an unknown state.
 They are great for embedding in your README,
 or putting inside your actual doc pages.
+
+You can see a badge in action in the `Read the Docs README`_.
 
 Display states
 --------------
 
-Badges have the following stats:
+Badges have the following states which can be shown to users:
 
-* **Green** for passing
-* **Red** for failing
-* **Yellow** for unknown states
+* **Green**: ``passing`` - the last build was successful.
+* **Red**: ``failing`` - the last build failed.
+* **Yellow**: ``unknown`` - we couldn't figure out the status of your last build.
 
-By default,
-badges link back to your project's documentation page on Read the Docs.
-
-Here are a few examples:
+An example of each is shown here:
 
 |green| |nbsp| |red| |nbsp| |yellow|
-
-You can see it in action in the `Read the Docs README`_.
 
 Style
 -----
