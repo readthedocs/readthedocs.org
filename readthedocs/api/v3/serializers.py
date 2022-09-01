@@ -469,12 +469,12 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'name',
-            'language',
-            'programming_language',
-            'repository',
-            'homepage',
-            'tags',
+            "name",
+            "language",
+            "programming_language",
+            "repository",
+            "homepage",
+            "tags",
         )
 
     def _validate_remote_repository(self, data):
@@ -551,13 +551,12 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
         model = Project
         fields = (
             # Settings
-            'name',
-            'repository',
-            'language',
-            'programming_language',
-            'homepage',
-            'tags',
-
+            "name",
+            "repository",
+            "language",
+            "programming_language",
+            "homepage",
+            "tags",
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',
