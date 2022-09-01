@@ -107,6 +107,7 @@ class RedirectQuerySet(models.QuerySet):
         for redirect in queryset.select_related('project'):
             new_path = redirect.get_redirect_path(
                 path=normalized_path,
+                full_path=normalized_full_path,
                 language=language,
                 version_slug=version_slug,
             )

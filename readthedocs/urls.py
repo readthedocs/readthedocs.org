@@ -4,9 +4,9 @@ from functools import reduce
 from operator import add
 
 from django.conf import settings
-from django.conf.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.views import (
@@ -52,6 +52,7 @@ rtd_urls = [
     re_path(r'^accounts/', include('allauth.urls')),
     re_path(r'^notifications/', include('readthedocs.notifications.urls')),
     re_path(r'^accounts/gold/', include('readthedocs.gold.urls')),
+    path("invitations/", include("readthedocs.invitations.urls")),
     # For redirects
     re_path(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 500's with DEBUG on.

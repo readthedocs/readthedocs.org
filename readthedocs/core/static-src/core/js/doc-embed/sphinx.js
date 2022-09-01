@@ -3,7 +3,8 @@
  */
 
 
-var rtddata = require('./rtd-data');
+const rtddata = require('./rtd-data');
+const { domReady } = require('./utils');
 var sphinx_theme;
 
 
@@ -11,30 +12,33 @@ function init() {
     var rtd = rtddata.get();
 
     /// Click tracking on flyout
-    $(document).on('click', "[data-toggle='rst-current-version']", function () {
-        var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed';
+    var flyout = document.querySelector("[data-toggle='rst-current-version']");
+    if (flyout != null) {
+      flyout.addEventListener('click', function () {
+          var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed';
 
-        // Only report back if analytics is enabled
-        if (typeof READTHEDOCS_DATA !== 'undefined' && READTHEDOCS_DATA.global_analytics_code) {
-            // This needs to handle old style legacy analytics for previously built docs
-            // as well as the newer universal analytics and Google Site Tag
-            if (typeof gtag !== 'undefined') {
-                // https://developers.google.com/analytics/devguides/collection/gtagjs/events
-                gtag('event', 'Click', {
-                    'event_category': 'Flyout',
-                    'event_label': flyout_state,
-                    'send_to': 'rtfd'
-                });
-            } else if (typeof ga !== 'undefined') {
-                ga('rtfd.send', 'event', 'Flyout', 'Click', flyout_state);
-            } else if (typeof _gaq !== 'undefined') {
-                _gaq.push(
-                    ['rtfd._setAccount', 'UA-17997319-1'],
-                    ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
-                );
-            }
-        }
-    });
+          // Only report back if analytics is enabled
+          if (typeof READTHEDOCS_DATA !== 'undefined' && READTHEDOCS_DATA.global_analytics_code) {
+              // This needs to handle old style legacy analytics for previously built docs
+              // as well as the newer universal analytics and Google Site Tag
+              if (typeof gtag !== 'undefined') {
+                  // https://developers.google.com/analytics/devguides/collection/gtagjs/events
+                  gtag('event', 'Click', {
+                      'event_category': 'Flyout',
+                      'event_label': flyout_state,
+                      'send_to': 'rtfd'
+                  });
+              } else if (typeof ga !== 'undefined') {
+                  ga('rtfd.send', 'event', 'Flyout', 'Click', flyout_state);
+              } else if (typeof _gaq !== 'undefined') {
+                  _gaq.push(
+                      ['rtfd._setAccount', 'UA-17997319-1'],
+                      ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
+                  );
+              }
+          }
+      });
+    }
 
     /// Inject the Read the Docs Sphinx theme code
     /// This is necessary on older versions of the RTD theme (<0.4.0)
@@ -46,7 +50,7 @@ function init() {
 
         // Enable the version selector (flyout) menu
         // This is necessary for 3rd party themes
-        $(document).ready(function () {
+        domReady(function () {
             setTimeout(function () {
                 if (!theme.navBar) {
                     theme.enable();

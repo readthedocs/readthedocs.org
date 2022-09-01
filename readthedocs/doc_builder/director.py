@@ -343,7 +343,7 @@ class BuildDirector:
             {"poetry", "install"},
         )
         cwd = self.data.project.checkout_path(self.data.version.slug)
-        environment = self.vcs_environment
+        environment = self.build_environment
         for command in self.data.config.build.commands:
             environment.run(*command.split(), escape_command=False, cwd=cwd)
 

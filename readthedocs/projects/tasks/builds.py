@@ -517,6 +517,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         pdf = self.data.outcomes['pdf']
         epub = self.data.outcomes['epub']
 
+        time_before_store_build_artifacts = timezone.now()
         # Store build artifacts to storage (local or cloud storage)
         self.store_build_artifacts(
             html=html,
@@ -524,6 +525,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             localmedia=localmedia,
             pdf=pdf,
             epub=epub,
+        )
+        log.info(
+            "Store build artifacts finished.",
+            time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
 
         # NOTE: we are updating the db version instance *only* when

@@ -243,7 +243,7 @@ class BuildQuerySet(models.QuerySet):
         log.info(
             'Concurrent builds.',
             project_slug=project.slug,
-            concurent=concurrent,
+            concurrent=concurrent,
             max_concurrent=max_concurrent,
         )
         if concurrent >= max_concurrent:

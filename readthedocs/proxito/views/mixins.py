@@ -308,7 +308,14 @@ class ServeRedirectMixin:
             http_status_code=http_status,
         )
 
-        if request.build_absolute_uri(proxito_path) == new_path:
+        new_path_parsed = urlparse(new_path)
+        old_path_parsed = urlparse(request.build_absolute_uri(proxito_path))
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL.',

@@ -343,9 +343,9 @@ However, there are some differences between them:
   whereas MyST-NB does not have such functionality at the moment
   (see :ref:`notebook-galleries` for more information about galleries).
 - MyST-NB allows embedding Python objects coming from the notebook in the documentation
-  (read :ref:`their "glue" documentation <myst-nb:glue>`
+  (read :doc:`their "glue" documentation <myst-nb:render/glue>`
   for more information)
-  and provides more sophisticated :ref:`error reporting <myst-nb:start/error-reporting>`
+  and provides more sophisticated :doc:`error reporting <myst-nb:computation/execute>`
   than the one nbsphinx has.
 - The visual appearance of code cells and their outputs is slightly different:
   nbsphinx renders the cell numbers by default,
@@ -363,8 +363,7 @@ Deciding which one to use depends on your use case. As general recommendations:
   nbsphinx is the right choice.
 - If you want to leverage a more optimized execution workflow
   and a more streamlined parsing mechanism,
-  as well as some of the unique MyST-NB functionalities
-  (``glue``, better error reporting)
+  as well as some of the unique MyST-NB functionalities,
   you should use MyST-NB.
 
 Alternative notebook formats
