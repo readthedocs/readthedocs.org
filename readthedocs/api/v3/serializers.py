@@ -652,6 +652,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # When using organizations, projects don't have the concept of users.
+        # But we have organization.owners.
+        # Set here instead of at the class level,
+        # so is easier to test.
         if settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields.pop("users", None)
 
