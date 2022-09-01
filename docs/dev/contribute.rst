@@ -85,7 +85,7 @@ approve suggestions.
 If you don't see your language in our list of approved languages for any of our
 projects, feel free to suggest the language on Transifex to start the process.
 
-.. _our projects on Transifex: https://www.transifex.com/projects/p/readthedocs/
+.. _our projects on Transifex: https://explore.transifex.com/readthedocs/
 
 Triaging issues
 ---------------

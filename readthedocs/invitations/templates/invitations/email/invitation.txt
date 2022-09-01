@@ -1,0 +1,10 @@
+{% extends 'core/email/common.txt' %}
+
+{% block content %}
+{{ from_name }} has invited you to join the {{ object_description }}.
+You can accept or decline this invitation using the following link:
+
+{{ uri }}{{ invite_url }}
+
+This invitation will expire in {{ valid_until }} ({{ expiration_date }}).
+{% endblock %}
