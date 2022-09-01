@@ -13,7 +13,7 @@ function createDomNode(nodeName, attributes) {
         }
     }
     return node;
-};
+}
 
 function domReady(fn) {
     // If the DOM is already done parsing
@@ -22,6 +22,6 @@ function domReady(fn) {
     } else {
         document.addEventListener("DOMContentLoaded", fn);
     }
-};
+}
 
 module.exports = { createDomNode, domReady};
