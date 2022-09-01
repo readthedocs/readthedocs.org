@@ -166,16 +166,18 @@ class Redirect(models.Model):
             filename=filename,
         )
 
-    def get_redirect_path(self, path, language=None, version_slug=None):
+    def get_redirect_path(self, path, full_path=None, language=None, version_slug=None):
         method = getattr(
             self,
             'redirect_{type}'.format(
                 type=self.redirect_type,
             ),
         )
-        return method(path, language=language, version_slug=version_slug)
+        return method(
+            path, full_path=full_path, language=language, version_slug=version_slug
+        )
 
-    def redirect_prefix(self, path, language=None, version_slug=None):
+    def redirect_prefix(self, path, full_path, language=None, version_slug=None):
         if path.startswith(self.from_url):
             log.debug("Redirecting...", redirect=self)
             # pep8 and blank don't agree on having a space before :.
@@ -189,7 +191,7 @@ class Redirect(models.Model):
             )
             return to
 
-    def redirect_page(self, path, language=None, version_slug=None):
+    def redirect_page(self, path, full_path, language=None, version_slug=None):
         if path == self.from_url:
             log.debug('Redirecting...', redirect=self)
             to = self.get_full_path(
@@ -200,11 +202,7 @@ class Redirect(models.Model):
             )
             return to
 
-    def redirect_exact(self, path, language=None, version_slug=None):
-        full_path = path
-        if language and version_slug:
-            # reconstruct the full path for an exact redirect
-            full_path = self.get_full_path(path, language, version_slug, allow_crossdomain=False)
+    def redirect_exact(self, path, full_path, language=None, version_slug=None):
         if full_path == self.from_url:
             log.debug('Redirecting...', redirect=self)
             return self.to_url
@@ -215,7 +213,7 @@ class Redirect(models.Model):
                 cut_path = full_path.replace(match, self.to_url, 1)
                 return cut_path
 
-    def redirect_sphinx_html(self, path, language=None, version_slug=None):
+    def redirect_sphinx_html(self, path, full_path, language=None, version_slug=None):
         for ending in ['/', '/index.html']:
             if path.endswith(ending):
                 log.debug('Redirecting...', redirect=self)
@@ -228,9 +226,11 @@ class Redirect(models.Model):
                     allow_crossdomain=False,
                 )
 
-    def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
-        if path.endswith('.html'):
-            log.debug('Redirecting...', redirect=self)
+    def redirect_sphinx_htmldir(
+        self, path, full_path, language=None, version_slug=None
+    ):
+        if path.endswith(".html"):
+            log.debug("Redirecting...", redirect=self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(

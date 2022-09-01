@@ -90,9 +90,10 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             include_file=False,
             version_type=version.type,
         )
+        relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
-            filename,
+            relative_filename,
         )
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name

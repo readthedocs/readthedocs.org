@@ -302,7 +302,7 @@ class Unresolver:
             Domain.objects.filter(domain=domain).prefetch_related("project").first()
         )
         if domain_object:
-            log.info("Custom domain.", domain=domain)
+            log.debug("Custom domain.", domain=domain)
             project_slug = domain_object.project.slug
             return project_slug, domain_object, False
 

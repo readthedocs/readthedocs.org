@@ -435,6 +435,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=2),
             'options': {'queue': 'web'},
         },
+        'weekly-delete-old-personal-audit-logs': {
+            'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
+            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'options': {'queue': 'web'},
+        },
         'every-day-resync-sso-organization-users': {
             'task': 'readthedocs.oauth.tasks.sync_remote_repositories_organizations',
             'schedule': crontab(minute=0, hour=4),
@@ -796,6 +801,12 @@ class CommunityBaseSettings(Settings):
     # These values shouldn't need to change..
     DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
     DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
+
+    # Disable adding djstripe metadata to the Customer objects.
+    # We are managing the subscriber relationship by ourselves,
+    # since we have subscriptions attached to an organization or gold user
+    # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
+    DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False

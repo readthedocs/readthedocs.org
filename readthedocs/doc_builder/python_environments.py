@@ -182,7 +182,7 @@ class Virtualenv(PythonEnvironment):
             [
                 "mock==1.0.1",
                 "alabaster>=0.7,<0.8,!=0.7.5",
-                "commonmark==0.8.1",
+                "commonmark==0.9.1",
                 "recommonmark==0.5.0",
             ]
         )

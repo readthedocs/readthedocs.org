@@ -121,6 +121,7 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
+   /build-troubleshooting
    /environment-variables
    /badges
 
