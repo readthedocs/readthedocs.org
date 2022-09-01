@@ -65,7 +65,7 @@ alabaster:
   ``0.7.x`` (could be removed in the future).
 
 commonmark:
-  ``0.8.1`` (could be removed in the future).
+  ``0.9.1`` (could be removed in the future).
 
 recommonmark:
   ``0.5.0`` (could be removed in the future).
