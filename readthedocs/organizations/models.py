@@ -115,6 +115,17 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def stripe_subscription(self):
+        # TODO: remove this once we don't depend on our Subscription models.
+        from readthedocs.subscriptions.models import Subscription
+
+        subscription = Subscription.objects.get_or_create_default_subscription(self)
+        if not subscription:
+            # This only happens during development.
+            return None
+        return self.stripe_customer.subscriptions.latest()
+
     def get_absolute_url(self):
         return reverse('organization_detail', args=(self.slug,))
 
