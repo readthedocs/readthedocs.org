@@ -1,6 +1,7 @@
 from django.core.management import call_command
 from django.test import TestCase
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 
 
@@ -11,7 +12,7 @@ class TestRepoParsing(TestCase):
         call_command("fixtures_projects")
         self.client.login(username="eric", password="test")
         self.pip = Project.objects.get(slug="pip")
-        self.version = self.pip.versions.create_latest()
+        self.version = self.pip.versions.get(slug=LATEST)
 
     def test_github(self):
         self.pip.repo = 'https://github.com/user/repo'

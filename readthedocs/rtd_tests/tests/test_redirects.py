@@ -22,7 +22,7 @@ class RedirectTests(TestCase):
         call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         pip = Project.objects.get(slug='pip')
-        pip.versions.create_latest()
+        pip.versions.get(slug=LATEST)
 
     def test_proper_url_no_slash(self):
         r = self.client.get('/docs/pip')
@@ -70,9 +70,10 @@ class RedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectAppTests(TestCase):
-    fixtures = ['eric', 'test_data']
+    fixtures = ['eric']
 
     def setUp(self):
+        call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.create_latest()

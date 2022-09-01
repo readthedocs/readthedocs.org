@@ -2371,6 +2371,8 @@ class APIVersionTests(TestCase):
 
     def setUP(self):
         call_command("fixtures_projects")
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
     
     def test_get_version_by_id(self):
         """
@@ -2379,8 +2381,7 @@ class APIVersionTests(TestCase):
         Allows us to notice changes in the fields returned by the endpoint
         instead of let them pass silently.
         """
-        pip = Project.objects.get(slug='pip')
-        version = pip.versions.get(slug='0.8')
+        version = self.pip.versions.get(slug='0.8')
 
         data = {
             'pk': version.pk,
