@@ -10,9 +10,9 @@ Display states
 
 Badges have the following stats:
 
-* green for passing
-* red for failing
-* yellow for unknown states
+* **Green** for passing
+* **Red** for failing
+* **Yellow** for unknown states
 
 By default,
 badges link back to your project's documentation page on Read the Docs.
