@@ -138,7 +138,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(project.language, "en")
         self.assertEqual(project.programming_language, "py")
         self.assertEqual(project.project_url, "http://template.readthedocs.io/")
-        self.assertEqual(project.tags, ["test tag", "template tag"])
+        self.assertEqual(list(project.tags.names()), ["template tag", "test tag"])
         self.assertIn(self.me, project.users.all())
         self.assertEqual(project.builds.count(), 1)
 
@@ -279,7 +279,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.language, "es")
         self.assertEqual(self.project.programming_language, "js")
         self.assertEqual(self.project.project_url, "https://updated-homepage.org")
-        self.assertEqual(self.project.tags, ["updated tag", "test tag"])
+        self.assertEqual(list(self.project.tags.names()), ["test tag", "updated tag"])
         self.assertEqual(self.project.default_version, "stable")
         self.assertEqual(self.project.default_branch, "updated-default-branch")
         self.assertEqual(self.project.analytics_code, "UA-XXXXXX")
@@ -315,7 +315,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(
             self.project.repo, "https://github.com/rtfd/updated-repository"
         )
-        self.assertEqual(self.project.tags, ["partial tags", "updated"])
+        self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
         self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
     def test_partial_update_others_project(self):
