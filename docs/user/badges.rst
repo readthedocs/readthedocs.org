@@ -1,35 +1,37 @@
-Badges
-======
+Status Badges
+=============
 
-Badges let you show the state of your documentation to your users.
+Status badges let you show the state of your documentation to your users.
+They will show if the latest build has passed, failed, or is in an unknown state.
 They are great for embedding in your README,
 or putting inside your actual doc pages.
 
-Status Badges
--------------
+You can see a badge in action in the `Read the Docs README`_.
 
-They will display in green for passing,
-red for failing,
-and yellow for unknown states.
+Display states
+--------------
 
-Here are a few examples:
+Badges have the following states which can be shown to users:
+
+* **Green**: ``passing`` - the last build was successful.
+* **Red**: ``failing`` - the last build failed.
+* **Yellow**: ``unknown`` - we couldn't figure out the status of your last build.
+
+An example of each is shown here:
 
 |green| |nbsp| |red| |nbsp| |yellow|
-
-You can see it in action in the `Read the Docs README`_.
-They will link back to your project's documentation page on Read the Docs.
 
 Style
 -----
 
-Now you can pass the ``style`` GET argument,
-to get custom styled badges same as you would for shields.io.
-If no argument is passed, ``flat`` is used as default.
+You can pass the ``style`` GET argument to get custom styled badges.
+This allows you to match the look and feel of your website.
+By default, the ``flat`` style is used.
 
 +---------------+---------------------+
-| STYLE         | BADGE               |
+| Style         | Badge               |
 +===============+=====================+
-| flat          | |Flat Badge|        |
+| flat - default| |Flat Badge|        |
 +---------------+---------------------+
 | flat-square   | |Flat-Square Badge| |
 +---------------+---------------------+
@@ -47,30 +49,27 @@ If no argument is passed, ``flat`` is used as default.
 .. |Social Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=social
 
 
-Project Pages
--------------
+Version-specific badges
+-----------------------
 
-You will now see badges embedded in your `project page`_.
-The default badge will be pointed at the *default version* you have specified for your project.
-The badge URLs look like this::
+You can change the version of the documentation your badge points to.
+To do this, you can pass the ``version`` GET argument to the badge URL.
+By default, it will point at the *default version* you have specified for your project.
 
-    https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic
+The badge URL looks like this::
 
-You can replace the version argument with any version that you want to show a badge for.
+    https://readthedocs.org/projects/docs/badge/?version=latest
+
+
+Badges on dashboard pages
+-------------------------
+
+On each :term:`project home` page there is a badge that communicates the status of the default version.
 If you click on the badge icon,
-you will be given snippets for RST, Markdown, and HTML;
+you will be given snippets for reStructuredText, Markdown, and HTML
 to make embedding it easier.
 
-If you leave the version argument off,
-it will default to your latest version.
-This is probably best to include in your README,
-since it will stay up to date with your Read the Docs project::
-
-    https://readthedocs.org/projects/pip/badge/
-
-
 .. _Read the Docs README: https://github.com/readthedocs/readthedocs.org/blob/main/README.rst
-.. _project page: https://readthedocs.org/projects/pip/
 .. |green| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
 .. |red| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg
 .. |yellow| image:: https://assets.readthedocs.org/static/projects/badges/unknown-flat.svg
