@@ -374,9 +374,6 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
-    @pytest.mark.xfail(
-        reason="This is hitting fast_404 and not triggering the nginx handler in testing. It works in prod."
-    )
     def test_redirect_exact_looks_like_version(self):
         fixture.get(
             Redirect,
