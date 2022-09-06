@@ -5,7 +5,7 @@
  * @param {Object} attributes - Obj of attributes to be assigned to the node.
  * @return {Object} DOM node.
  */
-const createDomNode = (nodeName, attributes) => {
+function createDomNode(nodeName, attributes) {
     let node = document.createElement(nodeName);
     if (attributes) {
         for (let attr of Object.keys(attributes)) {
@@ -13,6 +13,15 @@ const createDomNode = (nodeName, attributes) => {
         }
     }
     return node;
-};
+}
 
-module.exports = { createDomNode };
+function domReady(fn) {
+    // If the DOM is already done parsing
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
+}
+
+module.exports = { createDomNode, domReady};
