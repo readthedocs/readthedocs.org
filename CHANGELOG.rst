@@ -1,3 +1,34 @@
+Version 8.4.3
+-------------
+
+:Date: September 06, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Badges" page (`#9580 <https://github.com/readthedocs/readthedocs.org/pull/9580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use utility function domReady instead of JQuery's .ready (`#9579 <https://github.com/readthedocs/readthedocs.org/pull/9579>`__)
+* `@humitos <https://github.com/humitos>`__: Development: disable NGINX logs (`#9569 <https://github.com/readthedocs/readthedocs.org/pull/9569>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log time spent to upload build artifacts (`#9568 <https://github.com/readthedocs/readthedocs.org/pull/9568>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: recommend using `pip` instead of `setuptools` (`#9567 <https://github.com/readthedocs/readthedocs.org/pull/9567>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: strip leading `/` before joining path (`#9565 <https://github.com/readthedocs/readthedocs.org/pull/9565>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: fix CORS check (`#9564 <https://github.com/readthedocs/readthedocs.org/pull/9564>`__)
+* `@humitos <https://github.com/humitos>`__: Build: upgrade `commonmark` to 0.9.1 (`#9563 <https://github.com/readthedocs/readthedocs.org/pull/9563>`__)
+* `@humitos <https://github.com/humitos>`__: Templates: minor typo (`#9560 <https://github.com/readthedocs/readthedocs.org/pull/9560>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: unskip test (`#9559 <https://github.com/readthedocs/readthedocs.org/pull/9559>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.4.2 (`#9558 <https://github.com/readthedocs/readthedocs.org/pull/9558>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Proxito redirects: pass full_path instead of re-creating it.  (`#9557 <https://github.com/readthedocs/readthedocs.org/pull/9557>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed js: use fetch API for footer (`#9551 <https://github.com/readthedocs/readthedocs.org/pull/9551>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe subscriptions to show details (`#9550 <https://github.com/readthedocs/readthedocs.org/pull/9550>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel old builds  (`#9549 <https://github.com/readthedocs/readthedocs.org/pull/9549>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: HTML form for getting in touch with Read the Docs for Science (`#9543 <https://github.com/readthedocs/readthedocs.org/pull/9543>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin deploy dependencies (`#9537 <https://github.com/readthedocs/readthedocs.org/pull/9537>`__)
+* `@humitos <https://github.com/humitos>`__: Code comment (`#9518 <https://github.com/readthedocs/readthedocs.org/pull/9518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Avoid jquery in rtd data (`#9493 <https://github.com/readthedocs/readthedocs.org/pull/9493>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use djstripe models for organization subscriptions (`#9486 <https://github.com/readthedocs/readthedocs.org/pull/9486>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: Better handling of docs URLs (`#9425 <https://github.com/readthedocs/readthedocs.org/pull/9425>`__)
+* `@stsewd <https://github.com/stsewd>`__: Security logs: delete old user security logs (`#8620 <https://github.com/readthedocs/readthedocs.org/pull/8620>`__)
+
 Version 8.4.2
 -------------
 

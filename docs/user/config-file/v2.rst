@@ -160,7 +160,7 @@ Configuration of the Python environment to be used.
          path: .
          extra_requirements:
            - docs
-       - method: setuptools
+       - method: pip
          path: another/package
      system_packages: true
 
@@ -215,7 +215,7 @@ Example:
 Packages
 ''''''''
 
-Install the project using ``python setup.py install`` or ``pip install``.
+Install the project using ``pip install`` (recommended) or ``python setup.py install`` (deprecated).
 
 The path to the package, relative to the root of the project.
 
@@ -226,7 +226,7 @@ The path to the package, relative to the root of the project.
 The installation method.
 
 :Key: ``method``
-:Options: ``pip``, ``setuptools``
+:Options: ``pip``, ``setuptools`` (deprecated)
 :Default: ``pip``
 
 `Extra requirements`_ section to install in addition to the `package dependencies`_.
@@ -255,7 +255,7 @@ Example:
          path: .
          extra_requirements:
            - docs
-       - method: setuptools
+       - method: pip
          path: package
 
 With the previous settings, Read the Docs will execute the next commands:
