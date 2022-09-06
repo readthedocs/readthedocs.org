@@ -148,6 +148,23 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
 
+    def test_embed_api_external_url(self):
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://pip.readthedocs.io/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
+
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://docs.example.com/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
+
     @mock.patch('readthedocs.core.signals._has_donate_app')
     def test_sustainability_endpoint_allways_allowed(self, has_donate_app):
         has_donate_app.return_value = True

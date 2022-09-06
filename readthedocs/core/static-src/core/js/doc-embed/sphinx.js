@@ -3,7 +3,8 @@
  */
 
 
-var rtddata = require('./rtd-data');
+const rtddata = require('./rtd-data');
+const { domReady } = require('./utils');
 var sphinx_theme;
 
 
@@ -49,7 +50,7 @@ function init() {
 
         // Enable the version selector (flyout) menu
         // This is necessary for 3rd party themes
-        $(document).ready(function () {
+        domReady(function () {
             setTimeout(function () {
                 if (!theme.navBar) {
                     theme.enable();

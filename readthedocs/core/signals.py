@@ -85,7 +85,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
                 return True
 
             project = unresolved.project
-            version_slug = unresolved.version_slug
+            version_slug = unresolved.version.slug
         else:
             project_slug = request.GET.get('project', None)
             version_slug = request.GET.get('version', None)

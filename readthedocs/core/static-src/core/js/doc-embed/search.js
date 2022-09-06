@@ -2,27 +2,11 @@
  * Sphinx and Mkdocs search overrides
  */
 
-var rtddata = require('./rtd-data');
-var xss = require('xss/lib/index');
-var MAX_RESULT_PER_SECTION = 3;
-var MAX_SUBSTRING_LIMIT = 100;
-
-/**
- * Create and return DOM nodes with given attributes.
- *
- * @param {String} nodeName name of the node
- * @param {Object} attributes obj of attributes to be assigned to the node
- * @return {Object} DOM node
- */
-const createDomNode = (nodeName, attributes) => {
-    let node = document.createElement(nodeName);
-    if (attributes) {
-        for (let attr of Object.keys(attributes)) {
-            node.setAttribute(attr, attributes[attr]);
-        }
-    }
-    return node;
-};
+const rtddata = require('./rtd-data');
+const xss = require('xss/lib/index');
+const { createDomNode, domReady } = require("./utils");
+const MAX_RESULT_PER_SECTION = 3;
+const MAX_SUBSTRING_LIMIT = 100;
 
 
 /*
@@ -256,7 +240,7 @@ function attach_elastic_search_query_sphinx(data) {
             console.log('Server side search is disabled.');
         }
     }
-    $(document).ready(function () {
+    domReady(function () {
         if (typeof Search !== 'undefined') {
             Search.init();
         }
@@ -412,7 +396,7 @@ function attach_elastic_search_query_mkdocs(data) {
         }
     };
 
-    $(document).ready(function () {
+    domReady(function () {
         // We can't override the search completely,
         // because we can't delete the original event listener,
         // and MkDocs includes its search functions after ours.
