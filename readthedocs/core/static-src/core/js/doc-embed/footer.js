@@ -41,7 +41,9 @@ function init() {
     var get_data = {
         project: rtd['project'],
         version: rtd['version'],
-        page: rtd['page'],
+        // Page is a sphinx concept only,
+        // avoid serializing this as a literal `null` instead of empty.
+        page: rtd['page'] || "",
         theme: rtd.get_theme_name(),
     };
 
