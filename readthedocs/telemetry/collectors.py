@@ -34,12 +34,15 @@ class BuildDataCollector:
 
     @staticmethod
     def _safe_json_loads(content, default=None):
+        def lowercase(d):  # pylint: disable=invalid-name
+            """Convert all dictionary keys to lowercase."""
+            return {k.lower(): i for k, i in d.items()}
+
         # pylint: disable=broad-except
         try:
-            # NOTE: we could use `object_hook` to make all the keys lowercase here
-            # making easier to filter the results when making queries
-            # https://docs.python.org/3/library/json.html#json.load
-            return json.loads(content)
+            # Use ``object_hook`` parameter to lowercase all the keys of the dictionary.
+            # This helps us to have our data normalized and improve queries.
+            return json.loads(content, object_hook=lowercase)
         except Exception:
             log.info(
                 "Error while loading JSON content.",
@@ -228,9 +231,6 @@ class BuildDataCollector:
         ]
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:
-            # TODO: it would be good to convert all the keys to lowercase as we
-            # do with `packages.pip.user`, this will simplify the queries and
-            # avoid confusions
             return self._safe_json_loads(stdout, [])
         return []
 
@@ -309,7 +309,7 @@ class BuildDataCollector:
                 package, version = parts
                 packages.append(
                     {
-                        "name": package,
+                        "name": package.lower(),
                         "version": version,
                     }
                 )
@@ -318,7 +318,7 @@ class BuildDataCollector:
 
     def _get_user_apt_packages(self):
         return [
-            {"name": package, "version": ""}
+            {"name": package.lower(), "version": ""}
             for package in self.config.build.apt_packages
         ]
 
