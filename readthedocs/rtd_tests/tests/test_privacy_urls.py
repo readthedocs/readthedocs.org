@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
+from readthedocs.redirects.models import Redirect
 
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.models import (
@@ -187,6 +188,11 @@ class ProjectMixin(URLAccessMixin):
             response_headers={'foo': 'bar'},
             status_code=200,
         )
+        self.redirect = get(
+            Redirect,
+            project=self.pip,
+            redirect_type='sphinx_html',
+        )
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -197,6 +203,7 @@ class ProjectMixin(URLAccessMixin):
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
+            'redirect_pk': self.redirect.pk,
             'integration_pk': self.integration.pk,
             'exchange_pk': self.integration_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
@@ -279,7 +286,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
-        '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/redirects/{redirect_pk}/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
@@ -298,6 +305,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
             'webhook_id': self.webhook.id,
+            'redirect_pk': self.redirect.pk,
             'steps': 1,
         }
 
@@ -324,7 +332,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
-        '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/redirects/{redirect_pk}/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
@@ -346,6 +354,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
             'webhook_id': self.webhook.id,
+            'redirect_pk': self.redirect.pk,
             'steps': 1,
         }
 

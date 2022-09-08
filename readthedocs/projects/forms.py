@@ -669,9 +669,11 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects."""
 
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = Redirect
-        fields = ["redirect_type", "from_url", "to_url", "force"]
+        fields = ["project", "redirect_type", "from_url", "to_url", "force"]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -685,18 +687,8 @@ class RedirectForm(forms.ModelForm):
         else:
             self.fields.pop("force")
 
-    def save(self, **_):  # pylint: disable=arguments-differ
-        # TODO this should respect the unused argument `commit`. It's not clear
-        # why this needs to be a call to `create`, instead of relying on the
-        # super `save()` call.
-        redirect = Redirect.objects.create(
-            project=self.project,
-            redirect_type=self.cleaned_data["redirect_type"],
-            from_url=self.cleaned_data["from_url"],
-            to_url=self.cleaned_data["to_url"],
-            force=self.cleaned_data.get("force", False),
-        )
-        return redirect
+    def clean_project(self):
+        return self.project
 
 
 class DomainBaseForm(forms.ModelForm):
