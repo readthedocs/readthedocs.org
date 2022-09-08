@@ -1863,7 +1863,6 @@ class Feature(models.Model):
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
     USE_SPHINX_BUILDERS = "use_sphinx_builders"
-    DEDUPLICATE_BUILDS = "deduplicate_builds"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
 
@@ -2011,10 +2010,6 @@ class Feature(models.Model):
         (
             USE_SPHINX_BUILDERS,
             _('Use regular sphinx builders instead of custom RTD builders'),
-        ),
-        (
-            DEDUPLICATE_BUILDS,
-            _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
             CANCEL_OLD_BUILDS,

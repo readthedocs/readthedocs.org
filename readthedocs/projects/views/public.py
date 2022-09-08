@@ -1,12 +1,12 @@
 """Public project views."""
 
 import hashlib
-import structlog
 import mimetypes
 import os
 from collections import OrderedDict
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
@@ -22,7 +22,7 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, LATEST
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -183,20 +183,6 @@ class ProjectBadgeView(View):
                 project__slug=project_slug,
                 slug=version_slug,
             ).first()
-
-        if version:
-            last_build = (
-                version.builds
-                .filter(type='html', state='finished')
-                .exclude(status=BUILD_STATUS_DUPLICATED)
-                .order_by('-date')
-                .first()
-            )
-            if last_build:
-                if last_build.success:
-                    status = self.STATUS_PASSING
-                else:
-                    status = self.STATUS_FAILING
 
         return self.serve_badge(request, status)
 
