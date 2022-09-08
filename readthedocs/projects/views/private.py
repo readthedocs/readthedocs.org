@@ -713,9 +713,9 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
     """Project redirects view and form view."""
 
     form_class = RedirectForm
-    template_name = 'redirects/redirect_form.html'
+    template_name = "redirects/redirect_form.html"
     context_object_name = "redirect"
-    lookup_url_kwarg = 'redirect_pk'
+    lookup_url_kwarg = "redirect_pk"
 
     def get_success_url(self):
         return reverse(
@@ -729,7 +729,7 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
 
-    template_name = 'redirects/redirect_list.html'
+    template_name = "redirects/redirect_list.html"
     context_object_name = "redirects"
 
 
