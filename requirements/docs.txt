@@ -25,18 +25,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.66
+boto3==1.24.70
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.66
+botocore==1.27.70
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -71,7 +71,7 @@ click-repl==0.2.0
     #   celery
 colorama==0.4.5
     # via sphinx-autobuild
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -128,7 +128,7 @@ django-debug-toolbar==3.6.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.2.2
     # via -r requirements/pip.txt
-django-extensions==3.2.0
+django-extensions==3.2.1
     # via -r requirements/pip.txt
 django-filter==22.1
     # via -r requirements/pip.txt
@@ -171,7 +171,7 @@ docutils==0.17.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
-dparse==0.5.2
+dparse==0.6.0
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
@@ -243,7 +243,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==0.17.2
     # via -r requirements/docs.in
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
@@ -461,13 +461,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.4
+virtualenv==20.16.5
     # via -r requirements/pip.txt
 wcwidth==0.2.5
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.4.0
+websocket-client==1.4.1
     # via
     #   -r requirements/pip.txt
     #   docker

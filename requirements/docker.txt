@@ -32,18 +32,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.66
+boto3==1.24.70
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.66
+botocore==1.27.70
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -77,7 +77,7 @@ click-repl==0.2.0
     #   celery
 commonmark==0.9.1
     # via rich
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -141,7 +141,7 @@ django-debug-toolbar==3.6.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.2.2
     # via -r requirements/pip.txt
-django-extensions==3.2.0
+django-extensions==3.2.1
     # via -r requirements/pip.txt
 django-filter==22.1
     # via -r requirements/pip.txt
@@ -183,7 +183,7 @@ docutils==0.17.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-dparse==0.5.2
+dparse==0.6.0
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
@@ -226,7 +226,7 @@ imagesize==1.4.1
     #   sphinx
 ipdb==0.13.9
     # via -r requirements/debug.txt
-ipython==8.4.0
+ipython==8.5.0
     # via
     #   -r requirements/debug.txt
     #   ipdb
@@ -265,7 +265,7 @@ matplotlib-inline==0.1.6
     # via
     #   -r requirements/debug.txt
     #   ipython
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
@@ -463,8 +463,9 @@ toml==0.10.2
     #   -r requirements/pip.txt
     #   dparse
     #   ipdb
-    #   tox
-tox==3.25.1
+tomli==2.0.1
+    # via tox
+tox==3.26.0
     # via -r requirements/docker.in
 traitlets==5.3.0
     # via
@@ -496,7 +497,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.4
+virtualenv==20.16.5
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -505,7 +506,7 @@ wcwidth==0.2.5
     #   -r requirements/debug.txt
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.4.0
+websocket-client==1.4.1
     # via
     #   -r requirements/pip.txt
     #   docker
