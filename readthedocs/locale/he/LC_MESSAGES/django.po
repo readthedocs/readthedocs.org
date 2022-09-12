@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-06 10:02+0000\n"
+"POT-Creation-Date: 2022-09-12 21:40+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022\n"
 "Language-Team: Hebrew (http://www.transifex.com/readthedocs/readthedocs/"
@@ -249,6 +249,8 @@ msgid ""
 "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
 "action=%(action)s\" title=\"%(path)s\">visited</a> a page"
 msgstr ""
+"עמוד <a href=\"?action=%(action)s\" title=\"%(path)s\">זכה לביקור</a> של <a "
+"href=\"?user=%(user)s\"> <code>%(user)s</code> </a>"
 
 #: audit/templates/audit/list_logs.html:43
 #, python-format
@@ -262,6 +264,8 @@ msgid ""
 "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
 "action=%(action)s\" title=\"%(path)s\">downloaded</a> a document"
 msgstr ""
+"מסמך <a href=\"?action=%(action)s\" title=\"%(path)s\">נמשך</a> על ידי <a "
+"href=\"?user=%(user)s\"> <code>%(user)s</code> </a>"
 
 #: audit/templates/audit/list_logs.html:56
 #, python-format
@@ -1146,11 +1150,11 @@ msgstr "{0} עבור {1}"
 
 #: invitations/models.py:91
 msgid "From user"
-msgstr ""
+msgstr "ממשתמש"
 
 #: invitations/models.py:97
 msgid "To user"
-msgstr ""
+msgstr "למשתמש"
 
 #: invitations/models.py:103 organizations/models.py:55
 #: organizations/models.py:288
@@ -1159,15 +1163,15 @@ msgstr "דוא״ל"
 
 #: invitations/models.py:108
 msgid "Expiration date"
-msgstr ""
+msgstr "תאריך תפוגה"
 
 #: invitations/templates/invitations/includes/invitation_list.html:19
 msgid "Invitation expired"
-msgstr ""
+msgstr "תוקף ההזמנה פג"
 
 #: invitations/templates/invitations/includes/invitation_list.html:21
 msgid "Invitation pending"
-msgstr ""
+msgstr "הזמנה ממתינה"
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
 #: templates/profiles/private/token_list.html:40
@@ -1176,7 +1180,7 @@ msgstr "שלילה"
 
 #: invitations/templates/invitations/invitation_detail.html:5
 msgid "Invitation request"
-msgstr ""
+msgstr "בקשת הזמנה"
 
 #: invitations/templates/invitations/invitation_detail.html:12
 #, python-format
@@ -1187,7 +1191,7 @@ msgstr ""
 
 #: invitations/templates/invitations/invitation_detail.html:22
 msgid "Your invitation has expired."
-msgstr ""
+msgstr "תוקף ההזמנה שלך פג."
 
 #: invitations/templates/invitations/invitation_detail.html:24
 msgid "Ask the admin of the organization to invite you again."
@@ -1203,6 +1207,7 @@ msgid ""
 "This invitation will expire in <span "
 "title=\"%(expiration_date)s\">%(valid_until)s</span>."
 msgstr ""
+"ההזמנה תפוג בעוד <span title=\"%(expiration_date)s\">%(valid_until)s</span>."
 
 #: invitations/templates/invitations/invitation_detail.html:39
 msgid "Accept"
@@ -1214,7 +1219,7 @@ msgstr ""
 
 #: notifications/forms.py:29
 msgid "Notification"
-msgstr "התרעה"
+msgstr "התראה"
 
 #: oauth/models.py:28 oauth/models.py:116 organizations/models.py:215
 msgid "Users"
@@ -1431,7 +1436,7 @@ msgstr ""
 
 #: organizations/models.py:111
 msgid "organization"
-msgstr ""
+msgstr "ארגון"
 
 #: organizations/models.py:187
 #, python-brace-format
@@ -1444,7 +1449,7 @@ msgstr "גישה"
 
 #: organizations/models.py:246
 msgid "team"
-msgstr ""
+msgstr "צוות"
 
 #: organizations/models.py:283 templates/base.html:192
 msgid "Team"
@@ -1780,7 +1785,7 @@ msgstr "נא לאמת את כתובת הדוא״ל שלך"
 #: organizations/views/private.py:104 organizations/views/private.py:169
 #: projects/views/private.py:475
 msgid "Invitation sent"
-msgstr ""
+msgstr "נשלחה הזמנה"
 
 #: organizations/views/private.py:113
 msgid "Owner removed"
@@ -2442,7 +2447,7 @@ msgstr "המיזם הזה שוכפל בהצלחה"
 
 #: projects/models.py:463
 msgid "project"
-msgstr ""
+msgstr "מיזם"
 
 #: projects/models.py:473
 msgid "Model must have slug"
@@ -2536,11 +2541,11 @@ msgstr "מצב אישור SSL"
 
 #: projects/models.py:1696
 msgid "Skip validation process."
-msgstr ""
+msgstr "דילוג על תהליך אימות."
 
 #: projects/models.py:1702
 msgid "Start date of the validation process."
-msgstr ""
+msgstr "תאריך התחלת תהליך האימות."
 
 #: projects/models.py:1713
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
@@ -2627,7 +2632,7 @@ msgstr ""
 
 #: projects/models.py:1939
 msgid "Disable all page views"
-msgstr ""
+msgstr "השבתת כל צפיות העמוד"
 
 #: projects/models.py:1943
 msgid "Disable indexing of sphinx domains"
@@ -3185,7 +3190,7 @@ msgstr "נמצא מבוך"
 
 #: templates/429.html:6
 msgid "Too many requests"
-msgstr ""
+msgstr "יותר מדי בקשות"
 
 #: templates/500.html:5
 msgid "Server Error"
@@ -3230,7 +3235,7 @@ msgid ""
 "email address so you can receive notifications, reset your password, etc."
 msgstr ""
 "לא מוגדרת עבורך אף כתובת דוא״ל. עליך להוסיף כתובת דוא״ל כדי שתגענה אליך "
-"התרעות, איפוס ססמה וכו׳."
+"התראות, איפוסי סיסמאות וכו׳."
 
 #: templates/account/email.html:50
 msgid "Add E-mail Address"
@@ -3264,18 +3269,18 @@ msgid ""
 "A request has been made to reset your Read the Docs password. To confirm "
 "this reset request, please go to:"
 msgstr ""
-"התקבלה בקשה לאיפוס הססמה שלך ב־Read the Docs. כדי לאשר את בקשת האיפוס הזו, "
+"התקבלה בקשה לאיפוס הסיסמה שלך ב־Read the Docs. כדי לאשר את בקשת האיפוס הזו, "
 "נא לגשת אל:"
 
 #: templates/account/email/password_reset_key_message.html:15
 #: templates/account/email/password_reset_key_message.txt:10
 msgid ""
 "If you did not request to reset your password, you can disregard this email."
-msgstr "אם לא ביקשת את איפוס הססמה שלך, ניתן להתעלם מההודעה הזו."
+msgstr "אם לא ביקשת את איפוס הסיסמה שלך, ניתן להתעלם מההודעה הזו."
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password reset"
-msgstr "איפוס ססמה"
+msgstr "איפוס סיסמה"
 
 #: templates/account/login.html:6 templates/account/login.html:12
 #: templates/account/login.html:23
@@ -3294,7 +3299,7 @@ msgstr "אם טרם יצרת חשבון, נא <a href=\"%(signup_url)s\">להי�
 msgid ""
 "If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
 msgstr ""
-"אם שכחת את הססמה שלך, ניתן <a href=\"%(password_reset_url)s\">לאפס אותה.</a>"
+"אם שכחת את הסיסמה שלך, ניתן <a href=\"%(password_reset_url)s\">לאפס אותה.</a>"
 
 #: templates/account/login.html:31 templates/account/signup.html:52
 msgid "Or"
@@ -3305,7 +3310,7 @@ msgstr "או"
 #: templates/account/password_change.html:15
 #: templates/profiles/base_profile_edit.html:50
 msgid "Change Password"
-msgstr "החלפת ססמה"
+msgstr "החלפת סיסמה"
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/account/signup.html:5 templates/core/home-header.html:17
@@ -4904,19 +4909,19 @@ msgstr ""
 
 #: templates/projects/project_notifications.html:30
 msgid "Existing Notifications"
-msgstr "התרעות קיימות"
+msgstr "התראות קיימות"
 
 #: templates/projects/project_notifications.html:54
 msgid "Remove Notifications"
-msgstr "הסרת התרעות"
+msgstr "הסרת התראות"
 
 #: templates/projects/project_notifications.html:72
 msgid "New Email Notifications"
-msgstr "התרעות חדשות בדוא״ל"
+msgstr "התראות חדשות בדוא״ל"
 
 #: templates/projects/project_notifications.html:74
 msgid "Add an email address to notify"
-msgstr "הוספת כתובת דוא״ל לשליחת התרעות"
+msgstr "הוספת כתובת דוא״ל לשליחת התראות"
 
 #: templates/projects/project_redirects.html:5
 msgid "Edit Redirects"
