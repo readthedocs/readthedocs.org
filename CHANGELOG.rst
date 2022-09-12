@@ -1,3 +1,18 @@
+Version 8.5.0
+-------------
+
+:Date: September 12, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for imported GitHub RemoteRepository (`#9590 <https://github.com/readthedocs/readthedocs.org/pull/9590>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: lowercase JSON keys (`#9587 <https://github.com/readthedocs/readthedocs.org/pull/9587>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: fix no-sphinx docs (`#9586 <https://github.com/readthedocs/readthedocs.org/pull/9586>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.3 (`#9584 <https://github.com/readthedocs/readthedocs.org/pull/9584>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+
 Version 8.4.3
 -------------
 
