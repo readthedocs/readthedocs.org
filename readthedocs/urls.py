@@ -108,7 +108,8 @@ i18n_urls = [
 ]
 
 admin_urls = [
-    re_path(r'^admin/', admin.site.urls),
+    path("admin/postgres-metrics/", include("postgres_metrics.urls")),
+    re_path(r"^admin/", admin.site.urls),
 ]
 
 dnt_urls = [

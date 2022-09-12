@@ -117,3 +117,5 @@ django-structlog==2.2.0
 
 structlog
 dparse
+
+django-postgres-metrics

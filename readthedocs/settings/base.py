@@ -156,6 +156,7 @@ class CommunityBaseSettings(Settings):
     @property
     def INSTALLED_APPS(self):  # noqa
         apps = [
+            'postgres_metrics.apps.PostgresMetrics',
             'django.contrib.auth',
             'django.contrib.admin',
             'django.contrib.contenttypes',
