@@ -95,10 +95,11 @@ class Unresolver:
                 filename = None
             elif not version.is_external:
                 log.warning(
-                    "Version is not external.",
+                    "Attempt of serving a non-external version from RTD_EXTERNAL_VERSION_DOMAIN.",
                     domain=domain,
                     version_slug=version.slug,
                     version_type=version.type,
+                    url=url,
                 )
                 version = None
                 filename = None
@@ -174,6 +175,8 @@ class Unresolver:
             .first()
         )
         if project_relationship:
+            # We use the subproject as the new parent project
+            # to resolve the rest of the path relative to it.
             subproject = project_relationship.child
             response = self._unresolve_path(
                 parent_project=subproject,
@@ -279,7 +282,7 @@ class Unresolver:
             # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
             if public_domain == root_domain:
                 project_slug = subdomain
-                log.info("Public domain.", domain=domain)
+                log.debug("Public domain.", domain=domain)
                 return project_slug, None, None
 
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
@@ -291,7 +294,7 @@ class Unresolver:
         if external_domain == root_domain:
             try:
                 project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
-                log.info("External versions domain.", domain=domain)
+                log.debug("External versions domain.", domain=domain)
                 return project_slug, None, version_slug
             except ValueError:
                 log.info("Invalid format of external versions domain.", domain=domain)
