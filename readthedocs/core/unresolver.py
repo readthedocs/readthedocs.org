@@ -40,9 +40,11 @@ class Unresolver:
     # - /en/latest/
     # - /en/latest/file/name/
     multiversion_pattern = re.compile(
-        r"^/(?P<language>{lang_slug})(/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$".format(  # noqa
-            **pattern_opts
-        )
+        r"""
+        ^/(?P<language>{lang_slug})  # Must have the language slug.
+        (/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$  # Optionally a version followed by a file.  # noqa
+        """.format(**pattern_opts),
+        re.VERBOSE,
     )
 
     # This pattern matches:
@@ -50,9 +52,12 @@ class Unresolver:
     # - /projects/subproject/
     # - /projects/subproject/file/name/
     subproject_pattern = re.compile(
-        r"^/projects/(?P<project>{project_slug}+)(/(?P<file>{filename_slug}))?$".format(
-            **pattern_opts
-        )
+        r"""
+        ^/projects/  # Must have the `projects` prefix.
+        (?P<project>{project_slug}+)  # Followed by the subproject alias.
+        (/(?P<file>{filename_slug}))?$  # Optionally a filename, which will be recursively resolved.
+        """.format(**pattern_opts),
+        re.VERBOSE,
     )
 
     def unresolve(self, url, add_index=True):
@@ -68,17 +73,17 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        project_slug, domain_object, external_version_slug = self.unresolve_domain(
+        parent_project_slug, domain_object, external_version_slug = self.unresolve_domain(
             domain
         )
-        if not project_slug:
+        if not parent_project_slug:
             return None
 
-        parent_project = Project.objects.filter(slug=project_slug).first()
+        parent_project = Project.objects.filter(slug=parent_project_slug).first()
         if not parent_project:
             return None
 
-        project, version, filename = self._unresolve_path(
+        current_project, version, filename = self._unresolve_path(
             parent_project=parent_project,
             path=parsed.path,
         )
@@ -109,7 +114,7 @@ class Unresolver:
 
         return UnresolvedURL(
             parent_project=parent_project,
-            project=project or parent_project,
+            project=current_project or parent_project,
             version=version,
             filename=filename,
             parsed_url=parsed,
@@ -131,6 +136,10 @@ class Unresolver:
 
         If the translation exists, we return a result even if the version doesn't,
         so the translation is taken as the current project (useful for 404 pages).
+
+        :returns: None or a tuple with the current project, version and file.
+         A tuple with only the project means we weren't able to find a version,
+         but the translation was correct.
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -162,15 +171,19 @@ class Unresolver:
 
         If the subproject exists, we return a result even if version doesn't,
         so the subproject is taken as the current project (useful for 404 pages).
+
+        :returns: None or a tuple with the current project, version and file.
+         A tuple with only the project means we were able to find the subproject,
+         but we weren't able to resolve the rest of the path.
         """
         match = self.subproject_pattern.match(path)
         if not match:
             return None
 
-        project_slug = match.group("project")
+        subproject_alias = match.group("project")
         file = self._normalize_filename(match.group("file"))
         project_relationship = (
-            parent_project.subprojects.filter(alias=project_slug)
+            parent_project.subprojects.filter(alias=subproject_alias)
             .prefetch_related("child")
             .first()
         )
@@ -215,10 +228,19 @@ class Unresolver:
         If the returned version is `None`, then we weren't able to
         unresolve the path into a valid version of the project.
 
+        The checks are done in the following order:
+
+        - Check for multiple versions if the parent project
+          isn't a single version project.
+        - Check for subprojects.
+        - Check for single versions if the parent project isn’t
+          a multi version project.
+
         :param parent_project: The project that owns the path.
         :param path: The path to unresolve.
         :param check_subprojects: If we should check for subprojects,
-         this is used to call this function recursively.
+         this is used to call this function recursively when
+         resolving the path from a subproject (we don't support subprojects of subprojects).
 
         :returns: A tuple with: project, version, and file name.
         """
