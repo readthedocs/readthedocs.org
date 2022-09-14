@@ -1,13 +1,15 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
 
-class TestViewsR(TestCase):
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestViews(TestCase):
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, slug="test", users=[self.user])
@@ -80,3 +82,12 @@ class TestViewsR(TestCase):
         self.assertContains(resp, self.redirect.redirect_type)
         self.assertContains(resp, self.redirect.from_url)
         self.assertContains(resp, self.redirect.to_url)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestViewsWithOrganizations(TestViews):
+    def setUp(self):
+        super().setUp()
+        self.organization = get(
+            Organization, projects=[self.project], owners=[self.user]
+        )
