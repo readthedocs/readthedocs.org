@@ -712,44 +712,40 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
 
     """Project redirects view and form view."""
 
+    form_class = RedirectForm
+    template_name = "redirects/redirect_form.html"
+    context_object_name = "redirect"
+    lookup_url_kwarg = "redirect_pk"
+
     def get_success_url(self):
         return reverse(
             'projects_redirects',
             args=[self.get_project().slug],
         )
 
-
-class ProjectRedirects(ProjectRedirectsMixin, FormView):
-
-    form_class = RedirectForm
-    template_name = 'projects/project_redirects.html'
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = self.get_project()
-        context['redirects'] = project.redirects.all()
-        return context
+    def get_queryset(self):
+        return self.get_project().redirects.all()
 
 
-class ProjectRedirectsDelete(ProjectRedirectsMixin, GenericView):
+class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
+
+    template_name = "redirects/redirect_list.html"
+    context_object_name = "redirects"
+
+
+class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
+
+    pass
+
+
+class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
+
+    pass
+
+
+class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteView):
 
     http_method_names = ['post']
-
-    def post(self, request, *args, **kwargs):
-        project = self.get_project()
-        redirect = get_object_or_404(
-            project.redirects,
-            pk=request.POST.get('id_pk'),
-        )
-        if redirect.project == project:
-            redirect.delete()
-        else:
-            raise Http404
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
