@@ -84,7 +84,7 @@ Result:
 
    .. prompt:: bash $
       
-      python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
+      python -m sphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
 
 Intersphinx in Read the Docs
 ----------------------------
