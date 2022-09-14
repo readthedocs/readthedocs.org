@@ -669,7 +669,7 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects."""
 
-    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+    project = forms.CharField(widget=forms.HiddenInput(), required=False, disabled=True)
 
     class Meta:
         model = Redirect

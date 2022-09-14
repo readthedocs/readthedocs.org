@@ -50,6 +50,7 @@ class TestViewsR(TestCase):
         self.assertEqual(redirect.redirect_type, "page")
         self.assertEqual(redirect.from_url, "/config.html")
         self.assertEqual(redirect.to_url, "/configuration.html")
+        self.assertEqual(self.project.redirects.all().count(), 1)
 
     def test_delete_redirect(self):
         self.assertEqual(self.project.redirects.all().count(), 1)
