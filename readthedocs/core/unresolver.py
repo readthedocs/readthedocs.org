@@ -43,7 +43,9 @@ class Unresolver:
         r"""
         ^/(?P<language>{lang_slug})  # Must have the language slug.
         (/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$  # Optionally a version followed by a file.  # noqa
-        """.format(**pattern_opts),
+        """.format(
+            **pattern_opts
+        ),
         re.VERBOSE,
     )
 
@@ -56,7 +58,9 @@ class Unresolver:
         ^/projects/  # Must have the `projects` prefix.
         (?P<project>{project_slug}+)  # Followed by the subproject alias.
         (/(?P<file>{filename_slug}))?$  # Optionally a filename, which will be recursively resolved.
-        """.format(**pattern_opts),
+        """.format(
+            **pattern_opts
+        ),
         re.VERBOSE,
     )
 
@@ -73,9 +77,11 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        parent_project_slug, domain_object, external_version_slug = self.unresolve_domain(
-            domain
-        )
+        (
+            parent_project_slug,
+            domain_object,
+            external_version_slug,
+        ) = self.unresolve_domain(domain)
         if not parent_project_slug:
             return None
 
