@@ -60,7 +60,7 @@ class Unresolver:
         re.VERBOSE,
     )
 
-    def unresolve(self, url, add_index=True):
+    def unresolve(self, url, append_indexhtml=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -68,7 +68,7 @@ class Unresolver:
         like where we want to figure out exactly what file a URL maps to.
 
         :param url: Full URL to unresolve (including the protocol and domain part).
-        :param add_index: If `True` the filename will be normalized
+        :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
         """
         parsed = urlparse(url)
@@ -109,7 +109,7 @@ class Unresolver:
                 version = None
                 filename = None
 
-        if add_index and filename and filename.endswith("/"):
+        if append_indexhtml and filename and filename.endswith("/"):
             filename += "index.html"
 
         return UnresolvedURL(

@@ -29,7 +29,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.parsed_url.query, "search=api")
 
     def test_filename_wihtout_index(self):
-        parts = unresolve("https://pip.readthedocs.io/en/latest/file/", add_index=False)
+        parts = unresolve("https://pip.readthedocs.io/en/latest/file/", append_indexhtml=False)
         self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
