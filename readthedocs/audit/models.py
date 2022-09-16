@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import html
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
@@ -27,11 +28,17 @@ class AuditLogManager(models.Manager):
             AuditLog.DOWNLOAD,
             AuditLog.AUTHN,
             AuditLog.LOGOUT,
+            AuditLog.INVITATION_SENT,
+            AuditLog.INVITATION_ACCEPTED,
+            AuditLog.INVITATION_REVOKED,
+            AuditLog.INVITATION_DECLINED,
         )
         if action in actions_requiring_user and (not user or not request):
-            raise TypeError(f'A user and a request is required for the {action} action.')
-        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and 'project' not in kwargs:
-            raise TypeError(f'A project is required for the {action} action.')
+            raise TypeError(
+                f"A user and a request are required for the {action} action."
+            )
+        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and "project" not in kwargs:
+            raise TypeError(f"A project is required for the {action} action.")
 
         # Don't save anonymous users.
         if user and user.is_anonymous:
@@ -68,11 +75,15 @@ class AuditLog(TimeStampedModel):
 
     # pylint: disable=too-many-instance-attributes
 
-    PAGEVIEW = 'pageview'
-    DOWNLOAD = 'download'
-    AUTHN = 'authentication'
-    AUTHN_FAILURE = 'authentication-failure'
-    LOGOUT = 'log-out'
+    PAGEVIEW = "pageview"
+    DOWNLOAD = "download"
+    AUTHN = "authentication"
+    AUTHN_FAILURE = "authentication-failure"
+    LOGOUT = "log-out"
+    INVITATION_SENT = "invitation-sent"
+    INVITATION_REVOKED = "invitation-revoked"
+    INVITATION_ACCEPTED = "invitation-accepted"
+    INVITATION_DECLINED = "invitation-declined"
 
     CHOICES = (
         (PAGEVIEW, 'Page view'),
@@ -178,12 +189,25 @@ class AuditLog(TimeStampedModel):
         blank=True,
         null=True,
     )
+    data = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_("Extra data about the log entry."),
+    )
 
     objects = AuditLogManager()
 
     class Meta:
 
         ordering = ['-created']
+
+    def user_html_display(self):
+        text = "<code>{username}</code>"
+        username = _("anonymous")
+        if self.log_user_username:
+            text = '<a href="?user={username}"><code>{username}</code></a>'
+            username = self.log_user_username
+        return text.format(username=html.escape(username))
 
     def save(self, **kwargs):
         if self.user:

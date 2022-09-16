@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DeleteView, DetailView
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.invitations.models import Invitation
@@ -19,6 +20,11 @@ class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
     model = Invitation
     pk_url_kwarg = "invitation_pk"
     http_method_names = ["post"]
+
+    def delete(self, request, *args, **kwargs):
+        invitation = self.get_object()
+        invitation.create_audit_log(action=AuditLog.INVITATION_REVOKED, request=request)
+        return super().delete(request, *args, **kwargs)
 
     def test_func(self):
         invitation = self.get_object()
@@ -73,6 +79,9 @@ class RedeemInvitation(DetailView):
             # redeem the invitation after the user has signed-up.
             if not request.user.is_authenticated and invitation.to_email:
                 return self.redeem_at_sign_up(invitation)
+            invitation.create_audit_log(
+                action=AuditLog.INVITATION_ACCEPTED, request=request
+            )
             invitation.redeem(request.user)
             url = invitation.get_success_url()
         else:
@@ -83,6 +92,9 @@ class RedeemInvitation(DetailView):
                 object_name=invitation.object_name,
                 object_pk=invitation.object.pk,
             )
+        invitation.create_audit_log(
+            action=AuditLog.INVITATION_DECLINED, request=request
+        )
         invitation.delete()
         return HttpResponseRedirect(url)
 

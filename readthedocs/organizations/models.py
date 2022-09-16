@@ -153,6 +153,13 @@ class Organization(models.Model):
             "org:slug": self.slug,
         }
 
+    @property
+    def audit_data(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+        }
+
     # pylint: disable=no-self-use
     def add_member(self, user, team):
         """
@@ -257,6 +264,14 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def audit_data(self):
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "organization": self.organization.audit_data,
+        }
 
     def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:

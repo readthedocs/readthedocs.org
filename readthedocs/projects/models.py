@@ -1317,6 +1317,21 @@ class Project(models.Model):
         )
         return queryset
 
+    @property
+    def organization(self):
+        self.organizations.first()
+
+    @property
+    def audit_data(self):
+        organization = None
+        if self.organization:
+            organization = self.organization.audit_data
+        return {
+            "id": self.id,
+            "slug": self.slug,
+            "organization": organization,
+        }
+
 
 class APIProject(Project):
 

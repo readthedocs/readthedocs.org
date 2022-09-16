@@ -13,6 +13,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.invitations.backends import get_backend
 
 log = structlog.get_logger(__name__)
@@ -34,11 +35,13 @@ class InvitationQueryset(models.QuerySet):
             queryset = self._for_object(obj=obj, queryset=queryset)
         return queryset
 
-    def invite(self, from_user, obj, to_user=None, to_email=None):
+    def invite(self, from_user, obj, to_user=None, to_email=None, request=None):
         """
         Create and send an invitation for `to_user` or `to_email` to join `object`.
 
         If the invitation already exists, we don't send the invitation again.
+
+        :param request: If given, a log entry will be created.
         """
         if not to_user and not to_email:
             raise ValueError("A user or email must be provided")
@@ -58,6 +61,10 @@ class InvitationQueryset(models.QuerySet):
             },
         )
         if created:
+            if request:
+                invitation.create_audit_log(
+                    action=AuditLog.INVITATION_SENT, request=request
+                )
             invitation.send()
         return invitation, created
 
@@ -200,8 +207,54 @@ class Invitation(TimeStampedModel):
     def object_url(self):
         return self.backend.get_object_url()
 
+    @property
+    def audit_data(self):
+        to_user = None
+        if self.to_user:
+            to_user = {
+                "id": self.to_user.pk,
+                "username": self.to_user.username,
+            }
+        return {
+            "id": self.id,
+            "object_type": self.object_type,
+            "object": self.object.audit_data,
+            "from_user": {
+                "id": self.from_user.pk,
+                "username": self.from_user.username,
+            },
+            "to_user": to_user,
+            "to_email": self.to_email,
+        }
+
     def send(self):
         self.backend.send_invitation()
+
+    def create_audit_log(self, action, request):
+        kwargs = {}
+        object_type = self.object_type
+        if object_type == "organization":
+            kwargs["organization"] = self.object
+        elif object_type == "project":
+            kwargs["project"] = self.object
+        elif object_type == "team":
+            kwargs["organization"] = self.object.organization
+
+        user = request.user
+        # To accept or decline an invitation the user
+        # doesn't need to be logged-in, they just need the
+        # secret link that was sent to their email.
+        # We want to attach these actions to the user that the invitation was sent to.
+        if action in {AuditLog.INVITATION_ACCEPTED, AuditLog.INVITATION_DECLINED}:
+            user = self.to_user or request.user
+
+        AuditLog.objects.new(
+            action=action,
+            request=request,
+            user=user,
+            data=self.audit_data,
+            **kwargs,
+        )
 
     def __str__(self):
         return f"Invitation for {self.username} to join {self.object}"
