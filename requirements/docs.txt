@@ -25,18 +25,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.70
+boto3==1.24.75
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.70
+botocore==1.27.75
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15.1
+certifi==2022.9.14
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -195,7 +195,7 @@ gitdb==4.0.9
     #   gitpython
 gitpython==3.1.27
     # via -r requirements/pip.txt
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -275,7 +275,7 @@ pygments==2.13.0
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -309,7 +309,7 @@ readthedocs-sphinx-search==0.1.1
     # via -r requirements/docs.in
 redis==3.5.3
     # via -r requirements/pip.txt
-regex==2022.8.17
+regex==2022.9.13
     # via -r requirements/pip.txt
 requests==2.28.1
     # via
@@ -434,6 +434,10 @@ toml==0.10.2
     #   dparse
 tornado==6.2
     # via livereload
+types-cryptography==3.3.23
+    # via
+    #   -r requirements/pip.txt
+    #   pyjwt
 typing-extensions==4.3.0
     # via myst-parser
 ua-parser==0.16.1

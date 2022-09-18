@@ -14,15 +14,15 @@ babel==2.10.3
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.24.70
+boto3==1.24.75
     # via django-storages
-botocore==1.27.70
+botocore==1.27.75
     # via
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.in
-certifi==2022.6.15.1
+certifi==2022.9.14
     # via
     #   elasticsearch
     #   requests
@@ -147,7 +147,7 @@ gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via -r requirements/pip.in
-idna==3.3
+idna==3.4
     # via requests
 imagesize==1.4.1
     # via sphinx
@@ -189,7 +189,7 @@ pygments==2.13.0
     # via
     #   -r requirements/pip.in
     #   sphinx
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via django-allauth
 pyparsing==3.0.9
     # via packaging
@@ -213,7 +213,7 @@ pyyaml==5.4.1
     # via -r requirements/pip.in
 redis==3.5.3
     # via -r requirements/pip.in
-regex==2022.8.17
+regex==2022.9.13
     # via -r requirements/pip.in
 requests==2.28.1
     # via
@@ -277,6 +277,8 @@ structlog==22.1.0
     #   django-structlog
 toml==0.10.2
     # via dparse
+types-cryptography==3.3.23
+    # via pyjwt
 ua-parser==0.16.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
