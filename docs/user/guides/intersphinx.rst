@@ -8,7 +8,8 @@ so you can ensure that your docs don't have broken cross-references.
 
 Sometimes you may need to link to a specific section of another project's documentation.
 While you could just hyperlink directly, there is a better way.
-:doc:`Intersphinx <sphinx:usage/extensions/intersphinx>` allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
+:doc:`Intersphinx <sphinx:usage/extensions/intersphinx>` allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other
+projects.
 That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
 Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
 
