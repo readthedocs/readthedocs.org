@@ -155,6 +155,7 @@ class Organization(models.Model):
 
     @property
     def audit_data(self):
+        """Dictionary with data to be included in a log entry."""
         return {
             "id": self.id,
             "slug": self.slug,
@@ -267,6 +268,7 @@ class Team(models.Model):
 
     @property
     def audit_data(self):
+        """Dictionary with data to be included in a log entry."""
         return {
             "id": self.id,
             "slug": self.slug,

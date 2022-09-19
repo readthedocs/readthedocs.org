@@ -7,7 +7,6 @@ from allauth.account.adapter import DefaultAccountAdapter
 from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 
-from readthedocs.audit.models import AuditLog
 from readthedocs.core.utils import send_email
 from readthedocs.invitations.models import Invitation
 
@@ -61,10 +60,7 @@ class AccountAdapter(DefaultAccountAdapter):
             invitation = Invitation.objects.pending().filter(pk=invitation_pk).first()
             if invitation:
                 log.info("Redeeming invitation at sign-up", invitation_pk=invitation_pk)
-                invitation.create_audit_log(
-                    action=AuditLog.INVITATION_ACCEPTED, request=request
-                )
-                invitation.redeem(user)
+                invitation.redeem(user, request=request)
                 invitation.delete()
             else:
                 log.info("Invitation not found", invitation_pk=invitation_pk)

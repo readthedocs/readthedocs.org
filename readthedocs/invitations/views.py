@@ -79,10 +79,7 @@ class RedeemInvitation(DetailView):
             # redeem the invitation after the user has signed-up.
             if not request.user.is_authenticated and invitation.to_email:
                 return self.redeem_at_sign_up(invitation)
-            invitation.create_audit_log(
-                action=AuditLog.INVITATION_ACCEPTED, request=request
-            )
-            invitation.redeem(request.user)
+            invitation.redeem(request.user, request=request)
             url = invitation.get_success_url()
         else:
             log.info(
@@ -92,9 +89,10 @@ class RedeemInvitation(DetailView):
                 object_name=invitation.object_name,
                 object_pk=invitation.object.pk,
             )
-        invitation.create_audit_log(
-            action=AuditLog.INVITATION_DECLINED, request=request
-        )
+            invitation.create_audit_log(
+                action=AuditLog.INVITATION_DECLINED,
+                request=request,
+            )
         invitation.delete()
         return HttpResponseRedirect(url)
 

@@ -154,12 +154,14 @@ class Invitation(TimeStampedModel):
     def generate_token():
         return get_random_string(32)
 
-    def redeem(self, user=None):
+    def redeem(self, user=None, request=None):
         """
         Redeem invitation.
 
         `user` will be used only if the invitation is attached
         to an email, otherwise `to_user` user will be used.
+
+        :param request: If given, a log entry will be created.
         """
         if self.expired:
             return False
@@ -173,6 +175,11 @@ class Invitation(TimeStampedModel):
             object_name=self.object_name,
             object_pk=self.object.pk,
         )
+        if request:
+            self.create_audit_log(
+                action=AuditLog.INVITATION_ACCEPTED,
+                request=request,
+            )
         return self.backend.redeem(user=user)
 
     def get_success_url(self):
@@ -209,6 +216,7 @@ class Invitation(TimeStampedModel):
 
     @property
     def audit_data(self):
+        """Dictionary with data to be included in a log entry."""
         to_user = None
         if self.to_user:
             to_user = {
@@ -231,6 +239,8 @@ class Invitation(TimeStampedModel):
         self.backend.send_invitation()
 
     def create_audit_log(self, action, request):
+        """Create an audit log entry for this invitation."""
+        # Attach the proper project and organization to the log.
         kwargs = {}
         object_type = self.object_type
         if object_type == "organization":
@@ -244,9 +254,15 @@ class Invitation(TimeStampedModel):
         # To accept or decline an invitation the user
         # doesn't need to be logged-in, they just need the
         # secret link that was sent to their email.
-        # We want to attach these actions to the user that the invitation was sent to.
+        # We want to attach these actions to the user that the invitation was sent to,
+        # not to the current user logged in.
         if action in {AuditLog.INVITATION_ACCEPTED, AuditLog.INVITATION_DECLINED}:
-            user = self.to_user or request.user
+            user = self.to_user
+
+        # If the invitation was sent to an email (to_user is `None`),
+        # the current user will be used.
+        if not self.to_user:
+            user = request.user
 
         AuditLog.objects.new(
             action=action,

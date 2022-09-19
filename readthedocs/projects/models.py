@@ -1323,6 +1323,7 @@ class Project(models.Model):
 
     @property
     def audit_data(self):
+        """Dictionary with data to be included in a log entry."""
         organization = None
         if self.organization:
             organization = self.organization.audit_data
