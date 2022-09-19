@@ -260,15 +260,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
-            action__in=[
-                AuditLog.AUTHN,
-                AuditLog.AUTHN_FAILURE,
-                AuditLog.PAGEVIEW,
-                AuditLog.DOWNLOAD,
-                AuditLog.INVITATION_SENT,
-                AuditLog.INVITATION_REVOKED,
-                AuditLog.INVITATION_ACCEPTED,
-            ],
+            action__in=OrganizationSecurityLogFilter.allowed_actions,
             created__gte=start_date,
         )
         return queryset

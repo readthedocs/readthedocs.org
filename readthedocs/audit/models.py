@@ -73,25 +73,26 @@ class AuditLog(TimeStampedModel):
     and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
-    # pylint: disable=too-many-instance-attributes
+    class Actions(models.TextChoices):
+        PAGEVIEW = "pageview", _("Page view")
+        DOWNLOAD = "download", _("Download")
+        AUTHN = "authentication", _("Authentication")
+        AUTHN_FAILURE = "authentication-failure", _("Authentication failure")
+        LOGOUT = "log-out", _("Log out")
+        INVITATION_SENT = "invitation-sent", _("Invitation sent")
+        INVITATION_REVOKED = "invitation-revoked", _("Invitation revoked")
+        INVITATION_ACCEPTED = "invitation-accepted", _("Invitation accepted")
+        INVITATION_DECLINED = "invitation-declined", _("Invitation declined")
 
-    PAGEVIEW = "pageview"
-    DOWNLOAD = "download"
-    AUTHN = "authentication"
-    AUTHN_FAILURE = "authentication-failure"
-    LOGOUT = "log-out"
-    INVITATION_SENT = "invitation-sent"
-    INVITATION_REVOKED = "invitation-revoked"
-    INVITATION_ACCEPTED = "invitation-accepted"
-    INVITATION_DECLINED = "invitation-declined"
-
-    CHOICES = (
-        (PAGEVIEW, 'Page view'),
-        (DOWNLOAD, 'Download'),
-        (AUTHN, 'Authentication'),
-        (AUTHN_FAILURE, 'Authentication failure'),
-        (LOGOUT, 'Log out'),
-    )
+    PAGEVIEW = Actions.PAGEVIEW
+    DOWNLOAD = Actions.DOWNLOAD
+    AUTHN = Actions.AUTHN
+    AUTHN_FAILURE = Actions.AUTHN_FAILURE
+    LOGOUT = Actions.LOGOUT
+    INVITATION_SENT = Actions.INVITATION_SENT
+    INVITATION_REVOKED = Actions.INVITATION_REVOKED
+    INVITATION_ACCEPTED = Actions.INVITATION_ACCEPTED
+    INVITATION_DECLINED = Actions.INVITATION_DECLINED
 
     user = models.ForeignKey(
         User,
@@ -161,7 +162,7 @@ class AuditLog(TimeStampedModel):
     action = models.CharField(
         _('Action'),
         max_length=150,
-        choices=CHOICES,
+        choices=Actions.choices,
     )
     auth_backend = models.CharField(
         _('Auth backend'),

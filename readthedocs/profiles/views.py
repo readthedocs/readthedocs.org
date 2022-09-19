@@ -242,15 +242,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             user=user,
-            action__in=[
-                AuditLog.AUTHN,
-                AuditLog.AUTHN_FAILURE,
-                AuditLog.LOGOUT,
-                AuditLog.INVITATION_SENT,
-                AuditLog.INVITATION_REVOKED,
-                AuditLog.INVITATION_ACCEPTED,
-                AuditLog.INVITATION_DECLINED,
-            ],
+            action__in=UserSecurityLogFilter.allowed_actions,
             created__gte=start_date,
         )
         return queryset
