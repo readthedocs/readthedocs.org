@@ -17,6 +17,12 @@ log = structlog.get_logger(__name__)
 
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
+    """
+    Revoke invitation view.
+
+    An invitation is revoked by simple deleting it.
+    """
+
     model = Invitation
     pk_url_kwarg = "invitation_pk"
     http_method_names = ["post"]

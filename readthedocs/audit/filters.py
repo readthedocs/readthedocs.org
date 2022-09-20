@@ -7,6 +7,8 @@ from readthedocs.audit.models import AuditLog
 
 class UserSecurityLogFilter(FilterSet):
 
+    """Filter for user security logs."""
+
     allowed_actions = [
         AuditLog.AUTHN,
         AuditLog.AUTHN_FAILURE,
@@ -38,6 +40,8 @@ class UserSecurityLogFilter(FilterSet):
 
 
 class OrganizationSecurityLogFilter(UserSecurityLogFilter):
+
+    """Filter for organization security logs."""
 
     allowed_actions = [
         AuditLog.AUTHN,

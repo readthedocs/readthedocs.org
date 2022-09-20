@@ -72,6 +72,8 @@ class AuditLog(TimeStampedModel):
     and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     class Actions(models.TextChoices):
         PAGEVIEW = "pageview", _("Page view")
         DOWNLOAD = "download", _("Download")
@@ -202,6 +204,11 @@ class AuditLog(TimeStampedModel):
         ordering = ['-created']
 
     def user_html_display(self):
+        """
+        Get html representation of the user.
+
+        This is used in the templates.
+        """
         text = "<code>{username}</code>"
         username = _("anonymous")
         if self.log_user_username:

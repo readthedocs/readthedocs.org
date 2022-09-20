@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from readthedocs.audit.models import AuditLog
 from django.utils import timezone
 from django_dynamic_fixture import get
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team, TeamInvite
 from readthedocs.projects.models import Project
@@ -71,7 +71,7 @@ class TestViews(TestCase):
                     "organization": None,
                 },
                 "to_email": None,
-            }
+            },
         )
 
     def test_revoke_organization_invitation(self):
@@ -119,7 +119,7 @@ class TestViews(TestCase):
                     "slug": self.organization.slug,
                 },
                 "to_email": None,
-            }
+            },
         )
 
     def test_revoke_team_invitation(self):
@@ -171,7 +171,7 @@ class TestViews(TestCase):
                     },
                 },
                 "to_email": None,
-            }
+            },
         )
 
     def test_revoke_expired_invitation(self):
