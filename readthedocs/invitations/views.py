@@ -23,7 +23,11 @@ class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         invitation = self.get_object()
-        invitation.create_audit_log(action=AuditLog.INVITATION_REVOKED, request=request)
+        invitation.create_audit_log(
+            action=AuditLog.INVITATION_REVOKED,
+            request=request,
+            user=request.user,
+        )
         return super().delete(request, *args, **kwargs)
 
     def test_func(self):
@@ -92,6 +96,7 @@ class RedeemInvitation(DetailView):
             invitation.create_audit_log(
                 action=AuditLog.INVITATION_DECLINED,
                 request=request,
+                user=invitation.to_user,
             )
         invitation.delete()
         return HttpResponseRedirect(url)

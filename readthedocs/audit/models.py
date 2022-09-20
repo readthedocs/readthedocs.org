@@ -31,7 +31,6 @@ class AuditLogManager(models.Manager):
             AuditLog.INVITATION_SENT,
             AuditLog.INVITATION_ACCEPTED,
             AuditLog.INVITATION_REVOKED,
-            AuditLog.INVITATION_DECLINED,
         )
         if action in actions_requiring_user and (not user or not request):
             raise TypeError(

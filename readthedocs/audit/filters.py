@@ -10,6 +10,7 @@ class UserSecurityLogFilter(FilterSet):
     allowed_actions = [
         AuditLog.AUTHN,
         AuditLog.AUTHN_FAILURE,
+        AuditLog.LOGOUT,
         AuditLog.INVITATION_SENT,
         AuditLog.INVITATION_REVOKED,
         AuditLog.INVITATION_ACCEPTED,
@@ -41,10 +42,13 @@ class OrganizationSecurityLogFilter(UserSecurityLogFilter):
     allowed_actions = [
         AuditLog.AUTHN,
         AuditLog.AUTHN_FAILURE,
+        AuditLog.LOGOUT,
         AuditLog.PAGEVIEW,
         AuditLog.DOWNLOAD,
         AuditLog.INVITATION_SENT,
         AuditLog.INVITATION_REVOKED,
         AuditLog.INVITATION_ACCEPTED,
+        # NOTE: We don't allow organization owners to see information about declined
+        # invitations, since those users aren't part of the organization yet.
     ]
     user = CharFilter(field_name='log_user_username', lookup_expr='exact')

@@ -63,7 +63,9 @@ class InvitationQueryset(models.QuerySet):
         if created:
             if request:
                 invitation.create_audit_log(
-                    action=AuditLog.INVITATION_SENT, request=request
+                    action=AuditLog.INVITATION_SENT,
+                    request=request,
+                    user=request.user,
                 )
             invitation.send()
         return invitation, created
@@ -179,6 +181,7 @@ class Invitation(TimeStampedModel):
             self.create_audit_log(
                 action=AuditLog.INVITATION_ACCEPTED,
                 request=request,
+                user=user,
             )
         return self.backend.redeem(user=user)
 
@@ -238,7 +241,7 @@ class Invitation(TimeStampedModel):
     def send(self):
         self.backend.send_invitation()
 
-    def create_audit_log(self, action, request):
+    def create_audit_log(self, action, request, user=None):
         """Create an audit log entry for this invitation."""
         # Attach the proper project and organization to the log.
         kwargs = {}
@@ -250,25 +253,11 @@ class Invitation(TimeStampedModel):
         elif object_type == "team":
             kwargs["organization"] = self.object.organization
 
-        user = request.user
-        # To accept or decline an invitation the user
-        # doesn't need to be logged-in, they just need the
-        # secret link that was sent to their email.
-        # We want to attach these actions to the user that the invitation was sent to,
-        # not to the current user logged in.
-        if action in {AuditLog.INVITATION_ACCEPTED, AuditLog.INVITATION_DECLINED}:
-            user = self.to_user
-
-        # If the invitation was sent to an email (to_user is `None`),
-        # the current user will be used.
-        if not self.to_user:
-            user = request.user
-
         AuditLog.objects.new(
             action=action,
             request=request,
-            user=user,
             data=self.audit_data,
+            user=user,
             **kwargs,
         )
 
