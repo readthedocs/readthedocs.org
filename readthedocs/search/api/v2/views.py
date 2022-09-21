@@ -20,6 +20,8 @@ from readthedocs.search.api.v2.serializers import (
     VersionData,
 )
 from readthedocs.search.faceted_search import PageSearch
+from readthedocs.search.api import SearchPagination
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = structlog.get_logger(__name__)
 
