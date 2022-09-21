@@ -1,8 +1,9 @@
 from collections import namedtuple
-from django.utils.translation import gettext as _
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.exceptions import NotFound
 from math import ceil
+
+from django.utils.translation import gettext as _
+from rest_framework.exceptions import NotFound
+from rest_framework.pagination import PageNumberPagination
 
 
 class PaginatorPage:
@@ -16,7 +17,7 @@ class PaginatorPage:
 
     def __init__(self, page_number, total_pages, count):
         self.number = page_number
-        Paginator = namedtuple('Paginator', ['num_pages', 'count'])
+        Paginator = namedtuple("Paginator", ["num_pages", "count"])
         self.paginator = Paginator(total_pages, count)
 
     def has_next(self):
@@ -37,7 +38,7 @@ class SearchPagination(PageNumberPagination):
     """Paginator for the results of PageSearch."""
 
     page_size = 50
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
 
     def _get_page_number(self, number):
@@ -83,7 +84,7 @@ class SearchPagination(PageNumberPagination):
 
         if queryset:
             result = queryset[start:end].execute()
-            total_count = result.hits.total['value']
+            total_count = result.hits.total["value"]
             hits = max(1, total_count)
             total_pages = ceil(hits / page_size)
 

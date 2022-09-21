@@ -10,13 +10,16 @@ from rest_framework.generics import GenericAPIView
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
-from readthedocs.search.faceted_search import PageSearch
 from readthedocs.search.api import SearchPagination
-from readthedocs.core.utils.extend import SettingsOverrideObject
-
-from readthedocs.search.api.v2.serializers import PageSearchSerializer, ProjectData, VersionData
+from readthedocs.search.api.v2.serializers import (
+    PageSearchSerializer,
+    ProjectData,
+    VersionData,
+)
+from readthedocs.search.faceted_search import PageSearch
 
 log = structlog.get_logger(__name__)
 
@@ -35,21 +38,21 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
     Check our [docs](https://docs.readthedocs.io/en/stable/server-side-search.html#api) for more information.
     """  # noqa
 
-    http_method_names = ['get']
+    http_method_names = ["get"]
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
-    project_cache_tag = 'rtd-search'
+    project_cache_tag = "rtd-search"
 
     @lru_cache(maxsize=1)
     def _get_project(self):
-        project_slug = self.request.GET.get('project', None)
+        project_slug = self.request.GET.get("project", None)
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
     @lru_cache(maxsize=1)
     def _get_version(self):
-        version_slug = self.request.GET.get('version', None)
+        version_slug = self.request.GET.get("version", None)
         project = self._get_project()
         version = get_object_or_404(
             project.versions.all(),
@@ -68,7 +71,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         :raises: ValidationError if one of them is missing.
         """
         errors = {}
-        required_query_params = {'q', 'project', 'version'}
+        required_query_params = {"q", "project", "version"}
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
         for param in missing_params:
@@ -161,8 +164,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal
-            .public(
+            Version.internal.public(
                 user=self.request.user,
                 project=project,
                 only_built=True,
@@ -188,7 +190,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
     def _record_query(self, response):
         project_slug = self._get_project().slug
         version_slug = self._get_version().slug
-        total_results = response.data.get('count', 0)
+        total_results = response.data.get("count", 0)
         time = timezone.now()
 
         query = self._get_search_query().lower().strip()
@@ -222,7 +224,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         }
         # Check to avoid searching all projects in case it's empty.
         if not projects:
-            log.info('Unable to find a version to search')
+            log.info("Unable to find a version to search")
             return []
 
         query = self._get_search_query()
@@ -236,7 +238,7 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['projects_data'] = self._get_all_projects_data()
+        context["projects_data"] = self._get_all_projects_data()
         return context
 
     def get(self, request, *args, **kwargs):
@@ -249,7 +251,9 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         """List the results using pagination."""
         queryset = self.get_queryset()
         page = self.paginator.paginate_queryset(
-            queryset, self.request, view=self,
+            queryset,
+            self.request,
+            view=self,
         )
         serializer = self.get_serializer(page, many=True)
         return self.paginator.get_paginated_response(serializer.data)
