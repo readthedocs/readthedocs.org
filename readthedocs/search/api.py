@@ -1,4 +1,4 @@
-from functools import lru_cache, namedtuple
+from functools import lru_cache, namedtuple, cached_property
 from math import ceil
 
 import structlog
@@ -15,6 +15,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
+from readthedocs.search.query import SearchQueryParser
 
 from .serializers import PageSearchSerializer, ProjectData, VersionData
 
@@ -130,6 +131,18 @@ class SearchAPIBase(GenericAPIView):
         """
         raise NotImplementedError
 
+    def _get_search_query(self):
+        raise NotImplementedError
+
+    def _use_advanced_query(self):
+        raise NotImplementedError
+
+    def _record_query(self, response):
+        raise NotImplementedError
+
+    def _get_projects_to_search(self):
+        raise NotImplementedError
+
     def _get_all_projects_data(self):
         """
         Return a dictionary of all projects/versions that will be used in the search.
@@ -157,16 +170,42 @@ class SearchAPIBase(GenericAPIView):
 
         :returns: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        raise NotImplementedError
+        projects_data = {
+            project.slug: self._get_project_data(project, version)
+            for project, version in self._get_projects_to_search()
+        }
+        return projects_data
 
-    def _get_search_query(self):
-        raise NotImplementedError
+    def _get_subprojects(self, project, version_slug=None):
+        """
+        Get a tuple project/version of all subprojects of `project`.
 
-    def _use_advanced_query(self):
-        raise NotImplementedError
+        If `version_slug` doesn't match a version of the subproject,
+        the default version will be used.
+        If `version_slug` is None, we will always use the default version.
+        """
+        projects = []
+        subprojects = Project.objects.filter(superprojects__parent=project)
+        for subproject in subprojects:
+            version = None
+            if version_slug:
+                version = self._get_project_version(
+                    project=subproject,
+                    version_slug=version_slug,
+                    include_hidden=False,
+                )
 
-    def _record_query(self, response):
-        raise NotImplementedError
+            # Fallback to the default version of the subproject.
+            if not version and subproject.default_version:
+                version = self._get_project_version(
+                    project=subproject,
+                    version_slug=subproject.default_version,
+                    include_hidden=False,
+                )
+
+            if version and self._has_permission(self.request.user, version):
+                projects.append((project, version))
+        return projects
 
     def _get_project_data(self, project, version):
         """Build a `ProjectData` object given a project and its version."""
@@ -205,7 +244,7 @@ class SearchAPIBase(GenericAPIView):
         """
         Check if `user` is authorized to access `version`.
 
-        The queryset from `_get_subproject_version` already filters public
+        The queryset from `_get_project_version` already filters public
         projects. This is mainly to be overridden in .com to make use of
         the auth backends in the proxied API.
         """
@@ -222,8 +261,8 @@ class SearchAPIBase(GenericAPIView):
            is compatible with DRF's paginator.
         """
         projects = {
-            project: project_data.version.slug
-            for project, project_data in self._get_all_projects_data().items()
+            project.slug: version.slug
+            for project, version in self._get_projects_to_search()
         }
         # Check to avoid searching all projects in case it's empty.
         if not projects:
@@ -263,7 +302,7 @@ class SearchAPIBase(GenericAPIView):
 class PageSearchAPIView(CDNCacheTagsMixin, SearchAPIBase):
 
     """
-    Server side search API.
+    Server side search API V3.
 
     Required query parameters:
 
@@ -305,39 +344,16 @@ class PageSearchAPIView(CDNCacheTagsMixin, SearchAPIBase):
             raise ValidationError(errors)
 
     @lru_cache(maxsize=1)
-    def _get_all_projects_data(self):
+    def _get_projects_to_search(self):
         main_version = self._get_version()
         main_project = self._get_project()
 
         if not self._has_permission(self.request.user, main_version):
             return {}
 
-        projects_data = {
-            main_project.slug: self._get_project_data(main_project, main_version),
-        }
-
-        subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
-        for subproject in subprojects:
-            version = self._get_project_version(
-                project=subproject,
-                version_slug=main_version.slug,
-                include_hidden=False,
-            )
-
-            # Fallback to the default version of the subproject.
-            if not version and subproject.default_version:
-                version = self._get_project_version(
-                    project=subproject,
-                    version_slug=subproject.default_version,
-                    include_hidden=False,
-                )
-
-            if version and self._has_permission(self.request.user, version):
-                projects_data[subproject.slug] = self._get_project_data(
-                    subproject, version
-                )
-
-        return projects_data
+        projects = [(main_project, main_version)]
+        projects.extend(self._get_subprojects(main_project, version_slug=main_version.slug))
+        return projects
 
     def _get_search_query(self):
         return self.request.query_params["q"]
@@ -362,3 +378,134 @@ class PageSearchAPIView(CDNCacheTagsMixin, SearchAPIBase):
     def _use_advanced_query(self):
         main_project = self._get_project()
         return not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
+
+
+class SearchAPIV3(SearchAPIBase):
+
+    """
+    Server side search API V3.
+
+    Required query parameters:
+
+    - **q**: Search term.
+
+    Check our [docs](https://docs.readthedocs.io/page/server-side-search.html#api) for more information.
+    """  # noqa
+
+    serializer_class = PageSearchSerializer
+
+    def get_view_name(self):
+        return "Search API V3"
+
+    def _validate_query_params(self):
+        if "q" not in self.request.query_params:
+            raise ValidationError({"q": [_("This query parameter is required")]})
+
+    def _get_search_query(self):
+        return self._parser.query
+
+    def _use_advanced_query(self):
+        # TODO: we should make this a parameter in the API,
+        # we are checking if the first project has this feature for now.
+        project = self._get_projects_to_search()[0][0]
+        return not project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
+
+    def _record_query(self, response):
+        total_results = response.data.get('count', 0)
+        time = timezone.now()
+        query = self._get_search_query().lower().strip()
+        # NOTE: I think this may be confusing,
+        # since the number of results is the total
+        # of searching on all projects, this specific project
+        # could have had 0 results.
+        for project, version in self._get_projects_to_search():
+            tasks.record_search_query.delay(
+                project.slug,
+                version.slug,
+                query,
+                total_results,
+                time.isoformat(),
+            )
+
+    @cached_property
+    def _parser(self):
+        parser = SearchQueryParser(self.request.query_params["q"])
+        parser.parse()
+        return parser
+
+    @lru_cache(maxsize=1)
+    def _get_projects_to_search(self):
+        projects = []
+        for value in self._parser.arguments["project"]:
+            project, version = self._get_project_and_version(value)
+            if version and self._has_permission(self.request.user, version):
+                projects.append((project, version))
+        
+        for value in self._parser.arguments['subprojects']:
+            project, version = self._get_project_and_version(value)
+
+            # Add the project itself.
+            if version and self._has_permission(self.request.user, version):
+                projects.append((project, version))
+
+            # If the user didn't provide a version, version_slug will be `None`,
+            # and we add all subprojects with their default version,
+            # otherwise we will add all projects that match the given version.
+            _, version_slug = self._split_project_and_version(value)
+            projects.extend(
+                self._get_subprojects(
+                    project=project,
+                    version_slug=version_slug,
+                ),
+            )
+
+        # Add all projects the user has access to.
+        if self._parser.arguments["user"] == "@me":
+            for project in Project.objects.for_user(user=self.request.user):
+                version = self._get_project_version(
+                    project=project,
+                    version_slug=project.default_version,
+                    include_hidden=False,
+                )
+                if version and self._has_permission(self.request.user, version):
+                    projects.append((project, version))
+
+        return projects
+
+    def _split_project_and_version(self, term):
+        """
+        Split a term of the form ``{project}/{version}``.
+        :returns: A tuple of project and version.
+         If the version part isn't found, `None` will be returned in its place.
+        """
+        parts = term.split("/", maxsplit=1)
+        if len(parts) > 1:
+            return parts
+        return parts[0], None
+
+    def _get_project_and_version(self, value):
+        project_slug, version_slug = self._split_project_and_version(value)
+        project = Project.objects.filter(slug=project_slug).first()
+        if not project:
+            return None, None
+
+        if not version_slug:
+            version_slug = project.default_version
+
+        if version_slug:
+            version = self._get_project_version(
+                project=project,
+                version_slug=version_slug,
+            )
+            return project, version
+
+        return None, None
+
+    def list(self):
+        response = super().list()
+        response.data["projects"] = [
+            [project.slug, version.slug]
+            for project, version in self._get_projects_to_search()
+        ]
+        response.data["query"] = self._get_search_query()
+        return response

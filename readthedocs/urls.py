@@ -15,7 +15,7 @@ from readthedocs.core.views import (
     do_not_track,
     server_error_500,
 )
-from readthedocs.search.api import PageSearchAPIView
+from readthedocs.search.api import PageSearchAPIView, SearchAPIV3
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
@@ -101,6 +101,7 @@ api_urls = [
     ),
     re_path(r'^api/v3/', include('readthedocs.api.v3.urls')),
     re_path(r'^api/v3/embed/', include('readthedocs.embed.v3.urls')),
+    re_path(r'^api/v3/search/$', SearchAPIV3.as_view(), name='search_api_v3'),
 ]
 
 i18n_urls = [
