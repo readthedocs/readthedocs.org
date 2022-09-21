@@ -117,65 +117,22 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
-
-    """
-    Server side search API.
-
-    Required query parameters:
-
-    - **q**: Search term.
-    - **project**: Project to search.
-    - **version**: Version to search.
-
-    Check our [docs](https://docs.readthedocs.io/en/stable/server-side-search.html#api) for more information.
-    """  # noqa
+class SearchAPIBase(GenericAPIView):
 
     http_method_names = ['get']
-    permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
-    serializer_class = PageSearchSerializer
-    project_cache_tag = 'rtd-search'
-
-    @lru_cache(maxsize=1)
-    def _get_project(self):
-        project_slug = self.request.GET.get('project', None)
-        project = get_object_or_404(Project, slug=project_slug)
-        return project
-
-    @lru_cache(maxsize=1)
-    def _get_version(self):
-        version_slug = self.request.GET.get('version', None)
-        project = self._get_project()
-        version = get_object_or_404(
-            project.versions.all(),
-            slug=version_slug,
-        )
-        return version
 
     def _validate_query_params(self):
         """
-        Validate all required query params are passed on the request.
-
-        Query params required are: ``q``, ``project`` and ``version``.
-
-        :rtype: None
+        Validate all query params that are passed in the request.
 
         :raises: ValidationError if one of them is missing.
         """
-        errors = {}
-        required_query_params = {'q', 'project', 'version'}
-        request_params = set(self.request.query_params.keys())
-        missing_params = required_query_params - request_params
-        for param in missing_params:
-            errors[param] = [_("This query param is required")]
-        if errors:
-            raise ValidationError(errors)
+        raise NotImplementedError
 
-    @lru_cache(maxsize=1)
     def _get_all_projects_data(self):
         """
-        Return a dictionary of the project itself and all its subprojects.
+        Return a dictionary of all projects/versions that will be used in the search.
 
         Example:
 
@@ -198,42 +155,18 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
                ),
            }
 
-        .. note:: The response is cached into the instance.
-
-        :rtype: A dictionary of project slugs mapped to a `VersionData` object.
+        :returns: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        main_version = self._get_version()
-        main_project = self._get_project()
+        raise NotImplementedError
 
-        if not self._has_permission(self.request.user, main_version):
-            return {}
+    def _get_search_query(self):
+        raise NotImplementedError
 
-        projects_data = {
-            main_project.slug: self._get_project_data(main_project, main_version),
-        }
+    def _use_advanced_query(self):
+        raise NotImplementedError
 
-        subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
-        for subproject in subprojects:
-            version = self._get_project_version(
-                project=subproject,
-                version_slug=main_version.slug,
-                include_hidden=False,
-            )
-
-            # Fallback to the default version of the subproject.
-            if not version and subproject.default_version:
-                version = self._get_project_version(
-                    project=subproject,
-                    version_slug=subproject.default_version,
-                    include_hidden=False,
-                )
-
-            if version and self._has_permission(self.request.user, version):
-                projects_data[subproject.slug] = self._get_project_data(
-                    subproject, version
-                )
-
-        return projects_data
+    def _record_query(self, response):
+        raise NotImplementedError
 
     def _get_project_data(self, project, version):
         """Build a `ProjectData` object given a project and its version."""
@@ -277,30 +210,6 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         the auth backends in the proxied API.
         """
         return True
-
-    def _get_search_query(self):
-        return self.request.query_params["q"]
-
-    def _record_query(self, response):
-        project_slug = self._get_project().slug
-        version_slug = self._get_version().slug
-        total_results = response.data.get('count', 0)
-        time = timezone.now()
-
-        query = self._get_search_query().lower().strip()
-
-        # Record the query with a celery task
-        tasks.record_search_query.delay(
-            project_slug,
-            version_slug,
-            query,
-            total_results,
-            time.isoformat(),
-        )
-
-    def _use_advanced_query(self):
-        main_project = self._get_project()
-        return not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
 
     def get_queryset(self):
         """
@@ -349,3 +258,107 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         )
         serializer = self.get_serializer(page, many=True)
         return self.paginator.get_paginated_response(serializer.data)
+
+
+class PageSearchAPIView(CDNCacheTagsMixin, SearchAPIBase):
+
+    """
+    Server side search API.
+
+    Required query parameters:
+
+    - **q**: Search term.
+    - **project**: Project to search.
+    - **version**: Version to search.
+
+    Check our [docs](https://docs.readthedocs.io/page/server-side-search.html#api) for more information.
+    """  # noqa
+
+    permission_classes = [IsAuthorizedToViewVersion]
+    serializer_class = PageSearchSerializer
+    project_cache_tag = 'rtd-search'
+
+    @lru_cache(maxsize=1)
+    def _get_project(self):
+        project_slug = self.request.GET.get('project', None)
+        project = get_object_or_404(Project, slug=project_slug)
+        return project
+
+    @lru_cache(maxsize=1)
+    def _get_version(self):
+        version_slug = self.request.GET.get('version', None)
+        project = self._get_project()
+        version = get_object_or_404(
+            project.versions.all(),
+            slug=version_slug,
+        )
+        return version
+
+    def _validate_query_params(self):
+        errors = {}
+        required_query_params = {'q', 'project', 'version'}
+        request_params = set(self.request.query_params.keys())
+        missing_params = required_query_params - request_params
+        for param in missing_params:
+            errors[param] = [_("This query param is required")]
+        if errors:
+            raise ValidationError(errors)
+
+    @lru_cache(maxsize=1)
+    def _get_all_projects_data(self):
+        main_version = self._get_version()
+        main_project = self._get_project()
+
+        if not self._has_permission(self.request.user, main_version):
+            return {}
+
+        projects_data = {
+            main_project.slug: self._get_project_data(main_project, main_version),
+        }
+
+        subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
+        for subproject in subprojects:
+            version = self._get_project_version(
+                project=subproject,
+                version_slug=main_version.slug,
+                include_hidden=False,
+            )
+
+            # Fallback to the default version of the subproject.
+            if not version and subproject.default_version:
+                version = self._get_project_version(
+                    project=subproject,
+                    version_slug=subproject.default_version,
+                    include_hidden=False,
+                )
+
+            if version and self._has_permission(self.request.user, version):
+                projects_data[subproject.slug] = self._get_project_data(
+                    subproject, version
+                )
+
+        return projects_data
+
+    def _get_search_query(self):
+        return self.request.query_params["q"]
+
+    def _record_query(self, response):
+        project_slug = self._get_project().slug
+        version_slug = self._get_version().slug
+        total_results = response.data.get('count', 0)
+        time = timezone.now()
+
+        query = self._get_search_query().lower().strip()
+
+        # Record the query with a celery task
+        tasks.record_search_query.delay(
+            project_slug,
+            version_slug,
+            query,
+            total_results,
+            time.isoformat(),
+        )
+
+    def _use_advanced_query(self):
+        main_project = self._get_project()
+        return not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
