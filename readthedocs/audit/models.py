@@ -2,7 +2,6 @@
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils import html
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
@@ -202,19 +201,6 @@ class AuditLog(TimeStampedModel):
     class Meta:
 
         ordering = ['-created']
-
-    def user_html_display(self):
-        """
-        Get html representation of the user.
-
-        This is used in the templates.
-        """
-        text = "<code>{username}</code>"
-        username = _("anonymous")
-        if self.log_user_username:
-            text = '<a href="?user={username}"><code>{username}</code></a>'
-            username = self.log_user_username
-        return text.format(username=html.escape(username))
 
     def save(self, **kwargs):
         if self.user:

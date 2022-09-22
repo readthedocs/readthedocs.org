@@ -13,40 +13,40 @@ This is useful when listing logs for the same user.
         {# Log entry description #}
         <div>
           {% if log.action == AuditLog.AUTHN %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">authenticated</a>
+            {% blocktrans trimmed with action=log.action %}
+              User authenticated
             {% endblocktrans %}
           {% elif log.action == AuditLog.AUTHN_FAILURE %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">failed to authenticate</a>
+            {% blocktrans trimmed with action=log.action %}
+              User failed to authenticate
             {% endblocktrans %}
           {% elif log.action == AuditLog.LOGOUT %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">logged out</a>
+            {% blocktrans trimmed with action=log.action %}
+              User logged out
             {% endblocktrans %}
           {% elif log.action == AuditLog.PAGEVIEW %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">visited a page</a>
+            {% blocktrans trimmed with action=log.action %}
+              User visited a page
             {% endblocktrans %}
           {% elif log.action == AuditLog.DOWNLOAD %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">downloaded a document</a>
+            {% blocktrans trimmed with action=log.action %}
+              User downloaded a document
             {% endblocktrans %}
           {% elif log.action == AuditLog.INVITATION_SENT %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">sent an invitation</a>
+            {% blocktrans trimmed with action=log.action %}
+              User sent an invitation
             {% endblocktrans %}
           {% elif log.action == AuditLog.INVITATION_REVOKED %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">revoked an invitation</a>
+            {% blocktrans trimmed with action=log.action %}
+              User revoked an invitation
             {% endblocktrans %}
           {% elif log.action == AuditLog.INVITATION_ACCEPTED %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">accepted an invitation</a>
+            {% blocktrans trimmed with action=log.action %}
+              User accepted an invitation
             {% endblocktrans %}
           {% elif log.action == AuditLog.INVITATION_DECLINED %}
-            {% blocktrans trimmed with action=log.action user=log.user_html_display|safe %}
-              User {{ user }} <a href="?action={{ action }}">declined an invitation</a>
+            {% blocktrans trimmed with action=log.action %}
+              User declined an invitation
             {% endblocktrans %}
           {% endif %}
         </div>
@@ -59,55 +59,62 @@ This is useful when listing logs for the same user.
 
         {# Data about the log entry #}
         <div>
+          {% trans 'actor:' %}
+          {% if log.log_user_username %}
+            <code>{{ log.log_user_username }}</code>
+          {% else %}
+            {% trans 'anonymous' %}
+          {% endif %}
+
+          |
+
           {% if log.action == AuditLog.AUTHN or log.action == AuditLog.AUTHN_FAILURE or log.action == AuditLog.LOGOUT or log.action == AuditLog.PAGEVIEW or log.action == AuditLog.DOWNLOAD %}
             {% if log.log_project_slug %}
-              {% trans 'project: ' %}
+              {% trans 'project:' %}
               <code>{{ log.log_project_slug }}</code>
               |
             {% endif %}
             {% if log.action == AuditLog.PAGEVIEW or log.action == AuditLog.DOWNLOAD %}
-              {% trans 'page: ' %}
+              {% trans 'page:' %}
               <code title="{{ log.resource }}">{{ log.resource|truncatechars:30 }}</code>
               |
             {% endif %}
           {% elif log.action == AuditLog.INVITATION_SENT or log.action == AuditLog.INVITATION_REVOKED or log.action == AuditLog.INVITATION_ACCEPTED or log.action == AuditLog.INVITATION_DECLINED %}
             {% if log.data.to_user %}
-              {% trans 'to user: ' %}
+              {% trans 'to user:' %}
               <code>{{ log.data.to_user.username }}</code>
             {% elif log.data.to_email %}
-              {% trans 'to email: ' %}
+              {% trans 'to email:' %}
               <code>{{ log.data.to_email }}</code>
             {% endif %}
 
             |
 
             {% if log.data.object_type == "project" %}
-              {% trans 'project: ' %}
+              {% trans 'project:' %}
               <code>{{ log.data.object.slug }}</code>
 
               {% if log.data.object.organization %}
                 |
-                {% trans 'organization: ' %}
+                {% trans 'organization:' %}
                 <code>{{ log.data.object.organization.slug }}</code>
               {% endif %}
             {% elif log.data.object_type == "team" %}
-              {% trans 'team: ' %}
+              {% trans 'team:' %}
               <code>{{ log.data.object.slug }}</code>
               |
-              {% trans 'organization: ' %}
+              {% trans 'organization:' %}
               <code>{{ log.data.object.organization.slug }}</code>
             {% elif log.data.object_type == "organization" %}
-              {% trans 'organization: ' %}
+              {% trans 'organization:' %}
               <code>{{ log.data.object.slug }}</code>
             {% endif %}
 
             |
           {% endif %}
 
-          {% trans 'IP: ' %}
-          <a href="?ip={{ log.ip }}" title="{{ log.browser }}">
-            <code>{{ log.ip }}</code>
-          </a>
+          {% trans 'IP:' %}
+          <code title="{{ log.browser }}">{{ log.ip }}</code>
         </div>
       </li>
       {% empty %}
