@@ -1319,19 +1319,7 @@ class Project(models.Model):
 
     @property
     def organization(self):
-        self.organizations.first()
-
-    @property
-    def audit_data(self):
-        """Dictionary with data to be included in a log entry."""
-        organization = None
-        if self.organization:
-            organization = self.organization.audit_data
-        return {
-            "id": self.id,
-            "slug": self.slug,
-            "organization": organization,
-        }
+        return self.organizations.first()
 
 
 class APIProject(Project):

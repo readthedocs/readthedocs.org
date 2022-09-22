@@ -68,7 +68,10 @@ class TestViews(TestCase):
                 "object": {
                     "id": self.project.pk,
                     "slug": self.project.slug,
-                    "organization": None,
+                    "organization": {
+                        "id": self.organization.pk,
+                        "slug": self.organization.slug,
+                    },
                 },
                 "to_email": None,
             },
@@ -218,7 +221,10 @@ class TestViews(TestCase):
                 "object": {
                     "id": self.project.pk,
                     "slug": self.project.slug,
-                    "organization": None,
+                    "organization": {
+                        "id": self.organization.pk,
+                        "slug": self.organization.slug,
+                    },
                 },
                 "to_email": None,
             },
@@ -266,7 +272,10 @@ class TestViews(TestCase):
                 "object": {
                     "id": self.project.pk,
                     "slug": self.project.slug,
-                    "organization": None,
+                    "organization": {
+                        "id": self.organization.pk,
+                        "slug": self.organization.slug,
+                    },
                 },
             },
         )

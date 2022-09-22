@@ -217,32 +217,13 @@ class Invitation(TimeStampedModel):
     def object_url(self):
         return self.backend.get_object_url()
 
-    @property
-    def audit_data(self):
-        """Dictionary with data to be included in a log entry."""
-        to_user = None
-        if self.to_user:
-            to_user = {
-                "id": self.to_user.pk,
-                "username": self.to_user.username,
-            }
-        return {
-            "id": self.id,
-            "object_type": self.object_type,
-            "object": self.object.audit_data,
-            "from_user": {
-                "id": self.from_user.pk,
-                "username": self.from_user.username,
-            },
-            "to_user": to_user,
-            "to_email": self.to_email,
-        }
-
     def send(self):
         self.backend.send_invitation()
 
     def create_audit_log(self, action, request, user=None):
         """Create an audit log entry for this invitation."""
+        from readthedocs.audit.serializers import InvitationSerializer
+
         # Attach the proper project and organization to the log.
         kwargs = {}
         object_type = self.object_type
@@ -256,7 +237,7 @@ class Invitation(TimeStampedModel):
         AuditLog.objects.new(
             action=action,
             request=request,
-            data=self.audit_data,
+            data=InvitationSerializer(self).data,
             user=user,
             **kwargs,
         )
