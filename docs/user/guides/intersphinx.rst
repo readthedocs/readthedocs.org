@@ -1,5 +1,7 @@
-Link to Other Projects' Documentation With Intersphinx
-======================================================
+How to link to other documentation projects with Intersphinx
+============================================================
+
+This section shows you how to maintain references to named sections of other external Sphinx projects.
 
 You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to
 :doc:`link to any location of your docs </guides/cross-referencing-with-sphinx>`.
