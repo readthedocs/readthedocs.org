@@ -36,29 +36,14 @@
 
     {% if facets.project and not project_obj %}
       <h5>{% trans 'Projects' %}</h5>
-      {% for name, count, selected in facets.project %}
-        <li class="{% if selected %}active{% endif %} project-list">
-          {% if project == name %}
-            <a href="?{% url_replace request 'project' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'project' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
-          </a>
-        </li>
-      {% endfor %}
-      <hr>
-    {% endif %}
 
-    {% if facets.version %}
-      <h5>{% trans 'Version' %}</h5>
-      {% for name, count, selected in facets.version %}
-        <li class="{% if selected %}active{% endif %} version-list">
-          {% if version == name %}
-            <a href="?{% url_replace request 'version' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'version' name  %}">{{ name }}
-          {% endif %}
+      <li class="project-list">
+        <a href="?q={{ parser.query }}">Search all</a>
+      </li>
+
+      {% for name, count, selected in facets.project %}
+        <li class="project-list">
+          <a href="?q=project:{{ name }} {{ parser.query|urlencode }}">{{ name }}
           ({{ count }})
           </a>
         </li>
@@ -135,7 +120,7 @@
     <div class="module-wrapper">
       <div class="module-header">
         <h3>
-          {% blocktrans with count=results.hits.total query=query|default:"" %}
+          {% blocktrans with count=results.hits.total query=search_query|default:"" %}
             {{ count }} results for `{{ query }}`
           {% endblocktrans %}
         </h3>

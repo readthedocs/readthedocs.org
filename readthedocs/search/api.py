@@ -16,6 +16,7 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 from readthedocs.search.query import SearchQueryParser
+from readthedocs.search.backends import BackendV1, BackendV2
 
 from .serializers import PageSearchSerializer, ProjectData, VersionData
 
@@ -122,6 +123,7 @@ class SearchAPIBase(GenericAPIView):
 
     http_method_names = ['get']
     pagination_class = SearchPagination
+    search_backend = None
 
     def _validate_query_params(self):
         """
@@ -140,116 +142,6 @@ class SearchAPIBase(GenericAPIView):
     def _record_query(self, response):
         raise NotImplementedError
 
-    def _get_projects_to_search(self):
-        raise NotImplementedError
-
-    def _get_all_projects_data(self):
-        """
-        Return a dictionary of all projects/versions that will be used in the search.
-
-        Example:
-
-        .. code::
-
-           {
-               "requests": ProjectData(
-                   alias='alias',
-                   version=VersionData(
-                        "latest",
-                        "https://requests.readthedocs.io/en/latest/",
-                    ),
-               ),
-               "requests-oauth": ProjectData(
-                   alias=None,
-                   version=VersionData(
-                       "latest",
-                       "https://requests-oauth.readthedocs.io/en/latest/",
-                   ),
-               ),
-           }
-
-        :returns: A dictionary of project slugs mapped to a `VersionData` object.
-        """
-        projects_data = {
-            project.slug: self._get_project_data(project, version)
-            for project, version in self._get_projects_to_search()
-        }
-        return projects_data
-
-    def _get_subprojects(self, project, version_slug=None):
-        """
-        Get a tuple project/version of all subprojects of `project`.
-
-        If `version_slug` doesn't match a version of the subproject,
-        the default version will be used.
-        If `version_slug` is None, we will always use the default version.
-        """
-        projects = []
-        subprojects = Project.objects.filter(superprojects__parent=project)
-        for subproject in subprojects:
-            version = None
-            if version_slug:
-                version = self._get_project_version(
-                    project=subproject,
-                    version_slug=version_slug,
-                    include_hidden=False,
-                )
-
-            # Fallback to the default version of the subproject.
-            if not version and subproject.default_version:
-                version = self._get_project_version(
-                    project=subproject,
-                    version_slug=subproject.default_version,
-                    include_hidden=False,
-                )
-
-            if version and self._has_permission(self.request.user, version):
-                projects.append((project, version))
-        return projects
-
-    def _get_project_data(self, project, version):
-        """Build a `ProjectData` object given a project and its version."""
-        url = project.get_docs_url(version_slug=version.slug)
-        project_alias = project.superprojects.values_list("alias", flat=True).first()
-        version_data = VersionData(
-            slug=version.slug,
-            docs_url=url,
-        )
-        return ProjectData(
-            alias=project_alias,
-            version=version_data,
-        )
-
-    def _get_project_version(self, project, version_slug, include_hidden=True):
-        """
-        Get a version from a given project.
-
-        :param project: A `Project` object.
-        :param version_slug: The version slug.
-        :param include_hidden: If hidden versions should be considered.
-        """
-        return (
-            Version.internal
-            .public(
-                user=self.request.user,
-                project=project,
-                only_built=True,
-                include_hidden=include_hidden,
-            )
-            .filter(slug=version_slug)
-            .first()
-        )
-
-    def _has_permission(self, user, version):
-        """
-        Check if `user` is authorized to access `version`.
-
-        The queryset from `_get_project_version` already filters public
-        projects. This is mainly to be overridden in .com to make use of
-        the auth backends in the proxied API.
-        """
-        return True
-
     def get_queryset(self):
         """
         Returns an Elasticsearch DSL search object or an iterator.
@@ -260,6 +152,7 @@ class SearchAPIBase(GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
+        backend = self.search_backend()
         projects = {
             project.slug: version.slug
             for project, version in self._get_projects_to_search()
@@ -380,7 +273,56 @@ class PageSearchAPIView(CDNCacheTagsMixin, SearchAPIBase):
         return not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
 
 
-class SearchAPIV3(SearchAPIBase):
+class ProjectsToSearchMixin:
+
+    def _get_all_projects_data(self):
+        """
+        Return a dictionary of all projects/versions that will be used in the search.
+
+        Example:
+
+        .. code::
+
+           {
+               "requests": ProjectData(
+                   alias='alias',
+                   version=VersionData(
+                        "latest",
+                        "https://requests.readthedocs.io/en/latest/",
+                    ),
+               ),
+               "requests-oauth": ProjectData(
+                   alias=None,
+                   version=VersionData(
+                       "latest",
+                       "https://requests-oauth.readthedocs.io/en/latest/",
+                   ),
+               ),
+           }
+
+        :returns: A dictionary of project slugs mapped to a `VersionData` object.
+        """
+        projects_data = {
+            project.slug: self._get_project_data(project, version)
+            for project, version in self._get_projects_to_search()
+        }
+        return projects_data
+
+    def _get_project_data(self, project, version):
+        """Build a `ProjectData` object given a project and its version."""
+        url = project.get_docs_url(version_slug=version.slug)
+        project_alias = project.superprojects.values_list("alias", flat=True).first()
+        version_data = VersionData(
+            slug=version.slug,
+            docs_url=url,
+        )
+        return ProjectData(
+            alias=project_alias,
+            version=version_data,
+        )
+
+
+class SearchAPIV3(SearchAPIBase, ProjectsToSearchMixin):
 
     """
     Server side search API V3.
@@ -426,80 +368,6 @@ class SearchAPIV3(SearchAPIBase):
                 total_results,
                 time.isoformat(),
             )
-
-    @cached_property
-    def _parser(self):
-        parser = SearchQueryParser(self.request.query_params["q"])
-        parser.parse()
-        return parser
-
-    @lru_cache(maxsize=1)
-    def _get_projects_to_search(self):
-        projects = []
-        for value in self._parser.arguments["project"]:
-            project, version = self._get_project_and_version(value)
-            if version and self._has_permission(self.request.user, version):
-                projects.append((project, version))
-        
-        for value in self._parser.arguments['subprojects']:
-            project, version = self._get_project_and_version(value)
-
-            # Add the project itself.
-            if version and self._has_permission(self.request.user, version):
-                projects.append((project, version))
-
-            # If the user didn't provide a version, version_slug will be `None`,
-            # and we add all subprojects with their default version,
-            # otherwise we will add all projects that match the given version.
-            _, version_slug = self._split_project_and_version(value)
-            projects.extend(
-                self._get_subprojects(
-                    project=project,
-                    version_slug=version_slug,
-                ),
-            )
-
-        # Add all projects the user has access to.
-        if self._parser.arguments["user"] == "@me":
-            for project in Project.objects.for_user(user=self.request.user):
-                version = self._get_project_version(
-                    project=project,
-                    version_slug=project.default_version,
-                    include_hidden=False,
-                )
-                if version and self._has_permission(self.request.user, version):
-                    projects.append((project, version))
-
-        return projects
-
-    def _split_project_and_version(self, term):
-        """
-        Split a term of the form ``{project}/{version}``.
-        :returns: A tuple of project and version.
-         If the version part isn't found, `None` will be returned in its place.
-        """
-        parts = term.split("/", maxsplit=1)
-        if len(parts) > 1:
-            return parts
-        return parts[0], None
-
-    def _get_project_and_version(self, value):
-        project_slug, version_slug = self._split_project_and_version(value)
-        project = Project.objects.filter(slug=project_slug).first()
-        if not project:
-            return None, None
-
-        if not version_slug:
-            version_slug = project.default_version
-
-        if version_slug:
-            version = self._get_project_version(
-                project=project,
-                version_slug=version_slug,
-            )
-            return project, version
-
-        return None, None
 
     def list(self):
         response = super().list()

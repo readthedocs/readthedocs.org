@@ -4,12 +4,12 @@ import structlog
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
+from readthedocs.search.backends import BackendV2
 from django.views import View
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search.faceted_search import (
-    ALL_FACETS,
     PageSearch,
     ProjectSearch,
 )
@@ -21,6 +21,8 @@ from .serializers import (
     VersionData,
 )
 
+from readthedocs.search.api import ProjectsToSearchMixin
+
 log = structlog.get_logger(__name__)
 
 UserInput = collections.namedtuple(
@@ -28,10 +30,7 @@ UserInput = collections.namedtuple(
     (
         'query',
         'type',
-        'project',
-        'version',
         'language',
-        'role_name',
     ),
 )
 
@@ -47,7 +46,7 @@ class SearchViewBase(View):
             return [], {}
 
         filters = {}
-        for avail_facet in ALL_FACETS:
+        for avail_facet in ['language']:
             value = getattr(user_input, avail_facet, None)
             if value:
                 filters[avail_facet] = value
@@ -145,6 +144,7 @@ class ProjectSearchView(SearchViewBase):
             'results': results,
             'facets': facets,
             'project_obj': project_obj,
+            'search_query': self._parser.query
         })
 
         return render(
@@ -154,61 +154,49 @@ class ProjectSearchView(SearchViewBase):
         )
 
 
-class GlobalSearchView(SearchViewBase):
+class GlobalSearchView(SearchViewBase, ProjectsToSearchMixin):
 
     """
     Global search enabled for logged out users and anyone using the dashboard.
 
     Query params:
 
-    - q: search term
-    - type: type of document to search (project or file)
-    - project: project to filter by
-    - language: project language to filter by
-    - version: version to filter by
-    - role_name: sphinx role to filter by
+    - q: Search query
+    - type: Type of document to search (project or file)
     """
 
     def get(self, request):
         user_input = UserInput(
-            query=request.GET.get('q'),
+            query=request.GET.get('q', ""),
             type=request.GET.get('type', 'project'),
-            project=request.GET.get('project'),
-            version=request.GET.get('version', LATEST),
             language=request.GET.get('language'),
-            role_name=request.GET.get('role_name'),
         )
 
-        projects = []
-        # If we allow private projects,
-        # we only search on projects the user belongs or have access to.
-        if settings.ALLOW_PRIVATE_REPOS:
-            projects = list(
-                Project.objects.for_user(request.user)
-                .values_list('slug', flat=True)
-            )
-
-        # Make sure we always have projects to filter by if we allow private projects.
-        if settings.ALLOW_PRIVATE_REPOS and not projects:
-            results, facets = [], {}
-        else:
-            results, facets = self._search(
-                user_input=user_input,
-                projects=projects,
-                use_advanced_query=True,
-            )
+        backend = BackendV2(
+            request=request,
+            query=user_input.query,
+            allow_search_all=not settings.ALLOW_PRIVATE_REPOS,
+        )
+        search = backend.search()
+        results = []
+        facets = {}
+        if search:
+            results = search[:self.max_search_results].execute()
+            facets = results.facets
 
         serializers = {
             'project': ProjectSearchSerializer,
             'file': PageSearchSerializer,
         }
-        serializer = serializers.get(user_input.type, ProjectSearchSerializer)
+        serializer = serializers.get("file", ProjectSearchSerializer)
         results = serializer(results, many=True).data
 
         template_context = user_input._asdict()
         template_context.update({
             'results': results,
             'facets': facets,
+            "parser": backend.parser,
+            'search_query': backend.parser.query,
         })
 
         return render(
