@@ -381,9 +381,9 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             doctool=doctool,
             doctoolversion=doctoolversion,
             url=url,
-            referer=request.headers.get('Referer'),
+            referer=request.headers.get("Referer"),
             external=self.external,
-            hoverxref_version=request.headers.get('X-Hoverxref-Version'),
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
 

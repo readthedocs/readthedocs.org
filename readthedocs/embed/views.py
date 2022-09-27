@@ -126,8 +126,8 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             section=section,
             path=path,
             url=url,
-            referer=request.headers.get('Referer'),
-            hoverxref_version=request.headers.get('X-Hoverxref-Version'),
+            referer=request.headers.get("Referer"),
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
 

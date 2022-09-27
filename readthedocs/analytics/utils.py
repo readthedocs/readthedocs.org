@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
 
 """Utilities related to analytics."""
 
 import hashlib
 import ipaddress
-import structlog
 
 import requests
+import structlog
 from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils.encoding import force_bytes, force_str
 from user_agents import parse
-
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -24,7 +22,7 @@ def get_client_ip(request):
     header. If ``HTTP_X_FORWARDED_FOR`` is not found, it returns the value of
     ``REMOTE_ADDR`` header and returns ``None`` if both the headers are not found.
     """
-    x_forwarded_for = request.headers.get('X-Forwarded-For', None)
+    x_forwarded_for = request.headers.get("X-Forwarded-For", None)
     if x_forwarded_for:
         # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs.
         # The client's IP will be the first one.

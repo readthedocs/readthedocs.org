@@ -1,12 +1,12 @@
 """Public project views."""
 
 import hashlib
-import structlog
 import mimetypes
 import os
 from collections import OrderedDict
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
@@ -372,7 +372,7 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             event_category='Build Media',
             event_action=f'Download {type_}',
             event_label=str(version),
-            ua=request.headers.get('User-Agent'),
+            ua=request.headers.get("User-Agent"),
             uip=get_client_ip(request),
         )
 
