@@ -47,7 +47,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
 
     # Explicit Project slug being passed in.
     if "HTTP_X_RTD_SLUG" in request.META:
-        project_slug = request.headers["X-Rtd-Slug"].lower()
+        project_slug = request.headers["X-RTD-Slug"].lower()
         if Project.objects.filter(slug=project_slug).exists():
             request.rtdheader = True
             log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
