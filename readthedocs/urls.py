@@ -23,29 +23,29 @@ admin.autodiscover()
 handler500 = server_error_500
 
 basic_urls = [
-    re_path(r'^$', HomepageView.as_view(), name='homepage'),
+    path('', HomepageView.as_view(), name='homepage'),
     re_path(r'^security/', TemplateView.as_view(template_name='security.html')),
     re_path(
         r'^\.well-known/security.txt$',
         TemplateView
         .as_view(template_name='security.txt', content_type='text/plain'),
     ),
-    re_path(r'^support/$', SupportView.as_view(), name='support'),
+    path('support/', SupportView.as_view(), name='support'),
     # These are redirected to from the support form
-    re_path(
-        r'^support/success/$',
+    path(
+        'support/success/',
         TemplateView.as_view(template_name='support/success.html'),
         name='support_success',
     ),
-    re_path(
-        r'^support/error/$',
+    path(
+        'support/error/',
         TemplateView.as_view(template_name='support/error.html'),
         name='support_error',
     ),
 ]
 
 rtd_urls = [
-    re_path(r'^search/$', GlobalSearchView.as_view(), name='search'),
+    path('search/', GlobalSearchView.as_view(), name='search'),
     re_path(r'^dashboard/', include('readthedocs.projects.urls.private')),
     re_path(r'^profiles/', include('readthedocs.profiles.urls.public')),
     re_path(r'^accounts/', include('readthedocs.profiles.urls.private')),
@@ -56,7 +56,7 @@ rtd_urls = [
     # For redirects
     re_path(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 500's with DEBUG on.
-    re_path(r'^500/$', handler500),
+    path('500/', handler500),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
     re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
@@ -91,7 +91,7 @@ organization_urls = [
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
+    path('api/v2/search/', PageSearchAPIView.as_view(), name='search_api'),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
@@ -129,14 +129,14 @@ for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
     )
 debug_urls += [
-    re_path(
-        'style-catalog/$',
+    path(
+        'style-catalog/',
         TemplateView.as_view(template_name='style_catalog.html'),
     ),
 
     # This must come last after the build output files
-    re_path(
-        r'^media/(?P<remainder>.+)$',
+    path(
+        'media/<path:remainder>',
         RedirectView.as_view(url=settings.STATIC_URL + '%(remainder)s'),
         name='media-redirect',
     ),

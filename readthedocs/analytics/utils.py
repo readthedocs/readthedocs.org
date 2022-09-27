@@ -24,7 +24,7 @@ def get_client_ip(request):
     header. If ``HTTP_X_FORWARDED_FOR`` is not found, it returns the value of
     ``REMOTE_ADDR`` header and returns ``None`` if both the headers are not found.
     """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)
+    x_forwarded_for = request.headers.get('X-Forwarded-For', None)
     if x_forwarded_for:
         # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs.
         # The client's IP will be the first one.
@@ -114,6 +114,6 @@ def generate_client_id(ip_address, user_agent):
         # Since no IP and no UA were specified,
         # there's no way to distinguish sessions.
         # Instead, just treat every user differently
-        hash_id.update(force_bytes(get_random_string()))
+        hash_id.update(force_bytes(get_random_string(length=12)))
 
     return hash_id.hexdigest()

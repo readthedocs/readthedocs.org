@@ -57,7 +57,7 @@ def server_error_500(request, template_name='500.html'):
 
 
 def do_not_track(request):
-    dnt_header = request.META.get('HTTP_DNT')
+    dnt_header = request.headers.get('Dnt')
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response

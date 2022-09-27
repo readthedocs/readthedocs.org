@@ -372,7 +372,7 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             event_category='Build Media',
             event_action=f'Download {type_}',
             event_label=str(version),
-            ua=request.META.get('HTTP_USER_AGENT'),
+            ua=request.headers.get('User-Agent'),
             uip=get_client_ip(request),
         )
 
