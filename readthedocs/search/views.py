@@ -5,12 +5,10 @@ import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
-from readthedocs.search.api.v3.backend import Backend
 
 from readthedocs.projects.models import Feature, Project
-from readthedocs.search.api.v2.serializers import (
-    ProjectSearchSerializer,
-)
+from readthedocs.search.api.v2.serializers import ProjectSearchSerializer
+from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.faceted_search import PageSearch, ProjectSearch
 
@@ -108,13 +106,15 @@ class ProjectSearchView(SearchViewBase):
         results = PageSearchSerializer(results, many=True).data
 
         template_context = user_input._asdict()
-        template_context.update({
-            "search_query": user_input.query,
-            'results': results,
-            "total_count": len(results),
-            'facets': facets,
-            'project_obj': project_obj,
-        })
+        template_context.update(
+            {
+                "search_query": user_input.query,
+                "results": results,
+                "total_count": len(results),
+                "facets": facets,
+                "project_obj": project_obj,
+            }
+        )
 
         return render(
             request,
@@ -158,13 +158,17 @@ class GlobalSearchView(SearchViewBase):
             search_query = backend.parser.query
             search = backend.search()
             if search:
-                results = search[:self.max_search_results].execute()
+                results = search[: self.max_search_results].execute()
                 facets = results.facets
-                results = PageSearchSerializer(results, projects=backend.projects, many=True).data
+                results = PageSearchSerializer(
+                    results,
+                    projects=backend.projects,
+                    many=True,
+                ).data
 
         return render(
             self.request,
-            'search/elastic_search.html',
+            "search/elastic_search.html",
             {
                 "query": query,
                 "search_query": search_query,
@@ -174,7 +178,6 @@ class GlobalSearchView(SearchViewBase):
                 "type": "file",
             },
         )
-
 
     def _search_projects(self, user_input, request):
         projects = []
@@ -198,12 +201,14 @@ class GlobalSearchView(SearchViewBase):
 
         results = ProjectSearchSerializer(results, many=True).data
         template_context = user_input._asdict()
-        template_context.update({
-            "search_query": user_input.query,
-            'results': results,
-            "total_count": len(results),
-            'facets': facets,
-        })
+        template_context.update(
+            {
+                "search_query": user_input.query,
+                "results": results,
+                "total_count": len(results),
+                "facets": facets,
+            }
+        )
 
         return render(
             request,

@@ -14,7 +14,6 @@ from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
 
-
 register = template.Library()
 
 

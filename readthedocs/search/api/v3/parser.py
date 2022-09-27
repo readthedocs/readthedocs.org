@@ -1,11 +1,9 @@
 class TextToken:
-
     def __init__(self, text):
         self.text = text
 
 
 class ArgumentToken:
-
     def __init__(self, *, name, value, type):
         self.name = name
         self.value = value
@@ -26,15 +24,9 @@ class SearchQueryParser:
         self.arguments = {}
 
     def parse(self):
-        tokens = (
-            self._get_token(text)
-            for text in self._query.split()
-        )
+        tokens = (self._get_token(text) for text in self._query.split())
         query = []
-        arguments = {
-            name: type()
-            for name, type in self.allowed_arguments.items()
-        }
+        arguments = {name: type() for name, type in self.allowed_arguments.items()}
         for token in tokens:
             if isinstance(token, TextToken):
                 query.append(token.text)

@@ -1,5 +1,8 @@
-from readthedocs.search.api.v2.serializers import PageSearchSerializer as PageSearchSerializerBase
 from rest_framework import serializers
+
+from readthedocs.search.api.v2.serializers import (
+    PageSearchSerializer as PageSearchSerializerBase,
+)
 
 
 class PageSearchSerializer(PageSearchSerializerBase):
@@ -10,7 +13,7 @@ class PageSearchSerializer(PageSearchSerializerBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.pop("project_alias")
-    
+
     def get_project(self, obj):
         return {
             "slug": obj.project,

@@ -1,15 +1,14 @@
-from rest_framework.generics import GenericAPIView
-from rest_framework.exceptions import ValidationError
-from readthedocs.search import tasks
-from django.utils import timezone
-from readthedocs.projects.models import Feature
 import structlog
+from django.utils import timezone
 from django.utils.translation import gettext as _
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView
 
+from readthedocs.projects.models import Feature
+from readthedocs.search import tasks
 from readthedocs.search.api import SearchPagination
-from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.backend import Backend
-
+from readthedocs.search.api.v3.serializers import PageSearchSerializer
 
 log = structlog.get_logger(__name__)
 
@@ -26,7 +25,7 @@ class SearchAPI(GenericAPIView):
     Check our [docs](https://docs.readthedocs.io/page/server-side-search.html#api) for more information.
     """  # noqa
 
-    http_method_names = ['get']
+    http_method_names = ["get"]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
     search_backend_class = Backend
@@ -78,7 +77,7 @@ class SearchAPI(GenericAPIView):
         search = self._backend.search(
             use_advanced_query=self._use_advanced_query(),
             aggregate_results=False,
-        ) 
+        )
         if not search:
             return []
 
@@ -91,7 +90,7 @@ class SearchAPI(GenericAPIView):
         return result
 
     def _record_query(self, response):
-        total_results = response.data.get('count', 0)
+        total_results = response.data.get("count", 0)
         time = timezone.now()
         query = self._get_search_query().lower().strip()
         # NOTE: I think this may be confusing,

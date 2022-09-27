@@ -1,6 +1,6 @@
-import structlog
 import re
 
+import structlog
 from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet

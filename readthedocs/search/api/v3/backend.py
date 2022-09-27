@@ -1,9 +1,10 @@
-from readthedocs.search.faceted_search import PageSearch
-from readthedocs.builds.models import Version
-from itertools import islice
 from functools import cached_property
+from itertools import islice
+
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v3.parser import SearchQueryParser
+from readthedocs.search.faceted_search import PageSearch
 
 
 class Backend:
@@ -20,10 +21,7 @@ class Backend:
         return list(islice(self._get_projects_to_search(), self.max_projects))
 
     def search(self, **kwargs):
-        projects = {
-            project.slug: version.slug
-            for project, version in self.projects
-        }
+        projects = {project.slug: version.slug for project, version in self.projects}
         # If the search is done without projects, ES will search on all projects.
         # If we don't have projects and the user provided arguments,
         # it means we don't have anything to search on (no results).
@@ -31,7 +29,7 @@ class Backend:
         # we also just return.
         if not projects and (self._has_arguments or not self.allow_search_all):
             return None
-        
+
         queryset = PageSearch(
             query=self.parser.query,
             projects=projects,
@@ -47,8 +45,8 @@ class Backend:
             project, version = self._get_project_and_version(value)
             if version and self._has_permission(self.request.user, version):
                 yield project, version
-        
-        for value in self.parser.arguments['subprojects']:
+
+        for value in self.parser.arguments["subprojects"]:
             project, version = self._get_project_and_version(value)
 
             # Add the project itself.
@@ -127,8 +125,7 @@ class Backend:
         :param include_hidden: If hidden versions should be considered.
         """
         return (
-            Version.internal
-            .public(
+            Version.internal.public(
                 user=self.request.user,
                 project=project,
                 only_built=True,
