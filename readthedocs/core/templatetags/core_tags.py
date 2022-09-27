@@ -70,9 +70,9 @@ def get_version(slug):
 
 
 @register.simple_tag
-def url_replace(request, field, value):
+def url_replace(request, field, *values):
     dict_ = request.GET.copy()
-    dict_[field] = value
+    dict_[field] = "".join(values)
     return dict_.urlencode()
 
 

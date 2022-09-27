@@ -76,7 +76,8 @@ class SearchAPI(GenericAPIView):
            is compatible with DRF's paginator.
         """
         search = self._backend.search(
-            use_advanced_query=self._use_advanced_query()
+            use_advanced_query=self._use_advanced_query(),
+            aggregate_results=False,
         ) 
         if not search:
             return []

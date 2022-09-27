@@ -20,8 +20,6 @@ from readthedocs.search.documents import PageDocument, ProjectDocument
 
 log = structlog.get_logger(__name__)
 
-ALL_FACETS = ['project', 'version', 'role_name', 'language']
-
 
 class RTDFacetedSearch(FacetedSearch):
 

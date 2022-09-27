@@ -5,14 +5,14 @@ import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
+from readthedocs.search.api.v3.backend import Backend
 
-from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search.api.v2.serializers import (
-    PageSearchSerializer,
     ProjectSearchSerializer,
 )
-from readthedocs.search.faceted_search import ALL_FACETS, PageSearch, ProjectSearch
+from readthedocs.search.api.v3.serializers import PageSearchSerializer
+from readthedocs.search.faceted_search import PageSearch, ProjectSearch
 
 log = structlog.get_logger(__name__)
 
@@ -21,10 +21,7 @@ UserInput = collections.namedtuple(
     (
         'query',
         'type',
-        'project',
-        'version',
         'language',
-        'role_name',
     ),
 )
 
@@ -33,6 +30,7 @@ class SearchViewBase(View):
 
     http_method_names = ['get']
     max_search_results = 50
+    available_facets = ["language"]
 
     def _search(self, *, user_input, projects, use_advanced_query):
         """Return search results and facets given a `user_input` and `projects` to filter by."""
@@ -40,7 +38,7 @@ class SearchViewBase(View):
             return [], {}
 
         filters = {}
-        for avail_facet in ALL_FACETS:
+        for avail_facet in self.available_facets:
             value = getattr(user_input, avail_facet, None)
             if value:
                 filters[avail_facet] = value
@@ -98,15 +96,12 @@ class ProjectSearchView(SearchViewBase):
         user_input = UserInput(
             query=request.GET.get('q'),
             type='file',
-            project=project_slug,
-            version=request.GET.get('version', LATEST),
-            role_name=request.GET.get('role_name'),
             language=None,
         )
 
         results, facets = self._search(
             user_input=user_input,
-            projects=[user_input.project],
+            projects=[project_slug],
             use_advanced_query=use_advanced_query,
         )
 
@@ -114,7 +109,9 @@ class ProjectSearchView(SearchViewBase):
 
         template_context = user_input._asdict()
         template_context.update({
+            "search_query": user_input.query,
             'results': results,
+            "total_count": len(results),
             'facets': facets,
             'project_obj': project_obj,
         })
@@ -135,22 +132,51 @@ class GlobalSearchView(SearchViewBase):
 
     - q: search term
     - type: type of document to search (project or file)
-    - project: project to filter by
-    - language: project language to filter by
-    - version: version to filter by
-    - role_name: sphinx role to filter by
+    - language: project language to filter by (only valid if type is project)
     """
 
     def get(self, request):
         user_input = UserInput(
             query=request.GET.get('q'),
             type=request.GET.get('type', 'project'),
-            project=request.GET.get('project'),
-            version=request.GET.get('version', LATEST),
             language=request.GET.get('language'),
-            role_name=request.GET.get('role_name'),
+        )
+        if user_input.type == "file":
+            return self._searh_files()
+        return self._search_projects(user_input, request)
+
+    def _searh_files(self):
+        results, facets = [], {}
+        search_query = ""
+        query = self.request.GET.get("q")
+        if query:
+            backend = Backend(
+                request=self.request,
+                query=query,
+                allow_search_all=not settings.ALLOW_PRIVATE_REPOS,
+            )
+            search_query = backend.parser.query
+            search = backend.search()
+            if search:
+                results = search[:self.max_search_results].execute()
+                facets = results.facets
+                results = PageSearchSerializer(results, projects=backend.projects, many=True).data
+
+        return render(
+            self.request,
+            'search/elastic_search.html',
+            {
+                "query": query,
+                "search_query": search_query,
+                "results": results,
+                "facets": facets,
+                "total_count": len(results),
+                "type": "file",
+            },
         )
 
+
+    def _search_projects(self, user_input, request):
         projects = []
         # If we allow private projects,
         # we only search on projects the user belongs or have access to.
@@ -170,16 +196,12 @@ class GlobalSearchView(SearchViewBase):
                 use_advanced_query=True,
             )
 
-        serializers = {
-            'project': ProjectSearchSerializer,
-            'file': PageSearchSerializer,
-        }
-        serializer = serializers.get(user_input.type, ProjectSearchSerializer)
-        results = serializer(results, many=True).data
-
+        results = ProjectSearchSerializer(results, many=True).data
         template_context = user_input._asdict()
         template_context.update({
+            "search_query": user_input.query,
             'results': results,
+            "total_count": len(results),
             'facets': facets,
         })
 
