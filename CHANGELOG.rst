@@ -1,3 +1,24 @@
+Version 8.6.0
+-------------
+
+:Date: September 28, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9621 <https://github.com/readthedocs/readthedocs.org/pull/9621>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@boahc077 <https://github.com/boahc077>`__: ci: add minimum GitHub at the workflow level for pip-tools.yaml (`#9617 <https://github.com/readthedocs/readthedocs.org/pull/9617>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor API view (`#9613 <https://github.com/readthedocs/readthedocs.org/pull/9613>`__)
+* `@sashashura <https://github.com/sashashura>`__: GitHub Workflows security hardening (`#9609 <https://github.com/readthedocs/readthedocs.org/pull/9609>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: test with/without organizations (`#9605 <https://github.com/readthedocs/readthedocs.org/pull/9605>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: concurrency small optimization (`#9602 <https://github.com/readthedocs/readthedocs.org/pull/9602>`__)
+* `@uvidyadharan <https://github.com/uvidyadharan>`__: Update intersphinx.rst (`#9601 <https://github.com/readthedocs/readthedocs.org/pull/9601>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.5.0 (`#9600 <https://github.com/readthedocs/readthedocs.org/pull/9600>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: allow update (`#9593 <https://github.com/readthedocs/readthedocs.org/pull/9593>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: strict validation for external versions and other fixes (`#9534 <https://github.com/readthedocs/readthedocs.org/pull/9534>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: fix organizations permissions (`#8771 <https://github.com/readthedocs/readthedocs.org/pull/8771>`__)
+
 Version 8.5.0
 -------------
 

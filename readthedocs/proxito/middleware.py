@@ -53,7 +53,9 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
             return project_slug
 
-    project_slug, domain_object, external = unresolver.unresolve_domain(host)
+    project_slug, domain_object, external_version_slug = unresolver.unresolve_domain(
+        host
+    )
     if not project_slug:
         # Block domains that look like ours, may be phishing.
         if external_domain in host or public_domain in host:
@@ -85,11 +87,9 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         return project_slug
 
     # Pull request previews.
-    if external:
-        subdomain, _ = host.split(".", maxsplit=1)
-        _, version_slug = subdomain.rsplit("--", maxsplit=1)
+    if external_version_slug:
         request.external_domain = True
-        request.host_version_slug = version_slug
+        request.host_version_slug = external_version_slug
         log.debug("Proxito External Version Domain.", host=host)
         return project_slug
 
