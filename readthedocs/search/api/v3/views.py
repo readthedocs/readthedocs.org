@@ -110,12 +110,23 @@ class SearchAPI(GenericAPIView):
             page, many=True, projects=self._get_projects_to_search()
         )
         response = self.paginator.get_paginated_response(serializer.data)
+        self._add_extra_fields(response)
+        return response
+
+    def _add_extra_fields(self, response):
+        """Add additional fields to the response."""
         response.data["projects"] = [
-            [project.slug, version.slug]
+            {
+                "slug": project.slug,
+                "versions": [
+                    {
+                        "slug": version.slug
+                    }
+                ]
+            }
             for project, version in self._get_projects_to_search()
         ]
         response.data["query"] = self._get_search_query()
-        return response
 
 
 class BaseProxiedSearchAPI(SearchAPI):

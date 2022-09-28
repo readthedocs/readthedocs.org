@@ -1869,4 +1869,4 @@ Embed
 Additional APIs
 ---------------
 
-- :ref:`Server side search API <server-side-search:api>`.
+- :doc:`Server side search API </server-side-search/api>`.

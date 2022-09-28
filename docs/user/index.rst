@@ -145,7 +145,6 @@ and how to write successful documentation.
 * **For project administrators**:
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
   :doc:`More guides for administrators </guides/administrators>`
 
