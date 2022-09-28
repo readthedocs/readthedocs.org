@@ -28,18 +28,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.70
+boto3==1.24.80
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.70
+botocore==1.27.80
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15.1
+certifi==2022.9.24
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -161,7 +161,7 @@ django-taggit==3.0.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -173,7 +173,7 @@ docutils==0.17.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-dparse==0.6.0
+dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
@@ -201,7 +201,7 @@ gitpython==3.1.27
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/deploy.in
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -288,7 +288,7 @@ pygments==2.13.0
     #   -r requirements/pip.txt
     #   ipython
     #   sphinx
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -320,7 +320,7 @@ redis==3.5.3
     # via
     #   -r requirements/pip.txt
     #   django-redis-cache
-regex==2022.8.17
+regex==2022.9.13
     # via -r requirements/pip.txt
 requests==2.28.1
     # via
@@ -342,7 +342,7 @@ s3transfer==0.6.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.8
+selectolax==0.3.11
     # via -r requirements/pip.txt
 sentry-sdk==1.9.8
     # via structlog-sentry
@@ -391,7 +391,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   -r requirements/pip.txt
     #   django
@@ -413,10 +413,14 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
-traitlets==5.3.0
+traitlets==5.4.0
     # via
     #   ipython
     #   matplotlib-inline
+types-cryptography==3.3.23
+    # via
+    #   -r requirements/pip.txt
+    #   pyjwt
 ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt

@@ -1,4 +1,8 @@
-# Migrating from reStructuredText to MyST Markdown
+# How to migrate from reStructuredText to MyST Markdown
+
+In this guide, you will find
+how you can start writing Markdown in your existing reStructuredText project,
+or migrate it completely.
 
 Sphinx is usually associated with reStructuredText, the markup language
 {pep}`designed for the CPython project in the early '00s <287>`.
@@ -9,15 +13,11 @@ The most powerful of such extensions is {doc}`MyST-Parser <myst-parser:index>`,
 which implements a CommonMark-compliant, extensible Markdown dialect
 with support for the Sphinx roles and directives that make it so useful.
 
-In this guide, you will find
-how you can start writing Markdown in your existing reStructuredText project,
-or migrate it completely.
-
 If, **instead of migrating**, you are starting a new project from scratch,
 have a look at {doc}`myst-parser:intro`.
 If you are starting a **project for Jupyter**, you can start with Jupyter Book, which uses ``MyST-Parser``, see the official Jupyter Book tutorial: {doc}`jupyterbook:start/your-first-book`
 
-## Writing your content both in reStructuredText and MyST
+## How to write  your content both in reStructuredText and MyST
 
 It is useful to ask whether a migration is necessary in the first place.
 Doing bulk migrations of large projects with lots of work in progress
@@ -54,7 +54,7 @@ If you want to use a different suffix, you can do so by changing your
 `source_suffix` configuration value in `conf.py`.
 ```
 
-## Converting existing reStructuredText documentation to MyST
+## How to convert existing reStructuredText documentation to MyST
 
 To convert existing reST documents to MyST, you can use
 the `rst2myst` CLI script shipped by {doc}`rst-to-myst:index`.
@@ -71,7 +71,7 @@ $ rst2myst convert docs/**/*.rst  # Convert every .rst file under the docs direc
 
 This will create a `.md` MyST file for every `.rst` source file converted.
 
-### Advanced usage of `rst2myst`
+### How to modify the behaviour of `rst2myst`
 
 The `rst2myst` accepts several flags to modify its behavior.
 All of them have sensible defaults, so you don't have to specify them
@@ -90,7 +90,7 @@ These are a few options you might find useful:
 You can read the full list of options in
 {doc}``the `rst2myst` documentation <rst-to-myst:cli>``.
 
-## Enabling optional syntax
+## How to enable optional syntax
 
 Some reStructuredText syntax will require you to enable certain MyST plugins.
 For example, to write [reST definition lists], you need to add a
@@ -108,7 +108,7 @@ in their documentation.
 
 [reST definition lists]: https://docutils.sourceforge.io/docs/user/rst/quickref.html#definition-lists
 
-## Writing reStructuredText syntax within MyST
+## How to write reStructuredText syntax within MyST
 
 There is a small chance that `rst2myst` does not properly understand a piece of reST syntax,
 either because there is a bug in the tool

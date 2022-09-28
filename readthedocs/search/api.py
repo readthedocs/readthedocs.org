@@ -120,19 +120,16 @@ class SearchPagination(PageNumberPagination):
 class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
     """
-    Main entry point to perform a search using Elasticsearch.
+    Server side search API.
 
-    Required query params:
+    Required query parameters:
 
-    - q (search term)
-    - project
-    - version
+    - **q**: Search term.
+    - **project**: Project to search.
+    - **version**: Version to search.
 
-    .. note::
-
-       The methods `_get_project` and `_get_version`
-       are called many times, so a basic cache is implemented.
-    """
+    Check our [docs](https://docs.readthedocs.io/en/stable/server-side-search.html#api) for more information.
+    """  # noqa
 
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
@@ -208,55 +205,64 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         main_version = self._get_version()
         main_project = self._get_project()
 
+        if not self._has_permission(self.request.user, main_version):
+            return {}
+
         projects_data = {
-            main_project.slug: ProjectData(
-                alias=None,
-                version=VersionData(
-                    slug=main_version.slug,
-                    docs_url=main_project.get_docs_url(version_slug=main_version.slug),
-                ),
-            )
+            main_project.slug: self._get_project_data(main_project, main_version),
         }
 
-        subprojects = Project.objects.filter(
-            superprojects__parent_id=main_project.id,
-        )
+        subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
         for subproject in subprojects:
-            version = self._get_subproject_version(
+            version = self._get_project_version(
+                project=subproject,
                 version_slug=main_version.slug,
-                subproject=subproject,
+                include_hidden=False,
             )
 
             # Fallback to the default version of the subproject.
             if not version and subproject.default_version:
-                version = self._get_subproject_version(
+                version = self._get_project_version(
+                    project=subproject,
                     version_slug=subproject.default_version,
-                    subproject=subproject,
+                    include_hidden=False,
                 )
 
             if version and self._has_permission(self.request.user, version):
-                url = subproject.get_docs_url(version_slug=version.slug)
-                project_alias = subproject.superprojects.values_list('alias', flat=True).first()
-                version_data = VersionData(
-                    slug=version.slug,
-                    docs_url=url,
-                )
-                projects_data[subproject.slug] = ProjectData(
-                    alias=project_alias,
-                    version=version_data,
+                projects_data[subproject.slug] = self._get_project_data(
+                    subproject, version
                 )
 
         return projects_data
 
-    def _get_subproject_version(self, version_slug, subproject):
-        """Get a version from the subproject."""
+    def _get_project_data(self, project, version):
+        """Build a `ProjectData` object given a project and its version."""
+        url = project.get_docs_url(version_slug=version.slug)
+        project_alias = project.superprojects.values_list("alias", flat=True).first()
+        version_data = VersionData(
+            slug=version.slug,
+            docs_url=url,
+        )
+        return ProjectData(
+            alias=project_alias,
+            version=version_data,
+        )
+
+    def _get_project_version(self, project, version_slug, include_hidden=True):
+        """
+        Get a version from a given project.
+
+        :param project: A `Project` object.
+        :param version_slug: The version slug.
+        :param include_hidden: If hidden versions should be considered.
+        """
         return (
             Version.internal
             .public(
                 user=self.request.user,
-                project=subproject,
-                include_hidden=False,
+                project=project,
                 only_built=True,
+                include_hidden=include_hidden,
             )
             .filter(slug=version_slug)
             .first()
@@ -272,14 +278,16 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         """
         return True
 
+    def _get_search_query(self):
+        return self.request.query_params["q"]
+
     def _record_query(self, response):
         project_slug = self._get_project().slug
         version_slug = self._get_version().slug
         total_results = response.data.get('count', 0)
         time = timezone.now()
 
-        query = self.request.query_params['q']
-        query = query.lower().strip()
+        query = self._get_search_query().lower().strip()
 
         # Record the query with a celery task
         tasks.record_search_query.delay(
@@ -289,6 +297,10 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             total_results,
             time.isoformat(),
         )
+
+    def _use_advanced_query(self):
+        main_project = self._get_project()
+        return not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
 
     def get_queryset(self):
         """
@@ -300,9 +312,6 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
-        main_project = self._get_project()
-        projects = {}
-
         projects = {
             project: project_data.version.slug
             for project, project_data in self._get_all_projects_data().items()
@@ -312,12 +321,12 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             log.info('Unable to find a version to search')
             return []
 
-        query = self.request.query_params['q']
+        query = self._get_search_query()
         queryset = PageSearch(
             query=query,
             projects=projects,
             aggregate_results=False,
-            use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
+            use_advanced_query=self._use_advanced_query(),
         )
         return queryset
 

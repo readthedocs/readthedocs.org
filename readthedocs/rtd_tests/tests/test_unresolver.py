@@ -25,11 +25,13 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
         self.assertEqual(parts.filename, "/foo.html")
-        self.assertEqual(parts.fragment, "fragment")
-        self.assertEqual(parts.query, "search=api")
+        self.assertEqual(parts.parsed_url.fragment, "fragment")
+        self.assertEqual(parts.parsed_url.query, "search=api")
 
     def test_filename_wihtout_index(self):
-        parts = unresolve("https://pip.readthedocs.io/en/latest/file/", add_index=False)
+        parts = unresolve(
+            "https://pip.readthedocs.io/en/latest/file/", append_indexhtml=False
+        )
         self.assertEqual(parts.parent_project, self.pip)
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, self.version)
@@ -107,6 +109,20 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.subproject)
         self.assertEqual(parts.version, self.subproject_version)
         self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_subproject_invalid_version(self):
+        parts = unresolve("https://pip.readthedocs.io/projects/sub/ja/nothing/foo.html")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.subproject)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
+
+    def test_unresolve_subproject_invalid_translation(self):
+        parts = unresolve("https://pip.readthedocs.io/projects/sub/es/latest/foo.html")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.subproject)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
 
     def test_unresolver_translation(self):
         parts = unresolve("https://pip.readthedocs.io/ja/latest/foo.html")
@@ -195,6 +211,24 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, None)
         self.assertEqual(parts.filename, None)
+
+    def test_external_version_not_matching_final_version(self):
+        parts = unresolve("https://pip--10.dev.readthedocs.build/en/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
+
+    def test_normal_version_in_external_version_subdomain(self):
+        parts = unresolve("https://pip--latest.dev.readthedocs.build/en/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
+
+    def test_malformed_external_version(self):
+        parts = unresolve("https://pip-latest.dev.readthedocs.build/en/latest/")
+        self.assertEqual(parts, None)
 
     def test_unresolver_unknown_host(self):
         parts = unresolve("https://random.stuff.com/en/latest/")
