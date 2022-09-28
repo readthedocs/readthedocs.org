@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search import tasks
 from readthedocs.search.api import SearchPagination
 from readthedocs.search.api.v3.backend import Backend
@@ -115,3 +116,13 @@ class SearchAPI(GenericAPIView):
         ]
         response.data["query"] = self._get_search_query()
         return response
+
+
+class BaseProxiedSearchAPI(SearchAPI):
+
+    pass
+
+
+class ProxiedSearchAPI(SettingsOverrideObject):
+
+    _default_class = BaseProxiedSearchAPI

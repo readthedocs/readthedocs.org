@@ -91,7 +91,8 @@ class GlobalSearchView(TemplateView):
             backend = Backend(
                 request=self.request,
                 query=query,
-                allow_search_all=not settings.ALLOW_PRIVATE_REPOS,
+                arguments_required=False,
+                default_all=not settings.ALLOW_PRIVATE_REPOS,
             )
             search_query = backend.parser.query
             use_advanced_query = should_use_advanced_query(backend.projects)
@@ -166,7 +167,7 @@ class GlobalSearchView(TemplateView):
             use_advanced_query=use_advanced_query,
         )
         # pep8 and blank don't agree on having a space before :.
-        results = search[:self.max_search_results].execute()  # noqa
+        results = search[: self.max_search_results].execute()  # noqa
         facets = results.facets
 
         # Make sure the selected facets are displayed,

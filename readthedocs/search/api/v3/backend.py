@@ -3,42 +3,80 @@ from itertools import islice
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.search.api.v3.parser import SearchQueryParser
+from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
 
 class Backend:
 
-    max_projects = 100
+    """
+    Parse the query, search, and return the projects used in the search.
 
-    def __init__(self, *, request, query, allow_search_all=False):
+    :param arguments_required: If `True` and the user didn't provide
+     any arguments in the query, we don't perform the search.
+    :param default_all: If `True` and `arguments_required` is `False`
+     we search all projects by default, otherwise we search all projects
+     the user has access to.
+    :param max_projects: The maximum number of projects used in the search.
+     This limit is only applied for projects given explicitly,
+     not when we default to search all projects.
+    """
+
+    def __init__(
+        self,
+        *,
+        request,
+        query,
+        arguments_required=True,
+        default_all=False,
+        max_projects=100
+    ):
         self.request = request
         self.query = query
-        self.allow_search_all = allow_search_all
+        self.arguments_required = arguments_required
+        self.default_all = default_all
+        self.max_projects = max_projects
 
     @cached_property
     def projects(self):
+        """
+        Return all projects used in this search.
+
+        If empty, it will search all projects.
+
+        :returns: A list of tuples (project, version).
+        """
         return list(islice(self._get_projects_to_search(), self.max_projects))
 
     def search(self, **kwargs):
+        """
+        Perform the search.
+
+        :param kwargs: All kwargs are passed to the `PageSearch` constructor.
+        """
+        if not self._has_arguments and self.arguments_required:
+            return None
+
         projects = {project.slug: version.slug for project, version in self.projects}
         # If the search is done without projects, ES will search on all projects.
         # If we don't have projects and the user provided arguments,
         # it means we don't have anything to search on (no results).
         # Or if we don't have projects and we don't allow searching all,
         # we also just return.
-        if not projects and (self._has_arguments or not self.allow_search_all):
+        if not projects and (self._has_arguments or not self.default_all):
             return None
 
-        queryset = PageSearch(
+        search = PageSearch(
             query=self.parser.query,
             projects=projects,
             **kwargs,
         )
-        return queryset
+        return search
 
     def _get_projects_to_search(self):
         if not self._has_arguments:
+            if self.arguments_required:
+                return None
             return self._get_default_projects()
 
         for value in self.parser.arguments["project"]:
@@ -135,12 +173,12 @@ class Backend:
             .first()
         )
 
-    @property
+    @cached_property
     def _has_arguments(self):
         return any(self.parser.arguments.values())
 
     def _get_default_projects(self):
-        if self.allow_search_all:
+        if self.default_all:
             # Default to search all.
             return []
         return self._get_projects_from_user()
