@@ -24,6 +24,7 @@
 # xin.wang <asimplelife@live.com>, 2018
 # YFdyh000 <yfdyh000@gmail.com>, 2015
 # YHDSL <steveshidifu@gmail.com>, 2022
+# 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022
 # Ivan.Tang <imivan.tang@outlook.com>, 2019
 # 汪心禾 <wangxinhe06@gmail.com>, 2020
 # 蔡念光 <chefbig@gmail.com>, 2017
@@ -31,9 +32,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-12 21:40+0000\n"
+"POT-Creation-Date: 2022-09-28 15:55+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: JY3, 2022\n"
+"Last-Translator: 快乐的老鼠宝宝 <keaitianxinmail@qq.com>, 2022\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -102,6 +103,7 @@ msgstr "查看"
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
 #: api/v2/templates/restapi/footer.html:109
+#: redirects/templates/redirects/redirect_list.html:45
 #: templates/core/project_details.html:41
 #: templates/projects/project_version_list.html:49
 #: templates/projects/webhook_list.html:39
@@ -136,22 +138,22 @@ msgstr "托管于"
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
-#: api/v3/serializers.py:494
+#: api/v3/serializers.py:493
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "无效的项目名称「{0}」：未生成网址标识。"
 
-#: api/v3/serializers.py:498
+#: api/v3/serializers.py:497
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "网址标识为「{0}」的项目已存在。"
 
-#: api/v3/serializers.py:699
+#: api/v3/serializers.py:702
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "带有 {slug_name}={value} 的项目不能作为子项目。"
 
-#: api/v3/serializers.py:707 projects/forms.py:465
+#: api/v3/serializers.py:710 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "存在具有此名称的子项目"
 
@@ -229,7 +231,7 @@ msgstr "浏览器 UA"
 
 #: audit/models.py:176
 msgid "Resource"
-msgstr ""
+msgstr "资源"
 
 #: audit/models.py:223
 msgid "shared link"
@@ -366,7 +368,7 @@ msgstr "Dash"
 
 #: builds/constants.py:46
 msgid "External"
-msgstr ""
+msgstr "外部的"
 
 #: builds/constants.py:49
 msgid "Branch"
@@ -382,23 +384,23 @@ msgstr "未知"
 
 #: builds/constants.py:64
 msgid "Open"
-msgstr ""
+msgstr "打开"
 
 #: builds/constants.py:65
 msgid "Closed"
-msgstr ""
+msgstr "关闭"
 
 #: builds/constants.py:132
 msgid "Any version"
-msgstr ""
+msgstr "任意版本"
 
 #: builds/constants.py:133
 msgid "SemVer versions"
-msgstr ""
+msgstr "语义化版本(SemVer)"
 
 #: builds/constants.py:134
 msgid "Custom match"
-msgstr ""
+msgstr "自定义匹配"
 
 #: builds/filters.py:18 builds/models.py:146 redirects/models.py:23
 msgid "Active"
@@ -419,7 +421,7 @@ msgstr "状态"
 
 #: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
 msgid "Any"
-msgstr ""
+msgstr "任何"
 
 #: builds/forms.py:45
 msgid "States"
@@ -427,7 +429,7 @@ msgstr "状态"
 
 #: builds/forms.py:54 projects/filters.py:145
 msgid "Privacy"
-msgstr ""
+msgstr "隐私"
 
 #: builds/forms.py:75
 #, python-brace-format
@@ -445,11 +447,11 @@ msgstr "无效的 Python 正则表达式。"
 #: builds/models.py:99 core/models.py:26 projects/models.py:1477
 #: projects/models.py:1645
 msgid "created"
-msgstr ""
+msgstr "创建的"
 
 #: builds/models.py:104 core/models.py:31 projects/models.py:1482
 msgid "modified"
-msgstr ""
+msgstr "修改的"
 
 #: builds/models.py:116 builds/models.py:628 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
@@ -507,15 +509,15 @@ msgstr "由机器创建"
 
 #: builds/models.py:172
 msgid "Has PDF"
-msgstr ""
+msgstr "存在PDF"
 
 #: builds/models.py:173
 msgid "Has ePub"
-msgstr ""
+msgstr "存在ePub"
 
 #: builds/models.py:174
 msgid "Has HTML Zip"
-msgstr ""
+msgstr "存在HTML Zip"
 
 #: builds/models.py:177 projects/models.py:198
 msgid "Documentation type"
@@ -1005,7 +1007,6 @@ msgstr ""
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_redirects.html:100
 #: templates/projects/project_translations.html:50
 #: templates/projects/project_users.html:34
 msgid "Remove"
@@ -1507,7 +1508,8 @@ msgid "Edit Organization"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:257 templates/builds/regexautomationrule_form.html:28
+#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
 #: templates/projects/project_version_submit.html:4
@@ -2093,27 +2095,27 @@ msgstr ""
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:759
+#: projects/forms.py:751
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:866
+#: projects/forms.py:858
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "变量名不能以__开头(双下划线)"
 
-#: projects/forms.py:870
+#: projects/forms.py:862
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "变量名不能以 READTHEDOCS 开头"
 
-#: projects/forms.py:875
+#: projects/forms.py:867
 msgid "There is already a variable with this name for this project"
 msgstr "该项目已经有一个具有此名称的变量"
 
-#: projects/forms.py:880
+#: projects/forms.py:872
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:884
+#: projects/forms.py:876
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2785,7 +2787,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:979
+#: projects/views/private.py:975
 msgid "Project has been opted out from advertisement support"
 msgstr "项目已从广告支持中退出"
 
@@ -2871,11 +2873,44 @@ msgstr "重定向"
 msgid "Redirect: {}"
 msgstr ""
 
+#: redirects/templates/redirects/redirect_form.html:5
+msgid "Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:8
+#: redirects/templates/redirects/redirect_list.html:5
+#: redirects/templates/redirects/redirect_list.html:8
+#: templates/projects/project_edit_base.html:23
+msgid "Redirects"
+msgstr "重定向"
+
+#: redirects/templates/redirects/redirect_form.html:72
+#: redirects/templates/redirects/redirect_list.html:12
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:88
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "删除"
+
+#: redirects/templates/redirects/redirect_list.html:22
+msgid "Add Redirect"
+msgstr "添加重定向"
+
+#: redirects/templates/redirects/redirect_list.html:53
+msgid "No redirects found."
+msgstr ""
+
 #: search/api.py:89
 msgid "Invalid page"
 msgstr ""
 
-#: search/api.py:174
+#: search/api.py:171
 msgid "This query param is required"
 msgstr ""
 
@@ -3529,11 +3564,6 @@ msgstr "近期构建"
 #: templates/builds/regexautomationrule_form.html:11
 msgid "Automation Rule"
 msgstr ""
-
-#: templates/builds/regexautomationrule_form.html:34
-#: templates/projects/webhook_form.html:44
-msgid "Delete"
-msgstr "删除"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
@@ -4214,7 +4244,6 @@ msgstr ""
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_redirects.html:116
 #: templates/projects/project_translations.html:71
 #: templates/projects/project_users.html:53
 msgid "Add"
@@ -4718,12 +4747,6 @@ msgstr "删除项目"
 msgid "Edit Versions"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:23
-#: templates/projects/project_redirects.html:8
-#: templates/projects/project_redirects.html:80
-msgid "Redirects"
-msgstr "重定向"
-
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/projectrelationship_form.html:5
 #: templates/projects/projectrelationship_form.html:12
@@ -4864,17 +4887,6 @@ msgstr "新建电子邮件通知"
 msgid "Add an email address to notify"
 msgstr "添加一个要被通知的电子邮件地址"
 
-#: templates/projects/project_redirects.html:5
-msgid "Edit Redirects"
-msgstr "编辑重定向"
-
-#: templates/projects/project_redirects.html:74
-#, python-format
-msgid ""
-"Add redirects for your project. This allows you to fix links to old pages "
-"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
-msgstr ""
-
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
 msgstr "重新同步"
@@ -4990,11 +5002,11 @@ msgstr ""
 
 #: templates/projects/project_version_list.html:122
 msgid "Activate"
-msgstr ""
+msgstr "激活"
 
 #: templates/projects/project_version_list.html:130
 msgid "No versions found"
-msgstr ""
+msgstr "未找到版本"
 
 #: templates/projects/project_version_list.html:144
 #, python-format
