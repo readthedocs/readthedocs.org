@@ -21,9 +21,9 @@ class SearchAPI(GenericAPIView):
 
     Required query parameters:
 
-    - **q**: Search term.
+    - **q**: [Search term](https://docs.readthedocs.io/page/server-side-search/syntax.html).
 
-    Check our [docs](https://docs.readthedocs.io/page/server-side-search.html#api) for more information.
+    Check our [docs](https://docs.readthedocs.io/page/server-side-search/api.html) for more information.
     """  # noqa
 
     http_method_names = ["get"]
