@@ -1,10 +1,10 @@
 import structlog
+from readthedocs.search.api.v3.utils import should_use_advanced_query
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 
-from readthedocs.projects.models import Feature
 from readthedocs.search import tasks
 from readthedocs.search.api import SearchPagination
 from readthedocs.search.api.v3.backend import Backend
@@ -55,15 +55,6 @@ class SearchAPI(GenericAPIView):
     def _get_projects_to_search(self):
         return self._backend.projects
 
-    def _use_advanced_query(self):
-        # TODO: we should make this a parameter in the API,
-        # we are checking if the first project has this feature for now.
-        projects = self._get_projects_to_search()
-        if projects:
-            project = projects[0][0]
-            return not project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH)
-        return True
-
     def get_queryset(self):
         """
         Returns an Elasticsearch DSL search object or an iterator.
@@ -74,8 +65,9 @@ class SearchAPI(GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
+        use_advanced_query = should_use_advanced_query(self._get_projects_to_search())
         search = self._backend.search(
-            use_advanced_query=self._use_advanced_query(),
+            use_advanced_query=use_advanced_query,
             aggregate_results=False,
         )
         if not search:
