@@ -8,7 +8,7 @@
 # Denis Vlasov <denis90@gmail.com>, 2016-2017
 # ferm32 <ferm32@gmail.com>, 2013-2014
 # Igor Starikov <idlesign@yandex.ru>, 2014
-# Blueberryy <igory.ygr200@gmail.com>, 2021
+# Blueberryy <igory.ygr200@gmail.com>, 2021-2022
 # Liubov Fomicheva <liubov.nelapa@gmail.com>, 2017
 # Донер Кебаб <pentusha@gmail.com>, 2014
 # Донер Кебаб <pentusha@gmail.com>, 2014
@@ -20,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-12 21:40+0000\n"
+"POT-Creation-Date: 2022-09-28 15:55+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Alexey Kalashnikov, 2022\n"
+"Last-Translator: Blueberryy <igory.ygr200@gmail.com>, 2021-2022\n"
 "Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs/"
 "language/ru/)\n"
 "Language: ru\n"
@@ -41,7 +41,7 @@ msgstr "Версия"
 
 #: analytics/models.py:76
 msgid "Path relative to the version."
-msgstr ""
+msgstr "Путь по отношению к версии."
 
 #: analytics/models.py:80
 msgid "Full path including the version and language parts."
@@ -74,7 +74,7 @@ msgstr "На Read the Docs"
 
 #: api/v2/templates/restapi/footer.html:69
 msgid "Project Home"
-msgstr ""
+msgstr "Главная страница проекта"
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
 #: templates/core/project_bar_base.html:46
@@ -88,11 +88,12 @@ msgstr "На GitHub"
 #: api/v2/templates/restapi/footer.html:86
 #: api/v2/templates/restapi/footer.html:105
 msgid "View"
-msgstr ""
+msgstr "Просмотреть"
 
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
 #: api/v2/templates/restapi/footer.html:109
+#: redirects/templates/redirects/redirect_list.html:45
 #: templates/core/project_details.html:41
 #: templates/projects/project_version_list.html:49
 #: templates/projects/webhook_list.html:39
@@ -117,32 +118,32 @@ msgstr "Поиск"
 
 #: api/v2/templates/restapi/footer.html:123
 msgid "Search docs"
-msgstr ""
+msgstr "Поиск в документации"
 
 #: api/v2/templates/restapi/footer.html:134
 msgid "Hosted by"
-msgstr ""
+msgstr "Размещено благодаря"
 
 #: api/v2/templates/restapi/footer.html:136 templates/base.html:227
 msgid "Privacy Policy"
 msgstr "Политика приватности"
 
-#: api/v3/serializers.py:494
+#: api/v3/serializers.py:493
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Неправильное имя проекта \"{0}\": не сгенерирован Slug."
 
-#: api/v3/serializers.py:498
+#: api/v3/serializers.py:497
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Проект с Slug \"{0}\" уже существует."
 
-#: api/v3/serializers.py:699
+#: api/v3/serializers.py:702
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
-msgstr ""
+msgstr "Проект с {slug_name}={value} не действителен в качестве подпроекта"
 
-#: api/v3/serializers.py:707 projects/forms.py:465
+#: api/v3/serializers.py:710 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -1004,7 +1005,6 @@ msgstr ""
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_redirects.html:100
 #: templates/projects/project_translations.html:50
 #: templates/projects/project_users.html:34
 msgid "Remove"
@@ -1521,7 +1521,8 @@ msgid "Edit Organization"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:257 templates/builds/regexautomationrule_form.html:28
+#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
 #: templates/projects/project_version_submit.html:4
@@ -2117,27 +2118,27 @@ msgstr ""
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:759
+#: projects/forms.py:751
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:866
+#: projects/forms.py:858
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Имя переменной не должно начинаться с __ (двойное подчёркивание)"
 
-#: projects/forms.py:870
+#: projects/forms.py:862
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Имя переменной не должно начинаться с READTHEDOCS."
 
-#: projects/forms.py:875
+#: projects/forms.py:867
 msgid "There is already a variable with this name for this project"
 msgstr "В этом проекте уже имеется переменная с таким именем"
 
-#: projects/forms.py:880
+#: projects/forms.py:872
 msgid "Variable name can't contain spaces"
 msgstr "Имя переменной не должно содержать пробелы"
 
-#: projects/forms.py:884
+#: projects/forms.py:876
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Разрешены только буквы, цифры и подчеркивание"
 
@@ -2838,7 +2839,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:979
+#: projects/views/private.py:975
 msgid "Project has been opted out from advertisement support"
 msgstr "Проект был исключён из рекламной поддержки"
 
@@ -2929,11 +2930,44 @@ msgstr "перенаправления"
 msgid "Redirect: {}"
 msgstr "Перенаправление: {}"
 
+#: redirects/templates/redirects/redirect_form.html:5
+msgid "Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:8
+#: redirects/templates/redirects/redirect_list.html:5
+#: redirects/templates/redirects/redirect_list.html:8
+#: templates/projects/project_edit_base.html:23
+msgid "Redirects"
+msgstr "Перенаправления"
+
+#: redirects/templates/redirects/redirect_form.html:72
+#: redirects/templates/redirects/redirect_list.html:12
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:88
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "Удалить"
+
+#: redirects/templates/redirects/redirect_list.html:22
+msgid "Add Redirect"
+msgstr "Добавить перенаправление"
+
+#: redirects/templates/redirects/redirect_list.html:53
+msgid "No redirects found."
+msgstr ""
+
 #: search/api.py:89
 msgid "Invalid page"
 msgstr ""
 
-#: search/api.py:174
+#: search/api.py:171
 msgid "This query param is required"
 msgstr ""
 
@@ -3603,11 +3637,6 @@ msgstr "Свежие сборки"
 #: templates/builds/regexautomationrule_form.html:11
 msgid "Automation Rule"
 msgstr ""
-
-#: templates/builds/regexautomationrule_form.html:34
-#: templates/projects/webhook_form.html:44
-msgid "Delete"
-msgstr "Удалить"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
@@ -4290,7 +4319,6 @@ msgstr ""
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_redirects.html:116
 #: templates/projects/project_translations.html:71
 #: templates/projects/project_users.html:53
 msgid "Add"
@@ -4809,12 +4837,6 @@ msgstr "Удалить проект"
 msgid "Edit Versions"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:23
-#: templates/projects/project_redirects.html:8
-#: templates/projects/project_redirects.html:80
-msgid "Redirects"
-msgstr "Перенаправления"
-
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/projectrelationship_form.html:5
 #: templates/projects/projectrelationship_form.html:12
@@ -4960,17 +4982,6 @@ msgstr "Новые уведомления на электронную почту
 #: templates/projects/project_notifications.html:74
 msgid "Add an email address to notify"
 msgstr "Добавить адрес e-mail для получения уведомлений"
-
-#: templates/projects/project_redirects.html:5
-msgid "Edit Redirects"
-msgstr "Редактирование перенаправлений"
-
-#: templates/projects/project_redirects.html:74
-#, python-format
-msgid ""
-"Add redirects for your project. This allows you to fix links to old pages "
-"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
-msgstr ""
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
