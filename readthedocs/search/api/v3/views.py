@@ -1,5 +1,4 @@
 import structlog
-from readthedocs.search.api.v3.utils import should_use_advanced_query
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
@@ -9,6 +8,7 @@ from readthedocs.search import tasks
 from readthedocs.search.api import SearchPagination
 from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
+from readthedocs.search.api.v3.utils import should_use_advanced_query
 
 log = structlog.get_logger(__name__)
 

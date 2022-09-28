@@ -1,19 +1,19 @@
 """Search views."""
 import collections
+from urllib.parse import urlencode
 
 import structlog
 from django.conf import settings
-from readthedocs.search.api.v3.utils import should_use_advanced_query
-from django.views import View
-from django.urls import reverse
 from django.http.response import HttpResponseRedirect
+from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
-from urllib.parse import urlencode
 
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v2.serializers import ProjectSearchSerializer
 from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
+from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch
 
 log = structlog.get_logger(__name__)
@@ -40,11 +40,15 @@ class ProjectSearchView(View):
     - q: search term
     """
 
-    http_method_names = ['get']
+    http_method_names = ["get"]
 
     def get(self, request, project_slug):
         query = request.GET.get("q", "")
-        url = reverse("search") + "?" + urlencode({"q": f"project:{project_slug} {query}"})
+        url = (
+            reverse("search")
+            + "?"
+            + urlencode({"q": f"project:{project_slug} {query}"})
+        )
         return HttpResponseRedirect(url)
 
 
@@ -60,20 +64,20 @@ class GlobalSearchView(TemplateView):
     - language: project language to filter by (only valid if type is project)
     """
 
-    http_method_names = ['get']
+    http_method_names = ["get"]
     max_search_results = 50
     available_facets = ["language"]
     template_name = "search/elastic_search.html"
 
     def get_context_data(self, **kwargs):
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         user_input = UserInput(
-            query=self.request.GET.get('q'),
-            type=self.request.GET.get('type', 'file'),
-            language=self.request.GET.get('language'),
+            query=self.request.GET.get("q"),
+            type=self.request.GET.get("type", "file"),
+            language=self.request.GET.get("language"),
         )
         if user_input.type == "file":
-            context.update(self._searh_files()) 
+            context.update(self._searh_files())
         else:
             context.update(self._search_projects(user_input, self.request))
         return context
@@ -161,7 +165,8 @@ class GlobalSearchView(TemplateView):
             projects=projects,
             use_advanced_query=use_advanced_query,
         )
-        results = search[:self.max_search_results].execute()
+        # pep8 and blank don't agree on having a space before :.
+        results = search[:self.max_search_results].execute()  # noqa
         facets = results.facets
 
         # Make sure the selected facets are displayed,

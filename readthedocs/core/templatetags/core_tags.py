@@ -5,9 +5,7 @@ import json
 from urllib.parse import urlencode
 
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_str
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
