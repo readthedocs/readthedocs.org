@@ -78,7 +78,7 @@ and some of the core features of Read the Docs.
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
@@ -111,7 +111,7 @@ and some of the core features of Read the Docs.
    /versions
    /downloadable-documentation
    /hosting
-   /server-side-search
+   /server-side-search/index
    /analytics
    /pull-requests
    /build-notifications

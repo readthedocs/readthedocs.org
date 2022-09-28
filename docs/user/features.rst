@@ -73,7 +73,7 @@ We offer a number of search features:
 * Search across projects you have access to (available on |com_brand|)
 * A full range of :doc:`search operators </guides/advanced-search>` including exact matching and excluding phrases.
 
-Learn more about :doc:`/server-side-search`.
+Learn more about :doc:`/server-side-search/index`.
 
 Open Source and Customer Focused
 --------------------------------

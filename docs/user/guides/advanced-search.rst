@@ -1,7 +1,7 @@
 Using advanced search features
 ==============================
 
-Read the Docs uses :doc:`/server-side-search` to power our search.
+Read the Docs uses :doc:`/server-side-search/index` to power our search.
 This guide explains how to add a "search as you type" feature to your documentation,
 and how to use advanced query syntax to get more accurate results.
 
