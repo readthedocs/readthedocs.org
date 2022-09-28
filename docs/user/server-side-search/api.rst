@@ -72,6 +72,15 @@ API V3
           "count": 41,
           "next": "https://readthedocs.org/api/v3/search/?page=2&q=project:docs%20server+side+search",
           "previous": null,
+          "projects": [
+             {
+               "slug": "docs",
+               "versions": [
+                 {"slug": "latest"}
+               ]
+             }
+          ],
+          "query": "server side search",
           "results": [
               {
                   "type": "page",
@@ -158,8 +167,8 @@ Authentication and authorization is done using the current session,
 or any of the valid :doc:`sharing methods </commercial/sharing>`.
 
 To be able to use the user's current session you need to use the API from the domain where your docs are being served
-(``<you-docs-domain>/_/api/v2/search/``).
-This is ``https://docs.readthedocs-hosted.com/_/api/v2/search/``
+(``<you-docs-domain>/_/api/v3/search/``).
+This is ``https://docs.readthedocs-hosted.com/_/api/v3/search/``
 for the ``https://docs.readthedocs-hosted.com/`` project, for example.
 
 API V2 (deprecated)

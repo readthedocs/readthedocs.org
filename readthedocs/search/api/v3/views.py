@@ -116,14 +116,7 @@ class SearchAPI(GenericAPIView):
     def _add_extra_fields(self, response):
         """Add additional fields to the response."""
         response.data["projects"] = [
-            {
-                "slug": project.slug,
-                "versions": [
-                    {
-                        "slug": version.slug
-                    }
-                ]
-            }
+            {"slug": project.slug, "versions": [{"slug": version.slug}]}
             for project, version in self._get_projects_to_search()
         ]
         response.data["query"] = self._get_search_query()
