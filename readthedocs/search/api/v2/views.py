@@ -16,7 +16,6 @@ from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v2.serializers import PageSearchSerializer
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = structlog.get_logger(__name__)
 
