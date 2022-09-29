@@ -15,7 +15,6 @@ from readthedocs.core.views import (
     do_not_track,
     server_error_500,
 )
-from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
@@ -91,7 +90,7 @@ organization_urls = [
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    path("api/v2/search/", PageSearchAPIView.as_view(), name="search_api"),
+    re_path(r"^api/v2/search/$", include("readthedocs.search.api.v2.urls")),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),

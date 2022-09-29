@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-12 21:40+0000\n"
+"POT-Creation-Date: 2022-09-28 15:55+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>, "
 "2015,2017-2020,2022\n"
@@ -99,6 +99,7 @@ msgstr "Ver"
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
 #: api/v2/templates/restapi/footer.html:109
+#: redirects/templates/redirects/redirect_list.html:45
 #: templates/core/project_details.html:41
 #: templates/projects/project_version_list.html:49
 #: templates/projects/webhook_list.html:39
@@ -133,22 +134,22 @@ msgstr "Alojado por"
 msgid "Privacy Policy"
 msgstr "Política de privacidad"
 
-#: api/v3/serializers.py:494
+#: api/v3/serializers.py:493
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Nombre de proyecto no válido \"{0}\": no se generó ningún slug."
 
-#: api/v3/serializers.py:498
+#: api/v3/serializers.py:497
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "El proyecto con slug \"{0}\" ya existe."
 
-#: api/v3/serializers.py:699
+#: api/v3/serializers.py:702
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "El proyecto con {slug_name}={value} no es válido como subproyecto"
 
-#: api/v3/serializers.py:707 projects/forms.py:465
+#: api/v3/serializers.py:710 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "Ya existe un subproyecto con este alias"
 
@@ -1053,7 +1054,6 @@ msgstr "Quitar estado sin publicidad"
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_redirects.html:100
 #: templates/projects/project_translations.html:50
 #: templates/projects/project_users.html:34
 msgid "Remove"
@@ -1225,11 +1225,11 @@ msgstr "{0} para {1}"
 
 #: invitations/models.py:91
 msgid "From user"
-msgstr ""
+msgstr "Del usuario"
 
 #: invitations/models.py:97
 msgid "To user"
-msgstr ""
+msgstr "Al usuario"
 
 #: invitations/models.py:103 organizations/models.py:55
 #: organizations/models.py:288
@@ -1238,15 +1238,15 @@ msgstr "Correo electrónico"
 
 #: invitations/models.py:108
 msgid "Expiration date"
-msgstr ""
+msgstr "Fecha de caducidad"
 
 #: invitations/templates/invitations/includes/invitation_list.html:19
 msgid "Invitation expired"
-msgstr ""
+msgstr "Invitación caducada"
 
 #: invitations/templates/invitations/includes/invitation_list.html:21
 msgid "Invitation pending"
-msgstr ""
+msgstr "Invitación pendiente"
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
 #: templates/profiles/private/token_list.html:40
@@ -1255,7 +1255,7 @@ msgstr "Revocar"
 
 #: invitations/templates/invitations/invitation_detail.html:5
 msgid "Invitation request"
-msgstr ""
+msgstr "Solicitud de invitación"
 
 #: invitations/templates/invitations/invitation_detail.html:12
 #, python-format
@@ -1263,18 +1263,20 @@ msgid ""
 "<a href=\"%(requestor_url)s\">%(requestor_name)s</a> has invited you to join "
 "the <code>%(target_name)s</code> %(target_type)s."
 msgstr ""
+"<a href=\"%(requestor_url)s\">%(requestor_name)s</a> te ha invitado a unirte "
+"a la <code>%(target_name)s</code> %(target_type)s."
 
 #: invitations/templates/invitations/invitation_detail.html:22
 msgid "Your invitation has expired."
-msgstr ""
+msgstr "Su invitación ha caducado."
 
 #: invitations/templates/invitations/invitation_detail.html:24
 msgid "Ask the admin of the organization to invite you again."
-msgstr ""
+msgstr "Pídele al administrador de la organización que te invite de nuevo."
 
 #: invitations/templates/invitations/invitation_detail.html:26
 msgid "Ask the admin of the project to invite you again."
-msgstr ""
+msgstr "Pide al administrador del proyecto que te invite de nuevo."
 
 #: invitations/templates/invitations/invitation_detail.html:31
 #, python-format
@@ -1282,14 +1284,16 @@ msgid ""
 "This invitation will expire in <span "
 "title=\"%(expiration_date)s\">%(valid_until)s</span>."
 msgstr ""
+"Esta invitación caducará en <span "
+"title=\"%(expiration_date)s\">%(valid_until)s</span>."
 
 #: invitations/templates/invitations/invitation_detail.html:39
 msgid "Accept"
-msgstr ""
+msgstr "Aceptar"
 
 #: invitations/templates/invitations/invitation_detail.html:40
 msgid "Decline"
-msgstr ""
+msgstr "Rechazar"
 
 #: notifications/forms.py:29
 msgid "Notification"
@@ -1515,11 +1519,11 @@ msgstr "ID de cliente de Stripe"
 
 #: organizations/models.py:98
 msgid "Stripe customer"
-msgstr ""
+msgstr "Cliente Stripe"
 
 #: organizations/models.py:111
 msgid "organization"
-msgstr ""
+msgstr "organización"
 
 #: organizations/models.py:187
 #, python-brace-format
@@ -1532,7 +1536,7 @@ msgstr "Acceso"
 
 #: organizations/models.py:246
 msgid "team"
-msgstr ""
+msgstr "equipo"
 
 #: organizations/models.py:283 templates/base.html:192
 msgid "Team"
@@ -1596,7 +1600,8 @@ msgid "Edit Organization"
 msgstr "Editar Organización"
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:257 templates/builds/regexautomationrule_form.html:28
+#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
 #: templates/projects/project_version_submit.html:4
@@ -1920,7 +1925,7 @@ msgstr "Verifique su dirección de correo electrónico"
 #: organizations/views/private.py:104 organizations/views/private.py:169
 #: projects/views/private.py:475
 msgid "Invitation sent"
-msgstr ""
+msgstr "Invitación enviada"
 
 #: organizations/views/private.py:113
 msgid "Owner removed"
@@ -1928,7 +1933,7 @@ msgstr "Propietario eliminado"
 
 #: organizations/views/private.py:118
 msgid "User is the last owner, can't be removed"
-msgstr ""
+msgstr "El usuario es el último propietario, no se puede eliminar"
 
 #: organizations/views/private.py:126
 msgid "Team added"
@@ -2245,33 +2250,33 @@ msgstr "Ya existe una traducción \"{lang}\" para el proyecto {proj}."
 #: projects/forms.py:493
 #, python-format
 msgid "User %(username)s is already a maintainer"
-msgstr ""
+msgstr "El usuario %(username)s ya es mantenedor"
 
 #: projects/forms.py:572
 msgid "The payload must be a valid JSON object."
 msgstr "El payload debe ser un objeto JSON válido."
 
-#: projects/forms.py:759
+#: projects/forms.py:751
 msgid "Only one domain can be canonical at a time."
 msgstr "Solo un dominio puede ser canónico a la vez."
 
-#: projects/forms.py:866
+#: projects/forms.py:858
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "El nombre de la variable no puede empezar con __ (doble subrayado)"
 
-#: projects/forms.py:870
+#: projects/forms.py:862
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "El nombre de la variable no puede comenzar con READTHEDOCS"
 
-#: projects/forms.py:875
+#: projects/forms.py:867
 msgid "There is already a variable with this name for this project"
 msgstr "Ya existe una variable con este nombre en este proyecto"
 
-#: projects/forms.py:880
+#: projects/forms.py:872
 msgid "Variable name can't contain spaces"
 msgstr "El nombre de la variable no puede tener espacios"
 
-#: projects/forms.py:884
+#: projects/forms.py:876
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Sólo están permitidos los números, letras y subrayado"
 
@@ -2609,7 +2614,7 @@ msgstr "Este proyecto ha sido clonado con éxito"
 
 #: projects/models.py:463
 msgid "project"
-msgstr ""
+msgstr "proyecto"
 
 #: projects/models.py:473
 msgid "Model must have slug"
@@ -2703,11 +2708,11 @@ msgstr "Estado del certificado SSL"
 
 #: projects/models.py:1696
 msgid "Skip validation process."
-msgstr ""
+msgstr "Omitir proceso de validación."
 
 #: projects/models.py:1702
 msgid "Start date of the validation process."
-msgstr ""
+msgstr "Fecha de inicio del proceso de validación."
 
 #: projects/models.py:1713
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
@@ -2815,7 +2820,7 @@ msgstr "Deshabilitar todas las vistas de página"
 
 #: projects/models.py:1943
 msgid "Disable indexing of sphinx domains"
-msgstr ""
+msgstr "Deshabilitar la indexación de dominios de sphinx"
 
 #: projects/models.py:1949
 msgid "Skip syncing branches"
@@ -2912,6 +2917,8 @@ msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
+"Cancele las compilaciones activadas/en ejecución cuando llegue una nueva con "
+"el mismo proyecto/versión"
 
 #: projects/models.py:2027
 msgid "Do not create index.md or README.rst if the project does not have one."
@@ -3006,7 +3013,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} es el último propietario, no se puede eliminar"
 
-#: projects/views/private.py:979
+#: projects/views/private.py:975
 msgid "Project has been opted out from advertisement support"
 msgstr "El proyecto ha sido excluido del soporte publicitario"
 
@@ -3094,11 +3101,46 @@ msgstr "redirecciones"
 msgid "Redirect: {}"
 msgstr "Redirige: {}"
 
+#: redirects/templates/redirects/redirect_form.html:5
+msgid "Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:8
+#: redirects/templates/redirects/redirect_list.html:5
+#: redirects/templates/redirects/redirect_list.html:8
+#: templates/projects/project_edit_base.html:23
+msgid "Redirects"
+msgstr "Redirecciones"
+
+#: redirects/templates/redirects/redirect_form.html:72
+#: redirects/templates/redirects/redirect_list.html:12
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+"Agregue redirecciones para su proyecto. Esto le permite corregir enlaces a "
+"páginas antiguas que son 404ing. <a href=\"%(docs_url)s\">Aprende más</a>."
+
+#: redirects/templates/redirects/redirect_form.html:88
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "Eliminar"
+
+#: redirects/templates/redirects/redirect_list.html:22
+msgid "Add Redirect"
+msgstr "Agregar Redirección"
+
+#: redirects/templates/redirects/redirect_list.html:53
+msgid "No redirects found."
+msgstr ""
+
 #: search/api.py:89
 msgid "Invalid page"
 msgstr "Página inválida"
 
-#: search/api.py:174
+#: search/api.py:171
 msgid "This query param is required"
 msgstr "Este parámetro de consulta es obligatorio"
 
@@ -3807,11 +3849,6 @@ msgstr "Compilaciones recientes"
 #: templates/builds/regexautomationrule_form.html:11
 msgid "Automation Rule"
 msgstr "Regla de Automatización"
-
-#: templates/builds/regexautomationrule_form.html:34
-#: templates/projects/webhook_form.html:44
-msgid "Delete"
-msgstr "Eliminar"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
@@ -4527,6 +4564,8 @@ msgid ""
 "The validation process period has ended. Save the domain to restart the "
 "process."
 msgstr ""
+"El período del proceso de validación ha finalizado. Guarde el dominio para "
+"reiniciar el proceso."
 
 #: templates/projects/domain_form.html:61
 msgid "Save Domain"
@@ -4578,7 +4617,6 @@ msgstr "Añadir nuevo dominio"
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_redirects.html:116
 #: templates/projects/project_translations.html:71
 #: templates/projects/project_users.html:53
 msgid "Add"
@@ -5170,12 +5208,6 @@ msgstr "Eliminar proyecto"
 msgid "Edit Versions"
 msgstr "Editar Versiones"
 
-#: templates/projects/project_edit_base.html:23
-#: templates/projects/project_redirects.html:8
-#: templates/projects/project_redirects.html:80
-msgid "Redirects"
-msgstr "Redirecciones"
-
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/projectrelationship_form.html:5
 #: templates/projects/projectrelationship_form.html:12
@@ -5329,19 +5361,6 @@ msgstr "Nuevas notificaciones por correo electrónico"
 msgid "Add an email address to notify"
 msgstr "Añade una dirección de correo electrónico para notificaciones"
 
-#: templates/projects/project_redirects.html:5
-msgid "Edit Redirects"
-msgstr "Editar redirecciones"
-
-#: templates/projects/project_redirects.html:74
-#, python-format
-msgid ""
-"Add redirects for your project. This allows you to fix links to old pages "
-"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
-msgstr ""
-"Agregue redirecciones para su proyecto. Esto le permite corregir enlaces a "
-"páginas antiguas que son 404ing. <a href=\"%(docs_url)s\">Aprende más</a>."
-
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
 msgstr "Resincronizar"
@@ -5433,7 +5452,7 @@ msgstr ""
 
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
-msgstr ""
+msgstr "Añadir mantenedor"
 
 #: templates/projects/project_version_detail.html:16
 #, python-format

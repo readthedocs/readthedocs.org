@@ -1,25 +1,20 @@
 """Search views."""
 import collections
-import structlog
 
+import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Feature, Project
-from readthedocs.search.faceted_search import (
-    ALL_FACETS,
-    PageSearch,
-    ProjectSearch,
-)
-
-from .serializers import (
+from readthedocs.search.api.v2.serializers import (
     PageSearchSerializer,
     ProjectData,
     ProjectSearchSerializer,
     VersionData,
 )
+from readthedocs.search.faceted_search import ALL_FACETS, PageSearch, ProjectSearch
 
 log = structlog.get_logger(__name__)
 

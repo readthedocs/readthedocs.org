@@ -99,7 +99,11 @@ def finish_inactive_builds():
     # Set time as maximum celery task time limit + 5m
     time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
-    query = ~Q(state__in=BUILD_FINAL_STATES) & Q(date__lte=timezone.now() - delta)
+    query = (
+        ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(date__lt=timezone.now() - delta)
+        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
+    )
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
