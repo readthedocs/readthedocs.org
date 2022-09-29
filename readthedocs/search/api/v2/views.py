@@ -13,7 +13,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
-from readthedocs.search.api import SearchPagination
+from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v2.serializers import (
     PageSearchSerializer,
     ProjectData,
