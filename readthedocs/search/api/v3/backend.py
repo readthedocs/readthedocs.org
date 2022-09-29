@@ -46,7 +46,14 @@ class Backend:
 
         :returns: A list of tuples (project, version).
         """
-        return list(islice(self._get_projects_to_search(), self.max_projects))
+        projects = islice(self._get_projects_to_search(), self.max_projects)
+        # Make sure we are using just one version per-project,
+        # searching multiple versions of the same projects isn't supported yet.
+        projects_dict = {
+            project: version
+            for project, version in projects
+        }
+        return list(projects_dict.items())
 
     def search(self, **kwargs):
         """
