@@ -31,18 +31,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.56
+boto3==1.24.80
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.56
+botocore==1.27.80
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15
+certifi==2022.9.24
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -74,7 +74,7 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -90,7 +90,7 @@ defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
     #   python3-openid
-distlib==0.3.5
+distlib==0.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -131,7 +131,7 @@ django-debug-toolbar==3.6.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.2.2
     # via -r requirements/pip.txt
-django-extensions==3.2.0
+django-extensions==3.2.1
     # via -r requirements/pip.txt
 django-filter==22.1
     # via -r requirements/pip.txt
@@ -145,7 +145,7 @@ django-ipware==4.0.2
     #   django-structlog
 django-kombu==0.9.4
     # via -r requirements/pip.txt
-django-messages-extends==0.6.2
+django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
@@ -159,7 +159,7 @@ django-taggit==3.0.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -173,13 +173,13 @@ docutils==0.17.1
     #   sphinx
 dodgy==0.2.1
     # via prospector
-dparse==0.5.2
+dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
-drf-flex-fields==0.9.8
+drf-flex-fields==1.0.0
     # via -r requirements/pip.txt
-elasticsearch==7.17.4
+elasticsearch==7.17.6
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -203,7 +203,7 @@ gitdb==4.0.9
     #   gitpython
 gitpython==3.1.27
     # via -r requirements/pip.txt
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -247,11 +247,11 @@ mccabe==0.6.1
     #   flake8
     #   prospector
     #   pylint
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.7.12
+orjson==3.8.0
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -268,7 +268,7 @@ platformdirs==2.5.2
     #   virtualenv
 poetry-semver==0.1.0
     # via requirements-detector
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.31
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -292,7 +292,7 @@ pygments==2.13.0
     # via
     #   -r requirements/pip.txt
     #   sphinx
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -343,7 +343,7 @@ pyyaml==5.4.1
     #   prospector
 redis==3.5.3
     # via -r requirements/pip.txt
-regex==2022.8.17
+regex==2022.9.13
     # via -r requirements/pip.txt
 requests==2.28.1
     # via
@@ -367,7 +367,7 @@ s3transfer==0.6.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.8
+selectolax==0.3.11
     # via -r requirements/pip.txt
 setoptconf==0.3.0
     # via prospector
@@ -418,7 +418,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   -r requirements/pip.txt
     #   django
@@ -437,7 +437,11 @@ toml==0.10.2
     #   dparse
     #   pylint
     #   requirements-detector
-ua-parser==0.15.1
+types-cryptography==3.3.23
+    # via
+    #   -r requirements/pip.txt
+    #   pyjwt
+ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
@@ -447,7 +451,7 @@ unidecode==1.3.4
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -462,13 +466,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.3
+virtualenv==20.16.5
     # via -r requirements/pip.txt
 wcwidth==0.2.5
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.3.3
+websocket-client==1.4.1
     # via
     #   -r requirements/pip.txt
     #   docker

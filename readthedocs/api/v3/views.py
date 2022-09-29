@@ -3,10 +3,7 @@ from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import (
-    SessionAuthentication,
-    TokenAuthentication,
-)
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -20,11 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import (
-    GenericViewSet,
-    ModelViewSet,
-    ReadOnlyModelViewSet,
-)
+from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
@@ -58,7 +51,12 @@ from .mixins import (
     UpdateChangeReasonMixin,
     UpdateMixin,
 )
-from .permissions import CommonPermissions, IsProjectAdmin
+from .permissions import (
+    CommonPermissions,
+    IsOrganizationAdminMember,
+    IsProjectAdmin,
+    UserOrganizationsListing,
+)
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -393,16 +391,19 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
         serializer.save()
 
 
-class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
-                               OrganizationQuerySetMixin,
-                               ReadOnlyModelViewSet):
+class OrganizationsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ReadOnlyModelViewSet,
+):
 
     model = Organization
     lookup_field = 'slug'
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-
+    permission_classes = [UserOrganizationsListing | IsOrganizationAdminMember]
     permit_list_expands = [
         'projects',
         'teams',
@@ -422,19 +423,16 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return super().get_queryset()
 
 
-class OrganizationsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsViewSetBase
-
-
-class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
-                                       OrganizationQuerySetMixin,
-                                       ReadOnlyModelViewSet):
+class OrganizationsProjectsViewSet(
+    APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
+):
 
     model = Project
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsOrganizationAdminMember]
     permit_list_expands = [
         'organization',
         'organization.teams',
@@ -442,10 +440,6 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
 
     def get_view_name(self):
         return f'Organizations Projects {self.suffix}'
-
-
-class OrganizationsProjectsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsProjectsViewSetBase
 
 
 class RemoteRepositoryViewSet(

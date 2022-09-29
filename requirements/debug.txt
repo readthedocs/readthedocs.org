@@ -14,13 +14,13 @@ decorator==5.1.1
     # via
     #   ipdb
     #   ipython
-executing==0.10.0
+executing==1.0.0
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
 ipdb==0.13.9
     # via -r requirements/debug.in
-ipython==8.4.0
+ipython==8.5.0
     # via ipdb
 jedi==0.18.1
     # via ipython
@@ -34,7 +34,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.31
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -48,11 +48,11 @@ pyrepl==0.9.0
     # via fancycompleter
 six==1.16.0
     # via asttokens
-stack-data==0.4.0
+stack-data==0.5.0
     # via ipython
 toml==0.10.2
     # via ipdb
-traitlets==5.3.0
+traitlets==5.4.0
     # via
     #   ipython
     #   matplotlib-inline

@@ -15,7 +15,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Feature, HTMLFile, Project
-from readthedocs.search.api import PageSearchAPIView
+from readthedocs.search.api.v2.views import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
     DOMAIN_FIELDS,
