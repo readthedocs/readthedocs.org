@@ -31,8 +31,6 @@ Versions
                 {% block active-versions %}
                   {% with absolute_url=version.get_absolute_url %}
                   <li class="module-item">
-                    {# Link to the docs #}
-                    <a class="module-item-title" href="{{ absolute_url }}">{{ version.slug }}</a>
 
                     {% if is_project_admin %}
                       <span class="right-menu">
@@ -53,6 +51,9 @@ Versions
                         <li><a href="{{ absolute_url }}">{% trans "View Docs" %}</a></li>
                       </ul>
                     {% endif %}
+
+                    {# Link to the docs #}
+                    <a class="module-item-title" href="{{ absolute_url }}">{{ version.slug }}</a>
 
                   </li>
                   {% endwith %}
