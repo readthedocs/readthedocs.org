@@ -102,8 +102,8 @@ class BuildDataCollector:
             return "sphinx"
         elif self.config.mkdocs:
             return "mkdocs"
-        else:
-            return "generic"
+
+        return "generic"
 
     def _get_doctool_extensions(self):
         if self._get_doctool_name() != "sphinx":
