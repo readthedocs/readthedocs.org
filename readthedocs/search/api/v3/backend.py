@@ -49,10 +49,7 @@ class Backend:
         projects = islice(self._get_projects_to_search(), self.max_projects)
         # Make sure we are using just one version per-project,
         # searching multiple versions of the same projects isn't supported yet.
-        projects_dict = {
-            project: version
-            for project, version in projects
-        }
+        projects_dict = {project: version for project, version in projects}
         return list(projects_dict.items())
 
     def search(self, **kwargs):
@@ -149,7 +146,7 @@ class Backend:
                 )
 
             if version and self._has_permission(self.request.user, version):
-                yield project, version
+                yield subproject, version
 
     def _has_permission(self, user, version):
         """

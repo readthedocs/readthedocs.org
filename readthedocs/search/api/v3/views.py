@@ -1,3 +1,5 @@
+from functools import cached_property
+
 import structlog
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -42,7 +44,7 @@ class SearchAPI(GenericAPIView):
         if errors:
             raise ValidationError(errors)
 
-    @property
+    @cached_property
     def _backend(self):
         backend = self.search_backend_class(
             request=self.request,
