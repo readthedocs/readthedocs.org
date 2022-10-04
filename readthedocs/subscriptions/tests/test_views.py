@@ -21,8 +21,12 @@ class SubscriptionViewTests(TestCase):
 
     def setUp(self):
         self.user = get(User)
-        self.organization = get(Organization, stripe_id='123', owners=[self.user])
-        self.plan = get(Plan, published=True, slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG)
+        self.organization = get(Organization, stripe_id="123", owners=[self.user])
+        self.plan = get(
+            Plan,
+            published=True,
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE,
+        )
         self.stripe_subscription = self._create_stripe_subscription(
             customer_id=self.organization.stripe_id,
             subscription_id="sub_a1b2c3d4",
