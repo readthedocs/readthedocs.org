@@ -52,7 +52,6 @@ class DailyEmailTests(TestCase):
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls([
             mock.call(
-                request=mock.ANY,
                 subject='Your trial is ending soon',
                 recipient=owner1.owner.email,
                 template=mock.ANY,
@@ -99,7 +98,6 @@ class DailyEmailTests(TestCase):
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls([
             mock.call(
-                request=mock.ANY,
                 subject='We hope you enjoyed your trial of Read the Docs!',
                 recipient=owner1.owner.email,
                 template=mock.ANY,
@@ -151,7 +149,6 @@ class DailyEmailTests(TestCase):
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls([
             mock.call(
-                request=mock.ANY,
                 subject='Your subscription to Read the Docs has ended',
                 recipient=owner1.owner.email,
                 template=mock.ANY,
@@ -199,7 +196,6 @@ class DailyEmailTests(TestCase):
         self.assertEqual(mock_send_email.call_count, 1)
         mock_send_email.assert_has_calls([
             mock.call(
-                request=mock.ANY,
                 subject='Your Read the Docs organization will be disabled soon',
                 recipient=owner1.owner.email,
                 template=mock.ANY,
