@@ -1,4 +1,4 @@
-How to link to other documentation projects with Intersphinx
+How to Link to Other Documentation Projects With Intersphinx
 ============================================================
 
 This section shows you how to maintain references to named sections of other external Sphinx projects.
