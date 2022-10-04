@@ -20,7 +20,7 @@ fancycompleter==0.9.1
     # via pdbpp
 ipdb==0.13.9
     # via -r requirements/debug.in
-ipython==8.4.0
+ipython==8.5.0
     # via ipdb
 jedi==0.18.1
     # via ipython
@@ -52,7 +52,7 @@ stack-data==0.5.0
     # via ipython
 toml==0.10.2
     # via ipdb
-traitlets==5.3.0
+traitlets==5.4.0
     # via
     #   ipython
     #   matplotlib-inline

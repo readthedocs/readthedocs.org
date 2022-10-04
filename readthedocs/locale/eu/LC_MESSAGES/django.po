@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-06 10:02+0000\n"
+"POT-Creation-Date: 2022-09-28 15:55+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Asier Iturralde Sarasola <asier.iturralde@gmail.com>, 2018\n"
 "Language-Team: Basque (http://www.transifex.com/readthedocs/readthedocs/"
@@ -80,6 +80,7 @@ msgstr ""
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
 #: api/v2/templates/restapi/footer.html:109
+#: redirects/templates/redirects/redirect_list.html:45
 #: templates/core/project_details.html:41
 #: templates/projects/project_version_list.html:49
 #: templates/projects/webhook_list.html:39
@@ -114,22 +115,22 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
-#: api/v3/serializers.py:494
+#: api/v3/serializers.py:493
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:498
+#: api/v3/serializers.py:497
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:699
+#: api/v3/serializers.py:702
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:707 projects/forms.py:465
+#: api/v3/serializers.py:710 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -977,7 +978,6 @@ msgstr ""
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_redirects.html:100
 #: templates/projects/project_translations.html:50
 #: templates/projects/project_users.html:34
 msgid "Remove"
@@ -1479,7 +1479,8 @@ msgid "Edit Organization"
 msgstr ""
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:257 templates/builds/regexautomationrule_form.html:28
+#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
 #: templates/projects/project_version_submit.html:4
@@ -2064,27 +2065,27 @@ msgstr ""
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:759
+#: projects/forms.py:751
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:866
+#: projects/forms.py:858
 msgid "Variable name can't start with __ (double underscore)"
 msgstr ""
 
-#: projects/forms.py:870
+#: projects/forms.py:862
 msgid "Variable name can't start with READTHEDOCS"
 msgstr ""
 
-#: projects/forms.py:875
+#: projects/forms.py:867
 msgid "There is already a variable with this name for this project"
 msgstr ""
 
-#: projects/forms.py:880
+#: projects/forms.py:872
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:884
+#: projects/forms.py:876
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -2744,7 +2745,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:979
+#: projects/views/private.py:975
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -2830,11 +2831,44 @@ msgstr ""
 msgid "Redirect: {}"
 msgstr ""
 
+#: redirects/templates/redirects/redirect_form.html:5
+msgid "Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:8
+#: redirects/templates/redirects/redirect_list.html:5
+#: redirects/templates/redirects/redirect_list.html:8
+#: templates/projects/project_edit_base.html:23
+msgid "Redirects"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:72
+#: redirects/templates/redirects/redirect_list.html:12
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:88
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_list.html:22
+msgid "Add Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_list.html:53
+msgid "No redirects found."
+msgstr ""
+
 #: search/api.py:89
 msgid "Invalid page"
 msgstr ""
 
-#: search/api.py:174
+#: search/api.py:171
 msgid "This query param is required"
 msgstr ""
 
@@ -3485,11 +3519,6 @@ msgstr ""
 #: templates/builds/regexautomationrule_form.html:6
 #: templates/builds/regexautomationrule_form.html:11
 msgid "Automation Rule"
-msgstr ""
-
-#: templates/builds/regexautomationrule_form.html:34
-#: templates/projects/webhook_form.html:44
-msgid "Delete"
 msgstr ""
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
@@ -4157,7 +4186,6 @@ msgstr ""
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_redirects.html:116
 #: templates/projects/project_translations.html:71
 #: templates/projects/project_users.html:53
 msgid "Add"
@@ -4660,12 +4688,6 @@ msgstr ""
 msgid "Edit Versions"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:23
-#: templates/projects/project_redirects.html:8
-#: templates/projects/project_redirects.html:80
-msgid "Redirects"
-msgstr ""
-
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/projectrelationship_form.html:5
 #: templates/projects/projectrelationship_form.html:12
@@ -4804,17 +4826,6 @@ msgstr ""
 
 #: templates/projects/project_notifications.html:74
 msgid "Add an email address to notify"
-msgstr ""
-
-#: templates/projects/project_redirects.html:5
-msgid "Edit Redirects"
-msgstr ""
-
-#: templates/projects/project_redirects.html:74
-#, python-format
-msgid ""
-"Add redirects for your project. This allows you to fix links to old pages "
-"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
 msgstr ""
 
 #: templates/projects/project_resync_webhook.html:12

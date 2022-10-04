@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from urllib.parse import urlparse
+from urllib.parse import ParseResult, urlparse
 
 import structlog
 from django.conf import settings
@@ -27,8 +27,7 @@ class UnresolvedURL:
 
     version: Version = None
     filename: str = None
-    query: str = None
-    fragment: str = None
+    parsed_url: ParseResult = None
     domain: Domain = None
     external: bool = False
 
@@ -41,9 +40,13 @@ class Unresolver:
     # - /en/latest/
     # - /en/latest/file/name/
     multiversion_pattern = re.compile(
-        r"^/(?P<language>{lang_slug})(/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$".format(  # noqa
+        r"""
+        ^/(?P<language>{lang_slug})  # Must have the language slug.
+        (/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$  # Optionally a version followed by a file.  # noqa
+        """.format(
             **pattern_opts
-        )
+        ),
+        re.VERBOSE,
     )
 
     # This pattern matches:
@@ -51,12 +54,17 @@ class Unresolver:
     # - /projects/subproject/
     # - /projects/subproject/file/name/
     subproject_pattern = re.compile(
-        r"^/projects/(?P<project>{project_slug}+)(/(?P<file>{filename_slug}))?$".format(
+        r"""
+        ^/projects/  # Must have the `projects` prefix.
+        (?P<project>{project_slug}+)  # Followed by the subproject alias.
+        (/(?P<file>{filename_slug}))?$  # Optionally a filename, which will be recursively resolved.
+        """.format(
             **pattern_opts
-        )
+        ),
+        re.VERBOSE,
     )
 
-    def unresolve(self, url, add_index=True):
+    def unresolve(self, url, append_indexhtml=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -64,36 +72,60 @@ class Unresolver:
         like where we want to figure out exactly what file a URL maps to.
 
         :param url: Full URL to unresolve (including the protocol and domain part).
-        :param add_index: If `True` the filename will be normalized
+        :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        project_slug, domain_object, external = self.unresolve_domain(domain)
-        if not project_slug:
+        (
+            parent_project_slug,
+            domain_object,
+            external_version_slug,
+        ) = self.unresolve_domain(domain)
+        if not parent_project_slug:
             return None
 
-        parent_project = Project.objects.filter(slug=project_slug).first()
+        parent_project = Project.objects.filter(slug=parent_project_slug).first()
         if not parent_project:
             return None
 
-        project, version, filename = self._unresolve_path(
+        current_project, version, filename = self._unresolve_path(
             parent_project=parent_project,
             path=parsed.path,
         )
 
-        if add_index and filename and filename.endswith("/"):
+        # Make sure we are serving the external version from the subdomain.
+        if external_version_slug and version:
+            if external_version_slug != version.slug:
+                log.warning(
+                    "Invalid version for external domain.",
+                    domain=domain,
+                    version_slug=version.slug,
+                )
+                version = None
+                filename = None
+            elif not version.is_external:
+                log.warning(
+                    "Attempt of serving a non-external version from RTD_EXTERNAL_VERSION_DOMAIN.",
+                    domain=domain,
+                    version_slug=version.slug,
+                    version_type=version.type,
+                    url=url,
+                )
+                version = None
+                filename = None
+
+        if append_indexhtml and filename and filename.endswith("/"):
             filename += "index.html"
 
         return UnresolvedURL(
             parent_project=parent_project,
-            project=project or parent_project,
+            project=current_project or parent_project,
             version=version,
             filename=filename,
-            query=parsed.query,
-            fragment=parsed.fragment,
+            parsed_url=parsed,
             domain=domain_object,
-            external=external,
+            external=bool(external_version_slug),
         )
 
     @staticmethod
@@ -109,7 +141,11 @@ class Unresolver:
         Try to match a multiversion project.
 
         If the translation exists, we return a result even if the version doesn't,
-        so the translation is taken as the canonical project (useful for 404 pages).
+        so the translation is taken as the current project (useful for 404 pages).
+
+        :returns: None or a tuple with the current project, version and file.
+         A tuple with only the project means we weren't able to find a version,
+         but the translation was correct.
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -138,24 +174,40 @@ class Unresolver:
 
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
+
+        If the subproject exists, we return a result even if version doesn't,
+        so the subproject is taken as the current project (useful for 404 pages).
+
+        :returns: None or a tuple with the current project, version and file.
+         A tuple with only the project means we were able to find the subproject,
+         but we weren't able to resolve the rest of the path.
         """
         match = self.subproject_pattern.match(path)
         if not match:
             return None
 
-        project_slug = match.group("project")
+        subproject_alias = match.group("project")
         file = self._normalize_filename(match.group("file"))
         project_relationship = (
-            parent_project.subprojects.filter(alias=project_slug)
+            parent_project.subprojects.filter(alias=subproject_alias)
             .prefetch_related("child")
             .first()
         )
         if project_relationship:
-            return self._unresolve_path(
-                parent_project=project_relationship.child,
+            # We use the subproject as the new parent project
+            # to resolve the rest of the path relative to it.
+            subproject = project_relationship.child
+            response = self._unresolve_path(
+                parent_project=subproject,
                 path=file,
                 check_subprojects=False,
             )
+            # If we got a valid response, return that,
+            # otherwise return the current subproject
+            # as the current project without a valid version or path.
+            if response:
+                return response
+            return subproject, None, None
         return None
 
     def _match_single_version_project(self, parent_project, path):
@@ -182,10 +234,19 @@ class Unresolver:
         If the returned version is `None`, then we weren't able to
         unresolve the path into a valid version of the project.
 
+        The checks are done in the following order:
+
+        - Check for multiple versions if the parent project
+          isn't a single version project.
+        - Check for subprojects.
+        - Check for single versions if the parent project isn’t
+          a multi version project.
+
         :param parent_project: The project that owns the path.
         :param path: The path to unresolve.
         :param check_subprojects: If we should check for subprojects,
-         this is used to call this function recursively.
+         this is used to call this function recursively when
+         resolving the path from a subproject (we don't support subprojects of subprojects).
 
         :returns: A tuple with: project, version, and file name.
         """
@@ -216,7 +277,7 @@ class Unresolver:
             if response:
                 return response
 
-        return None, None, None
+        return parent_project, None, None
 
     @staticmethod
     def get_domain_from_host(host):
@@ -234,8 +295,8 @@ class Unresolver:
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
-        :returns: A tuple with: the project slug, domain object, and if the domain
-         is from an external version.
+        :returns: A tuple with: the project slug, domain object, and the
+         external version slug if the domain is from an external version.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
@@ -250,22 +311,22 @@ class Unresolver:
             if public_domain == root_domain:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
-                return project_slug, None, False
+                return project_slug, None, None
 
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
             # for example, but these might be phishing, so let's ignore them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            return None, None, False
+            return None, None, None
 
         # Serve PR builds on external_domain host.
         if external_domain == root_domain:
             try:
+                project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                 log.debug("External versions domain.", domain=domain)
-                project_slug, _ = subdomain.rsplit("--", maxsplit=1)
-                return project_slug, None, True
+                return project_slug, None, version_slug
             except ValueError:
                 log.info("Invalid format of external versions domain.", domain=domain)
-                return None, None, False
+                return None, None, None
 
         # Custom domain.
         domain_object = (
