@@ -259,7 +259,7 @@ class Virtualenv(PythonEnvironment):
                 ).docs_dir()
             )
             paths = [docs_dir, '']
-            req_files = ['pip_requirements.txt', 'requirements.txt']
+            req_files = ['pip_requirements.txt', 'requirements.txt', 'pyproject.toml']
             for path, req_file in itertools.product(paths, req_files):
                 test_path = os.path.join(self.checkout_path, path, req_file)
                 if os.path.exists(test_path):
