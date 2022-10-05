@@ -164,7 +164,7 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
 
-if settings.DEBUG:
+if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar
 
     debug_urls += [
