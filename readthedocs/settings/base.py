@@ -48,8 +48,11 @@ class CommunityBaseSettings(Settings):
 
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
+        def _show_debug_toolbar(request):
+            return request.environ.get('SERVER_NAME', None) != 'testserver' and self.SHOW_DEBUG_TOOLBAR
+
         return {
-            'SHOW_TOOLBAR_CALLBACK': lambda request: self.SHOW_DEBUG_TOOLBAR
+            'SHOW_TOOLBAR_CALLBACK': _show_debug_toolbar,
         }
 
     @property
