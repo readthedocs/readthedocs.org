@@ -14,9 +14,9 @@ babel==2.10.3
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.24.84
+boto3==1.24.86
     # via django-storages
-botocore==1.27.84
+botocore==1.27.86
     # via
     #   boto3
     #   s3transfer
@@ -56,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.2
     # via -r requirements/pip.in
-django==3.2.15
+django==3.2.16
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -93,7 +93,7 @@ django-extensions==3.2.1
     # via -r requirements/pip.in
 django-filter==22.1
     # via -r requirements/pip.in
-django-formtools==2.4
+django-formtools==2.3
     # via -r requirements/pip.in
 django-gravatar2==1.4.4
     # via -r requirements/pip.in
@@ -202,7 +202,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via django-allauth
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/pip.in
     #   babel
@@ -267,7 +267,7 @@ sqlparse==0.4.3
     # via
     #   django
     #   django-debug-toolbar
-stripe==4.1.0
+stripe==4.2.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe

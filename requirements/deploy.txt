@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.84
+boto3==1.24.86
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.84
+botocore==1.27.86
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -98,7 +98,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.2
     # via -r requirements/pip.txt
-django==3.2.15
+django==3.2.16
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -135,7 +135,7 @@ django-extensions==3.2.1
     # via -r requirements/pip.txt
 django-filter==22.1
     # via -r requirements/pip.txt
-django-formtools==2.4
+django-formtools==2.3
     # via -r requirements/pip.txt
 django-gravatar2==1.4.4
     # via -r requirements/pip.txt
@@ -307,7 +307,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/pip.txt
     #   babel
@@ -344,7 +344,7 @@ s3transfer==0.6.0
     #   boto3
 selectolax==0.3.11
     # via -r requirements/pip.txt
-sentry-sdk==1.9.9
+sentry-sdk==1.9.10
     # via structlog-sentry
 six==1.16.0
     # via
@@ -398,7 +398,7 @@ sqlparse==0.4.3
     #   django-debug-toolbar
 stack-data==0.5.1
     # via ipython
-stripe==4.1.0
+stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
