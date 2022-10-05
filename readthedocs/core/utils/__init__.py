@@ -12,7 +12,6 @@ from django.utils.text import slugify as slugify_base
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
     BUILD_STATE_CANCELLED,
-    BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
@@ -281,9 +280,16 @@ def send_email(
         scheme='https',
         host=settings.PRODUCTION_DOMAIN,
     )
+    content = render_to_string(template, context)
+    content_html = None
+    if template_html:
+        content_html = render_to_string(template_html, context)
     send_email_task.delay(
-        recipient=recipient, subject=subject, template=template,
-        template_html=template_html, context=context, from_email=from_email,
+        recipient=recipient,
+        subject=subject,
+        content=content,
+        content_html=content_html,
+        from_email=from_email,
         **kwargs
     )
 

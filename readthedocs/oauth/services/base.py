@@ -133,6 +133,7 @@ class Service:
 
         def _updater(data):
             token.token = data['access_token']
+            token.token_secret = data.get("refresh_token", "")
             token.expires_at = timezone.make_aware(
                 datetime.fromtimestamp(data['expires_at']),
             )

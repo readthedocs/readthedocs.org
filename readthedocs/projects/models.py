@@ -10,13 +10,12 @@ from urllib.parse import urlparse
 import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import re_path, reverse
+from django.urls import include, re_path, reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
