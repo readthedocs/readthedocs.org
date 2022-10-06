@@ -8,7 +8,7 @@ from rest_framework.generics import GenericAPIView
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search import tasks
-from readthedocs.search.api import SearchPagination
+from readthedocs.search.api.pagination import SearchPagination
 from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
