@@ -1,13 +1,11 @@
 """Common utility functions."""
 
-import datetime
 import re
 import signal
 
 import structlog
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils import timezone
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
@@ -19,11 +17,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
-from readthedocs.doc_builder.exceptions import (
-    BuildCancelled,
-    BuildMaxConcurrencyError,
-    DuplicatedBuildError,
-)
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
 from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
@@ -123,7 +117,6 @@ def prepare_build(
             event=WebHookEvent.BUILD_TRIGGERED,
         )
 
-    skip_build = False
     # Reduce overhead when doing multiple push on the same version.
     if project.has_feature(Feature.CANCEL_OLD_BUILDS):
         running_builds = (
@@ -147,66 +140,9 @@ def prepare_build(
         # we cancel all of them and trigger a new one for the latest commit received.
         for running_build in running_builds:
             cancel_build(running_build)
-    else:
-        # NOTE: de-duplicate builds won't be required if we enable `CANCEL_OLD_BUILDS`,
-        # since canceling a build is more effective.
-        # However, we are keepting `DEDUPLICATE_BUILDS` code around while we test
-        # `CANCEL_OLD_BUILDS` with a few projects and we are happy with the results.
-        # After that, we can remove `DEDUPLICATE_BUILDS` code
-        # and make `CANCEL_OLD_BUILDS` the default behavior.
-        if commit:
-            skip_build = (
-                Build.objects.filter(
-                    project=project,
-                    version=version,
-                    commit=commit,
-                )
-                .exclude(
-                    state__in=BUILD_FINAL_STATES,
-                )
-                .exclude(
-                    pk=build.pk,
-                )
-                .exists()
-            )
-        else:
-            skip_build = (
-                Build.objects.filter(
-                    project=project,
-                    version=version,
-                    state=BUILD_STATE_TRIGGERED,
-                    # By filtering for builds triggered in the previous 5 minutes we
-                    # avoid false positives for builds that failed for any reason and
-                    # didn't update their state, ending up on blocked builds for that
-                    # version (all the builds are marked as DUPLICATED in that case).
-                    # Adding this date condition, we reduce the risk of hitting this
-                    # problem to 5 minutes only.
-                    date__gte=timezone.now() - datetime.timedelta(minutes=5),
-                ).count()
-                > 1
-            )
-
-        if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
-            log.debug(
-                "Skipping deduplication of builds. Feature not enabled.",
-            )
-            skip_build = False
-
-        if skip_build:
-            # TODO: we could mark the old build as duplicated, however we reset our
-            # position in the queue and go back to the end of it --penalization
-            log.warning(
-                "Marking build to be skipped by builder.",
-            )
-            build.error = DuplicatedBuildError.message
-            build.status = DuplicatedBuildError.status
-            build.exit_code = DuplicatedBuildError.exit_code
-            build.success = False
-            build.state = BUILD_STATE_CANCELLED
-            build.save()
 
     # Start the build in X minutes and mark it as limited
-    if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
             log.warning(
