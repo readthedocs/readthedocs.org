@@ -61,9 +61,11 @@ class PageSearchSerializer(serializers.Serializer):
     """
     Page serializer.
 
-    If ``projects_data`` is passed into the context, the serializer
-    will try to use that to generate the link before querying the database.
-    It's a dictionary mapping the project slug to a ProjectData object.
+    If ``projects`` is passed in the constructor, the serializer
+    will pre-generate a cache with that information,
+    this is to avoid querying the database again for each result.
+
+    :param projects: A list of tuples of project and version.
     """
 
     type = serializers.CharField(default="page", source=None, read_only=True)
@@ -75,6 +77,28 @@ class PageSearchSerializer(serializers.Serializer):
     domain = serializers.SerializerMethodField()
     highlights = PageHighlightSerializer(source="meta.highlight", default=dict)
     blocks = serializers.SerializerMethodField()
+
+    def __init__(self, *args, projects=None, **kwargs):
+        if projects:
+            context = kwargs.setdefault("context", {})
+            context["projects_data"] = {
+                project.slug: self._build_project_data(project, version.slug)
+                for project, version in projects
+            }
+        super().__init__(*args, **kwargs)
+
+    def _build_project_data(self, project, version_slug):
+        """Build a `ProjectData` object given a project and its version."""
+        url = project.get_docs_url(version_slug=version_slug)
+        project_alias = project.superprojects.values_list("alias", flat=True).first()
+        version_data = VersionData(
+            slug=version_slug,
+            docs_url=url,
+        )
+        return ProjectData(
+            alias=project_alias,
+            version=version_data,
+        )
 
     def _get_project_data(self, obj):
         """
@@ -91,20 +115,8 @@ class PageSearchSerializer(serializers.Serializer):
 
         project = Project.objects.filter(slug=obj.project).first()
         if project:
-            docs_url = project.get_docs_url(version_slug=obj.version)
-            project_alias = project.superprojects.values_list(
-                "alias", flat=True
-            ).first()
-
             projects_data = self.context.setdefault("projects_data", {})
-            version_data = VersionData(
-                slug=obj.version,
-                docs_url=docs_url,
-            )
-            projects_data[obj.project] = ProjectData(
-                alias=project_alias,
-                version=version_data,
-            )
+            projects_data[obj.project] = self._build_project_data(project, obj.version)
             return projects_data[obj.project]
         return None
 
