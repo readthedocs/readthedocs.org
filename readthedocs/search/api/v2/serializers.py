@@ -115,20 +115,8 @@ class PageSearchSerializer(serializers.Serializer):
 
         project = Project.objects.filter(slug=obj.project).first()
         if project:
-            docs_url = project.get_docs_url(version_slug=obj.version)
-            project_alias = project.superprojects.values_list(
-                "alias", flat=True
-            ).first()
-
             projects_data = self.context.setdefault("projects_data", {})
-            version_data = VersionData(
-                slug=obj.version,
-                docs_url=docs_url,
-            )
-            projects_data[obj.project] = ProjectData(
-                alias=project_alias,
-                version=version_data,
-            )
+            projects_data[obj.project] = self._build_project_data(project, obj.version)
             return projects_data[obj.project]
         return None
 
