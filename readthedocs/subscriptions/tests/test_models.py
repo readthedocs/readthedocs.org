@@ -1,8 +1,8 @@
 import django_dynamic_fixture as fixture
 from django.test import TestCase, override_settings
 from django.utils import timezone
-from django_dynamic_fixture.ddf import BadDataError
 from django_dynamic_fixture import get
+from django_dynamic_fixture.ddf import BadDataError
 from djstripe import models as djstripe
 from djstripe.enums import SubscriptionStatus
 
@@ -61,12 +61,17 @@ class SubscriptionTests(TestCase):
             trial_end=end_date,
         )
         price = get(djstripe.Price, id="advanced")
-        get(djstripe.SubscriptionItem, id="si_KOcEsHCktPUedU", price=price, subscription=stripe_subscription)
+        get(
+            djstripe.SubscriptionItem,
+            id="si_KOcEsHCktPUedU",
+            price=price,
+            subscription=stripe_subscription,
+        )
 
         subscription = fixture.get(
             Subscription,
-            stripe_id='sub_foo',
-            status='trialing',
+            stripe_id=stripe_subscription.id,
+            status=SubscriptionStatus.trialing,
         )
         Subscription.objects.update_from_stripe(
             rtd_subscription=subscription,
@@ -110,12 +115,17 @@ class SubscriptionTests(TestCase):
             trial_end=end_date,
         )
         price = get(djstripe.Price, id="advanced")
-        get(djstripe.SubscriptionItem, id="si_KOcEsHCktPUedU", price=price, subscription=stripe_subscription)
+        get(
+            djstripe.SubscriptionItem,
+            id="si_KOcEsHCktPUedU",
+            price=price,
+            subscription=stripe_subscription,
+        )
 
         subscription = fixture.get(
             Subscription,
             stripe_id='sub_foo',
-            status='trialing',
+            status=SubscriptionStatus.trialing,
         )
         Subscription.objects.update_from_stripe(
             rtd_subscription=subscription,
