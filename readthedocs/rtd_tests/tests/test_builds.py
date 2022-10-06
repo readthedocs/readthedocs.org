@@ -1,5 +1,4 @@
 import datetime
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -14,9 +13,7 @@ from readthedocs.builds.constants import (
     GITLAB_EXTERNAL_VERSION_NAME,
 )
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import trigger_build
-from readthedocs.doc_builder.exceptions import DuplicatedBuildError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 
 class BuildModelTests(TestCase):
@@ -482,112 +479,3 @@ class BuildModelTests(TestCase):
 
         self.assertFalse(old_external_build.can_rebuild)
         self.assertTrue(latest_external_build.can_rebuild)
-
-
-@mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
-class DeDuplicateBuildTests(TestCase):
-
-    def setUp(self):
-        self.project = get(Project)
-        self.version = get(
-            Version,
-            project=self.project,
-            type=BRANCH,
-        )
-
-        get(
-            Feature,
-            feature_id=Feature.DEDUPLICATE_BUILDS,
-            projects=[self.project],
-        )
-
-    def test_trigger_duplicated_build_by_commit(self, update_docs_task):
-        """
-        Trigger a build for the same commit twice.
-
-        The second build should be marked as NOOP.
-        """
-        self.assertEqual(Build.objects.count(), 0)
-        trigger_build(self.project, self.version, commit='a1b2c3')
-        self.assertEqual(Build.objects.count(), 1)
-        build = Build.objects.first()
-        self.assertEqual(build.state, 'triggered')
-
-        trigger_build(self.project, self.version, commit='a1b2c3')
-        self.assertEqual(Build.objects.count(), 2)
-        build = Build.objects.first()
-        self.assertEqual(build.error, DuplicatedBuildError.message)
-        self.assertEqual(build.success, False)
-        self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
-        self.assertEqual(build.status, DuplicatedBuildError.status)
-        self.assertEqual(build.state, "cancelled")
-
-    def test_trigger_duplicated_finshed_build_by_commit(self, update_docs_task):
-        """
-        Trigger a build for the same commit twice.
-
-        The second build should not be marked as NOOP if the previous
-        duplicated builds are in 'finished' state.
-        """
-        self.assertEqual(Build.objects.count(), 0)
-        trigger_build(self.project, self.version, commit='a1b2c3')
-        self.assertEqual(Build.objects.count(), 1)
-
-        # Mark the build as finished
-        build = Build.objects.first()
-        build.state = 'finished'
-        build.save()
-        build.refresh_from_db()
-
-        trigger_build(self.project, self.version, commit='a1b2c3')
-        self.assertEqual(Build.objects.count(), 2)
-        build = Build.objects.first()
-        self.assertEqual(build.state, 'triggered')
-        self.assertIsNone(build.status)
-
-    def test_trigger_duplicated_build_by_version(self, update_docs_task):
-        """
-        Trigger a build for the same version.
-
-        The second build should be marked as NOOP if there is already a build
-        for the same project and version on 'triggered' state.
-        """
-        self.assertEqual(Build.objects.count(), 0)
-        trigger_build(self.project, self.version, commit=None)
-        self.assertEqual(Build.objects.count(), 1)
-        build = Build.objects.first()
-        self.assertEqual(build.state, 'triggered')
-
-        trigger_build(self.project, self.version, commit=None)
-        self.assertEqual(Build.objects.count(), 2)
-        build = Build.objects.first()
-        self.assertEqual(build.error, DuplicatedBuildError.message)
-        self.assertEqual(build.success, False)
-        self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
-        self.assertEqual(build.status, DuplicatedBuildError.status)
-        self.assertEqual(build.state, "cancelled")
-
-    def test_trigger_duplicated_non_triggered_build_by_version(self, update_docs_task):
-        """
-        Trigger a build for the same version.
-
-        The second build should not be marked as NOOP because the previous build
-        for the same project and version is on 'building' state (any non 'triggered')
-        """
-        self.assertEqual(Build.objects.count(), 0)
-        trigger_build(self.project, self.version, commit=None)
-        self.assertEqual(Build.objects.count(), 1)
-        build = Build.objects.first()
-        self.assertEqual(build.state, 'triggered')
-
-        # Mark the build as building
-        build = Build.objects.first()
-        build.state = 'building'
-        build.save()
-        build.refresh_from_db()
-
-        trigger_build(self.project, self.version, commit=None)
-        self.assertEqual(Build.objects.count(), 2)
-        build = Build.objects.first()
-        self.assertEqual(build.state, 'triggered')
-        self.assertIsNone(build.status)

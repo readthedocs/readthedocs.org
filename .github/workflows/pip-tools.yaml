@@ -11,6 +11,9 @@ on:
     # Run weekly on day 0 at 00:00 UTC
     - cron: "0 0 * * 0"
 
+permissions:
+  contents: read
+
 jobs:
   update-dependencies:
     permissions:

@@ -1,20 +1,18 @@
 """Search views."""
 import collections
 from urllib.parse import urlencode
-
-import structlog
-from django.conf import settings
-from django.http.response import HttpResponseRedirect
-from django.urls import reverse
-from django.views import View
-from django.views.generic import TemplateView
-
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v2.serializers import ProjectSearchSerializer
 from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch
+import structlog
+from django.conf import settings
+from django.http.response import HttpResponseRedirect
+from django.urls import reverse
+from django.views import View
+from django.views.generic import TemplateView
 
 log = structlog.get_logger(__name__)
 

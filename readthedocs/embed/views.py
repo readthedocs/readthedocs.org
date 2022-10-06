@@ -81,7 +81,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if url:
             unresolved = self.unresolved_url
             path = unresolved.filename
-            section = unresolved.fragment
+            section = unresolved.parsed_url.fragment
         elif not path and not doc:
             return Response(
                 {
@@ -126,8 +126,8 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             section=section,
             path=path,
             url=url,
-            referer=request.META.get('HTTP_REFERER'),
-            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+            referer=request.headers.get("Referer"),
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
 

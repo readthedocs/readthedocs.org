@@ -14,6 +14,6 @@ and :doc:`/intro/getting-started-with-mkdocs`.
    :maxdepth: 1
 
    cross-referencing-with-sphinx
-   intersphinx
+   Link to external projects (Intersphinx) <intersphinx>
    jupyter
-   migrate-rest-myst
+   Migrate from rST to MyST <migrate-rest-myst>

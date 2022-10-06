@@ -6,11 +6,10 @@ and server errors.
 """
 
 import structlog
-
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views.generic import View, TemplateView
+from django.views.generic import TemplateView, View
 
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
@@ -57,7 +56,7 @@ def server_error_500(request, template_name='500.html'):
 
 
 def do_not_track(request):
-    dnt_header = request.META.get('HTTP_DNT')
+    dnt_header = request.headers.get("Dnt")
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response
