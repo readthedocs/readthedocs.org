@@ -117,7 +117,6 @@ def prepare_build(
             event=WebHookEvent.BUILD_TRIGGERED,
         )
 
-    skip_build = False
     # Reduce overhead when doing multiple push on the same version.
     if project.has_feature(Feature.CANCEL_OLD_BUILDS):
         running_builds = (
@@ -143,7 +142,7 @@ def prepare_build(
             cancel_build(running_build)
 
     # Start the build in X minutes and mark it as limited
-    if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
         limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
         if limit_reached:
             log.warning(
