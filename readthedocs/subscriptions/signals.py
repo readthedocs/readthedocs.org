@@ -44,6 +44,7 @@ def update_stripe_customer(sender, instance, created, **kwargs):
 
     stripe_customer = organization.stripe_customer
     if not stripe_customer:
+        log.warning("Organization doesn't have a stripe customer attached.")
         return
 
     fields_to_update = {}
@@ -66,11 +67,9 @@ def update_stripe_customer(sender, instance, created, **kwargs):
                 **fields_to_update,
             )
         except stripe.error.StripeError:
-            log.exception("Unable to update the Organization billing email on Stripe.")
+            log.exception("Unable to update stripe customer.")
         except Exception:
-            log.exception(
-                "Unknown error when updating Organization billing email on Stripe."
-            )
+            log.exception("Unknown error when updating stripe customer.")
 
 
 # pylint: disable=unused-argument

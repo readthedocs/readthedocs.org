@@ -35,7 +35,7 @@ class SubscriptionManager(models.Manager):
         from readthedocs.subscriptions.models import Plan
 
         plan = Plan.objects.filter(
-            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
         ).first()
         # This should happen only on development.
         if not plan:

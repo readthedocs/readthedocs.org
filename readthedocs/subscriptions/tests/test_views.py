@@ -25,7 +25,7 @@ class SubscriptionViewTests(TestCase):
         self.plan = get(
             Plan,
             published=True,
-            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE,
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
         )
         self.stripe_subscription = self._create_stripe_subscription(
             customer_id=self.organization.stripe_id,

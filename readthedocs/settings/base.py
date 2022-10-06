@@ -718,7 +718,7 @@ class CommunityBaseSettings(Settings):
 
     # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
-    RTD_ORG_DEFAULT_STRIPE_PRICE = 'trial-v2-monthly'
+    RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE = 'trial-v2-monthly'
     RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.

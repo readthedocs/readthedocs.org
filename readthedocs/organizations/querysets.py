@@ -104,7 +104,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
         date_next_week = date_now + timedelta(days=7)
 
         return self.filter(
-            subscription__plan__stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE,
+            subscription__plan__stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
             subscription__status='trialing',
             subscription__trial_end_date__lt=date_next_week,
             subscription__trial_end_date__gt=date_now,
@@ -123,9 +123,12 @@ class BaseOrganizationQuerySet(models.QuerySet):
         """
         date_now = timezone.now()
         return self.filter(
-            ~Q(subscription__status='trialing'),
-            Q(subscription__plan__stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE),
-            Q(subscription__end_date__lt=date_now) | Q(subscription__trial_end_date__lt=date_now),
+            ~Q(subscription__status="trialing"),
+            Q(
+                subscription__plan__stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+            ),
+            Q(subscription__end_date__lt=date_now)
+            | Q(subscription__trial_end_date__lt=date_now),
         )
 
     def subscription_trial_ended(self):

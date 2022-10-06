@@ -82,7 +82,7 @@ def get_or_create_stripe_subscription(organization):
         # TODO: djstripe 2.6.x doesn't return the subscription object
         # on subscribe(), but 2.7.x (unreleased) does!
         stripe_customer.subscribe(
-            items=[{"price": settings.RTD_ORG_DEFAULT_STRIPE_PRICE}],
+            items=[{"price": settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE}],
             trial_period_days=settings.RTD_ORG_TRIAL_PERIOD_DAYS,
         )
         stripe_subscription = stripe_customer.subscriptions.latest()
