@@ -22,7 +22,7 @@ from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -186,10 +186,8 @@ class ProjectBadgeView(View):
 
         if version:
             last_build = (
-                version.builds
-                .filter(type='html', state='finished')
-                .exclude(status=BUILD_STATUS_DUPLICATED)
-                .order_by('-date')
+                version.builds.filter(type="html", state=BUILD_STATE_FINISHED)
+                .order_by("-date")
                 .first()
             )
             if last_build:
