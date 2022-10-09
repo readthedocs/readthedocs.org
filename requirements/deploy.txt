@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.86
+boto3==1.24.89
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.86
+botocore==1.27.89
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -187,7 +187,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-executing==1.1.0
+executing==1.1.1
     # via stack-data
 filelock==3.8.0
     # via
@@ -197,7 +197,7 @@ gitdb==4.0.9
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.27
+gitpython==3.1.28
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/deploy.in
@@ -273,7 +273,7 @@ prompt-toolkit==3.0.31
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg2==2.9.3
+psycopg2==2.9.4
     # via -r requirements/deploy.in
 ptyprocess==0.7.0
     # via pexpect
@@ -336,7 +336,7 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-requests-toolbelt==0.9.1
+requests-toolbelt==0.10.0
     # via -r requirements/pip.txt
 s3transfer==0.6.0
     # via
