@@ -19,7 +19,7 @@ log = structlog.get_logger(__name__)
 
 def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
     """Update the RTD subscription object given the new stripe subscription object."""
-    log.bind(stripe_subscription=stripe_subscription_id)
+    log.bind(stripe_subscription_id=stripe_subscription_id)
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
     ).first()
@@ -34,8 +34,8 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
     )
     log.info(
         "Subscription updated.",
-        previous_stripe_subscription=previous_subscription_id,
-        subscription_status=stripe_subscription.status,
+        previous_stripe_subscription_id=previous_subscription_id,
+        stripe_subscription_status=stripe_subscription.status,
     )
 
     # Cancel the trial subscription if its trial has ended.
@@ -66,12 +66,12 @@ def update_subscription(event):
     if not rtd_subscription:
         log.info(
             "Stripe subscription isn't attached to a RTD object.",
-            stripe_subscription=stripe_subscription_id,
+            stripe_subscription_id=stripe_subscription_id,
         )
         return
 
     _update_subscription_from_stripe(
-        rtd_subscription=rtd_subscription,
+        rtd_subscription_id=rtd_subscription,
         stripe_subscription_id=stripe_subscription_id,
     )
 
@@ -104,7 +104,7 @@ def checkout_completed(event):
 def customer_updated_event(event):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
-    log.bind(customer=stripe_customer["id"])
+    log.bind(customer_id=stripe_customer["id"])
     organization = Organization.objects.filter(stripe_id=stripe_customer["id"]).first()
     if not organization:
         log.info("Customer isn't attached to an organization.")
