@@ -43,7 +43,7 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
         stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
     )
     is_trial_subscription = stripe_subscription.items.filter(
-        price__id=settings.RTD_ORG_DEFAULT_STRIPE_PRICE
+        price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
     ).exists()
     if (
         is_trial_subscription

@@ -15,7 +15,7 @@ from readthedocs.subscriptions.models import Plan, Subscription
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
     STRIPE_WEBHOOK_SECRET="1234",
-    RTD_ORG_DEFAULT_STRIPE_PRICE="trialing",
+    RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
 class TestEventHandlers(TestCase):
 
