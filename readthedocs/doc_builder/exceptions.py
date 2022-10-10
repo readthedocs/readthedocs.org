@@ -42,6 +42,13 @@ class BuildUserError(BuildBaseException):
     )
 
 
+class BuildUserSkip(BuildUserError):
+    message = gettext_noop(
+        "This build was cancelled due the magic exit code was returned by a commmand."
+    )
+    state = BUILD_STATE_CANCELLED
+
+
 class ProjectBuildsSkippedError(BuildUserError):
     message = gettext_noop('Builds for this project are temporarily disabled')
 

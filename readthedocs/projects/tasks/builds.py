@@ -44,6 +44,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildCancelled,
     BuildMaxConcurrencyError,
     BuildUserError,
+    BuildUserSkip,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     YAMLParseError,
@@ -280,6 +281,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         YAMLParseError,
         BuildCancelled,
         BuildUserError,
+        BuildUserSkip,
         RepositoryError,
         MkDocsYAMLParseError,
         ProjectConfigurationError,
@@ -289,6 +291,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     exceptions_without_notifications = (
         BuildCancelled,
         BuildMaxConcurrencyError,
+        BuildUserSkip,
         ProjectBuildsSkippedError,
     )
 
