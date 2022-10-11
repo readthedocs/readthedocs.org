@@ -71,7 +71,7 @@ def update_subscription(event):
         return
 
     _update_subscription_from_stripe(
-        rtd_subscription_id=rtd_subscription,
+        rtd_subscription=rtd_subscription,
         stripe_subscription_id=stripe_subscription_id,
     )
 
