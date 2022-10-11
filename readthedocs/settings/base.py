@@ -45,6 +45,7 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
+    RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
 
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
@@ -58,14 +59,14 @@ class CommunityBaseSettings(Settings):
     @property
     def SHOW_DEBUG_TOOLBAR(self):
         """
-        Show django-debug-toolbar on DEBUG or if the Django Admin is allowed.
+        Show django-debug-toolbar on DEBUG or if it's forced by RTD_FORCE_SHOW_DEBUG_TOOLBAR.
 
         This will show the debug toolbar on:
 
           - Docker local instance
           - web-extra production instance
         """
-        return self.DEBUG or self.ALLOW_ADMIN
+        return self.DEBUG or self.RTD_FORCE_SHOW_DEBUG_TOOLBAR
 
     # Domains and URLs
     RTD_IS_PRODUCTION = False
