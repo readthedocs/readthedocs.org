@@ -40,7 +40,6 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_DUPLICATED,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
@@ -105,7 +104,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_CLONING,
-            status=BUILD_STATUS_DUPLICATED,
             success=False,
             output='Output',
             error='Error',
