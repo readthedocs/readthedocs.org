@@ -45,6 +45,28 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
+    RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
+
+    @property
+    def DEBUG_TOOLBAR_CONFIG(self):
+        def _show_debug_toolbar(request):
+            return request.environ.get('SERVER_NAME', None) != 'testserver' and self.SHOW_DEBUG_TOOLBAR
+
+        return {
+            'SHOW_TOOLBAR_CALLBACK': _show_debug_toolbar,
+        }
+
+    @property
+    def SHOW_DEBUG_TOOLBAR(self):
+        """
+        Show django-debug-toolbar on DEBUG or if it's forced by RTD_FORCE_SHOW_DEBUG_TOOLBAR.
+
+        This will show the debug toolbar on:
+
+          - Docker local instance
+          - web-extra production instance
+        """
+        return self.DEBUG or self.RTD_FORCE_SHOW_DEBUG_TOOLBAR
 
     # Domains and URLs
     RTD_IS_PRODUCTION = False
@@ -228,6 +250,9 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
+        if self.SHOW_DEBUG_TOOLBAR:
+            apps.append('debug_toolbar')
+
         return apps
 
     @property
@@ -246,24 +271,31 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE = (
-        'readthedocs.core.middleware.NullCharactersMiddleware',
-        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
-        'django.middleware.locale.LocaleMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.security.SecurityMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'dj_pagination.middleware.PaginationMiddleware',
-        'corsheaders.middleware.CorsMiddleware',
-        'csp.middleware.CSPMiddleware',
-        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'simple_history.middleware.HistoryRequestMiddleware',
-        'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
-        'django_structlog.middlewares.CeleryMiddleware',
-    )
+    @property
+    def MIDDLEWARE(self):
+        middlewares = [
+            'readthedocs.core.middleware.NullCharactersMiddleware',
+            'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
+            'django.middleware.locale.LocaleMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'dj_pagination.middleware.PaginationMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
+            'csp.middleware.CSPMiddleware',
+            'readthedocs.core.middleware.ReferrerPolicyMiddleware',
+            'simple_history.middleware.HistoryRequestMiddleware',
+            'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
+            'django_structlog.middlewares.CeleryMiddleware',
+        ]
+        if self.SHOW_DEBUG_TOOLBAR:
+            middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
+
+
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
