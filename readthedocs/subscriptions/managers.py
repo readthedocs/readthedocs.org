@@ -6,10 +6,9 @@ import structlog
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import set_change_reason
-from readthedocs.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
 
 log = structlog.get_logger(__name__)
 
@@ -34,7 +33,10 @@ class SubscriptionManager(models.Manager):
             return organization.subscription
 
         from readthedocs.subscriptions.models import Plan
-        plan = Plan.objects.filter(slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG).first()
+
+        plan = Plan.objects.filter(
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+        ).first()
         # This should happen only on development.
         if not plan:
             log.warning(
@@ -43,25 +45,7 @@ class SubscriptionManager(models.Manager):
             )
             return None
 
-        stripe_customer = get_or_create_stripe_customer(organization)
-        stripe_subscriptions = stripe_customer.subscriptions.exclude(
-            status=SubscriptionStatus.canceled
-        )
-        if stripe_subscriptions.count() > 1:
-            log.warning(
-                "Customer with more than one active subscription.",
-                stripe_customer=stripe_customer.id,
-            )
-
-        stripe_subscription = stripe_subscriptions.last()
-        if not stripe_subscription:
-            # TODO: djstripe 2.6.x doesn't return the subscription object
-            # on subscribe(), but 2.7.x (unreleased) does!
-            stripe_customer.subscribe(
-                items=[{"price": plan.stripe_id}],
-                trial_period_days=plan.trial,
-            )
-            stripe_subscription = stripe_customer.subscriptions.latest()
+        stripe_subscription = get_or_create_stripe_subscription(organization)
 
         return self.create(
             plan=plan,

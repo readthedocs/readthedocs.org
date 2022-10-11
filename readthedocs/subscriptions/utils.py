@@ -1,7 +1,7 @@
 """Utilities to interact with subscriptions and stripe."""
-
 import stripe
 import structlog
+from django.conf import settings
 from djstripe import models as djstripe
 from stripe.error import InvalidRequestError
 
@@ -68,3 +68,22 @@ def get_or_create_stripe_customer(organization):
             log.info("No stripe customer found, creating one.")
             return create_stripe_customer(organization)
     return stripe_customer
+
+
+def get_or_create_stripe_subscription(organization):
+    """
+    Get the stripe subscription attached to the organization or create one.
+
+    The subscription will be created with the default price and a trial period.
+    """
+    stripe_customer = get_or_create_stripe_customer(organization)
+    stripe_subscription = stripe_customer.subscriptions.order_by("created").last()
+    if not stripe_subscription:
+        # TODO: djstripe 2.6.x doesn't return the subscription object
+        # on subscribe(), but 2.7.x (unreleased) does!
+        stripe_customer.subscribe(
+            items=[{"price": settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE}],
+            trial_period_days=settings.RTD_ORG_TRIAL_PERIOD_DAYS,
+        )
+        stripe_subscription = stripe_customer.subscriptions.latest()
+    return stripe_subscription

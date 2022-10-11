@@ -1,3 +1,22 @@
+Version 8.7.0
+-------------
+
+:Date: October 11, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9648 <https://github.com/readthedocs/readthedocs.org/pull/9648>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: enable `django-debug-toolbar` when Django Admin is enabled (`#9641 <https://github.com/readthedocs/readthedocs.org/pull/9641>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe price instead of relying on plan object (`#9640 <https://github.com/readthedocs/readthedocs.org/pull/9640>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9636 <https://github.com/readthedocs/readthedocs.org/pull/9636>`__)
+* `@humitos <https://github.com/humitos>`__: Query: minor improvement (`#9634 <https://github.com/readthedocs/readthedocs.org/pull/9634>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.6.0 (`#9630 <https://github.com/readthedocs/readthedocs.org/pull/9630>`__)
+* `@humitos <https://github.com/humitos>`__: Run django-upgrade (`#9628 <https://github.com/readthedocs/readthedocs.org/pull/9628>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor serializer's context (`#9624 <https://github.com/readthedocs/readthedocs.org/pull/9624>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Re-scope Intersphinx article as a how-to (`#9622 <https://github.com/readthedocs/readthedocs.org/pull/9622>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: move api.py into a module (`#9616 <https://github.com/readthedocs/readthedocs.org/pull/9616>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `DEDUPLICATE_BUILDS` feature (`#9591 <https://github.com/readthedocs/readthedocs.org/pull/9591>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: render template before sending it to the task (`#9538 <https://github.com/readthedocs/readthedocs.org/pull/9538>`__)
+
 Version 8.6.0
 -------------
 

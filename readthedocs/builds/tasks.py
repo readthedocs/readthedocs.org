@@ -542,8 +542,6 @@ class BuildNotificationSender:
 
     def send_email(self, email):
         """Send email notifications for build failures."""
-        # We send only what we need from the Django model objects here to avoid
-        # serialization problems in the ``readthedocs.core.tasks.send_email_task``
         protocol = 'http' if settings.DEBUG else 'https'
         context = {
             'version': {
