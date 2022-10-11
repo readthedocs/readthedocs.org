@@ -15,7 +15,11 @@
 {# Hide the language select form so we don't set a CSRF cookie #}
 {% block language-select-form %}{% endblock %}
 
+<p>{% blocktrans context "404 page" %}This is a 404 page. The link you have followed or the URL that you entered did not work. It might be that the documentation has been updated.{% endblocktrans %}</p>
+
 {% block content %}
+<a href="/">{% blocktrans context "404 page" %}Back to the main page{% endblocktrans %}</a>
+
 <pre style="line-height: 1.25; white-space: pre;">
 
         \          SORRY            /
