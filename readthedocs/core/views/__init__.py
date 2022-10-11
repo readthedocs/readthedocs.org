@@ -48,6 +48,24 @@ class SupportView(PrivateViewMixin, TemplateView):
         return context
 
 
+def server_error_404(request, template_name="404.html"):
+    """A simple 404 handler."""
+    project_slug = getattr(request, "host_project_slug", None)
+    log.debug(
+        "404 page detected a project slug in request.",
+        project_slug=project_slug,
+    )
+    project = None
+    if project_slug:
+        try:
+            project = Project.objects.get(slug=project_slug)
+        except Project.DoesNotExist:
+            pass
+    r = render(request, template_name, context={"project": project})
+    r.status_code = 404
+    return r
+
+
 def server_error_500(request, template_name='500.html'):
     """A simple 500 handler so we get media."""
     r = render(request, template_name)

@@ -13,12 +13,14 @@ from readthedocs.core.views import (
     HomepageView,
     SupportView,
     do_not_track,
+    server_error_404,
     server_error_500,
 )
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
 
+handler404 = server_error_404
 handler500 = server_error_500
 
 basic_urls = [
