@@ -25,6 +25,7 @@ handler500 = server_error_500
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
+    path("404/", server_error_404),
     re_path(r"^security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r'^\.well-known/security.txt$',
