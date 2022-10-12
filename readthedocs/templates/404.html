@@ -16,7 +16,7 @@
 {% block language-select-form %}{% endblock %}
 
 {% block content %}
-<p>{% blocktrans context "404 page" %}This is a 404 error page. The link you have followed or the URL that you entered did not work. It might be that the documentation has been updated.{% endblocktrans %}</p>
+<p>{% blocktrans context "404 page" %}This is a 404 error page. The link you have followed or the URL that you entered does not exist. It might be that the documentation has been updated, or this page has been removed.{% endblocktrans %}</p>
 
 <a href="/">{% blocktrans with site_name=request.get_host|default:_("this site") context "404 page" %}Back to the front page of {{ site_name }}{% endblocktrans %}</a>
 
