@@ -25,7 +25,6 @@ handler500 = server_error_500
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
-    path("404/", server_error_404),
     re_path(r"^security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r'^\.well-known/security.txt$',
@@ -131,6 +130,7 @@ for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
     )
 debug_urls += [
+    path("404/", server_error_404),
     path(
         "style-catalog/",
         TemplateView.as_view(template_name="style_catalog.html"),
