@@ -350,7 +350,7 @@ class TestPageSearch:
             search_params=search_params,
         )
         assert len(results) == 1
-        assert results[0]["project"] == {"alias": "subproject", "slug": "pipeline"}
+        assert results[0]["project"] == {"alias": "subproject", "slug": subproject.slug}
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_only_projects_owned_by_the_user(self, client, all_projects):
