@@ -11,13 +11,11 @@ from readthedocs.subscriptions import event_handlers
 from readthedocs.subscriptions.models import Plan, Subscription
 
 
-# Avoid signature verification.
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
-    STRIPE_WEBHOOK_SECRET="1234",
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
-class TestEventHandlers(TestCase):
+class TestStripeEventHandlers(TestCase):
 
     """Tests for Stripe API endpoint."""
 

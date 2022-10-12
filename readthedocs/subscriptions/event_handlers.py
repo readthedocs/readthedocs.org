@@ -17,6 +17,22 @@ from readthedocs.subscriptions.models import Subscription
 log = structlog.get_logger(__name__)
 
 
+def handler(*args, **kwargs):
+    """
+    Register handlers only if organizations are enabled.
+
+    Wrapper around the djstripe's webhooks.handler decorator,
+    to register the handler only if organizations are enabled.
+    """
+
+    def decorator(func):
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            return webhooks.handler(*args, **kwargs)(func)
+        return func
+
+    return decorator
+
+
 def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
     """Update the RTD subscription object given the new stripe subscription object."""
     log.bind(stripe_subscription_id=stripe_subscription_id)
@@ -56,9 +72,9 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
         cancel_stripe_subscription(stripe_subscription.id)
 
 
-@webhooks.handler("customer.subscription.updated", "customer.subscription.deleted")
+@handler("customer.subscription.updated", "customer.subscription.deleted")
 def update_subscription(event):
-    """Update the RTD subscription object given the new stripe subscription."""
+    """Update the RTD subscription object with the updates from the Stripe subscription."""
     stripe_subscription_id = event.data["object"]["id"]
     rtd_subscription = Subscription.objects.filter(
         stripe_id=stripe_subscription_id
@@ -76,10 +92,10 @@ def update_subscription(event):
     )
 
 
-@webhooks.handler("checkout.session.completed")
+@handler("checkout.session.completed")
 def checkout_completed(event):
     """
-    Handle the creation of a new subscription via stripe checkout.
+    Handle the creation of a new subscription via Stripe Checkout.
 
     Stripe checkout will create a new subscription,
     so we need to replace the older one with the new one.
@@ -87,9 +103,9 @@ def checkout_completed(event):
     customer_id = event.data["object"]["customer"]
     organization = Organization.objects.filter(stripe_customer__id=customer_id).first()
     if not organization:
-        log.info(
+        log.error(
             "Customer isn't attached to an organization.",
-            customer_id=customer_id,
+            stripe_customer_id=customer_id,
         )
         return
 
@@ -100,14 +116,14 @@ def checkout_completed(event):
     )
 
 
-@webhooks.handler("customer.updated")
+@handler("customer.updated")
 def customer_updated_event(event):
     """Update the organization with the new information from the stripe customer."""
     stripe_customer = event.data["object"]
-    log.bind(customer_id=stripe_customer["id"])
+    log.bind(stripe_customer_id=stripe_customer["id"])
     organization = Organization.objects.filter(stripe_id=stripe_customer["id"]).first()
     if not organization:
-        log.info("Customer isn't attached to an organization.")
+        log.error("Customer isn't attached to an organization.")
 
     new_email = stripe_customer["email"]
     if organization.email != new_email:
