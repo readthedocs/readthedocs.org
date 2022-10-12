@@ -36,7 +36,7 @@ class TestProjectSearch:
         results, _ = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': project.name, "type": "project"},
+            search_params={"q": project.name, "type": "project"},
         )
 
         assert len(results) == 1
@@ -52,7 +52,7 @@ class TestProjectSearch:
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': project.name, "type": "project" },
+            search_params={"q": project.name, "type": "project"},
         )
 
         lang_facets = facets['language']
@@ -66,8 +66,8 @@ class TestProjectSearch:
     def test_search_project_filter_language(self, client, project):
         """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
-        translate = get(Project, language='bn', name=project.name)
-        search_params = { 'q': project.name, 'language': 'bn', "type": "project"}
+        translate = get(Project, language="bn", name=project.name)
+        search_params = {"q": project.name, "language": "bn", "type": "project"}
 
         results, facets = self._get_search_result(
             url=self.url,
@@ -266,9 +266,9 @@ class TestPageSearch:
         assert results[0]["version"] == {"slug": "stable"}
         assert results[1]["version"] == {"slug": "latest"}
         for result in results:
-            assert result['project'] == {"alias": None, "slug": "kuma"}
-            assert result['domain'] == 'http://readthedocs.org'
-            assert result['path'].endswith('/documentation.html')
+            assert result["project"] == {"alias": None, "slug": "kuma"}
+            assert result["domain"] == "http://readthedocs.org"
+            assert result["path"].endswith("/documentation.html")
 
         blocks = results[0]['blocks']
         assert len(blocks) == 1
@@ -286,8 +286,8 @@ class TestPageSearch:
         # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
         search_params = {
-            'q': 'project:kuma environment',
-            'type': 'file',
+            "q": "project:kuma environment",
+            "type": "file",
         }
         results, facets = self._get_search_result(
             url=self.url,
@@ -300,10 +300,10 @@ class TestPageSearch:
         # There should be 1 search result as we have filtered
         assert len(results) == 1
         # kuma should should be there only
-        assert {"alias": None, "slug": "kuma"} == results[0]['project']
+        assert {"alias": None, "slug": "kuma"} == results[0]["project"]
 
         # The projects we search is the only one included in the final results.
-        assert resulted_project_facets == ['kuma']
+        assert resulted_project_facets == ["kuma"]
 
     @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
@@ -341,8 +341,8 @@ class TestPageSearch:
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
         search_params = {
-            'q': f"subprojects:{project.slug} {query}",
-            'type': 'file',
+            "q": f"subprojects:{project.slug} {query}",
+            "type": "file",
         }
         results, _ = self._get_search_result(
             url=self.url,
@@ -367,7 +367,7 @@ class TestPageSearch:
         assert len(results) > 0
 
         for result in results:
-            assert result['project'] == {"alias": None, "slug": 'docs'}
+            assert result["project"] == {"alias": None, "slug": "docs"}
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_no_owned_projects(self, client, all_projects):
