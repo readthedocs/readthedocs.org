@@ -81,7 +81,8 @@ class Backend:
         if not self._has_arguments:
             if self.arguments_required:
                 return None
-            return self._get_default_projects()
+            yield from self._get_default_projects()
+            return None
 
         for value in self.parser.arguments["project"]:
             project, version = self._get_project_and_version(value)
