@@ -121,8 +121,7 @@ class BuildDataCollector:
             with open(filepath, "r") as json_file:
                 content = json_file.read()
             data.update(self._safe_json_loads(content, {}))
-            return data
-        return []
+        return data
 
     def _get_all_conda_packages(self):
         """
