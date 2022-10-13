@@ -90,12 +90,7 @@ class BuildDataCollector:
                 "all": all_apt_packages,
             },
         }
-        data["doctool"] = {
-            "name": self._get_doctool_name(),
-            "extensions": self._get_doctool_extensions(),
-            "theme": self._get_doctool_theme(),
-        }
-        return data
+        data["doctool"] = self._get_doctool()
 
     def _get_doctool_name(self):
         if self.version.is_sphinx_type():
@@ -106,39 +101,27 @@ class BuildDataCollector:
 
         return "generic"
 
-    def _get_doctool_extensions(self):
-        if self._get_doctool_name() != "sphinx":
-            return []
+    def _get_doctool(self):
+        data = {
+            "name": self._get_doctool_name(),
+            "extensions": [],
+            "html_theme": "",
+        }
 
-        code, stdout, _ = self.run(
-            "python",
-            "-c",
-            "import conf; import json; print(json.dumps(conf.extensions))",
-            cwd=os.path.join(
-                self.checkout_path,
-                os.path.dirname(self.config.sphinx.configuration),
-            ),
+        if self._get_doctool_name() != "sphinx":
+            return data
+
+        conf_py_dir = os.path.join(
+            self.checkout_path,
+            os.path.dirname(self.config.sphinx.configuration),
         )
-        if code == 0 and stdout:
-            return self._safe_json_loads(stdout, [])
+        filepath = os.path.join(conf_py_dir, "_build", "json", "telemetry.json")
+        if os.path.exists(filepath):
+            with open(filepath, "r") as json_file:
+                content = json_file.read()
+            data.update(self._safe_json_loads(content, {}))
+            return data
         return []
-
-    def _get_doctool_theme(self):
-        if self._get_doctool_name() != "sphinx":
-            return []
-
-        code, stdout, _ = self.run(
-            "python",
-            "-c",
-            "import conf; import json; print(json.dumps(conf.html_theme))",
-            cwd=os.path.join(
-                self.checkout_path,
-                os.path.dirname(self.config.sphinx.configuration),
-            ),
-        )
-        if code == 0 and stdout:
-            return self._safe_json_loads(stdout, "")
-        return ""
 
     def _get_all_conda_packages(self):
         """
