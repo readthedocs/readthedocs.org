@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django_dynamic_fixture import get
 from djstripe import models as djstripe
+from djstripe import webhooks
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
@@ -279,3 +280,16 @@ class TestStripeEventHandlers(TestCase):
         event_handlers.customer_updated_event(event=event)
         self.organization.refresh_from_db()
         self.assertEqual(self.organization.email, customer.email)
+
+    def test_register_events(self):
+        def test_func():
+            pass
+
+        with override_settings(RTD_ALLOW_ORGANIZATIONS=False):
+            event_handlers.handler("event")(test_func)
+
+        self.assertEqual(webhooks.registrations["event"], [])
+
+        with override_settings(RTD_ALLOW_ORGANIZATIONS=True):
+            event_handlers.handler("event")(test_func)
+        self.assertEqual(webhooks.registrations["event"], [test_func])
