@@ -93,10 +93,10 @@ class BuildDataCollector:
         data["doctool"] = self._get_doctool()
 
     def _get_doctool_name(self):
-        if self.version.is_sphinx_type():
+        if self.version.is_sphinx_type:
             return "sphinx"
 
-        if self.version.is_mkdocs_type():
+        if self.version.is_mkdocs_type:
             return "mkdocs"
 
         return "generic"
