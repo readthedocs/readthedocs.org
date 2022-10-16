@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.89
+boto3==1.24.91
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.89
+botocore==1.27.91
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -96,7 +96,7 @@ distlib==0.3.6
     #   virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.txt
-dj-stripe==2.6.2
+dj-stripe==2.6.3
     # via -r requirements/pip.txt
 django==3.2.16
     # via
@@ -197,7 +197,7 @@ gitdb==4.0.9
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.28
+gitpython==3.1.29
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/deploy.in
@@ -417,7 +417,7 @@ traitlets==5.4.0
     # via
     #   ipython
     #   matplotlib-inline
-types-cryptography==3.3.23
+types-cryptography==3.3.23.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
