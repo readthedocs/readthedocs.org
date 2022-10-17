@@ -52,7 +52,7 @@ Theme and extension developers
 The following 2 steps need to be completed:
 
 #. A Sphinx theme or extension should depend on the python package ``sphinxcontrib-jquery``.
-#. Calling either ``sphinxcontrib.jquery.add_jquery`` or ``sphinxcontrib.jquery.add_jquery_if_sphinx_gte_6``.
+#. Calling either ``sphinxcontrib.jquery.add_jquery`` in the theme's/extension's ``setup(app)``.
 
 In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say:
 
@@ -68,24 +68,18 @@ If you are depending on a theme or extension that did not itself address the rem
 #. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
 
 
-``sphinxcontrib.jquery.add_jquery(app)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``sphinxcontrib.jquery.add_jquery(app, force=False)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Adds jQuery no matter what, but at most once.
-It's useful for themes and extensions that want jQuery added unconditionally or if they want to handle the conditions themselves.
+Adds jQuery if Sphinx is from version 6 and up. Adds jQuery at most once.
+
+When setting ``force=True``, adds jQuery no matter what, but at most once. This is useful if you want to handle alternative conditions for adding jQuery.
+
+Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will call this function with ``force=False``.
 
 .. warning::
 
-  If you call this function, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
-
-
-``sphinxcontrib.jquery.add_jquery_if_sphinx_gte_6(app)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Adds jQuery if Sphinx is from version 6 and up. Adds jQuery at most once.
-This is recommended for extensions and themes that maintain compatibility of Sphinx before and after version 6.
-
-Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will call this function.
+  If you call this function with ``force=False``, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
 
 
 Release
