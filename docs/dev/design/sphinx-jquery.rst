@@ -1,7 +1,7 @@
 sphinxcontrib-jquery
 ====================
 
-JQuery will be removed from Sphinx 6.0.0. We can expect 6.0.0 to ship in late 2022. See also:
+jQuery will be removed from Sphinx 6.0.0. We can expect 6.0.0 to ship in late 2022. See also:
 
 .. seealso::
 
