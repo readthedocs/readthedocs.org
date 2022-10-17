@@ -8,11 +8,12 @@ JQuery will be removed from Sphinx 6.0.0. We can expect 6.0.0 to ship in late 20
 
 This is a "request for comments" for a community-owned Sphinx extension that bundles jQuery.
 
-Comment deadline: **November 1st, 2022**
-
 
 Overview
 --------
+
+Comment deadline:
+  November 1st, 2022
 
 package-name:
   ``sphinxcontrib-jquery``
