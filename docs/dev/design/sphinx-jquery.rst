@@ -20,20 +20,20 @@ Overview
 Comment deadline:
   November 1st, 2022
 
-package-name:
+Package-name:
   ``sphinxcontrib-jquery``
 
-python package:
+Python package:
   ``sphinxcontrib.jquery``
 
-ownership:
+Ownership:
   Read the Docs core team will implement the initial releases of an otherwise community-owned package that lives in https://github.com/sphinx-contrib/jquery
 
-functionality:
+Functionality:
   sphinxcontrib-jquery is a Sphinx extension that provides a simple mechanism for other Sphinx extensions and themes to ensure that jQuery is included into the HTML build outputs and loaded in the HTML DOM itself.
   More specifically, the extension ensures that jQuery is loaded exactly once no matter how many themes and extensions that request to include jQuery nor the version of Sphinx.
 
-scope:
+Scope:
   This extension assumes that it's enough to provide a single version of jQuery for all of its dependent extensions and themes.
   As the name implies, this extension is built to handle jQuery only.
   It's not a general asset manager and it's not looking to do dependency resolution of jQuery versions.
@@ -45,21 +45,27 @@ The primary users of this package are
 **a) theme and extension developers** and
 **b) documentation project owners**.
 
-Theme and extension developers:
-  The following 2 steps need to be completed:
 
-  #. A Sphinx theme or extension should depend on the python package ``sphinxcontrib-jquery``.
-  #. Calling either ``sphinxcontrib.jquery.add_jquery`` or ``sphinxcontrib.jquery.add_jquery_if_sphinx_lt_6``.
+Theme and extension developers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say:
+The following 2 steps need to be completed:
 
-    "<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting."
+#. A Sphinx theme or extension should depend on the python package ``sphinxcontrib-jquery``.
+#. Calling either ``sphinxcontrib.jquery.add_jquery`` or ``sphinxcontrib.jquery.add_jquery_if_sphinx_gte_6``.
 
-Documentation project owners:
-  If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx, you can patch up your project like this:
+In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say:
 
-  #. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
-  #. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
+  "<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting."
+
+
+Documentation project owners
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx, you can patch up your project like this:
+
+#. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
+#. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
 
 
 ``sphinxcontrib.jquery.add_jquery(app)``
@@ -68,13 +74,19 @@ Documentation project owners:
 Adds jQuery no matter what, but at most once.
 It's useful for themes and extensions that want jQuery added unconditionally or if they want to handle the conditions themselves.
 
-``sphinxcontrib.jquery.add_jquery_if_sphinx_lt_6(app)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. warning::
 
-Adds jQuery if Sphinx is older than version 6, at most once.
+  If you call this function, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
+
+
+``sphinxcontrib.jquery.add_jquery_if_sphinx_gte_6(app)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Adds jQuery if Sphinx is from version 6 and up. Adds jQuery at most once.
 This is recommended for extensions and themes that maintain compatibility of Sphinx before and after version 6.
 
 Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will call this function.
+
 
 Release
 -------
