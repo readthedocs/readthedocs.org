@@ -5,6 +5,9 @@ JQuery will be removed from Sphinx 6.0.0. We can expect 6.0.0 to ship in late 20
 
 * https://github.com/sphinx-doc/sphinx/issues/7405
 * https://github.com/sphinx-doc/sphinx/issues/10070
+* https://github.com/readthedocs/sphinx-hoverxref/issues/160
+* https://github.com/readthedocs/sphinx_rtd_theme/issues/1253
+* https://github.com/pydata/pydata-sphinx-theme/issues/764
 
 This is a "request for comments" for a community-owned Sphinx extension that bundles jQuery.
 
