@@ -11,6 +11,9 @@ from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 
 class DomainQueryset(RelatedProjectQuerySet):
+
+    """Domain querysets."""
+
     def pending(self, include_recently_expired=False):
         max_date = timezone.now() - timedelta(
             days=settings.RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD
