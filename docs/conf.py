@@ -13,7 +13,6 @@ for more information read https://sphinx-multiproject.readthedocs.io/.
 
 import os
 import sys
-from datetime import datetime
 
 import sphinx_rtd_theme
 from multiproject.utils import get_project
@@ -69,7 +68,7 @@ docset = get_project(multiproject_projects)
 templates_path = ["_templates"]
 
 master_doc = "index"
-copyright = "{}, Read the Docs, Inc & contributors".format(datetime.now().year)
+copyright = "Read the Docs, Inc & contributors"
 version = "8.7.0"
 release = version
 exclude_patterns = ["_build"]
