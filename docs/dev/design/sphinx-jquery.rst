@@ -36,23 +36,20 @@ Usage
 -----
 
 The primary users of this package are
-**a) Sphinx theme and extension developers** and
+**a) theme and extension developers** and
 **b) documentation project owners**.
 
 Theme and extension developers:
-
   The following 2 steps need to be completed:
 
   #. A Sphinx theme or extension should depend on the python package ``sphinxcontrib-jquery``.
   #. Calling either ``sphinxcontrib.jquery.add_jquery`` or ``sphinxcontrib.jquery.add_jquery_if_sphinx_lt_6``.
 
-  In addition to this, we recommend extension and theme developers to log to ``console.error`` in case jQuery isn't found. The log message could for instance say:
+  In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say:
 
     "<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting."
 
-
 Documentation project owners:
-
   If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx, you can patch up your project like this:
 
   #. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
@@ -71,6 +68,7 @@ It's useful for themes and extensions that want jQuery added unconditionally or 
 Adds jQuery if Sphinx is older than version 6, at most once.
 This is recommended for extensions and themes that maintain compatibility of Sphinx before and after version 6.
 
+Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will call this function.
 
 Release
 -------
