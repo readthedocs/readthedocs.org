@@ -27,7 +27,7 @@ Python package:
   ``sphinxcontrib.jquery``
 
 Dependencies:
-  Python 2.7+, Sphinx 1.8+
+  Python 3+, Sphinx 1.8+ (or perhaps no lower bound?)
 
 Ownership:
   Read the Docs core team will implement the initial releases of an otherwise community-owned package that lives in https://github.com/sphinx-contrib/jquery
