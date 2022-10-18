@@ -7,5 +7,6 @@ class AnalyticsAppConfig(AppConfig):
 
     """Analytics app init code."""
 
+    default_auto_field = "django.db.models.BigAutoField"
     name = 'readthedocs.analytics'
     verbose_name = 'Analytics'
