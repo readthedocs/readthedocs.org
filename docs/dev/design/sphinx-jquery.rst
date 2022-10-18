@@ -52,34 +52,38 @@ Theme and extension developers
 The following 2 steps need to be completed:
 
 #. A Sphinx theme or extension should depend on the python package ``sphinxcontrib-jquery``.
-#. Calling either ``sphinxcontrib.jquery.add_jquery`` in the theme's/extension's ``setup(app)``.
+#. In your extension's or theme's ``setup(app)``, call ``app.setup_extension("sphinxcontrib.jquery")``.
 
-In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say:
+In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say::
 
-  "<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting."
+  if ($ == "undefined") console.error("<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting.")
 
 
 Documentation project owners
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx, you can patch up your project like this:
+If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx 6, you can patch up your project like this:
 
 #. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
 #. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
 
 
-``sphinxcontrib.jquery.add_jquery(app, force=False)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Calling ``app.setup_extension("sphinxcontrib.jquery")``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Adds jQuery if Sphinx is from version 6 and up. Adds jQuery at most once.
+When a Sphinx theme or extension calls `setup_extension() <https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.setup_extension>`_, a call to ``sphinxcontrib.jquery.setup(app)`` will happen. Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will also call ``sphinxcontrib.jquery.setup(app)`` (at most once).
 
-When setting ``force=True``, adds jQuery no matter what, but at most once. This is useful if you want to handle alternative conditions for adding jQuery.
+In ``sphinxcontrib.jquery.setup(app)``, jQuery is added. The default behaviour is to detect the Sphinx version and include jQuery via `app.add_js_file <https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.add_js_file>`__ when Sphinx is from version 6 and up. jQuery is added at most once.
 
-Adding ``sphinxcontrib.jquery`` to a documentation project's ``conf.extensions`` will call this function with ``force=False``.
+
+Config value: ``jquery_force_enable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When setting ``jquery_force_enable=True``, jQuery is added no matter the Sphinx version, but at most once. This is useful if you want to handle alternative conditions for adding jQuery.
 
 .. warning::
 
-  If you call this function with ``force=False``, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
+  If you set ``jquery_force_enable=True``, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
 
 
 Release
@@ -106,7 +110,7 @@ Therefore, we propose to start 1.0.0 at 3.5.1 (the currently shipped version) an
 
 The bundled jQuery version will be NPM pre-minified and distributed together with the PyPI package.
 
-The minified jQuery JS file is ultimately included by calling `app.add_js_file <https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.add_js_file>`_, which is passed the following arguments:
+The minified jQuery JS file is ultimately included by calling `app.add_js_file <https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.add_js_file>`__, which is passed the following arguments:
 
 .. code:: python
 
