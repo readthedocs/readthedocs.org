@@ -230,16 +230,11 @@ Let's say your Python package has a ``setup.py`` which looks like this:
     setup(
         name="my_package",
         # (...)
-        install_requires=[
-            'requests',
-            'simplejson'],
+        install_requires=["requests", "simplejson"],
         extras_require={
-            'tests': [
-                'nose',
-                'pycodestyle >= 2.1.0'],
-            'docs': [
-                'sphinx >= 1.4',
-                'sphinx_rtd_theme']}
+            "tests": ["nose", "pycodestyle >= 2.1.0"],
+            "docs": ["sphinx >= 1.4", "sphinx_rtd_theme"],
+        },
     )
 
 Then to have all dependencies from the ``tests`` and ``docs`` sections
