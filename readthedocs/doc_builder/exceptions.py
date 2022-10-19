@@ -44,7 +44,7 @@ class BuildUserError(BuildBaseException):
 
 class BuildUserSkip(BuildUserError):
     message = gettext_noop(
-        "This build was cancelled due the magic exit code was returned by a commmand."
+        "This build was manually skipped using a command exit code."
     )
     state = BUILD_STATE_CANCELLED
 
