@@ -1,5 +1,7 @@
-VCS Integrations
-================
+How To Integrate Your Git Platform
+==================================
+
+In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea and any other git platform that supports our generic API.
 
 Read the Docs provides integrations with several VCS providers to detect changes to your
 documentation and versions, mainly using *webhooks*.

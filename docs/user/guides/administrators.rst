@@ -12,6 +12,7 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
+   Integrate Your Git Platform </integrations>
    technical-docs-seo-guide
    manage-translations-sphinx
    advanced-search
