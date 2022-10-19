@@ -183,6 +183,7 @@ and how to write successful documentation.
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
+  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
