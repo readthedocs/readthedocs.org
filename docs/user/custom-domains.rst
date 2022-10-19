@@ -1,5 +1,7 @@
-Custom Domains
-==============
+How To Add A Custom Domain
+==========================
+
+In this guide, you will find the simple steps of how to host your documentation from your own domain name, such as ``yourdomain.tld`` or ``docs.yourdomain.tld``.
 
 Custom domains allow you to serve your documentation from your own domain.
 This is great for maintaining a consistent brand for your documentation and application.

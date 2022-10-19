@@ -74,7 +74,6 @@ and some of the core features of Read the Docs.
 * **Overview of core features**:
   :doc:`/features` |
   :doc:`/integrations` |
-  :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
@@ -107,7 +106,6 @@ and some of the core features of Read the Docs.
    /features
    /config-file/index
    /integrations
-   /custom-domains
    /versions
    /downloadable-documentation
    /hosting
@@ -143,6 +141,7 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
+  :doc:`Add A Custom Domain </custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/advanced-search` |
