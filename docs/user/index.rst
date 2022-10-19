@@ -184,6 +184,7 @@ and how to write successful documentation.
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
   :doc:`Configure Pull Request Builds </guides/pull-requests>` |
+  :doc:`View Traffic Analytics </analytics>` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -193,6 +194,7 @@ and how to write successful documentation.
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
   Setup Build Notifications <build-notifications> |
+  :doc:`View Traffic Analytics </analytics>` |
   :doc:`More guides for developers and designers </guides/developers>`
 
 

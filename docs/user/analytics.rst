@@ -1,5 +1,7 @@
-Traffic Analytics
-=================
+How To View Traffic Analytics
+=============================
+
+In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project and optionally add Google Analytics.
 
 Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,
