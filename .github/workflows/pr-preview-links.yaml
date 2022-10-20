@@ -25,3 +25,4 @@ jobs:
           project-slug: "dev"
           message-template: |
             - Developer's documentation (\`dev\`): {docs-pr-index-url}
+            [![Read the Docs Pull Request Preview](https://github.com/readthedocs/readthedocs.org/actions/workflows/pr-preview-links.yaml/badge.svg?branch=fix-dep&event=workflow_run)](https://github.com/readthedocs/readthedocs.org/actions/workflows/pr-preview-links.yaml)
