@@ -4,7 +4,7 @@ Custom Domains
 Custom domains allow you to serve your documentation from your own domain.
 This is great for maintaining a consistent brand for your documentation and application.
 
-By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:Subdomain support>` using the project's :term:`slug`:
+By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
 
 * ``<slug>.readthedocs.io`` for |org_brand|
 * ``<slug>.readthedocs-hosted.com`` for |com_brand|.

@@ -73,7 +73,7 @@ For both |org_brand| and |com_brand|, HSTS and other custom headers can be set u
 We always return the HSTS header with a max-age of at least one year
 for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
 
-Please contact :doc:`support` if you want to add a custom header to your domain.
+Please contact :doc:`/support` if you want to add a custom header to your domain.
 
 .. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 
@@ -84,7 +84,7 @@ You may host multiple documentation repositories as **sub-folders of a single do
 For example, ``docs.example.org/projects/repo1`` and ``docs.example.org/projects/repo2``.
 This is `a way to boost the SEO of your website <https://moz.com/blog/subdomains-vs-subfolders-rel-canonical-vs-301-how-to-structure-links-optimally-for-seo-whiteboard-friday>`_.
 
-See :doc:`subprojects` for more information.
+See :doc:`/subprojects` for more information.
 
 
 Troubleshooting
