@@ -141,7 +141,7 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
-  :doc:`Integrate Your Git Platform </integrations>` |
+  :doc:`Integrate Your VCS </integrations>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/advanced-search` |
