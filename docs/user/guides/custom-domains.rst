@@ -6,6 +6,7 @@ In this guide, you will find the simple steps of how to host your documentation 
 .. contents:: Contents
     :local:
 
+.. _adding_domain:
 
 Adding a custom domain
 ----------------------
