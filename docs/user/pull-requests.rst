@@ -33,4 +33,5 @@ Warning banner
 
 .. seealso::
 
-   Eager to get started? Read :doc:`/guides/pull-requests`
+    :doc:`/guides/pull-requests`
+        A guide to configuring pull request builds on Read the Docs.
