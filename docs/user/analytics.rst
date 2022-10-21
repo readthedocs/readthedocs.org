@@ -1,5 +1,5 @@
-How To View Traffic Analytics
-=============================
+How To Use Traffic Analytics
+============================
 
 In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.
 You can also learn how you can optionally add your own Google Analytics account or completely disable Google Analytics on your project.

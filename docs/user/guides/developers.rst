@@ -19,3 +19,4 @@ or customize the documentation appearance.
    build-using-too-many-resources
    edit-source-links-sphinx
    Setup Build Notifications <build-notifications>
+   Use Traffic Analytics </analytics>
