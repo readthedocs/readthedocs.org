@@ -12,7 +12,7 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
-   Add A Custom Domain <custom-domains>
+   Manage Custom Domains <custom-domains>
    technical-docs-seo-guide
    manage-translations-sphinx
    advanced-search

@@ -22,4 +22,5 @@ Additional domains or subdomains will redirect to the canonical domain.
 
 .. seealso::
 
-    Eager to get started? Have a look at :doc:`/guides/custom-domains`
+    :doc:`/guides/custom-domains`
+        Information on creating and managing custom domains, and common configurations you might use to set up your domain
