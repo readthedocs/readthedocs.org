@@ -1,5 +1,5 @@
-How To Integrate Your VCS (Git)
-===============================
+How To Integrate Your VCS
+=========================
 
 In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other VCS (version control system) provider that supports our generic API.
 
