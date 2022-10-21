@@ -14,8 +14,8 @@ For example if you import your project and it gets the :term:`slug` ``example-do
 How does it work?
 -----------------
 
-If you own a domain and would like to use it for your documentation, Read the Docs requires only :ref:`a single edit <adding_domain>` to the DNS settings of the domain.
-After this, your documentation will be served from your domain and SSL will also be configured automatically.
+To begin using a custom domain, you will need to create a new custom domain for your project and add a DNS record for your new custom domain.
+Once the DNS record has propagated, an SSL certificate will be automatically issued for your custom domain and your documentation will be configured to serve using the new domain and certificate.
 
 In case you change your domain name, your documentation can have multiple secondary domains but only one canonical domain name.
 Additional domains or subdomains will redirect to the canonical domain.
