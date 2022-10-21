@@ -1,7 +1,7 @@
 How To Manage Custom Domains
 ============================
 
-In this guide, you will find the simple steps of how to host your documentation from your own domain name, such as ``yourdomain.tld`` or ``docs.yourdomain.tld``.
+This guide describes how to host your documentation using your own domain name, such as ``docs.example.com``.
 
 .. contents:: Contents
     :local:
