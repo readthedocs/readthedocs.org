@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.91
+boto3==1.24.96
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.91
+botocore==1.27.96
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -93,7 +93,7 @@ distlib==0.3.6
     #   virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.txt
-dj-stripe==2.6.3
+dj-stripe==2.7.2
     # via -r requirements/pip.txt
 django==3.2.16
     # via
@@ -243,7 +243,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==0.17.2
     # via -r requirements/docs.in
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
@@ -255,7 +255,7 @@ packaging==21.3
     #   docker
     #   dparse
     #   sphinx
-pbr==5.10.0
+pbr==5.11.0
     # via sphinxcontrib-video
 platformdirs==2.5.2
     # via
@@ -275,7 +275,7 @@ pygments==2.13.0
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -294,7 +294,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/pip.txt
     #   babel
@@ -434,10 +434,6 @@ toml==0.10.2
     #   dparse
 tornado==6.2
     # via livereload
-types-cryptography==3.3.23.1
-    # via
-    #   -r requirements/pip.txt
-    #   pyjwt
 typing-extensions==4.4.0
     # via myst-parser
 ua-parser==0.16.1

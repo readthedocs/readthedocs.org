@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.91
+boto3==1.24.96
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.91
+botocore==1.27.96
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -96,7 +96,7 @@ distlib==0.3.6
     #   virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.txt
-dj-stripe==2.6.3
+dj-stripe==2.7.2
     # via -r requirements/pip.txt
 django==3.2.16
     # via
@@ -244,7 +244,7 @@ matplotlib-inline==0.1.6
     # via ipython
 newrelic==7.4.0.172
     # via -r requirements/deploy.in
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
@@ -288,7 +288,7 @@ pygments==2.13.0
     #   -r requirements/pip.txt
     #   ipython
     #   sphinx
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -307,7 +307,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/pip.txt
     #   babel
@@ -344,7 +344,7 @@ s3transfer==0.6.0
     #   boto3
 selectolax==0.3.11
     # via -r requirements/pip.txt
-sentry-sdk==1.9.10
+sentry-sdk==1.10.1
     # via structlog-sentry
 six==1.16.0
     # via
@@ -413,14 +413,10 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
-traitlets==5.4.0
+traitlets==5.5.0
     # via
     #   ipython
     #   matplotlib-inline
-types-cryptography==3.3.23.1
-    # via
-    #   -r requirements/pip.txt
-    #   pyjwt
 ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt

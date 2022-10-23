@@ -14,9 +14,9 @@ babel==2.10.3
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.24.91
+boto3==1.24.96
     # via django-storages
-botocore==1.27.91
+botocore==1.27.96
     # via
     #   boto3
     #   s3transfer
@@ -54,7 +54,7 @@ distlib==0.3.6
     # via virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.in
-dj-stripe==2.6.3
+dj-stripe==2.7.2
     # via -r requirements/pip.in
 django==3.2.16
     # via
@@ -169,7 +169,7 @@ markdown==3.4.1
     # via -r requirements/pip.in
 markupsafe==2.1.1
     # via jinja2
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via requests-oauthlib
 orjson==3.8.0
     # via -r requirements/pip.in
@@ -189,7 +189,7 @@ pygments==2.13.0
     # via
     #   -r requirements/pip.in
     #   sphinx
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via django-allauth
 pyparsing==3.0.9
     # via packaging
@@ -202,7 +202,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via django-allauth
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/pip.in
     #   babel
@@ -277,8 +277,6 @@ structlog==22.1.0
     #   django-structlog
 toml==0.10.2
     # via dparse
-types-cryptography==3.3.23.1
-    # via pyjwt
 ua-parser==0.16.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
