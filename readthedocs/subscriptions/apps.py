@@ -8,5 +8,6 @@ class SubscriptionsConfig(AppConfig):
     label = 'subscriptions'
 
     def ready(self):
+        import readthedocs.subscriptions.event_handlers  # noqa
         import readthedocs.subscriptions.signals  # noqa
         import readthedocs.subscriptions.tasks  # noqa
