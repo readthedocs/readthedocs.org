@@ -14,9 +14,9 @@ babel==2.10.3
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.24.89
+boto3==1.24.91
     # via django-storages
-botocore==1.27.89
+botocore==1.27.91
     # via
     #   boto3
     #   s3transfer
@@ -54,7 +54,7 @@ distlib==0.3.6
     # via virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.in
-dj-stripe==2.6.2
+dj-stripe==2.6.3
     # via -r requirements/pip.in
 django==3.2.16
     # via
@@ -145,7 +145,7 @@ filelock==3.8.0
     # via virtualenv
 gitdb==4.0.9
     # via gitpython
-gitpython==3.1.28
+gitpython==3.1.29
     # via -r requirements/pip.in
 idna==3.4
     # via requests
@@ -277,7 +277,7 @@ structlog==22.1.0
     #   django-structlog
 toml==0.10.2
     # via dparse
-types-cryptography==3.3.23
+types-cryptography==3.3.23.1
     # via pyjwt
 ua-parser==0.16.1
     # via user-agents
