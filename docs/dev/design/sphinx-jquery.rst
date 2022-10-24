@@ -45,8 +45,8 @@ Usage
 -----
 
 The primary users of this package are
-**a) theme and extension developers** and
-**b) documentation project owners**.
+**theme and extension developers** and
+**documentation project owners**.
 
 
 Theme and extension developers
