@@ -115,6 +115,7 @@ class GitHubService(Service):
                         "GitHub repository created with different remote_id but exact full_name.",
                         fields=fields,
                         old_remote_repository=_old_remote_repository.__dict__,
+                        imported=_old_remote_repository.projects.exists(),
                     )
 
             owner_type = fields["owner"]["type"]

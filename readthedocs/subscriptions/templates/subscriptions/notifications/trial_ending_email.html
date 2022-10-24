@@ -1,3 +1,5 @@
+{% extends "core/email/common.html" %}
+{% block content %}
 <p>This is just a reminder that the trial period for <b>{{ organization.name }}</b>
 will end in under 7 days. We hope your trial has gone smoothly!</p>
 
@@ -17,3 +19,4 @@ your builds will be disabled, and documentation serving will be disabled.</p>
 
 <p>We hope you've enjoyed Read the Docs so far! If you have any questions, don't
 hesitate to contact us!</p>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 from django.utils.translation import gettext_noop
 
-from readthedocs.builds.constants import BUILD_STATE_CANCELLED, BUILD_STATUS_DUPLICATED
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 
@@ -54,13 +54,6 @@ class YAMLParseError(BuildUserError):
 
 class BuildMaxConcurrencyError(BuildUserError):
     message = gettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
-
-
-class DuplicatedBuildError(BuildUserError):
-    message = gettext_noop('Duplicated build.')
-    exit_code = 1
-    status = BUILD_STATUS_DUPLICATED
-    state = BUILD_STATE_CANCELLED
 
 
 class BuildCancelled(BuildUserError):

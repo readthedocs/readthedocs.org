@@ -28,18 +28,18 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.56
+boto3==1.24.91
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.56
+botocore==1.27.91
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.6.15
+certifi==2022.9.24
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -72,7 +72,7 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -90,15 +90,15 @@ defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
     #   python3-openid
-distlib==0.3.5
+distlib==0.3.6
     # via
     #   -r requirements/pip.txt
     #   virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.txt
-dj-stripe==2.6.2
+dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.15
+django==3.2.16
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -127,11 +127,11 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
-django-debug-toolbar==3.6.0
+django-debug-toolbar==3.7.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.2.2
     # via -r requirements/pip.txt
-django-extensions==3.2.0
+django-extensions==3.2.1
     # via -r requirements/pip.txt
 django-filter==22.1
     # via -r requirements/pip.txt
@@ -145,7 +145,7 @@ django-ipware==4.0.2
     #   django-structlog
 django-kombu==0.9.4
     # via -r requirements/pip.txt
-django-messages-extends==0.6.2
+django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
@@ -161,7 +161,7 @@ django-taggit==3.0.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
@@ -173,13 +173,13 @@ docutils==0.17.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-dparse==0.5.2
+dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
-drf-flex-fields==0.9.8
+drf-flex-fields==1.0.0
     # via -r requirements/pip.txt
-elasticsearch==7.17.4
+elasticsearch==7.17.6
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -187,7 +187,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-executing==0.10.0
+executing==1.1.1
     # via stack-data
 filelock==3.8.0
     # via
@@ -197,11 +197,11 @@ gitdb==4.0.9
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.27
+gitpython==3.1.29
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/deploy.in
-idna==3.3
+idna==3.4
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -209,7 +209,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-ipython==8.4.0
+ipython==8.5.0
     # via -r requirements/deploy.in
 jedi==0.18.1
     # via ipython
@@ -244,11 +244,11 @@ matplotlib-inline==0.1.6
     # via ipython
 newrelic==7.4.0.172
     # via -r requirements/deploy.in
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.7.12
+orjson==3.8.0
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -268,12 +268,12 @@ platformdirs==2.5.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.31
     # via
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg2==2.9.3
+psycopg2==2.9.4
     # via -r requirements/deploy.in
 ptyprocess==0.7.0
     # via pexpect
@@ -288,7 +288,7 @@ pygments==2.13.0
     #   -r requirements/pip.txt
     #   ipython
     #   sphinx
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -307,7 +307,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/pip.txt
     #   babel
@@ -320,7 +320,7 @@ redis==3.5.3
     # via
     #   -r requirements/pip.txt
     #   django-redis-cache
-regex==2022.8.17
+regex==2022.9.13
     # via -r requirements/pip.txt
 requests==2.28.1
     # via
@@ -336,15 +336,15 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-requests-toolbelt==0.9.1
+requests-toolbelt==0.10.0
     # via -r requirements/pip.txt
 s3transfer==0.6.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.8
+selectolax==0.3.11
     # via -r requirements/pip.txt
-sentry-sdk==1.9.5
+sentry-sdk==1.9.10
     # via structlog-sentry
 six==1.16.0
     # via
@@ -391,14 +391,14 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   -r requirements/pip.txt
     #   django
     #   django-debug-toolbar
-stack-data==0.4.0
+stack-data==0.5.1
     # via ipython
-stripe==4.1.0
+stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -406,27 +406,32 @@ structlog==22.1.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-structlog-sentry==1.4.0
+    #   structlog-sentry
+structlog-sentry==2.0.0
     # via -r requirements/deploy.in
 toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
-traitlets==5.3.0
+traitlets==5.4.0
     # via
     #   ipython
     #   matplotlib-inline
-ua-parser==0.15.1
+types-cryptography==3.3.23.1
+    # via
+    #   -r requirements/pip.txt
+    #   pyjwt
+ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt
     #   user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.txt
-unidecode==1.3.4
+unidecode==1.3.6
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   -r requirements/pip.txt
     #   botocore
@@ -442,13 +447,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.3
+virtualenv==20.16.5
     # via -r requirements/pip.txt
 wcwidth==0.2.5
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.3.3
+websocket-client==1.4.1
     # via
     #   -r requirements/pip.txt
     #   docker

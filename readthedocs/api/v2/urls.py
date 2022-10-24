@@ -1,15 +1,11 @@
 """Define routes between URL paths and views/endpoints."""
 
 from django.conf import settings
-from django.conf.urls import include, re_path
+from django.conf.urls import re_path
+from django.urls import include
 from rest_framework import routers
 
-from readthedocs.api.v2.views import (
-    core_views,
-    footer_views,
-    integrations,
-    task_views,
-)
+from readthedocs.api.v2.views import core_views, footer_views, integrations, task_views
 from readthedocs.constants import pattern_opts
 from readthedocs.gold.views import StripeEventView
 
@@ -23,7 +19,6 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
-
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, basename='build')
@@ -117,9 +112,7 @@ urlpatterns += [
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error
-    from readthedocsext.donate.restapi.urls import (
-        urlpatterns as sustainability_urls,
-    )
+    from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
 
     urlpatterns += [
         re_path(r'^sustainability/', include(sustainability_urls)),

@@ -1,5 +1,7 @@
-Link to Other Projects' Documentation With Intersphinx
-======================================================
+How to Link to Other Documentation Projects With Intersphinx
+============================================================
+
+This section shows you how to maintain references to named sections of other external Sphinx projects.
 
 You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to
 :doc:`link to any location of your docs </guides/cross-referencing-with-sphinx>`.
@@ -83,8 +85,8 @@ Result:
    provided by Intersphinx:
 
    .. prompt:: bash $
-      
-      python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
+
+      python -m sphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
 
 Intersphinx in Read the Docs
 ----------------------------
@@ -167,7 +169,7 @@ You can use it like this:
    The inventory file is by default located at ``objects.inv``, for example ``https://readthedocs-docs.readthedocs-hosted.com/en/latest/objects.inv``.
 
    .. code:: python
-      
+
       # conf.py file
 
       intersphinx_mapping = {

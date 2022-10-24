@@ -1,3 +1,5 @@
+{% extends "core/email/common.html" %}
+{% block content %}
 <p>Just a heads up, builds for the project {{ project.name }} are failing
 due to high resource usage.</p>
 
@@ -8,3 +10,4 @@ due to high resource usage.</p>
 <p>For more information on contributing, you can read more here:</p>
 
 <p><a href="http://docs.readthedocs.io/page/contribute.html">http://docs.readthedocs.io/page/contribute.html</a></p>
+{% endblock %}

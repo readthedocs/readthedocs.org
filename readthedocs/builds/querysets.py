@@ -205,9 +205,9 @@ class BuildQuerySet(models.QuerySet):
         """
         limit_reached = False
         query = Q(
-            project__slug=project.slug,
+            project=project,
             # Limit builds to 5 hours ago to speed up the query
-            date__gte=timezone.now() - datetime.timedelta(hours=5),
+            date__gt=timezone.now() - datetime.timedelta(hours=5),
         )
 
         if project.main_language_project:

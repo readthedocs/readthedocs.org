@@ -583,7 +583,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     .. note::
 
        When using organizations, projects don't have the concept of users.
-       But we have organization.users.
+       But we have organization.owners.
     """
 
     homepage = serializers.SerializerMethodField()
@@ -595,9 +595,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-
-    if not settings.RTD_ALLOW_ORGANIZATIONS:
-        users = UserSerializer(many=True)
+    users = UserSerializer(many=True)
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -627,13 +625,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
-            # 'users',
             # 'active_versions',
-
-            '_links',
+            "_links",
+            "users",
         ]
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            fields.append('users')
 
         expandable_fields = {
             # NOTE: this has to be a Model method, can't be a
@@ -658,6 +653,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                 },
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # When using organizations, projects don't have the concept of users.
+        # But we have organization.owners.
+        # Set here instead of at the class level,
+        # so is easier to test.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            self.fields.pop("users", None)
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

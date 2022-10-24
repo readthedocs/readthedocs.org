@@ -1,3 +1,89 @@
+Version 8.7.0
+-------------
+
+:Date: October 11, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9648 <https://github.com/readthedocs/readthedocs.org/pull/9648>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: enable `django-debug-toolbar` when Django Admin is enabled (`#9641 <https://github.com/readthedocs/readthedocs.org/pull/9641>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe price instead of relying on plan object (`#9640 <https://github.com/readthedocs/readthedocs.org/pull/9640>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9636 <https://github.com/readthedocs/readthedocs.org/pull/9636>`__)
+* `@humitos <https://github.com/humitos>`__: Query: minor improvement (`#9634 <https://github.com/readthedocs/readthedocs.org/pull/9634>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.6.0 (`#9630 <https://github.com/readthedocs/readthedocs.org/pull/9630>`__)
+* `@humitos <https://github.com/humitos>`__: Run django-upgrade (`#9628 <https://github.com/readthedocs/readthedocs.org/pull/9628>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor serializer's context (`#9624 <https://github.com/readthedocs/readthedocs.org/pull/9624>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Re-scope Intersphinx article as a how-to (`#9622 <https://github.com/readthedocs/readthedocs.org/pull/9622>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: move api.py into a module (`#9616 <https://github.com/readthedocs/readthedocs.org/pull/9616>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `DEDUPLICATE_BUILDS` feature (`#9591 <https://github.com/readthedocs/readthedocs.org/pull/9591>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: render template before sending it to the task (`#9538 <https://github.com/readthedocs/readthedocs.org/pull/9538>`__)
+
+Version 8.6.0
+-------------
+
+:Date: September 28, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9621 <https://github.com/readthedocs/readthedocs.org/pull/9621>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@boahc077 <https://github.com/boahc077>`__: ci: add minimum GitHub at the workflow level for pip-tools.yaml (`#9617 <https://github.com/readthedocs/readthedocs.org/pull/9617>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor API view (`#9613 <https://github.com/readthedocs/readthedocs.org/pull/9613>`__)
+* `@sashashura <https://github.com/sashashura>`__: GitHub Workflows security hardening (`#9609 <https://github.com/readthedocs/readthedocs.org/pull/9609>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: test with/without organizations (`#9605 <https://github.com/readthedocs/readthedocs.org/pull/9605>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: concurrency small optimization (`#9602 <https://github.com/readthedocs/readthedocs.org/pull/9602>`__)
+* `@uvidyadharan <https://github.com/uvidyadharan>`__: Update intersphinx.rst (`#9601 <https://github.com/readthedocs/readthedocs.org/pull/9601>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.5.0 (`#9600 <https://github.com/readthedocs/readthedocs.org/pull/9600>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: allow update (`#9593 <https://github.com/readthedocs/readthedocs.org/pull/9593>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: strict validation for external versions and other fixes (`#9534 <https://github.com/readthedocs/readthedocs.org/pull/9534>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: fix organizations permissions (`#8771 <https://github.com/readthedocs/readthedocs.org/pull/8771>`__)
+
+Version 8.5.0
+-------------
+
+:Date: September 12, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for imported GitHub RemoteRepository (`#9590 <https://github.com/readthedocs/readthedocs.org/pull/9590>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: lowercase JSON keys (`#9587 <https://github.com/readthedocs/readthedocs.org/pull/9587>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: fix no-sphinx docs (`#9586 <https://github.com/readthedocs/readthedocs.org/pull/9586>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.3 (`#9584 <https://github.com/readthedocs/readthedocs.org/pull/9584>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+
+Version 8.4.3
+-------------
+
+:Date: September 06, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Badges" page (`#9580 <https://github.com/readthedocs/readthedocs.org/pull/9580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use utility function domReady instead of JQuery's .ready (`#9579 <https://github.com/readthedocs/readthedocs.org/pull/9579>`__)
+* `@humitos <https://github.com/humitos>`__: Development: disable NGINX logs (`#9569 <https://github.com/readthedocs/readthedocs.org/pull/9569>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log time spent to upload build artifacts (`#9568 <https://github.com/readthedocs/readthedocs.org/pull/9568>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: recommend using `pip` instead of `setuptools` (`#9567 <https://github.com/readthedocs/readthedocs.org/pull/9567>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: strip leading `/` before joining path (`#9565 <https://github.com/readthedocs/readthedocs.org/pull/9565>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: fix CORS check (`#9564 <https://github.com/readthedocs/readthedocs.org/pull/9564>`__)
+* `@humitos <https://github.com/humitos>`__: Build: upgrade `commonmark` to 0.9.1 (`#9563 <https://github.com/readthedocs/readthedocs.org/pull/9563>`__)
+* `@humitos <https://github.com/humitos>`__: Templates: minor typo (`#9560 <https://github.com/readthedocs/readthedocs.org/pull/9560>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: unskip test (`#9559 <https://github.com/readthedocs/readthedocs.org/pull/9559>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.4.2 (`#9558 <https://github.com/readthedocs/readthedocs.org/pull/9558>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Proxito redirects: pass full_path instead of re-creating it.  (`#9557 <https://github.com/readthedocs/readthedocs.org/pull/9557>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed js: use fetch API for footer (`#9551 <https://github.com/readthedocs/readthedocs.org/pull/9551>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe subscriptions to show details (`#9550 <https://github.com/readthedocs/readthedocs.org/pull/9550>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel old builds  (`#9549 <https://github.com/readthedocs/readthedocs.org/pull/9549>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: HTML form for getting in touch with Read the Docs for Science (`#9543 <https://github.com/readthedocs/readthedocs.org/pull/9543>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin deploy dependencies (`#9537 <https://github.com/readthedocs/readthedocs.org/pull/9537>`__)
+* `@humitos <https://github.com/humitos>`__: Code comment (`#9518 <https://github.com/readthedocs/readthedocs.org/pull/9518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Avoid jquery in rtd data (`#9493 <https://github.com/readthedocs/readthedocs.org/pull/9493>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use djstripe models for organization subscriptions (`#9486 <https://github.com/readthedocs/readthedocs.org/pull/9486>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: Better handling of docs URLs (`#9425 <https://github.com/readthedocs/readthedocs.org/pull/9425>`__)
+* `@stsewd <https://github.com/stsewd>`__: Security logs: delete old user security logs (`#8620 <https://github.com/readthedocs/readthedocs.org/pull/8620>`__)
+
 Version 8.4.2
 -------------
 

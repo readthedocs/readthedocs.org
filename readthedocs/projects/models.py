@@ -10,13 +10,12 @@ from urllib.parse import urlparse
 import structlog
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import re_path, reverse
+from django.urls import include, re_path, reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
@@ -776,6 +775,9 @@ class Project(models.Model):
 
     @property
     def clean_repo(self):
+        # NOTE: this method is used only when the project is going to be clonned.
+        # It probably makes sense to do a data migrations and force "Import Project"
+        # form to validate it's an HTTPS URL when importing new ones
         if self.repo.startswith('http://github.com'):
             return self.repo.replace('http://github.com', 'https://github.com')
         return self.repo
@@ -802,47 +804,6 @@ class Project(models.Model):
     def artifact_path(self, type_, version=LATEST):
         """The path to the build html docs in the project."""
         return os.path.join(self.doc_path, 'artifacts', version, type_)
-
-    def full_build_path(self, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'html')
-
-    def full_latex_path(self, version=LATEST):
-        """The path to the build LaTeX docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'latex')
-
-    def full_epub_path(self, version=LATEST):
-        """The path to the build epub docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'epub')
-
-    # There is currently no support for building man/dash formats, but we keep
-    # the support there for existing projects. They might have already existing
-    # legacy builds.
-
-    def full_man_path(self, version=LATEST):
-        """The path to the build man docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'man')
-
-    def full_dash_path(self, version=LATEST):
-        """The path to the build dash docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'dash')
-
-    def full_json_path(self, version=LATEST):
-        """The path to the build json docs in the project."""
-        json_path = os.path.join(self.conf_dir(version), '_build', 'json')
-        return json_path
-
-    def full_singlehtml_path(self, version=LATEST):
-        """The path to the build singlehtml docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'singlehtml')
-
-    def rtd_build_path(self, version=LATEST):
-        """The destination path where the built docs are copied."""
-        return os.path.join(self.doc_path, 'rtd-builds', version)
-
-    def static_metadata_path(self):
-        """The path to the static metadata JSON settings file."""
-        return os.path.join(self.doc_path, 'metadata.json')
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""
@@ -1863,7 +1824,6 @@ class Feature(models.Model):
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
     USE_SPHINX_BUILDERS = "use_sphinx_builders"
-    DEDUPLICATE_BUILDS = "deduplicate_builds"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
 
@@ -2011,10 +1971,6 @@ class Feature(models.Model):
         (
             USE_SPHINX_BUILDERS,
             _('Use regular sphinx builders instead of custom RTD builders'),
-        ),
-        (
-            DEDUPLICATE_BUILDS,
-            _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
             CANCEL_OLD_BUILDS,
