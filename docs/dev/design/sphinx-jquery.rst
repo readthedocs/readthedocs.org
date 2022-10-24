@@ -67,7 +67,7 @@ Documentation project owners
 
 If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx 6, you can patch up your project like this:
 
-#. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
+#. Add ``sphinxcontrib-jquery`` to your installed dependencies.
 #. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
 
 
