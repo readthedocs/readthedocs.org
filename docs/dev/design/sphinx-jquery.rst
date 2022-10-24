@@ -92,11 +92,13 @@ When setting ``jquery_force_enable=True``, jQuery is added no matter the Sphinx 
 jQuery version and inclusion
 ----------------------------
 
+jQuery should be be shipped together with the Python package and not be referenced from a CDN.
+
 Sphinx has kept relatively up to date with jQuery, and this package intends to follow.
 The most recently bundled jQuery version was v3.5.1 and only two releases have happened since: 3.6.0 and 3.6.1.
 The 3.6.0 release had a very small backwards incompatibility which illustrates how harmless these upgrades are for the general purpose Sphinx package.
 
-Therefore, we propose to start 1.0.0 at 3.5.1 (the currently shipped version) and subsequently release 3.6.1 as the first update of jQuery as 1.1.0.
+Therefore, we propose to start the release of ``sphinxcontrib-jquery`` at 3.5.1 (the currently shipped version) and subsequently release 3.6.1 in an update. This will give users that need 3.5.1 a choice of a lower version.
 
 The bundled jQuery version will be NPM pre-minified and distributed together with the PyPI package.
 
@@ -110,3 +112,6 @@ The minified jQuery JS file is ultimately included by calling `app.add_js_file <
       priority=200,
       integrity="sha256-{}".format(get_jquery_sha256_checksum())
   )
+
+
+.. note:: It's possible to include jQuery in other ways, but this ultimately doesn't require this extension and is therefore not supported.
