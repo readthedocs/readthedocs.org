@@ -89,19 +89,6 @@ When setting ``jquery_force_enable=True``, jQuery is added no matter the Sphinx 
   If you set ``jquery_force_enable=True``, you most likely should also add ``Sphinx>=6`` to your theme's/extension's dependencies since versions before this already bundles jQuery!
 
 
-Release
--------
-
-All releases follow semantic versioning: ``<major>.<minor>.<patch>``
-
-* ``major``: Changes that break existing themes and extensions - we'll aim to only ever have ``1.x.y`` releases!
-* ``minor``: Changes that contain jQuery updates or substantial feature additions.
-* ``patch``: Bug fixes and added compatibility.
-
-For distributed packages with a longer lifecycle, we propose a loose pinning of the patch and minor versions to allow for future updates, which are likely to happen when jQuery receives security updates.
-Example: ``sphinxcontrib-jquery>=1.0.0,<2.0.0`` will include all compatible future releases, including jQuery upgrades.
-
-
 jQuery version and inclusion
 ----------------------------
 
