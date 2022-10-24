@@ -68,7 +68,7 @@ docset = get_project(multiproject_projects)
 templates_path = ["_templates"]
 
 master_doc = "index"
-copyright = "2010, Read the Docs, Inc & contributors"
+copyright = "Read the Docs, Inc & contributors"
 version = "8.7.0"
 release = version
 exclude_patterns = ["_build"]
