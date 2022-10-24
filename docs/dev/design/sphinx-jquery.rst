@@ -59,7 +59,7 @@ The following 2 steps need to be completed:
 
 In addition to this, we recommend extension and theme developers to log to the browser's ``console.error`` in case jQuery isn't found. The log message could for instance say::
 
-  if ($ == "undefined") console.error("<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting.")
+  if (typeof $ == "undefined") console.error("<package-name> depends on sphinxcontrib-jquery. Please ensure that <package-name>.setup(app) is called or add 'sphinxcontrib-jquery' to your conf.py extensions setting.")
 
 
 Documentation project owners
@@ -67,7 +67,7 @@ Documentation project owners
 
 If you are depending on a theme or extension that did not itself address the removal of jQuery from Sphinx 6, you can patch up your project like this:
 
-#. Add ``sphinxcontrib-jquery`` to your ``requirements.txt``.
+#. Add ``sphinxcontrib-jquery`` to your installed dependencies.
 #. Add ``sphinxcontrib.jquery`` to your ``extensions`` setting in ``conf.py``.
 
 
