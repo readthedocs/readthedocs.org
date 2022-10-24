@@ -1,11 +1,8 @@
 """Subscriptions managers."""
 
-from datetime import datetime
-
 import structlog
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
 
 from readthedocs.core.history import set_change_reason
 from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
@@ -69,26 +66,9 @@ class SubscriptionManager(models.Manager):
         # subscription is ``canceled``. I'm assuming that ``current_period_end``
         # will have the same value than ``ended_at``
         # https://stripe.com/docs/api/subscriptions/object?lang=python#subscription_object-current_period_end
-        start_date = getattr(stripe_subscription, 'current_period_start', None)
-        end_date = getattr(stripe_subscription, 'current_period_end', None)
+        start_date = stripe_subscription.current_period_start
+        end_date = stripe_subscription.current_period_end
         log.bind(stripe_subscription=stripe_subscription.id)
-
-        try:
-            start_date = timezone.make_aware(
-                datetime.fromtimestamp(start_date),
-            )
-            end_date = timezone.make_aware(
-                datetime.fromtimestamp(end_date),
-            )
-        except TypeError:
-            log.error(
-                'Stripe subscription invalid date.',
-                start_date=start_date,
-                end_date=end_date,
-            )
-            start_date = None
-            end_date = None
-            trial_end_date = None
 
         rtd_subscription.status = stripe_subscription.status
 
@@ -103,18 +83,9 @@ class SubscriptionManager(models.Manager):
             rtd_subscription.stripe_id = stripe_subscription.id
 
         # Update trial end date if it's present
-        trial_end_date = getattr(stripe_subscription, 'trial_end', None)
+        trial_end_date = stripe_subscription.trial_end
         if trial_end_date:
-            try:
-                trial_end_date = timezone.make_aware(
-                    datetime.fromtimestamp(trial_end_date),
-                )
-                rtd_subscription.trial_end_date = trial_end_date
-            except TypeError:
-                log.error(
-                    'Stripe subscription trial end date invalid. ',
-                    trial_end_date=trial_end_date,
-                )
+            rtd_subscription.trial_end_date = trial_end_date
 
         # Update the plan in case it was changed from the Portal.
         # This mostly just updates the UI now that we're using the Stripe Portal.
@@ -123,7 +94,7 @@ class SubscriptionManager(models.Manager):
         # but that attribute is deprecated, and it's null if the subscription has more than
         # one item, we have a couple of subscriptions that have more than
         # one item, so we use the first that is found in our DB.
-        for stripe_item in stripe_subscription["items"].data:
+        for stripe_item in stripe_subscription.items.prefetch_related("price").all():
             plan = self._get_plan(stripe_item.price)
             if plan:
                 rtd_subscription.plan = plan
