@@ -35,7 +35,7 @@ To use Intersphinx you need to add it to the list of extensions in your ``conf.p
    # conf.py file
 
    extensions = [
-       'sphinx.ext.intersphinx',
+       "sphinx.ext.intersphinx",
    ]
 
 And use the ``intersphinx_mapping`` configuration to indicate the name and link of the projects you want to use.
@@ -45,7 +45,7 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
    # conf.py file
 
    intersphinx_mapping = {
-       'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+       "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
    }
 
 
@@ -100,11 +100,11 @@ For example:
 
    intersphinx_mapping = {
        # Links to "v2" version of the "docs" project.
-       'docs-v2': ('https://docs.readthedocs.io/en/v2', None),
+       "docs-v2": ("https://docs.readthedocs.io/en/v2", None),
        # Links to the French translation of the "docs" project.
-       'docs-fr': ('https://docs.readthedocs.io/fr/latest', None),
+       "docs-fr": ("https://docs.readthedocs.io/fr/latest", None),
        # Links to the "apis" subproject of the "docs" project.
-       'sub-apis': ('https://docs.readthedocs.io/projects/apis/en/latest', None),
+       "sub-apis": ("https://docs.readthedocs.io/projects/apis/en/latest", None),
    }
 
 Intersphinx with private projects
@@ -131,11 +131,20 @@ Now we can add the link to the private project with the token like:
 
    intersphinx_mapping = {
        # Links to a private project named "docs"
-       'docs': ('https://<token-for-docs>:@readthedocs-docs.readthedocs-hosted.com/en/latest', None),
+       "docs": (
+           "https://<token-for-docs>:@readthedocs-docs.readthedocs-hosted.com/en/latest",
+           None,
+       ),
        # Links to the private French translation of the "docs" project
-       'docs': ('https://<token-for-fr-translation>:@readthedocs-docs.readthedocs-hosted.com/fr/latest', None),
+       "docs": (
+           "https://<token-for-fr-translation>:@readthedocs-docs.readthedocs-hosted.com/fr/latest",
+           None,
+       ),
        # Links to the private "apis" subproject of the "docs" project
-       'docs': ('https://<token-for-apis>:@readthedocs-docs.readthedocs-hosted.com/projects/apis/en/latest', None),
+       "docs": (
+           "https://<token-for-apis>:@readthedocs-docs.readthedocs-hosted.com/projects/apis/en/latest",
+           None,
+       ),
    }
 
 
@@ -156,11 +165,15 @@ You can use it like this:
    # conf.py file
 
    import os
-   RTD_TOKEN_DOCS = os.environ.get('RTD_TOKEN_DOCS')
+
+   RTD_TOKEN_DOCS = os.environ.get("RTD_TOKEN_DOCS")
 
    intersphinx_mapping = {
        # Links to a private project named "docs"
-       'docs': (f'https://{RTD_TOKEN_DOCS}:@readthedocs-docs.readthedocs-hosted.com/en/latest', None),
+       "docs": (
+           f"https://{RTD_TOKEN_DOCS}:@readthedocs-docs.readthedocs-hosted.com/en/latest",
+           None,
+       ),
    }
 
 .. note::
@@ -174,5 +187,8 @@ You can use it like this:
 
       intersphinx_mapping = {
           # Links to a private project named "docs" using a local inventory file.
-          'docs': ('https://readthedocs-docs.readthedocs-hosted.com/en/latest', 'path/to/local/objects.inv'),
+          "docs": (
+              "https://readthedocs-docs.readthedocs-hosted.com/en/latest",
+              "path/to/local/objects.inv",
+          ),
       }
