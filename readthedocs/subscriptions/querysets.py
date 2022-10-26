@@ -12,7 +12,11 @@ from djstripe.enums import SubscriptionStatus
 
 
 class StripeSubscriptionQueryset(models.QuerySet):
+
+    """Manager for the djstripe Subscription model."""
+
     def trial_ending(self, days=7):
+        """Get all subscriptions where their trial will end in the next `days`."""
         now = timezone.now()
         ending = now + timedelta(days=days)
         return self.filter(
@@ -22,5 +26,6 @@ class StripeSubscriptionQueryset(models.QuerySet):
         ).distinct()
 
     def created_days_ago(self, days):
+        """Get all subscriptions that were created exactly `days` ago."""
         when = timezone.now() - timedelta(days=days)
         return self.filter(created__date=when)
