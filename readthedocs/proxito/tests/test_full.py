@@ -1159,6 +1159,23 @@ class TestAdditionalDocViews(BaseDocServing):
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
 
+    @override_settings(
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    @mock.patch("readthedocs.proxito.views.serve.staticfiles_storage")
+    def test_serve_invalid_static_file(self, staticfiles_storage):
+        staticfiles_storage.url.side_effect = Exception
+        paths = ["../", "foo/../bar"]
+        for path in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_static_files",
+                    args=[path],
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
