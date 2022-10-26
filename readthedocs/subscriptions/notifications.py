@@ -30,7 +30,7 @@ class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
     @staticmethod
     def for_subscriptions():
         return (
-            djstripe.Subscription.rtd.trial_ending()
+            djstripe.Subscription.readthedocs.trial_ending()
             .created_days_ago(24)
             .prefetch_related("customer__rtd_organization")
         )

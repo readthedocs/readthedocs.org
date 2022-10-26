@@ -23,10 +23,12 @@ class SubscriptionsConfig(AppConfig):
         done by django when adding a manager.
         Using django's contribute_to_class is the recommended
         way of adding a custom manager to a third party model.
+
+        The new manager will be accessible from ``Subscription.readthedocs``.
         """
         from djstripe.models import Subscription
 
         from readthedocs.subscriptions.querysets import StripeSubscriptionQueryset
 
         manager = StripeSubscriptionQueryset.as_manager()
-        manager.contribute_to_class(Subscription, "rtd")
+        manager.contribute_to_class(Subscription, "readthedocs")
