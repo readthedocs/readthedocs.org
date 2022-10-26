@@ -247,8 +247,8 @@ and modify your ``conf.py`` as follows:
    :caption: conf.py
 
    extensions = [
-      'nbsphinx',
-      'sphinx_gallery.load_style',
+       "nbsphinx",
+       "sphinx_gallery.load_style",
    ]
 
 After doing that, there are two ways to create the gallery:
