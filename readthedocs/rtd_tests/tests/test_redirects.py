@@ -1,11 +1,9 @@
 from django.core.management import call_command
-from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -22,7 +20,7 @@ class RedirectTests(TestCase):
         call_command("fixtures_projects")
         self.client.login(username='eric', password='test')
         pip = Project.objects.get(slug='pip')
-        pip.versions.get(slug=LATEST)
+        pip.versions.create_latest()
 
     def test_proper_url_no_slash(self):
         r = self.client.get('/docs/pip')

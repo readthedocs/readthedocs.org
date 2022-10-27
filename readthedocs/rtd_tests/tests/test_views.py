@@ -343,11 +343,12 @@ class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""
 
-    fixtures = ['eric', 'test_search_queries']
+    fixtures = ["eric"]
 
     def setUp(self):
+        self.client.login(username="eric", password="test")
         call_command("fixtures_projects")
-        self.client.login(username='eric', password='test')
+        call_command("search_queries")
         self.pip = Project.objects.get(slug='pip')
         self.version = self.pip.versions.order_by('id').first()
         self.analyics_page = reverse('projects_search_analytics', args=[self.pip.slug])
