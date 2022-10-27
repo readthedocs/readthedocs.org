@@ -4,6 +4,9 @@ from django.apps import AppConfig
 
 
 class SubscriptionsConfig(AppConfig):
+
+    """App configuration."""
+
     name = 'readthedocs.subscriptions'
     label = 'subscriptions'
 
@@ -16,7 +19,8 @@ class SubscriptionsConfig(AppConfig):
 
     # pylint: disable=no-self-use
     def _add_custom_manager(self):
-        """Add a custom manager to the djstripe Subscription model
+        """
+        Add a custom manager to the djstripe Subscription model.
 
         Patching the model directly isn't recommended,
         since there may be an additional setup
