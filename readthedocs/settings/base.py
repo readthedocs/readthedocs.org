@@ -44,7 +44,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
     # Debug settings
-    DEBUG = True
+    DEBUG = False
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
 
     @property
@@ -73,7 +73,7 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
-    USE_SUBDOMAIN = False
+    USE_SUBDOMAIN = True
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'

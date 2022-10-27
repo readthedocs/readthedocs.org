@@ -48,7 +48,7 @@ class SupportView(PrivateViewMixin, TemplateView):
         return context
 
 
-def server_error_404(request, template_name="404.html", exception=exception):
+def server_error_404(request, template_name="404.html", exception=None):
     """A simple 404 handler."""
     project_slug = getattr(request, "host_project_slug", None)
     log.debug(
@@ -61,7 +61,11 @@ def server_error_404(request, template_name="404.html", exception=exception):
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
             pass
-    r = render(request, template_name, context={"project": project})
+    r = render(
+        request,
+        template_name,
+        context={"project": project, "project_slug": project_slug},
+    )
     r.status_code = 404
     return r
 
