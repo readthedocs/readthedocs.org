@@ -52,10 +52,12 @@ class ProjectMixin:
 class TestProject(ProjectMixin, TestCase):
 
     def test_subprojects(self):
-        r = self.client.get('/api/v2/project/6/subprojects/', {})
+        # adding this instead of checking against a static id 23(which may or may not change every run)
+        test_project = Project.objects.get(name="test_project")
+        r = self.client.get(f"/api/v2/project/{self.pip.id}/subprojects/", {})
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['subprojects'][0]['id'], 23)
+        self.assertEqual(resp["subprojects"][0]["id"], test_project.id)
 
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
