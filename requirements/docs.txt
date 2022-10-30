@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.24.91
+boto3==1.25.4
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.27.91
+botocore==1.28.4
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -69,13 +69,13 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-colorama==0.4.5
+colorama==0.4.6
     # via sphinx-autobuild
 cryptography==38.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
-cssselect==1.1.0
+cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -93,7 +93,7 @@ distlib==0.3.6
     #   virtualenv
 dj-pagination==2.5.0
     # via -r requirements/pip.txt
-dj-stripe==2.6.3
+dj-stripe==2.7.2
     # via -r requirements/pip.txt
 django==3.2.16
     # via
@@ -177,7 +177,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.0
     # via -r requirements/pip.txt
-elasticsearch==7.17.6
+elasticsearch==7.17.7
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -243,11 +243,11 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==0.17.2
     # via -r requirements/docs.in
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.0
+orjson==3.8.1
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -255,7 +255,7 @@ packaging==21.3
     #   docker
     #   dparse
     #   sphinx
-pbr==5.10.0
+pbr==5.11.0
     # via sphinxcontrib-video
 platformdirs==2.5.2
     # via
@@ -275,7 +275,7 @@ pygments==2.13.0
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyjwt[crypto]==2.5.0
+pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -294,7 +294,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.4
+pytz==2022.5
     # via
     #   -r requirements/pip.txt
     #   babel
@@ -325,7 +325,7 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-requests-toolbelt==0.10.0
+requests-toolbelt==0.10.1
     # via -r requirements/pip.txt
 s3transfer==0.6.0
     # via
@@ -399,6 +399,8 @@ sphinxcontrib-htmlhelp==2.0.0
     #   sphinx
 sphinxcontrib-httpdomain==1.8.0
     # via -r requirements/docs.in
+sphinxcontrib-jquery==2.0.0
+    # via sphinx-hoverxref
 sphinxcontrib-jsmath==1.0.1
     # via
     #   -r requirements/pip.txt
@@ -434,10 +436,6 @@ toml==0.10.2
     #   dparse
 tornado==6.2
     # via livereload
-types-cryptography==3.3.23.1
-    # via
-    #   -r requirements/pip.txt
-    #   pyjwt
 typing-extensions==4.4.0
     # via myst-parser
 ua-parser==0.16.1
@@ -465,7 +463,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.5
+virtualenv==20.16.6
     # via -r requirements/pip.txt
 wcwidth==0.2.5
     # via
