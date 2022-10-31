@@ -59,12 +59,29 @@ class Command(BaseCommand):
         # Create only specific Version objects for projects readthedocs, pip, Sphinx, Numpy, Conda
         # Read the doc versions
         rtd = Project.objects.get(slug="read-the-docs")
-        for type, identifier, verbose_name, slug in [
-            ("unknown", "2ff3d36340fa4d3d39424e8464864ca37c5f191c", "0.2.1", "0.2.1"),
-            ("unknown", "354456a7dba2a75888e2fe91f6d921e5fe492bcd", "0.2.2", "0.2.2"),
-            ("unknown", "master", "latest", "latest"),
-            ("unknown", "not_ok", "not_ok", "not_ok"),
-            ("unknown", "awesome", "awesome", "awesome"),
+        for type, identifier, verbose_name, slug, supported, active, built in [
+            # changed type=external here for version compare tests
+            (
+                "unknown",
+                "2ff3d36340fa4d3d39424e8464864ca37c5f191c",
+                "0.2.1",
+                "0.2.1",
+                True,
+                True,
+                True,
+            ),
+            (
+                "unknown",
+                "354456a7dba2a75888e2fe91f6d921e5fe492bcd",
+                "0.2.2",
+                "0.2.2",
+                True,
+                True,
+                True,
+            ),
+            ("unknown", "master", "latest", "latest", True, True, True),
+            ("unknown", "not_ok", "not_ok", "not_ok", True, False, True),
+            ("unknown", "awesome", "awesome", "awesome", True, True, True),
         ]:
             Version.objects.get_or_create(
                 project=rtd,
@@ -72,13 +89,32 @@ class Command(BaseCommand):
                 identifier=identifier,
                 verbose_name=verbose_name,
                 slug=slug,
+                supported=supported,
+                active=active,
+                built=built,
             )
 
         # Pip versions
         pip = Project.objects.get(slug="pip")
-        for type, identifier, verbose_name, slug in [
-            ("tag", "2404a34eba4ee9c48cc8bc4055b99a48354f4950", "0.8", "0.8"),
-            ("tag", "f55c28e560c92cafb6e6451f8084232b6d717603", "0.8.1", "0.8.1"),
+        for type, identifier, verbose_name, slug, supported, active, built in [
+            (
+                "tag",
+                "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+                "0.8",
+                "0.8",
+                False,
+                True,
+                False,
+            ),
+            (
+                "tag",
+                "f55c28e560c92cafb6e6451f8084232b6d717603",
+                "0.8.1",
+                "0.8.1",
+                False,
+                True,
+                False,
+            ),
         ]:
             Version.objects.get_or_create(
                 project=pip,
@@ -86,6 +122,9 @@ class Command(BaseCommand):
                 identifier=identifier,
                 verbose_name=verbose_name,
                 slug=slug,
+                supported=supported,
+                active=active,
+                built=built,
             )
 
         # Versions for sphinx, numpy and conda
@@ -93,10 +132,10 @@ class Command(BaseCommand):
         numpy = Project.objects.get(slug="numpy")
         conda = Project.objects.get(slug="conda")
 
-        for project, type, identifier, verbose_name, slug in [
-            (sphinx, "branch", "master", "latest", "latest"),
-            (numpy, "branch", "master", "latest", "latest"),
-            (conda, "branch", "master", "latest", "latest"),
+        for project, type, identifier, verbose_name, slug, supported, active, built in [
+            (sphinx, "branch", "master", "latest", "latest", True, True, False),
+            (numpy, "branch", "master", "latest", "latest", True, True, False),
+            (conda, "branch", "master", "latest", "latest", True, True, False),
         ]:
             Version.objects.get_or_create(
                 project=project,
