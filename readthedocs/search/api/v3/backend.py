@@ -96,11 +96,11 @@ class Backend:
             if version and self._has_permission(self.request.user, version):
                 yield project, version
 
-            # If the user didn't provide a version, version_slug will be `None`,
-            # and we add all subprojects with their default version,
-            # otherwise we will add all projects that match the given version.
-            _, version_slug = self._split_project_and_version(value)
             if project:
+                # If the user didn't provide a version, version_slug will be `None`,
+                # and we add all subprojects with their default version,
+                # otherwise we will add all projects that match the given version.
+                _, version_slug = self._split_project_and_version(value)
                 yield from self._get_subprojects(
                     project=project,
                     version_slug=version_slug,
@@ -122,7 +122,7 @@ class Backend:
 
     def _get_subprojects(self, project, version_slug=None):
         """
-        Get a tuple project/version of all subprojects of `project`.
+        Get a tuple (project, version) of all subprojects of `project`.
 
         If `version_slug` doesn't match a version of the subproject,
         the default version will be used.

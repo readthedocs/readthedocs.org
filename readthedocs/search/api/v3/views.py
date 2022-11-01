@@ -116,17 +116,30 @@ class SearchAPI(GenericAPIView):
         return response
 
     def _add_extra_fields(self, response):
-        """Add additional fields to the response."""
+        """
+        Add additional fields to the top level response.
+
+        These are fields that aren't part of the serializers,
+        and are related to the whole list, rather than each element.
+        """
+        # Add all projects that were used in the final search.
         response.data["projects"] = [
             {"slug": project.slug, "versions": [{"slug": version.slug}]}
             for project, version in self._get_projects_to_search()
         ]
+        # Add the query used in the final search,
+        # this doesn't include arguments.
         response.data["query"] = self._get_search_query()
 
 
 class BaseProxiedSearchAPI(SearchAPI):
 
-    pass
+    """
+    Use a separate class for the proxied version of this view.
+
+    This is so we can override it in .com,
+    where we need to make use of our auth backends.
+    """
 
 
 class ProxiedSearchAPI(SettingsOverrideObject):
