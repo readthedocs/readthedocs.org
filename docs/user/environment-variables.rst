@@ -85,12 +85,12 @@ for example in your Sphinx's configuration file:
    import requests
 
    # Access to our custom environment variables
-   username = os.environ.get('USERNAME')
-   password = os.environ.get('PASSWORD')
+   username = os.environ.get("USERNAME")
+   password = os.environ.get("PASSWORD")
 
    # Request a username/password protected URL
    response = requests.get(
-       'https://httpbin.org/basic-auth/username/password',
+       "https://httpbin.org/basic-auth/username/password",
        auth=(username, password),
    )
 

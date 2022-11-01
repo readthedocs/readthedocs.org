@@ -442,7 +442,7 @@ class Project(models.Model):
         help_text=_('This project has been successfully cloned'),
     )
 
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(blank=True, ordering=["name"])
     history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
 
@@ -775,6 +775,9 @@ class Project(models.Model):
 
     @property
     def clean_repo(self):
+        # NOTE: this method is used only when the project is going to be clonned.
+        # It probably makes sense to do a data migrations and force "Import Project"
+        # form to validate it's an HTTPS URL when importing new ones
         if self.repo.startswith('http://github.com'):
             return self.repo.replace('http://github.com', 'https://github.com')
         return self.repo
@@ -801,47 +804,6 @@ class Project(models.Model):
     def artifact_path(self, type_, version=LATEST):
         """The path to the build html docs in the project."""
         return os.path.join(self.doc_path, 'artifacts', version, type_)
-
-    def full_build_path(self, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'html')
-
-    def full_latex_path(self, version=LATEST):
-        """The path to the build LaTeX docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'latex')
-
-    def full_epub_path(self, version=LATEST):
-        """The path to the build epub docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'epub')
-
-    # There is currently no support for building man/dash formats, but we keep
-    # the support there for existing projects. They might have already existing
-    # legacy builds.
-
-    def full_man_path(self, version=LATEST):
-        """The path to the build man docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'man')
-
-    def full_dash_path(self, version=LATEST):
-        """The path to the build dash docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'dash')
-
-    def full_json_path(self, version=LATEST):
-        """The path to the build json docs in the project."""
-        json_path = os.path.join(self.conf_dir(version), '_build', 'json')
-        return json_path
-
-    def full_singlehtml_path(self, version=LATEST):
-        """The path to the build singlehtml docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'singlehtml')
-
-    def rtd_build_path(self, version=LATEST):
-        """The destination path where the built docs are copied."""
-        return os.path.join(self.doc_path, 'rtd-builds', version)
-
-    def static_metadata_path(self):
-        """The path to the static metadata JSON settings file."""
-        return os.path.join(self.doc_path, 'metadata.json')
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""

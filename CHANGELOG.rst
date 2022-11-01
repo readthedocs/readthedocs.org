@@ -1,3 +1,23 @@
+Version 8.7.1
+-------------
+
+:Date: October 24, 2022
+
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Comment out the science contact form (`#9674 <https://github.com/readthedocs/readthedocs.org/pull/9674>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9663 <https://github.com/readthedocs/readthedocs.org/pull/9663>`__)
+* `@humitos <https://github.com/humitos>`__: Template: fix build details page link (`#9662 <https://github.com/readthedocs/readthedocs.org/pull/9662>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Use current year instead of hard-coded 2010 (`#9660 <https://github.com/readthedocs/readthedocs.org/pull/9660>`__)
+* `@humitos <https://github.com/humitos>`__: Clean up some old code that's not used (`#9659 <https://github.com/readthedocs/readthedocs.org/pull/9659>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Adds more basic info to the default 404 page (`#9656 <https://github.com/readthedocs/readthedocs.org/pull/9656>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.7.0 (`#9655 <https://github.com/readthedocs/readthedocs.org/pull/9655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: Use djstripe event handlers (`#9651 <https://github.com/readthedocs/readthedocs.org/pull/9651>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use path for API URL (`#9646 <https://github.com/readthedocs/readthedocs.org/pull/9646>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: enable `django-debug-toolbar` when Django Admin is enabled (`#9641 <https://github.com/readthedocs/readthedocs.org/pull/9641>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: track Sphinx `extensions` and `html_theme` variables (`#9639 <https://github.com/readthedocs/readthedocs.org/pull/9639>`__)
+* `@humitos <https://github.com/humitos>`__: Run django-upgrade (`#9628 <https://github.com/readthedocs/readthedocs.org/pull/9628>`__)
+* `@evildmp <https://github.com/evildmp>`__: Docs: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Add admin functions for wiping a version (`#5140 <https://github.com/readthedocs/readthedocs.org/pull/5140>`__)
+
 Version 8.7.0
 -------------
 

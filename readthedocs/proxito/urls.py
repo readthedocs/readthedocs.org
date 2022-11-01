@@ -34,8 +34,7 @@ pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import re_path
-from django.urls import include
+from django.urls import include, path, re_path
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
@@ -110,12 +109,8 @@ proxied_urls = [
     ),
     # Serve static files
     # /_/static/file.js
-    re_path(
-        r"^{DOC_PATH_PREFIX}static/"
-        r"(?P<filename>{filename_slug})$".format(
-            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-            **pattern_opts,
-        ),
+    path(
+        f"{DOC_PATH_PREFIX}static/<path:filename>",
         ServeStaticFiles.as_view(),
         name="proxito_static_files",
     ),
