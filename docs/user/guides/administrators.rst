@@ -19,3 +19,4 @@ have a look at our :doc:`/tutorial/index`.
    deprecating-content
    pdf-non-ascii-languages
    importing-private-repositories
+   Setup Build Notifications <build-notifications>
