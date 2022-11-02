@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
@@ -22,6 +22,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.proxito.exceptions import ProxitoHttp404
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 
@@ -109,7 +110,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # version on the database we want to return 404.
         if (version and not version.active) or (version_slug and not version):
             log.warning("Version does not exist or is not active.")
-            raise Http404("Version does not exist or is not active.")
+            raise ProxitoHttp404("Version does not exist or is not active.")
 
         if self._is_cache_enabled(final_project) and version and not version.is_private:
             # All public versions can be cached.
@@ -174,7 +175,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 'Invalid URL for project with versions.',
                 filename=filename,
             )
-            raise Http404('Invalid URL for project with versions')
+            raise ProxitoHttp404("Invalid URL for project with versions")
 
         redirect_path, http_status = self.get_redirect(
             project=final_project,
@@ -261,10 +262,17 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             proxito_path,
             urlconf='readthedocs.proxito.urls',
         )
+        log.debug("Resolved a URL.")
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+        log.debug("Getting _get_project_data_from_request.")
+        (
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+        ) = _get_project_data_from_request(  # noqa
             request,
             project_slug=kwargs.get('project_slug'),
             subproject_slug=kwargs.get('subproject_slug'),
@@ -272,6 +280,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
+        log.debug("Finished _get_project_data_from_request.")
 
         log.bind(
             project_slug=final_project.slug,
@@ -390,7 +399,13 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             path=filename,
             full_path=proxito_path,
         )
-        raise Http404('No custom 404 page found.')
+        log.debug("Raising ProxitoHttp404")
+        raise ProxitoHttp404(
+            "No custom 404 page found.",
+            project=final_project,
+            project_slug=kwargs.get("project_slug"),
+            subproject_slug=kwargs.get("subproject_slug"),
+        )
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
@@ -472,7 +487,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
 
         if no_serve_robots_txt:
             # ... we do return a 404
-            raise Http404()
+            raise ProxitoHttp404()
 
         storage_path = project.get_storage_path(
             type_='html',
@@ -595,7 +610,7 @@ class ServeSitemapXMLBase(View):
             only_active=True,
         )
         if not public_versions.exists():
-            raise Http404
+            raise ProxitoHttp404()
 
         sorted_versions = sort_version_aware(public_versions)
 

@@ -1,9 +1,9 @@
-import structlog
 from functools import wraps
 
-from django.http import Http404
+import structlog
 
 from readthedocs.projects.models import Project, ProjectRelationship
+from readthedocs.proxito.exceptions import ProxitoHttp404
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -44,7 +44,9 @@ def map_subproject_slug(view_func):
                         subproject_slug=subproject_slug,
                         project_slug=kwargs['project'].slug,
                     )
-                    raise Http404('Invalid subproject slug')
+                    raise ProxitoHttp404(
+                        "Invalid subproject slug", subproject_slug=subproject_slug
+                    )
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view
@@ -74,7 +76,13 @@ def map_project_slug(view_func):
             try:
                 project = Project.objects.get(slug=project_slug)
             except Project.DoesNotExist:
-                raise Http404('Project does not exist.')
+                log.debug(
+                    "Project not found.",
+                    project_slug=project_slug,
+                )
+                raise ProxitoHttp404(
+                    "Project does not exist.", project_slug=project_slug
+                )
         return view_func(request, project=project, *args, **kwargs)
 
     return inner_view

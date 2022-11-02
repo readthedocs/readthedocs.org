@@ -50,17 +50,15 @@ class SupportView(PrivateViewMixin, TemplateView):
 
 def server_error_404(request, template_name="404.html", exception=None):
     """A simple 404 handler."""
-    project_slug = getattr(request, "host_project_slug", None)
+    # This property is set by ProxitoHttp404. We could also have a look at the
+    # subproject_slug
+    project_slug = getattr(exception, "project_slug", None)
+    log.debug(exception)
+    project = getattr(exception, "project", None)
     log.debug(
         "404 page detected a project slug in request.",
         project_slug=project_slug,
     )
-    project = None
-    if project_slug:
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            pass
     r = render(
         request,
         template_name,

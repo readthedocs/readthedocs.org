@@ -2,7 +2,10 @@ import os
 
 import structlog
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
+
+from readthedocs.projects.models import Project
+from readthedocs.proxito.exceptions import ProxitoHttp404
 
 from .decorators import map_project_slug, map_subproject_slug
 
@@ -30,11 +33,23 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
     """
 
     if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
+        log.debug("Displaying a 'fast 404'")
         return fast_404(request, exception, template_name)
 
-    resp = render(request, template_name)
-    resp.status_code = 404
-    return resp
+    project_slug = getattr(exception, "project_slug", None)
+    log.debug(exception)
+    project = getattr(exception, "project", None)
+    log.debug(
+        "404 page detected a project slug in request.",
+        project_slug=project_slug,
+    )
+    r = render(
+        request,
+        template_name,
+        context={"project": project, "project_slug": project_slug},
+    )
+    r.status_code = 404
+    return r
 
 
 @map_project_slug
@@ -70,9 +85,20 @@ def _get_project_data_from_request(
     if not lang_slug or lang_slug == current_project.language:
         final_project = current_project
     else:
-        final_project = get_object_or_404(
-            current_project.translations.all(), language=lang_slug
-        )
+        try:
+            final_project = current_project.translations.get(language=lang_slug)
+        except Project.DoesNotExist:
+            log.debug(
+                "Raising 404 for language slug",
+                lang_slug=lang_slug,
+                project_slug=current_project.slug,
+            )
+            raise ProxitoHttp404(
+                "Did not find translation",
+                project=current_project,
+                project_slug=current_project.slug,
+                subproject_slug=lang_slug,
+            )
 
     # Handle single version by grabbing the default version
     # We might have version_slug when we're serving a PR
