@@ -5,7 +5,9 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
 
+from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
@@ -16,7 +18,7 @@ from readthedocs.search.api.v3.utils import should_use_advanced_query
 log = structlog.get_logger(__name__)
 
 
-class SearchAPI(GenericAPIView):
+class SearchAPI(APIv3Settings, GenericAPIView):
 
     """
     Server side search API V3.
@@ -32,6 +34,7 @@ class SearchAPI(GenericAPIView):
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
     search_backend_class = Backend
+    permission_classes = [AllowAny]
 
     def get_view_name(self):
         return "Search API V3"
