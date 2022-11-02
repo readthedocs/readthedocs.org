@@ -78,6 +78,13 @@ class Backend:
         return search
 
     def _get_projects_to_search(self):
+        """
+        Return an iterator of (project, version) used in this search.
+
+        An iterator (yield syntax) is used so we can stop at
+        ``self.max_projects``, this way we avoid fetching projects
+        that we won't use.
+        """
         if not self._has_arguments:
             if self.arguments_required:
                 return None
