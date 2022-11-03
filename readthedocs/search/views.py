@@ -11,7 +11,6 @@ from django.views.generic import TemplateView
 
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v2.serializers import ProjectSearchSerializer
-from readthedocs.search.api.v3.backend import Backend
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch

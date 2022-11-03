@@ -7,7 +7,7 @@ from readthedocs.search.api.v3.queryparser import SearchQueryParser
 from readthedocs.search.faceted_search import PageSearch
 
 
-class Backend:
+class SearchExecutor:
 
     """
     Parse the query, search, and return the projects used in the search.

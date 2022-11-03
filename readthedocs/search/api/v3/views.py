@@ -11,7 +11,7 @@ from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
-from readthedocs.search.api.v3.backend import Backend
+from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 
@@ -33,7 +33,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     http_method_names = ["get"]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
-    search_backend_class = Backend
+    search_executor_class = SearchExecutor
     permission_classes = [AllowAny]
 
     def get_view_name(self):
@@ -49,7 +49,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
 
     @cached_property
     def _backend(self):
-        backend = self.search_backend_class(
+        backend = self.search_executor_class(
             request=self.request,
             query=self.request.GET["q"],
         )
