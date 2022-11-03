@@ -5,6 +5,7 @@ from urllib.parse import ParseResult, urlparse
 import structlog
 from django.conf import settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.models import Domain, Project
@@ -92,6 +93,7 @@ class Unresolver:
         current_project, version, filename = self._unresolve_path(
             parent_project=parent_project,
             path=parsed.path,
+            external_version_slug=external_version_slug,
         )
 
         # Make sure we are serving the external version from the subdomain.
@@ -168,7 +170,7 @@ class Unresolver:
 
         return None
 
-    def _match_subproject(self, parent_project, path):
+    def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
         Try to match a subproject.
 
@@ -190,7 +192,7 @@ class Unresolver:
         file = self._normalize_filename(match.group("file"))
         project_relationship = (
             parent_project.subprojects.filter(alias=subproject_alias)
-            .prefetch_related("child")
+            .select_related("child")
             .first()
         )
         if project_relationship:
@@ -201,6 +203,7 @@ class Unresolver:
                 parent_project=subproject,
                 path=file,
                 check_subprojects=False,
+                external_version_slug=external_version_slug,
             )
             # If we got a valid response, return that,
             # otherwise return the current subproject
@@ -210,21 +213,33 @@ class Unresolver:
             return subproject, None, None
         return None
 
-    def _match_single_version_project(self, parent_project, path):
+    def _match_single_version_project(
+        self, parent_project, path, external_version_slug=None
+    ):
         """
         Try to match a single version project.
 
-        By default any path will match.
+        By default any path will match. If `external_version_slug` is given,
+        that version is used instead of the project's default version.
         """
         file = self._normalize_filename(path)
-        version = parent_project.versions.filter(
-            slug=parent_project.default_version
-        ).first()
+        if external_version_slug:
+            version = (
+                parent_project.versions(manager=EXTERNAL)
+                .filter(slug=external_version_slug)
+                .first()
+            )
+        else:
+            version = parent_project.versions.filter(
+                slug=parent_project.default_version
+            ).first()
         if version:
             return parent_project, version, file
         return parent_project, None, None
 
-    def _unresolve_path(self, parent_project, path, check_subprojects=True):
+    def _unresolve_path(
+        self, parent_project, path, check_subprojects=True, external_version_slug=None
+    ):
         """
         Unresolve `path` with `parent_project` as base.
 
@@ -247,6 +262,9 @@ class Unresolver:
         :param check_subprojects: If we should check for subprojects,
          this is used to call this function recursively when
          resolving the path from a subproject (we don't support subprojects of subprojects).
+        :param external_version_slug: Slug of the external version.
+         Used as the default version for single version projects
+         being served under an external domain.
 
         :returns: A tuple with: project, version, and file name.
         """
@@ -264,6 +282,7 @@ class Unresolver:
             response = self._match_subproject(
                 parent_project=parent_project,
                 path=path,
+                external_version_slug=external_version_slug,
             )
             if response:
                 return response
@@ -273,6 +292,7 @@ class Unresolver:
             response = self._match_single_version_project(
                 parent_project=parent_project,
                 path=path,
+                external_version_slug=external_version_slug,
             )
             if response:
                 return response
@@ -330,7 +350,7 @@ class Unresolver:
 
         # Custom domain.
         domain_object = (
-            Domain.objects.filter(domain=domain).prefetch_related("project").first()
+            Domain.objects.filter(domain=domain).select_related("project").first()
         )
         if domain_object:
             log.debug("Custom domain.", domain=domain)
