@@ -11,6 +11,7 @@ from django.views.generic import TemplateView
 
 from readthedocs.projects.models import Project
 from readthedocs.search.api.v2.serializers import ProjectSearchSerializer
+from readthedocs.search.api.v3.executor import SearchExecutor
 from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 from readthedocs.search.faceted_search import ProjectSearch
@@ -87,22 +88,22 @@ class GlobalSearchView(TemplateView):
         total_count = 0
         query = self.request.GET.get("q")
         if query:
-            backend = Backend(
+            search_executor = SearchExecutor(
                 request=self.request,
                 query=query,
                 arguments_required=False,
                 default_all=not settings.ALLOW_PRIVATE_REPOS,
             )
-            search_query = backend.parser.query
-            use_advanced_query = should_use_advanced_query(backend.projects)
-            search = backend.search(use_advanced_query=use_advanced_query)
+            search_query = search_executor.parser.query
+            use_advanced_query = should_use_advanced_query(search_executor.projects)
+            search = search_executor.search(use_advanced_query=use_advanced_query)
             if search:
                 results = search[: self.max_search_results].execute()
                 facets = results.facets
                 total_count = results.hits.total["value"]
                 results = PageSearchSerializer(
                     results,
-                    projects=backend.projects,
+                    projects=search_executor.projects,
                     many=True,
                 ).data
 

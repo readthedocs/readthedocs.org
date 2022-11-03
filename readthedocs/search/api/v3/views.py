@@ -48,18 +48,18 @@ class SearchAPI(APIv3Settings, GenericAPIView):
             raise ValidationError(errors)
 
     @cached_property
-    def _backend(self):
-        backend = self.search_executor_class(
+    def _search_executor(self):
+        search_executor = self.search_executor_class(
             request=self.request,
             query=self.request.GET["q"],
         )
-        return backend
+        return search_executor
 
     def _get_search_query(self):
-        return self._backend.parser.query
+        return self._search_executor.parser.query
 
     def _get_projects_to_search(self):
-        return self._backend.projects
+        return self._search_executor.projects
 
     def get_queryset(self):
         """
@@ -72,7 +72,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
            is compatible with DRF's paginator.
         """
         use_advanced_query = should_use_advanced_query(self._get_projects_to_search())
-        search = self._backend.search(
+        search = self._search_executor.search(
             use_advanced_query=use_advanced_query,
             aggregate_results=False,
         )
