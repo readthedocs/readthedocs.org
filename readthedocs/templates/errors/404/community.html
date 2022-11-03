@@ -1,0 +1,12 @@
+{% extends "errors/404/base.html" %}
+{% load i18n %}
+
+{# something on readthedocs.org does not exist - this 404 is not intended for projects #}
+
+{% block 404_error_message %}
+
+  <p>{% trans "You have encountered a 404 on Read the Docs. You are either looking for a page that does not exist or a project that has been removed." %}</p>
+
+  <p>{% trans "If you believe this is a technical error, please contact our support:" %} <a href="{% url 'support' %}">{% trans "Go to support" %}»</a></p>
+
+{% endblock %}

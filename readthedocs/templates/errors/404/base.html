@@ -1,0 +1,50 @@
+{% extends "errors/base.html" %}
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "404 - Maze Found" %}
+{% endblock %}
+
+{% block content %}
+
+<h1>{% trans "404 - page not found" %}</h1>
+
+{% block 404_error_message %}
+
+{% endblock %}
+
+{% if project %}
+
+{% elif "_proxito_404_" in request.path %}
+
+{% else %}
+
+{% endif %}
+
+<pre style="line-height: 1.25; white-space: pre;">
+
+        \          SORRY            /
+         \                         /
+          \    This page does     /
+           ]   not exist yet.    [    ,'|
+           ]                     [   /  |
+           ]___               ___[ ,'   |
+           ]  ]\             /[  [ |:   |
+           ]  ] \           / [  [ |:   |
+           ]  ]  ]         [  [  [ |:   |
+           ]  ]  ]__     __[  [  [ |:   |
+           ]  ]  ] ]\ _ /[ [  [  [ |:   |
+           ]  ]  ] ] (#) [ [  [  [ :===='
+           ]  ]  ]_].nHn.[_[  [  [
+           ]  ]  ]  HHHHH. [  [  [
+           ]  ] /   `HH("N  \ [  [
+           ]__]/     HHH  "  \[__[
+           ]         NNN         [
+           ]         N/"         [
+           ]         N H         [
+          /          N            \
+         /           q,            \
+        /                           \
+</pre>
+{% endblock %}
