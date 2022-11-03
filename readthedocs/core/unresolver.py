@@ -166,7 +166,9 @@ class Unresolver:
             version = project.versions.filter(slug=version_slug).first()
             if version:
                 return project, version, file
-            return project, None, None
+
+            file = self._normalize_filename(path[match.end("language"):])
+            return project, None, file
 
         return None
 
@@ -210,7 +212,7 @@ class Unresolver:
             # as the current project without a valid version or path.
             if response:
                 return response
-            return subproject, None, None
+            return subproject, None, file
         return None
 
     def _match_single_version_project(
@@ -235,7 +237,7 @@ class Unresolver:
             ).first()
         if version:
             return parent_project, version, file
-        return parent_project, None, None
+        return parent_project, None, file
 
     def _unresolve_path(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
@@ -297,7 +299,8 @@ class Unresolver:
             if response:
                 return response
 
-        return parent_project, None, None
+        file = self._normalize_filename(path)
+        return parent_project, None, file
 
     @staticmethod
     def get_domain_from_host(host):

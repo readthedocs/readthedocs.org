@@ -1,4 +1,5 @@
 """Views for doc serving."""
+from readthedocs.core.unresolver import unresolve
 import itertools
 from urllib.parse import urlparse
 
@@ -58,6 +59,133 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             self.cache_request = True
 
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+
+class ServeDocsUnresolver(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        result = unresolve(url=request.build_absolute_uri(), append_indexhtml=False)
+        if not result:
+            raise Http404
+
+        log.bind(
+            project_slug=result.project.slug,
+            version_slug=result.version.slug if result.version else "",
+            filename=result.filename,
+        )
+
+        # Skip serving versions that are not active (return 404). This is to
+        # avoid serving files that we have in the storage, but its associated
+        # version does not exist anymore or it was de-activated.
+        if result.version and not result.version.active:
+            log.warning("Version is not active.")
+            raise Http404("Version is not active.")
+
+        if self._is_cache_enabled(result.project) and not result.version.is_private:
+            # All public versions can be cached.
+            self.cache_request = True
+
+        log.bind(cache_request=self.cache_request)
+        log.debug('Serving docs.')
+
+        # Verify if the project is marked as spam and return a 401 in that case
+        spam_response = self._spam_response(request, result.project)
+        if spam_response:
+            return spam_response
+
+        # HTTPS redirect.
+        if result.domain and result.domain.https and not request.is_secure():
+            log.info("Redirecting from unresolver")
+            try:
+                return self.canonical_redirect(
+                    request=request,
+                    final_project=result.project,
+                    version_slug=result.version.slug,
+                    filename=result.filename,
+                )
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
+
+        # Subproject redirect
+        if result.parent_project.is_subproject:
+            log.info("Redirecting from unresolver")
+            return self.system_redirect(
+                request=request,
+                final_project=result.project,
+                lang_slug=result.project.language,
+                version_slug=result.version.slug if result.version else None,
+                filename=result.filename,
+            )
+
+        # Canonical domain redirect
+        canonical_domain = result.parent_project.domains.filter(canonical=True).first()
+        if canonical_domain and result.domain != canonical_domain:
+            log.info("Redirecting from unresolver")
+            return self.system_redirect(
+                request=request,
+                final_project=result.project,
+                lang_slug=result.project.language,
+                version_slug=result.version.slug if result.version else None,
+                filename=result.filename,
+            )
+
+
+        # Handle a / redirect when we aren't a single version.
+        if not result.version and result.filename == "/" and not result.project.single_version:
+            log.info("Redirecting from unresolver")
+            return self.system_redirect(
+                request=request,
+                final_project=result.project,
+                lang_slug=result.project.language,
+                version_slug=result.version.slug if result.version else None,
+                filename=result.filename,
+            )
+
+        if not result.version:
+            raise Http404
+
+        if result.version and result.filename == "/" and not result.parsed_url.path.endswith("/"):
+            log.info("Redirecting from unresolver")
+            return self.system_redirect(
+                request=request,
+                final_project=result.project,
+                lang_slug=result.project.language,
+                version_slug=result.version.slug,
+                filename=result.filename,
+            )
+
+        storage_path = result.project.get_storage_path(
+            type_='html',
+            version_slug=result.version.slug,
+            include_file=False,
+            version_type=result.version.type,
+        )
+
+        # If ``filename`` is empty, serve from ``/``
+        path = build_media_storage.join(storage_path, result.filename.lstrip('/'))
+        # Handle our backend storage not supporting directory indexes,
+        # so we need to append index.html when appropriate.
+        if path[-1] == '/':
+            # We need to add the index.html before ``storage.url`` since the
+            # Signature and Expire time is calculated per file.
+            path += 'index.html'
+
+        # NOTE: calling ``.url`` will remove the trailing slash
+        storage_url = build_media_storage.url(path, http_method=request.method)
+
+        # URL without scheme and domain to perform an NGINX internal redirect
+        parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
+        final_url = parsed_url.geturl()
+        log.info("Serving from unresolver")
+
+        return self._serve_docs(
+            request,
+            final_project=result.project,
+            version_slug=result.version.slug,
+            path=final_url,
+        )
+
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
