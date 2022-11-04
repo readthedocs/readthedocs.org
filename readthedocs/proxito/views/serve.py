@@ -22,7 +22,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.proxito.exceptions import ProxitoHttp404
+from readthedocs.proxito.exceptions import ProxitoHttp404, ProxitoProjectPageHttp404
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 
@@ -400,7 +400,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             full_path=proxito_path,
         )
         log.debug("Raising ProxitoHttp404")
-        raise ProxitoHttp404(
+        raise ProxitoProjectPageHttp404(
             "No custom 404 page found.",
             project=final_project,
             project_slug=kwargs.get("project_slug"),
