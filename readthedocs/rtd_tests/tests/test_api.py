@@ -2369,7 +2369,7 @@ class APIVersionTests(TestCase):
     maxDiff = None  # So we get an actual diff when it fails
 
 
-    def setUP(self):
+    def setUp(self):
         call_command("fixtures_projects")
 
     def test_get_version_by_id(self):
@@ -2382,6 +2382,19 @@ class APIVersionTests(TestCase):
         pip = Project.objects.get(slug='pip')
         version = pip.versions.get(slug='0.8')
 
+        pip.users.add(1)
+        pip.save()
+
+        FEATURE_ID = "allow_deprecated_webhooks"
+
+        Feature.objects.get_or_create(
+            feature_id=FEATURE_ID,
+            default_true=True,
+        )
+        f = Feature.objects.get(feature_id=FEATURE_ID)
+        f.projects.add(pip)
+        f.save()
+
         data = {
             "pk": version.pk,
         }
@@ -2393,61 +2406,66 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         version_data = {
-            'type': 'tag',
-            'verbose_name': '0.8',
-            'built': False,
-            'id': 18,
-            'active': True,
-            'project': {
-                'analytics_code': None,
-                'analytics_disabled': False,
-                'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
-                'cdn_enabled': False,
-                'conf_py_file': '',
-                'container_image': None,
-                'container_mem_limit': None,
-                'container_time_limit': None,
-                'default_branch': None,
-                'default_version': 'latest',
-                'description': '',
-                'documentation_type': 'sphinx',
-                'environment_variables': {},
-                'enable_epub_build': True,
-                'enable_pdf_build': True,
-                'features': ['allow_deprecated_webhooks'],
-                'has_valid_clone': False,
-                'has_valid_webhook': False,
-                'id': 6,
-                'install_project': False,
-                'language': 'en',
-                'max_concurrent_builds': None,
-                'name': 'Pip',
-                'programming_language': 'words',
-                'python_interpreter': 'python3',
-                'repo': 'https://github.com/pypa/pip',
-                'repo_type': 'git',
-                'requirements_file': None,
-                'show_advertising': True,
-                'skip': False,
-                'slug': 'pip',
-                'use_system_packages': False,
-                'users': [1],
-                'urlconf': None,
+            "id": version.id,
+            "project": {
+                "id": pip.id,
+                "name": "Pip",
+                "slug": "pip",
+                "description": "",
+                "language": "en",
+                "programming_language": "words",
+                "repo": "https://github.com/pypa/pip",
+                "repo_type": "git",
+                "default_version": "latest",
+                "default_branch": None,
+                "documentation_type": "sphinx",
+                "users": [1],
+                "canonical_url": "http://readthedocs.org/docs/pip/en/latest/",
+                "urlconf": None,
+                "enable_epub_build": True,
+                "enable_pdf_build": True,
+                "conf_py_file": "",
+                "analytics_code": None,
+                "analytics_disabled": False,
+                "cdn_enabled": False,
+                "container_image": None,
+                "container_mem_limit": None,
+                "container_time_limit": None,
+                "install_project": False,
+                "use_system_packages": False,
+                "skip": False,
+                "requirements_file": None,
+                "python_interpreter": "python3",
+                "features": ["allow_deprecated_webhooks"],
+                "has_valid_clone": False,
+                "has_valid_webhook": False,
+                "show_advertising": True,
+                "environment_variables": {},
+                "max_concurrent_builds": None,
             },
-            'privacy_level': 'public',
-            'downloads': {},
-            'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
-            'slug': '0.8',
-            'has_epub': False,
-            'has_htmlzip': False,
-            'has_pdf': False,
-            'documentation_type': 'sphinx',
+            "slug": "0.8",
+            "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+            "verbose_name": "0.8",
+            "privacy_level": "public",
+            "active": True,
+            "built": False,
+            "downloads": {},
+            "type": "tag",
+            "has_pdf": False,
+            "has_epub": False,
+            "has_htmlzip": False,
+            "documentation_type": "sphinx",
         }
-
+        resp.data["project"] = dict(resp.data["project"])
+        print(resp.data)
         self.assertDictEqual(
             resp.data,
             version_data,
         )
+        # deleting feature and removing users added
+        pip.users.remove(1)
+        pip.save()
+        Feature.objects.filter(feature_id=FEATURE_ID).delete()
 
     def test_get_active_versions(self):
         """Test the full response of
