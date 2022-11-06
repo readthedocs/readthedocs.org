@@ -31,11 +31,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.1
+boto3==1.26.3
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.1
+botocore==1.29.3
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -268,7 +268,7 @@ platformdirs==2.5.2
     #   virtualenv
 poetry-semver==0.1.0
     # via requirements-detector
-prompt-toolkit==3.0.31
+prompt-toolkit==3.0.32
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -468,7 +468,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.4.1
+websocket-client==1.4.2
     # via
     #   -r requirements/pip.txt
     #   docker
