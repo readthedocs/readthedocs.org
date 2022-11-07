@@ -127,7 +127,7 @@ class TestStripeEventHandlers(TestCase):
         event_handlers.update_subscription(event=event)
 
         subscription.refresh_from_db()
-        self.assertIsNone(subscription.stripe_id)
+        self.assertEqual(subscription.stripe_id, stripe_subscription.id)
         self.assertEqual(subscription.status, SubscriptionStatus.canceled)
 
     def test_subscription_checkout_completed_event(self):
