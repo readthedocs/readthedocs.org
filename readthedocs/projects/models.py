@@ -442,7 +442,7 @@ class Project(models.Model):
         help_text=_('This project has been successfully cloned'),
     )
 
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(blank=True, ordering=["name"])
     history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
 
