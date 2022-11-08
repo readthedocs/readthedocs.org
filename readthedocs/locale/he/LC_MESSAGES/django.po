@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 22:14+0000\n"
+"POT-Creation-Date: 2022-11-08 15:24+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022\n"
 "Language-Team: Hebrew (http://www.transifex.com/readthedocs/readthedocs/"
@@ -115,22 +115,22 @@ msgstr "מתארח בחסות"
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
-#: api/v3/serializers.py:493
+#: api/v3/serializers.py:496
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "שם המיזם „{0}” שגוי: לא נוצר שם מפושט."
 
-#: api/v3/serializers.py:497
+#: api/v3/serializers.py:500
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "כבר קיים מיזם עם השם המפושט „{0}”."
 
-#: api/v3/serializers.py:702
+#: api/v3/serializers.py:706
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "מיזם עם {slug_name}={value} אינו תקף כתת־מיזם"
 
-#: api/v3/serializers.py:710 projects/forms.py:465
+#: api/v3/serializers.py:714 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "כבר קיים תת־מיזם עם הכינוי הזה"
 
@@ -1672,6 +1672,10 @@ msgid ""
 "            after a <b>30 day trial</b>.\n"
 "          "
 msgstr ""
+"\n"
+"            אין צורך להחליט כרגע, אפשר לבחור תוכנית שמתאימה לארגון שלך\n"
+"            לאחר <b>30 ימי ניסיון</b>.\n"
+"          "
 
 #: organizations/templates/organizations/organization_detail.html:69
 #: organizations/templates/organizations/team_list.html:69

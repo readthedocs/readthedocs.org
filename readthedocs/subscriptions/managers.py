@@ -102,12 +102,7 @@ class SubscriptionManager(models.Manager):
         else:
             log.error("Plan not found, skipping plan update.")
 
-        if stripe_subscription.status == 'canceled':
-            # Remove ``stripe_id`` when canceled so the customer can
-            # re-subscribe using our form.
-            rtd_subscription.stripe_id = None
-
-        elif stripe_subscription.status == 'active' and end_date:
+        if stripe_subscription.status == "active" and end_date:
             # Save latest active date (end_date) to notify owners about their subscription
             # is ending and disable this organization after N days of unpaid. We check for
             # ``active`` here because Stripe will continue sending updates for the
