@@ -109,8 +109,8 @@ Skip build based on a condition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There may be situations where you want to skip a build that was automatically triggered when someone on your team pushed to the repository.
-Skipping builds will allow you to speed up review times and also help us to reduce costs in our servers.
-The following situations are good examples to skip a build:
+Skipping builds will allow you to speed up review times and also help us reduce server costs and ultimately our environmental footprint.
+Consider the following scenarios:
 
 * the build depends on an external situation that's not met yet
 * there were no changes on the documentation files
@@ -120,7 +120,9 @@ and exits with code ``439`` to skip it, or ``0`` to continue building the docume
 If any of the commands return this particular exit code,
 Read the Docs will stop the build immediately,
 mark it as "Cancelled",
-and communicate GitHub/GitLab that the build succeeded (green tick) so the pull request is in a mergeable state.
+and communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅) so the pull request is in a mergeable state.
+
+Here is an example that exits the build when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
