@@ -73,7 +73,7 @@ There are some caveats to knowing when using user-defined jobs:
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
-  (note there is a special exit code to :ref:`skip the build <build-customization:skip-build-based-on-a-condition>`)
+  (note there is a special exit code to `skip the build <skip-build-based-on-a-condition>`_)
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
