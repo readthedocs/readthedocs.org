@@ -122,7 +122,7 @@ Read the Docs will stop the build immediately,
 mark it as "Cancelled",
 and communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅) so the pull request is in a mergeable state.
 
-Here is an example that skip build from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch.
+Here is an example that skip build from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -142,6 +142,22 @@ Here is an example that skip build from pull requests when there are no changes 
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 439; fi
 
+
+This other example shows how to skip a build if the commit message contains ``skip ci`` on it:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Use `git log` to check if the latest commit contains "skip ci",
+         # in that case exit the command with 439 to skip the build
+         - case `git --no-pager log --pretty="tformat:%s" -1` in *"skip ci"*) exit 439;; *);; esac
 
 
 Generate documentation from annotated sources with Doxygen
