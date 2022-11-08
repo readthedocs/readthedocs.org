@@ -453,8 +453,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
         # Known errors in the user's project (e.g. invalid config file, invalid
         # repository, command failed, etc). Report the error back to the user
-        # using the `message` attribute from the exception itself. Otherwise,
-        # use a generic message.
+        # using the `message` and `state` attributes from the exception itself.
+        # Otherwise, use a generic message and default state.
         elif isinstance(exc, BuildUserError):
             if hasattr(exc, 'message') and exc.message is not None:
                 self.data.build['error'] = exc.message
@@ -493,6 +493,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_type = None
             if self.data.version:
                 version_type = self.data.version.type
+
+            # NOTE: autoflake gets confused here. We need the NOQA for now.
+            status = BUILD_STATUS_FAILURE  # noqa
+            if isinstance(exc, BuildUserSkip):
+                # The build was skipped by returning the magic exit code,
+                # marked as CANCELLED, but communicated to GitHub as successful.
+                # This is because the PR has to be available for merging when the build
+                # was skipped on purpose.
+                status = BUILD_STATUS_SUCCESS  # noqa
+
             send_external_build_status(
                 version_type=version_type,
                 build_pk=self.data.build['id'],
