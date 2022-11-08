@@ -495,19 +495,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type = self.data.version.type
 
             # NOTE: autoflake gets confused here. We need the NOQA for now.
-            status = BUILD_STATUS_FAILURE  # noqa
+            status = BUILD_STATUS_FAILURE
             if isinstance(exc, BuildUserSkip):
                 # The build was skipped by returning the magic exit code,
                 # marked as CANCELLED, but communicated to GitHub as successful.
                 # This is because the PR has to be available for merging when the build
                 # was skipped on purpose.
-                status = BUILD_STATUS_SUCCESS  # noqa
+                status = BUILD_STATUS_SUCCESS
 
             send_external_build_status(
                 version_type=version_type,
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
-                status=BUILD_STATUS_FAILURE,
+                status=status,
             )
 
         # Update build object
