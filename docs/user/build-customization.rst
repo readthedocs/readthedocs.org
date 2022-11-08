@@ -73,6 +73,7 @@ There are some caveats to knowing when using user-defined jobs:
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
+  (note there is a special exit code to :ref:`skip the build <build-customization:skip-build-based-on-a-condition>`)
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
@@ -102,6 +103,39 @@ To avoid this, it's possible to unshallow the clone done by Read the Docs:
      jobs:
        post_checkout:
          - git fetch --unshallow
+
+
+Skip build based on a condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There may be situations where you want to skip a build that was automatically triggered when someone on your team pushed to the repository.
+Skipping builds will allow you to speed up review times and also help us to reduce costs in our servers.
+The following situations are good examples to skip a build:
+
+* the build depends on an external situation that's not met yet
+* there were no changes on the documentation files
+
+In these scenarios, you can skip the build by executing a custom command that checks for that particular condition
+and exits with code ``439`` to skip it, or ``0`` to continue building the documentation normally.
+If any of the commands return this particular exit code,
+Read the Docs will stop the build immediately,
+mark it as "Cancelled",
+and communicate GitHub/GitLab that the build succeeded (green tick) so the pull request is in a mergeable state.
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Check if there were changes in the "docs/" directory
+         # and return 439 to skip the build if there weren't
+         - ! git diff --quiet origin/main -- docs/ && exit 439
+
 
 
 Generate documentation from annotated sources with Doxygen
