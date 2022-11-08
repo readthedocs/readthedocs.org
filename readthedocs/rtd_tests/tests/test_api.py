@@ -81,12 +81,12 @@ class APIBuildTests(TestCase):
         resp = client.post(
             '/api/v2/build/',
             {
-                'project': 1,
-                'version': 1,
-                'success': True,
-                'output': 'Test Output',
-                'error': 'Test Error',
-                'state': 'cloning',
+                "project": self.project.id,
+                "version": self.version.id,
+                "success": True,
+                "output": "Test Output",
+                "error": "Test Error",
+                "state": "cloning",
             },
             format='json',
         )
@@ -171,9 +171,9 @@ class APIBuildTests(TestCase):
         resp = client.post(
             '/api/v2/build/',
             {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
+                "project": self.project.id,
+                "version": self.version.id,
+                "config": {"one": "two"},
             },
             format='json',
         )
@@ -192,9 +192,9 @@ class APIBuildTests(TestCase):
         resp = client.post(
             '/api/v2/build/',
             {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
+                "project": self.project.id,
+                "version": self.version.id,
+                "config": {"one": "two"},
             },
             format='json',
         )
@@ -205,9 +205,9 @@ class APIBuildTests(TestCase):
         resp = client.post(
             '/api/v2/build/',
             {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
+                "project": self.project.id,
+                "version": self.version.id,
+                "config": {"one": "two"},
             },
             format='json',
         )
@@ -456,9 +456,9 @@ class APIBuildTests(TestCase):
         resp = client.post(
             '/api/v2/build/',
             {
-                'project': 1,
-                'version': 1,
-                'success': True,
+                "project": self.project.id,
+                "version": self.version.id,
+                "success": True,
             },
             format='json',
         )

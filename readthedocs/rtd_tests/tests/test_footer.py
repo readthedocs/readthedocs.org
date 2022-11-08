@@ -337,24 +337,26 @@ class TestVersionCompareFooter(TestCase):
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
+        version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'https://pip.readthedocs.io/en/0.8.1/',
-            'slug': '0.8.1',
-            'version': '0.8.1',
-            'is_highest': True,
+            "project": "Version 0.8.1 of Pip ({})".format(version.pk),
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": True,
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
 
     def test_highest_version_from_lower(self):
         base_version = self.pip.versions.get(slug='0.8')
+        version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'https://pip.readthedocs.io/en/0.8.1/',
-            'slug': '0.8.1',
-            'version': '0.8.1',
-            'is_highest': False,
+            "project": "Version 0.8.1 of Pip ({})".format(version.pk),
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": False,
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
@@ -362,12 +364,13 @@ class TestVersionCompareFooter(TestCase):
     def test_highest_version_from_latest(self):
         self.pip.versions.filter(slug=LATEST).update(built=True)
         base_version = self.pip.versions.get(slug=LATEST)
+        version = self.pip.versions.get(slug="0.8.1")
         valid_data = {
-            'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'https://pip.readthedocs.io/en/0.8.1/',
-            'slug': '0.8.1',
-            'version': '0.8.1',
-            'is_highest': True,
+            "project": "Version 0.8.1 of Pip ({})".format(version.pk),
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": True,
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
@@ -406,22 +409,22 @@ class TestVersionCompareFooter(TestCase):
 
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
-            'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'https://pip.readthedocs.io/en/0.8.1/',
-            'slug': '0.8.1',
-            'version': '0.8.1',
-            'is_highest': True,
+            "project": "Version 0.8.1 of Pip ({})".format(base_version.pk),
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": True,
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
-
-        base_version = self.pip.versions.get(slug='0.8')
+        version = self.pip.versions.get(slug="0.8.1")
+        base_version = self.pip.versions.get(slug="0.8")
         valid_data = {
-            'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'https://pip.readthedocs.io/en/0.8.1/',
-            'slug': '0.8.1',
-            'version': '0.8.1',
-            'is_highest': False,
+            "project": "Version 0.8.1 of Pip ({})".format(version.pk),
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": False,
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
