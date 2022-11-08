@@ -122,7 +122,7 @@ Read the Docs will stop the build immediately,
 mark it as "Cancelled",
 and communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅) so the pull request is in a mergeable state.
 
-Here is an example that exits the build when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch.
+Here is an example that skip build from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -134,13 +134,13 @@ Here is an example that exits the build when there are no changes to the ``docs/
        python: "3.11"
      jobs:
        post_checkout:
-         # Skip build when there aren't changed in docs directory.
+         # Skip building pull requests when there aren't changed in the docs directory.
          # `--quiet` exits with a 1 when there **are** changes,
          # so we invert the logic with a !
          #
          # If there are no changes (exit 0) we force the command to return with 439.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - ! git diff --quiet origin/main -- docs/ && exit 439
+         - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 439; fi
 
 
 
