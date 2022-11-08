@@ -132,8 +132,12 @@ and communicate GitHub/GitLab that the build succeeded (green tick) so the pull 
        python: "3.11"
      jobs:
        post_checkout:
-         # Check if there were changes in the "docs/" directory
-         # and return 439 to skip the build if there weren't
+         # Skip build when there aren't changed in docs directory.
+         # `--quiet` exits with a 1 when there **are** changes,
+         # so we invert the logic with a !
+         #
+         # If there are no changes (exit 0) we force the command to return with 439.
+         # This is a special exit code on Read the Docs that will cancel the build immediately.
          - ! git diff --quiet origin/main -- docs/ && exit 439
 
 
