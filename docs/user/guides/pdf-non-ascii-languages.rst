@@ -21,7 +21,7 @@ then try ``xelatex`` as the ``latex_engine`` instead of the default ``pdflatex``
 
 .. code-block:: python
 
-    latex_engine = 'xelatex'
+    latex_engine = "xelatex"
 
 When Read the Docs detects that your documentation is in Chinese or Japanese,
 it automatically adds some defaults for you.
@@ -30,17 +30,17 @@ For *Chinese* projects, it appends to your ``conf.py`` these settings:
 
 .. code-block:: python
 
-    latex_engine = 'xelatex'
+    latex_engine = "xelatex"
     latex_use_xindy = False
     latex_elements = {
-        'preamble': '\\usepackage[UTF8]{ctex}\n',
+        "preamble": "\\usepackage[UTF8]{ctex}\n",
     }
 
 And for *Japanese* projects:
 
 .. code-block:: python
 
-    latex_engine = 'platex'
+    latex_engine = "platex"
     latex_use_xindy = False
 
 .. tip::

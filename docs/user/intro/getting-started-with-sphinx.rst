@@ -91,7 +91,7 @@ Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['myst_parser']
+   extensions = ["myst_parser"]
 
 You can now continue writing your docs in ``.md`` files and it will work with Sphinx.
 Read the `Getting started with MyST in Sphinx`_ docs for additional instructions.

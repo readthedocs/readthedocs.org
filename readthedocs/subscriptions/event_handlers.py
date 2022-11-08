@@ -13,6 +13,10 @@ from djstripe.enums import SubscriptionStatus
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
 from readthedocs.subscriptions.models import Subscription
+from readthedocs.subscriptions.notifications import (
+    SubscriptionEndedNotification,
+    SubscriptionRequiredNotification,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -90,6 +94,47 @@ def update_subscription(event):
         rtd_subscription=rtd_subscription,
         stripe_subscription_id=stripe_subscription_id,
     )
+
+
+@handler("customer.subscription.deleted")
+def subscription_canceled(event):
+    """
+    Send a notification to all owners if the subscription has ended.
+
+    We send a different notification if the subscription
+    that ended was a "trial subscription",
+    since those are from new users.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    organization = stripe_subscription.customer.rtd_organization
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    log.bind(organization_slug=organization.slug)
+    is_trial_subscription = stripe_subscription.items.filter(
+        price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+    ).exists()
+    notification_class = (
+        SubscriptionRequiredNotification
+        if is_trial_subscription
+        else SubscriptionEndedNotification
+    )
+    for owner in organization.owners.all():
+        notification = notification_class(
+            context_object=organization,
+            user=owner,
+        )
+        notification.send()
+        log.info("Notification sent.", recipient=owner)
 
 
 @handler("checkout.session.completed")

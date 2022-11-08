@@ -681,7 +681,16 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         # This is needed for the _get_project
         # method for the CDNCacheTagsMixin class.
         self.project = project
-        storage_url = staticfiles_storage.url(filename)
+
+        # We are catching a broader exception,
+        # since depending on the storage backend,
+        # an invalid path may raise a different exception.
+        try:
+            storage_url = staticfiles_storage.url(filename)
+        except Exception as e:
+            log.info("Invalid filename.", filename=filename, exc_info=e)
+            raise Http404
+
         path = urlparse(storage_url)._replace(scheme="", netloc="").geturl()
         return self._serve_static_file(request, path)
 

@@ -7,9 +7,9 @@
 # Felix Henninger <mailbox@felixhenninger.com>, 2016
 # Jannis Leidel <jannis@leidel.info>, 2012,2014
 # Jonas Obrist <ojiidotch@gmail.com>, 2012
-# Justman “Justman10000”, 2022
-# Justman “Justman10000”, 2022
-# Justman “Justman10000”, 2022
+# Justman10000, 2022
+# Justman10000, 2022
+# Justman10000, 2022
 # e57e0b6693d8a26d2bd54bd8ef3c1815, 2014,2017
 # f82ebdce6c7af46e12742407f341268c_9e4b487, 2020
 # Max Klingmann <max@mklingmann.com>, 2015
@@ -21,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 22:14+0000\n"
+"POT-Creation-Date: 2022-11-08 15:24+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Justman “Justman10000”, 2022\n"
+"Last-Translator: Justman10000, 2022\n"
 "Language-Team: German (http://www.transifex.com/readthedocs/readthedocs/"
 "language/de/)\n"
 "Language: de\n"
@@ -127,22 +127,22 @@ msgstr "Bereitgestellt von"
 msgid "Privacy Policy"
 msgstr "Datenschutz-Bestimmungen"
 
-#: api/v3/serializers.py:493
+#: api/v3/serializers.py:496
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Ungültiger Projektname \"{0}\": kein Slug generiert."
 
-#: api/v3/serializers.py:497
+#: api/v3/serializers.py:500
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "Projekt mit Slug \"{0}\" existiert bereits."
 
-#: api/v3/serializers.py:702
+#: api/v3/serializers.py:706
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "Projekt mit {slug_name}={value} ist als Unterprojekt nicht gültig"
 
-#: api/v3/serializers.py:710 projects/forms.py:465
+#: api/v3/serializers.py:714 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "Ein Unterprojekt mit diesem Alias ​​existiert bereits"
 
