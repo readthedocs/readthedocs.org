@@ -130,7 +130,11 @@ Here is an example that cancels builds from pull requests when there are no chan
          #
          # If there are no changes (exit 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 183; fi
+         - |
+           if [ $READTHEDOCS_VERSION_TYPE = "external" ];
+           then
+             ! git diff --quiet origin/main -- docs/ && exit 183;
+           fi
 
 
 This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
@@ -147,7 +151,12 @@ This other example shows how to cancel a build if the commit message contains ``
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
          # in that case exit the command with 183 to cancel the build
-         - case `git --no-pager log --pretty="tformat:%s" -1` in *"skip ci"*) exit 183;; *);; esac
+         - |
+           case `git --no-pager log --pretty="tformat:%s" -1`
+           in *"skip ci"*)
+             exit 183;;
+           *);;
+           esac
 
 
 Generate documentation from annotated sources with Doxygen
