@@ -69,7 +69,7 @@ The following are the pre-defined jobs executed by Read the Docs:
 
 
 When to cancel builds
------------------
+---------------------
 
 There may be situations where you want to cancel a particular running build.
 Cancelling running builds will allow your team to speed up review times and also help us reduce server costs and ultimately,
