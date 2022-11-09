@@ -193,6 +193,12 @@ class ServeRedirectMixin:
         Return a redirect that is defined by RTD instead of the user.
 
         This is normally used for `/` and `/page/*` redirects.
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
         to = resolve(
@@ -231,6 +237,13 @@ class ServeRedirectMixin:
         - Redirect from a subproject domain to the main domain
           https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
           https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
+        :param external: If the version is from a pull request preview.
         """
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
