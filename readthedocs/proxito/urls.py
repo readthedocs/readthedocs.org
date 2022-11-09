@@ -65,12 +65,12 @@ proxied_urls = [
     # /_/downloads/<lang>/<ver>/<type>/
     re_path(
         (
-            r'^{DOC_PATH_PREFIX}downloads/'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+            r"^{DOC_PATH_PREFIX}downloads/"
+            r"(?P<lang_slug>{lang_slug})/"
+            r"(?P<version_slug>{version_slug})/"
+            r"(?P<type_>{downloadable_type})/$".format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
@@ -79,13 +79,13 @@ proxied_urls = [
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
     re_path(
         (
-            r'^{DOC_PATH_PREFIX}downloads/'
-            r'(?P<subproject_slug>{project_slug})/'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+            r"^{DOC_PATH_PREFIX}downloads/"
+            r"(?P<subproject_slug>{project_slug})/"
+            r"(?P<lang_slug>{lang_slug})/"
+            r"(?P<version_slug>{version_slug})/"
+            r"(?P<type_>{downloadable_type})/$".format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
