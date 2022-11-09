@@ -263,7 +263,7 @@ class Unresolver:
          this is used to call this function recursively when
          resolving the path from a subproject (we don't support subprojects of subprojects).
         :param external_version_slug: Slug of the external version.
-         Used as the default version for single version projects
+         Used instead of the default version for single version projects
          being served under an external domain.
 
         :returns: A tuple with: project, version, and file name.
