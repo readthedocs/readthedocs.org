@@ -108,7 +108,7 @@ To avoid this, it's possible to unshallow the clone done by Read the Docs:
 Cancel build based on a condition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a command exits with code ``439``,
+When a command exits with code ``183``,
 Read the Docs will cancel the build immediately.
 We can use this approach to cancel builds we don't want to complete based on a condition.
 
@@ -128,9 +128,9 @@ Here is an example that cancels builds from pull requests when there are no chan
          # `--quiet` exits with a 1 when there **are** changes,
          # so we invert the logic with a !
          #
-         # If there are no changes (exit 0) we force the command to return with 439.
+         # If there are no changes (exit 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 439; fi
+         - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 183; fi
 
 
 This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
@@ -146,8 +146,8 @@ This other example shows how to cancel a build if the commit message contains ``
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 439 to cancel the build
-         - case `git --no-pager log --pretty="tformat:%s" -1` in *"skip ci"*) exit 439;; *);; esac
+         # in that case exit the command with 183 to cancel the build
+         - case `git --no-pager log --pretty="tformat:%s" -1` in *"skip ci"*) exit 183;; *);; esac
 
 
 Generate documentation from annotated sources with Doxygen

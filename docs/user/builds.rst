@@ -98,7 +98,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
 :Programatically:
 
    You can use user-defined commands on ``build.jobs`` or ``build.commands`` (see :doc:`build-customization`)
-   to check for a condition and exit it with the code ``439`` if you want to cancel the running build or ``0``, otherwise.
+   to check for a condition and exit it with the code ``183`` if you want to cancel the running build or ``0``, otherwise.
 
    In this case, Read the Docs will communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅)
    so the pull request is in a mergeable state.
