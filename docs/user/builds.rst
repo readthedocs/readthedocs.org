@@ -68,7 +68,7 @@ The following are the pre-defined jobs executed by Read the Docs:
     it's possible to run user-defined commands and :doc:`customize the build process <build-customization>`.
 
 
-Cancelling builds
+When to cancel builds
 -----------------
 
 There may be situations where you want to cancel a particular running build.
@@ -77,7 +77,7 @@ our environmental footprint.
 
 Consider the following scenarios:
 
-* the build depends on an external situation that's not met yet
+* the build has an external dependency that hasn't been updated
 * there were no changes on the documentation files
 * the user wants it for any particular reason
 

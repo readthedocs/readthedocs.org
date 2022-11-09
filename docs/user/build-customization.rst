@@ -110,7 +110,7 @@ Cancel build based on a condition
 
 When a command exits with code ``183``,
 Read the Docs will cancel the build immediately.
-We can use this approach to cancel builds we don't want to complete based on a condition.
+You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
 
 Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
 
