@@ -340,8 +340,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             .only("documentation_type")
             .first()
         )
-        doc_type = version.documentation_type if version else None
-        versions = [(version_slug, doc_type)]
+        versions = []
+        if version:
+            versions.append((version.slug, version.documentation_type))
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
             default_version_doc_type = (
