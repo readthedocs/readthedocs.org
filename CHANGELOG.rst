@@ -1,3 +1,13 @@
+Version 8.8.1
+-------------
+
+:Date: November 09, 2022
+
+* `@humitos <https://github.com/humitos>`__: Release 8.8.0 (`#9715 <https://github.com/readthedocs/readthedocs.org/pull/9715>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: support external versions for single version projects (`#9709 <https://github.com/readthedocs/readthedocs.org/pull/9709>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bump `readthedocs-sphinx-ext` to `<2.3` (`#9707 <https://github.com/readthedocs/readthedocs.org/pull/9707>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Proposal for sphinxcontrib-jquery (`#9665 <https://github.com/readthedocs/readthedocs.org/pull/9665>`__)
+
 Version 8.8.0
 -------------
 
