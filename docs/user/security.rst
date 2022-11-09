@@ -62,7 +62,7 @@ Bug bounties
 ------------
 
 While we sincerely appreciate and encourage reports of suspected security problems,
-please note that the Read the Docs is an open source project, and does not run any bug bounty programs.
+please note that the Read the Docs is an open source project, and **does not run any bug bounty programs**.
 
 Security issue archive
 ----------------------
