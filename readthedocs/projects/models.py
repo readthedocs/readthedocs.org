@@ -52,7 +52,13 @@ from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import MEDIA_TYPE_EPUB, MEDIA_TYPE_HTMLZIP, MEDIA_TYPE_PDF, MEDIA_TYPES
+from .constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -566,16 +572,22 @@ class Project(models.Model):
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
+        if type_ not in MEDIA_TYPES:
+            raise ValueError("Invalid content type.")
+
+        if include_file and type_ not in DOWNLOADABLE_MEDIA_TYPES:
+            raise ValueError("Invalid content type for downloadable file.")
+
         type_dir = type_
         # Add `external/` prefix for external versions
         if version_type == EXTERNAL:
             type_dir = f'{EXTERNAL}/{type_}'
 
-        folder_path = '{}/{}/{}'.format(
-            type_dir,
-            self.slug,
-            version_slug,
-        )
+        # Version slug may come from an unstrusted input,
+        # so we use join to avoid any path traversal.
+        # All other values are already validated.
+        folder_path = build_media_storage.join(f"{type_dir}/{self.slug}", version_slug)
+
         if include_file:
             extension = type_.replace('htmlzip', 'zip')
             return '{}/{}.{}'.format(
