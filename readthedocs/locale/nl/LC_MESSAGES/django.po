@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 22:14+0000\n"
+"POT-Creation-Date: 2022-11-08 15:24+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jesse Tan, 2017,2021\n"
 "Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs/"
@@ -121,22 +121,22 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
-#: api/v3/serializers.py:493
+#: api/v3/serializers.py:496
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:497
+#: api/v3/serializers.py:500
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:702
+#: api/v3/serializers.py:706
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:710 projects/forms.py:465
+#: api/v3/serializers.py:714 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr ""
 
