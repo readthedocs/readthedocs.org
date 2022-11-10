@@ -73,7 +73,7 @@ There are some caveats to knowing when using user-defined jobs:
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
-  (note there is a special exit code to `skip the build <skip-build-based-on-a-condition>`_)
+  (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_)
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
@@ -105,24 +105,14 @@ To avoid this, it's possible to unshallow the clone done by Read the Docs:
          - git fetch --unshallow
 
 
-Skip build based on a condition
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cancel build based on a condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There may be situations where you want to skip a build that was automatically triggered when someone on your team pushed to the repository.
-Skipping builds will allow you to speed up review times and also help us reduce server costs and ultimately our environmental footprint.
-Consider the following scenarios:
+When a command exits with code ``183``,
+Read the Docs will cancel the build immediately.
+You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
 
-* the build depends on an external situation that's not met yet
-* there were no changes on the documentation files
-
-In these scenarios, you can skip the build by executing a custom command that checks for that particular condition
-and exits with code ``439`` to skip it, or ``0`` to continue building the documentation normally.
-If any of the commands return this particular exit code,
-Read the Docs will stop the build immediately,
-mark it as "Cancelled",
-and communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅) so the pull request is in a mergeable state.
-
-Here is an example that skip build from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
+Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -134,16 +124,20 @@ Here is an example that skip build from pull requests when there are no changes 
        python: "3.11"
      jobs:
        post_checkout:
-         # Skip building pull requests when there aren't changed in the docs directory.
+         # Cancel building pull requests when there aren't changed in the docs directory.
          # `--quiet` exits with a 1 when there **are** changes,
          # so we invert the logic with a !
          #
-         # If there are no changes (exit 0) we force the command to return with 439.
+         # If there are no changes (exit 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
-         - if [ $READTHEDOCS_VERSION_TYPE = "external" ]; then ! git diff --quiet origin/main -- docs/ && exit 439; fi
+         - |
+           if [ $READTHEDOCS_VERSION_TYPE = "external" ];
+           then
+             ! git diff --quiet origin/main -- docs/ && exit 183;
+           fi
 
 
-This other example shows how to skip a build if the commit message contains ``skip ci`` on it:
+This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -156,8 +150,13 @@ This other example shows how to skip a build if the commit message contains ``sk
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
-         # in that case exit the command with 439 to skip the build
-         - case `git --no-pager log --pretty="tformat:%s" -1` in *"skip ci"*) exit 439;; *);; esac
+         # in that case exit the command with 183 to cancel the build
+         - |
+           case `git --no-pager log --pretty="tformat:%s" -1`
+           in *"skip ci"*)
+             exit 183;;
+           *);;
+           esac
 
 
 Generate documentation from annotated sources with Doxygen
