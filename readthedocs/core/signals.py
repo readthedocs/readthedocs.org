@@ -71,6 +71,7 @@ def process_email_confirmed(request, email_address, **kwargs):
             "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
         }
         try:
+            # TODO: migrate this signal to a Celery task since it has a `requests.post` on it.
             resp = requests.post(
                 url,
                 json=payload,
