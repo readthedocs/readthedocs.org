@@ -497,7 +497,6 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             log.info('Serving custom robots.txt file.')
             return response
 
-
         sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
             scheme='https',
             domain=project.subdomain(),

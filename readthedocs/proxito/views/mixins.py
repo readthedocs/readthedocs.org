@@ -52,7 +52,7 @@ class ServeDocsMixin:
 
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
-        if filename and filename[-1] == "/":
+        if not filename or filename.endswith("/"):
             filename += "index.html"
 
         # If the filename starts with `/`, the join will fail,
@@ -117,6 +117,9 @@ class ServeDocsMixin:
         Serve from the filesystem if using ``PYTHON_MEDIA``. We definitely
         shouldn't do this in production, but I don't want to force a check for
         ``DEBUG``.
+
+        :param storage_path: Path to file to serve.
+        :param storage_backend: Storage backend class from where to serve the file.
         """
         storage_url = self._get_storage_url(
             request=request,
