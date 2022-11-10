@@ -1192,7 +1192,7 @@ class TestAdditionalDocViews(BaseDocServing):
     @override_settings(
         RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
     )
-    @mock.patch("readthedocs.proxito.views.serve.staticfiles_storage")
+    @mock.patch("readthedocs.proxito.views.mixins.staticfiles_storage")
     def test_serve_invalid_static_file(self, staticfiles_storage):
         staticfiles_storage.url.side_effect = Exception
         paths = ["../", "foo/../bar"]

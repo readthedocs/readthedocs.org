@@ -17,11 +17,17 @@ from slugify import slugify as unicode_slugify
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 
-log = structlog.get_logger(__name__)  # noqa
+log = structlog.get_logger(__name__)
+
+
+class InvalidPathError(Exception):
+
+    """An invalid path was passed to storage."""
 
 
 class ServeDocsMixin:
@@ -30,52 +36,126 @@ class ServeDocsMixin:
 
     version_type = INTERNAL
 
-    def _serve_docs(
-            self,
-            request,
-            final_project,
-            path,
-            download=False,
-            version_slug=None,
-    ):
+    def _serve_docs(self, request, project, version, filename, check_if_exists=False):
         """
-        Serve documentation in the way specified by settings.
+        Serve a documentation file.
+
+        :param check_if_exists: If `True` we check if the file exists before trying
+         to serve it.
+        """
+        base_storage_path = project.get_storage_path(
+            type_=MEDIA_TYPE_HTML,
+            version_slug=version.slug,
+            include_file=False,
+            version_type=version.type,
+        )
+
+        # Handle our backend storage not supporting directory indexes,
+        # so we need to append index.html when appropriate.
+        if filename and filename[-1] == "/":
+            filename += "index.html"
+
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
+        storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
+
+        if check_if_exists and not build_media_storage.exists(storage_path):
+            return None
+
+        self._track_pageview(
+            project=project,
+            path=filename,
+            request=request,
+            download=False,
+        )
+        return self._serve_file(
+            request=request,
+            storage_path=storage_path,
+            storage_backend=build_media_storage,
+        )
+
+    def _serve_dowload(self, request, project, version, type_):
+        """
+        Serve downloadable content for the given version.
+
+        The HTTP header ``Content-Disposition`` is added with the proper
+        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
+        or "docs-celeryproject-org-kombu-en-stable.pdf").
+        """
+        storage_path = project.get_storage_path(
+            type_=type_,
+            version_slug=version.slug,
+            version_type=version.type,
+            include_file=True,
+        )
+        self._track_pageview(
+            project=project,
+            path=storage_path,
+            request=request,
+            download=True,
+        )
+        response = self._serve_file(
+            request=request,
+            storage_path=storage_path,
+            storage_backend=build_media_storage,
+        )
+
+        # Set the filename of the download.
+        filename_ext = storage_path.rsplit(".", 1)[-1]
+        domain = unicode_slugify(project.subdomain().replace(".", "-"))
+        if project.is_subproject:
+            filename = f"{domain}-{project.alias}-{project.language}-{version.slug}.{filename_ext}"
+        else:
+            filename = f"{domain}-{project.language}-{version.slug}.{filename_ext}"
+        response["Content-Disposition"] = f"filename={filename}"
+        return response
+
+    def _serve_file(self, request, storage_path, storage_backend):
+        """
+        Serve a file from storage.
 
         Serve from the filesystem if using ``PYTHON_MEDIA``. We definitely
         shouldn't do this in production, but I don't want to force a check for
         ``DEBUG``.
-
-        If ``download`` and ``version_slug`` are passed,
-        the HTTP header ``Content-Disposition`` is added with the proper
-        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
-        or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
-
-        self._track_pageview(
-            project=final_project,
-            path=path,
+        storage_url = self._get_storage_url(
             request=request,
-            download=download,
+            storage_path=storage_path,
+            storage_backend=storage_backend,
         )
         if settings.PYTHON_MEDIA:
-            response = self._serve_file_from_python(request, path, build_media_storage)
+            return self._serve_file_from_python(request, storage_url, storage_backend)
+
+        if storage_backend == build_media_storage:
+            root_path = "proxito"
+        elif storage_backend == staticfiles_storage:
+            root_path = "proxito-static"
         else:
-            response = self._serve_file_from_nginx(path, root_path="proxito")
+            raise ValueError("Invalid storage backend.")
+        return self._serve_file_from_nginx(storage_url, root_path=root_path)
 
-        # Set the filename of the download.
-        if download:
-            filename_ext = urlparse(path).path.rsplit(".", 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace(".", "-"))
-            if final_project.is_subproject:
-                alias = final_project.alias
-                filename = f"{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}"  # noqa
-            else:
-                filename = (
-                    f"{domain}-{final_project.language}-{version_slug}.{filename_ext}"
-                )
-            response["Content-Disposition"] = f"filename={filename}"
+    def _get_storage_url(self, request, storage_path, storage_backend):
+        """
+        Get the full storage URL from a storage path.
 
-        return response
+        The URL will be without scheme and domain,
+        this is to perform an NGINX internal redirect.
+        Authorization query arguments will stay in place
+        (useful for private buckets).
+        """
+        # We are catching a broader exception,
+        # since depending on the storage backend,
+        # an invalid path may raise a different exception.
+        try:
+            # NOTE: calling ``.url`` will remove any double slashes.
+            # e.g: '/foo//bar///' -> '/foo/bar/'.
+            storage_url = storage_backend.url(storage_path, http_method=request.method)
+        except Exception as e:
+            log.info("Invalid storage path.", path=storage_path, exc_info=e)
+            raise InvalidPathError
+
+        parsed_url = urlparse(storage_url)._replace(scheme="", netloc="")
+        return parsed_url.geturl()
 
     def _track_pageview(self, project, path, request, download):
         """Create an audit log of the page view if audit is enabled."""
@@ -100,10 +180,12 @@ class ServeDocsMixin:
         """
         return False
 
-    def _serve_static_file(self, request, path):
-        if settings.PYTHON_MEDIA:
-            return self._serve_file_from_python(request, path, staticfiles_storage)
-        return self._serve_file_from_nginx(path, root_path="proxito-static")
+    def _serve_static_file(self, request, filename):
+        return self._serve_file(
+            request=request,
+            storage_path=filename,
+            storage_backend=staticfiles_storage,
+        )
 
     def _serve_file_from_nginx(self, path, root_path):
         """

@@ -4,7 +4,6 @@ import hashlib
 import mimetypes
 import os
 from collections import OrderedDict
-from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
@@ -33,7 +32,6 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
-from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin, ProjectSpamMixin
@@ -374,22 +372,11 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             uip=get_client_ip(request),
         )
 
-        storage_path = version.project.get_storage_path(
+        return self._serve_dowload(
+            request=request,
+            project=version.project,
+            version=version,
             type_=type_,
-            version_slug=version_slug,
-            version_type=version.type,
-        )
-
-        # URL without scheme and domain to perform an NGINX internal redirect
-        url = build_media_storage.url(storage_path)
-        url = urlparse(url)._replace(scheme='', netloc='').geturl()
-
-        return self._serve_docs(
-            request,
-            final_project=version.project,
-            version_slug=version.slug,
-            path=url,
-            download=True,
         )
 
 
