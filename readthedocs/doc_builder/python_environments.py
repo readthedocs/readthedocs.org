@@ -169,13 +169,23 @@ class Virtualenv(PythonEnvironment):
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
-        requirements = [
-            'mock==1.0.1',
-            'pillow==5.4.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.8.1',
-            'recommonmark==0.5.0',
-        ]
+        requirements = []
+
+        # Unpin Pillow on newer Python versions to avoid re-compiling
+        # https://pillow.readthedocs.io/en/stable/installation.html#python-support
+        if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
+            requirements.append("pillow==5.4.1")
+        else:
+            requirements.append("pillow")
+
+        requirements.extend(
+            [
+                "mock==1.0.1",
+                "alabaster>=0.7,<0.8,!=0.7.5",
+                "commonmark==0.9.1",
+                "recommonmark==0.5.0",
+            ]
+        )
 
         if self.config.doctype == 'mkdocs':
             requirements.append(
@@ -190,25 +200,27 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            requirements.extend([
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx',
-                    negative='sphinx<2',
-                ),
-                # If defaulting to Sphinx 2+, we need to push the latest theme
-                # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx-rtd-theme',
-                    negative='sphinx-rtd-theme<0.5',
-                ),
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_RTD_EXT_LATEST,
-                    positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<2.2',
-                ),
-            ])
+            requirements.extend(
+                [
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx",
+                        negative="sphinx<2",
+                    ),
+                    # If defaulting to Sphinx 2+, we need to push the latest theme
+                    # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx-rtd-theme",
+                        negative="sphinx-rtd-theme<0.5",
+                    ),
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_RTD_EXT_LATEST,
+                        positive="readthedocs-sphinx-ext",
+                        negative="readthedocs-sphinx-ext<2.3",
+                    ),
+                ]
+            )
             if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
                 requirements.extend(["jinja2<3.1.0"])
 

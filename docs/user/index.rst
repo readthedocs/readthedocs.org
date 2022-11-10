@@ -61,7 +61,6 @@ to help you create fantastic documentation for your project.
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-
    /intro/import-guide
    /choosing-a-site
 
@@ -122,6 +121,7 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
+   /build-troubleshooting
    /environment-variables
    /badges
 
@@ -147,6 +147,7 @@ and how to write successful documentation.
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -155,6 +156,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
@@ -165,6 +167,8 @@ and how to write successful documentation.
  /guides/authors
  /guides/administrators
  /guides/developers
+ /science
+ /examples
 
 Advanced features of Read the Docs
 ----------------------------------

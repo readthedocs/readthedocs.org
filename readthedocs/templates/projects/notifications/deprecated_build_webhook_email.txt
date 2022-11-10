@@ -1,0 +1,11 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+Your project, {{ project.name }}, is currently using a legacy incoming webhook to trigger builds on Read the Docs.
+Effective April 1st, 2019, Read the Docs will no longer accept incoming webhooks through these endpoints.
+
+To continue building your Read the Docs project on changes to your repository,
+you will need to configure a new webhook with your VCS provider.
+You can find more information on how to configure a new webhook in our documentation, at:
+
+https://docs.readthedocs.io/page/webhooks.html#webhook-deprecated-endpoints
+{% endblock %}

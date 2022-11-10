@@ -340,8 +340,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             .only("documentation_type")
             .first()
         )
-        doc_type = version.documentation_type if version else None
-        versions = [(version_slug, doc_type)]
+        versions = []
+        if version:
+            versions.append((version.slug, version.documentation_type))
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
             default_version_doc_type = (
@@ -681,7 +682,16 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         # This is needed for the _get_project
         # method for the CDNCacheTagsMixin class.
         self.project = project
-        storage_url = staticfiles_storage.url(filename)
+
+        # We are catching a broader exception,
+        # since depending on the storage backend,
+        # an invalid path may raise a different exception.
+        try:
+            storage_url = staticfiles_storage.url(filename)
+        except Exception as e:
+            log.info("Invalid filename.", filename=filename, exc_info=e)
+            raise Http404
+
         path = urlparse(storage_url)._replace(scheme="", netloc="").geturl()
         return self._serve_static_file(request, path)
 

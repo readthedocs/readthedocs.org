@@ -1,6 +1,6 @@
 import copy
 import mimetypes
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 import structlog
 from django.conf import settings
@@ -286,9 +286,16 @@ class ServeRedirectMixin:
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
         # `proxito_path` doesn't include query params.
-        query = urlparse(request.get_full_path()).query
-        # Pass the query params from the original request to the redirect.
-        new_path = urlparse(redirect_path)._replace(query=query).geturl()
+        query_list = parse_qsl(
+            urlparse(request.get_full_path()).query,
+            keep_blank_values=True,
+        )
+
+        # Combine the query params from the original request with the ones from the redirect.
+        redirect_parsed = urlparse(redirect_path)
+        query_list.extend(parse_qsl(redirect_parsed.query, keep_blank_values=True))
+        query = urlencode(query_list)
+        new_path = redirect_parsed._replace(query=query).geturl()
 
         # Re-use the domain and protocol used in the current request.
         # Redirects shouldn't change the domain, version or language.
@@ -301,7 +308,14 @@ class ServeRedirectMixin:
             http_status_code=http_status,
         )
 
-        if request.build_absolute_uri(proxito_path) == new_path:
+        new_path_parsed = urlparse(new_path)
+        old_path_parsed = urlparse(request.build_absolute_uri(proxito_path))
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL.',

@@ -1,9 +1,9 @@
 """Project views for authenticated users."""
-
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
 from django.http import (
     Http404,
@@ -41,6 +41,7 @@ from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
@@ -468,18 +469,29 @@ class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
         return self.get_queryset().count() <= 1
 
 
-class ProjectUsersCreateList(ProjectUsersMixin, FormView):
+class ProjectUsersCreateList(SuccessMessageMixin, ProjectUsersMixin, FormView):
 
     template_name = 'projects/project_users.html'
+    success_message = _("Invitation sent")
 
     def form_valid(self, form):
+        # Manually calling to save, since this isn't a ModelFormView.
         form.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
+
+    def _get_invitations(self):
+        return Invitation.objects.for_object(self.get_project())
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["request"] = self.request
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['users'] = self.get_queryset()
-        context['is_last_user'] = self._is_last_user()
+        context["users"] = self.get_queryset()
+        context["invitations"] = self._get_invitations()
+        context["is_last_user"] = self._is_last_user()
         return context
 
 
@@ -700,44 +712,40 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
 
     """Project redirects view and form view."""
 
+    form_class = RedirectForm
+    template_name = "redirects/redirect_form.html"
+    context_object_name = "redirect"
+    lookup_url_kwarg = "redirect_pk"
+
     def get_success_url(self):
         return reverse(
             'projects_redirects',
             args=[self.get_project().slug],
         )
 
-
-class ProjectRedirects(ProjectRedirectsMixin, FormView):
-
-    form_class = RedirectForm
-    template_name = 'projects/project_redirects.html'
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = self.get_project()
-        context['redirects'] = project.redirects.all()
-        return context
+    def get_queryset(self):
+        return self.get_project().redirects.all()
 
 
-class ProjectRedirectsDelete(ProjectRedirectsMixin, GenericView):
+class ProjectRedirectsList(ProjectRedirectsMixin, ListView):
+
+    template_name = "redirects/redirect_list.html"
+    context_object_name = "redirects"
+
+
+class ProjectRedirectsCreate(ProjectRedirectsMixin, CreateView):
+
+    pass
+
+
+class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
+
+    pass
+
+
+class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteView):
 
     http_method_names = ['post']
-
-    def post(self, request, *args, **kwargs):
-        project = self.get_project()
-        redirect = get_object_or_404(
-            project.redirects,
-            pk=request.POST.get('id_pk'),
-        )
-        if redirect.project == project:
-            redirect.delete()
-        else:
-            raise Http404
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -804,6 +812,11 @@ class DomainCreate(SettingsOverrideObject):
 
 
 class DomainUpdateBase(DomainMixin, UpdateView):
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.restart_validation_process()
+        return response
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()

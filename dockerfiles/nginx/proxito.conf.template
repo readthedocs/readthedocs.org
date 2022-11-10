@@ -3,6 +3,10 @@ server {
     listen 80 default_server;
     server_name $NGINX_PROXITO_SERVER_NAME;
 
+    # Docker Compose's "logging.driver: none" is not working anymore.
+    # So, we are disabling the logs from NGINX directly.
+    access_log off;
+
     # TODO: serve the favicon.ico from the project/version itself instead
     location /favicon.ico {
         proxy_pass http://storage:9000/static/images/favicon.ico;

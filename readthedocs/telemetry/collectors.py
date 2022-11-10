@@ -1,8 +1,12 @@
 """Data collectors."""
 
 import json
+import os
 
+import dparse
 import structlog
+
+from readthedocs.config.models import PythonInstallRequirements
 
 log = structlog.get_logger(__name__)
 
@@ -21,6 +25,7 @@ class BuildDataCollector:
         self.project = self.environment.project
         self.version = self.environment.version
         self.config = self.environment.config
+        self.checkout_path = self.project.checkout_path(self.version.slug)
 
         log.bind(
             build_id=self.build["id"],
@@ -30,9 +35,15 @@ class BuildDataCollector:
 
     @staticmethod
     def _safe_json_loads(content, default=None):
+        def lowercase(d):  # pylint: disable=invalid-name
+            """Convert all dictionary keys to lowercase."""
+            return {k.lower(): i for k, i in d.items()}
+
         # pylint: disable=broad-except
         try:
-            return json.loads(content)
+            # Use ``object_hook`` parameter to lowercase all the keys of the dictionary.
+            # This helps us to have our data normalized and improve queries.
+            return json.loads(content, object_hook=lowercase)
         except Exception:
             log.info(
                 "Error while loading JSON content.",
@@ -51,25 +62,69 @@ class BuildDataCollector:
         Data that can be extracted from the database (project/organization)
         isn't collected here.
         """
+
+        # NOTE: we could run each command inside a try/except block to have a
+        # more granular protection and be able to save data from those commands
+        # that didn't fail. Otherwise, if one command fails, all the data for
+        # this Build is lost.
+
         data = {}
         data["config"] = {"user": self.config.source_config}
         data["os"] = self._get_operating_system()
         data["python"] = self._get_python_version()
 
         user_apt_packages, all_apt_packages = self._get_apt_packages()
+        conda_packages = (
+            self._get_all_conda_packages() if self.config.is_using_conda else {}
+        )
         data["packages"] = {
             "pip": {
-                "user": self._get_pip_packages(include_all=False),
-                "all": self._get_pip_packages(include_all=True),
+                "user": self._get_user_pip_packages(),
+                "all": self._get_all_pip_packages(),
             },
             "conda": {
-                "all": self._get_all_conda_packages(),
+                "all": conda_packages,
             },
             "apt": {
                 "user": user_apt_packages,
                 "all": all_apt_packages,
             },
         }
+        data["doctool"] = self._get_doctool()
+        return data
+
+    def _get_doctool_name(self):
+        if self.version.is_sphinx_type:
+            return "sphinx"
+
+        if self.version.is_mkdocs_type:
+            return "mkdocs"
+
+        return "generic"
+
+    def _get_doctool(self):
+        data = {
+            "name": self._get_doctool_name(),
+            "extensions": [],
+            "html_theme": "",
+        }
+
+        if self._get_doctool_name() != "sphinx":
+            return data
+
+        # The project does not define a `conf.py` or does not have one
+        if not self.config.sphinx.configuration:
+            return data
+
+        conf_py_dir = os.path.join(
+            self.checkout_path,
+            os.path.dirname(self.config.sphinx.configuration),
+        )
+        filepath = os.path.join(conf_py_dir, "_build", "json", "telemetry.json")
+        if os.path.exists(filepath):
+            with open(filepath, "r") as json_file:
+                content = json_file.read()
+            data.update(self._safe_json_loads(content, {}))
         return data
 
     def _get_all_conda_packages(self):
@@ -118,9 +173,60 @@ class BuildDataCollector:
             return packages
         return []
 
-    def _get_pip_packages(self, include_all=False):
+    def _get_user_pip_packages(self):
         """
-        Get all the packages installed by the user using pip.
+        Get all the packages to be installed defined by the user.
+
+        It parses all the requirements files specified in the config file by
+        the user (python.install.requirements) using ``dparse`` --a 3rd party
+        package.
+
+        If the version of the package is explicit (==) it saves that particular
+        version. Otherwise, if it's not defined, it saves ``undefined`` and if
+        it's a non deterministic operation (like >=, <= or ~=) it saves
+        ``unknown`` in the version.
+
+        """
+        results = []
+        # pylint: disable=too-many-nested-blocks
+        for install in self.config.python.install:
+            if isinstance(install, PythonInstallRequirements):
+                if install.requirements:
+                    cmd = ["cat", install.requirements]
+                    _, stdout, _ = self.run(*cmd, cwd=self.checkout_path)
+                    # pylint: disable=invalid-name
+                    df = dparse.parse(
+                        stdout, file_type=dparse.filetypes.requirements_txt
+                    ).serialize()
+                    dependencies = df.get("dependencies", [])
+                    for requirement in dependencies:
+                        name = requirement.get("name", "").lower()
+                        if not name:
+                            continue
+
+                        # If the user defines a specific version in the
+                        # requirements file, we save it Otherwise, we don't
+                        # because we don't know which version will be
+                        # installed.
+                        version = "undefined"
+                        specs = str(requirement.get("specs", ""))
+                        if specs:
+                            if specs.startswith("=="):
+                                version = specs.replace("==", "", 1)
+                            else:
+                                version = "unknown"
+
+                        results.append(
+                            {
+                                "name": name,
+                                "version": version,
+                            }
+                        )
+        return results
+
+    def _get_all_pip_packages(self):
+        """
+        Get all the packages installed by pip.
 
         This includes top level and transitive dependencies.
         The output of ``pip list`` is in the form of::
@@ -148,9 +254,17 @@ class BuildDataCollector:
                 }
             ]
         """
-        cmd = ["python", "-m", "pip", "list", "--pre", "--local", "--format", "json"]
-        if not include_all:
-            cmd.append("--not-required")
+        cmd = [
+            "python",
+            "-m",
+            "pip",
+            "list",
+            "--pre",
+            "--local",
+            "--format",
+            "json",
+            "--not-required",
+        ]
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:
             return self._safe_json_loads(stdout, [])
@@ -231,7 +345,7 @@ class BuildDataCollector:
                 package, version = parts
                 packages.append(
                     {
-                        "name": package,
+                        "name": package.lower(),
                         "version": version,
                     }
                 )
@@ -240,7 +354,7 @@ class BuildDataCollector:
 
     def _get_user_apt_packages(self):
         return [
-            {"name": package, "version": ""}
+            {"name": package.lower(), "version": ""}
             for package in self.config.build.apt_packages
         ]
 

@@ -41,7 +41,8 @@ class RepositoryError(BuildUserError):
         'git/ssh URL schemas for submodules are not supported.'
     )
     DUPLICATED_RESERVED_VERSIONS = _(
-        'You can not have two versions with the name latest or stable.',
+        "You can not have two versions with the name latest or stable."
+        " Ensure you don't have both a branch and a tag with this name."
     )
 
     FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')

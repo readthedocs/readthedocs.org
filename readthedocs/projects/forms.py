@@ -9,6 +9,7 @@ from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -18,6 +19,7 @@ from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
+from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import (
     Domain,
@@ -467,27 +469,39 @@ class ProjectRelationshipForm(forms.ModelForm):
 
 class UserForm(forms.Form):
 
-    """Project user association form."""
+    """Project owners form."""
 
-    user = forms.CharField()
+    username_or_email = forms.CharField(label=_("Email address or username"))
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
+        self.project = kwargs.pop("project", None)
+        self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
-    def clean_user(self):
-        name = self.cleaned_data['user']
-        user_qs = User.objects.filter(username=name)
-        if not user_qs.exists():
+    def clean_username_or_email(self):
+        username = self.cleaned_data["username_or_email"]
+        user = User.objects.filter(
+            Q(username=username)
+            | Q(emailaddress__verified=True, emailaddress__email=username)
+        ).first()
+        if not user:
             raise forms.ValidationError(
-                _('User {name} does not exist').format(name=name),
+                _("User %(username)s does not exist"), params={"username": username}
             )
-        self.user = user_qs[0]
-        return name
+        if self.project.users.filter(pk=user.pk).exists():
+            raise forms.ValidationError(
+                _("User %(username)s is already a maintainer"),
+                params={"username": username},
+            )
+        return user
 
     def save(self):
-        self.project.users.add(self.user)
-        return self.user
+        invitation, _ = Invitation.objects.invite(
+            from_user=self.request.user,
+            to_user=self.cleaned_data["username_or_email"],
+            obj=self.project,
+        )
+        return invitation
 
 
 class EmailHookForm(forms.Form):
@@ -655,9 +669,11 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects."""
 
+    project = forms.CharField(widget=forms.HiddenInput(), required=False, disabled=True)
+
     class Meta:
         model = Redirect
-        fields = ["redirect_type", "from_url", "to_url", "force"]
+        fields = ["project", "redirect_type", "from_url", "to_url", "force"]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -671,18 +687,8 @@ class RedirectForm(forms.ModelForm):
         else:
             self.fields.pop("force")
 
-    def save(self, **_):  # pylint: disable=arguments-differ
-        # TODO this should respect the unused argument `commit`. It's not clear
-        # why this needs to be a call to `create`, instead of relying on the
-        # super `save()` call.
-        redirect = Redirect.objects.create(
-            project=self.project,
-            redirect_type=self.cleaned_data["redirect_type"],
-            from_url=self.cleaned_data["from_url"],
-            to_url=self.cleaned_data["to_url"],
-            force=self.cleaned_data.get("force", False),
-        )
-        return redirect
+    def clean_project(self):
+        return self.project
 
 
 class DomainBaseForm(forms.ModelForm):

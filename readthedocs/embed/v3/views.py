@@ -90,9 +90,10 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             include_file=False,
             version_type=version.type,
         )
+        relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
-            filename,
+            relative_filename,
         )
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
@@ -107,7 +108,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
-            version_slug = self.unresolved_url.version_slug
+            version_slug = self.unresolved_url.version.slug
             filename = self.unresolved_url.filename
             page_content = self._get_page_content_from_storage(project, version_slug, filename)
 
@@ -380,9 +381,9 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             doctool=doctool,
             doctoolversion=doctoolversion,
             url=url,
-            referer=request.META.get('HTTP_REFERER'),
+            referer=request.headers.get("Referer"),
             external=self.external,
-            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
 
