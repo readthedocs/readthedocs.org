@@ -79,7 +79,7 @@ Consider the following scenarios:
 
 * the build has an external dependency that hasn't been updated
 * there were no changes on the documentation files
-* the user wants it for any particular reason
+* many other use cases that can be solved with custom logic
 
 For these scenarios,
 Read the Docs supports three different mechanisms to cancel a running build:
