@@ -7,7 +7,7 @@ from django.db.models import Q
 
 
 def migrate_null_values(apps, schema_editor):
-    UserProfile = apps.get_model('core', 'UserProfile')
+    UserProfile = apps.get_model("core", "UserProfile")
     query = Q(created__isnull=True) | Q(modified__isnull=True)
     queryset = UserProfile.objects.filter(query)
     now = django.utils.timezone.now()
@@ -39,10 +39,8 @@ class Migration(migrations.Migration):
                 help_text="Subscribe to our mailing list, and get helpful onboarding suggestions.",
             ),
         ),
-
         # Make NULL values for modified/created to be ``timezone.now()``
         migrations.RunPython(migrate_null_values),
-
         migrations.AlterField(
             model_name="historicaluserprofile",
             name="created",
