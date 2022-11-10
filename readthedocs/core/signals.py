@@ -58,7 +58,7 @@ def process_email_confirmed(request, email_address, **kwargs):
         )
         log.info("Subscribing user to newsletter and onboarding group.")
 
-        # Try subscribing used to a group, then fallback to normal subscription API
+        # Try subscribing user to a group, then fallback to normal subscription API
         url = settings.MAILERLITE_API_ONBOARDING_GROUP_URL
         if not url:
             url = settings.MAILERLITE_API_SUBSCRIBERS_URL
