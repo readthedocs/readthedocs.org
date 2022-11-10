@@ -187,7 +187,7 @@ class ServeDocsMixin:
 
 class ServeRedirectMixin:
     def system_redirect(
-        self, request, final_project, version_slug, filename, external=False
+        self, request, final_project, version_slug, filename, is_external_version=False
     ):
         """
         Return a redirect that is defined by RTD instead of the user.
@@ -206,7 +206,7 @@ class ServeRedirectMixin:
             version_slug=version_slug,
             filename=filename,
             query_params=urlparse_result.query,
-            external=external,
+            external=is_external_version,
         )
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
@@ -222,7 +222,7 @@ class ServeRedirectMixin:
         version_slug,
         filename,
         redirect_type=None,
-        external=False,
+        is_external_version=False,
     ):
         """
         Return a redirect to the canonical domain including scheme.
@@ -256,7 +256,7 @@ class ServeRedirectMixin:
                 version_slug=version_slug,
                 filename=filename,
                 query_params=parsed_from.query,
-                external=external,
+                external=is_external_version,
             )
             # When a canonical redirect is done, only change the domain.
             if redirect_type == REDIRECT_CANONICAL_CNAME:

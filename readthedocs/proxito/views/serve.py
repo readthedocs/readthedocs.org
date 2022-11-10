@@ -64,7 +64,7 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             final_project=final_project,
             version_slug=version_slug,
             filename=filename,
-            external=is_external,
+            is_external_version=is_external,
         )
 
 
@@ -148,7 +148,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     version_slug=version_slug,
                     filename=filename,
                     redirect_type=canonicalize_redirect_type,
-                    external=is_external,
+                    is_external_version=is_external,
                 )
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
@@ -172,7 +172,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 final_project=final_project,
                 version_slug=version_slug,
                 filename=filename,
-                external=is_external,
+                is_external_version=is_external,
             )
 
         # Handle `/projects/subproject` URL redirection:
@@ -192,7 +192,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 final_project=final_project,
                 version_slug=version_slug,
                 filename=filename,
-                external=is_external,
+                is_external_version=is_external,
             )
 
         if all([
