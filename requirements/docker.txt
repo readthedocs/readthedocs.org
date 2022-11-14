@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.3
+boto3==1.26.8
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.3
+botocore==1.29.8
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -294,7 +294,7 @@ pickleshare==0.7.5
     #   ipython
 pillow==9.3.0
     # via -r requirements/docker.in
-platformdirs==2.5.2
+platformdirs==2.5.3
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -445,7 +445,7 @@ sqlparse==0.4.3
     #   -r requirements/pip.txt
     #   django
     #   django-debug-toolbar
-stack-data==0.6.0
+stack-data==0.6.1
     # via
     #   -r requirements/debug.txt
     #   ipython
@@ -497,7 +497,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.16.6
+virtualenv==20.16.7
     # via
     #   -r requirements/pip.txt
     #   tox
