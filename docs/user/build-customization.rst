@@ -112,6 +112,21 @@ When a command exits with code ``183``,
 Read the Docs will cancel the build immediately.
 You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
 
+.. note:: Why 183 was chosen for the exit code?
+
+   It's the word "skip" encoded in ASCII.
+   Then it's taken the 256 modulo of it because
+   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
+   for exit codes greater than 255.
+
+   .. code-block:: python
+
+      >>> sum(list('skip'.encode('ascii')))
+      439
+      >>> 439 % 256
+      183
+
+
 Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
 
 .. code-block:: yaml
