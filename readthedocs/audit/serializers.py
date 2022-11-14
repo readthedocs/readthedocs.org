@@ -68,7 +68,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_object(self, obj):
         serializers = {
             "organization": OrganizationSerializer,
-            "project:": ProjectSerializer,
+            "project": ProjectSerializer,
             "team": TeamSerializer,
         }
         serializer = serializers[obj.object_type]
