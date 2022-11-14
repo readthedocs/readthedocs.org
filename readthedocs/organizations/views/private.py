@@ -260,7 +260,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
-            action__in=OrganizationSecurityLogFilter.allowed_actions,
+            action__in=[action for action, _ in OrganizationSecurityLogFilter.allowed_actions],
             created__gte=start_date,
         )
         return queryset

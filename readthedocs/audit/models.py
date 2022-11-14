@@ -73,26 +73,44 @@ class AuditLog(TimeStampedModel):
 
     # pylint: disable=too-many-instance-attributes
 
-    class Actions(models.TextChoices):
-        PAGEVIEW = "pageview", _("Page view")
-        DOWNLOAD = "download", _("Download")
-        AUTHN = "authentication", _("Authentication")
-        AUTHN_FAILURE = "authentication-failure", _("Authentication failure")
-        LOGOUT = "log-out", _("Log out")
-        INVITATION_SENT = "invitation-sent", _("Invitation sent")
-        INVITATION_REVOKED = "invitation-revoked", _("Invitation revoked")
-        INVITATION_ACCEPTED = "invitation-accepted", _("Invitation accepted")
-        INVITATION_DECLINED = "invitation-declined", _("Invitation declined")
+    PAGEVIEW = "pageview"
+    PAGEVIEW_TEXT = _("Page view")
 
-    PAGEVIEW = Actions.PAGEVIEW
-    DOWNLOAD = Actions.DOWNLOAD
-    AUTHN = Actions.AUTHN
-    AUTHN_FAILURE = Actions.AUTHN_FAILURE
-    LOGOUT = Actions.LOGOUT
-    INVITATION_SENT = Actions.INVITATION_SENT
-    INVITATION_REVOKED = Actions.INVITATION_REVOKED
-    INVITATION_ACCEPTED = Actions.INVITATION_ACCEPTED
-    INVITATION_DECLINED = Actions.INVITATION_DECLINED
+    DOWNLOAD = "download"
+    DOWNLOAD_TEXT = _("Download")
+
+    AUTHN = "authentication"
+    AUTHN_TEXT =_("Authentication")
+
+    AUTHN_FAILURE = "authentication-failure"
+    AUTHN_FAILURE_TEXT = _("Authentication failure")
+
+    LOGOUT = "log-out"
+    LOGOUT_TEXT = _("Log out")
+
+    INVITATION_SENT = "invitation-sent"
+    INVITATION_SENT_TEXT = _("Invitation sent")
+
+    INVITATION_REVOKED = "invitation-revoked"
+    INVITATION_REVOKED_TEXT = _("Invitation revoked")
+
+    INVITATION_ACCEPTED = "invitation-accepted"
+    INVITATION_ACCEPTED_TEXT = _("Invitation accepted")
+
+    INVITATION_DECLINED = "invitation-declined"
+    INVITATION_DECLINED_TEXT = _("Invitation declined")
+
+    CHOICES = (
+        (PAGEVIEW, PAGEVIEW_TEXT),
+        (DOWNLOAD, DOWNLOAD_TEXT),
+        (AUTHN, AUTHN_TEXT),
+        (AUTHN_FAILURE, AUTHN_FAILURE_TEXT),
+        (LOGOUT, LOGOUT_TEXT),
+        (INVITATION_SENT, INVITATION_SENT_TEXT),
+        (INVITATION_REVOKED, INVITATION_REVOKED_TEXT),
+        (INVITATION_ACCEPTED, INVITATION_ACCEPTED_TEXT),
+        (INVITATION_DECLINED, INVITATION_DECLINED_TEXT),
+    )
 
     user = models.ForeignKey(
         User,
@@ -162,7 +180,7 @@ class AuditLog(TimeStampedModel):
     action = models.CharField(
         _('Action'),
         max_length=150,
-        choices=Actions.choices,
+        choices=CHOICES,
     )
     auth_backend = models.CharField(
         _('Auth backend'),
