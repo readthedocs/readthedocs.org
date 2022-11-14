@@ -586,11 +586,11 @@ class SearchAPIWithOrganizationsTest(SearchTestBase):
         projects = resp.data["projects"]
         results = resp.data["results"]
         self.assertEqual(
-            projects,
-            [
+            set(projects),
+            {
                 {"slug": "another-project", "versions": [{"slug": "public"}]},
                 {"slug": "project-b", "versions": [{"slug": "latest"}]},
-            ],
+            },
         )
         self.assertEqual(len(results), 2)
         self.assertEqual(resp.data["query"], "test")
