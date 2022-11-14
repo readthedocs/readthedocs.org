@@ -57,7 +57,15 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             # This is since the final URL will check for authz.
             self.cache_request = True
 
-        return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+        is_external = getattr(request, "external_domain", False)
+
+        return self.system_redirect(
+            request=request,
+            final_project=final_project,
+            version_slug=version_slug,
+            filename=filename,
+            is_external_version=is_external,
+        )
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
@@ -88,6 +96,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             filename=filename,
         )
         version = final_project.versions.filter(slug=version_slug).first()
+        is_external = getattr(request, "external_domain", False)
 
         log.bind(
             project_slug=final_project.slug,
@@ -95,6 +104,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
+            external=is_external,
         )
 
         # Skip serving versions that are not active (return 404). This is to
@@ -124,14 +134,22 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             return spam_response
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
-        if hasattr(request, 'canonicalize'):
+        canonicalize_redirect_type = getattr(request, "canonicalize", None)
+        if canonicalize_redirect_type:
             try:
                 # A canonical redirect can be cached, if we don't have information
                 # about the version, since the final URL will check for authz.
                 if not version and self._is_cache_enabled(final_project):
                     self.cache_request = True
 
-                return self.canonical_redirect(request, final_project, version_slug, filename)
+                return self.canonical_redirect(
+                    request=request,
+                    final_project=final_project,
+                    version_slug=version_slug,
+                    filename=filename,
+                    redirect_type=canonicalize_redirect_type,
+                    is_external_version=is_external,
+                )
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
                 pass
@@ -141,7 +159,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 lang_slug is None,
                 # External versions/builds will always have a version,
                 # because it is taken from the host name
-                version_slug is None or hasattr(request, 'external_domain'),
+                version_slug is None or is_external,
                 filename == '',
                 not final_project.single_version,
         ]):
@@ -149,7 +167,13 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # about the version, since the final URL will check for authz.
             if not version and self._is_cache_enabled(final_project):
                 self.cache_request = True
-            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+            return self.system_redirect(
+                request=request,
+                final_project=final_project,
+                version_slug=version_slug,
+                filename=filename,
+                is_external_version=is_external,
+            )
 
         # Handle `/projects/subproject` URL redirection:
         # when there _is_ a subproject_slug but not a subproject_slash
@@ -163,7 +187,13 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # about the version, since the final URL will check for authz.
             if not version and self._is_cache_enabled(final_project):
                 self.cache_request = True
-            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+            return self.system_redirect(
+                request=request,
+                final_project=final_project,
+                version_slug=version_slug,
+                filename=filename,
+                is_external_version=is_external,
+            )
 
         if all([
                 (lang_slug is None or version_slug is None),
@@ -340,8 +370,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             .only("documentation_type")
             .first()
         )
-        doc_type = version.documentation_type if version else None
-        versions = [(version_slug, doc_type)]
+        versions = []
+        if version:
+            versions.append((version.slug, version.documentation_type))
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
             default_version_doc_type = (

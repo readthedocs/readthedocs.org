@@ -33,28 +33,27 @@ urlpatterns = [
     re_path(
         r'^(?P<project_slug>{project_slug})/downloads/$'.format(**pattern_opts),
         public.project_downloads,
-        name='project_downloads',
+        name="project_downloads",
     ),
-
     # NOTE: this URL is kept here only for backward compatibility to serve
     # non-html files from the dashboard. The ``name=`` is removed to avoid
     # generating an invalid URL by mistake (we should manually generate it
     # pointing to the right place: "docs.domain.org/_/downloads/")
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
-            r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
+            r"^(?P<project_slug>{project_slug})/downloads/(?P<type_>{downloadable_type})/"
+            r"(?P<version_slug>{version_slug})/$".format(**pattern_opts)
         ),
         public.ProjectDownloadMedia.as_view(),
+        name="project_download_media",
     ),
-
     re_path(
-        r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
+        r"^(?P<project_slug>{project_slug})/badge/$".format(**pattern_opts),
         public.project_badge,
-        name='project_badge',
+        name="project_badge",
     ),
     re_path(
-        r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
+        r"^(?P<project_slug>{project_slug})/search/$".format(**pattern_opts),
         ProjectSearchView.as_view(),
         name='elastic_project_search',
     ),

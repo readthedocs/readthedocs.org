@@ -205,6 +205,40 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.version, version)
         self.assertEqual(parts.filename, "/index.html")
 
+    def test_external_version_single_version_project(self):
+        self.pip.single_version = True
+        self.pip.save()
+        version = get(
+            Version,
+            project=self.pip,
+            type=EXTERNAL,
+            slug="10",
+            active=True,
+        )
+        parts = unresolve("https://pip--10.dev.readthedocs.build/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, version)
+        self.assertEqual(parts.filename, "/index.html")
+
+    def test_unexisting_external_version_single_version_project(self):
+        self.pip.single_version = True
+        self.pip.save()
+        parts = unresolve("https://pip--10.dev.readthedocs.build/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
+
+    def test_non_external_version_single_version_project(self):
+        self.pip.single_version = True
+        self.pip.save()
+        parts = unresolve("https://pip--latest.dev.readthedocs.build/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, None)
+        self.assertEqual(parts.filename, None)
+
     def test_unresolve_external_version_no_existing_version(self):
         parts = unresolve("https://pip--10.dev.readthedocs.build/en/10/")
         self.assertEqual(parts.parent_project, self.pip)

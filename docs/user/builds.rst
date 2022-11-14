@@ -68,6 +68,46 @@ The following are the pre-defined jobs executed by Read the Docs:
     it's possible to run user-defined commands and :doc:`customize the build process <build-customization>`.
 
 
+When to cancel builds
+---------------------
+
+There may be situations where you want to cancel a particular running build.
+Cancelling running builds will allow your team to speed up review times and also help us reduce server costs and ultimately,
+our environmental footprint.
+
+Consider the following scenarios:
+
+* the build has an external dependency that hasn't been updated
+* there were no changes on the documentation files
+* many other use cases that can be solved with custom logic
+
+For these scenarios,
+Read the Docs supports three different mechanisms to cancel a running build:
+
+:Manually:
+
+   Once a build was triggered,
+   project administrators can go to the build detail page
+   and click the button "Cancel build".
+
+:Automatically:
+
+   When Read the Docs detects a push to a branch that it's currently building the documentation,
+   it cancels the running build and start a new build using the latest commit from the new push.
+
+:Programatically:
+
+   You can use user-defined commands on ``build.jobs`` or ``build.commands`` (see :doc:`build-customization`)
+   to check for a condition and exit it with the code ``183`` if you want to cancel the running build or ``0``, otherwise.
+
+   In this case, Read the Docs will communicate to your Git platform (GitHub/GitLab) that the build succeeded (green tick ✅)
+   so the pull request is in a mergeable state.
+
+   .. tip::
+
+      Take a look at :ref:`build-customization:cancel build based on a condition` section for some examples.
+
+
 Build resources
 ---------------
 
