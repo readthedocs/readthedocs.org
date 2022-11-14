@@ -1,0 +1,20 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+This is just a reminder that the trial period for "{{ organization.name }}"
+will end in under 7 days. We hope your trial has gone smoothly!
+
+Be sure to add a subscription to your organization before your trial period
+is over if you wish to continue using Read the Docs. If you don't upgrade your account,
+your builds will be disabled, and documentation serving will be disabled.
+
+You can add a subscription to your organization here:
+
+{{ production_uri }}{% url 'subscription_detail' organization.slug %}
+
+If you'd like more information on the various plan options available to you,
+see our pricing page at {{ production_uri }}{% url 'pricing' %})
+or always feel free to get in touch with us at {{ production_uri }}{% url 'support' %}.
+
+We hope you've enjoyed Read the Docs so far! If you have any questions,
+don't hesitate to contact us!
+{% endblock %}

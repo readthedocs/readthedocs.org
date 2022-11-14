@@ -21,6 +21,7 @@ class ResolverBase(TestCase):
             users=[self.owner],
             main_language_project=None,
         )
+        self.version = self.pip.versions.first()
         self.subproject = fixture.get(
             Project,
             slug='sub',
@@ -28,6 +29,7 @@ class ResolverBase(TestCase):
             users=[self.owner],
             main_language_project=None,
         )
+        self.subproject_version = self.subproject.versions.first()
         self.translation = fixture.get(
             Project,
             slug='trans',
@@ -35,6 +37,7 @@ class ResolverBase(TestCase):
             users=[self.owner],
             main_language_project=None,
         )
+        self.translation_version = self.translation.versions.first()
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.translation)
 

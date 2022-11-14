@@ -88,9 +88,9 @@ class UtilsTests(TestCase):
 
     def test_get_client_ip_with_remote_addr(self):
 
-        request = RequestFactory().get('/')
-        self.assertIsNone(request.META.get('HTTP_X_FORWARDED_FOR'))
-        request.META['REMOTE_ADDR'] = '203.0.113.195'
+        request = RequestFactory().get("/")
+        self.assertIsNone(request.headers.get("X-Forwarded-For"))
+        request.META["REMOTE_ADDR"] = "203.0.113.195"
         client_ip = get_client_ip(request)
         self.assertEqual(client_ip, '203.0.113.195')
 
