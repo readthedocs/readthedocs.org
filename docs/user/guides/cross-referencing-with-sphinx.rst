@@ -325,7 +325,7 @@ To activate the ``autosectionlabel`` extension, add this to your ``conf.py`` fil
 
    # Add the extension
    extensions = [
-      'sphinx.ext.autosectionlabel',
+       "sphinx.ext.autosectionlabel",
    ]
 
    # Make sure the target is unique

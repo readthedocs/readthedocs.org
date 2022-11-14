@@ -1,6 +1,7 @@
 """Data collectors."""
 
 import json
+import os
 
 import dparse
 import structlog
@@ -89,6 +90,41 @@ class BuildDataCollector:
                 "all": all_apt_packages,
             },
         }
+        data["doctool"] = self._get_doctool()
+        return data
+
+    def _get_doctool_name(self):
+        if self.version.is_sphinx_type:
+            return "sphinx"
+
+        if self.version.is_mkdocs_type:
+            return "mkdocs"
+
+        return "generic"
+
+    def _get_doctool(self):
+        data = {
+            "name": self._get_doctool_name(),
+            "extensions": [],
+            "html_theme": "",
+        }
+
+        if self._get_doctool_name() != "sphinx":
+            return data
+
+        # The project does not define a `conf.py` or does not have one
+        if not self.config.sphinx.configuration:
+            return data
+
+        conf_py_dir = os.path.join(
+            self.checkout_path,
+            os.path.dirname(self.config.sphinx.configuration),
+        )
+        filepath = os.path.join(conf_py_dir, "_build", "json", "telemetry.json")
+        if os.path.exists(filepath):
+            with open(filepath, "r") as json_file:
+                content = json_file.read()
+            data.update(self._safe_json_loads(content, {}))
         return data
 
     def _get_all_conda_packages(self):
