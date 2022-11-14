@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
             model_name="auditlog",
             name="data",
             field=models.JSONField(
-                blank=True, help_text="Extra data about the log entry.", null=True
+                blank=True,
+                help_text="Extra data about the log entry. Its structure depends on the type of log entry.",
+                null=True,
             ),
         ),
     ]

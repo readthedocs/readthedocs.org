@@ -1,4 +1,11 @@
-"""Serializers used to save the corresponding data from a model in a log entry."""
+"""
+Serializers used to save the corresponding data from a model in a log entry.
+
+.. note::
+
+   These aren't used in an API, but to extract data from objects to
+   save it in log entries (AuditLog.data).
+"""
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -59,11 +66,10 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     # pylint: disable=no-self-use
     def get_object(self, obj):
-        if obj.object_type == "organization":
-            return OrganizationSerializer(obj.object).data
-        if obj.object_type == "project":
-            return ProjectSerializer(obj.object).data
-        if obj.object_type == "team":
-            return TeamSerializer(obj.object).data
-
-        raise ValueError
+        serializers = {
+            "organization": OrganizationSerializer,
+            "project:": ProjectSerializer,
+            "team": TeamSerializer,
+        }
+        serializer = serializers[obj.object_type]
+        return serializer(obj.object).data

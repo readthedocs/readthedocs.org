@@ -211,7 +211,9 @@ class AuditLog(TimeStampedModel):
     data = models.JSONField(
         null=True,
         blank=True,
-        help_text=_("Extra data about the log entry."),
+        help_text=_(
+            "Extra data about the log entry. Its structure depends on the type of log entry."
+        ),
     )
 
     objects = AuditLogManager()

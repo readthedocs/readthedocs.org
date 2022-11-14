@@ -24,6 +24,8 @@ class UserSecurityLogFilter(FilterSet):
     action = ChoiceFilter(
         field_name='action',
         lookup_expr='exact',
+        # Choices are filled at runtime,
+        # using the list from `allowed_actions`.
         choices=[],
     )
     date = DateFromToRangeFilter(field_name='created')
