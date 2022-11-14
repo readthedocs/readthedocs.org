@@ -32,29 +32,43 @@ Parameters
 ----------
 
 project:
- Indicates the project and version
- to includes results from (this doesn't include subprojects).
- If the version isn't provided,
- the default version is used.
+  Indicates the project and version
+  to includes results from (this doesn't include subprojects).
+  If the version isn't provided,
+  the default version is used.
 
- Examples:
+  Examples:
 
- - ``project:docs/latest``
- - ``project:docs``
+  - ``project:docs/latest``
+  - ``project:docs``
 
- It can be one or more project parameters.
- At least one is required.
+  It can be one or more project parameters.
+  At least one is required.
 
- If the user doesn't have permission over one version or if the version doesn't exist,
- we don't include results from that version.
- We don't fail the search, this is so users can use one endpoint for all their users,
- without worrying about what permissions each user has or updating it after a version or project
- has been deleted.
+  If the user doesn't have permission over one version or if the version doesn't exist,
+  we don't include results from that version.
+  We don't fail the search, this is so users can use one endpoint for all their users,
+  without worrying about what permissions each user has or updating it after a version or project
+  has been deleted.
 
- The ``/`` is used as separator,
- but it could be any other character that isn't present in the slug of a version or project.
- ``:`` was considered (``project:docs:latest``), but it could be hard to read
- since ``:`` is already used to separate the key from the value.
+  The ``/`` is used as separator,
+  but it could be any other character that isn't present in the slug of a version or project.
+  ``:`` was considered (``project:docs:latest``), but it could be hard to read
+  since ``:`` is already used to separate the key from the value.
+
+subprojects:
+  This allows to specify from what project exactly
+  we are going to return subprojects from,
+  and also include the version we are going to try to match.
+  This includes the parent project in the results.
+
+  As the ``project`` parameter, the version can be optional,
+  and defaults to the default version of the parent project.
+
+user:
+  Include results from projects the given user has access to.
+  The only supported value is ``@me``,
+  which is an alias for the current user.
 
 Including subprojects
 ~~~~~~~~~~~~~~~~~~~~~
@@ -85,6 +99,11 @@ Some ideas for implementing this feature are:
   If we want to include the results from the project, then
   the query will be ``project:project/latest subprojects:project/latest``.
   Is this useful?
+
+The second option was chosen, since that's the current behavior
+of our search when searching on a project with subprojects,
+and avoids having to repeat the project if the user wants to
+include it in the search too.
 
 Cache
 -----
