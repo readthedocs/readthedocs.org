@@ -73,6 +73,7 @@ There are some caveats to knowing when using user-defined jobs:
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
+  (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_)
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
@@ -102,6 +103,70 @@ To avoid this, it's possible to unshallow the clone done by Read the Docs:
      jobs:
        post_checkout:
          - git fetch --unshallow
+
+
+Cancel build based on a condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a command exits with code ``183``,
+Read the Docs will cancel the build immediately.
+You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
+
+.. note:: Why 183 was chosen for the exit code?
+
+   It's the word "skip" encoded in ASCII.
+   Then it's taken the 256 modulo of it because
+   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
+   for exit codes greater than 255.
+
+   .. code-block:: python
+
+      >>> sum(list('skip'.encode('ascii')))
+      439
+      >>> 439 % 256
+      183
+
+
+Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Cancel building pull requests when there aren't changed in the docs directory.
+         # `--quiet` exits with a 1 when there **are** changes,
+         # so we invert the logic with a !
+         #
+         # If there are no changes (exit 0) we force the command to return with 183.
+         # This is a special exit code on Read the Docs that will cancel the build immediately.
+         - |
+           if [ $READTHEDOCS_VERSION_TYPE = "external" ];
+           then
+             ! git diff --quiet origin/main -- docs/ && exit 183;
+           fi
+
+
+This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Use `git log` to check if the latest commit contains "skip ci",
+         # in that case exit the command with 183 to cancel the build
+         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
