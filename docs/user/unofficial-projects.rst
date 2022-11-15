@@ -7,7 +7,7 @@ Rationale
 ---------
 
 There is often the case where a set of documentation has been built,
-and it is not the official set from the project.
+and it is kept online but grows outdated over time.
 There are many reasons this can happen,
 including forks, old official docs that are unmaintained, and many other situations.
 
