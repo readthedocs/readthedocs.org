@@ -80,7 +80,7 @@ class AuditLog(TimeStampedModel):
     DOWNLOAD_TEXT = _("Download")
 
     AUTHN = "authentication"
-    AUTHN_TEXT =_("Authentication")
+    AUTHN_TEXT = _("Authentication")
 
     AUTHN_FAILURE = "authentication-failure"
     AUTHN_FAILURE_TEXT = _("Authentication failure")
