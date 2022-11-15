@@ -186,22 +186,27 @@ class ServeDocsMixin:
 
 
 class ServeRedirectMixin:
-
-    def system_redirect(self, request, final_project, lang_slug, version_slug, filename):
+    def system_redirect(
+        self, request, final_project, version_slug, filename, is_external_version=False
+    ):
         """
         Return a redirect that is defined by RTD instead of the user.
 
         This is normally used for `/` and `/page/*` redirects.
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        if hasattr(request, 'external_domain'):
-            log.debug('Request is external')
         to = resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
             query_params=urlparse_result.query,
-            external=hasattr(request, 'external_domain'),
+            external=is_external_version,
         )
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
@@ -210,7 +215,15 @@ class ServeRedirectMixin:
         resp['X-RTD-Redirect'] = 'system'
         return resp
 
-    def canonical_redirect(self, request, final_project, version_slug, filename):
+    def canonical_redirect(
+        self,
+        request,
+        final_project,
+        version_slug,
+        filename,
+        redirect_type=None,
+        is_external_version=False,
+    ):
         """
         Return a redirect to the canonical domain including scheme.
 
@@ -224,11 +237,17 @@ class ServeRedirectMixin:
         - Redirect from a subproject domain to the main domain
           https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
           https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
+        :param external: If the version is from a pull request preview.
         """
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
 
-        redirect_type = getattr(request, 'canonicalize', None)
         if redirect_type == REDIRECT_HTTPS:
             to = parsed_from._replace(scheme='https').geturl()
         else:
@@ -237,7 +256,7 @@ class ServeRedirectMixin:
                 version_slug=version_slug,
                 filename=filename,
                 query_params=parsed_from.query,
-                external=hasattr(request, 'external_domain'),
+                external=is_external_version,
             )
             # When a canonical redirect is done, only change the domain.
             if redirect_type == REDIRECT_CANONICAL_CNAME:
@@ -257,7 +276,7 @@ class ServeRedirectMixin:
 
         log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
+        resp["X-RTD-Redirect"] = redirect_type or "unknown"
         return resp
 
     def get_redirect(

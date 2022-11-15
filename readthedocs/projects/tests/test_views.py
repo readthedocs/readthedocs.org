@@ -7,7 +7,11 @@ from django_dynamic_fixture import get
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.constants import DOWNLOADABLE_MEDIA_TYPES, PUBLIC
+from readthedocs.projects.constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_HTMLZIP,
+    PUBLIC,
+)
 from readthedocs.projects.models import Project
 
 
