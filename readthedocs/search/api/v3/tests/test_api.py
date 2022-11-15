@@ -144,7 +144,12 @@ class SearchAPITest(SearchTestBase):
         self.assertEqual(resp.data["query"], "test")
 
         new_version = get(
-            Version, project=self.project, slug="v2", built=True, active=True
+            Version,
+            project=self.project,
+            slug="v2",
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
         )
         self.create_index(new_version)
         resp = self.get(self.url, data={"q": "project:project/v2 test"})
@@ -266,11 +271,12 @@ class SearchAPITest(SearchTestBase):
             Project, slug="subproject", users=[self.user], privacy_level=PUBLIC
         )
         self.project.add_subproject(subproject)
-        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
         get(Version, slug="v2", project=self.project, active=True, built=True)
         get(Version, slug="v3", project=self.project, active=True, built=True)
         get(Version, slug="v2", project=subproject, active=True, built=True)
         get(Version, slug="v4", project=subproject, active=True, built=True)
+        subproject.versions.update(built=True, active=True, privacy_level=PUBLIC)
+        self.project.versions.update(built=True, active=True, privacy_level=PUBLIC)
 
         for version in itertools.chain(
             subproject.versions.all(), self.project.versions.all()
