@@ -19,16 +19,6 @@ We have this policy to allow project maintainers to request the *delisting* of f
 
 Specification
 -------------
-
-The main idea behind this policy is that Read the Docs serves the community. Every
-user is invited to upload content under the Terms of Use, understanding that it
-is at the sole risk of the user.
-
-While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep that
-content accessible indefinitely in its published form. However, in certain
-edge cases the greater community's needs might outweigh the individual's
-expectation of continued publishing.
-
 The use cases covered by this policy are:
 
 Outdated docs
@@ -86,6 +76,18 @@ Requesting a project be delisted
 
 If you are the maintainer of a project,
 you can request that we delist an outdated, unmaintained set of docs with our :doc:`/support`.
+
+Thinking behind the policy
+--------------------------
+
+The main idea behind this policy is that Read the Docs serves the community. Every
+user is invited to upload content under the Terms of Use, understanding that it
+is at the sole risk of the user.
+
+While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep that
+content accessible indefinitely in its published form. However, in certain
+edge cases the greater community's needs might outweigh the individual's
+expectation of continued publishing.
 
 Prior art
 ---------
