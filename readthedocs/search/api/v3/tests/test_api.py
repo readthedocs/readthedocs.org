@@ -412,6 +412,7 @@ class SearchAPIWithOrganizationsTest(SearchTestBase):
             Version,
             slug="public",
             project=self.another_project,
+            privacy_level=PUBLIC,
             built=True,
             active=True,
         )
@@ -585,15 +586,13 @@ class SearchAPIWithOrganizationsTest(SearchTestBase):
         )
         projects = resp.data["projects"]
         results = resp.data["results"]
-        expected_projects = [
-            {"slug": "another-project", "versions": [{"slug": "public"}]},
-            {"slug": "project-b", "versions": [{"slug": "latest"}]},
-        ]
-        # The order of the projects is different on .com.
-        # So we test each element separately.
-        self.assertEqual(len(projects), len(expected_projects))
-        for expected_project in expected_projects:
-            self.assertIn(expected_project, projects)
+        self.assertEqual(
+            projects,
+            [
+                {"slug": "another-project", "versions": [{"slug": "public"}]},
+                {"slug": "project-b", "versions": [{"slug": "latest"}]},
+            ],
+        )
         self.assertEqual(len(results), 2)
         self.assertEqual(resp.data["query"], "test")
 
