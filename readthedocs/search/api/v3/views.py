@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 from readthedocs.api.v3.views import APIv3Settings
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -16,6 +17,19 @@ from readthedocs.search.api.v3.serializers import PageSearchSerializer
 from readthedocs.search.api.v3.utils import should_use_advanced_query
 
 log = structlog.get_logger(__name__)
+
+
+RATE_LIMIT = "100/minute"
+
+
+class SearchAnonRateThrottle(AnonRateThrottle):
+
+    rate = RATE_LIMIT
+
+
+class SearchUserRateThrottle(UserRateThrottle):
+
+    rate = RATE_LIMIT
 
 
 class SearchAPI(APIv3Settings, GenericAPIView):
@@ -35,6 +49,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     serializer_class = PageSearchSerializer
     search_executor_class = SearchExecutor
     permission_classes = [AllowAny]
+    throttle_classes = (SearchUserRateThrottle, SearchAnonRateThrottle)
 
     def get_view_name(self):
         return "Search API V3"
