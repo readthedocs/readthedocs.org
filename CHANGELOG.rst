@@ -1,3 +1,19 @@
+Version 8.9.0
+-------------
+
+:Date: November 15, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9728 <https://github.com/readthedocs/readthedocs.org/pull/9728>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#9725 <https://github.com/readthedocs/readthedocs.org/pull/9725>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.8.1 (`#9724 <https://github.com/readthedocs/readthedocs.org/pull/9724>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security policy (`#9723 <https://github.com/readthedocs/readthedocs.org/pull/9723>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: refactor "skipping a build" section (`#9717 <https://github.com/readthedocs/readthedocs.org/pull/9717>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: don't depend on attributes injected in the request (`#9711 <https://github.com/readthedocs/readthedocs.org/pull/9711>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: support external versions for single version projects (`#9709 <https://github.com/readthedocs/readthedocs.org/pull/9709>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: add expired queryset (`#9667 <https://github.com/readthedocs/readthedocs.org/pull/9667>`__)
+* `@humitos <https://github.com/humitos>`__: Build: skip build based on commands' exit codes (`#9649 <https://github.com/readthedocs/readthedocs.org/pull/9649>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change mailing list subscription to when the user validates their email (`#9384 <https://github.com/readthedocs/readthedocs.org/pull/9384>`__)
+
 Version 8.8.1
 -------------
 
