@@ -24,10 +24,14 @@ RATE_LIMIT = "100/minute"
 
 class SearchAnonRateThrottle(AnonRateThrottle):
 
+    """Rate limit for the search API for anonymous users."""
+
     rate = RATE_LIMIT
 
 
 class SearchUserRateThrottle(UserRateThrottle):
+
+    """Rate limit for the search API for authenticated users."""
 
     rate = RATE_LIMIT
 
@@ -49,6 +53,9 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     serializer_class = PageSearchSerializer
     search_executor_class = SearchExecutor
     permission_classes = [AllowAny]
+    # The search API would be used by anonymous users,
+    # and with our search-as-you-type extension.
+    # So we need to increase the rate limit.
     throttle_classes = (SearchUserRateThrottle, SearchAnonRateThrottle)
 
     def get_view_name(self):
