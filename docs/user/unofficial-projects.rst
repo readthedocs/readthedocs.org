@@ -18,16 +18,20 @@ Projects will then get support requests from people who are using an old and inc
 We have this policy to allow project maintainers to request the *delisting* of forks that are old and outdated.
 
 
-Specification
--------------
+Examples
+~~~~~~~~
 
-The use cases covered by this policy are:
+Common cases covered by this policy are:
 
 Outdated docs
     Documentation that is not being actively maintained or updated. This means for instance that the source project has updates that are not reflected in the documentation or a newer official documentation exists elsewhere on the internet.
 
 Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
+
+
+Specification
+-------------
 
 
 Unofficial projects
