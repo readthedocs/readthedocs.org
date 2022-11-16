@@ -3,6 +3,7 @@ Policy for Unofficial and Outdated Projects
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
 
+
 Rationale
 ---------
 
@@ -16,8 +17,10 @@ Projects will then get support requests from people who are using an old and inc
 
 We have this policy to allow project maintainers to request the *delisting* of forks that are old and outdated.
 
+
 Specification
 -------------
+
 The use cases covered by this policy are:
 
 Outdated docs
@@ -26,8 +29,10 @@ Outdated docs
 Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
 
+
 Implementation
 --------------
+
 
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
@@ -37,6 +42,7 @@ A project is considered *unofficial* when it is not linked to or mentioned in *a
 * Websites and domains associated with the project
 * Social media accounts associated with the project
 * The project's primary repository -- README files, repository description, or source code
+
 
 Unmaintained projects
 ~~~~~~~~~~~~~~~~~~~~~
@@ -58,6 +64,7 @@ In every case where contacting the user is necessary, the core team will reach o
 
 The core team will stop trying to reach the user after 3 weeks and the user will be considered *unreachable*.
 
+
 Delisting of an abandoned project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -70,11 +77,13 @@ Projects will be delisted when ALL of the following:
 * The project owner is unreachable_ by the Read the Docs team
 * The core team does not have any additional reservations.
 
+
 Requesting a project be delisted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are the maintainer of a project,
 you can request that we delist an outdated, unmaintained set of docs with our :doc:`/support`.
+
 
 Thinking behind the policy
 --------------------------
@@ -85,6 +94,7 @@ understanding that it is at the sole risk of the user.
 
 While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep content accessible indefinitely in its published form. However, in certain edge cases,
 the greater community's needs might outweigh the individual's expectation of continued publishing.
+
 
 Prior art
 ---------
