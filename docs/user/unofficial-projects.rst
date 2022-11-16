@@ -1,17 +1,19 @@
 Policy for Unofficial and Outdated Projects
 ===========================================
 
-This policy describes a process where we take actions against unmaintained and unofficial forks of project documentation.
+This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
+
+.. _unmaintained: #unmaintained-projects
+.. _unofficial: #unofficial-projects
 
 Rationale
 ---------
 
-There is often the case where a set of documentation has been built,
-and it is kept online but grows outdated over time.
+Documentation projects may be kept online indefinitely, even though a newer version of the same project exists elsewhere.
 There are many reasons this can happen,
 including forks, old official docs that are unmaintained, and many other situations.
 
-The problem with old, outdated docs is that users will find them in Google,
+The problem with old, outdated docs is that users will find them in search results,
 and get confused to the validity of them.
 Projects will then get support requests from people who are using an old and incorrect documentation version.
 
@@ -33,10 +35,11 @@ Implementation
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
-A project is considered *unofficial* when ALL of the following are met:
+A project is considered *unofficial* when it is not linked to or mentioned in *any* of the following places:
 
-* It is not hosted on an official domain of the project
-* It is not linked from the project's README, description, or source code
+* Websites and domains associated with the project
+* Social media accounts associated with the project
+* The project's primary repository -- README files, repository description, or source code
 
 Unmaintained projects
 ~~~~~~~~~~~~~~~~~~~~~
