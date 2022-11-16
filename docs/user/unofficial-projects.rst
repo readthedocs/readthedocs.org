@@ -72,7 +72,14 @@ Implementation
 Delisting of an abandoned project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects that are determined to be unmaintained_ and unofficial_ will have a ``robots.txt`` file added that removes them from all search results.
+Projects that are determined to be unmaintained_ and unofficial_ will have a ``robots.txt`` file added that removes them from all search results:
+
+.. code-block:: text
+
+  # robots.txt
+  User-agent: *
+  Disallow: / # Delists everything
+
 
 Projects will be delisted when ALL of the following:
 
