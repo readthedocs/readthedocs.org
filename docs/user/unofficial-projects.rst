@@ -3,9 +3,6 @@ Policy for Unofficial and Outdated Projects
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
 
-.. _unmaintained: #unmaintained-projects
-.. _unofficial: #unofficial-projects
-
 Rationale
 ---------
 
@@ -54,27 +51,23 @@ A project is considered *unmaintained* when ANY of the following are met:
 Reachability
 ~~~~~~~~~~~~
 
-for matters concerning projects that the user owns.
-In every case where contacting the user is necessary,
-the core team will reach out using one of the following means of contact:
+In every case where contacting the user is necessary, the core team will reach out using one of the following means of contact:
 
 * E-mail address on file in the user's profile
 * E-mail address on the GitHub user account where the project is pointed
 
-The core team will stop trying to reach the user after 2 weeks and the user
-will be considered *unreachable*.
+The core team will stop trying to reach the user after 3 weeks and the user will be considered *unreachable*.
 
 Delisting of an abandoned project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Projects that are determined to be *Unofficial* and *Unmaintained* will have a ``robots.txt`` file added that removes them from all search results.
+Projects that are determined to be unmaintained_ and unofficial_ will have a ``robots.txt`` file added that removes them from all search results.
 
 Projects will be delisted when ALL of the following:
 
-* The project has been determined *unmaintained* and *unofficial* by the rules described above
-* The candidate is able to demonstrate their own failed attempts to contact the
-  existing owner
-* The project owner is *unreachable* by the Read the Docs team
+* The project has been determined unmaintained_ and unofficial_ by the rules described above
+* The candidate is able to demonstrate their own failed attempts to contact the existing owner
+* The project owner is unreachable_ by the Read the Docs team
 * The core team does not have any additional reservations.
 
 Requesting a project be delisted
@@ -102,3 +95,7 @@ This policy is inspired by our :doc:`abandoned-projects`.
 The Python Package Index (PyPI) policy for claiming abandoned packages
 (`PEP-0541 <https://www.python.org/dev/peps/pep-0541>`_) heavily
 influenced this policy.
+
+.. _unmaintained: #unmaintained-projects
+.. _unofficial: #unofficial-projects
+.. _unreachable: #reachability
