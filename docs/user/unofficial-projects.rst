@@ -44,9 +44,12 @@ A project is considered *unofficial* when it is not linked to or mentioned in *a
 Unmaintained projects
 ~~~~~~~~~~~~~~~~~~~~~
 
-A project is considered *unmaintained* when ALL of the following are met:
+A project is considered *unmaintained* when ANY of the following are met:
 
-* The project is only serving content from releases and commits of a project over 6 months old
+* The configured VCS repository is unreadable. This can happen if the repository is deleted, credentials are broken or the git host permanently unresponsive.
+* The project is only serving content from releases and commits >6 months older than its source project (this happens with unmaintained forks).
+* All builds have failed for >6 months.
+
 
 Reachability
 ~~~~~~~~~~~~
