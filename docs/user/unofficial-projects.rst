@@ -78,7 +78,7 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
 
   # robots.txt
   User-agent: *
-  Disallow: / # Delists everything
+  Disallow: / # This project is delisted according to the Policy for Unofficial and Unmaintanied Projects
 
 
 Projects will be delisted when ALL of the following:
