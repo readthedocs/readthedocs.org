@@ -79,22 +79,19 @@ you can request that we delist an outdated, unmaintained set of docs with our :d
 Thinking behind the policy
 --------------------------
 
-The main idea behind this policy is that Read the Docs serves the community. Every
-user is invited to upload content under the Terms of Use, understanding that it
-is at the sole risk of the user.
+The main idea behind this policy is that Read the Docs serves the community.
+Every user is invited to upload content under the Terms of Use,
+understanding that it is at the sole risk of the user.
 
-While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep that
-content accessible indefinitely in its published form. However, in certain
-edge cases the greater community's needs might outweigh the individual's
-expectation of continued publishing.
+While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep content accessible indefinitely in its published form. However, in certain edge cases,
+the greater community's needs might outweigh the individual's expectation of continued publishing.
 
 Prior art
 ---------
 
 This policy is inspired by our :doc:`abandoned-projects`.
 The Python Package Index (PyPI) policy for claiming abandoned packages
-(`PEP-0541 <https://www.python.org/dev/peps/pep-0541>`_) heavily
-influenced this policy.
+(`PEP-0541 <https://www.python.org/dev/peps/pep-0541>`_) heavily influenced this policy.
 
 .. _unmaintained: #unmaintained-projects
 .. _unofficial: #unofficial-projects
