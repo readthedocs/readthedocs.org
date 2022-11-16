@@ -30,10 +30,6 @@ Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
 
 
-Implementation
---------------
-
-
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
@@ -63,6 +59,10 @@ In every case where contacting the user is necessary, the core team will reach o
 * E-mail address on the GitHub user account where the project is pointed
 
 The core team will stop trying to reach the user after 3 weeks and the user will be considered *unreachable*.
+
+
+Implementation
+--------------
 
 
 Delisting of an abandoned project
