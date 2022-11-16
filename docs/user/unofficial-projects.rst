@@ -24,7 +24,7 @@ Specification
 The use cases covered by this policy are:
 
 Outdated docs
-    Documentation that is not being actively maintained or updated.
+    Documentation that is not being actively maintained or updated. This means for instance that the source project has updates that are not reflected in the documentation or a newer official documentation exists elsewhere on the internet.
 
 Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
@@ -83,6 +83,18 @@ Requesting a project be delisted
 
 If you are the maintainer of a project,
 you can request that we delist an outdated, unmaintained set of docs with our :doc:`/support`.
+
+Please include the following information:
+
+.. code-block:: text
+
+  URL of unofficial and unmaintained documentation project: ...
+  URL of official documentation (if any): ...
+  URL of official source project website (if any): ...
+  URL of official source project repository (if any): ...
+
+  Describe attempts of reaching the owner of the documentation project:
+  ...
 
 
 Thinking behind the policy
