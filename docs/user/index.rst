@@ -284,6 +284,7 @@ of Read the Docs and the larger software documentation ecosystem.
    security
    dmca/index
    abandoned-projects
+   unofficial-projects
    changelog
 
    about
