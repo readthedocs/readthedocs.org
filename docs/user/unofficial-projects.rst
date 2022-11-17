@@ -49,9 +49,9 @@ Unmaintained projects
 
 A project is considered *unmaintained* when ANY of the following are met:
 
-* The configured VCS repository is unreadable. This can happen if the repository is deleted, credentials are broken or the git host permanently unresponsive.
-* The project is only serving content from releases and commits >6 months older than its source project (this happens with unmaintained forks).
-* All builds have failed for >6 months.
+* The configured version control repository is unreadable. This can happen if the repository is deleted, credentials are broken or the Git host is permanently unresponsive.
+* The project is only serving content from releases and commits 6 months or older than its source repository.
+* All builds have failed for more than 6 months.
 
 
 Reachability
@@ -83,7 +83,7 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
   Disallow: /
 
 
-Projects will be delisted when ALL of the following:
+Projects will be delisted if they meet *all* of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owner.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
@@ -96,7 +96,7 @@ Requesting a project be delisted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are the maintainer of a project,
-you can request that we delist an outdated, unmaintained set of docs with our :doc:`/support`.
+you can request that we delist an outdated, unmaintained documentation with our :doc:`/support`.
 
 Please include the following information:
 
