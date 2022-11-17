@@ -1,4 +1,4 @@
-Policy for Unofficial and Outdated Projects
+Policy for Unofficial and Unmaintained Projects
 ===========================================
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
