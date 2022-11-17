@@ -33,6 +33,16 @@ Unofficial forks
 Specification
 -------------
 
+High level overview
+~~~~~~~~~~~~~~~~~
+
+The process at a high level looks like:
+
+* A reporter emails us about a project they think is outdated and unofficial
+* An RTD team member evaluates it to make sure it's outdated and unofficial, according to this policy
+* We delist this project from search results and send an email to owners of the RTD project
+* If a project owner objects, we evaluate their evidence and make a final decision
+
 
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
