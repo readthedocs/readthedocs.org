@@ -1,5 +1,5 @@
 Policy for Unofficial and Unmaintained Projects
-===========================================
+===============================================
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
 
@@ -78,7 +78,9 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
 
   # robots.txt
   User-agent: *
-  Disallow: / # This project is delisted according to the Policy for Unofficial and Unmaintanied Projects
+  # This project is delisted according to the Policy for Unofficial and Unmaintanied Projects
+  # https://docs.readthedocs.io/en/stable/unofficial-projects.html
+  Disallow: /
 
 
 Projects will be delisted when ALL of the following:
