@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.8
+boto3==1.26.13
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.8
+botocore==1.29.13
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -154,7 +154,7 @@ django-storages[boto3]==1.13.1
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==3.0.0
+django-taggit==3.1.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
@@ -184,7 +184,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-exceptiongroup==1.0.1
+exceptiongroup==1.0.4
     # via pytest
 filelock==3.8.0
     # via
@@ -233,7 +233,7 @@ markupsafe==2.1.1
     # via
     #   -r requirements/pip.txt
     #   jinja2
-mercurial==6.2.3
+mercurial==6.3.1
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
@@ -248,7 +248,7 @@ packaging==21.3
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==2.5.3
+platformdirs==2.5.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -392,11 +392,11 @@ sqlparse==0.4.3
     #   -r requirements/pip.txt
     #   django
     #   django-debug-toolbar
-stripe==4.2.0
+stripe==5.0.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==22.1.0
+structlog==22.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog

@@ -14,9 +14,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.8
+boto3==1.26.13
     # via django-storages
-botocore==1.29.8
+botocore==1.29.13
     # via
     #   boto3
     #   s3transfer
@@ -111,7 +111,7 @@ django-storages[boto3]==1.13.1
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
-django-taggit==3.0.0
+django-taggit==3.1.0
     # via -r requirements/pip.in
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -179,7 +179,7 @@ packaging==21.3
     #   docker
     #   dparse
     #   sphinx
-platformdirs==2.5.3
+platformdirs==2.5.4
     # via virtualenv
 prompt-toolkit==3.0.32
     # via click-repl
@@ -267,11 +267,11 @@ sqlparse==0.4.3
     # via
     #   django
     #   django-debug-toolbar
-stripe==4.2.0
+stripe==5.0.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-structlog==22.1.0
+structlog==22.2.0
     # via
     #   -r requirements/pip.in
     #   django-structlog

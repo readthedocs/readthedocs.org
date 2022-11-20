@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.8
+boto3==1.26.13
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.8
+botocore==1.29.13
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -167,7 +167,7 @@ django-storages[boto3]==1.13.1
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==3.0.0
+django-taggit==3.1.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
@@ -294,7 +294,7 @@ pickleshare==0.7.5
     #   ipython
 pillow==9.3.0
     # via -r requirements/docker.in
-platformdirs==2.5.3
+platformdirs==2.5.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -449,11 +449,11 @@ stack-data==0.6.1
     # via
     #   -r requirements/debug.txt
     #   ipython
-stripe==4.2.0
+stripe==5.0.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==22.1.0
+structlog==22.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -465,7 +465,7 @@ toml==0.10.2
     #   ipdb
 tomli==2.0.1
     # via tox
-tox==3.27.0
+tox==3.27.1
     # via -r requirements/docker.in
 traitlets==5.5.0
     # via
