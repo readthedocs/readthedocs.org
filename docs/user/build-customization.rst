@@ -330,11 +330,20 @@ Take a look at the following example:
          - curl -sSL https://install.python-poetry.org | python3 -
          # Tell poetry to not use a virtual environment
          - $HOME/.local/bin/poetry config virtualenvs.create false
-         # Install project's dependencies
-         - $HOME/.local/bin/poetry install
+       pre_install:
+         # Export project dependencies to requirements.txt
+         - $HOME/.local/bin/poetry export --with docs > docs/requirements.txt
 
    sphinx:
      configuration: docs/conf.py
+   
+   python:
+     install:
+       # Install exported dependencies
+       - requirements: docs/requirements.txt
+       # Optional: install current package if imported from `docs/conf.py`
+       - method: pip
+         path: .
 
 
 Override the build process
