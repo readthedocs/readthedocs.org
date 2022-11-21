@@ -62,7 +62,6 @@ Unofficial projects
 A project is considered *unofficial* when it is not linked to or mentioned in *any* of the following places:
 
 * Websites and domains associated with the project
-* Social media accounts associated with the project
 * The project's primary repository -- README files, repository description, or source code
 
 
