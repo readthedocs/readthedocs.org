@@ -30,8 +30,8 @@ Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
 
 
-Specification
--------------
+Definitions
+-----------
 
 
 Unofficial projects
