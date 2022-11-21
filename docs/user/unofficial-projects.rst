@@ -45,6 +45,17 @@ Definitions
 -----------
 
 
+Source project
+~~~~~~~~~~~~~~
+
+For a given documentation project to be assessed, the *source project* comes into question. This is defined as:
+
+* The origin project from which the documentation project's repository was forked (if forked).
+* The origin project from which the documentation project was copied (if not forked but evidently copied).
+* The original project which the documentation project refers as the subject of documentation.
+* Any other project that is understood by the core team to be a the *source project*.
+
+
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
