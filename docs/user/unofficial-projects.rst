@@ -89,7 +89,6 @@ Projects will be delisted when ALL of the following:
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
 * The project owner is unreachable_ by the Read the Docs team.
 * The core team does not have any additional reservations.
-* The core team notifies the source project's maintainers about changes made
 
 
 Requesting a project be delisted
