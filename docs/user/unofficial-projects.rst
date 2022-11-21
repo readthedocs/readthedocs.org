@@ -30,11 +30,8 @@ Unofficial forks
     Forks of a project documentation that are not linked to from the project in any way.
 
 
-Definitions
------------
-
 High level overview
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 The process at a high level looks like:
 
@@ -42,6 +39,10 @@ The process at a high level looks like:
 * An RTD team member evaluates it to make sure it's outdated and unofficial, according to this policy
 * We delist this project from search results and send an email to owners of the RTD project
 * If a project owner objects, we evaluate their evidence and make a final decision
+
+
+Definitions
+-----------
 
 
 Unofficial projects
