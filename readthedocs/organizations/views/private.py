@@ -50,7 +50,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
         .. note::
 
-            This method is overriden here from
+            This method is overridden here from
             ``OrganizationView.get_success_url`` because that method
             redirects to Organization's Edit page.
         """
