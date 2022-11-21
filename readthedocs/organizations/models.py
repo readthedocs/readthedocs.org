@@ -6,6 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext_lazy as _
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
@@ -101,6 +102,14 @@ class Organization(models.Model):
         null=True,
         blank=True,
     )
+    stripe_subscription = models.OneToOneField(
+        "djstripe.Subscription",
+        verbose_name=_("Stripe subscription"),
+        on_delete=models.SET_NULL,
+        related_name="rtd_organization",
+        null=True,
+        blank=True,
+    )
 
     # Managers
     objects = OrganizationQuerySet.as_manager()
@@ -115,8 +124,7 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def stripe_subscription(self):
+    def get_or_create_stripe_subscription(self):
         # TODO: remove this once we don't depend on our Subscription models.
         from readthedocs.subscriptions.models import Subscription
 
@@ -124,6 +132,12 @@ class Organization(models.Model):
         if not subscription:
             # This only happens during development.
             return None
+
+        active_subscription = self.stripe_customer.subscriptions.filter(
+            status=SubscriptionStatus.active
+        ).first()
+        if active_subscription:
+            return active_subscription
         return self.stripe_customer.subscriptions.latest()
 
     def get_absolute_url(self):

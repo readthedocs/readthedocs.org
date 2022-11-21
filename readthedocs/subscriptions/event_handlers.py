@@ -155,6 +155,15 @@ def checkout_completed(event):
         return
 
     stripe_subscription_id = event.data["object"]["subscription"]
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+    organization.stripe_subscription = stripe_subscription
+    organization.save()
+
     _update_subscription_from_stripe(
         rtd_subscription=organization.subscription,
         stripe_subscription_id=stripe_subscription_id,
