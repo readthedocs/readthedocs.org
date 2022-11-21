@@ -310,7 +310,7 @@ Install dependencies with Poetry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects managed with `Poetry <https://python-poetry.org/>`__,
-can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
+can use the ``post_create_environment`` user-defined job to install Poetry and ``post_install`` to install Python dependencies.
 Take a look at the following example:
 
 
@@ -326,24 +326,16 @@ Take a look at the following example:
      jobs:
        post_create_environment:
          # Install poetry
-         # https://python-poetry.org/docs/#installing-with-the-official-installer
-         - curl -sSL https://install.python-poetry.org | python3 -
+         - pip install poetry
          # Tell poetry to not use a virtual environment
-         - $HOME/.local/bin/poetry config virtualenvs.create false
-       pre_install:
-         # Export project dependencies to requirements.txt
-         - $HOME/.local/bin/poetry export --with docs > docs/requirements.txt
+         - poetry config virtualenvs.create false
+       post_install:
+         # Install dependencies with 'docs' dependency group
+         # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+         - poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
-   
-   python:
-     install:
-       # Install exported dependencies
-       - requirements: docs/requirements.txt
-       # Optional: install current package if imported from `docs/conf.py`
-       - method: pip
-         path: .
 
 
 Override the build process
