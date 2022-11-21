@@ -15,7 +15,7 @@ The problem with old, outdated docs is that users will find them in search resul
 and get confused to the validity of them.
 Projects will then get support requests from people who are using an old and incorrect documentation version.
 
-We have this policy to allow project maintainers to request the *delisting* of forks that are old and outdated.
+We have this policy to allow a reporter to request the *delisting* of forks that are old and outdated.
 
 
 Examples
@@ -107,18 +107,17 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
 
 Projects will be delisted if they meet *all* of the following criteria:
 
-* The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owner.
+* The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owners.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
-* The project owner is notified by the Read the Docs team.
+* The project owners is notified by the Read the Docs team.
 * The core team does not have any additional reservations.
-* If the project owner is unreachable_ by the Read the Docs team, no further action is taken.
-* If the project owner responds, their response will be taken into account by the core team and it may be listed again if the criteria are met.
+* If the project owners are unreachable_ by the Read the Docs team, no further action is taken.
+* If the any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
 
 Requesting a project be delisted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are the maintainer of a project,
-you can request that we delist an outdated, unmaintained documentation with our :doc:`/support`.
+You can request that we delist an outdated, unmaintained documentation with our :doc:`/support`.
 
 Please include the following information:
 
@@ -129,7 +128,7 @@ Please include the following information:
   URL of official source project website (if any): ...
   URL of official source project repository (if any): ...
 
-  Describe attempts of reaching the owner of the documentation project:
+  Describe attempts of reaching the owner(s) of the documentation project:
   ...
 
 
