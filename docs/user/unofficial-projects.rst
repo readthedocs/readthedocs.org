@@ -109,9 +109,10 @@ Projects will be delisted if they meet *all* of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owner.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
-* The project owner is unreachable_ by the Read the Docs team.
+* The project owner is notified by the Read the Docs team.
 * The core team does not have any additional reservations.
-
+* If the project owner is unreachable_ by the Read the Docs team, no further action is taken.
+* If the project owner responds, their response will be taken into account by the core team and it may be listed again if the criteria are met.
 
 Requesting a project be delisted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
