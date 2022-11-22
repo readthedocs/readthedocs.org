@@ -78,8 +78,26 @@ Implementation
 --------------
 
 
-Delisting of an abandoned project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Requesting a project be delisted
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can request that we delist an outdated, unmaintained documentation by contacting our :doc:`/support`.
+
+Please include the following information:
+
+.. code-block:: text
+
+  URL of unofficial and unmaintained documentation project: ...
+  URL of official documentation (if any): ...
+  URL of official project website (if any): ...
+  URL of official project repository (if any): ...
+
+  Describe attempts of reaching the owner(s) of the documentation project:
+  ...
+
+
+Delisting
+~~~~~~~~~
 
 Projects that are determined to be unmaintained_ and unofficial_ will have a ``robots.txt`` file added that removes them from all search results:
 
@@ -100,23 +118,6 @@ Projects will be delisted if they meet *all* of the following criteria:
 * The core team does not have any additional reservations.
 * If the project owners are unreachable_ by the Read the Docs team, no further action is taken.
 * If any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
-
-Requesting a project be delisted
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can request that we delist an outdated, unmaintained documentation by contacting our :doc:`/support`.
-
-Please include the following information:
-
-.. code-block:: text
-
-  URL of unofficial and unmaintained documentation project: ...
-  URL of official documentation (if any): ...
-  URL of official project website (if any): ...
-  URL of official project repository (if any): ...
-
-  Describe attempts of reaching the owner(s) of the documentation project:
-  ...
 
 
 Thinking behind the policy
