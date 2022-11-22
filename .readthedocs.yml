@@ -25,6 +25,7 @@ build:
       - |
         if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/;
         then
+          echo "No changes to docs/ - exiting the build.";
           exit 183;
         fi
 
