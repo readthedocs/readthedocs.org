@@ -106,6 +106,7 @@ class ProjectQuerySetBase(models.QuerySet):
         :rtype: int
         """
         from readthedocs.subscriptions.models import PlanFeature
+        from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
         max_concurrent_organization = None
         organization = project.organizations.first()
@@ -117,8 +118,7 @@ class ProjectQuerySetBase(models.QuerySet):
             or max_concurrent_organization
             or PlanFeature.objects.get_feature_value(
                 project,
-                type=PlanFeature.TYPE_CONCURRENT_BUILDS,
-                default=settings.RTD_MAX_CONCURRENT_BUILDS,
+                type=TYPE_CONCURRENT_BUILDS,
             )
         )
 

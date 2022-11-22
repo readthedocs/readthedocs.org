@@ -28,6 +28,7 @@ from readthedocs.organizations.views.base import (
 )
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 
 
 # Organization views
@@ -189,7 +190,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
 
     model = AuditLog
     template_name = 'organizations/security_log.html'
-    feature_type = PlanFeature.TYPE_AUDIT_LOGS
+    feature_type = TYPE_AUDIT_LOGS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -292,7 +293,6 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         return PlanFeature.objects.get_feature_value(
             organization,
             type=self.feature_type,
-            default=settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
         )
 
     def _is_feature_enabled(self, organization):

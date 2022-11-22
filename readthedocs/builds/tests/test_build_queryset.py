@@ -8,9 +8,6 @@ from readthedocs.projects.models import Project
 
 @pytest.mark.django_db
 class TestBuildQuerySet:
-    @pytest.fixture(autouse=True)
-    def setup_method(self, settings):
-        settings.RTD_ALL_FEATURES_ENABLED = True
 
     def test_concurrent_builds(self):
         project = fixture.get(

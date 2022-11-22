@@ -31,6 +31,7 @@ from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
+from readthedocs.subscriptions.constants import TYPE_CDN
 
 from .base import BaseDocServing
 
@@ -1211,7 +1212,6 @@ class TestAdditionalDocViews(BaseDocServing):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_ALL_FEATURES_ENABLED=True,
 )
 class TestCDNCache(BaseDocServing):
 
@@ -1423,7 +1423,7 @@ class TestCDNCache(BaseDocServing):
         self.feature = get(
             PlanFeature,
             plan=self.plan,
-            feature_type=PlanFeature.TYPE_CDN,
+            feature_type=TYPE_CDN,
         )
 
         # Delete feature plan, so we aren't using that logic

@@ -9,7 +9,6 @@ from .base import BaseDocServing
 @override_settings(
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_ALL_FEATURES_ENABLED=True,
 )
 class RedirectTests(BaseDocServing):
 

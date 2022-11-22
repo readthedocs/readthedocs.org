@@ -147,10 +147,7 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertNotIn(user_b, self.organization.owners.all())
 
 
-@override_settings(
-    RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_ALL_FEATURES_ENABLED=True,
-)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationSecurityLogTests(TestCase):
 
     def setUp(self):

@@ -80,6 +80,7 @@ from readthedocs.projects.views.mixins import (
 )
 from readthedocs.search.models import SearchQuery
 from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.constants import TYPE_PAGEVIEW_ANALYTICS, TYPE_CNAME, TYPE_SEARCH_ANALYTICS
 
 log = structlog.get_logger(__name__)
 
@@ -752,7 +753,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm
     lookup_url_kwarg = 'domain_pk'
-    feature_type = PlanFeature.TYPE_CNAME
+    feature_type = TYPE_CNAME
 
     def get_success_url(self):
         return reverse('projects_domains', args=[self.get_project().slug])
@@ -1064,7 +1065,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
     http_method_names = ['get']
-    feature_type = PlanFeature.TYPE_SEARCH_ANALYTICS
+    feature_type = TYPE_SEARCH_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1151,7 +1152,6 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return PlanFeature.objects.get_feature_value(
             project,
             type=self.feature_type,
-            default=settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
         )
 
     def _is_enabled(self, project):
@@ -1166,7 +1166,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
-    feature_type = PlanFeature.TYPE_PAGEVIEW_ANALYTICS
+    feature_type = TYPE_PAGEVIEW_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1255,7 +1255,6 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return PlanFeature.objects.get_feature_value(
             project,
             type=self.feature_type,
-            default=settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
         )
 
     def _is_enabled(self, project):

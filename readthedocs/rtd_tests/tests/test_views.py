@@ -333,9 +333,6 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
 
-@override_settings(
-    RTD_ALL_FEATURES_ENABLED=True,
-)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""
